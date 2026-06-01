@@ -13055,6 +13055,8 @@ export default function App() {
     if (!dropModal || dropModal.files.length === 0) return;
     const files = [...dropModal.files];
     const hasRapport = !!dropModal.rapportFileId;
+    const userReference = (dropModal.reference || '').trim();
+    const renameOpts = dropModal.renameDocsEnabled ? null : { keepOriginal: true };
 
     // Save current dossier if any
     if (activeDossierId) saveDossierData(activeDossierId);
@@ -13072,7 +13074,7 @@ export default function App() {
       return null;
     };
     const extracted = extractNameFromFiles(files);
-    const refName = extracted ? `${extracted.nom} ${extracted.prenom}` : 'Nouveau dossier';
+    const refName = userReference || (extracted ? `${extracted.nom} ${extracted.prenom}` : 'Nouveau dossier');
 
     setDossiers(prev => [{
       id: newId, reference: refName, typeFait: hasRapport ? 'Accident de la voie publique' : '',
@@ -13161,10 +13163,10 @@ export default function App() {
     setDropModal(null);
 
     // Start processing simulation after render
-    setTimeout(() => startProcessingSimulation(processingItems, hasRapport), 300);
+    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts), 300);
   };
 
-  const startProcessingSimulation = (items, hasRapport) => {
+  const startProcessingSimulation = (items, hasRapport, renameOpts = null) => {
     // Clear any existing timeouts
     processingTimeouts.current.forEach(t => clearTimeout(t));
     processingTimeouts.current = [];
@@ -13175,7 +13177,6 @@ export default function App() {
     processOrder.forEach((item, idx) => {
       const delay = 1500 + Math.random() * 2500; // 1.5-4s
       cumulativeDelay += delay;
-
       const tid = setTimeout(() => {
         setDropFirstPieces(prev => {
           const newPieces = [...prev];
@@ -13183,13 +13184,18 @@ export default function App() {
           if (itemIndex === -1) return prev;
 
           const poolEntry = newPieces[itemIndex].poolRef;
+          const renamedBase = renameOpts?.keepOriginal
+            ? (item.originalName || '').replace(/\.[^.]+$/, '')
+            : null;
 
           if (poolEntry.splits) {
             // Replace single row with multiple split rows
             const splitRows = poolEntry.splits.map((split, si) => ({
               id: `${item.id}-split-${si}`,
               originalName: item.originalName,
-              cleanName: `${poolEntry.cleanName.split('—')[0].trim()} — ${split.name}`,
+              cleanName: renamedBase
+                ? `${renamedBase} — ${split.name}`
+                : `${poolEntry.cleanName.split('—')[0].trim()} — ${split.name}`,
               type: poolEntry.type,
               date: poolEntry.date,
               postesLies: [...poolEntry.postesLies],
@@ -13213,7 +13219,7 @@ export default function App() {
             // Simple completion
             newPieces[itemIndex] = {
               ...newPieces[itemIndex],
-              cleanName: poolEntry.cleanName,
+              cleanName: renamedBase || poolEntry.cleanName,
               type: poolEntry.type,
               date: poolEntry.date,
               postesLies: [...poolEntry.postesLies],
@@ -13879,7 +13885,7 @@ export default function App() {
   const renderDropFirstModal = () => {
     if (!dropModal) return null;
 
-    const { files, rapportFileId, rapportDismissed } = dropModal;
+    const { files, rapportFileId, rapportDismissed, renameDocsEnabled, renamePattern, reference } = dropModal;
     const hasFiles = files.length > 0;
 
     const handleFileDrop = (e) => {
@@ -14003,7 +14009,7 @@ export default function App() {
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[700px] max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[700px] h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
             <h2 className="text-display-sm text-[#292524]" style={{ fontFamily: 'Georgia, serif' }}>Nouveau dossier</h2>
@@ -14013,10 +14019,22 @@ export default function App() {
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 pb-4">
+          <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
+            {/* Matter reference */}
+            <div className="mb-4 flex-shrink-0">
+              <label className="block text-sm font-medium text-[#292524] mb-1.5">Référence du dossier</label>
+              <input
+                type="text"
+                value={reference}
+                onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
+                placeholder="Dossier Leblanc..."
+                className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+              />
+            </div>
+
             {/* Drop zone */}
             <div
-              className="dropzone-container border border-dashed rounded-lg transition-all cursor-pointer"
+              className={`dropzone-container border border-dashed rounded-lg transition-all cursor-pointer ${hasFiles ? 'flex-shrink-0' : 'flex-1 min-h-0 flex flex-col'}`}
               style={{ borderColor: '#d6d3d1' }}
               onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dropzone-drop'); }}
               onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('dropzone-drop'); }}
@@ -14026,17 +14044,17 @@ export default function App() {
               {!hasFiles ? (
                 <>
                   {/* Default/hover state — start context */}
-                  <div className="dropzone-default-content flex flex-col items-center rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 0%, #f8f7f5 100%)' }}>
+                  <div className="dropzone-default-content flex flex-col items-center justify-center rounded-lg flex-1 min-h-0" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 0%, #f8f7f5 100%)' }}>
                     <div className="pt-8 pb-8 px-8 flex flex-col items-center gap-8 w-full max-w-[576px] mx-auto">
                       <div className="bg-[#eeece6] border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
                         <Upload className="w-6 h-6 text-stone-500" />
                       </div>
                       <div className="text-center space-y-2">
                         <p className="text-heading-lg-medium text-stone-800 leading-7">Déposez l'ensemble des pièces du dossier</p>
-                        <p className="text-body text-stone-500">PDF, images, Word — vous pourrez en ajouter d'autres plus tard</p>
+                        <p className="text-body text-stone-500">PDF, Images, Word - Vous pourrez en ajouter d'autres plus tard.</p>
                       </div>
                       <div className="flex flex-wrap justify-center gap-3" onClick={e => e.stopPropagation()}>
-                        {['Rapports médicaux', 'Décisions de justice', 'Factures', 'Bulletins de salaire', 'Correspondances', 'PV & constats'].map((label, i) => (
+                        {['Rapport d\'expertise', 'Décisions de justice', 'Factures', 'Bulletins de salaires'].map((label, i) => (
                           <span key={i} className="badge badge-sm badge-secondary">{label}</span>
                         ))}
                       </div>
@@ -14063,7 +14081,7 @@ export default function App() {
                   {/* Default/hover — panel context */}
                   <div className="dropzone-default-content flex items-center justify-center gap-2.5 py-4 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}>
                     <Upload className="w-5 h-5 text-stone-400" />
-                    <p className="text-body text-stone-500">Déposez ou <span className="font-medium text-[#1e3a8a]">cliquez</span> pour ajouter des pièces</p>
+                    <p className="text-body text-stone-500">Déposez ou <span className="font-medium text-[#1e3a8a]">cliquez</span> pour ajouter un justificatif</p>
                   </div>
                   {/* Drop state */}
                   <div className="dropzone-drop-content hidden flex items-center justify-center gap-2.5 py-4 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #eeece6 100%)' }}>
@@ -14077,9 +14095,9 @@ export default function App() {
 
             {/* File list */}
             {hasFiles && (
-              <div className="mt-4">
-                <p className="text-body-medium text-[#78716c] mb-2">{files.length} document{files.length > 1 ? 's' : ''} ajouté{files.length > 1 ? 's' : ''}</p>
-                <div className="flex flex-col gap-0.5 max-h-[200px] overflow-y-auto">
+              <div className="mt-4 flex-1 min-h-0 flex flex-col">
+                <p className="text-body-medium text-[#78716c] mb-2 flex-shrink-0">{files.length} document{files.length > 1 ? 's' : ''} ajouté{files.length > 1 ? 's' : ''}</p>
+                <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto">
                   {files.map((f, idx) => {
                     const isUploading = f.status === 'uploading';
                     const fileType = (f.id === rapportFileId || f.isRapport) ? 'Expertise' : f.guessedType;
@@ -14121,57 +14139,82 @@ export default function App() {
               </div>
             )}
 
-            {/* Rapport d'expertise prompt — only when no rapport detected */}
-            {showRapportCard && !rapportFile && (
-              <div className="mt-4">
-                <div className="banner banner-regular banner-ai">
-                  <div className="banner-body">
-                    <Sparkles className="w-5 h-5 banner-icon mt-0.5" fill="currentColor" />
-                    <div className="banner-content">
-                      <p className="banner-title">Avez-vous un rapport d'expertise médicale ?</p>
-                      <p className="banner-description">
-                        C'est la pièce maîtresse. À partir de ce document, nous pouvons remplir automatiquement la quasi-totalité de votre dossier : identité de la victime, faits, dates clés, postes de préjudice…
-                      </p>
-                      <div className="banner-actions">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); document.getElementById('rapport-file-input')?.click(); }}
-                          className="banner-btn-primary"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" /> Ajouter le rapport d'expertise
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setDropModal(prev => ({ ...prev, rapportDismissed: true })); }}
-                          className="banner-btn-ghost"
-                        >
-                          Je n'en ai pas
-                        </button>
-                      </div>
-                      <input id="rapport-file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" className="hidden" onChange={handleRapportFileSelect} />
-                    </div>
-                  </div>
+            {/* Rename preference */}
+            <div className="mt-4 rounded-xl bg-[#f8f7f5] p-4 flex-shrink-0">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <button
+                  type="button"
+                  onClick={() => setDropModal(prev => ({ ...prev, renameDocsEnabled: !prev.renameDocsEnabled }))}
+                  role="switch"
+                  aria-checked={renameDocsEnabled}
+                  className="relative flex-shrink-0 mt-0.5 rounded-full transition-colors"
+                  style={{
+                    width: 36, height: 20, padding: 0, border: 'none',
+                    background: renameDocsEnabled ? '#292524' : '#d6d3d1',
+                  }}
+                >
+                  <span
+                    style={{
+                      position: 'absolute', top: 2, left: renameDocsEnabled ? 18 : 2,
+                      width: 16, height: 16, borderRadius: 8, background: '#fff',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                      transition: 'left 150ms ease',
+                    }}
+                  />
+                </button>
+                <div className="flex flex-col gap-1 flex-1 min-w-0">
+                  <span className="text-sm font-medium text-[#292524] leading-none">Renommer les fichiers</span>
+                  <span className="text-sm text-[#78716c] leading-5">
+                    {renameDocsEnabled
+                      ? 'Plato uniformisera les noms de fichiers selon votre format'
+                      : 'Plato conservera les noms d\'origine de vos fichiers'}
+                  </span>
                 </div>
-              </div>
-            )}
+              </label>
+              {renameDocsEnabled && (
+                <div className="mt-3 pl-[48px]">
+                  <input
+                    type="text"
+                    value={renamePattern}
+                    onChange={(e) => setDropModal(prev => ({ ...prev, renamePattern: e.target.value }))}
+                    placeholder="ex. N° - Nom - Auteur [Date]"
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                  />
+                  <p className="mt-1.5 text-xs text-[#78716c] tracking-[0.12px]">Décrivez votre format en quelques mots, Plato l'interprétera.</p>
+                </div>
+              )}
+            </div>
+
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-zinc-100 flex items-center justify-between">
-            <button
-              onClick={() => {
-                setDropModal(null);
-                setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } });
-              }}
-              className="text-body text-[#a8a29e] hover:text-[#78716c] transition-colors"
-            >
-              Créer manuellement
-            </button>
+          <div className="px-6 py-4 flex items-center justify-between">
+            {hasFiles ? (
+              <button
+                onClick={() => setDropModal(null)}
+                className="h-10 px-4 text-sm font-medium text-[#44403c] bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#f8f7f5] transition-colors shadow-sm"
+              >
+                Annuler
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setDropModal(null);
+                  setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } });
+                }}
+                className="inline-flex items-center gap-2 text-sm font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity"
+              >
+                <Pencil className="w-4 h-4" strokeWidth={1.75} />
+                Créer manuellement
+              </button>
+            )}
             <button
               onClick={handleDropFirstCreate}
               disabled={!hasFiles}
-              className={`px-5 py-2.5 text-body-medium rounded-lg transition-all ${
+              className={`h-10 px-6 text-sm font-medium text-white bg-[#292524] rounded-lg transition-opacity shadow-sm ${
                 hasFiles
-                  ? 'bg-stone-800 text-white hover:bg-stone-900 shadow-sm'
-                  : 'bg-stone-100 text-stone-400 cursor-not-allowed'
+                  ? 'hover:bg-[#1c1917]'
+                  : 'opacity-50 cursor-not-allowed'
               }`}
             >
               Créer le dossier
@@ -14708,7 +14751,7 @@ export default function App() {
             </h1>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false })}
+                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renameDocsEnabled: true, renamePattern: '', reference: '' })}
                 className="flex items-center gap-2 px-4 py-2.5 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors"
               >
                 <Plus className="w-4 h-4" />
