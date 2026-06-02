@@ -14009,7 +14009,7 @@ export default function App() {
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[700px] h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[700px] h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
             <h2 className="text-display-sm text-[#292524]" style={{ fontFamily: 'Georgia, serif' }}>Nouveau dossier</h2>
@@ -14763,7 +14763,7 @@ export default function App() {
 
         {/* Tabs */}
         <div className="px-8 border-b border-[#e7e5e3]">
-          <div className="flex gap-1">
+          <div className="flex gap-1 -ml-4">
             {[
               { key: 'en-cours', label: 'Dossiers en cours', count: enCoursCount },
               { key: 'termines', label: 'Dossiers terminés', count: terminesCount },
