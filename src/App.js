@@ -28,22 +28,16 @@ import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
 import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
 import { dropFirstAsBordereauPieces, classifyDropFirstPiece } from './data/piecesModel';
 import {
-  StructureActesSlot,
-  QuantumSlot,
-  ReferentielsSlot,
-  StyleTonSlot,
-  ConsignesSlot,
+  ChiffrageSlot,
+  RedactionSlot,
+  NommageSlot,
+  DecoupageSlot,
   PREFERENCE_SLOT_IDS,
   PREFERENCE_SLOT_LABELS,
+  PREFERENCE_SLOT_DEFAULTS,
 } from './components/preferences/PreferenceSlots';
 
-const DEFAULT_PREFERENCE_SLOTS = {
-  structure: "Plan en trois parties : Faits et procédure / Discussion / Dispositif. Numérotation décimale (I, A, 1°), titres en gras sans soulignement. Citations de jurisprudence en bas de page, jamais dans le corps. Toujours un récapitulatif chiffré en fin de discussion.",
-  quantum: "DFT total ≈ 1 800 €/mois (ajuster selon coût de la vie locale). DFP entre 5 et 25 % selon Mornet 2024 ; au-delà, justifier par expertise. Souffrances endurées : ~8 000 € pour SE 4/7, barème indicatif. Préjudice esthétique : se référer à Mornet plutôt qu'aux barèmes ONIAM.",
-  referentiels: "Mornet 2024 pour l'indemnisation corporelle. Nomenclature Dintilhac comme cadre de référence pour le DFP et la ventilation des postes. Gazette du Palais pour les comparatifs de capitalisation. ONIAM uniquement pour l'aléa thérapeutique.",
-  style: "Phrases courtes, voix active, ton sobre. Désignation « la concluante » plutôt que « ma cliente ». Préférer « il convient » à « il faut ». Pas de formules ampoulées (« il échet de constater » → « la cour constate »).",
-  consignes: "Toujours inclure un calcul détaillé en annexe pour les postes patrimoniaux (PGPA, PGPF, IP, FLA). Ne pas mélanger faits et discussion. Dispositif concis : une demande = une ligne. Toujours rappeler les fondements textuels (art. 1240 c. civ., loi Badinter, etc.) en début de discussion. Ne jamais oublier les intérêts au taux légal majoré. Bien distinguer les intérêts moratoires des intérêts compensatoires.",
-};
+const DEFAULT_PREFERENCE_SLOTS = { ...PREFERENCE_SLOT_DEFAULTS };
 
 const POSTES_TAXONOMY = [
   {
@@ -18010,7 +18004,7 @@ export default function App() {
           <div className="max-w-5xl w-full mx-auto">
             {renderSettingsHeader(
               'Mémoire et préférences',
-              null,
+              "Décrivez votre méthode de travail à Plato : structure habituelle, préférences, référentiels, style, ton et consignes. L'agent s'en souvient pour chaque action.",
               <button
                 onClick={() => {
                   setToastMessage('Mémoire enregistrée.');
@@ -18024,36 +18018,22 @@ export default function App() {
               </button>
             )}
 
-            {/* ─── Préférences méthode de travail ─── */}
-            <div className="mb-2">
-              <h3 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px', margin: 0 }}>
-                Préférences méthode de travail
-              </h3>
-              <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: '#78716c', lineHeight: '20px', marginTop: 6, marginBottom: 16 }}>
-                Décrivez votre méthode de travail à Plato. Structure d'actes habituelle, préférences de quantum, référentiels favoris, style et ton, consignes. L'agent le garde en mémoire pour chacune de ses actions.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
-              <StructureActesSlot
-                value={preferenceSlots.structure}
-                onChange={(v) => setPreferenceSlot('structure', v)}
+            <div className="flex flex-col gap-6">
+              <ChiffrageSlot
+                value={preferenceSlots.chiffrage}
+                onChange={(v) => setPreferenceSlot('chiffrage', v)}
               />
-              <QuantumSlot
-                value={preferenceSlots.quantum}
-                onChange={(v) => setPreferenceSlot('quantum', v)}
+              <RedactionSlot
+                value={preferenceSlots.redaction}
+                onChange={(v) => setPreferenceSlot('redaction', v)}
               />
-              <ReferentielsSlot
-                value={preferenceSlots.referentiels}
-                onChange={(v) => setPreferenceSlot('referentiels', v)}
+              <NommageSlot
+                value={preferenceSlots.nommage}
+                onChange={(v) => setPreferenceSlot('nommage', v)}
               />
-              <StyleTonSlot
-                value={preferenceSlots.style}
-                onChange={(v) => setPreferenceSlot('style', v)}
-              />
-              <ConsignesSlot
-                value={preferenceSlots.consignes}
-                onChange={(v) => setPreferenceSlot('consignes', v)}
+              <DecoupageSlot
+                value={preferenceSlots.decoupage}
+                onChange={(v) => setPreferenceSlot('decoupage', v)}
               />
             </div>
 
