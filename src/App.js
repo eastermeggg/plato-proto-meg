@@ -27,28 +27,23 @@ import BordereauTable from './components/pieces/BordereauTable';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
 import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
 import { dropFirstAsBordereauPieces, classifyDropFirstPiece } from './data/piecesModel';
+import {
+  StructureActesSlot,
+  QuantumSlot,
+  ReferentielsSlot,
+  StyleTonSlot,
+  ConsignesSlot,
+  PREFERENCE_SLOT_IDS,
+  PREFERENCE_SLOT_LABELS,
+} from './components/preferences/PreferenceSlots';
 
-const PREFERENCE_BODY_NO_JP = `— Structure de mes actes
-Plan en trois parties : Faits et procédure / Discussion / Dispositif. Numérotation décimale (I, A, 1°), titres en gras sans soulignement. Citations de jurisprudence en bas de page, jamais dans le corps. Toujours un récapitulatif chiffré en fin de discussion.
-
-— Préférences de quantum
-DFT total ≈ 1 800 €/mois (ajuster selon coût de la vie locale). DFP entre 5 et 25 % selon Mornet 2024 ; au-delà, justifier par expertise. Souffrances endurées : ~8 000 € pour SE 4/7, barème indicatif. Préjudice esthétique : se référer à Mornet plutôt qu'aux barèmes ONIAM.
-
-— Référentiels favoris
-Mornet 2024 pour l'indemnisation corporelle. Nomenclature Dintilhac comme cadre de référence pour le DFP et la ventilation des postes. Gazette du Palais pour les comparatifs de capitalisation. ONIAM uniquement pour l'aléa thérapeutique.
-
-— Style et ton
-Phrases courtes, voix active, ton sobre. Désignation « la concluante » plutôt que « ma cliente ». Préférer « il convient » à « il faut ». Pas de formules ampoulées (« il échet de constater » → « la cour constate »).
-
-— Consignes spécifiques
-Toujours inclure un calcul détaillé en annexe pour les postes patrimoniaux (PGPA, PGPF, IP, FLA). Ne pas mélanger faits et discussion. Dispositif concis : une demande = une ligne. Toujours rappeler les fondements textuels (art. 1240 c. civ., loi Badinter, etc.) en début de discussion.
-
-— Pièges à éviter
-Ne jamais oublier les intérêts au taux légal majoré. Bien distinguer les intérêts moratoires des intérêts compensatoires. Ne pas confondre PGPA et PGPF dans les jeunes victimes (capitalisation différente).`;
-
-// JP séparée scenario: textarea holds the methodology only (no JP block).
-// JPs are managed in the structured "JP de référence" section.
-const DEFAULT_PREFERENCE_PROMPT = PREFERENCE_BODY_NO_JP;
+const DEFAULT_PREFERENCE_SLOTS = {
+  structure: "Plan en trois parties : Faits et procédure / Discussion / Dispositif. Numérotation décimale (I, A, 1°), titres en gras sans soulignement. Citations de jurisprudence en bas de page, jamais dans le corps. Toujours un récapitulatif chiffré en fin de discussion.",
+  quantum: "DFT total ≈ 1 800 €/mois (ajuster selon coût de la vie locale). DFP entre 5 et 25 % selon Mornet 2024 ; au-delà, justifier par expertise. Souffrances endurées : ~8 000 € pour SE 4/7, barème indicatif. Préjudice esthétique : se référer à Mornet plutôt qu'aux barèmes ONIAM.",
+  referentiels: "Mornet 2024 pour l'indemnisation corporelle. Nomenclature Dintilhac comme cadre de référence pour le DFP et la ventilation des postes. Gazette du Palais pour les comparatifs de capitalisation. ONIAM uniquement pour l'aléa thérapeutique.",
+  style: "Phrases courtes, voix active, ton sobre. Désignation « la concluante » plutôt que « ma cliente ». Préférer « il convient » à « il faut ». Pas de formules ampoulées (« il échet de constater » → « la cour constate »).",
+  consignes: "Toujours inclure un calcul détaillé en annexe pour les postes patrimoniaux (PGPA, PGPF, IP, FLA). Ne pas mélanger faits et discussion. Dispositif concis : une demande = une ligne. Toujours rappeler les fondements textuels (art. 1240 c. civ., loi Badinter, etc.) en début de discussion. Ne jamais oublier les intérêts au taux légal majoré. Bien distinguer les intérêts moratoires des intérêts compensatoires.",
+};
 
 const POSTES_TAXONOMY = [
   {
@@ -1068,7 +1063,11 @@ export default function App() {
   const [inviteRole, setInviteRole] = useState('Membre');
   const [memberMenuOpenId, setMemberMenuOpenId] = useState(null);
   const [preferenceDocs, setPreferenceDocs] = useState([]);
-  const [preferenceMasterPrompt, setPreferenceMasterPrompt] = useState(DEFAULT_PREFERENCE_PROMPT);
+  const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
+  const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
+  const preferenceMasterPrompt = PREFERENCE_SLOT_IDS
+    .map(id => `— ${PREFERENCE_SLOT_LABELS[id]}\n${preferenceSlots[id] || ''}`)
+    .join('\n\n');
   const [savedJurisprudences, setSavedJurisprudences] = useState([]);
   const [preferenceDragOver, setPreferenceDragOver] = useState(false);
   const [preferenceWriteRequested, setPreferenceWriteRequested] = useState(false);
@@ -18035,29 +18034,26 @@ export default function App() {
               </p>
             </div>
 
-            <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden">
-              <textarea
-                value={preferenceMasterPrompt}
-                onChange={(e) => setPreferenceMasterPrompt(e.target.value)}
-                rows={Math.min(12, Math.max(6, (preferenceMasterPrompt || '').split('\n').length + 1))}
-                placeholder={`Ex.
-
-— Structure de vos actes
-Plan en trois parties : Faits et procédure / Discussion / Dispositif. Numérotation décimale, titres en gras sans soulignement. Citations de jurisprudence en bas de page.
-
-— Préférences de quantum
-DFT ≈ 1 800 €/mois. DFP 5–25 % selon Mornet 2024. SE ~8 000 € pour 4/7.
-
-— Référentiels favoris
-Mornet 2024 pour l'indemnisation corporelle. Nomenclature Dintilhac. ONIAM pour l'aléa thérapeutique uniquement.
-
-— Style et ton
-Voix active, ton sobre. Désignation « la concluante ». Préférer « il convient » à « il faut ».
-
-— Consignes spécifiques
-Calcul détaillé en annexe pour les postes patrimoniaux. Dispositif concis.`}
-                className="w-full px-5 py-4 text-[13px] text-[#292524] resize-none focus:outline-none leading-relaxed bg-transparent overflow-y-auto"
-                style={{ fontFamily: "'Inter', system-ui, sans-serif", maxHeight: 280 }}
+            <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
+              <StructureActesSlot
+                value={preferenceSlots.structure}
+                onChange={(v) => setPreferenceSlot('structure', v)}
+              />
+              <QuantumSlot
+                value={preferenceSlots.quantum}
+                onChange={(v) => setPreferenceSlot('quantum', v)}
+              />
+              <ReferentielsSlot
+                value={preferenceSlots.referentiels}
+                onChange={(v) => setPreferenceSlot('referentiels', v)}
+              />
+              <StyleTonSlot
+                value={preferenceSlots.style}
+                onChange={(v) => setPreferenceSlot('style', v)}
+              />
+              <ConsignesSlot
+                value={preferenceSlots.consignes}
+                onChange={(v) => setPreferenceSlot('consignes', v)}
               />
             </div>
 
