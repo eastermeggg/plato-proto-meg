@@ -101,31 +101,6 @@ body {
 }
 .animate-slide-in-right { animation: slideInRight 0.25s ease-out forwards; }
 
-/* Parrainage promo — warm peach breathing glow.
-   Background drifts horizontally; the lit-candle feel comes from the icon halo.
-   No box-shadow / inset hairlines: those bleed into neighboring borders. */
-@keyframes parrainage-glow {
-  0%, 100% { background-position: 0% 50%; }
-  50%      { background-position: 100% 50%; }
-}
-.animate-parrainage-glow {
-  background-size: 220% 100%;
-  animation: parrainage-glow 4.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-parrainage-glow { animation: none; }
-}
-
-@keyframes parrainage-halo {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50%      { opacity: 0.95; transform: scale(1.08); }
-}
-.animate-parrainage-halo {
-  animation: parrainage-halo 4.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-parrainage-halo { animation: none; opacity: 0.75; }
-}
 
 /* Inline canvas page — subtle slide from right */
 @keyframes slideInRightSubtle {
