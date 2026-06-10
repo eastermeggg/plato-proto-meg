@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -1039,6 +1039,9 @@ export default function App() {
 
   // ========== SETTINGS ==========
   const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
+  // Parrainage — modal-only feature triggered from the sidebar promo card
+  const [parrainageModalOpen, setParrainageModalOpen] = useState(false);
+  const [parrainageForm, setParrainageForm] = useState({ prenom: '', nom: '', email: '' });
   // Votre tampon — defaults derived from {{family_Name}} ("Régior") and the lawyer's standard role.
   const [tamponLine1, setTamponLine1] = useState('Maître Régior');
   const [tamponLine2, setTamponLine2] = useState('Avocat à la cour');
@@ -14664,8 +14667,17 @@ export default function App() {
                 </div>
               );
             })}
+
           </div>
         </div>
+
+        {/* Parrainage — refined editorial promo, branded but quiet.
+            Sits above the consumption card; serif headline does the lifting. */}
+        {!collapsed && (
+          <div className="border-t border-[#e7e5e3] flex-shrink-0">
+            {renderParrainageCard()}
+          </div>
+        )}
 
         {/* Workspace dossier indicator — hidden when collapsed */}
         {!collapsed && (
@@ -14713,6 +14725,104 @@ export default function App() {
   };
 
   const renderCollapsedRail = () => renderUnifiedSidebar({ collapsed: true });
+
+  // Parrainage promo — refined editorial section in the sidebar footer.
+  // Glow is layered, not animated: a radial peach light source at top-left
+  // (anchored to the Gift), a soft halo behind the icon, and a gentle warm
+  // gradient base. Restrained craft, never neon.
+  const renderParrainageCard = () => (
+    <button
+      onClick={() => setParrainageModalOpen(true)}
+      className="group relative block w-full text-left overflow-hidden"
+      style={{
+        padding: '14px 16px 12px',
+        background:
+          'radial-gradient(140% 90% at 0% 0%, rgba(189,108,26,0.14) 0%, rgba(249,200,140,0.08) 32%, transparent 65%), ' +
+          'linear-gradient(180deg, #faf6ef 0%, #fefcf7 100%)',
+        fontFamily: "'Inter', system-ui, sans-serif",
+        transition: 'background 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
+    >
+      {/* Hover lift — deeper radial wash overlays the base on hover */}
+      <span
+        aria-hidden
+        className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background:
+            'radial-gradient(120% 90% at 0% 0%, rgba(189,108,26,0.16) 0%, rgba(249,200,140,0.10) 40%, transparent 70%)',
+        }}
+      />
+
+      {/* Eyebrow — mono peach, with Gift accent + hairline tail */}
+      <div className="relative flex items-center gap-1.5">
+        {/* Soft halo behind the Gift icon — static, blurred, peach */}
+        <span className="relative flex items-center justify-center" style={{ width: 12, height: 12 }}>
+          <span
+            aria-hidden
+            className="absolute rounded-full"
+            style={{
+              inset: -5,
+              background:
+                'radial-gradient(circle at center, rgba(249,200,140,0.85) 0%, rgba(249,200,140,0.3) 50%, transparent 75%)',
+              filter: 'blur(2px)',
+            }}
+          />
+          <Gift className="relative w-3 h-3 flex-shrink-0" strokeWidth={1.75} style={{ color: '#bd6c1a' }} />
+        </span>
+        <span
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10, fontWeight: 500,
+            color: '#855b31',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            lineHeight: '14px',
+          }}
+        >
+          Parrainage
+        </span>
+        <span
+          aria-hidden
+          className="flex-1"
+          style={{
+            height: 1,
+            background:
+              'linear-gradient(90deg, rgba(238,185,126,0.55) 0%, rgba(238,185,126,0.15) 100%)',
+          }}
+        />
+      </div>
+
+      {/* Serif headline — the editorial moment */}
+      <div
+        className="relative mt-2"
+        style={{
+          fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
+          fontSize: 17, fontWeight: 400,
+          color: '#18181b',
+          letterSpacing: '-0.25px',
+          lineHeight: '22px',
+        }}
+      >
+        Gagnez 5 dossiers gratuits
+      </div>
+
+      {/* Micro CTA — quiet peach link */}
+      <div
+        className="relative mt-1.5 inline-flex items-center gap-1"
+        style={{
+          fontSize: 12, fontWeight: 500,
+          color: '#bd6c1a',
+          lineHeight: '16px',
+        }}
+      >
+        Inviter un confrère
+        <ArrowRight
+          className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5"
+          strokeWidth={2}
+        />
+      </div>
+    </button>
+  );
 
   // Workspace dossier-quota indicator. The full Figma "Small" PlanCard
   // rendered directly inside the sidebar's footer (no hover-to-expand).
@@ -18211,6 +18321,332 @@ export default function App() {
     );
   };
 
+  const renderParrainageModal = () => {
+    if (!parrainageModalOpen) return null;
+    const trimmed = {
+      prenom: parrainageForm.prenom.trim(),
+      nom: parrainageForm.nom.trim(),
+      email: parrainageForm.email.trim(),
+    };
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed.email);
+    const canSubmit = trimmed.prenom && trimmed.nom && emailValid;
+
+    const close = () => {
+      setParrainageModalOpen(false);
+      setParrainageForm({ prenom: '', nom: '', email: '' });
+    };
+
+    const submitReferral = () => {
+      if (!canSubmit) return;
+      const firstName = trimmed.prenom;
+      close();
+      setToastMessage(`Invitation envoyée à ${firstName}.`);
+      setTimeout(() => setToastMessage(null), 3000);
+    };
+
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-6"
+        style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+        onClick={close}
+      >
+        <div
+          className="bg-white overflow-hidden grid grid-cols-1 lg:grid-cols-[minmax(340px,420px)_1fr] relative w-full max-w-[920px]"
+          style={{
+            borderRadius: 16,
+            border: '1px solid #e7e5e3',
+            boxShadow:
+              '0 4px 6px -4px rgba(26,26,26,0.06), ' +
+              '0 20px 30px -10px rgba(26,26,26,0.12)',
+            maxHeight: 'calc(100vh - 48px)',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button — floats top-right above the visual */}
+          <button
+            onClick={close}
+            aria-label="Fermer"
+            className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#fafaf9] transition-colors"
+            style={{ color: '#78716c' }}
+          >
+            <X className="w-4 h-4" strokeWidth={2} />
+          </button>
+              {/* ─── LEFT — branded visual ─── */}
+              <div
+                className="relative overflow-hidden flex items-center justify-center"
+                style={{
+                  background:
+                    'radial-gradient(120% 90% at 20% 0%, #f9e6d3 0%, #faf0e0 35%, #faf6ef 70%, #f5efe5 100%)',
+                  padding: '48px 32px',
+                  minHeight: 320,
+                }}
+              >
+                {/* Decorative serif glyph — soft watermark in the corner */}
+                <div
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    top: -40, right: -30,
+                    fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
+                    fontSize: 280, fontWeight: 400,
+                    color: '#bd6c1a',
+                    opacity: 0.06,
+                    letterSpacing: '-0.04em',
+                    lineHeight: 1,
+                    userSelect: 'none', pointerEvents: 'none',
+                  }}
+                >
+                  +5
+                </div>
+                <div
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    bottom: -60, left: -20,
+                    fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
+                    fontSize: 240, fontWeight: 400,
+                    color: '#bd6c1a',
+                    opacity: 0.05,
+                    letterSpacing: '-0.04em',
+                    lineHeight: 1,
+                    userSelect: 'none', pointerEvents: 'none',
+                  }}
+                >
+                  +5
+                </div>
+
+                {/* Stacked dossier cards — the gift made tangible */}
+                <div className="relative" style={{ width: 220, height: 280 }}>
+                  {/* Back card — "Pour eux" */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 10, left: -8,
+                      width: 200, height: 240,
+                      borderRadius: 14,
+                      background: '#ffffff',
+                      border: '1px solid #e7e5e3',
+                      boxShadow:
+                        '0 1px 2px rgba(26,26,26,0.04), ' +
+                        '0 10px 24px -8px rgba(189,108,26,0.18)',
+                      transform: 'rotate(-7deg)',
+                      padding: '20px 18px',
+                      display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 10, fontWeight: 500,
+                          color: '#a8a29e',
+                          textTransform: 'uppercase', letterSpacing: '0.08em',
+                        }}
+                      >
+                        Pour eux
+                      </div>
+                      <div
+                        className="tabular-nums"
+                        style={{
+                          fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
+                          fontSize: 64, fontWeight: 400,
+                          color: '#bd6c1a',
+                          letterSpacing: '-0.04em',
+                          lineHeight: 1,
+                          marginTop: 8,
+                        }}
+                      >
+                        +5
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: "'Inter', system-ui, sans-serif",
+                          fontSize: 13, color: '#44403c',
+                          marginTop: 4, lineHeight: '18px',
+                        }}
+                      >
+                        dossiers offerts à la souscription
+                      </div>
+                    </div>
+                    <Folder className="w-5 h-5 self-end" strokeWidth={1.5} style={{ color: '#a8a29e' }} />
+                  </div>
+
+                  {/* Front card — "Pour vous" */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 40, left: 36,
+                      width: 200, height: 240,
+                      borderRadius: 14,
+                      background: 'linear-gradient(180deg, #292524 0%, #1c1917 100%)',
+                      boxShadow:
+                        '0 4px 8px rgba(26,26,26,0.10), ' +
+                        '0 18px 36px -12px rgba(26,26,26,0.30)',
+                      transform: 'rotate(5deg)',
+                      padding: '20px 18px',
+                      display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 10, fontWeight: 500,
+                          color: '#bd6c1a',
+                          textTransform: 'uppercase', letterSpacing: '0.08em',
+                        }}
+                      >
+                        Pour vous
+                      </div>
+                      <div
+                        className="tabular-nums"
+                        style={{
+                          fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
+                          fontSize: 64, fontWeight: 400,
+                          color: '#ffffff',
+                          letterSpacing: '-0.04em',
+                          lineHeight: 1,
+                          marginTop: 8,
+                        }}
+                      >
+                        +5
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: "'Inter', system-ui, sans-serif",
+                          fontSize: 13, color: '#d6d3d1',
+                          marginTop: 4, lineHeight: '18px',
+                        }}
+                      >
+                        dossiers gratuits ajoutés à votre compte
+                      </div>
+                    </div>
+                    <div
+                      className="self-end flex items-center justify-center"
+                      style={{
+                        width: 32, height: 32, borderRadius: 8,
+                        background: 'rgba(189,108,26,0.16)',
+                        border: '1px solid rgba(189,108,26,0.4)',
+                      }}
+                    >
+                      <Gift className="w-4 h-4" strokeWidth={1.75} style={{ color: '#f9e6d3' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ─── RIGHT — copy + form ─── */}
+              <div className="px-10 py-12 flex flex-col" style={{ minHeight: 540 }}>
+                <div
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 11, fontWeight: 500,
+                    color: '#855b31',
+                    textTransform: 'uppercase', letterSpacing: '0.08em',
+                  }}
+                >
+                  Parrainage
+                </div>
+                <h1
+                  className="mt-3"
+                  style={{
+                    fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
+                    fontSize: 32, fontWeight: 400,
+                    color: '#18181b',
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.15,
+                    textWrap: 'balance',
+                  }}
+                >
+                  Parrainez un confrère, gagnez 5 dossiers.
+                </h1>
+                <p className="text-[14px] text-[#78716c] mt-3 leading-relaxed max-w-md">
+                  Recommandez Plato à un confrère ou une consœur, et faites grandir votre cabinet — pour vous deux.
+                </p>
+
+                {/* Bullets */}
+                <div className="mt-7 space-y-4">
+                  {[
+                    { label: "Votre confrère reçoit 5 dossiers offerts à sa souscription." },
+                    { label: "Vous recevez 5 dossiers gratuits dès qu'il souscrit à un plan payant." },
+                  ].map(b => (
+                    <div key={b.label} className="flex items-start gap-3">
+                      <div
+                        className="flex-shrink-0 flex items-center justify-center mt-0.5"
+                        style={{
+                          width: 22, height: 22, borderRadius: 999,
+                          background: '#faf6ef',
+                          border: '1px solid rgba(238,185,126,0.5)',
+                        }}
+                      >
+                        <Check className="w-3 h-3" strokeWidth={2.5} style={{ color: '#bd6c1a' }} />
+                      </div>
+                      <p className="text-[14px] text-[#44403c] leading-relaxed">
+                        {b.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Form */}
+                <div className="mt-9">
+                  <div
+                    style={{
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 11, fontWeight: 500,
+                      color: '#78716c',
+                      textTransform: 'uppercase', letterSpacing: '0.08em',
+                      marginBottom: 12,
+                    }}
+                  >
+                    Invitez un confrère
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      value={parrainageForm.prenom}
+                      onChange={(e) => setParrainageForm(f => ({ ...f, prenom: e.target.value }))}
+                      placeholder="Prénom"
+                      className="h-11 px-3.5 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] placeholder:text-[#a8a29e]"
+                    />
+                    <input
+                      type="text"
+                      value={parrainageForm.nom}
+                      onChange={(e) => setParrainageForm(f => ({ ...f, nom: e.target.value }))}
+                      placeholder="Nom"
+                      className="h-11 px-3.5 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] placeholder:text-[#a8a29e]"
+                    />
+                  </div>
+                  <input
+                    type="email"
+                    value={parrainageForm.email}
+                    onChange={(e) => setParrainageForm(f => ({ ...f, email: e.target.value }))}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && canSubmit) submitReferral(); }}
+                    placeholder="Email professionnel"
+                    className="mt-3 w-full h-11 px-3.5 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] placeholder:text-[#a8a29e]"
+                  />
+
+                  <button
+                    onClick={submitReferral}
+                    disabled={!canSubmit}
+                    className="mt-4 w-full flex items-center justify-center gap-2 h-11 px-4 bg-[#292524] text-white text-[14px] font-medium rounded-lg hover:bg-[#44403c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ boxShadow: '0 1px 2px rgba(26, 26, 26, 0.05)' }}
+                  >
+                    <Gift className="w-4 h-4" strokeWidth={2} />
+                    Envoyer l'invitation
+                  </button>
+                </div>
+
+                <p className="text-[12px] text-[#a8a29e] mt-auto pt-8">
+                  En envoyant l'invitation, vous acceptez nos conditions du programme de parrainage.
+                </p>
+              </div>
+            </div>
+        </div>
+    );
+  };
+
   const renderSettingsBilling = () => {
     const TIERS = [
       { matters: 5,   pricePerMatter: 200, maxActifs: 13  },
@@ -21467,6 +21903,9 @@ export default function App() {
           }}
         />
       )}
+
+      {/* Parrainage modal — triggered from the sidebar promo card */}
+      {renderParrainageModal()}
 
       {/* Toast notification */}
       {toastMessage && (
