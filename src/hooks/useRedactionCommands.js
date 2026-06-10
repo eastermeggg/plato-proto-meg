@@ -4,8 +4,26 @@ import {
   ACT_TYPE_FLOW_CONFIG,
   DEFAULT_FLOW_CONFIG,
   EMPTY_ACTE,
-  MOCK_ASSIGNATION_TEXT,
 } from '../data/redactionScenarios';
+
+// ─── Lazy backfill for legacy actes loaded from localStorage ────────
+// Actes persisted before the typed-acte change have no `kind` / `pairId` /
+// `bordereauEntries`. We default-fill on read so old demos keep loading.
+function withActeDefaults(acte) {
+  if (!acte) return acte;
+  if (acte.kind && 'pairId' in acte && 'bordereauEntries' in acte) return acte;
+  return {
+    kind: 'text',
+    pairId: null,
+    bordereauEntries: null,
+    ...acte,
+  };
+}
+
+// Allocate a stable pair id shared by an acte and its bordereau sibling.
+export function newPairId() {
+  return `pair-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
 
 // ─── Redaction State Reducer ─────────────────────────────────────────
 const initialState = {
@@ -60,7 +78,18 @@ function redactionReducer(state, action) {
     case 'STREAM_COMPLETE':
       return { ...state, canvasStreaming: false };
     case 'ADD_ACTE':
-      return { ...state, dossierActes: [...state.dossierActes, action.acte] };
+      return {
+        ...state,
+        dossierActes: [...state.dossierActes, withActeDefaults(action.acte)],
+      };
+    case 'ADD_BORDEREAU_ARTIFACT':
+      return {
+        ...state,
+        dossierActes: [
+          ...state.dossierActes,
+          withActeDefaults({ ...action.acte, kind: 'bordereau' }),
+        ],
+      };
     case 'UPDATE_ACTE': {
       const targetId = action.acteId || state.canvasActeId;
       return {
@@ -69,8 +98,9 @@ function redactionReducer(state, action) {
       };
     }
     case 'REOPEN_CANVAS': {
-      const acte = state.dossierActes.find(a => a.id === action.acteId);
-      if (!acte) return state;
+      const raw = state.dossierActes.find(a => a.id === action.acteId);
+      if (!raw) return state;
+      const acte = withActeDefaults(raw);
       return {
         ...state,
         canvasOpen: true,
@@ -165,7 +195,11 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
             break;
 
           case 'OPEN_CANVAS': {
-            const acteId = `acte-${Date.now()}`;
+            // Allow caller to pre-allocate ids so a sibling bordereau can be
+            // linked in a later EMIT_BORDEREAU action without round-tripping
+            // through state.
+            const acteId = action.acteId || `acte-${Date.now()}`;
+            const pairId = action.pairId || null;
             dispatch({ type: 'CLOSE_STEPPER' });
             dispatch({ type: 'CLEAR_PENDING' });
             dispatch({
@@ -178,10 +212,49 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
                 status: 'brouillon',
                 lastUpdated: new Date().toLocaleDateString('fr-FR'),
                 content: '',
+                kind: 'text',
+                pairId,
               },
             });
             dispatch({ type: 'OPEN_CANVAS', acteId, title: action.title, actType: action.actType });
             navigateTo?.({ type: 'acte', id: acteId, title: action.title, fullTitle: action.title });
+            break;
+          }
+
+          case 'FILL_BORDEREAU_ENTRIES': {
+            // Populate an existing bordereau's entries (used by the empty-state
+            // "Générer mon bordereau" flow). No canvas swap, no nav change —
+            // the user is already looking at this bordereau.
+            dispatch({
+              type: 'UPDATE_ACTE',
+              acteId: action.acteId,
+              updates: { bordereauEntries: action.entries || [] },
+            });
+            break;
+          }
+
+          case 'EMIT_BORDEREAU': {
+            // Emit a sibling bordereau artefact paired with the text acte that
+            // just finished streaming. Both share `pairId`. Canvas focus moves
+            // to the bordereau (spec §5 / §7).
+            const acteId = action.acteId || `acte-${Date.now()}`;
+            dispatch({
+              type: 'ADD_BORDEREAU_ARTIFACT',
+              acte: {
+                ...EMPTY_ACTE,
+                id: acteId,
+                actType: 'bordereau',
+                title: action.title || 'Bordereau',
+                status: 'brouillon',
+                lastUpdated: new Date().toLocaleDateString('fr-FR'),
+                content: '',
+                kind: 'bordereau',
+                pairId: action.pairId || null,
+                bordereauEntries: action.entries || [],
+              },
+            });
+            dispatch({ type: 'REOPEN_CANVAS', acteId });
+            navigateTo?.({ type: 'acte', id: acteId, title: action.title || 'Bordereau', fullTitle: action.title || 'Bordereau' });
             break;
           }
 
@@ -194,6 +267,13 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
             const chunkSize = action.chunkSize || 40;
             const chunkDelay = action.chunkDelay || 30;
             const totalChunks = Math.ceil(fullText.length / chunkSize);
+            // Capture the target acteId NOW (when this action is scheduled).
+            // If the canvas gets swapped to a sibling (e.g. bordereau focus)
+            // before the stream completes, falling back to state.canvasActeId
+            // at completion time would write the acte's content onto the
+            // wrong artefact — leaving the original acte with content: ''
+            // and rendering a misleading "Rédaction en cours…" empty state.
+            const streamActeId = action.acteId || null;
 
             for (let i = 0; i < totalChunks; i++) {
               const chunk = fullText.slice(i * chunkSize, (i + 1) * chunkSize);
@@ -207,7 +287,7 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
               dispatch({ type: 'STREAM_COMPLETE' });
               dispatch({
                 type: 'UPDATE_ACTE',
-                acteId: null,
+                acteId: streamActeId,
                 updates: { content: fullText },
               });
             }, totalChunks * chunkDelay + 100);
@@ -322,17 +402,12 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
     if (!actType) return;
 
     const config = getConfig(actType);
-    const gen = config.generation;
 
-    // Steps 4+5: Reasoning #2 → Generation
+    // Steps 4+5: Reasoning #2 → Generation (+ paired bordereau if any)
     const actions = [
       { type: 'AGENT_REASONING_STEPS', label: 'Plan de rédaction', steps: config.reasoning2.steps },
       { type: 'DELAY', ms: 800 },
-      { type: 'OPEN_CANVAS', actType: gen.actType, title: gen.title },
-      { type: 'DELAY', ms: 300 },
-      { type: 'STREAM_CONTENT', text: gen.text, chunkSize: 40, chunkDelay: 30 },
-      { type: 'DELAY', ms: 200 },
-      { type: 'AGENT_MESSAGE', text: gen.doneMessage },
+      ...buildGenerationActions(config.generation),
     ];
 
     playActions(actions);
@@ -363,18 +438,58 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
       actions.push({ type: 'SET_STEPPER_STATE', stepperType: 'awaiting-clarification' });
     } else {
       // No gaps → straight to Step 4+5
-      const gen = config.generation;
       actions.push({ type: 'DELAY', ms: 800 });
       actions.push({ type: 'AGENT_REASONING_STEPS', label: 'Plan de rédaction', steps: config.reasoning2.steps });
       actions.push({ type: 'DELAY', ms: 800 });
-      actions.push({ type: 'OPEN_CANVAS', actType: gen.actType, title: gen.title });
-      actions.push({ type: 'DELAY', ms: 300 });
-      actions.push({ type: 'STREAM_CONTENT', text: gen.text, chunkSize: 40, chunkDelay: 30 });
-      actions.push({ type: 'DELAY', ms: 200 });
-      actions.push({ type: 'AGENT_MESSAGE', text: gen.doneMessage });
+      actions.push(...buildGenerationActions(config.generation));
     }
 
     return actions;
+  }
+
+  // Build the OPEN_CANVAS → STREAM_CONTENT (→ EMIT_BORDEREAU) → AGENT_MESSAGE
+  // sequence for a generation config. Pre-allocates a shared pairId so the
+  // text acte and its bordereau sibling are linked when ADD_ACTE /
+  // ADD_BORDEREAU_ARTIFACT dispatch.
+  //
+  // The action player's `cumulativeDelay` only advances on DELAY actions, not
+  // on the internal stream timing. We therefore compute the stream duration
+  // here and pad the DELAY before EMIT_BORDEREAU so the bordereau is focused
+  // AFTER streaming finishes — matching spec §5 ("après génération, l'onglet
+  // Bordereau est mis en avant") and avoiding a canvas swap mid-stream.
+  function buildGenerationActions(gen) {
+    const hasBordereau = Array.isArray(gen.bordereauEntries) && gen.bordereauEntries.length > 0;
+    const pairId = hasBordereau ? newPairId() : null;
+    const textActeId = `acte-${Date.now()}-text`;
+    const bordereauActeId = hasBordereau ? `acte-${Date.now()}-bordereau` : null;
+
+    const chunkSize = 40;
+    const chunkDelay = 30;
+    const streamMs = Math.ceil((gen.text?.length || 0) / chunkSize) * chunkDelay + 100;
+
+    const out = [
+      { type: 'OPEN_CANVAS', actType: gen.actType, title: gen.title, acteId: textActeId, pairId },
+      { type: 'DELAY', ms: 300 },
+      { type: 'STREAM_CONTENT', text: gen.text, chunkSize, chunkDelay, acteId: textActeId },
+      // Wait the full stream duration + a small breathing pause before the
+      // next action runs. Without this, EMIT_BORDEREAU would fire ~200ms in
+      // and the canvas would swap mid-stream.
+      { type: 'DELAY', ms: streamMs + 200 },
+    ];
+
+    if (hasBordereau) {
+      out.push({
+        type: 'EMIT_BORDEREAU',
+        acteId: bordereauActeId,
+        pairId,
+        title: gen.bordereauTitle || `Bordereau — ${gen.title}`,
+        entries: gen.bordereauEntries,
+      });
+      out.push({ type: 'DELAY', ms: 200 });
+    }
+
+    out.push({ type: 'AGENT_MESSAGE', text: gen.doneMessage });
+    return out;
   }
 
   // ─── Zone modification (unchanged) ──────────────────────────────────

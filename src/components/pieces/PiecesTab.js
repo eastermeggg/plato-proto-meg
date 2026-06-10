@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, ListOrdered } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import BordereauTable from './BordereauTable';
 import FullCanvasDropZone from './FullCanvasDropZone';
@@ -7,7 +7,7 @@ import FullCanvasDropZone from './FullCanvasDropZone';
 // GED container: search + folder tree. The drop zone is invisible — the
 // whole canvas accepts file drops via the container handlers.
 
-export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onAskChato }) {
+export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onAskChato, onGenerateBordereau }) {
   const [query, setQuery] = useState('');
   const [dragOver, setDragOver] = useState(false);
 
@@ -44,11 +44,14 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
         <FullCanvasDropZone />
       ) : (
         <>
-          {/* Search */}
+          {/* Search + actions */}
           <div style={{
             padding: '16px 20px',
             borderBottom: `1px solid ${colors.semantic.border}`,
             backgroundColor: colors.semantic.white,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
           }}>
             <div style={{
               display: 'flex',
@@ -58,6 +61,7 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
               border: `1px solid ${colors.semantic.border}`,
               borderRadius: 6,
               backgroundColor: colors.semantic.background,
+              flex: 1,
             }}>
               <Search style={{ width: 16, height: 16, color: colors.semantic.foregroundMuted }} strokeWidth={1.75} />
               <input
@@ -76,6 +80,15 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
                 }}
               />
             </div>
+            {onGenerateBordereau && (
+              <button
+                onClick={onGenerateBordereau}
+                className="inline-flex items-center gap-1.5 px-3 h-9 rounded-[8px] text-[13px] font-medium text-white bg-[#292524] hover:bg-[#44403c] transition-colors shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] flex-shrink-0"
+              >
+                <ListOrdered className="w-3.5 h-3.5" strokeWidth={1.75} />
+                Générer un bordereau
+              </button>
+            )}
           </div>
 
           {/* Folder tree */}

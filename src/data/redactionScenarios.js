@@ -81,6 +81,9 @@ export const REDACTION_ACT_TYPES = [
 ];
 
 // ── ACTE shape ──────────────────────────────────────────────────────
+// kind = 'text' (prose) | 'bordereau' (numbered list of pièces communiquées)
+// pairId links a text acte to its bordereau (same id on both, null when standalone)
+// bordereauEntries = [{ pieceId, intitule, position }] — only when kind === 'bordereau'
 export const EMPTY_ACTE = {
   id: '',
   actType: '',
@@ -88,6 +91,9 @@ export const EMPTY_ACTE = {
   status: 'brouillon', // brouillon | pret | envoye
   lastUpdated: '',
   content: '',
+  kind: 'text',
+  pairId: null,
+  bordereauEntries: null,
 };
 
 // ── Mock content for assignation ────────────────────────────────────
@@ -178,25 +184,24 @@ SOUS TOUTES RÉSERVES
 Fait et signé à Paris, le 24 avril 2026.
 
 Le Commissaire de Justice,
-Maître Pierre LEGRAND
+Maître Pierre LEGRAND`;
 
-——————————————————————
-
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-1|Facture hospitalisation CHU Bordeaux|Facture|15/03/2023
-2|Factures kinésithérapie Cabinet Martin|Facture|01/04/2023
-3|Bulletins de salaire année 2022|Bulletin|10/01/2023
-4|Attestation de versement IJ CPAM|Attestation|20/05/2023
-5|Rapport d'expertise|Rapport|12/09/2024
-6|Ordonnance médicaments juillet|Ordonnance|18/07/2023
-7|Facture pharmacie des Lilas|Facture|20/07/2023
-8|Compte-rendu passage urgences|Compte-rendu|15/03/2023
-10|Avis d'arrêt de travail initial|Attestation|16/03/2023
-11|Attestation de salaire employeur|Attestation|20/03/2023
-12|Facture IRM Centre Imagerie Sud|Facture|25/06/2023
-[/bordereau]`;
+export const MOCK_ASSIGNATION_BORDEREAU_ENTRIES = [
+  { kind: 'section', name: 'Médical' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023', description: 'CHU Pitié-Salpêtrière — diagnostic initial' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024', description: 'Dr. Martin — expertise contradictoire' },
+  { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
+  { kind: 'section', name: 'Frais médicaux' },
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-2', intitule: 'Factures kinésithérapie Cabinet Martin', type: 'Facture', date: '01/04/2023' },
+  { kind: 'piece', pieceId: 'p-7', intitule: 'Facture pharmacie des Lilas', type: 'Facture', date: '20/07/2023' },
+  { kind: 'piece', pieceId: 'p-12', intitule: 'Facture IRM Centre Imagerie Sud', type: 'Facture', date: '25/06/2023' },
+  { kind: 'section', name: 'Pertes de revenus' },
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-11', intitule: 'Attestation de salaire employeur', type: 'Attestation', date: '20/03/2023' },
+  { kind: 'piece', pieceId: 'p-10', intitule: "Avis d'arrêt de travail initial", type: 'Attestation', date: '16/03/2023' },
+  { kind: 'piece', pieceId: 'p-4', intitule: 'Attestation de versement IJ CPAM', type: 'Attestation', date: '20/05/2023' },
+];
 
 // ── Modified content for assignation (after user requests changes) ──
 export const MOCK_ASSIGNATION_MODIFIED_TEXT = `ASSIGNATION EN RÉFÉRÉ-EXPERTISE
@@ -297,26 +302,25 @@ SOUS TOUTES RÉSERVES
 Fait et signé à Paris, le 24 avril 2026.
 
 Le Commissaire de Justice,
-Maître Pierre LEGRAND
+Maître Pierre LEGRAND`;
 
-——————————————————————
-
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-1|Facture hospitalisation CHU Bordeaux|Facture|15/03/2023
-2|Factures kinésithérapie Cabinet Martin|Facture|01/04/2023
-3|Bulletins de salaire année 2022|Bulletin|10/01/2023
-4|Attestation de versement IJ CPAM|Attestation|20/05/2023
-5|Rapport d'expertise|Rapport|12/09/2024
-6|Ordonnance médicaments juillet|Ordonnance|18/07/2023
-7|Facture pharmacie des Lilas|Facture|20/07/2023
-8|Compte-rendu passage urgences|Compte-rendu|15/03/2023
-10|Avis d'arrêt de travail initial|Attestation|16/03/2023
-11|Attestation de salaire employeur|Attestation|20/03/2023
-12|Facture IRM Centre Imagerie Sud|Facture|25/06/2023
-13|Décompte indemnités prévoyance AG2R|Décompte|15/08/2023
-[/bordereau]`;
+export const MOCK_ASSIGNATION_MODIFIED_BORDEREAU_ENTRIES = [
+  { kind: 'section', name: 'Médical' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
+  { kind: 'section', name: 'Frais médicaux' },
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-2', intitule: 'Factures kinésithérapie Cabinet Martin', type: 'Facture', date: '01/04/2023' },
+  { kind: 'piece', pieceId: 'p-7', intitule: 'Facture pharmacie des Lilas', type: 'Facture', date: '20/07/2023' },
+  { kind: 'piece', pieceId: 'p-12', intitule: 'Facture IRM Centre Imagerie Sud', type: 'Facture', date: '25/06/2023' },
+  { kind: 'section', name: 'Pertes de revenus' },
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-11', intitule: 'Attestation de salaire employeur', type: 'Attestation', date: '20/03/2023' },
+  { kind: 'piece', pieceId: 'p-10', intitule: "Avis d'arrêt de travail initial", type: 'Attestation', date: '16/03/2023' },
+  { kind: 'piece', pieceId: 'p-4', intitule: 'Attestation de versement IJ CPAM', type: 'Attestation', date: '20/05/2023' },
+  { kind: 'piece', pieceId: 'p-13', intitule: 'Décompte indemnités prévoyance AG2R', type: 'Décompte', date: '15/08/2023' },
+];
 
 // ── Mock content for conclusions ────────────────────────────────────
 export const MOCK_CONCLUSIONS_TEXT = `CONCLUSIONS RÉCAPITULATIVES
@@ -401,23 +405,22 @@ SOUS TOUTES RÉSERVES
 
 Fait à Paris, le 27 avril 2026.
 
-Maître Sophie BERNARD
+Maître Sophie BERNARD`;
 
-——————————————————————
-
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-1|Facture hospitalisation CHU Bordeaux|Facture|15/03/2023
-2|Factures kinésithérapie Cabinet Martin|Facture|01/04/2023
-3|Bulletins de salaire année 2022|Bulletin|10/01/2023
-4|Attestation de versement IJ CPAM|Attestation|20/05/2023
-5|Rapport d'expertise|Rapport|12/09/2024
-8|Compte-rendu passage urgences|Compte-rendu|15/03/2023
-11|Attestation de salaire employeur|Attestation|20/03/2023
-12|Facture IRM Centre Imagerie Sud|Facture|25/06/2023
-13|Décompte indemnités prévoyance AG2R|Décompte|15/08/2023
-[/bordereau]`;
+export const MOCK_CONCLUSIONS_BORDEREAU_ENTRIES = [
+  { kind: 'section', name: 'Médical' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'section', name: 'Frais médicaux' },
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-2', intitule: 'Factures kinésithérapie Cabinet Martin', type: 'Facture', date: '01/04/2023' },
+  { kind: 'piece', pieceId: 'p-12', intitule: 'Facture IRM Centre Imagerie Sud', type: 'Facture', date: '25/06/2023' },
+  { kind: 'section', name: 'Pertes de revenus' },
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-11', intitule: 'Attestation de salaire employeur', type: 'Attestation', date: '20/03/2023' },
+  { kind: 'piece', pieceId: 'p-4', intitule: 'Attestation de versement IJ CPAM', type: 'Attestation', date: '20/05/2023' },
+  { kind: 'piece', pieceId: 'p-13', intitule: 'Décompte indemnités prévoyance AG2R', type: 'Décompte', date: '15/08/2023' },
+];
 
 // ── Mock content for requête en référé ─────────────────────────────
 export const MOCK_REQUETE_TEXT = `REQUÊTE EN RÉFÉRÉ-EXPERTISE
@@ -458,17 +461,13 @@ Le requérant sollicite de Monsieur le Président :
 
 Fait à Paris, le 27 avril 2026.
 
-Maître Sophie BERNARD
+Maître Sophie BERNARD`;
 
-——————————————————————
-
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-1|Facture hospitalisation CHU Bordeaux|Facture|15/03/2023
-5|Rapport d'expertise|Rapport|12/09/2024
-8|Compte-rendu passage urgences|Compte-rendu|15/03/2023
-[/bordereau]`;
+export const MOCK_REQUETE_BORDEREAU_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+];
 
 // ── Mock content for dire à expert ─────────────────────────────────
 export const MOCK_DIRE_TEXT = `DIRE À EXPERT
@@ -515,19 +514,15 @@ Nous sollicitons :
 
 Nous vous prions d'agréer, Docteur, l'expression de nos salutations distinguées.
 
-Maître Sophie BERNARD
+Maître Sophie BERNARD`;
 
-——————————————————————
-
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-3|Bulletins de salaire année 2022|Bulletin|10/01/2023
-5|Rapport d'expertise|Rapport|12/09/2024
-6|Ordonnance médicaments juillet|Ordonnance|18/07/2023
-11|Attestation de salaire employeur|Attestation|20/03/2023
-12|Facture IRM Centre Imagerie Sud|Facture|25/06/2023
-[/bordereau]`;
+export const MOCK_DIRE_BORDEREAU_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
+  { kind: 'piece', pieceId: 'p-11', intitule: 'Attestation de salaire employeur', type: 'Attestation', date: '20/03/2023' },
+  { kind: 'piece', pieceId: 'p-12', intitule: 'Facture IRM Centre Imagerie Sud', type: 'Facture', date: '25/06/2023' },
+];
 
 // ── Mock content for courrier / email ──────────────────────────────
 export const MOCK_EMAIL_TEXT = `LETTRE RECOMMANDÉE AVEC ACCUSÉ DE RÉCEPTION
@@ -575,17 +570,13 @@ Les pièces justificatives du préjudice sont jointes en annexe [pièce:1:Factur
 
 Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
 
-Maître Sophie BERNARD
+Maître Sophie BERNARD`;
 
-——————————————————————
-
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-1|Facture hospitalisation CHU Bordeaux|Facture|15/03/2023
-5|Rapport d'expertise|Rapport|12/09/2024
-8|Compte-rendu passage urgences|Compte-rendu|15/03/2023
-[/bordereau]`;
+export const MOCK_EMAIL_BORDEREAU_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+];
 
 // ── Mock content for protocole transactionnel ──────────────────────
 export const MOCK_PROTOCOLE_TEXT = `PROTOCOLE TRANSACTIONNEL
@@ -663,17 +654,13 @@ Le présent protocole est soumis au droit français. Les articles 2044 et suivan
 Fait en deux exemplaires originaux à Paris, le 27 avril 2026.
 
 Pour la Victime :                    Pour l'Assureur :
-Maître Sophie BERNARD                Maître Laurent MOREAU
+Maître Sophie BERNARD                Maître Laurent MOREAU`;
 
-——————————————————————
-
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-1|Facture hospitalisation CHU Bordeaux|Facture|15/03/2023
-3|Bulletins de salaire année 2022|Bulletin|10/01/2023
-5|Rapport d'expertise|Rapport|12/09/2024
-[/bordereau]`;
+export const MOCK_PROTOCOLE_BORDEREAU_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+];
 
 // ── Mock content for note en délibéré ──────────────────────────────
 export const MOCK_NOTE_DELIBERE_TEXT = `NOTE EN DÉLIBÉRÉ
@@ -715,16 +702,34 @@ Au vu de ces éléments, Monsieur DUPONT maintient l'intégralité de ses demand
 
 Fait à Paris, le 27 avril 2026.
 
-Maître Sophie BERNARD
+Maître Sophie BERNARD`;
 
-——————————————————————
+export const MOCK_NOTE_DELIBERE_BORDEREAU_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'piece', pieceId: 'p-10', intitule: "Avis d'arrêt de travail initial", type: 'Attestation', date: '16/03/2023' },
+];
 
-BORDEREAU DE PIÈCES COMMUNIQUÉES
-
-[bordereau]
-5|Rapport d'expertise|Rapport|12/09/2024
-10|Avis d'arrêt de travail initial|Attestation|16/03/2023
-[/bordereau]`;
+// Standalone bordereau — full dossier piece list, grouped by theme to
+// demonstrate hierarchical numbering (I, I-1, I-2, II, II-1…).
+export const MOCK_STANDALONE_BORDEREAU_ENTRIES = [
+  { kind: 'section', name: 'Médical' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
+  { kind: 'section', name: 'Frais médicaux' },
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-2', intitule: 'Factures kinésithérapie Cabinet Martin', type: 'Facture', date: '01/04/2023' },
+  { kind: 'piece', pieceId: 'p-7', intitule: 'Facture pharmacie des Lilas', type: 'Facture', date: '20/07/2023' },
+  { kind: 'piece', pieceId: 'p-12', intitule: 'Facture IRM Centre Imagerie Sud', type: 'Facture', date: '25/06/2023' },
+  { kind: 'piece', pieceId: 'p-14', intitule: 'Consultation orthopédique Dr. Petit', type: 'Facture', date: '15/08/2023' },
+  { kind: 'section', name: 'Pertes de revenus' },
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-9', intitule: 'Bulletins de salaire année 2021', type: 'Bulletin', date: '10/01/2022' },
+  { kind: 'piece', pieceId: 'p-11', intitule: 'Attestation de salaire employeur', type: 'Attestation', date: '20/03/2023' },
+  { kind: 'piece', pieceId: 'p-10', intitule: "Avis d'arrêt de travail initial", type: 'Attestation', date: '16/03/2023' },
+  { kind: 'piece', pieceId: 'p-4', intitule: 'Attestation de versement IJ CPAM', type: 'Attestation', date: '20/05/2023' },
+  { kind: 'piece', pieceId: 'p-13', intitule: 'Décompte indemnités prévoyance AG2R', type: 'Décompte', date: '15/08/2023' },
+];
 
 // ── Scenario action sequences ───────────────────────────────────────
 // The writing agent follows a 5-step flow:
@@ -760,6 +765,26 @@ export const REDACTION_SCENARIOS = {
       { type: 'STREAM_CONTENT', text: MOCK_ASSIGNATION_MODIFIED_TEXT, chunkSize: 60, chunkDelay: 20 },
       { type: 'DELAY', ms: 300 },
       { type: 'AGENT_MESSAGE', text: 'L\'assignation a été mise à jour avec les modifications demandées :\n\n— **AXA France IARD** ajoutée comme co-défenderesse\n— **PV d\'infraction** (franchissement feu rouge) intégré aux faits\n— **Préjudice psychologique** (SSPT) ajouté aux lésions et au préjudice actuel\n— **Sapiteur psychiatre** demandé en complément de l\'expert orthopédiste\n— **Provision portée à 25 000 €** (était 15 000 €)\n— **Article 700 porté à 4 000 €** (était 3 000 €)\n— **7ème demande** ajoutée : ordonnance commune aux tiers payeurs (CPAM + AG2R)\n\nRelisez l\'acte et dites-moi si d\'autres ajustements sont nécessaires.' },
+    ],
+  },
+
+  // ── Standalone bordereau ────────────────────────────────────────────
+  // Triggered from a chat NL query or the Pièces tab "Générer un bordereau"
+  // button. Emits a single bordereau artefact (no paired acte).
+  'bordereau-standalone': {
+    label: 'Bordereau · Standalone',
+    description: 'Génère un bordereau sans acte associé',
+    actions: [
+      { type: 'REASONING_COLLAPSED', text: 'Préparation du bordereau · pièces du dossier' },
+      { type: 'DELAY', ms: 400 },
+      { type: 'AGENT_REASONING_STEPS', label: 'Sélection des pièces', steps: [
+        { type: 'read_documents', label: 'Lecture des pièces du dossier (14 pièces)', status: 'done' },
+        { type: 'calculate', label: 'Numérotation séquentielle 1…N', status: 'done' },
+      ]},
+      { type: 'DELAY', ms: 500 },
+      { type: 'EMIT_BORDEREAU', title: 'Bordereau — pièces du dossier', entries: MOCK_STANDALONE_BORDEREAU_ENTRIES },
+      { type: 'DELAY', ms: 200 },
+      { type: 'AGENT_MESSAGE', text: 'Bordereau prêt avec les pièces du dossier, regroupées par thème (Médical, Frais, Revenus).\n\nVous pouvez l\'associer à un acte plus tard, ou le télécharger tel quel.' },
     ],
   },
 
@@ -829,6 +854,8 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactTitle: 'Assignation en référé-expertise — v1',
       artifactSubtitle: '3 pages · TJ Paris · M. Dupont c/ Mme Martin',
       doneMessage: 'L\'assignation en référé-expertise est prête. Elle reprend les faits du dossier, détaille le préjudice et formule les demandes d\'expertise et de provision.\n\nSélectionnez une zone du document pour demander des modifications.',
+      bordereauTitle: 'Bordereau — Assignation Dupont c/ Martin',
+      bordereauEntries: MOCK_ASSIGNATION_BORDEREAU_ENTRIES,
     },
   },
   conclusions: {
@@ -856,6 +883,8 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactTitle: 'Conclusions récapitulatives — v1',
       artifactSubtitle: '8 pages · TJ Paris · Dupont c/ Martin & AXA',
       doneMessage: 'Les conclusions récapitulatives sont prêtes. Elles intègrent l\'ensemble du chiffrage Dintilhac et répondent aux arguments adverses.\n\nSélectionnez une zone du document pour demander des modifications.',
+      bordereauTitle: 'Bordereau — Conclusions Dupont c/ Martin',
+      bordereauEntries: MOCK_CONCLUSIONS_BORDEREAU_ENTRIES,
     },
   },
   requete: {
@@ -882,6 +911,8 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactTitle: 'Requête en référé-expertise — v1',
       artifactSubtitle: '2 pages · TJ Paris · M. Dupont',
       doneMessage: 'La requête en référé-expertise est prête.\n\nSélectionnez une zone du document pour demander des modifications.',
+      bordereauTitle: 'Bordereau — Requête Dupont',
+      bordereauEntries: MOCK_REQUETE_BORDEREAU_ENTRIES,
     },
   },
   dire: {
@@ -908,6 +939,8 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactTitle: 'Dire à expert — v1',
       artifactSubtitle: '3 pages · Dr. Durand · M. Dupont',
       doneMessage: 'Le dire à expert est prêt. Il conteste les points identifiés et demande des investigations complémentaires.\n\nSélectionnez une zone du document pour demander des modifications.',
+      bordereauTitle: 'Bordereau — Dire à expert Dupont',
+      bordereauEntries: MOCK_DIRE_BORDEREAU_ENTRIES,
     },
   },
   email: {
@@ -934,6 +967,8 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactTitle: 'Courrier de relance — v1',
       artifactSubtitle: '1 page · AXA France · Dossier Dupont',
       doneMessage: 'Le courrier est prêt.\n\nSélectionnez une zone du document pour demander des modifications.',
+      bordereauTitle: 'Bordereau — Courrier AXA Dupont',
+      bordereauEntries: MOCK_EMAIL_BORDEREAU_ENTRIES,
     },
   },
   protocole: {
@@ -960,6 +995,8 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactTitle: 'Protocole transactionnel — v1',
       artifactSubtitle: '4 pages · Dupont / AXA · 185 000 €',
       doneMessage: 'Le protocole transactionnel est prêt.\n\nSélectionnez une zone du document pour demander des modifications.',
+      bordereauTitle: 'Bordereau — Protocole Dupont / AXA',
+      bordereauEntries: MOCK_PROTOCOLE_BORDEREAU_ENTRIES,
     },
   },
   'note-delibere': {
@@ -985,6 +1022,8 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactTitle: 'Note en délibéré — v1',
       artifactSubtitle: '2 pages · TJ Paris · Dupont c/ Martin',
       doneMessage: 'La note en délibéré est prête.\n\nSélectionnez une zone du document pour demander des modifications.',
+      bordereauTitle: 'Bordereau — Note en délibéré Dupont',
+      bordereauEntries: MOCK_NOTE_DELIBERE_BORDEREAU_ENTRIES,
     },
   },
 };

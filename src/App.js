@@ -12,6 +12,11 @@ import { getTPScenario, TP_COMMAND_LIST, TP_COMMAND_MAP } from './data/tpScenari
 import useRedactionCommands from './hooks/useRedactionCommands';
 import { REDACTION_SCENARIOS, REDACTION_COMMAND_LIST, REDACTION_COMMAND_MAP, REDACTION_ACT_TYPES } from './data/redactionScenarios';
 import ActCanvas from './components/redaction/ActCanvas';
+import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
+import PairTabs from './components/redaction/PairTabs';
+import ExportBordereauMenu from './components/redaction/ExportBordereauMenu';
+import { extractCitations, buildEntriesFromCitations, addPieceToEntries } from './data/bordereauModel';
+import { MOCK_STANDALONE_BORDEREAU_ENTRIES } from './data/redactionScenarios';
 import EmptyState from './components/EmptyState';
 import PromptSuggestionCard from './components/PromptSuggestionCard';
 import SuggestionsMenu from './components/SuggestionsMenu';
@@ -3655,6 +3660,13 @@ export default function App() {
       const cmd = text.slice(1).trim();
       setChatInputValue('');
 
+      // Standalone bordereau — handled before the generic 'redaction' branch
+      // so `/bordereau` and `/redaction-bordereau` both work.
+      if (cmd === 'bordereau' || cmd === 'redaction-bordereau' || cmd === 'bordereau-standalone') {
+        redaction.playScenario('bordereau-standalone');
+        return;
+      }
+
       // Redaction commands
       if (cmd.startsWith('redaction')) {
         // Extract act type from command: "redaction-assignation" → "assignation"
@@ -3801,6 +3813,15 @@ export default function App() {
 
     // Intent detection: redaction keywords in natural language (accent-insensitive)
     const normalizedText = lowerText.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // Bordereau intent \u2014 match before the generic redaction flow because
+    // "bordereau" isn't in actTypeMap and shouldn't fall through to
+    // assignation by default.
+    if (normalizedText.includes('bordereau')) {
+      setTimeout(() => redaction.playScenario('bordereau-standalone'), 300);
+      return;
+    }
+
     const redactionKeywords = ['redige', 'rediger', 'redaction', 'ecris', 'ecrire', 'ecrit', 'redact'];
     const matchedRedaction = redactionKeywords.some(kw => normalizedText.includes(kw));
     let detectedTypeFromNL = null;
@@ -5669,10 +5690,17 @@ export default function App() {
     // Acte view sub-header
     if (currentLevel.type === 'acte') {
       const acte = redaction.redactionState.dossierActes.find(a => a.id === currentLevel.id);
+      const isBordereau = acte?.kind === 'bordereau';
+      // Resolve the paired sibling for the tab strip, if any.
+      const sibling = acte?.pairId
+        ? redaction.redactionState.dossierActes.find(a => a.id !== acte.id && a.pairId === acte.pairId)
+        : null;
+      const pairActe = isBordereau ? sibling : acte;
+      const pairBordereau = isBordereau ? acte : sibling;
       return (
         <div className="border-b border-[#e7e5e3] bg-white flex-shrink-0">
-          <div className="h-[52px] px-4 flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="h-[52px] px-4 flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
               <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors flex-shrink-0">
                 <ChevronRight className="w-4 h-4 rotate-180 text-[#a8a29e]" strokeWidth={1.5} />
               </button>
@@ -5690,15 +5718,51 @@ export default function App() {
                 </div>
               )}
             </div>
+            {/* Acte/Bordereau segmented control sits inline with the actions —
+                same horizontal band as Copier/Télécharger, so the canvas
+                chrome stays a single strip. */}
+            {pairActe && pairBordereau && (
+              <PairTabs
+                acte={pairActe}
+                bordereau={pairBordereau}
+                activeId={acte.id}
+                onSwitch={(siblingId) => {
+                  if (siblingId === acte.id) return;
+                  const sib = redaction.redactionState.dossierActes.find(a => a.id === siblingId);
+                  if (!sib) return;
+                  redaction.dispatch({ type: 'REOPEN_CANVAS', acteId: siblingId });
+                  setNavStack(prev => prev.length === 0 ? prev : [
+                    ...prev.slice(0, -1),
+                    { ...prev[prev.length - 1], id: sib.id, title: sib.title, fullTitle: sib.title },
+                  ]);
+                }}
+              />
+            )}
             <div className="flex items-center gap-1 flex-shrink-0">
-              <button className="inline-flex items-center gap-1.5 px-3 h-8 rounded-[8px] text-[13px] font-medium transition-colors hover:bg-[#e7e5e3]" style={{ backgroundColor: '#eeece6', color: '#44403c' }} title="Copier">
+              <button
+                className="inline-flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-[#e7e5e3]"
+                style={{ backgroundColor: '#eeece6', color: '#44403c' }}
+                title="Copier"
+                aria-label="Copier"
+              >
                 <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />
-                Copier
               </button>
-              <button className="inline-flex items-center gap-1.5 px-3 h-8 rounded-[8px] text-[13px] font-medium transition-colors hover:bg-[#e7e5e3]" style={{ backgroundColor: '#eeece6', color: '#44403c' }} title="Télécharger">
-                <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
-                Télécharger
-              </button>
+              {/* Télécharger — single primary dropdown on both tabs of a pair.
+                  The menu's scope picker (Acte / Bordereau / Tout) is
+                  symmetric, so the export contract feels continuous regardless
+                  of which side the user is on. */}
+              <ExportBordereauMenu
+                onConfirm={({ scope, tamponnage }) => {
+                  const scopeLabels = {
+                    acte: 'Acte seul',
+                    bordereau: 'Bordereau seul',
+                    tout: 'Acte + bordereau + pièces',
+                  };
+                  const suffix = tamponnage ? ' avec tamponnage' : '';
+                  setToastMessage(`${scopeLabels[scope] || 'Export'}${suffix} — à venir`);
+                  setTimeout(() => setToastMessage(null), 2500);
+                }}
+              />
             </div>
           </div>
         </div>
@@ -8672,6 +8736,80 @@ export default function App() {
   const renderContent = () => {
     // ACTE — document view with streaming
     if (currentLevel.type === 'acte') {
+      const acte = redaction.redactionState.dossierActes.find(a => a.id === currentLevel.id);
+      const kind = acte?.kind || 'text';
+      if (kind === 'bordereau') {
+        // Build an `onGenerate` for the empty state: try citations from the
+        // paired text acte first, fall back to the dossier piece list.
+        const linkedActe = acte?.pairId
+          ? redaction.redactionState.dossierActes.find(a => a.id !== acte.id && a.pairId === acte.pairId && a.kind === 'text')
+          : null;
+        const citations = linkedActe ? extractCitations(linkedActe.content || '') : [];
+        const piecesById = Object.fromEntries(pieces.map(p => [p.id, p]));
+        const fromActe = citations.length > 0;
+        const generatedEntries = fromActe
+          ? buildEntriesFromCitations(citations, piecesById)
+          : MOCK_STANDALONE_BORDEREAU_ENTRIES;
+        const canGenerate = generatedEntries.length > 0;
+
+        const onGenerate = canGenerate ? () => {
+          const userText = fromActe
+            ? 'Génère mon bordereau à partir des pièces citées dans l\'acte.'
+            : 'Génère mon bordereau à partir des pièces du dossier.';
+          setChatMessages(prev => [...prev, { type: 'user', text: userText }]);
+          const pieceCount = generatedEntries.filter(e => e.kind === 'piece').length;
+          redaction.playActions([
+            { type: 'REASONING_COLLAPSED', text: fromActe ? 'Analyse des citations dans l\'acte' : 'Préparation du bordereau · pièces du dossier' },
+            { type: 'DELAY', ms: 400 },
+            { type: 'AGENT_REASONING_STEPS', label: 'Construction du bordereau', steps: [
+              { type: 'read_documents', label: fromActe ? `Lecture des citations : ${pieceCount} pièce${pieceCount > 1 ? 's' : ''}` : `Lecture des pièces du dossier (${pieceCount})`, status: 'done' },
+              { type: 'calculate', label: 'Numérotation séquentielle', status: 'done' },
+            ] },
+            { type: 'DELAY', ms: 500 },
+            { type: 'FILL_BORDEREAU_ENTRIES', acteId: acte.id, entries: generatedEntries },
+            { type: 'DELAY', ms: 200 },
+            { type: 'AGENT_MESSAGE', text: `Bordereau prêt avec ${pieceCount} pièce${pieceCount > 1 ? 's' : ''}${fromActe ? ' numérotée' + (pieceCount > 1 ? 's' : '') + ' dans l\'ordre d\'apparition dans l\'acte' : ''}.` },
+          ]);
+        } : undefined;
+
+        return (
+          <ActeBordereauCanvas
+            entries={acte?.bordereauEntries || []}
+            onGenerate={onGenerate}
+            generateSource={fromActe ? 'acte' : 'dossier'}
+            dossierPieces={pieces}
+            dossierCategories={bordereauCategories}
+            onAddPiece={(piece) => {
+              const nextEntries = addPieceToEntries(acte?.bordereauEntries || [], {
+                pieceId: piece.id,
+                intitule: piece.intitule || piece.nom,
+                type: piece.type,
+                date: piece.date,
+              });
+              redaction.dispatch({
+                type: 'UPDATE_ACTE',
+                acteId: acte.id,
+                updates: { bordereauEntries: nextEntries },
+              });
+              setToastMessage(`« ${piece.intitule || piece.nom} » ajoutée au bordereau`);
+              setTimeout(() => setToastMessage(null), 2200);
+            }}
+            onReorder={(fromIdx, toIdx) => {
+              const current = acte?.bordereauEntries || [];
+              if (fromIdx < 0 || fromIdx >= current.length) return;
+              if (toIdx < 0 || toIdx > current.length) return;
+              const next = current.slice();
+              const [moved] = next.splice(fromIdx, 1);
+              next.splice(toIdx, 0, moved);
+              redaction.dispatch({
+                type: 'UPDATE_ACTE',
+                acteId: acte.id,
+                updates: { bordereauEntries: next },
+              });
+            }}
+          />
+        );
+      }
       return (
         <ActCanvas
           content={redaction.redactionState.canvasContent}
@@ -9920,7 +10058,20 @@ export default function App() {
       }
       if (currentLevel.activeTab === 'pièces') {
         if (dropFirstActive || dropFirstPieces.length > 0) return renderDropFirstPiecesTab();
-        return <PiecesTab pieces={pieces} categories={bordereauCategories} setPieces={setPieces} setCategories={setBordereauCategories} onAddFiles={handleAddMorePieces} onAskChato={askChatoAboutSelection} />;
+        return (
+          <PiecesTab
+            pieces={pieces}
+            categories={bordereauCategories}
+            setPieces={setPieces}
+            setCategories={setBordereauCategories}
+            onAddFiles={handleAddMorePieces}
+            onAskChato={askChatoAboutSelection}
+            onGenerateBordereau={() => {
+              setChatMessages(prev => [...prev, { type: 'user', text: 'Génère-moi un bordereau pour ce dossier' }]);
+              setTimeout(() => redaction.playScenario('bordereau-standalone'), 300);
+            }}
+          />
+        );
       }
 
       // Actes tab — drafted legal documents
@@ -9930,7 +10081,19 @@ export default function App() {
           <ActesList
             actes={redaction.redactionState.dossierActes}
             onOpen={(id) => redaction.openCanvas(id)}
-            onNewActe={isClosed ? undefined : () => setNewActeModalOpen(true)}
+            onNewActe={isClosed ? undefined : () => {
+              // Route through the chat so the agent leads the act-type
+              // selection (same path as the empty-state CTA + the bordereau
+              // generation flow). Keeps a single creation pipeline.
+              setChatMessages(prev => [...prev, { type: 'user', text: 'Rédiger un nouvel acte' }]);
+              setChatInputValue('');
+              setTimeout(() => redaction.playScenario('redaction-onboarding'), 200);
+            }}
+            onNewBordereau={isClosed ? undefined : () => {
+              setChatMessages(prev => [...prev, { type: 'user', text: 'Génère-moi un bordereau pour ce dossier' }]);
+              setChatInputValue('');
+              setTimeout(() => redaction.playScenario('bordereau-standalone'), 200);
+            }}
             onSendPrompt={isClosed ? undefined : () => {
               setChatMessages(prev => [...prev, { type: 'user', text: 'Rédiger mon premier acte' }]);
               setChatInputValue('');
