@@ -65,58 +65,9 @@ const renderInlineMarkdown = (text) => {
   });
 };
 
-// Bordereau table renderer — matches Figma RowBordereau (36448:16485)
-const renderBordereau = (rows) => {
-  const font = "'Inter', system-ui, sans-serif";
-  const mono = "'IBM Plex Mono', monospace";
-  return (
-    <div style={{ width: '100%', marginTop: 8 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', height: 40, borderBottom: '1px solid #e7e5e3' }}>
-        <div style={{ width: 46, textAlign: 'center', fontFamily: mono, fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', flexShrink: 0 }}>N°</div>
-        <div style={{ flex: 1, padding: '0 12px', fontFamily: mono, fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Nom de la pièce</div>
-      </div>
-      {/* Rows */}
-      {rows.map((row, i) => (
-        <div
-          key={i}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            height: 52,
-            borderBottom: i < rows.length - 1 ? '1px solid #e7e5e3' : 'none',
-            backgroundColor: i % 2 === 1 ? '#f8f7f5' : 'white',
-          }}
-        >
-          {/* Numbered badge */}
-          <div style={{ width: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <div style={{
-              width: 22,
-              height: 22,
-              borderRadius: 6,
-              backgroundColor: '#eeece6',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontFamily: font,
-              fontSize: 12,
-              fontWeight: 600,
-              color: '#78716c',
-            }}>
-              {row.num}
-            </div>
-          </div>
-          {/* Piece name + date */}
-          <div style={{ flex: 1, padding: '0 12px', fontFamily: font, fontSize: 14, color: '#292524', lineHeight: '20px', minWidth: 0 }}>
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
-              {row.name} [{row.date}]
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
+// The bordereau is now its own artefact (ActeBordereauCanvas) emitted
+// post-stream by useRedactionCommands. ActCanvas no longer renders an inline
+// [bordereau] block — that content path was removed in the bordereau branch.
 
 export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZone }) {
   const scrollRef = useRef(null);
@@ -176,19 +127,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
 
     const font = "'Inter', system-ui, sans-serif";
 
-    // Extract bordereau block if present
-    const bordereauMatch = content.match(/\[bordereau\]\n([\s\S]*?)\n\[\/bordereau\]/);
-    let bordereauRows = null;
-    let mainContent = content;
-    if (bordereauMatch) {
-      mainContent = content.replace(/\[bordereau\]\n[\s\S]*?\n\[\/bordereau\]/, '').trimEnd();
-      bordereauRows = bordereauMatch[1].split('\n').filter(l => l.trim()).map(line => {
-        const [num, name, type, date] = line.split('|');
-        return { num: num.trim(), name: name.trim(), type: type.trim(), date: date.trim() };
-      });
-    }
-
-    const lines = mainContent.split('\n');
+    const lines = content.split('\n');
 
     const elements = lines.map((line, i) => {
       const trimmed = line.trim();
@@ -233,15 +172,6 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
       // Regular paragraph
       return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: '#37352f', margin: '3px 0' }}>{renderInlineMarkdown(trimmed)}</p>;
     });
-
-    // Append bordereau table if present
-    if (bordereauRows) {
-      elements.push(
-        <div key="bordereau">
-          {renderBordereau(bordereauRows)}
-        </div>
-      );
-    }
 
     return elements;
   };
