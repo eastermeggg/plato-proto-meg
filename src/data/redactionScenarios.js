@@ -731,6 +731,62 @@ export const MOCK_STANDALONE_BORDEREAU_ENTRIES = [
   { kind: 'piece', pieceId: 'p-13', intitule: 'Décompte indemnités prévoyance AG2R', type: 'Décompte', date: '15/08/2023' },
 ];
 
+// Themed flat subsets — used by the `/redaction-bordereau` clarify flow
+// (agent asks "quel type ?" then emits the matching subset).
+export const MOCK_BORDEREAU_MEDICAL_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-10', intitule: "Avis d'arrêt de travail initial", type: 'Attestation', date: '16/03/2023' },
+  { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+];
+
+export const MOCK_BORDEREAU_PROCEDURE_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-proc-1', intitule: 'PV de constat d\'accident', type: 'PV', date: '14/09/2024', description: 'Police nationale — main courante n° 2024/09/14-3847' },
+  { kind: 'piece', pieceId: 'p-proc-2', intitule: 'Ordonnance désignation expert', type: 'Ordonnance', date: '03/10/2024', description: 'TJ Paris — Dr. Martin' },
+  { kind: 'piece', pieceId: 'p-proc-3', intitule: 'Convocation expertise contradictoire', type: 'Courrier', date: '15/10/2024' },
+  { kind: 'piece', pieceId: 'p-proc-4', intitule: 'Avis de réception assignation', type: 'Acte d\'huissier', date: '24/04/2026' },
+];
+
+// Reordered version of the flat bordereau (most recent → oldest). Used by
+// `/bordereau-reorder` to demo reordering with a brief skeleton/shimmer
+// animation on the rows.
+export const MOCK_REORDERED_BORDEREAU_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+  { kind: 'piece', pieceId: 'p-13', intitule: 'Décompte indemnités prévoyance AG2R', type: 'Décompte', date: '15/08/2023' },
+  { kind: 'piece', pieceId: 'p-14', intitule: 'Consultation orthopédique Dr. Petit', type: 'Facture', date: '15/08/2023' },
+  { kind: 'piece', pieceId: 'p-7', intitule: 'Facture pharmacie des Lilas', type: 'Facture', date: '20/07/2023' },
+  { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
+  { kind: 'piece', pieceId: 'p-12', intitule: 'Facture IRM Centre Imagerie Sud', type: 'Facture', date: '25/06/2023' },
+  { kind: 'piece', pieceId: 'p-4', intitule: 'Attestation de versement IJ CPAM', type: 'Attestation', date: '20/05/2023' },
+  { kind: 'piece', pieceId: 'p-2', intitule: 'Factures kinésithérapie Cabinet Martin', type: 'Facture', date: '01/04/2023' },
+  { kind: 'piece', pieceId: 'p-11', intitule: 'Attestation de salaire employeur', type: 'Attestation', date: '20/03/2023' },
+  { kind: 'piece', pieceId: 'p-10', intitule: "Avis d'arrêt de travail initial", type: 'Attestation', date: '16/03/2023' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-9', intitule: 'Bulletins de salaire année 2021', type: 'Bulletin', date: '10/01/2022' },
+];
+
+// Flat bordereau — same pieces as MOCK_STANDALONE but no sections, ordered
+// chronologically. Used by `/redaction-bordereau` so the user can then run
+// `/bordereau-modify-section` to demo the agent reorganising into themes.
+export const MOCK_FLAT_BORDEREAU_ENTRIES = [
+  { kind: 'piece', pieceId: 'p-9', intitule: 'Bulletins de salaire année 2021', type: 'Bulletin', date: '10/01/2022' },
+  { kind: 'piece', pieceId: 'p-3', intitule: 'Bulletins de salaire année 2022', type: 'Bulletin', date: '10/01/2023' },
+  { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023' },
+  { kind: 'piece', pieceId: 'p-10', intitule: "Avis d'arrêt de travail initial", type: 'Attestation', date: '16/03/2023' },
+  { kind: 'piece', pieceId: 'p-11', intitule: 'Attestation de salaire employeur', type: 'Attestation', date: '20/03/2023' },
+  { kind: 'piece', pieceId: 'p-2', intitule: 'Factures kinésithérapie Cabinet Martin', type: 'Facture', date: '01/04/2023' },
+  { kind: 'piece', pieceId: 'p-4', intitule: 'Attestation de versement IJ CPAM', type: 'Attestation', date: '20/05/2023' },
+  { kind: 'piece', pieceId: 'p-12', intitule: 'Facture IRM Centre Imagerie Sud', type: 'Facture', date: '25/06/2023' },
+  { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
+  { kind: 'piece', pieceId: 'p-7', intitule: 'Facture pharmacie des Lilas', type: 'Facture', date: '20/07/2023' },
+  { kind: 'piece', pieceId: 'p-14', intitule: 'Consultation orthopédique Dr. Petit', type: 'Facture', date: '15/08/2023' },
+  { kind: 'piece', pieceId: 'p-13', intitule: 'Décompte indemnités prévoyance AG2R', type: 'Décompte', date: '15/08/2023' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024' },
+];
+
 // ── Scenario action sequences ───────────────────────────────────────
 // The writing agent follows a 5-step flow:
 //   1. Template check   — search library for matching templates
@@ -765,6 +821,105 @@ export const REDACTION_SCENARIOS = {
       { type: 'STREAM_CONTENT', text: MOCK_ASSIGNATION_MODIFIED_TEXT, chunkSize: 60, chunkDelay: 20 },
       { type: 'DELAY', ms: 300 },
       { type: 'AGENT_MESSAGE', text: 'L\'assignation a été mise à jour avec les modifications demandées :\n\n— **AXA France IARD** ajoutée comme co-défenderesse\n— **PV d\'infraction** (franchissement feu rouge) intégré aux faits\n— **Préjudice psychologique** (SSPT) ajouté aux lésions et au préjudice actuel\n— **Sapiteur psychiatre** demandé en complément de l\'expert orthopédiste\n— **Provision portée à 25 000 €** (était 15 000 €)\n— **Article 700 porté à 4 000 €** (était 3 000 €)\n— **7ème demande** ajoutée : ordonnance commune aux tiers payeurs (CPAM + AG2R)\n\nRelisez l\'acte et dites-moi si d\'autres ajustements sont nécessaires.' },
+    ],
+  },
+
+  // ── Standalone bordereau · clarify flow ────────────────────────────
+  // Demo of the agent asking what TYPE of bordereau before generating.
+  // After the user replies (handled in App.js via `awaiting-bordereau-type-reply`),
+  // one of the bordereau-emit-* scenarios is played.
+  'redaction-bordereau': {
+    label: 'Bordereau · Simple (sans sections)',
+    description: 'Demande le type de bordereau, puis génère un bordereau plat',
+    actions: [
+      { type: 'USER_MESSAGE', text: 'Génère-moi un bordereau pour ce dossier' },
+      { type: 'DELAY', ms: 400 },
+      { type: 'AGENT_MESSAGE', text: 'Ok, quel type de bordereau veux-tu — un bordereau dédié à un type de pièces (médical, procédure, frais…) ou un bordereau complet du dossier ?' },
+      { type: 'SET_STEPPER_STATE', stepperType: 'awaiting-bordereau-type-reply' },
+    ],
+  },
+
+  // Emit branches — picked by the App.js stepper handler after the user's reply
+  'bordereau-emit-medical': {
+    label: 'Bordereau · Médical',
+    description: 'Bordereau plat — pièces médicales uniquement',
+    actions: [
+      { type: 'REASONING_COLLAPSED', text: 'Filtre · pièces médicales du dossier' },
+      { type: 'DELAY', ms: 400 },
+      { type: 'AGENT_REASONING_STEPS', label: 'Construction du bordereau médical', steps: [
+        { type: 'read_documents', label: 'Sélection des pièces médicales (4 pièces)', status: 'done' },
+        { type: 'calculate', label: 'Tri chronologique', status: 'done' },
+        { type: 'calculate', label: 'Numérotation séquentielle 1…4', status: 'done' },
+      ]},
+      { type: 'DELAY', ms: 500 },
+      { type: 'EMIT_BORDEREAU', title: 'Bordereau médical', entries: MOCK_BORDEREAU_MEDICAL_ENTRIES },
+      { type: 'DELAY', ms: 200 },
+      { type: 'AGENT_MESSAGE', text: 'Bordereau médical prêt avec **4 pièces**, triées par date.\n\nDites-moi si vous souhaitez en ajouter ou changer l\'ordre.' },
+    ],
+  },
+
+  'bordereau-emit-procedure': {
+    label: 'Bordereau · Procédure',
+    description: 'Bordereau plat — pièces de procédure uniquement',
+    actions: [
+      { type: 'REASONING_COLLAPSED', text: 'Filtre · pièces de procédure du dossier' },
+      { type: 'DELAY', ms: 400 },
+      { type: 'AGENT_REASONING_STEPS', label: 'Construction du bordereau procédure', steps: [
+        { type: 'read_documents', label: 'Sélection des pièces de procédure (4 pièces)', status: 'done' },
+        { type: 'calculate', label: 'Tri chronologique', status: 'done' },
+        { type: 'calculate', label: 'Numérotation séquentielle 1…4', status: 'done' },
+      ]},
+      { type: 'DELAY', ms: 500 },
+      { type: 'EMIT_BORDEREAU', title: 'Bordereau procédure', entries: MOCK_BORDEREAU_PROCEDURE_ENTRIES },
+      { type: 'DELAY', ms: 200 },
+      { type: 'AGENT_MESSAGE', text: 'Bordereau procédure prêt avec **4 pièces**, triées par date.\n\nDites-moi si vous souhaitez en ajouter ou changer l\'ordre.' },
+    ],
+  },
+
+  'bordereau-emit-full': {
+    label: 'Bordereau · Complet',
+    description: 'Bordereau plat — toutes les pièces du dossier',
+    actions: [
+      { type: 'REASONING_COLLAPSED', text: 'Préparation du bordereau · pièces du dossier' },
+      { type: 'DELAY', ms: 400 },
+      { type: 'AGENT_REASONING_STEPS', label: 'Construction du bordereau', steps: [
+        { type: 'read_documents', label: 'Lecture des pièces du dossier (14 pièces)', status: 'done' },
+        { type: 'calculate', label: 'Tri chronologique (plus ancienne → plus récente)', status: 'done' },
+        { type: 'calculate', label: 'Numérotation séquentielle 1…14', status: 'done' },
+      ]},
+      { type: 'DELAY', ms: 500 },
+      { type: 'EMIT_BORDEREAU', title: 'Bordereau — pièces du dossier', entries: MOCK_FLAT_BORDEREAU_ENTRIES },
+      { type: 'DELAY', ms: 200 },
+      { type: 'AGENT_MESSAGE', text: 'Bordereau prêt avec **14 pièces**, triées par date et numérotées 1 à 14.\n\nDites-moi si vous souhaitez les regrouper par thème (médical, frais, revenus…) ou changer l\'ordre.' },
+    ],
+  },
+
+  // ── Reorganise bordereau: flat → sectioned (with shimmer anim) ─────
+  // Updates the currently-open bordereau (canvas focus) by replacing its
+  // entries with a sectioned version (Médical / Frais / Revenus). Rows
+  // shimmer for ~1s while the agent "thinks", then the new entries snap in.
+  // FILL_BORDEREAU_ENTRIES defaults its target to canvasActeId when no
+  // acteId is provided, so the user must be on the bordereau canvas.
+  'bordereau-modify-section': {
+    label: 'Bordereau · Réorganiser en sections',
+    description: 'Regroupe les pièces du bordereau par thème, avec animation skeleton',
+    actions: [
+      { type: 'USER_MESSAGE', text: 'Réorganise ce bordereau avec des sections I, II, III, classé par type, et trie les pièces dans l\'ordre où elles seront citées dans l\'acte.' },
+      { type: 'DELAY', ms: 400 },
+      { type: 'REASONING_COLLAPSED', text: 'Réorganisation du bordereau · regroupement par thème' },
+      { type: 'DELAY', ms: 300 },
+      { type: 'SET_REORDERING_BORDEREAU' },
+      { type: 'AGENT_REASONING_STEPS', label: 'Réorganisation', steps: [
+        { type: 'calculate', label: 'Classification des pièces par type (médical, frais, revenus)', status: 'done' },
+        { type: 'read_documents', label: 'Ordre de citation dans l\'acte (apparition séquentielle)', status: 'done' },
+        { type: 'calculate', label: 'Numérotation hiérarchique I, I-1, I-2, II, II-1…', status: 'done' },
+      ]},
+      { type: 'DELAY', ms: 900 },
+      { type: 'FILL_BORDEREAU_ENTRIES', entries: MOCK_STANDALONE_BORDEREAU_ENTRIES },
+      { type: 'DELAY', ms: 150 },
+      { type: 'CLEAR_REORDERING_BORDEREAU' },
+      { type: 'DELAY', ms: 100 },
+      { type: 'AGENT_MESSAGE', text: 'Bordereau réorganisé en **3 sections** :\n\n— **I. Médical** — comptes-rendus, expertise, ordonnances\n— **II. Frais médicaux** — factures hospitalisation, kiné, pharmacie, IRM\n— **III. Pertes de revenus** — bulletins, attestations, indemnités\n\nLes pièces sont triées dans l\'ordre où elles apparaîtront dans l\'acte, et numérotées hiérarchiquement (I-1, I-2, II-1…).' },
     ],
   },
 
@@ -855,7 +1010,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactSubtitle: '3 pages · TJ Paris · M. Dupont c/ Mme Martin',
       doneMessage: 'L\'assignation en référé-expertise est prête. Elle reprend les faits du dossier, détaille le préjudice et formule les demandes d\'expertise et de provision.\n\nSélectionnez une zone du document pour demander des modifications.',
       bordereauTitle: 'Bordereau — Assignation Dupont c/ Martin',
-      bordereauEntries: MOCK_ASSIGNATION_BORDEREAU_ENTRIES,
+      bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
   conclusions: {
@@ -884,7 +1039,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactSubtitle: '8 pages · TJ Paris · Dupont c/ Martin & AXA',
       doneMessage: 'Les conclusions récapitulatives sont prêtes. Elles intègrent l\'ensemble du chiffrage Dintilhac et répondent aux arguments adverses.\n\nSélectionnez une zone du document pour demander des modifications.',
       bordereauTitle: 'Bordereau — Conclusions Dupont c/ Martin',
-      bordereauEntries: MOCK_CONCLUSIONS_BORDEREAU_ENTRIES,
+      bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
   requete: {
@@ -912,7 +1067,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactSubtitle: '2 pages · TJ Paris · M. Dupont',
       doneMessage: 'La requête en référé-expertise est prête.\n\nSélectionnez une zone du document pour demander des modifications.',
       bordereauTitle: 'Bordereau — Requête Dupont',
-      bordereauEntries: MOCK_REQUETE_BORDEREAU_ENTRIES,
+      bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
   dire: {
@@ -940,7 +1095,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactSubtitle: '3 pages · Dr. Durand · M. Dupont',
       doneMessage: 'Le dire à expert est prêt. Il conteste les points identifiés et demande des investigations complémentaires.\n\nSélectionnez une zone du document pour demander des modifications.',
       bordereauTitle: 'Bordereau — Dire à expert Dupont',
-      bordereauEntries: MOCK_DIRE_BORDEREAU_ENTRIES,
+      bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
   email: {
@@ -968,7 +1123,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactSubtitle: '1 page · AXA France · Dossier Dupont',
       doneMessage: 'Le courrier est prêt.\n\nSélectionnez une zone du document pour demander des modifications.',
       bordereauTitle: 'Bordereau — Courrier AXA Dupont',
-      bordereauEntries: MOCK_EMAIL_BORDEREAU_ENTRIES,
+      bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
   protocole: {
@@ -996,7 +1151,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactSubtitle: '4 pages · Dupont / AXA · 185 000 €',
       doneMessage: 'Le protocole transactionnel est prêt.\n\nSélectionnez une zone du document pour demander des modifications.',
       bordereauTitle: 'Bordereau — Protocole Dupont / AXA',
-      bordereauEntries: MOCK_PROTOCOLE_BORDEREAU_ENTRIES,
+      bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
   'note-delibere': {
@@ -1023,7 +1178,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
       artifactSubtitle: '2 pages · TJ Paris · Dupont c/ Martin',
       doneMessage: 'La note en délibéré est prête.\n\nSélectionnez une zone du document pour demander des modifications.',
       bordereauTitle: 'Bordereau — Note en délibéré Dupont',
-      bordereauEntries: MOCK_NOTE_DELIBERE_BORDEREAU_ENTRIES,
+      bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
 };
@@ -1063,6 +1218,8 @@ export const REDACTION_COMMAND_LIST = [
   { command: 'redaction-requete', label: 'Rédaction · Requête en référé', description: 'Requête en référé-expertise' },
   { command: 'redaction-email', label: 'Rédaction · Courrier', description: 'Courrier ou mise en demeure' },
   { command: 'redaction-protocole', label: 'Rédaction · Protocole', description: 'Protocole transactionnel' },
+  { command: 'redaction-bordereau', label: 'Bordereau · Simple', description: 'Bordereau plat, pièces ordonnées chronologiquement' },
+  { command: 'bordereau-modify-section', label: 'Bordereau · Réorganiser en sections', description: 'Regroupe le bordereau ouvert par thème, avec animation skeleton' },
   { command: 'redaction-modif', label: 'Modification d\'acte', description: 'Modifier l\'acte ouvert dans le canvas' },
   { command: 'redaction-user-ask', label: 'Rédaction · UserAsk', description: 'Questions avec propositions de réponse' },
 ];

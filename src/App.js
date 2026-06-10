@@ -3663,10 +3663,17 @@ export default function App() {
       const cmd = text.slice(1).trim();
       setChatInputValue('');
 
-      // Standalone bordereau — handled before the generic 'redaction' branch
-      // so `/bordereau` and `/redaction-bordereau` both work.
-      if (cmd === 'bordereau' || cmd === 'redaction-bordereau' || cmd === 'bordereau-standalone') {
+      // Standalone bordereau — handled before the generic 'redaction' branch.
+      // `/bordereau` and `/bordereau-standalone` still emit the sectioned demo;
+      // `/redaction-bordereau` emits a FLAT one (entry point for the modify-
+      // section demo); `/bordereau-modify-section` regroups the current
+      // bordereau into themed sections.
+      if (cmd === 'bordereau' || cmd === 'bordereau-standalone') {
         redaction.playScenario('bordereau-standalone');
+        return;
+      }
+      if (cmd === 'redaction-bordereau' || cmd === 'bordereau-modify-section') {
+        redaction.playScenario(cmd);
         return;
       }
 
@@ -3768,6 +3775,19 @@ export default function App() {
       setTimeout(() => {
         redaction.modifyZone(text, zone);
       }, 300);
+      return;
+    }
+
+    // Redaction: bordereau-type reply — detect theme (médical / procédure / complet)
+    // and play the matching emit scenario.
+    if (redaction.redactionState.activeStepper === 'awaiting-bordereau-type-reply') {
+      redaction.dispatch({ type: 'CLOSE_STEPPER' });
+      const normalized = lowerText.normalize('NFD').replace(/[̀-ͯ]/g, '');
+      setChatMessages(prev => [...prev, { type: 'user', text }]);
+      let emitKey = 'bordereau-emit-full';
+      if (/(medic|sant|sois|expert)/.test(normalized)) emitKey = 'bordereau-emit-medical';
+      else if (/(proced|huissi|assignat|tribun|pv|police)/.test(normalized)) emitKey = 'bordereau-emit-procedure';
+      setTimeout(() => redaction.playScenario(emitKey), 300);
       return;
     }
 
@@ -4530,6 +4550,22 @@ export default function App() {
     prevChatCountRef.current = chatMessages.length;
   }, [chatMessages.length]);
 
+  // Demo coherence — act-generation scenarios populate the bordereau from mock
+  // entries (MOCK_*_BORDEREAU_ENTRIES) without touching the matter's pieces
+  // state. If a bordereau artefact exists with entries but the matter is
+  // empty, seed it with the canonical BORDEREAU_PIECES so the bordereau's
+  // pieceIds resolve, the Pièces tab is consistent, and the "Ajouter une
+  // pièce" modal has something to show.
+  useEffect(() => {
+    if (pieces.length > 0) return;
+    const hasFilledBordereau = redaction.redactionState.dossierActes.some(
+      a => a.kind === 'bordereau' && Array.isArray(a.bordereauEntries) && a.bordereauEntries.some(e => e.kind === 'piece')
+    );
+    if (!hasFilledBordereau) return;
+    setPieces(BORDEREAU_PIECES);
+    if (bordereauCategories.length === 0) setBordereauCategories(BORDEREAU_CATEGORIES);
+  }, [redaction.redactionState.dossierActes, pieces.length, bordereauCategories.length]);
+
   const renderChatSidebar = () => {
     const hasContent = chatInputValue.trim().length > 0 || stagedDocs.length > 0;
     const isDossierClosed = dossierStatut === 'fermé';
@@ -4932,6 +4968,11 @@ export default function App() {
                 scenarios={[...require('./data/demoScenarios').SCENARIO_LIST, ...TP_COMMAND_LIST, ...PRP_COMMAND_LIST, ...REDACTION_COMMAND_LIST]}
                 onSelect={(cmd) => {
                   setChatInputValue('');
+                  // Bordereau-prefixed commands (don't start with `redaction`)
+                  if (cmd === 'bordereau-modify-section') {
+                    redaction.playScenario(cmd);
+                    return;
+                  }
                   if (cmd.startsWith('redaction')) {
                     const actTypeFromCmd = cmd.replace('redaction-', '');
                     // Direct scenarios (modif, user-ask, onboarding, etc.)
@@ -5700,11 +5741,27 @@ export default function App() {
         : null;
       const pairActe = isBordereau ? sibling : acte;
       const pairBordereau = isBordereau ? acte : sibling;
+      // Back arrow always returns to the Actes listing of the parent
+      // dossier — never to a sibling doc or a different tab — so the user
+      // exits any acte/bordereau in one click and lands where they can pick
+      // another. PairTabs (below) still let them swap between the paired
+      // text acte and its bordereau without leaving the canvas.
+      const backToActesList = () => {
+        setNavStack(prev => {
+          if (prev.length < 2) return prev;
+          const next = prev.slice(0, -1);
+          const parent = next[next.length - 1];
+          if (parent?.type === 'dossier') {
+            next[next.length - 1] = { ...parent, activeTab: 'actes' };
+          }
+          return next;
+        });
+      };
       return (
         <div className="border-b border-[#e7e5e3] bg-white flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors flex-shrink-0">
+              <button onClick={backToActesList} className="p-1 hover:bg-stone-100 rounded transition-colors flex-shrink-0">
                 <ChevronRight className="w-4 h-4 rotate-180 text-[#a8a29e]" strokeWidth={1.5} />
               </button>
               <span className="text-[14px] font-medium text-[#292524] truncate">{currentLevel.fullTitle || currentLevel.title}</span>
@@ -8780,6 +8837,7 @@ export default function App() {
             entries={acte?.bordereauEntries || []}
             onGenerate={onGenerate}
             generateSource={fromActe ? 'acte' : 'dossier'}
+            shimmer={redaction.redactionState.reorderingBordereauId === acte?.id}
             dossierPieces={pieces}
             dossierCategories={bordereauCategories}
             onAddPiece={(piece) => {
@@ -10070,8 +10128,7 @@ export default function App() {
             onAddFiles={handleAddMorePieces}
             onAskChato={askChatoAboutSelection}
             onGenerateBordereau={() => {
-              setChatMessages(prev => [...prev, { type: 'user', text: 'Génère-moi un bordereau pour ce dossier' }]);
-              setTimeout(() => redaction.playScenario('bordereau-standalone'), 300);
+              redaction.playScenario('redaction-bordereau');
             }}
           />
         );
@@ -10093,9 +10150,8 @@ export default function App() {
               setTimeout(() => redaction.playScenario('redaction-onboarding'), 200);
             }}
             onNewBordereau={isClosed ? undefined : () => {
-              setChatMessages(prev => [...prev, { type: 'user', text: 'Génère-moi un bordereau pour ce dossier' }]);
               setChatInputValue('');
-              setTimeout(() => redaction.playScenario('bordereau-standalone'), 200);
+              redaction.playScenario('redaction-bordereau');
             }}
             onSendPrompt={isClosed ? undefined : () => {
               setChatMessages(prev => [...prev, { type: 'user', text: 'Rédiger mon premier acte' }]);

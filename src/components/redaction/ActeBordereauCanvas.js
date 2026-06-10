@@ -33,6 +33,7 @@ export default function ActeBordereauCanvas({
   entries = [],
   onGenerate,
   generateSource = 'acte',
+  shimmer = false,
   dossierPieces,
   dossierCategories = [],
   onAddPiece,
@@ -70,7 +71,7 @@ export default function ActeBordereauCanvas({
                 </button>
               </div>
             )}
-            <BordereauTable rows={numbered} onReorder={onReorder} />
+            <BordereauTable rows={numbered} onReorder={onReorder} shimmer={shimmer} />
           </>
         )}
       </div>
@@ -92,10 +93,10 @@ export default function ActeBordereauCanvas({
 const COL_NUM_W = 72;
 const COL_DATE_W = 130;
 
-function BordereauTable({ rows, onReorder }) {
+function BordereauTable({ rows, onReorder, shimmer = false }) {
   // Alternating-row index across pieces only (sections don't count).
   let pieceIdx = -1;
-  const dndEnabled = !!onReorder;
+  const dndEnabled = !!onReorder && !shimmer;
 
   // DnD state: source row index (in `rows`), hover row index, drop position
   // ('above' | 'below') relative to the hover row.
@@ -174,6 +175,8 @@ function BordereauTable({ rows, onReorder }) {
             onDragOver={handleDragOver(i)}
             onDrop={handleDrop(i)}
             onDragEnd={handleDragEnd}
+            shimmer={shimmer}
+            shimmerDelay={pieceIdx * 60}
           />
         );
       })}
@@ -280,10 +283,22 @@ function PieceRow({
   onDragOver,
   onDrop,
   onDragEnd,
+  shimmer = false,
+  shimmerDelay = 0,
 }) {
   const font = "'Inter', system-ui, sans-serif";
   const mono = "'IBM Plex Mono', monospace";
   const [hover, setHover] = useState(false);
+
+  if (shimmer) {
+    return (
+      <SkeletonRow
+        alternate={alternate}
+        isLast={isLast}
+        delayMs={shimmerDelay}
+      />
+    );
+  }
 
   return (
     <div
@@ -487,6 +502,65 @@ function EmptyState({ onGenerate, source }) {
           Générer mon bordereau
         </button>
       )}
+    </div>
+  );
+}
+
+// ─── Skeleton row (shimmer while /bordereau-reorder is reordering) ──
+const SKELETON_KEYFRAMES_ID = 'bordereau-skeleton-keyframes';
+function ensureSkeletonKeyframes() {
+  if (typeof document === 'undefined') return;
+  if (document.getElementById(SKELETON_KEYFRAMES_ID)) return;
+  const style = document.createElement('style');
+  style.id = SKELETON_KEYFRAMES_ID;
+  style.textContent = `
+    @keyframes bordereauShimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function SkeletonBar({ width, height = 10, delayMs = 0 }) {
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        width,
+        height,
+        borderRadius: 4,
+        background: 'linear-gradient(90deg, #eeece6 0%, #f5f4f0 50%, #eeece6 100%)',
+        backgroundSize: '200px 100%',
+        animation: `bordereauShimmer 1.2s ease-in-out ${delayMs}ms infinite`,
+        verticalAlign: 'middle',
+      }}
+    />
+  );
+}
+
+function SkeletonRow({ alternate, isLast, delayMs = 0 }) {
+  ensureSkeletonKeyframes();
+  return (
+    <div
+      style={{
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        minHeight: 52,
+        backgroundColor: alternate ? '#fafaf9' : 'white',
+        borderBottom: isLast ? 'none' : '1px solid #e7e5e3',
+      }}
+    >
+      <div style={{ width: COL_NUM_W, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
+        <SkeletonBar width={32} height={14} delayMs={delayMs} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0, padding: '10px 12px' }}>
+        <SkeletonBar width="60%" height={11} delayMs={delayMs + 80} />
+      </div>
+      <div style={{ width: COL_DATE_W, flexShrink: 0, padding: '0 12px' }}>
+        <SkeletonBar width={70} height={10} delayMs={delayMs + 160} />
+      </div>
     </div>
   );
 }

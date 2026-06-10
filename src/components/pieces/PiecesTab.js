@@ -83,10 +83,10 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
             {onGenerateBordereau && (
               <button
                 onClick={onGenerateBordereau}
-                className="inline-flex items-center gap-1.5 px-3 h-9 rounded-[8px] text-[13px] font-medium text-white bg-[#292524] hover:bg-[#44403c] transition-colors shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] flex-shrink-0"
+                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-[#44403c] bg-[#eeece6] rounded-md hover:bg-[#e7e5e3] transition-colors flex-shrink-0"
               >
-                <ListOrdered className="w-3.5 h-3.5" strokeWidth={1.75} />
-                Générer un bordereau
+                <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
+                Nouveau bordereau
               </button>
             )}
           </div>

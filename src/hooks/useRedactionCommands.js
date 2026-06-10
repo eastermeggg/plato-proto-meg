@@ -39,6 +39,9 @@ const initialState = {
   canvasActeTitle: '',
   canvasActeType: '',
   dossierActes: [],
+  // Transient flag set during the /bordereau-reorder scenario so the canvas
+  // can render a skeleton/shimmer over the rows while the agent "thinks".
+  reorderingBordereauId: null,
 };
 
 function redactionReducer(state, action) {
@@ -90,6 +93,10 @@ function redactionReducer(state, action) {
           withActeDefaults({ ...action.acte, kind: 'bordereau' }),
         ],
       };
+    case 'SET_REORDERING_BORDEREAU':
+      return { ...state, reorderingBordereauId: action.acteId || state.canvasActeId };
+    case 'CLEAR_REORDERING_BORDEREAU':
+      return { ...state, reorderingBordereauId: null };
     case 'UPDATE_ACTE': {
       const targetId = action.acteId || state.canvasActeId;
       return {
@@ -221,6 +228,14 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
             break;
           }
 
+          case 'SET_REORDERING_BORDEREAU':
+            dispatch({ type: 'SET_REORDERING_BORDEREAU', acteId: action.acteId });
+            break;
+
+          case 'CLEAR_REORDERING_BORDEREAU':
+            dispatch({ type: 'CLEAR_REORDERING_BORDEREAU' });
+            break;
+
           case 'FILL_BORDEREAU_ENTRIES': {
             // Populate an existing bordereau's entries (used by the empty-state
             // "Générer mon bordereau" flow). No canvas swap, no nav change —
@@ -234,10 +249,13 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
           }
 
           case 'EMIT_BORDEREAU': {
-            // Emit a sibling bordereau artefact paired with the text acte that
-            // just finished streaming. Both share `pairId`. Canvas focus moves
-            // to the bordereau (spec §5 / §7).
+            // Emit a bordereau artefact. When paired with a text acte
+            // (`pairId` set), leave the user on the text canvas — the
+            // bordereau appears in the actes list and is reachable via the
+            // pair tabs. When standalone (no pair), focus the bordereau
+            // since it's the primary artefact just produced.
             const acteId = action.acteId || `acte-${Date.now()}`;
+            const pairId = action.pairId || null;
             dispatch({
               type: 'ADD_BORDEREAU_ARTIFACT',
               acte: {
@@ -249,12 +267,14 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
                 lastUpdated: new Date().toLocaleDateString('fr-FR'),
                 content: '',
                 kind: 'bordereau',
-                pairId: action.pairId || null,
+                pairId,
                 bordereauEntries: action.entries || [],
               },
             });
-            dispatch({ type: 'REOPEN_CANVAS', acteId });
-            navigateTo?.({ type: 'acte', id: acteId, title: action.title || 'Bordereau', fullTitle: action.title || 'Bordereau' });
+            if (!pairId) {
+              dispatch({ type: 'REOPEN_CANVAS', acteId });
+              navigateTo?.({ type: 'acte', id: acteId, title: action.title || 'Bordereau', fullTitle: action.title || 'Bordereau' });
+            }
             break;
           }
 
