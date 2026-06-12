@@ -32,6 +32,10 @@ import BordereauTable from './components/pieces/BordereauTable';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
 import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
 import { dropFirstAsBordereauPieces, classifyDropFirstPiece } from './data/piecesModel';
+import { getPileById, pickRandomPiles } from './data/pilesSeed';
+import PileReviewBanner from './components/pieces/PileReviewBanner';
+import PileAdjustSheet from './components/pieces/PileAdjustSheet';
+import SplitVariantsLab from './components/pieces/SplitVariantsLab';
 import {
   ChiffrageSlot,
   RedactionSlot,
@@ -989,6 +993,7 @@ const UI_KIT_SUBSECTION_SLUGS = [
   'artifact-cards',
   'bareme-components',
   'jp',
+  'split-variants',
 ];
 
 function pathToPage(pathname) {
@@ -1121,6 +1126,15 @@ export default function App() {
   const [dropFirstHasRapport, setDropFirstHasRapport] = useState(false);
   const [dropFirstProcessingDone, setDropFirstProcessingDone] = useState(false);
   const [dropFirstActive, setDropFirstActive] = useState(false); // true → render new (drop-first) info dossier layout
+
+  // ── Pile (homogeneous-stack) state ────────────────────────────────────
+  // A pile is one source file containing N segments of the same type.
+  // Identity (pile.id + segment.id) is stable across bundle/explode toggles.
+  const [piles, setPiles] = useState({}); // pileId → { id, originalName, pileType, aggregate, segments, mode, autoApplied, badgeUntil }
+  const [pendingPileReviews, setPendingPileReviews] = useState([]); // pileIds waiting for the user's binary call
+  const [globalSplitRule, setGlobalSplitRule] = useState('group'); // 'group' | 'explode' | 'ask'
+  const [pileAdjustSheet, setPileAdjustSheet] = useState(null); // null | pileId — opens the "Ajuster le découpage" panel
+  const [pileHighlight, setPileHighlight] = useState(null); // pileId — amber-flashed after a recent bascule
   const [infoDossierStreaming, setInfoDossierStreaming] = useState(null); // null | { active, fieldsRevealed: [], streamingField: null, streamingText: '' }
   const [pieceOverviewPanel, setPieceOverviewPanel] = useState(null); // null | pieceId
   const [piecesFilter, setPiecesFilter] = useState({ types: [], search: '' });
@@ -1619,6 +1633,7 @@ export default function App() {
     ivDossierPostes, ivPosteData, ivPosteSharedData,
     dropFirstPieces: dropFirstPieces.map(p => ({ ...p, justCompleted: false })),
     dropFirstHasRapport, dropFirstProcessingDone, dropFirstActive,
+    piles, pendingPileReviews,
   });
 
   const loadDossierData = (dossierId) => {
@@ -1657,6 +1672,25 @@ export default function App() {
     setDropFirstHasRapport(data.dropFirstHasRapport ?? false);
     setDropFirstProcessingDone(data.dropFirstProcessingDone ?? false);
     setDropFirstActive(data.dropFirstActive ?? (data.dropFirstPieces?.length > 0));
+    // Pile state restoration. Older saves predate pile persistence: any
+    // dropFirstPieces entry referencing a missing pile is re-hydrated from
+    // the static pool (bundle mode) so its row + "Ajuster" stay functional.
+    const restoredPiles = { ...(data.piles ?? {}) };
+    (data.dropFirstPieces ?? []).forEach(p => {
+      if (p._pileId && !restoredPiles[p._pileId]) {
+        const pool = getPileById(p._pileId);
+        if (pool) {
+          restoredPiles[p._pileId] = {
+            id: pool.id, originalName: pool.originalName, pileType: pool.pileType,
+            aggregate: pool.aggregate, segments: pool.segments,
+            mode: 'bundle', autoApplied: false, badgeUntil: 0, awaitingReview: false,
+          };
+        }
+      }
+    });
+    setPiles(restoredPiles);
+    setPendingPileReviews((data.pendingPileReviews ?? []).filter(id => restoredPiles[id]));
+    setPileAdjustSheet(null);
     setInfoDossierStreaming(null);
     setPieceOverviewPanel(null);
     setPiecesFilter({ type: null, search: '' });
@@ -1702,7 +1736,8 @@ export default function App() {
     dossierStatut, dossierRef, dossierIntitule, dossierDateOuverture, dossierAvocat, dossierNotes,
     resumeAffaire, commentaireExpertise, victimesIndirectes, pieces,
     dsaLignes, pgpaData, pgpfData, dftLignes,
-    ivDossierPostes, ivPosteData, ivPosteSharedData]);
+    ivDossierPostes, ivPosteData, ivPosteSharedData,
+    dropFirstPieces, piles, pendingPileReviews]);
 
   // Auto-save global state
   useEffect(() => {
@@ -13323,9 +13358,37 @@ export default function App() {
     setIvPosteData(EMPTY_DOSSIER.ivPosteData);
     setIvPosteSharedData(EMPTY_DOSSIER.ivPosteSharedData);
 
-    // Map files to processing items
+    // Map files to processing items. Same automatic pile-injection rule
+    // as the post-onboarding add-pieces flow: between 1 and 3 of the
+    // dropped files are detected as homogeneous stacks and land in the
+    // À vérifier zone. The rapport file (if any) is never flagged as a
+    // pile — it has its own special downstream behaviour.
+    const rapportIdx = files.findIndex(f => f.id === dropModal.rapportFileId);
+    const eligibleIdxs = files.map((_, i) => i).filter(i => i !== rapportIdx);
+    const pileCount = Math.min(eligibleIdxs.length, 1 + Math.floor(Math.random() * 3));
+    const shuffledEligible = [...eligibleIdxs].sort(() => Math.random() - 0.5);
+    const pilePicks = pickRandomPiles(pileCount);
+    const pileForIdxOnboard = new Map();
+    shuffledEligible.slice(0, pilePicks.length).forEach((idx, k) => {
+      pileForIdxOnboard.set(idx, pilePicks[k]);
+    });
+
+    let nonPilePoolSeq = 0;
     const processingItems = files.map((f, i) => {
-      const poolEntry = DROP_FIRST_DOCUMENT_POOL[i % DROP_FIRST_DOCUMENT_POOL.length];
+      const pileRef = pileForIdxOnboard.get(i);
+      if (pileRef) {
+        return {
+          id: `dfp-${Date.now()}-${i}`,
+          originalName: pileRef.originalName || f.name,
+          cleanName: null, type: null, date: null, postesLies: [], summary: null,
+          extractedInfo: null, pages: null, status: 'pending', poolRef: null,
+          sourceFile: null, pageRange: null, siblings: null,
+          fakeSize: f.fakeSize,
+          isRapport: false,
+          _pilePoolRef: pileRef,
+        };
+      }
+      const poolEntry = DROP_FIRST_DOCUMENT_POOL[nonPilePoolSeq++ % DROP_FIRST_DOCUMENT_POOL.length];
       return {
         id: `dfp-${Date.now()}-${i}`,
         originalName: f.name,
@@ -13393,6 +13456,56 @@ export default function App() {
       const delay = 1500 + Math.random() * 2500; // 1.5-4s
       cumulativeDelay += delay;
       const tid = setTimeout(() => {
+        // ── Pile branch ────────────────────────────────────────────────
+        // The simulator detects the file is a homogeneous stack, registers
+        // the pile in app state, and routes to silent application or the
+        // "À vérifier" zone depending on the global rule + confidence.
+        if (item._pilePoolRef) {
+          const pilePool = item._pilePoolRef;
+          const rule = globalSplitRule;
+          const confidence = pilePool.confidence;
+          const autoResolves = rule !== 'ask' && confidence === 'high';
+          const initialMode = autoResolves
+            ? (rule === 'explode' ? 'exploded' : 'bundle')
+            : 'bundle'; // default render before user decides
+
+          setPiles(prev => ({
+            ...prev,
+            [pilePool.id]: {
+              id: pilePool.id,
+              originalName: pilePool.originalName,
+              pileType: pilePool.pileType,
+              aggregate: pilePool.aggregate,
+              segments: pilePool.segments,
+              mode: initialMode,
+              autoApplied: autoResolves,
+              badgeUntil: autoResolves ? Date.now() + 8000 : 0,
+              awaitingReview: !autoResolves,
+            },
+          }));
+
+          setDropFirstPieces(prev => prev.map(p => {
+            if (p.id !== item.id) return p;
+            return {
+              ...p,
+              status: 'done',
+              cleanName: pilePool.aggregate.label,
+              type: pilePool.aggregate.typeForClassification,
+              pages: pilePool.pages,
+              _pileId: pilePool.id,
+              _pilePoolRef: undefined,
+              justCompleted: true,
+            };
+          }));
+          if (!autoResolves) {
+            setPendingPileReviews(prev => prev.includes(pilePool.id) ? prev : [...prev, pilePool.id]);
+          }
+          setTimeout(() => {
+            setDropFirstPieces(prev => prev.map(p => ({ ...p, justCompleted: false })));
+          }, 600);
+          return;
+        }
+
         setDropFirstPieces(prev => {
           const newPieces = [...prev];
           const itemIndex = newPieces.findIndex(p => p.id === item.id);
@@ -13737,11 +13850,35 @@ export default function App() {
     const accepted = Array.from(fileList).filter(f => /\.(pdf|png|jpe?g|docx?)$/i.test(f.name));
     if (accepted.length === 0) return;
 
-    // The tree view has no notion of a "currently open" folder, so dropped
-    // pieces always pass through auto-classification (categoryIdOverride
-    // stays undefined → classifier picks the best folder by type/name).
+    // Pile suggestion is automatic: every real upload (drag/drop or
+    // picker) flags between 1 and 3 of the dropped files as homogeneous
+    // stacks. The picked piles always land in the À vérifier zone — that's
+    // the "suggestion" surface. Piles are drawn from the global PILE_POOL
+    // without replacement so the same pile never appears twice in one batch.
+    const pileCount = Math.min(accepted.length, 1 + Math.floor(Math.random() * 3));
+    const picks = pickRandomPiles(pileCount);
+    const pileIdxPool = [...Array(accepted.length).keys()].sort(() => Math.random() - 0.5);
+    const pileIdxs = new Set(pileIdxPool.slice(0, picks.length));
+    const pileForIdx = new Map();
+    let pIdx = 0;
+    pileIdxs.forEach(i => { pileForIdx.set(i, picks[pIdx++]); });
+
+    let nonPileSeq = 0;
     const newItems = accepted.map((f, i) => {
-      const poolEntry = DROP_FIRST_DOCUMENT_POOL[(dropFirstPieces.length + i) % DROP_FIRST_DOCUMENT_POOL.length];
+      if (pileForIdx.has(i)) {
+        const pileRef = pileForIdx.get(i);
+        return {
+          id: `dfp-pile-${Date.now()}-${i}`,
+          originalName: pileRef.originalName || f.name,
+          cleanName: null, type: null, date: null, postesLies: [], summary: null,
+          extractedInfo: null, pages: null, status: 'pending', poolRef: null,
+          sourceFile: null, pageRange: null, siblings: null,
+          fakeSize: (Math.random() * 6 + 4).toFixed(1) + ' Mo',
+          isRapport: false,
+          _pilePoolRef: pileRef,
+        };
+      }
+      const poolEntry = DROP_FIRST_DOCUMENT_POOL[(dropFirstPieces.length + nonPileSeq++) % DROP_FIRST_DOCUMENT_POOL.length];
       return {
         id: `dfp-add-${Date.now()}-${i}`,
         originalName: f.name,
@@ -13759,6 +13896,84 @@ export default function App() {
     setTimeout(() => startProcessingSimulation(newItems, false), 300);
   };
 
+  // ── Pile mode toggle (bundle ⇄ exploded) + Undo toast ─────────────────
+  const togglePileMode = (pileId, nextMode, opts = {}) => {
+    let prevMode = null;
+    setPiles(prev => {
+      const p = prev[pileId];
+      if (!p) return prev;
+      prevMode = p.mode;
+      if (p.mode === nextMode) return prev;
+      return {
+        ...prev,
+        [pileId]: { ...p, mode: nextMode, autoApplied: false, badgeUntil: 0 },
+      };
+    });
+    if (prevMode == null || prevMode === nextMode) return;
+
+    const pile = getPileById(pileId);
+    const n = pile?.aggregate.count || 0;
+    const text = nextMode === 'bundle' ? `${n} pièces regroupées.` : `${n} pièces éclatées.`;
+    setPileHighlight(pileId);
+    setTimeout(() => setPileHighlight(curr => (curr === pileId ? null : curr)), 1300);
+
+    if (!opts.silent) {
+      const undoTo = prevMode;
+      setToastMessage({
+        text,
+        action: {
+          label: 'Annuler',
+          onClick: () => togglePileMode(pileId, undoTo, { silent: true }),
+        },
+      });
+      setTimeout(() => setToastMessage(curr => (curr && curr.text === text ? null : curr)), 6000);
+    }
+  };
+
+  // Apply a découpage choice to a pile WITHOUT leaving the À vérifier zone.
+  // `reviewChoice` flips the pile's review card into its confirmation state
+  // (with Annuler). Both the card's own CTAs and the adjust panel's exit
+  // buttons (and, later, the chat agent's split tool) call this — they all
+  // land on the same transforming card.
+  const applyPileChoice = (pileId, mode) => {
+    setPiles(prev => {
+      const p = prev[pileId];
+      if (!p) return prev;
+      return { ...prev, [pileId]: { ...p, mode, reviewChoice: mode, autoApplied: false, badgeUntil: 0 } };
+    });
+    setPileHighlight(pileId);
+    setTimeout(() => setPileHighlight(curr => (curr === pileId ? null : curr)), 1300);
+  };
+
+  // Undo a review choice — back to the neutral pending (bundle) state, card
+  // returns to its choice phase.
+  const undoPileChoice = (pileId) => {
+    setPiles(prev => {
+      const p = prev[pileId];
+      if (!p) return prev;
+      return { ...prev, [pileId]: { ...p, mode: 'bundle', reviewChoice: null } };
+    });
+  };
+
+  // Commit the choice — the card leaves the À vérifier zone.
+  const dismissPileReview = (pileId) => {
+    setPendingPileReviews(prev => prev.filter(id => id !== pileId));
+    setPiles(prev => {
+      const p = prev[pileId];
+      if (!p) return prev;
+      return { ...prev, [pileId]: { ...p, reviewChoice: null } };
+    });
+  };
+
+  // Sheet handler — commit segments edits + close.
+  const updatePileSegments = (pileId, nextSegments) => {
+    setPiles(prev => {
+      const p = prev[pileId];
+      if (!p) return prev;
+      return { ...prev, [pileId]: { ...p, segments: nextSegments } };
+    });
+  };
+
   const renderDropFirstPiecesTab = () => {
     const totalItems = dropFirstPieces.length;
     const allDone = dropFirstProcessingDone;
@@ -13770,7 +13985,7 @@ export default function App() {
     // BordereauTable expects. Auto-classification places each done piece
     // into its detected folder; in-flight pieces (still processing) get
     // categoryId=null and surface in Sans-catégorie with a spinner icon.
-    const adaptedPieces = dropFirstAsBordereauPieces(filtered, bordereauCategories);
+    const adaptedPieces = dropFirstAsBordereauPieces(filtered, bordereauCategories, piles);
 
     // Translate BordereauTable's setPieces updater calls (which operate on
     // the bordereau-piece shape) back into setDropFirstPieces mutations.
@@ -13778,7 +13993,7 @@ export default function App() {
     // anything else.
     const setDropFirstViaBordereau = (updater) => {
       setDropFirstPieces(prev => {
-        const adapted = dropFirstAsBordereauPieces(prev, bordereauCategories);
+        const adapted = dropFirstAsBordereauPieces(prev, bordereauCategories, piles);
         const newAdapted = typeof updater === 'function' ? updater(adapted) : updater;
         const byId = new Map(newAdapted.map(p => [p.id, p]));
         return prev
@@ -13856,6 +14071,19 @@ export default function App() {
               </div>
             )}
 
+            {/* Pile review zone — only shows when there's something to verify. */}
+            {pendingPileReviews.length > 0 && (
+              <PileReviewBanner
+                pileIds={pendingPileReviews}
+                piles={piles}
+                rule={globalSplitRule}
+                onApply={applyPileChoice}
+                onUndo={undoPileChoice}
+                onDismiss={dismissPileReview}
+                onAdjust={(pileId) => setPileAdjustSheet(pileId)}
+              />
+            )}
+
             <BordereauTable
               pieces={adaptedPieces}
               categories={bordereauCategories}
@@ -13864,6 +14092,9 @@ export default function App() {
               onOpenPiecePreview={(pid) => setPieceOverviewPanel(pid)}
               onAddFiles={handleAddMorePieces}
               onAskChato={askChatoAboutSelection}
+              onTogglePileMode={togglePileMode}
+              onOpenPileAdjust={(pileId) => setPileAdjustSheet(pileId)}
+              pileHighlight={pileHighlight}
             />
 
           </div>
@@ -13895,6 +14126,28 @@ export default function App() {
 
         {/* Document Overview Panel (Right Drawer) */}
         {selectedPiece && renderPieceOverviewPanel(selectedPiece)}
+
+        {/* Pile adjust sheet — open when the user clicks "Ajuster le découpage". */}
+        {pileAdjustSheet && piles[pileAdjustSheet] && (
+          <PileAdjustSheet
+            pile={piles[pileAdjustSheet]}
+            rule={globalSplitRule}
+            splitPrompt={preferenceSlots.decoupage}
+            onClose={() => setPileAdjustSheet(null)}
+            onCommit={(segments) => updatePileSegments(pileAdjustSheet, segments)}
+            onChoose={(mode) => {
+              const id = pileAdjustSheet;
+              setPileAdjustSheet(null);
+              if (pendingPileReviews.includes(id)) {
+                // Land on the same transforming À vérifier card (apply, keep
+                // pending → the card shows the confirmation + Annuler).
+                applyPileChoice(id, mode);
+              } else {
+                togglePileMode(id, mode);
+              }
+            }}
+          />
+        )}
       </div>
     );
   };
@@ -15496,6 +15749,7 @@ export default function App() {
               { label: 'Artifact Cards', slug: 'artifact-cards' },
               { label: 'Barème Components', slug: 'bareme-components' },
               { label: 'JP — Jurisprudence', slug: 'jp' },
+              { label: 'Split — Variantes A/B/C', slug: 'split-variants' },
             ].map(({ label, slug }) => (
               <button
                 key={slug}
@@ -16638,6 +16892,17 @@ export default function App() {
             </div>
 
             {/* ====== BARÈME COMPONENTS ====== */}
+            {/* ====== SPLIT — VARIANTES A/B/C ====== */}
+            <div id="section-split-variants" className={sectionClass}>
+              {sectionTitle('Split — Variantes A/B/C')}
+              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>
+                Trois explorations UX pour le flow de split des piles homogènes, sur les mêmes données de démo (12 factures, 3 émetteurs, 1 anomalie).
+                A — la pile comme objet physique ; B — la coupe comme geste tactile ; C — le découpage comme grain paramétrique.
+                Source : <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/components/pieces/SplitVariantsLab.js</code>.
+              </p>
+              <SplitVariantsLab />
+            </div>
+
             <div id="section-bareme-components" className={sectionClass}>
               {sectionTitle('Barème Components')}
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Composants pour la gestion des barèmes et référentiels — bibliothèque, sélecteur, viewer, upload.</p>
@@ -18342,6 +18607,8 @@ export default function App() {
               <DecoupageSlot
                 value={preferenceSlots.decoupage}
                 onChange={(v) => setPreferenceSlot('decoupage', v)}
+                rule={globalSplitRule}
+                onRuleChange={setGlobalSplitRule}
               />
             </div>
 
@@ -21902,7 +22169,15 @@ export default function App() {
           ) : (
             <CheckCircle2 className="w-4 h-4 text-teal-400" />
           )}
-          {typeof toastMessage === 'string' ? toastMessage : toastMessage?.text}
+          <span>{typeof toastMessage === 'string' ? toastMessage : toastMessage?.text}</span>
+          {typeof toastMessage === 'object' && toastMessage?.action && (
+            <button
+              onClick={() => { toastMessage.action.onClick?.(); setToastMessage(null); }}
+              className="ml-2 underline underline-offset-2 text-white/90 hover:text-white text-sm font-medium"
+            >
+              {toastMessage.action.label}
+            </button>
+          )}
         </div>
       )}
     </>
