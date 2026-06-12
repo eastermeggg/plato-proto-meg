@@ -35,7 +35,7 @@ const SLOT_META = {
   decoupage: { icon: Scissors,   gradientFrom: '#fffbeb', iconColor: '#d97706' },
 };
 
-function PreferenceSlot({ id, value, onChange }) {
+function PreferenceSlot({ id, value, onChange, extra }) {
   const meta = SLOT_META[id];
   const Icon = meta.icon;
   const label = PREFERENCE_SLOT_LABELS[id];
@@ -92,6 +92,7 @@ function PreferenceSlot({ id, value, onChange }) {
           Réinitialiser
         </button>
       </div>
+      {extra}
       <textarea
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
@@ -125,6 +126,50 @@ export const NommageSlot = ({ value, onChange }) => (
   <PreferenceSlot id="nommage" value={value} onChange={onChange} />
 );
 
-export const DecoupageSlot = ({ value, onChange }) => (
-  <PreferenceSlot id="decoupage" value={value} onChange={onChange} />
+export const DecoupageSlot = ({ value, onChange, rule, onRuleChange }) => (
+  <PreferenceSlot
+    id="decoupage"
+    value={value}
+    onChange={onChange}
+    extra={
+      rule !== undefined && onRuleChange ? (
+        <DecoupageRuleRow rule={rule} onRuleChange={onRuleChange} />
+      ) : null
+    }
+  />
 );
+
+// Default rule for piles (homogeneous stacks of N similar docs). Drives
+// the "À vérifier" zone vs silent application behaviour in PiecesTab.
+function DecoupageRuleRow({ rule, onRuleChange }) {
+  const opts = [
+    { value: 'group',   label: 'Garder en une pièce',     hint: 'Une pile = une ligne, éclatable plus tard' },
+    { value: 'explode', label: 'Éclater en N pièces',     hint: 'Chaque document devient une pièce' },
+    { value: 'ask',     label: 'Me demander à chaque fois', hint: 'Toujours via la zone « À vérifier »' },
+  ];
+  return (
+    <div className="flex flex-col gap-2 px-3 py-3 rounded-md border border-[#e7e5e3] bg-[#fafaf9]">
+      <div style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>
+        Comportement par défaut pour les piles homogènes
+      </div>
+      <div className="flex flex-col gap-1">
+        {opts.map(opt => (
+          <label key={opt.value} className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="decoupage-rule"
+              value={opt.value}
+              checked={rule === opt.value}
+              onChange={() => onRuleChange(opt.value)}
+              className="mt-1"
+            />
+            <span className="flex-1">
+              <span style={{ fontSize: 13, color: '#292524' }}>{opt.label}</span>
+              <span style={{ fontSize: 11, color: '#78716c', display: 'block', marginTop: 1 }}>{opt.hint}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}

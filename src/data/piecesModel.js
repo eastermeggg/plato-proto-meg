@@ -418,27 +418,119 @@ const NAME_KEYWORDS = [
  * field on the source piece — set when the user manually moves a piece in
  * the drop-first view — wins over auto-classification.
  *
+ * If a drop-first item has a `_pileId`, the matching pile entry from `piles`
+ * decides whether to emit one synthetic bundle row (mode === 'bundle') or
+ * N segment rows (mode === 'exploded'). Bundle/explode mutates rendering
+ * only — the underlying segments are stable.
+ *
  * @param {Object[]} dfPieces
  * @param {Category[]} categories
+ * @param {Object<string, Object>} [piles] pileId → pile state
  * @returns {Object[]} bordereau-shaped pieces
  */
-export function dropFirstAsBordereauPieces(dfPieces, categories) {
-  // First classify (or use manual override), then assign orderInCategory.
-  const classified = dfPieces.map(df => {
+export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
+  const orderCounters = new Map(); // categoryId (or null) → next index
+  const result = [];
+  const bumpOrder = (categoryId) => {
+    const k = categoryId == null ? '__null__' : categoryId;
+    const next = orderCounters.get(k) || 0;
+    orderCounters.set(k, next + 1);
+    return next;
+  };
+
+  dfPieces.forEach(df => {
     const isDone = df.status === 'done';
+
+    // ── Pile branch ─────────────────────────────────────────────────────
+    if (df._pileId && piles[df._pileId]) {
+      const pile = piles[df._pileId];
+      const overrideCat = df.categoryIdOverride;
+      const categoryId = overrideCat !== undefined
+        ? overrideCat
+        : (isDone ? classifyDropFirstPiece({ type: pile.aggregate.typeForClassification, name: pile.originalName }, categories) : null);
+
+      if (!isDone) {
+        // Still analysing — surface as a single processing row.
+        const next = bumpOrder(categoryId);
+        result.push({
+          id: df.id,
+          nom: df.originalName || df.id,
+          nomOriginal: df.originalName || null,
+          intitule: df.originalName ? df.originalName.replace(/\.[^/.]+$/, '') : df.id,
+          type: null,
+          date: null,
+          categoryId,
+          inclureDansBordereau: true,
+          orderInCategory: next,
+          _processing: true,
+          _pileProcessing: { pileId: pile.id, label: df._pileProcessingLabel || 'Analyse du document…' },
+        });
+        return;
+      }
+
+      if (pile.mode === 'exploded') {
+        pile.segments.forEach((seg) => {
+          const next = bumpOrder(categoryId);
+          result.push({
+            id: `${pile.id}::${seg.id}`,
+            nom: seg.label,
+            nomOriginal: pile.originalName,
+            intitule: seg.label,
+            type: pile.aggregate.typeForClassification,
+            date: seg.date,
+            categoryId,
+            inclureDansBordereau: true,
+            orderInCategory: next,
+            _processing: false,
+            _pileSegment: {
+              pileId: pile.id,
+              segmentId: seg.id,
+              index: seg.index,
+              isFirst: seg.index === 0,
+              totalCount: pile.segments.length,
+              sourceFile: pile.originalName,
+              autoApplied: !!pile.autoApplied,
+              badgeUntil: pile.badgeUntil || 0,
+            },
+          });
+        });
+        return;
+      }
+
+      // Bundle mode — one synthetic row.
+      const next = bumpOrder(categoryId);
+      result.push({
+        id: pile.id,
+        nom: pile.aggregate.label,
+        nomOriginal: pile.originalName,
+        intitule: `${pile.aggregate.label} (${pile.aggregate.count})`,
+        type: pile.aggregate.typeForClassification,
+        date: pile.aggregate.dateRangeLabel,
+        categoryId,
+        inclureDansBordereau: true,
+        orderInCategory: next,
+        _processing: false,
+        _pileBundle: {
+          pileId: pile.id,
+          count: pile.aggregate.count,
+          totalLabel: pile.aggregate.totalLabel,
+          dateRangeLabel: pile.aggregate.dateRangeLabel,
+          aggregateLabel: pile.aggregate.label,
+          sourceFile: pile.originalName,
+          autoApplied: !!pile.autoApplied,
+          badgeUntil: pile.badgeUntil || 0,
+        },
+      });
+      return;
+    }
+
+    // ── Standard (non-pile) branch ──────────────────────────────────────
     const overrideCat = df.categoryIdOverride;
     const categoryId = overrideCat !== undefined
       ? overrideCat
       : (isDone ? classifyDropFirstPiece(df, categories) : null);
-    return { df, categoryId, isDone };
-  });
 
-  const orderCounters = new Map(); // categoryId (or null) → next index
-  const result = [];
-  classified.forEach(({ df, categoryId, isDone }) => {
-    const k = categoryId == null ? '__null__' : categoryId;
-    const next = orderCounters.get(k) || 0;
-    orderCounters.set(k, next + 1);
+    const next = bumpOrder(categoryId);
 
     const rawDate = df.date ? new Date(df.date) : null;
     const formattedDate = rawDate && !isNaN(rawDate.getTime())
