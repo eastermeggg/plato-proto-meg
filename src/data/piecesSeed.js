@@ -73,4 +73,43 @@ export const BORDEREAU_PIECES = [
   // ── Sans catégorie (not yet classified — newly arrived, rare in practice)
   { id: 'p-sc1', nom: 'Constat huissier voirie.pdf', nomOriginal: 'constat_huissier_2024.pdf', intitule: "Constat d'huissier — état de la chaussée", date: '18/03/2024', type: 'Constat', used: false,
     categoryId: null, inclureDansBordereau: true, orderInCategory: 0 },
+
+  // ── Extra dossier pieces NOT cited in the demo bordereau — so the "Ajouter
+  // une pièce" modal shows a real mix of already-added (locked) and addable.
+
+  // I. Procédure (was empty — now has pieces)
+  { id: 'p-15', nom: 'PV gendarmerie.pdf', nomOriginal: 'pv_gendarmerie_140924.pdf', intitule: 'Procès-verbal de gendarmerie', date: '14/09/2024', type: 'PV', used: false,
+    categoryId: 'cat-procedure', inclureDansBordereau: true, orderInCategory: 0 },
+  { id: 'p-16', nom: 'Ordonnance référé.pdf', nomOriginal: 'ordonnance_refere_2024.pdf', intitule: 'Ordonnance de référé-expertise', date: '03/10/2024', type: 'Décision', used: false,
+    categoryId: 'cat-procedure', inclureDansBordereau: true, orderInCategory: 1 },
+
+  // II-A. Expertises
+  { id: 'p-17', nom: 'Rapport sapiteur psy.pdf', nomOriginal: 'sapiteur_psychiatre.pdf', intitule: 'Rapport du sapiteur psychiatre', date: '20/11/2024', type: 'Rapport', used: false,
+    categoryId: 'cat-expertises', inclureDansBordereau: true, orderInCategory: 1 },
+
+  // II-B. Comptes-rendus & soins
+  { id: 'p-18', nom: 'Certificat médical initial.pdf', nomOriginal: 'cmi_150323.pdf', intitule: 'Certificat médical initial', date: '15/03/2023', type: 'Compte-rendu', used: false,
+    categoryId: 'cat-soins', inclureDansBordereau: true, orderInCategory: 3 },
+  { id: 'p-19', nom: 'Bilan kiné.pdf', nomOriginal: 'bilan_kine_oct2023.pdf', intitule: 'Bilan kinésithérapique', date: '10/10/2023', type: 'Compte-rendu', used: false,
+    categoryId: 'cat-soins', inclureDansBordereau: true, orderInCategory: 4 },
+
+  // III. Frais médicaux
+  { id: 'p-20', nom: 'Facture transport VSL.pdf', nomOriginal: 'vsl_2023.pdf', intitule: 'Factures transport VSL', date: '05/05/2023', type: 'Facture', used: false,
+    categoryId: 'cat-frais-med', inclureDansBordereau: true, orderInCategory: 5 },
+  { id: 'p-21', nom: 'Facture orthèse.pdf', nomOriginal: 'orthese_genou.pdf', intitule: 'Facture orthèse de genou', date: '28/09/2023', type: 'Facture', used: false,
+    categoryId: 'cat-frais-med', inclureDansBordereau: true, orderInCategory: 6 },
+
+  // V-A. Bulletins de salaire
+  { id: 'p-22', nom: 'Bulletins salaire 2023.pdf', nomOriginal: 'bulletins_2023.pdf', intitule: 'Bulletins de salaire année 2023', date: '10/01/2024', type: 'Bulletin', used: false,
+    categoryId: 'cat-bulletins', inclureDansBordereau: true, orderInCategory: 2 },
+
+  // V-B. Indemnités & attestations
+  { id: 'p-23', nom: 'Notification rente AT.pdf', nomOriginal: 'rente_atmp_cpam.pdf', intitule: 'Notification de rente AT/MP', date: '12/02/2024', type: 'Décompte', used: false,
+    categoryId: 'cat-indemnites', inclureDansBordereau: true, orderInCategory: 3 },
+
+  // Sans catégorie (more)
+  { id: 'p-sc2', nom: 'Photos des lieux.pdf', nomOriginal: 'photos_carrefour.pdf', intitule: "Photographies du lieu de l'accident", date: '14/09/2024', type: 'Photo', used: false,
+    categoryId: null, inclureDansBordereau: true, orderInCategory: 1 },
+  { id: 'p-sc3', nom: 'Échanges assureur.pdf', nomOriginal: 'mails_axa.pdf', intitule: "Échanges de courriels avec l'assureur", date: '02/12/2024', type: 'Correspondance', used: false,
+    categoryId: null, inclureDansBordereau: true, orderInCategory: 2 },
 ];

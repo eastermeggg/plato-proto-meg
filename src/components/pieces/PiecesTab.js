@@ -7,7 +7,7 @@ import FullCanvasDropZone from './FullCanvasDropZone';
 // GED container: search + folder tree. The drop zone is invisible — the
 // whole canvas accepts file drops via the container handlers.
 
-export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onAskChato, onGenerateBordereau }) {
+export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onAskChato, onGenerateBordereau, onQuickGenerateBordereau }) {
   const [query, setQuery] = useState('');
   const [dragOver, setDragOver] = useState(false);
 
@@ -87,6 +87,15 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
               >
                 <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
                 Nouveau bordereau
+              </button>
+            )}
+            {onQuickGenerateBordereau && (
+              <button
+                onClick={onQuickGenerateBordereau}
+                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-white bg-[#292524] rounded-md hover:bg-[#44403c] shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
+              >
+                <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
+                Générer un bordereau
               </button>
             )}
           </div>

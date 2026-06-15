@@ -428,6 +428,34 @@ const NAME_KEYWORDS = [
  * @param {Object<string, Object>} [piles] pileId → pile state
  * @returns {Object[]} bordereau-shaped pieces
  */
+/** Synthetic folder id for a split (exploded) document's segments. */
+export function pileFolderIdFor(pileId) {
+  return `pile-folder-${pileId}`;
+}
+
+/**
+ * Build the synthetic folder categories that hold split-document segments —
+ * one folder per exploded pile, named after the source document. Returned in
+ * a stable order, placed after the regular dossier folders. Merge these into
+ * the categories list passed to BordereauTable / dropFirstAsBordereauPieces so
+ * the segments render under their source-document folder.
+ *
+ * @param {Object<string, Object>} piles  pileId → pile state
+ * @param {number} [orderBase] starting `order` (defaults after typical roots)
+ * @returns {Category[]}
+ */
+export function pileFolders(piles = {}, orderBase = 100) {
+  return Object.values(piles)
+    .filter(p => p && p.mode === 'exploded' && Array.isArray(p.segments) && p.segments.length > 0)
+    .map((p, i) => ({
+      id: pileFolderIdFor(p.id),
+      name: (p.originalName || 'Document éclaté').replace(/\.[^/.]+$/, ''),
+      parentId: null,
+      order: orderBase + i,
+      _pileFolder: true,
+    }));
+}
+
 export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
   const orderCounters = new Map(); // categoryId (or null) → next index
   const result = [];
@@ -469,8 +497,14 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       }
 
       if (pile.mode === 'exploded') {
+        // Regroup all segments of a split document under one folder named
+        // after the source document, so the "came from the same file" link
+        // is preserved instead of scattering them by type. A manual move
+        // (categoryIdOverride) still wins per-segment.
+        const pileFolderId = pileFolderIdFor(pile.id);
         pile.segments.forEach((seg) => {
-          const next = bumpOrder(categoryId);
+          const segCategoryId = overrideCat !== undefined ? overrideCat : pileFolderId;
+          const next = bumpOrder(segCategoryId);
           result.push({
             id: `${pile.id}::${seg.id}`,
             nom: seg.label,
@@ -478,7 +512,7 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
             intitule: seg.label,
             type: pile.aggregate.typeForClassification,
             date: seg.date,
-            categoryId,
+            categoryId: segCategoryId,
             inclureDansBordereau: true,
             orderInCategory: next,
             _processing: false,

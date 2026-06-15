@@ -15,6 +15,7 @@ export default function PieceRow({
   depth = 0,
   italic = false,
   selected = false,
+  hideType = false,
   onClick,
   onSelectToggle,
   onContextMenu,
@@ -123,7 +124,7 @@ export default function PieceRow({
         flexShrink: 0,
         paddingRight: 12,
       }}>
-        {piece.type && <TypePill type={piece.type} />}
+        {!hideType && piece.type && <TypePill type={piece.type} />}
       </div>
 
       <div style={{
