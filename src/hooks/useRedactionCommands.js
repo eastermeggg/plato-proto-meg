@@ -236,6 +236,13 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
             dispatch({ type: 'CLEAR_REORDERING_BORDEREAU' });
             break;
 
+          case 'UPDATE_ACTE':
+            // Generic acte patch played from a scenario/handler (e.g. rewriting
+            // a text acte's content + updating its bordereau when a pièce is
+            // excluded). Defaults target to canvasActeId when acteId omitted.
+            dispatch({ type: 'UPDATE_ACTE', acteId: action.acteId, updates: action.updates || {} });
+            break;
+
           case 'FILL_BORDEREAU_ENTRIES': {
             // Populate an existing bordereau's entries (used by the empty-state
             // "Générer mon bordereau" flow). No canvas swap, no nav change —

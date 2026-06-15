@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { ListOrdered, Sparkles, Plus, GripVertical } from 'lucide-react';
-import { numberEntries, entriesPieceIds } from '../../data/bordereauModel';
-import AddPieceSearchModal from './AddPieceSearchModal';
+import { ListOrdered, Sparkles, GripVertical, X } from 'lucide-react';
+import { numberEntries } from '../../data/bordereauModel';
 
 // Read-only canvas for a `kind: 'bordereau'` artefact.
 //
@@ -29,21 +28,22 @@ import AddPieceSearchModal from './AddPieceSearchModal';
 //   onReorder(fromEntriesIdx, toEntriesIdx) — called when the user drops a
 //                        piece row at a new position. Indices are over the
 //                        original `entries` array (sections included).
+//   onExclude(entriesIdx, pieceEntry) — called when the user removes a pièce
+//                        from the bordereau. Index is over the original
+//                        `entries` array. App decides whether the linked acte
+//                        must be rewritten (the pièce is cited there).
 export default function ActeBordereauCanvas({
   entries = [],
   onGenerate,
   generateSource = 'acte',
   shimmer = false,
-  dossierPieces,
-  dossierCategories = [],
-  onAddPiece,
   onReorder,
+  onMoveSection,
+  onExclude,
+  onPieceClick,
 }) {
-  const [searchOpen, setSearchOpen] = useState(false);
   const numbered = numberEntries(entries);
   const pieceCount = numbered.filter((e) => e.kind === 'piece').length;
-  const canAdd = Array.isArray(dossierPieces) && !!onAddPiece;
-  const existingIds = entriesPieceIds(entries);
 
   return (
     <div className="h-full overflow-y-auto" style={{ backgroundColor: '#f8f7f5' }}>
@@ -52,39 +52,18 @@ export default function ActeBordereauCanvas({
           <EmptyState onGenerate={onGenerate} source={generateSource} />
         ) : (
           <>
-            {canAdd && (
-              <div className="flex justify-end mb-3">
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 h-9 rounded-[8px] text-[13px] font-medium transition-colors"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#44403c',
-                    border: '1px solid #e7e5e3',
-                    boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.04)',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#fafaf9'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; }}
-                >
-                  <Plus className="w-3.5 h-3.5" strokeWidth={1.75} />
-                  Ajouter une pièce
-                </button>
-              </div>
-            )}
-            <BordereauTable rows={numbered} onReorder={onReorder} shimmer={shimmer} />
+            {/* Sub-header (Figma 2484:29442): bold count + chat helper.
+                Editing the bordereau happens through the chat — no add button. */}
+            <p className="mb-3" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: '#78716c', margin: '0 0 12px' }}>
+              <span style={{ fontWeight: 600, color: '#292524' }}>
+                {pieceCount} pièce{pieceCount > 1 ? 's' : ''}{generateSource === 'acte' ? (pieceCount > 1 ? ' citées' : ' citée') : ''}
+              </span>
+              {' '}— Vous pouvez modifier le bordereau directement via le chat
+            </p>
+            <BordereauTable rows={numbered} onReorder={onReorder} onMoveSection={onMoveSection} onExclude={onExclude} onPieceClick={onPieceClick} shimmer={shimmer} />
           </>
         )}
       </div>
-      {canAdd && (
-        <AddPieceSearchModal
-          open={searchOpen}
-          onClose={() => setSearchOpen(false)}
-          pieces={dossierPieces}
-          categories={dossierCategories}
-          existingPieceIds={existingIds}
-          onAdd={onAddPiece}
-        />
-      )}
     </div>
   );
 }
@@ -93,10 +72,21 @@ export default function ActeBordereauCanvas({
 const COL_NUM_W = 72;
 const COL_DATE_W = 130;
 
-function BordereauTable({ rows, onReorder, shimmer = false }) {
+// Range [start, end) of the section block that starts at row index `sIdx`:
+// the section header plus every row up to (not including) the next section.
+function sectionBlockRange(rows, sIdx) {
+  let end = sIdx + 1;
+  while (end < rows.length && rows[end].kind !== 'section') end += 1;
+  return [sIdx, end];
+}
+
+function BordereauTable({ rows, onReorder, onMoveSection, onExclude, onPieceClick, shimmer = false }) {
   // Alternating-row index across pieces only (sections don't count).
   let pieceIdx = -1;
   const dndEnabled = !!onReorder && !shimmer;
+  const excludeEnabled = !!onExclude && !shimmer;
+  const clickEnabled = !!onPieceClick && !shimmer;
+  const sectionDndEnabled = !!onMoveSection && !shimmer && rows.some((r) => r.kind === 'section');
 
   // DnD state: source row index (in `rows`), hover row index, drop position
   // ('above' | 'below') relative to the hover row.
@@ -142,6 +132,48 @@ function BordereauTable({ rows, onReorder, shimmer = false }) {
     setHoverPos(null);
   };
 
+  // ─── Section DnD ─────────────────────────────────────────────────
+  // A whole section block can be moved, but it may only be dropped BELOW
+  // another complete section (discrete drop slots at section boundaries).
+  // While a section drag is in progress every row is inert/dimmed — only
+  // the drop slots react.
+  const [secDragIdx, setSecDragIdx] = useState(null);     // row idx of dragged section header
+  const [secHoverBefore, setSecHoverBefore] = useState(null); // active slot's insertBefore idx
+  const sectionDragActive = secDragIdx != null;
+
+  const handleSecDragStart = (idx) => (e) => {
+    setSecDragIdx(idx);
+    try { e.dataTransfer.setData('text/plain', `sec:${idx}`); } catch {}
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleSlotDragOver = (insertBefore) => (e) => {
+    if (!sectionDragActive) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (secHoverBefore !== insertBefore) setSecHoverBefore(insertBefore);
+  };
+
+  const handleSlotDrop = (insertBefore) => (e) => {
+    if (!sectionDragActive) return;
+    e.preventDefault();
+    const [bStart, bEnd] = sectionBlockRange(rows, secDragIdx);
+    // No-op if dropping the block back into its own current position.
+    if (insertBefore !== bStart && insertBefore !== bEnd) {
+      onMoveSection(bStart, bEnd, insertBefore);
+    }
+    setSecDragIdx(null);
+    setSecHoverBefore(null);
+  };
+
+  const handleSecDragEnd = () => {
+    setSecDragIdx(null);
+    setSecHoverBefore(null);
+  };
+
+  // Block range of the section currently being dragged (for no-op checks).
+  const draggedBlock = sectionDragActive ? sectionBlockRange(rows, secDragIdx) : null;
+
   return (
     <div
       style={{
@@ -152,34 +184,108 @@ function BordereauTable({ rows, onReorder, shimmer = false }) {
       }}
     >
       <ColumnHeader />
-      {rows.map((row, i) => {
-        if (row.kind === 'section') {
-          return <SectionHeader key={`s-${i}`} number={row.number} name={row.name} />;
+      {(() => {
+        const firstSectionIdx = rows.findIndex((r) => r.kind === 'section');
+
+        // A gap that sits BELOW a complete section (insertBefore = boundary
+        // index). Idle → thin 6px divider. During a section drag → a taller
+        // active drop slot (unless it's a no-op position for the dragged
+        // block, in which case it stays an inert divider).
+        const gap = (insertBefore, key, { idleVisible }) => {
+          const isNoop = draggedBlock && (insertBefore === draggedBlock[0] || insertBefore === draggedBlock[1]);
+          if (sectionDragActive && !isNoop) {
+            const hovered = secHoverBefore === insertBefore;
+            return (
+              <div
+                key={key}
+                onDragOver={handleSlotDragOver(insertBefore)}
+                onDrop={handleSlotDrop(insertBefore)}
+                style={{
+                  height: 16,
+                  position: 'relative',
+                  backgroundColor: hovered ? '#eef0f4' : '#f5f4f0',
+                  borderTop: '1px solid #e7e5e3',
+                  borderBottom: '1px solid #e7e5e3',
+                  transition: 'background-color 120ms',
+                }}
+              >
+                {hovered && (
+                  <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 2, backgroundColor: '#292524', pointerEvents: 'none' }} />
+                )}
+              </div>
+            );
+          }
+          if (!idleVisible) return null;
+          return <div key={key} style={{ height: 6, backgroundColor: '#f5f4f0', borderTop: '1px solid #e7e5e3', borderBottom: '1px solid #e7e5e3' }} />;
+        };
+
+        // While dragging a section, every row is dimmed and inert — only the
+        // drop slots respond.
+        const rowWrap = (i, node) => {
+          if (!sectionDragActive) return node;
+          const inDragged = draggedBlock && i >= draggedBlock[0] && i < draggedBlock[1];
+          return (
+            // Keep the dragged block interactive so its dragend still fires;
+            // dim + disable everything else so only the drop slots respond.
+            <div key={`w-${i}`} style={{ opacity: inDragged ? 0.4 : 0.5, pointerEvents: inDragged ? 'auto' : 'none', transition: 'opacity 120ms' }}>
+              {node}
+            </div>
+          );
+        };
+
+        const out = [];
+        rows.forEach((row, i) => {
+          if (row.kind === 'section') {
+            // Gap above a non-first section = drop slot BELOW the previous
+            // section (insertBefore = i).
+            if (i !== firstSectionIdx) {
+              out.push(gap(i, `gap-${i}`, { idleVisible: true }));
+            }
+            out.push(rowWrap(i, (
+              <SectionHeader
+                key={`s-${i}`}
+                number={row.number}
+                name={row.name}
+                draggable={sectionDndEnabled}
+                dragging={secDragIdx === i}
+                onDragStart={handleSecDragStart(i)}
+                onDragEnd={handleSecDragEnd}
+              />
+            )));
+            return;
+          }
+          pieceIdx += 1;
+          const isLast = i === rows.length - 1;
+          out.push(rowWrap(i, (
+            <PieceRow
+              key={`p-${i}-${row.pieceId || row.intitule}`}
+              number={row.number}
+              intitule={row.intitule}
+              date={row.date}
+              description={row.description}
+              alternate={pieceIdx % 2 === 1}
+              isLast={isLast}
+              draggable={dndEnabled}
+              dragging={dragIdx === i}
+              dropAbove={dndEnabled && hoverIdx === i && hoverPos === 'above' && dragIdx !== i}
+              dropBelow={dndEnabled && hoverIdx === i && hoverPos === 'below' && dragIdx !== i}
+              onDragStart={handleDragStart(i)}
+              onDragOver={handleDragOver(i)}
+              onDrop={handleDrop(i)}
+              onDragEnd={handleDragEnd}
+              onExclude={excludeEnabled ? () => onExclude(i, row) : undefined}
+              onClick={clickEnabled ? () => onPieceClick(row) : undefined}
+              shimmer={shimmer}
+              shimmerDelay={pieceIdx * 60}
+            />
+          )));
+        });
+        // End slot — drop BELOW the last section (only meaningful while dragging).
+        if (firstSectionIdx !== -1) {
+          out.push(gap(rows.length, 'gap-end', { idleVisible: false }));
         }
-        pieceIdx += 1;
-        const isLast = i === rows.length - 1;
-        return (
-          <PieceRow
-            key={`p-${i}-${row.pieceId || row.intitule}`}
-            number={row.number}
-            intitule={row.intitule}
-            date={row.date}
-            description={row.description}
-            alternate={pieceIdx % 2 === 1}
-            isLast={isLast}
-            draggable={dndEnabled}
-            dragging={dragIdx === i}
-            dropAbove={dndEnabled && hoverIdx === i && hoverPos === 'above' && dragIdx !== i}
-            dropBelow={dndEnabled && hoverIdx === i && hoverPos === 'below' && dragIdx !== i}
-            onDragStart={handleDragStart(i)}
-            onDragOver={handleDragOver(i)}
-            onDrop={handleDrop(i)}
-            onDragEnd={handleDragEnd}
-            shimmer={shimmer}
-            shimmerDelay={pieceIdx * 60}
-          />
-        );
-      })}
+        return out;
+      })()}
     </div>
   );
 }
@@ -209,32 +315,69 @@ function ColumnHeader() {
     >
       <div style={{ ...cell, width: COL_NUM_W, justifyContent: 'center', flexShrink: 0 }}>N°</div>
       <div style={{ ...cell, flex: 1, minWidth: 0 }}>Nom de la pièce</div>
-      <div style={{ ...cell, width: COL_DATE_W, flexShrink: 0 }}>Date</div>
+      {/* Date column kept for alignment, unlabelled (Figma 2484:29442). */}
+      <div style={{ ...cell, width: COL_DATE_W, flexShrink: 0 }} />
     </div>
   );
 }
 
-function SectionHeader({ number, name }) {
+function SectionHeader({
+  number,
+  name,
+  draggable,
+  dragging,
+  onDragStart,
+  onDragEnd,
+}) {
   const mono = "'IBM Plex Mono', monospace";
   const font = "'Inter', system-ui, sans-serif";
+  const [hover, setHover] = useState(false);
   return (
     <div
+      draggable={!!draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       style={{
+        position: 'relative',
         display: 'flex',
         alignItems: 'center',
         height: 40,
         backgroundColor: 'white',
         borderBottom: '1px solid #e7e5e3',
         borderTop: '1px solid #e7e5e3',
+        opacity: dragging ? 0.4 : 1,
+        cursor: draggable ? 'grab' : 'default',
+        transition: 'opacity 120ms',
       }}
     >
+      {/* Grip — signals the section is draggable */}
+      {draggable && (
+        <GripVertical
+          style={{
+            width: 12,
+            height: 12,
+            color: hover ? '#78716c' : '#d6d3d1',
+            position: 'absolute',
+            left: 10,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            transition: 'color 120ms',
+            pointerEvents: 'none',
+          }}
+          strokeWidth={1.5}
+        />
+      )}
+      {/* Number + name in a single cell: "I - Médical" */}
       <div
         style={{
-          width: COL_NUM_W,
-          flexShrink: 0,
+          flex: 1,
+          minWidth: 0,
+          padding: draggable ? '0 12px 0 28px' : '0 12px',
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          alignItems: 'baseline',
+          gap: 6,
         }}
       >
         <span
@@ -244,25 +387,26 @@ function SectionHeader({ number, name }) {
             fontWeight: 600,
             color: '#44403c',
             letterSpacing: '0.04em',
+            flexShrink: 0,
           }}
         >
-          {number}
+          {number} -
         </span>
-      </div>
-      <div
-        style={{
-          flex: 1,
-          minWidth: 0,
-          padding: '0 12px',
-          fontFamily: font,
-          fontSize: 13,
-          fontWeight: 600,
-          color: '#292524',
-          textTransform: 'uppercase',
-          letterSpacing: '0.03em',
-        }}
-      >
-        {name}
+        <span
+          style={{
+            fontFamily: font,
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#292524',
+            textTransform: 'uppercase',
+            letterSpacing: '0.03em',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {name}
+        </span>
       </div>
     </div>
   );
@@ -283,12 +427,16 @@ function PieceRow({
   onDragOver,
   onDrop,
   onDragEnd,
+  onExclude,
+  onClick,
   shimmer = false,
   shimmerDelay = 0,
 }) {
   const font = "'Inter', system-ui, sans-serif";
   const mono = "'IBM Plex Mono', monospace";
   const [hover, setHover] = useState(false);
+  const [btnHover, setBtnHover] = useState(false);
+  const clickable = !!onClick;
 
   if (shimmer) {
     return (
@@ -307,6 +455,7 @@ function PieceRow({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
+      onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
@@ -314,11 +463,11 @@ function PieceRow({
         display: 'flex',
         alignItems: 'center',
         minHeight: 52,
-        backgroundColor: alternate ? '#fafaf9' : 'white',
+        backgroundColor: hover && (clickable || draggable) ? '#f5f4f0' : (alternate ? '#fafaf9' : 'white'),
         borderBottom: isLast ? 'none' : '1px solid #e7e5e3',
         opacity: dragging ? 0.4 : 1,
-        cursor: draggable ? 'grab' : 'default',
-        transition: 'opacity 120ms',
+        cursor: clickable ? 'pointer' : (draggable ? 'grab' : 'default'),
+        transition: 'opacity 120ms, background-color 120ms',
       }}
     >
       {/* Drop indicator — a 2px stone line above/below the row when the user
@@ -352,7 +501,8 @@ function PieceRow({
         />
       )}
 
-      {/* N° badge — grip glyph reveals on hover when DnD is enabled */}
+      {/* N° badge — grip glyph always shown when DnD is enabled (darkens on
+          row hover to signal it's draggable). */}
       <div
         style={{
           width: COL_NUM_W,
@@ -361,6 +511,7 @@ function PieceRow({
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
+          paddingLeft: draggable ? 14 : 0,
         }}
       >
         {draggable && (
@@ -368,11 +519,10 @@ function PieceRow({
             style={{
               width: 12,
               height: 12,
-              color: '#a8a29e',
+              color: hover ? '#78716c' : '#d6d3d1',
               position: 'absolute',
-              left: 8,
-              opacity: hover ? 1 : 0,
-              transition: 'opacity 120ms',
+              left: 10,
+              transition: 'color 120ms',
               pointerEvents: 'none',
             }}
             strokeWidth={1.5}
@@ -451,6 +601,69 @@ function PieceRow({
       >
         {date || '—'}
       </div>
+
+      {/* Exclure — small icon CTA revealed on hover, far right, with a custom
+          tooltip. Excludes the pièce from the bordereau; the App handles
+          rewriting the acte if it's cited. */}
+      {onExclude && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); onExclude(); }}
+            aria-label="Exclure du bordereau"
+            onMouseEnter={() => setBtnHover(true)}
+            onMouseLeave={() => setBtnHover(false)}
+            className="inline-flex items-center justify-center"
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: 5,
+              color: btnHover ? '#b91c1c' : '#a8a29e',
+              backgroundColor: btnHover ? '#fef2f2' : 'transparent',
+              opacity: hover ? 1 : 0,
+              transition: 'opacity 120ms, background-color 120ms, color 120ms',
+              cursor: 'pointer',
+            }}
+          >
+            <X className="w-3 h-3" strokeWidth={2} />
+          </button>
+          {/* Tooltip */}
+          <span
+            role="tooltip"
+            style={{
+              position: 'absolute',
+              right: '100%',
+              marginRight: 6,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              whiteSpace: 'nowrap',
+              padding: '3px 7px',
+              borderRadius: 5,
+              backgroundColor: '#292524',
+              color: 'white',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontSize: 11,
+              fontWeight: 500,
+              lineHeight: 1,
+              opacity: btnHover ? 1 : 0,
+              transform: btnHover ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(2px)',
+              transition: 'opacity 120ms, transform 120ms',
+              pointerEvents: 'none',
+              boxShadow: '0px 2px 6px rgba(26,26,26,0.18)',
+            }}
+          >
+            Exclure du bordereau
+          </span>
+        </div>
+      )}
     </div>
   );
 }

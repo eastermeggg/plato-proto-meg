@@ -1,16 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, ChevronDown, Check, Stamp } from 'lucide-react';
+import { Download, ChevronDown, Check, Stamp, FileText } from 'lucide-react';
 
-// Télécharger dropdown for the bordereau header. Scope picker + tamponnage
-// toggle + confirm button. The actual export is faked in P1A — `onConfirm` is
-// called with `{ scope, tamponnage }` and the parent shows a toast.
-//
-// Tamponnage only applies when the export includes pièces. With the current
-// scopes (acte / bordereau / tout) that means: Acte seul disables tamponnage,
-// Bordereau seul and Tout enable it.
+// Télécharger dropdown for the bordereau header. The export ALWAYS bundles the
+// acte + its bordereau + pièces — they're never downloaded apart, so there's
+// no scope picker. The only option is tamponnage. The actual export is faked in
+// P1A — `onConfirm` is called with `{ scope: 'tout', tamponnage }` and the
+// parent shows a toast.
 export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }) {
   const [open, setOpen] = useState(false);
-  const [scope, setScope] = useState('tout'); // 'acte' | 'bordereau' | 'tout'
   const [tamponnage, setTamponnage] = useState(true);
   const ref = useRef(null);
 
@@ -23,13 +20,9 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
     return () => document.removeEventListener('mousedown', onClick);
   }, [open]);
 
-  // Tamponnage doesn't apply to Acte seul (no pièces).
-  const tamponnageDisabled = scope === 'acte';
-  const effectiveTamponnage = tamponnageDisabled ? false : tamponnage;
-
   const confirm = () => {
     setOpen(false);
-    onConfirm?.({ scope, tamponnage: effectiveTamponnage });
+    onConfirm?.({ scope: 'tout', tamponnage });
   };
 
   // Trigger button — dark primary, sits next to the muted Copier button in the
@@ -70,16 +63,13 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
           className="absolute right-0 top-10 z-50 bg-white rounded-[10px] border border-[#e7e5e3] overflow-hidden"
           style={{ width: 300, boxShadow: '0px 4px 8px -2px rgba(26,26,26,0.06), 0px 8px 24px -4px rgba(26,26,26,0.08)' }}
         >
-          {/* Scope */}
-          <div className="px-3 pt-3 pb-1">
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Portée
+          {/* What gets exported — always the full bundle, never one alone. */}
+          <div className="px-3 pt-3 pb-2.5 flex items-start gap-2">
+            <FileText className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-[#78716c]" strokeWidth={1.75} />
+            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, lineHeight: '16px', color: '#44403c' }}>
+              <span style={{ fontWeight: 600, color: '#292524' }}>Acte + bordereau + pièces</span><br />
+              Téléchargés ensemble dans un seul document.
             </span>
-          </div>
-          <div className="px-1 pb-1.5">
-            <ScopeOption label="Acte seul" value="acte" selected={scope === 'acte'} onSelect={setScope} />
-            <ScopeOption label="Bordereau seul" value="bordereau" selected={scope === 'bordereau'} onSelect={setScope} />
-            <ScopeOption label="Tout" hint="(défaut)" value="tout" selected={scope === 'tout'} onSelect={setScope} />
           </div>
 
           <div style={{ height: 1, backgroundColor: '#e7e5e3' }} />
@@ -92,9 +82,9 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
           </div>
           <div className="px-1 pb-2">
             <TamponnageToggle
-              on={effectiveTamponnage}
-              disabled={tamponnageDisabled}
-              onToggle={() => !tamponnageDisabled && setTamponnage((t) => !t)}
+              on={tamponnage}
+              disabled={false}
+              onToggle={() => setTamponnage((t) => !t)}
             />
           </div>
 
@@ -112,40 +102,6 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
         </div>
       )}
     </div>
-  );
-}
-
-function ScopeOption({ label, hint, value, selected, onSelect }) {
-  return (
-    <button
-      onClick={() => onSelect(value)}
-      className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
-    >
-      <span className="flex items-center gap-2">
-        <span
-          style={{
-            width: 14,
-            height: 14,
-            borderRadius: 999,
-            border: `1.5px solid ${selected ? '#292524' : '#c7c2b8'}`,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          {selected && (
-            <span style={{ width: 6, height: 6, borderRadius: 999, backgroundColor: '#292524' }} />
-          )}
-        </span>
-        <span className="text-[14px] text-[#292524]">{label}</span>
-      </span>
-      {hint && (
-        <span className="text-[11px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-          {hint}
-        </span>
-      )}
-    </button>
   );
 }
 

@@ -27,19 +27,41 @@ export default function AddPieceSearchModal({
   categories = [],
   existingPieceIds = new Set(),
   onAdd,
+  onAddMany,
 }) {
   const [query, setQuery] = useState('');
   const [expandedIds, setExpandedIds] = useState(() => new Set());
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (open) {
       setQuery('');
+      setSelectedIds(new Set());
       // Default-expand everything so all pieces are immediately visible.
       setExpandedIds(new Set(categories.map((c) => c.id)));
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [open, categories]);
+
+  const toggleSelect = (pieceId) => {
+    // Already-added pieces are locked (shown checked, can't toggle).
+    if (existingPieceIds.has(pieceId)) return;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(pieceId)) next.delete(pieceId); else next.add(pieceId);
+      return next;
+    });
+  };
+
+  const confirmAdd = () => {
+    // Only the newly-selected pieces (never the already-added, locked ones).
+    const chosen = pieces.filter((p) => selectedIds.has(p.id) && !existingPieceIds.has(p.id));
+    if (chosen.length === 0) return;
+    if (onAddMany) onAddMany(chosen);
+    else chosen.forEach((p) => onAdd?.(p));
+    onClose?.();
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -48,9 +70,8 @@ export default function AddPieceSearchModal({
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  // Search filter — applied to the piece list. When a query is set we also
-  // force-expand every category so matches inside collapsed folders surface
-  // (mirrors PiecesTab.forceExpandAll).
+  // Search filter — applied to the whole piece list. Already-added pieces stay
+  // visible (shown pre-checked + locked, no tag); they're just not re-addable.
   const filteredPieces = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return pieces;
@@ -60,14 +81,30 @@ export default function AddPieceSearchModal({
     });
   }, [pieces, query]);
 
+  // While searching, prune the tree to only the folders that contain a match
+  // (plus their ancestor path) so empty branches don't clutter the results.
+  const visibleCategories = useMemo(() => {
+    if (!query.trim()) return categories;
+    const byId = new Map(categories.map((c) => [c.id, c]));
+    const keep = new Set();
+    filteredPieces.forEach((p) => {
+      let cid = p.categoryId;
+      while (cid != null && !keep.has(cid)) {
+        keep.add(cid);
+        cid = byId.get(cid)?.parentId ?? null;
+      }
+    });
+    return categories.filter((c) => keep.has(c.id));
+  }, [query, categories, filteredPieces]);
+
   const effectiveExpanded = useMemo(() => {
     if (!query.trim()) return expandedIds;
-    return new Set(categories.map((c) => c.id));
-  }, [query, expandedIds, categories]);
+    return new Set(visibleCategories.map((c) => c.id));
+  }, [query, expandedIds, visibleCategories]);
 
   const rows = useMemo(
-    () => buildTreeViewRows(filteredPieces, categories, effectiveExpanded),
-    [filteredPieces, categories, effectiveExpanded],
+    () => buildTreeViewRows(filteredPieces, visibleCategories, effectiveExpanded),
+    [filteredPieces, visibleCategories, effectiveExpanded],
   );
 
   const toggleExpand = (catId) => {
@@ -179,6 +216,7 @@ export default function AddPieceSearchModal({
                     hasChildren={row.hasChildren}
                     expanded={row.expanded}
                     isEmpty={!row.hasChildren}
+                    browseOnly
                     onToggle={() => toggleExpand(row.category.id)}
                   />
                 );
@@ -192,12 +230,46 @@ export default function AddPieceSearchModal({
                   piece={p}
                   depth={row.depth}
                   italic={row.kind === 'sansCategoriePiece'}
-                  alreadyAdded={alreadyAdded}
-                  onPick={() => { onAdd?.(p); onClose?.(); }}
+                  // Already-added pieces show as checked + locked, no tag.
+                  selected={alreadyAdded || selectedIds.has(p.id)}
+                  locked={alreadyAdded}
+                  onToggle={() => toggleSelect(p.id)}
                 />
               );
             })
           )}
+        </div>
+
+        {/* Footer — selection count + confirm */}
+        <div
+          className="flex items-center justify-between px-4 py-3"
+          style={{ borderTop: '1px solid #e7e5e3', backgroundColor: '#fafaf9' }}
+        >
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>
+            {selectedIds.size === 0
+              ? 'Sélectionnez des pièces à ajouter'
+              : `${selectedIds.size} pièce${selectedIds.size > 1 ? 's' : ''} sélectionnée${selectedIds.size > 1 ? 's' : ''}`}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onClose}
+              className="inline-flex items-center px-3 h-9 rounded-[8px] text-[13px] font-medium text-[#44403c] hover:bg-[#f0efed] transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={confirmAdd}
+              disabled={selectedIds.size === 0}
+              className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-[8px] text-[13px] font-medium text-white transition-colors"
+              style={{
+                backgroundColor: selectedIds.size === 0 ? '#d6d3d1' : '#292524',
+                cursor: selectedIds.size === 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <Check className="w-3.5 h-3.5" strokeWidth={2} />
+              {selectedIds.size > 0 ? `Ajouter (${selectedIds.size})` : 'Ajouter'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -226,46 +298,21 @@ function SansCatBand({ count }) {
   );
 }
 
-// Wraps the Pièces-tab `PieceRow` so click = "add to bordereau", and pieces
-// already in the bordereau are dimmed and disabled with a chip.
-function PieceAddRow({ piece, depth, italic, alreadyAdded, onPick }) {
+// Wraps the Pièces-tab `PieceRow` so click = "toggle selection". Already-added
+// pieces render checked + locked (no tag) — `locked` slightly mutes them and
+// blocks toggling. Selected pieces are committed together via the footer.
+function PieceAddRow({ piece, depth, italic, selected, locked, onToggle }) {
   return (
-    <div
-      style={{
-        position: 'relative',
-        opacity: alreadyAdded ? 0.55 : 1,
-        cursor: alreadyAdded ? 'not-allowed' : undefined,
-        pointerEvents: alreadyAdded ? 'none' : undefined,
-      }}
-    >
+    <div style={{ position: 'relative', opacity: locked ? 0.6 : 1 }}>
       <PieceRow
         piece={piece}
         depth={depth}
         italic={italic}
-        onClick={onPick}
+        selected={selected}
+        hideType
+        onClick={locked ? undefined : onToggle}
+        onSelectToggle={locked ? undefined : onToggle}
       />
-      {alreadyAdded && (
-        <span
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[5px]"
-          style={{
-            position: 'absolute',
-            right: 16,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            backgroundColor: '#eeece6',
-            color: '#78716c',
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
-            fontWeight: 500,
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            pointerEvents: 'none',
-          }}
-        >
-          <Check className="w-2.5 h-2.5" strokeWidth={2} />
-          Déjà ajoutée
-        </span>
-      )}
     </div>
   );
 }

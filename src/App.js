@@ -15,7 +15,7 @@ import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import PairTabs from './components/redaction/PairTabs';
 import ExportBordereauMenu from './components/redaction/ExportBordereauMenu';
-import { extractCitations, buildEntriesFromCitations, addPieceToEntries } from './data/bordereauModel';
+import { extractCitations, buildEntriesFromCitations, addPieceToEntries, removeEntryAt, countCitationsForIntitule, stripCitationsForIntitule, moveSectionBlock } from './data/bordereauModel';
 import { MOCK_STANDALONE_BORDEREAU_ENTRIES } from './data/redactionScenarios';
 import EmptyState from './components/EmptyState';
 import PromptSuggestionCard from './components/PromptSuggestionCard';
@@ -31,7 +31,7 @@ import PiecesTab from './components/pieces/PiecesTab';
 import BordereauTable from './components/pieces/BordereauTable';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
 import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
-import { dropFirstAsBordereauPieces, classifyDropFirstPiece } from './data/piecesModel';
+import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows, pileFolders } from './data/piecesModel';
 import { getPileById, pickRandomPiles } from './data/pilesSeed';
 import PileReviewBanner from './components/pieces/PileReviewBanner';
 import PileAdjustSheet from './components/pieces/PileAdjustSheet';
@@ -39,6 +39,7 @@ import SplitVariantsLab from './components/pieces/SplitVariantsLab';
 import {
   ChiffrageSlot,
   RedactionSlot,
+  BordereauSlot,
   NommageSlot,
   DecoupageSlot,
   PREFERENCE_SLOT_IDS,
@@ -4481,6 +4482,8 @@ export default function App() {
   const dragCounter = useRef(0);
   const [attachMenuOpen, setAttachMenuOpen] = useState(false); // false | 'main' | 'pieces' | 'templates'
   const [attachSearch, setAttachSearch] = useState('');
+  const [attachExpanded, setAttachExpanded] = useState(() => new Set()); // expanded folder ids in the chat pieces tree
+  const [attachSelected, setAttachSelected] = useState(() => new Set()); // selected piece ids in the chat pieces tree
   const attachMenuRef = useRef(null);
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const downloadMenuRef = useRef(null);
@@ -4605,6 +4608,29 @@ export default function App() {
     const hasContent = chatInputValue.trim().length > 0 || stagedDocs.length > 0;
     const isDossierClosed = dossierStatut === 'fermé';
     const chatLocked = chatBlocked || isDossierClosed;
+
+    // @-mention source — pieces organised by their folder (GED structure),
+    // then templates. Returns { sections: [{ label, docs }], flat: [docs] }
+    // so the keyboard nav and the rendered list iterate the same order.
+    const buildMentionList = (rawQuery) => {
+      const q = (rawQuery || '').toLowerCase();
+      const match = (p) => !q || [p.nom, p.intitule, p.type, p.nomOriginal].filter(Boolean).some(s => String(s).toLowerCase().includes(q));
+      const toDoc = (p) => ({ id: p.id, name: p.intitule || p.nom, source: 'piece' });
+      const sections = [];
+      // Folders in their stored order; only those with matching direct pieces.
+      bordereauCategories.forEach(cat => {
+        const inCat = pieces.filter(p => p.categoryId === cat.id && match(p));
+        if (inCat.length > 0) sections.push({ label: cat.name, docs: inCat.map(toDoc) });
+      });
+      // Uncategorised.
+      const sansCat = pieces.filter(p => p.categoryId == null && match(p));
+      if (sansCat.length > 0) sections.push({ label: 'Sans catégorie', docs: sansCat.map(toDoc) });
+      // Templates.
+      const tpl = templatesLibrary.filter(t => !q || (t.fileName || '').toLowerCase().includes(q)).map(t => ({ id: t.id, name: t.fileName, source: 'template' }));
+      if (tpl.length > 0) sections.push({ label: 'Modèles', docs: tpl });
+      const flat = sections.flatMap(s => s.docs);
+      return { sections, flat };
+    };
 
     return (
       <>
@@ -5339,13 +5365,7 @@ export default function App() {
                   onKeyDown={(e) => {
                     // @mention keyboard nav
                     if (mentionQuery !== null) {
-                      const q = mentionQuery.query.toLowerCase();
-                      const allDocs = [
-                        ...pieces.map(p => ({ id: p.id, name: p.nom, source: 'piece' })),
-                        ...dropFirstPieces.filter(p => p.status === 'done').map(p => ({ id: p.id, name: p.cleanName || p.originalName, source: 'piece' })),
-                        ...templatesLibrary.map(t => ({ id: t.id, name: t.fileName, source: 'template' })),
-                      ];
-                      const filtered = q ? allDocs.filter(d => d.name.toLowerCase().includes(q)) : allDocs;
+                      const filtered = buildMentionList(mentionQuery.query).flat;
                       if (filtered.length > 0) {
                         if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIdx(prev => Math.min(prev + 1, filtered.length - 1)); return; }
                         if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIdx(prev => Math.max(prev - 1, 0)); return; }
@@ -5373,58 +5393,55 @@ export default function App() {
                   rows={1}
                   disabled={chatLocked}
                 />
-                {/* @mention dropdown — grouped by type */}
+                {/* @mention dropdown — pieces grouped by their folder (GED) */}
                 {mentionQuery !== null && (() => {
-                  const q = mentionQuery.query.toLowerCase();
-                  const bordDocs = pieces.map(p => ({ id: p.id, name: p.nom, source: 'piece' }));
-                  const horsDocs = dropFirstPieces.filter(p => p.status === 'done').map(p => ({ id: p.id, name: p.cleanName || p.originalName, source: 'piece' }));
-                  const tplDocs = templatesLibrary.map(t => ({ id: t.id, name: t.fileName, source: 'template' }));
-                  const filterList = (list) => q ? list.filter(d => d.name.toLowerCase().includes(q)) : list;
-                  const fBord = filterList(bordDocs);
-                  const fHors = filterList(horsDocs);
-                  const fTpl = filterList(tplDocs);
-                  const allFiltered = [...fBord, ...fHors, ...fTpl];
-                  if (allFiltered.length === 0) return null;
+                  const { sections } = buildMentionList(mentionQuery.query);
+                  if (sections.length === 0) return null;
 
                   let globalIdx = 0;
-                  const sectionLabel = (text) => (
-                    <div className="px-2 py-1" key={`label-${text}`}>
-                      <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{text}</span>
-                    </div>
-                  );
-                  const renderRow = (doc) => {
-                    const idx = globalIdx++;
-                    return (
-                      <button
-                        key={`${doc.source}-${doc.id}`}
-                        className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] transition-colors ${idx === mentionIdx ? 'bg-[#fafaf9]' : 'hover:bg-[#fafaf9]'}`}
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          const before = chatInputValue.slice(0, mentionQuery.startIdx);
-                          const after = chatInputValue.slice(mentionQuery.startIdx + mentionQuery.query.length + 1);
-                          setChatInputValue(before + after);
-                          setStagedDocs(prev => {
-                            if (prev.some(d => d.id === doc.id && d.source === doc.source)) return prev;
-                            return [...prev, doc];
-                          });
-                          setMentionQuery(null);
-                          chatTextareaRef.current?.focus();
-                        }}
-                        onMouseEnter={() => setMentionIdx(idx)}
-                      >
-                        <FileText className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
-                        <span className="truncate text-[13px] text-[#292524]">{doc.name}</span>
-                        {doc.source === 'template' && <span className="ml-auto text-[10px] text-[#a8a29e] flex-shrink-0">modèle</span>}
-                      </button>
-                    );
+                  const selectDoc = (doc) => {
+                    const before = chatInputValue.slice(0, mentionQuery.startIdx);
+                    const after = chatInputValue.slice(mentionQuery.startIdx + mentionQuery.query.length + 1);
+                    setChatInputValue(before + after);
+                    setStagedDocs(prev => {
+                      if (prev.some(d => d.id === doc.id && d.source === doc.source)) return prev;
+                      return [...prev, doc];
+                    });
+                    setMentionQuery(null);
+                    chatTextareaRef.current?.focus();
                   };
 
                   return (
                     <div className="absolute bottom-full left-0 mb-1 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
                       <div className="overflow-y-auto p-1" style={{ maxHeight: 260 }}>
-                        {fBord.length > 0 && <>{sectionLabel('Bordereau')}{fBord.map(renderRow)}</>}
-                        {fHors.length > 0 && <>{sectionLabel('Hors bordereau')}{fHors.map(renderRow)}</>}
-                        {fTpl.length > 0 && <>{sectionLabel('Modèles')}{fTpl.map(renderRow)}</>}
+                        {sections.map((section) => {
+                          const isTpl = section.label === 'Modèles';
+                          const SectionIcon = isTpl ? BookOpen : Folder;
+                          const RowIcon = isTpl ? BookOpen : FileText;
+                          return (
+                            <React.Fragment key={`sec-${section.label}`}>
+                              <div className="flex items-center gap-1.5 px-2 py-1">
+                                <SectionIcon className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
+                                <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{section.label}</span>
+                              </div>
+                              {section.docs.map((doc) => {
+                                const idx = globalIdx++;
+                                return (
+                                  <button
+                                    key={`${doc.source}-${doc.id}`}
+                                    className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${idx === mentionIdx ? 'bg-[#fafaf9]' : 'hover:bg-[#fafaf9]'}`}
+                                    style={{ paddingLeft: 20 }}
+                                    onMouseDown={(e) => { e.preventDefault(); selectDoc(doc); }}
+                                    onMouseEnter={() => setMentionIdx(idx)}
+                                  >
+                                    <RowIcon className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
+                                    <span className="truncate text-[13px] text-[#292524]">{doc.name}</span>
+                                  </button>
+                                );
+                              })}
+                            </React.Fragment>
+                          );
+                        })}
                       </div>
                     </div>
                   );
@@ -5476,7 +5493,7 @@ export default function App() {
                       <div className="p-1">
                         <button
                           className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
-                          onClick={() => { setAttachMenuOpen('pieces'); setAttachSearch(''); }}
+                          onClick={() => { setAttachMenuOpen('pieces'); setAttachSearch(''); setAttachExpanded(new Set(bordereauCategories.map(c => c.id))); setAttachSelected(new Set()); }}
                         >
                           <span className="text-[14px] text-[#292524]">Pièces du dossier</span>
                           <ChevronRight className="w-3.5 h-3.5 text-[#d6d3d1]" />
@@ -5494,35 +5511,55 @@ export default function App() {
 
                   {/* Pièces sub-menu */}
                   {attachMenuOpen === 'pieces' && (() => {
-                    const q = attachSearch.toLowerCase();
-                    const bordereauPieces = (q ? pieces.filter(p => p.nom.toLowerCase().includes(q) || p.type.toLowerCase().includes(q) || (p.intitule && p.intitule.toLowerCase().includes(q))) : pieces);
-                    const horsBordereauPieces = (q ? dropFirstPieces.filter(p => p.status === 'done').filter(p => (p.cleanName || p.originalName || '').toLowerCase().includes(q) || (p.type || '').toLowerCase().includes(q)) : dropFirstPieces.filter(p => p.status === 'done'));
-                    const renderPieceRow = (p, source) => {
-                      const name = source === 'hors' ? (p.cleanName || p.originalName) : p.nom;
-                      const type = p.type || null;
-                      const alreadyStaged = stagedDocs.some(d => d.id === p.id && d.source === 'piece');
-                      return (
-                        <button
-                          key={p.id}
-                          className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] transition-colors ${alreadyStaged ? 'opacity-40' : 'hover:bg-[#fafaf9]'}`}
-                          disabled={alreadyStaged}
-                          onClick={() => {
-                            setStagedDocs(prev => [...prev, { id: p.id, name, source: 'piece' }]);
-                            setAttachMenuOpen(false);
-                            setAttachSearch('');
-                          }}
-                        >
-                          <FileText className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
-                          <span className="truncate text-[13px] text-[#292524]">{name}</span>
-                          {type && !alreadyStaged && <span className="ml-auto text-[10px] text-[#a8a29e] flex-shrink-0">{type}</span>}
-                          {alreadyStaged && <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 ml-auto" />}
-                        </button>
-                      );
+                    // Compact folder-tree browser — mirrors the GED structure
+                    // (folders + files) using the shared buildTreeViewRows
+                    // engine. Search prunes empty branches; multi-select stages
+                    // the chosen files together.
+                    const q = attachSearch.trim().toLowerCase();
+                    const filtered = q
+                      ? pieces.filter(p => [p.nom, p.intitule, p.type, p.nomOriginal].filter(Boolean).some(s => String(s).toLowerCase().includes(q)))
+                      : pieces;
+                    // Prune categories to branches containing a match (+ ancestors).
+                    let treeCategories = bordereauCategories;
+                    let expandedForTree = attachExpanded;
+                    if (q) {
+                      const byId = new Map(bordereauCategories.map(c => [c.id, c]));
+                      const keep = new Set();
+                      filtered.forEach(p => {
+                        let cid = p.categoryId;
+                        while (cid != null && !keep.has(cid)) { keep.add(cid); cid = byId.get(cid)?.parentId ?? null; }
+                      });
+                      treeCategories = bordereauCategories.filter(c => keep.has(c.id));
+                      expandedForTree = new Set(treeCategories.map(c => c.id));
+                    }
+                    const treeRows = buildTreeViewRows(filtered, treeCategories, expandedForTree);
+                    const isStaged = (id) => stagedDocs.some(d => d.id === id && d.source === 'piece');
+                    const INDENT = 14;
+
+                    const toggleExpand = (catId) => setAttachExpanded(prev => {
+                      const next = new Set(prev);
+                      if (next.has(catId)) next.delete(catId); else next.add(catId);
+                      return next;
+                    });
+                    const toggleSelect = (id) => setAttachSelected(prev => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id); else next.add(id);
+                      return next;
+                    });
+                    const confirmAttach = () => {
+                      const chosen = pieces.filter(p => attachSelected.has(p.id) && !isStaged(p.id));
+                      if (chosen.length > 0) {
+                        setStagedDocs(prev => [...prev, ...chosen.map(p => ({ id: p.id, name: p.intitule || p.nom, source: 'piece' }))]);
+                      }
+                      setAttachMenuOpen(false);
+                      setAttachSearch('');
+                      setAttachSelected(new Set());
                     };
+
                     return (
-                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ width: 300, maxHeight: 400, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden flex flex-col" style={{ width: 320, maxHeight: 420, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
                         {/* Navigation header */}
-                        <div className="flex items-center gap-2 bg-[#f8f7f5] px-2.5 py-2 border-b border-[#e7e5e3]">
+                        <div className="flex items-center gap-2 bg-[#f8f7f5] px-2.5 py-2 border-b border-[#e7e5e3] flex-shrink-0">
                           <button onClick={() => { setAttachMenuOpen('main'); setAttachSearch(''); }} className="opacity-50 hover:opacity-100 transition-opacity">
                             <ChevronRight className="w-4 h-4 text-[#78716c] rotate-180" />
                           </button>
@@ -5531,42 +5568,86 @@ export default function App() {
                           </span>
                         </div>
                         {/* Search */}
-                        <button className="w-full flex items-center gap-2 p-3 border-b border-[#e7e5e3] text-left">
+                        <div className="flex items-center gap-2 p-3 border-b border-[#e7e5e3] flex-shrink-0">
                           <Search className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
                           <input
                             type="text"
                             value={attachSearch}
                             onChange={(e) => setAttachSearch(e.target.value)}
-                            placeholder="Rechercher un élément..."
+                            placeholder="Rechercher une pièce ou un dossier..."
                             className="flex-1 bg-transparent text-[14px] text-[#292524] placeholder-[#78716c] placeholder:opacity-70 focus:outline-none"
                             autoFocus
                           />
-                        </button>
-                        <div className="overflow-y-auto p-1" style={{ maxHeight: 300 }}>
-                          {bordereauPieces.length === 0 && horsBordereauPieces.length === 0 ? (
-                            <div className="px-2 py-4 text-center text-[12px] text-[#a8a29e]">Aucune pièce trouvée</div>
-                          ) : (
-                            <>
-                              {/* Bordereau section */}
-                              {bordereauPieces.length > 0 && (
-                                <div className="p-1">
-                                  <div className="px-2 py-1.5">
-                                    <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Bordereau</span>
-                                  </div>
-                                  {bordereauPieces.map(p => renderPieceRow(p, 'bordereau'))}
+                        </div>
+                        {/* Tree */}
+                        <div className="overflow-y-auto p-1 flex-1" style={{ minHeight: 80 }}>
+                          {treeRows.length === 0 ? (
+                            <div className="px-2 py-6 text-center text-[12px] text-[#a8a29e]">Aucune pièce trouvée</div>
+                          ) : treeRows.map((row, ri) => {
+                            if (row.kind === 'sansCategorieHeader') {
+                              return (
+                                <div key="sc-head" className="px-2 py-1.5">
+                                  <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sans catégorie</span>
                                 </div>
-                              )}
-                              {/* Hors bordereau section */}
-                              {horsBordereauPieces.length > 0 && (
-                                <div className="p-1">
-                                  <div className="px-2 py-1.5">
-                                    <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Hors bordereau</span>
-                                  </div>
-                                  {horsBordereauPieces.map(p => renderPieceRow(p, 'hors'))}
-                                </div>
-                              )}
-                            </>
-                          )}
+                              );
+                            }
+                            if (row.kind === 'category') {
+                              const Chevron = row.expanded ? ChevronDown : ChevronRight;
+                              return (
+                                <button
+                                  key={`cat-${row.category.id}`}
+                                  onClick={() => toggleExpand(row.category.id)}
+                                  className="w-full flex items-center gap-1.5 py-1.5 pr-2 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                                  style={{ paddingLeft: 8 + row.depth * INDENT }}
+                                >
+                                  <span style={{ width: 14, flexShrink: 0, display: 'inline-flex', justifyContent: 'center', color: '#a8a29e' }}>
+                                    {row.hasChildren && <Chevron className="w-3.5 h-3.5" strokeWidth={2} />}
+                                  </span>
+                                  <Folder className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
+                                  <span className="truncate text-[13px] font-medium text-[#292524]">{row.category.name}</span>
+                                  {row.directPieceCount > 0 && <span className="ml-auto text-[10px] text-[#a8a29e] flex-shrink-0">{row.directPieceCount}</span>}
+                                </button>
+                              );
+                            }
+                            // piece or sansCategoriePiece
+                            const p = row.piece;
+                            const staged = isStaged(p.id);
+                            const selected = attachSelected.has(p.id) || staged;
+                            return (
+                              <button
+                                key={`p-${p.id}-${ri}`}
+                                disabled={staged}
+                                onClick={() => toggleSelect(p.id)}
+                                className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${staged ? 'opacity-50' : 'hover:bg-[#fafaf9]'}`}
+                                style={{ paddingLeft: 8 + (row.depth * INDENT) }}
+                              >
+                                <span style={{
+                                  width: 15, height: 15, flexShrink: 0, borderRadius: 3,
+                                  border: `1.5px solid ${selected ? '#292524' : '#d6d3d1'}`,
+                                  backgroundColor: selected ? '#292524' : 'transparent',
+                                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                  {selected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                                </span>
+                                <span className="truncate text-[13px] text-[#292524]">{p.intitule || p.nom}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {/* Footer */}
+                        <div className="flex items-center justify-between px-3 py-2 border-t border-[#e7e5e3] bg-[#fafaf9] flex-shrink-0">
+                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#78716c' }}>
+                            {attachSelected.size === 0 ? 'Sélectionnez' : `${attachSelected.size} sélectionnée${attachSelected.size > 1 ? 's' : ''}`}
+                          </span>
+                          <button
+                            onClick={confirmAttach}
+                            disabled={attachSelected.size === 0}
+                            className="inline-flex items-center gap-1.5 px-3 h-8 rounded-[7px] text-[12px] font-medium text-white transition-colors"
+                            style={{ backgroundColor: attachSelected.size === 0 ? '#d6d3d1' : '#292524', cursor: attachSelected.size === 0 ? 'not-allowed' : 'pointer' }}
+                          >
+                            <Check className="w-3 h-3" strokeWidth={2} />
+                            {attachSelected.size > 0 ? `Ajouter (${attachSelected.size})` : 'Ajouter'}
+                          </button>
                         </div>
                       </div>
                     );
@@ -8890,6 +8971,27 @@ export default function App() {
               setToastMessage(`« ${piece.intitule || piece.nom} » ajoutée au bordereau`);
               setTimeout(() => setToastMessage(null), 2200);
             }}
+            onAddManyPieces={(chosen) => {
+              // Fold every selected piece into the entries in a single pass so
+              // they all land in one dispatch (avoids stale-state per-piece).
+              let nextEntries = acte?.bordereauEntries || [];
+              chosen.forEach((piece) => {
+                nextEntries = addPieceToEntries(nextEntries, {
+                  pieceId: piece.id,
+                  intitule: piece.intitule || piece.nom,
+                  type: piece.type,
+                  date: piece.date,
+                });
+              });
+              redaction.dispatch({
+                type: 'UPDATE_ACTE',
+                acteId: acte.id,
+                updates: { bordereauEntries: nextEntries },
+              });
+              const n = chosen.length;
+              setToastMessage(`${n} pièce${n > 1 ? 's' : ''} ajoutée${n > 1 ? 's' : ''} au bordereau`);
+              setTimeout(() => setToastMessage(null), 2200);
+            }}
             onReorder={(fromIdx, toIdx) => {
               const current = acte?.bordereauEntries || [];
               if (fromIdx < 0 || fromIdx >= current.length) return;
@@ -8902,6 +9004,72 @@ export default function App() {
                 acteId: acte.id,
                 updates: { bordereauEntries: next },
               });
+            }}
+            onMoveSection={(blockStart, blockEnd, insertBefore) => {
+              const current = acte?.bordereauEntries || [];
+              const next = moveSectionBlock(current, blockStart, blockEnd, insertBefore);
+              redaction.dispatch({
+                type: 'UPDATE_ACTE',
+                acteId: acte.id,
+                updates: { bordereauEntries: next },
+              });
+            }}
+            onPieceClick={(entry) => {
+              // Open the shared piece-detail side panel (same as the Pièces
+              // tab). Resolve the full dossier piece by id; fall back to the
+              // bordereau entry's own fields for synthetic/cited-only pieces.
+              const full = pieces.find(p => p.id === entry.pieceId);
+              const data = full
+                ? { ...full, index: entry.number, usages: full.usages }
+                : {
+                    id: entry.pieceId,
+                    intitule: entry.intitule,
+                    nom: entry.intitule,
+                    nomOriginal: entry.intitule,
+                    type: entry.type || 'Document',
+                    date: entry.date,
+                    index: entry.number,
+                    usages: [],
+                  };
+              setEditPanel({ type: 'piece-detail', data });
+            }}
+            onExclude={(entryIdx, entry) => {
+              const current = acte?.bordereauEntries || [];
+              if (entryIdx < 0 || entryIdx >= current.length) return;
+              const label = entry?.intitule || 'cette pièce';
+              const nextEntries = removeEntryAt(current, entryIdx);
+              // How many times the linked acte cites this pièce.
+              const citeCount = linkedActe
+                ? countCitationsForIntitule(linkedActe.content || '', entry?.intitule)
+                : 0;
+
+              if (citeCount === 0) {
+                // Not cited (e.g. complément) — straight removal.
+                redaction.dispatch({ type: 'UPDATE_ACTE', acteId: acte.id, updates: { bordereauEntries: nextEntries } });
+                setToastMessage(`« ${label} » retirée du bordereau`);
+                setTimeout(() => setToastMessage(null), 2200);
+                return;
+              }
+
+              // Cited — exclude from the bordereau AND rewrite the citing
+              // passages of the linked acte so the reference disappears.
+              const occ = `${citeCount} passage${citeCount > 1 ? 's' : ''}`;
+              const rewrittenContent = stripCitationsForIntitule(linkedActe.content || '', entry?.intitule);
+              setChatMessages(prev => [...prev, { type: 'user', text: `Retire « ${label} » du bordereau.` }]);
+              redaction.playActions([
+                { type: 'REASONING_COLLAPSED', text: `Exclusion de « ${label} » · ${occ} à réécrire` },
+                { type: 'DELAY', ms: 400 },
+                { type: 'AGENT_REASONING_STEPS', label: 'Réécriture de l\'acte', steps: [
+                  { type: 'read_documents', label: `Repérage des passages citant « ${label} » (${occ})`, status: 'done' },
+                  { type: 'calculate', label: 'Réécriture pour retirer la référence à la pièce', status: 'done' },
+                  { type: 'calculate', label: 'Retrait de la pièce et renumérotation du bordereau', status: 'done' },
+                ] },
+                { type: 'DELAY', ms: 600 },
+                { type: 'UPDATE_ACTE', acteId: linkedActe.id, updates: { content: rewrittenContent } },
+                { type: 'UPDATE_ACTE', acteId: acte.id, updates: { bordereauEntries: nextEntries } },
+                { type: 'DELAY', ms: 200 },
+                { type: 'AGENT_MESSAGE', text: `« ${label} » a été retirée du bordereau. J'ai réécrit ${occ} de l'acte qui la citai${citeCount > 1 ? 'ent' : 't'} pour que le texte reste cohérent, et renuméroté les pièces restantes.` },
+              ]);
             }}
           />
         );
@@ -10164,6 +10332,10 @@ export default function App() {
             onAskChato={askChatoAboutSelection}
             onGenerateBordereau={() => {
               redaction.playScenario('redaction-bordereau');
+            }}
+            onQuickGenerateBordereau={() => {
+              setChatMessages(prev => [...prev, { type: 'user', text: 'Génère-moi un bordereau pour ce dossier' }]);
+              setTimeout(() => redaction.playScenario('bordereau-standalone'), 300);
             }}
           />
         );
@@ -13981,11 +14153,16 @@ export default function App() {
     const isFiltered = !!(piecesFilter.types?.length > 0 || piecesFilter.search);
     const selectedPiece = pieceOverviewPanel ? dropFirstPieces.find(p => p.id === pieceOverviewPanel) : null;
 
+    // Synthetic folders for split (exploded) documents — one per source file,
+    // so its segments stay grouped together instead of scattering by type.
+    const treeCategories = [...bordereauCategories, ...pileFolders(piles)];
+
     // Adapt drop-first piece shape into the bordereau-piece shape that
     // BordereauTable expects. Auto-classification places each done piece
-    // into its detected folder; in-flight pieces (still processing) get
+    // into its detected folder; split-document segments land in their
+    // source-document folder; in-flight pieces (still processing) get
     // categoryId=null and surface in Sans-catégorie with a spinner icon.
-    const adaptedPieces = dropFirstAsBordereauPieces(filtered, bordereauCategories, piles);
+    const adaptedPieces = dropFirstAsBordereauPieces(filtered, treeCategories, piles);
 
     // Translate BordereauTable's setPieces updater calls (which operate on
     // the bordereau-piece shape) back into setDropFirstPieces mutations.
@@ -13993,7 +14170,7 @@ export default function App() {
     // anything else.
     const setDropFirstViaBordereau = (updater) => {
       setDropFirstPieces(prev => {
-        const adapted = dropFirstAsBordereauPieces(prev, bordereauCategories, piles);
+        const adapted = dropFirstAsBordereauPieces(prev, treeCategories, piles);
         const newAdapted = typeof updater === 'function' ? updater(adapted) : updater;
         const byId = new Map(newAdapted.map(p => [p.id, p]));
         return prev
@@ -14086,7 +14263,7 @@ export default function App() {
 
             <BordereauTable
               pieces={adaptedPieces}
-              categories={bordereauCategories}
+              categories={treeCategories}
               setPieces={setDropFirstViaBordereau}
               setCategories={setBordereauCategories}
               onOpenPiecePreview={(pid) => setPieceOverviewPanel(pid)}
@@ -18599,6 +18776,10 @@ export default function App() {
               <RedactionSlot
                 value={preferenceSlots.redaction}
                 onChange={(v) => setPreferenceSlot('redaction', v)}
+              />
+              <BordereauSlot
+                value={preferenceSlots.bordereau}
+                onChange={(v) => setPreferenceSlot('bordereau', v)}
               />
               <NommageSlot
                 value={preferenceSlots.nommage}

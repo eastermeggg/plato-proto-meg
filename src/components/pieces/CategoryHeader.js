@@ -20,6 +20,8 @@ export default function CategoryHeader({
   expanded = false,
   isEmpty = false,
   selected = false,
+  browseOnly = false,
+  selectable = false,
   onToggle,
   onSelectToggle,
   onContextMenu,
@@ -28,8 +30,17 @@ export default function CategoryHeader({
 }) {
   const [hover, setHover] = useState(false);
 
+  // browseOnly: folder is for navigation only — no selection checkbox, no
+  //   row actions (used by "Ajouter une pièce" where only files are addable).
+  // selectable: the folder itself is the target — row click selects it, the
+  //   chevron expands; no row actions (used by "Déplacer vers un dossier").
   const handleClick = (e) => {
-    if (e.metaKey || e.ctrlKey) {
+    if (selectable) {
+      e.preventDefault();
+      onSelectToggle?.();
+      return;
+    }
+    if (!browseOnly && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       onSelectToggle?.();
       return;
@@ -61,7 +72,7 @@ export default function CategoryHeader({
         borderBottom: `1px solid ${colors.semantic.border}`,
         display: 'flex',
         alignItems: 'center',
-        cursor: hasChildren ? 'pointer' : 'default',
+        cursor: (selectable || hasChildren) ? 'pointer' : 'default',
         transition: 'background-color 100ms',
       }}
     >
@@ -74,22 +85,26 @@ export default function CategoryHeader({
         justifyContent: 'flex-end',
         paddingRight: 4,
       }}>
-        <span style={{
-          width: 20,
-          height: 20,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: colors.semantic.foregroundSecondary,
-          visibility: hasChildren ? 'visible' : 'hidden',
-        }}>
+        <span
+          onClick={selectable && hasChildren ? (e) => { e.stopPropagation(); onToggle?.(); } : undefined}
+          style={{
+            width: 20,
+            height: 20,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: colors.semantic.foregroundSecondary,
+            visibility: hasChildren ? 'visible' : 'hidden',
+            cursor: selectable && hasChildren ? 'pointer' : undefined,
+          }}
+        >
           <Chevron style={{ width: 14, height: 14 }} strokeWidth={2} />
         </span>
       </span>
 
       <span
         onClick={(e) => {
-          if (!(hover || selected)) return;
+          if (browseOnly || !(selectable || hover || selected)) return;
           e.stopPropagation();
           onSelectToggle?.();
         }}
@@ -100,11 +115,13 @@ export default function CategoryHeader({
           alignItems: 'center',
           justifyContent: 'center',
           marginRight: 8,
-          cursor: (hover || selected) ? 'pointer' : 'inherit',
+          cursor: (!browseOnly && (selectable || hover || selected)) ? 'pointer' : 'inherit',
           color: isEmpty ? colors.semantic.foregroundMuted : colors.semantic.foregroundTertiary,
         }}
       >
-        {(hover || selected) ? (
+        {/* selectable: always show the checkbox (it's the target). default:
+            checkbox on hover/selected, folder icon at rest. */}
+        {(!browseOnly && (selectable || hover || selected)) ? (
           <SelectionBox checked={selected} />
         ) : (
           <Folder style={{ width: 16, height: 16 }} strokeWidth={1.5} />
@@ -149,12 +166,16 @@ export default function CategoryHeader({
           paddingRight: 12,
         }}
       >
-        <HoverSlot visible={hover}>
-          <BareIcon icon={Download} title="Télécharger" onClick={(e) => { e.stopPropagation(); onDownload?.(); }} />
-        </HoverSlot>
-        <HoverSlot visible={hover}>
-          <BareIcon icon={MoreVertical} title="Plus d'actions" onClick={handleKebab} />
-        </HoverSlot>
+        {!browseOnly && !selectable && (
+          <>
+            <HoverSlot visible={hover}>
+              <BareIcon icon={Download} title="Télécharger" onClick={(e) => { e.stopPropagation(); onDownload?.(); }} />
+            </HoverSlot>
+            <HoverSlot visible={hover}>
+              <BareIcon icon={MoreVertical} title="Plus d'actions" onClick={handleKebab} />
+            </HoverSlot>
+          </>
+        )}
       </span>
     </div>
   );

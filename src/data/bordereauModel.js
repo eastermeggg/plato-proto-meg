@@ -124,6 +124,83 @@ export function entriesPieceIds(entries = []) {
 }
 
 /**
+ * Remove the entry at `idx` from a bordereau's entries array, returning a new
+ * array. If removing the piece leaves its section with no remaining pieces,
+ * the now-empty section header is dropped too (a section is "empty" when the
+ * next entry is another section or the end of the array). Pure.
+ */
+export function removeEntryAt(entries = [], idx) {
+  if (idx < 0 || idx >= entries.length) return entries.slice();
+  const next = entries.slice();
+  next.splice(idx, 1);
+  // Drop a section header that now has no pieces under it.
+  return next.filter((e, i) => {
+    if (e.kind !== 'section') return true;
+    const following = next[i + 1];
+    return !!following && following.kind === 'piece';
+  });
+}
+
+/**
+ * Move a contiguous block of entries [blockStart, blockEnd) so that it is
+ * re-inserted before the original-array index `insertBefore`. Used to reorder
+ * a whole section (its header + the pièces beneath it). Pure — returns a new
+ * array. A no-op move (dropping the block back onto itself) returns an
+ * equivalent array.
+ */
+export function moveSectionBlock(entries = [], blockStart, blockEnd, insertBefore) {
+  if (blockStart < 0 || blockEnd > entries.length || blockStart >= blockEnd) return entries.slice();
+  const block = entries.slice(blockStart, blockEnd);
+  const rest = [...entries.slice(0, blockStart), ...entries.slice(blockEnd)];
+  // Re-map insertBefore into `rest` coordinates: indices past the removed
+  // block shift left by the block length.
+  let target = insertBefore;
+  if (insertBefore >= blockEnd) target = insertBefore - block.length;
+  else if (insertBefore > blockStart) target = blockStart; // inside the block → clamp to start
+  target = Math.max(0, Math.min(target, rest.length));
+  return [...rest.slice(0, target), ...block, ...rest.slice(target)];
+}
+
+/**
+ * Count how many times a pièce (matched by intitule) is cited in acte content.
+ * Used to warn before excluding a cited pièce from the bordereau.
+ */
+export function countCitationsForIntitule(content, intitule) {
+  if (!content || !intitule) return 0;
+  const target = normalizeText(intitule);
+  let n = 0;
+  let m;
+  CITATION_RE.lastIndex = 0;
+  while ((m = CITATION_RE.exec(content)) !== null) {
+    if (normalizeText(m[2]) === target) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Strip every [pièce:N:intitule:date] citation tag matching `intitule` from
+ * acte content. Removes the tag and any leftover double-space / space-before-
+ * punctuation it leaves behind, so the prose stays clean. Pure — returns new
+ * string. (Demo stand-in for a true LLM rewrite of the citing sentence.)
+ */
+export function stripCitationsForIntitule(content, intitule) {
+  if (!content || !intitule) return content;
+  const target = normalizeText(intitule);
+  CITATION_RE.lastIndex = 0;
+  const stripped = content.replace(CITATION_RE, (full, n, name, date) =>
+    normalizeText(name) === target ? '' : full,
+  );
+  return stripped
+    .replace(/[ \t]{2,}/g, ' ')      // collapse double spaces left behind
+    .replace(/[ \t]+([.,;:])/g, '$1') // remove space before punctuation
+    .replace(/[ \t]+\n/g, '\n');     // trim trailing spaces on a line
+}
+
+function normalizeText(s) {
+  return (s || '').trim().toLowerCase().normalize('NFD').replace(COMBINING_DIACRITICS_RE, '');
+}
+
+/**
  * Walk an entries array and compute the displayed number for each row.
  * Sections increment a Roman counter (I, II, III…) and reset a sub-counter.
  * Pieces inside a section get `${roman}-${sub}` (I-1, I-2). Pieces before any
