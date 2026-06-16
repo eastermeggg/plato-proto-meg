@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, MoreVertical, Loader2, Check, Download, ChevronDown } from 'lucide-react';
+import { FileText, MoreVertical, Loader2, Check, Download } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 
 // Doc row aligned with Figma "Row Documents" — 64px tall.
@@ -15,7 +15,6 @@ export default function PieceRow({
   depth = 0,
   italic = false,
   selected = false,
-  hideType = false,
   onClick,
   onSelectToggle,
   onContextMenu,
@@ -119,13 +118,9 @@ export default function PieceRow({
         )}
       </div>
 
-      <div style={{
-        width: 130,
-        flexShrink: 0,
-        paddingRight: 12,
-      }}>
-        {!hideType && piece.type && <TypePill type={piece.type} />}
-      </div>
+      {/* Type badge dropped (front-only). The 130px slot is kept so rows stay
+          aligned with the header's type spacer and the Date column. */}
+      <div style={{ width: 130, flexShrink: 0, paddingRight: 12 }} />
 
       <div style={{
         width: 130,
@@ -218,33 +213,6 @@ function SelectionBox({ checked }) {
       justifyContent: 'center',
     }}>
       {checked && <Check style={{ width: 11, height: 11, color: 'white' }} strokeWidth={3} />}
-    </span>
-  );
-}
-
-// Single Type pill style matching Figma — info-subtle bg with chevron-down
-// indicating it can be edited inline. (Editing flow itself is wired in a
-// later phase; the chevron is the visual affordance.)
-function TypePill({ type }) {
-  return (
-    <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 4,
-      padding: '2px 8px',
-      borderRadius: 6,
-      fontFamily: typography.fontFamily.sans,
-      fontSize: 12,
-      fontWeight: 500,
-      backgroundColor: '#dfe8f5',
-      color: '#1e3a8a',
-      lineHeight: '16px',
-      maxWidth: '100%',
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-    }}>
-      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{type}</span>
-      <ChevronDown style={{ width: 12, height: 12, flexShrink: 0 }} strokeWidth={2} />
     </span>
   );
 }
