@@ -428,34 +428,6 @@ const NAME_KEYWORDS = [
  * @param {Object<string, Object>} [piles] pileId → pile state
  * @returns {Object[]} bordereau-shaped pieces
  */
-/** Synthetic folder id for a split (exploded) document's segments. */
-export function pileFolderIdFor(pileId) {
-  return `pile-folder-${pileId}`;
-}
-
-/**
- * Build the synthetic folder categories that hold split-document segments —
- * one folder per exploded pile, named after the source document. Returned in
- * a stable order, placed after the regular dossier folders. Merge these into
- * the categories list passed to BordereauTable / dropFirstAsBordereauPieces so
- * the segments render under their source-document folder.
- *
- * @param {Object<string, Object>} piles  pileId → pile state
- * @param {number} [orderBase] starting `order` (defaults after typical roots)
- * @returns {Category[]}
- */
-export function pileFolders(piles = {}, orderBase = 100) {
-  return Object.values(piles)
-    .filter(p => p && p.mode === 'exploded' && Array.isArray(p.segments) && p.segments.length > 0)
-    .map((p, i) => ({
-      id: pileFolderIdFor(p.id),
-      name: (p.originalName || 'Document éclaté').replace(/\.[^/.]+$/, ''),
-      parentId: null,
-      order: orderBase + i,
-      _pileFolder: true,
-    }));
-}
-
 export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
   const orderCounters = new Map(); // categoryId (or null) → next index
   const result = [];
@@ -497,13 +469,17 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       }
 
       if (pile.mode === 'exploded') {
-        // Regroup all segments of a split document under one folder named
-        // after the source document, so the "came from the same file" link
-        // is preserved instead of scattering them by type. A manual move
-        // (categoryIdOverride) still wins per-segment.
-        const pileFolderId = pileFolderIdFor(pile.id);
+        // Each segment is classified like a normal piece (by the pile's type),
+        // so split pieces land in their matching dossier folder — never a
+        // synthetic folder named after the source document. A manual move
+        // (categoryIdOverride) still wins per-segment; each row's "issues de
+        // <source>" subtitle + the group bandeau keep the "same file" link.
+        const classifiedCat = classifyDropFirstPiece(
+          { type: pile.aggregate.typeForClassification, name: pile.originalName },
+          categories,
+        );
         pile.segments.forEach((seg) => {
-          const segCategoryId = overrideCat !== undefined ? overrideCat : pileFolderId;
+          const segCategoryId = overrideCat !== undefined ? overrideCat : classifiedCat;
           const next = bumpOrder(segCategoryId);
           result.push({
             id: `${pile.id}::${seg.id}`,
@@ -531,31 +507,10 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
         return;
       }
 
-      // Bundle mode — one synthetic row.
-      const next = bumpOrder(categoryId);
-      result.push({
-        id: pile.id,
-        nom: pile.aggregate.label,
-        nomOriginal: pile.originalName,
-        intitule: `${pile.aggregate.label} (${pile.aggregate.count})`,
-        type: pile.aggregate.typeForClassification,
-        date: pile.aggregate.dateRangeLabel,
-        categoryId,
-        inclureDansBordereau: true,
-        orderInCategory: next,
-        _processing: false,
-        _pileBundle: {
-          pileId: pile.id,
-          count: pile.aggregate.count,
-          totalLabel: pile.aggregate.totalLabel,
-          dateRangeLabel: pile.aggregate.dateRangeLabel,
-          aggregateLabel: pile.aggregate.label,
-          sourceFile: pile.originalName,
-          autoApplied: !!pile.autoApplied,
-          badgeUntil: pile.badgeUntil || 0,
-        },
-      });
-      return;
+      // Bundle mode — kept as one piece. Fall through to the standard branch
+      // below so it renders as a normal document row (no aggregate "pile"
+      // chrome). The raw drop-first piece keeps `_pileId`, so the source can
+      // still be re-split from elsewhere if needed.
     }
 
     // ── Standard (non-pile) branch ──────────────────────────────────────

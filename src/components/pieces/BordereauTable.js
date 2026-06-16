@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
-import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, Sparkles, Plus, ChevronDown, FilePlus2, Scissors, ChevronRight, MoreHorizontal, Layers } from 'lucide-react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
+import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, Sparkles, Plus, ChevronDown, FilePlus2 } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import { buildTreeViewRows } from '../../data/piecesModel';
 import CategoryHeader from './CategoryHeader';
@@ -24,10 +24,8 @@ export default function BordereauTable({
   onOpenPiecePreview,
   onAddFiles,
   onAskChato,
+  reviewZone = null,
   forceExpandAll = false,
-  onTogglePileMode,
-  onOpenPileAdjust,
-  pileHighlight,
 }) {
   const fileInputRef = useRef(null);
   const addButtonRef = useRef(null);
@@ -346,6 +344,9 @@ export default function BordereauTable({
         )}
       </div>
 
+      {/* "À vérifier" zone — sits between the count/Ajouter header and the table. */}
+      {reviewZone}
+
       <div style={{
         marginTop: 12,
         border: `1px solid ${colors.semantic.border}`,
@@ -391,42 +392,23 @@ export default function BordereauTable({
                 const isSansCat = row.kind === 'sansCategoriePiece';
                 const pieceKey = selectionKeyForPiece(piece.id);
 
-                // ── Pile bundle row ─────────────────────────────────────
-                if (piece._pileBundle) {
-                  return (
-                    <PileBundleRow
-                      key={`pile-bundle-${piece._pileBundle.pileId}`}
-                      piece={piece}
-                      depth={row.depth}
-                      highlighted={pileHighlight === piece._pileBundle.pileId}
-                      onExplode={() => onTogglePileMode?.(piece._pileBundle.pileId, 'exploded')}
-                      onAdjust={() => onOpenPileAdjust?.(piece._pileBundle.pileId)}
-                    />
-                  );
-                }
-
-                // ── Pile segment row (with bandeau when first of group) ─
+                // ── Pile segment row — rendered as a normal classified piece.
+                // No group bandeau: the source file shows as the row subtitle,
+                // and re-splitting lives in the document preview ("Modifier le
+                // découpage").
                 if (piece._pileSegment) {
                   return (
-                    <React.Fragment key={`pile-seg-${piece.id}`}>
-                      {piece._pileSegment.isFirst && (
-                        <PileSegmentBandeau
-                          piece={piece}
-                          highlighted={pileHighlight === piece._pileSegment.pileId}
-                          onRegroup={() => onTogglePileMode?.(piece._pileSegment.pileId, 'bundle')}
-                        />
-                      )}
-                      <PieceRow
-                        piece={piece}
-                        depth={row.depth}
-                        italic={isSansCat}
-                        selected={selectedIds.has(pieceKey)}
-                        onClick={() => triggerPieceRename(piece.id)}
-                        onSelectToggle={() => toggleInSelection(pieceKey)}
-                        onContextMenu={(pos) => handlePieceContextOrKebab(piece.id, pos)}
-                        onOpenMenu={(pos) => handlePieceContextOrKebab(piece.id, pos)}
-                      />
-                    </React.Fragment>
+                    <PieceRow
+                      key={`pile-seg-${piece.id}`}
+                      piece={piece}
+                      depth={row.depth}
+                      italic={isSansCat}
+                      selected={selectedIds.has(pieceKey)}
+                      onClick={() => triggerPieceRename(piece.id)}
+                      onSelectToggle={() => toggleInSelection(pieceKey)}
+                      onContextMenu={(pos) => handlePieceContextOrKebab(piece.id, pos)}
+                      onOpenMenu={(pos) => handlePieceContextOrKebab(piece.id, pos)}
+                    />
                   );
                 }
 
@@ -679,218 +661,7 @@ function ActionIcon({ icon: Icon, title, onClick, destructive, tone }) {
   );
 }
 
-// ── Pile rendering (bundle row, exploded-group bandeau, processing row) ──
-
-function useAutoExpireBadge(badgeUntil) {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    if (!badgeUntil) return;
-    const remaining = badgeUntil - Date.now();
-    if (remaining <= 0) return;
-    const tid = setTimeout(() => setTick(t => t + 1), remaining + 50);
-    return () => clearTimeout(tid);
-  }, [badgeUntil, tick]);
-  return badgeUntil > Date.now();
-}
-
-function PileBundleRow({ piece, depth, highlighted, onExplode, onAdjust }) {
-  const [open, setOpen] = useState(false);
-  const [kebabOpen, setKebabOpen] = useState(false);
-  const b = piece._pileBundle;
-  const showAutoBadge = useAutoExpireBadge(b.badgeUntil) && b.autoApplied;
-  const indent = 40 + Math.max(0, depth) * 16;
-
-  return (
-    <div
-      style={{
-        borderBottom: `1px solid ${colors.semantic.border}`,
-        background: highlighted ? 'rgba(251, 191, 36, 0.10)' : 'transparent',
-        transition: 'background-color 1200ms ease',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', minHeight: 44, paddingLeft: indent, paddingRight: 12 }}>
-        <button
-          type="button"
-          onClick={() => setOpen(o => !o)}
-          style={{
-            width: 20, height: 20, border: 'none', background: 'transparent',
-            cursor: 'pointer', color: colors.semantic.foregroundSecondary,
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            marginRight: 6, transition: 'transform 120ms',
-            transform: open ? 'rotate(90deg)' : 'none',
-          }}
-          title={open ? 'Replier' : 'Voir le sommaire'}
-        >
-          <ChevronRight style={{ width: 14, height: 14 }} strokeWidth={2} />
-        </button>
-        <span style={{
-          width: 28, height: 28, borderRadius: 6, background: '#f3efe3',
-          color: '#a08355', display: 'inline-flex', alignItems: 'center',
-          justifyContent: 'center', marginRight: 10, flexShrink: 0,
-        }}>
-          <Layers style={{ width: 14, height: 14 }} strokeWidth={1.75} />
-        </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontFamily: typography.fontFamily.sans, fontSize: 14, color: colors.semantic.foreground,
-            display: 'flex', alignItems: 'center', gap: 8, minWidth: 0,
-          }}>
-            <span style={{ fontWeight: 500 }}>{b.aggregateLabel}</span>
-            <span style={{ color: colors.semantic.foregroundMuted, fontWeight: 500 }}>({b.count})</span>
-            <span style={{ color: colors.semantic.foregroundMuted }}>· {b.dateRangeLabel}</span>
-            {showAutoBadge && (
-              <button
-                type="button"
-                onClick={onExplode}
-                title="Cliquer pour éclater en pièces"
-                style={{
-                  fontSize: 11, padding: '2px 8px', borderRadius: 999,
-                  background: '#f3efe3', color: '#a08355', border: 'none',
-                  fontFamily: typography.fontFamily.sans, cursor: 'pointer',
-                  marginLeft: 4,
-                }}
-              >
-                groupé automatiquement
-              </button>
-            )}
-          </div>
-          <div style={{ fontSize: 12, color: colors.semantic.foregroundMuted, marginTop: 2 }}>
-            issues de {b.sourceFile}
-          </div>
-        </div>
-
-        <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            onClick={() => setKebabOpen(o => !o)}
-            style={{
-              width: 32, height: 32, border: 'none', background: 'transparent',
-              cursor: 'pointer', color: colors.semantic.foregroundSecondary,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              borderRadius: 4,
-            }}
-          >
-            <MoreHorizontal style={{ width: 16, height: 16 }} strokeWidth={1.75} />
-          </button>
-          {kebabOpen && (
-            <>
-              <div
-                style={{ position: 'fixed', inset: 0, zIndex: 40 }}
-                onClick={() => setKebabOpen(false)}
-              />
-              <div style={{
-                position: 'absolute', right: 0, top: '100%', marginTop: 4, zIndex: 41,
-                background: 'white', border: `1px solid ${colors.semantic.border}`,
-                borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', minWidth: 220, padding: 4,
-              }}>
-                <button
-                  type="button"
-                  onClick={() => { setKebabOpen(false); onExplode(); }}
-                  style={{
-                    width: '100%', textAlign: 'left', padding: '8px 10px', border: 'none', background: 'transparent',
-                    cursor: 'pointer', fontFamily: typography.fontFamily.sans, fontSize: 13, color: colors.semantic.foreground,
-                    borderRadius: 4, display: 'flex', alignItems: 'center', gap: 8,
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = colors.semantic.backgroundCanvas}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Scissors style={{ width: 14, height: 14 }} strokeWidth={1.75} />
-                  Éclater en {b.count} pièces
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setKebabOpen(false); onAdjust(); }}
-                  style={{
-                    width: '100%', textAlign: 'left', padding: '8px 10px', border: 'none', background: 'transparent',
-                    cursor: 'pointer', fontFamily: typography.fontFamily.sans, fontSize: 13, color: colors.semantic.foreground,
-                    borderRadius: 4, display: 'flex', alignItems: 'center', gap: 8,
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = colors.semantic.backgroundCanvas}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Pencil style={{ width: 14, height: 14 }} strokeWidth={1.75} />
-                  Ajuster le découpage
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {open && (
-        <PileBundleSummary pileBundle={b} indent={indent + 26} onAdjust={onAdjust} />
-      )}
-    </div>
-  );
-}
-
-function PileBundleSummary({ pileBundle, indent }) {
-  // Read-only sommaire — uses a sample of segments since we only have
-  // the aggregate at this level. For the full list the user opens the
-  // adjust sheet via the kebab.
-  return (
-    <div style={{
-      padding: '8px 12px 12px',
-      paddingLeft: indent,
-      background: '#fafaf9',
-      fontSize: 12,
-      color: colors.semantic.foregroundMuted,
-      borderTop: `1px solid ${colors.semantic.border}`,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Layers style={{ width: 12, height: 12 }} strokeWidth={1.75} />
-        <span>{pileBundle.count} documents regroupés · ouvrez « Ajuster le découpage » pour parcourir et détacher.</span>
-      </div>
-    </div>
-  );
-}
-
-function PileSegmentBandeau({ piece, highlighted, onRegroup }) {
-  const seg = piece._pileSegment;
-  const showAutoBadge = useAutoExpireBadge(seg.badgeUntil) && seg.autoApplied;
-  return (
-    <div
-      style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        padding: '6px 12px 6px 46px',
-        background: highlighted ? 'rgba(251, 191, 36, 0.10)' : '#fafaf9',
-        borderBottom: `1px solid ${colors.semantic.border}`,
-        fontSize: 11,
-        fontFamily: typography.fontFamily.sans,
-        color: colors.semantic.foregroundSecondary,
-        transition: 'background-color 1200ms ease',
-      }}
-    >
-      <Layers style={{ width: 12, height: 12 }} strokeWidth={1.75} />
-      <span>{seg.totalCount} pièces issues de <span style={{ color: colors.semantic.foreground }}>{seg.sourceFile}</span></span>
-      <button
-        type="button"
-        onClick={onRegroup}
-        style={{
-          marginLeft: 'auto',
-          border: 'none', background: 'transparent', cursor: 'pointer',
-          color: colors.semantic.foreground, fontSize: 11, fontWeight: 500,
-          textDecoration: 'underline', textUnderlineOffset: 2,
-        }}
-      >
-        Regrouper en une pièce
-      </button>
-      {showAutoBadge && (
-        <button
-          type="button"
-          onClick={onRegroup}
-          style={{
-            fontSize: 10, padding: '2px 6px', borderRadius: 999,
-            background: '#f3efe3', color: '#a08355', border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          éclaté automatiquement
-        </button>
-      )}
-    </div>
-  );
-}
+// ── Pile processing row ──────────────────────────────────────────────────
 
 function PileProcessingRow({ piece, depth }) {
   const indent = 40 + Math.max(0, depth) * 16;

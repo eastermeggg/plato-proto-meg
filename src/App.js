@@ -31,7 +31,7 @@ import PiecesTab from './components/pieces/PiecesTab';
 import BordereauTable from './components/pieces/BordereauTable';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
 import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
-import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows, pileFolders } from './data/piecesModel';
+import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows } from './data/piecesModel';
 import { getPileById, pickRandomPiles } from './data/pilesSeed';
 import PileReviewBanner from './components/pieces/PileReviewBanner';
 import PileAdjustSheet from './components/pieces/PileAdjustSheet';
@@ -1134,7 +1134,8 @@ export default function App() {
   const [piles, setPiles] = useState({}); // pileId → { id, originalName, pileType, aggregate, segments, mode, autoApplied, badgeUntil }
   const [pendingPileReviews, setPendingPileReviews] = useState([]); // pileIds waiting for the user's binary call
   const [globalSplitRule, setGlobalSplitRule] = useState('group'); // 'group' | 'explode' | 'ask'
-  const [pileAdjustSheet, setPileAdjustSheet] = useState(null); // null | pileId — opens the "Ajuster le découpage" panel
+  const [pileDocPanel, setPileDocPanel] = useState(null); // null | { pileId, segmentId, mode } — unified document panel (view ↔ adjust)
+  const [doublonCompare, setDoublonCompare] = useState(null); // null | { newId, existingId } — side-by-side doublon comparison
   const [pileHighlight, setPileHighlight] = useState(null); // pileId — amber-flashed after a recent bascule
   const [infoDossierStreaming, setInfoDossierStreaming] = useState(null); // null | { active, fieldsRevealed: [], streamingField: null, streamingText: '' }
   const [pieceOverviewPanel, setPieceOverviewPanel] = useState(null); // null | pieceId
@@ -1691,7 +1692,7 @@ export default function App() {
     });
     setPiles(restoredPiles);
     setPendingPileReviews((data.pendingPileReviews ?? []).filter(id => restoredPiles[id]));
-    setPileAdjustSheet(null);
+    setPileDocPanel(null);
     setInfoDossierStreaming(null);
     setPieceOverviewPanel(null);
     setPiecesFilter({ type: null, search: '' });
@@ -13612,15 +13613,20 @@ export default function App() {
     setCurrentPage('dossier');
     setDropModal(null);
 
-    // Start processing simulation after render
-    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts), 300);
+    // Start processing simulation after render (allow doublon detection so the
+    // duplicate state is demoable on the creation drop, not just on "add").
+    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, true), 300);
   };
 
-  const startProcessingSimulation = (items, hasRapport, renameOpts = null) => {
+  const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false) => {
     // Clear any existing timeouts
     processingTimeouts.current.forEach(t => clearTimeout(t));
     processingTimeouts.current = [];
 
+    // Mock detections during ingest, each capped at one per drop: a processing
+    // error and a possible doublon (shared across the staggered completions).
+    let errorInjected = false;
+    let doublonInjected = false;
     let cumulativeDelay = 500;
     const processOrder = [...items].sort(() => Math.random() - 0.5); // Random order
 
@@ -13716,19 +13722,39 @@ export default function App() {
             }));
             newPieces.splice(itemIndex, 1, ...splitRows);
           } else {
-            // Simple completion
-            newPieces[itemIndex] = {
-              ...newPieces[itemIndex],
-              cleanName: renamedBase || poolEntry.cleanName,
-              type: poolEntry.type,
-              date: poolEntry.date,
-              postesLies: [...poolEntry.postesLies],
-              summary: poolEntry.summary,
-              extractedInfo: poolEntry.extractedInfo,
-              pages: poolEntry.pages,
-              status: 'done',
-              justCompleted: true,
-            };
+            // Decide this (non-split) doc's outcome — a mock processing error, a
+            // possible doublon, or a normal completion (each capped per drop).
+            let doublonOf = null;
+            let failed = false;
+            if (allowDetections && !errorInjected && (forceDetections || Math.random() < 0.12)) {
+              failed = true;
+              errorInjected = true;
+            } else if (allowDetections && !doublonInjected) {
+              // forceDetections (creation): a doublon of ANY earlier doc, so the
+              // state is guaranteed to show; otherwise only when types coincide.
+              const dup = newPieces.find(x => x.status === 'done' && !x._pileId && !x.horsBordereau && !x._doublonOf && x.id !== item.id && (forceDetections || x.type === poolEntry.type));
+              if (dup) { doublonOf = dup; doublonInjected = true; }
+            }
+            if (failed) {
+              // Background analysis failed → surfaces as an error card (keep the
+              // filename for the card; the data stays un-extracted).
+              newPieces[itemIndex] = { ...newPieces[itemIndex], status: 'error', justCompleted: false };
+            } else {
+              newPieces[itemIndex] = {
+                ...newPieces[itemIndex],
+                cleanName: renamedBase || poolEntry.cleanName,
+                type: poolEntry.type,
+                date: poolEntry.date,
+                postesLies: [...poolEntry.postesLies],
+                summary: poolEntry.summary,
+                extractedInfo: poolEntry.extractedInfo,
+                pages: poolEntry.pages,
+                status: 'done',
+                justCompleted: true,
+                _doublonOf: doublonOf ? doublonOf.id : null,
+                _doublonOfName: doublonOf ? (doublonOf.cleanName || doublonOf.originalName) : null,
+              };
+            }
           }
           return newPieces;
         });
@@ -14065,16 +14091,20 @@ export default function App() {
     setDropFirstPieces(prev => [...prev, ...newItems]);
     setDropFirstProcessingDone(false);
     setShowAddPiecesZone(false);
-    setTimeout(() => startProcessingSimulation(newItems, false), 300);
+    setTimeout(() => startProcessingSimulation(newItems, false, null, true), 300);
   };
 
   // ── Pile mode toggle (bundle ⇄ exploded) + Undo toast ─────────────────
   const togglePileMode = (pileId, nextMode, opts = {}) => {
     let prevMode = null;
+    let liveCount = 0;
     setPiles(prev => {
       const p = prev[pileId];
       if (!p) return prev;
       prevMode = p.mode;
+      // Live segment count — reflects any re-adjustment (merges/cuts) the user
+      // made in the sheet, not the original "as detected" aggregate.
+      liveCount = Array.isArray(p.segments) ? p.segments.length : (p.aggregate?.count || 0);
       if (p.mode === nextMode) return prev;
       return {
         ...prev,
@@ -14083,9 +14113,7 @@ export default function App() {
     });
     if (prevMode == null || prevMode === nextMode) return;
 
-    const pile = getPileById(pileId);
-    const n = pile?.aggregate.count || 0;
-    const text = nextMode === 'bundle' ? `${n} pièces regroupées.` : `${n} pièces éclatées.`;
+    const text = nextMode === 'bundle' ? `${liveCount} pièces regroupées.` : `${liveCount} pièces éclatées.`;
     setPileHighlight(pileId);
     setTimeout(() => setPileHighlight(curr => (curr === pileId ? null : curr)), 1300);
 
@@ -14146,23 +14174,176 @@ export default function App() {
     });
   };
 
+  // ── Doublon (possible duplicate) resolution ──────────────────────────────
+  const resolveDoublonKeepBoth = (id) => {
+    setDropFirstPieces(prev => prev.map(p => p.id === id ? { ...p, _doublonResolved: true } : p));
+  };
+  const resolveDoublonIgnore = (id) => {
+    setDropFirstPieces(prev => prev.filter(p => p.id !== id));
+  };
+  const openDoublonCompare = (newId, existingId) => {
+    if (newId && existingId) setDoublonCompare({ newId, existingId });
+  };
+
+  // Side-by-side comparison of a possible-duplicate pair — the new file vs the
+  // one already in the dossier. Opened from the doublon card's "Voir".
+  const renderDoublonComparePanel = () => {
+    if (!doublonCompare) return null;
+    const newPiece = dropFirstPieces.find(p => p.id === doublonCompare.newId);
+    const existingPiece = dropFirstPieces.find(p => p.id === doublonCompare.existingId);
+    if (!newPiece || !existingPiece) return null;
+    const close = () => setDoublonCompare(null);
+    const renderCol = (piece, label) => (
+      <div className="flex-1 flex flex-col min-w-0 bg-[#F8F7F5]">
+        <div className="px-4 py-3 border-b border-[#e7e5e3] flex-shrink-0">
+          <div className="text-[10px] uppercase tracking-[0.08em] font-medium text-[#a8a29e]">{label}</div>
+          <div className="text-[13px] font-medium text-[#292524] truncate mt-0.5">{piece.cleanName || piece.originalName || '—'}</div>
+          <div className="text-[11px] text-[#a8a29e] mt-0.5">{piece.pages || '?'} page{(piece.pages || 0) > 1 ? 's' : ''}</div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col items-center gap-4">
+          {Array.from({ length: Math.min(piece.pages || 1, 6) }).map((_, i) => (
+            <div key={i} className="w-full max-w-[300px] bg-white rounded-lg border border-[#e7e5e3] shadow-sm p-5 flex flex-col gap-2" style={{ minHeight: 190 }}>
+              {Array.from({ length: 9 }).map((_, j) => (
+                <div key={j} className="h-[5px] rounded-full" style={{ width: `${45 + ((i * 7 + j * 13) % 50)}%`, background: j % 7 === 6 ? 'transparent' : '#f1f0ee' }} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{ background: 'rgba(28,25,23,0.5)', backdropFilter: 'blur(4px)', animation: 'fadeIn 0.2s ease-out' }}
+        onClick={close}
+      >
+        <div
+          className="bg-white rounded-2xl shadow-2xl w-[920px] max-w-[92vw] h-[86vh] flex flex-col overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+          style={{ animation: 'fadeIn 0.2s ease-out' }}
+        >
+          <div className="px-5 py-3 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0" style={{ background: '#fdf4e7', color: '#b45309' }}>
+                <Copy className="w-3.5 h-3.5" strokeWidth={1.75} />
+              </span>
+              <span className="text-[14px] font-medium text-[#44403c]">Doublon possible — comparer les documents</span>
+            </div>
+            <button onClick={close} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex-1 flex min-h-0">
+            {renderCol(newPiece, 'Nouveau fichier')}
+            <div className="w-px bg-[#e7e5e3] flex-shrink-0" />
+            {renderCol(existingPiece, 'Déjà dans le dossier')}
+          </div>
+          <div className="px-5 py-3 border-t border-[#e7e5e3] flex items-center justify-end gap-2 flex-shrink-0">
+            <button
+              onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }}
+              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-[#44403c] bg-white border border-[#d6d3d1] hover:bg-[#f8f7f5] transition-colors"
+            >
+              Garder les deux
+            </button>
+            <button
+              onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }}
+              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-[#44403c] bg-white border border-[#d6d3d1] hover:bg-[#f8f7f5] transition-colors"
+            >
+              Ignorer le nouveau
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Retry a document whose background analysis failed — re-run it (succeeds).
+  const retryDoc = (id) => {
+    setDropFirstPieces(prev => prev.map(p => p.id === id ? { ...p, status: 'pending' } : p));
+    const t = setTimeout(() => {
+      setDropFirstPieces(prev => prev.map(p => {
+        if (p.id !== id) return p;
+        const pe = p.poolRef || {};
+        return {
+          ...p,
+          status: 'done',
+          cleanName: p.cleanName || pe.cleanName || (p.originalName ? p.originalName.replace(/\.[^/.]+$/, '') : 'Document'),
+          type: p.type || pe.type || null,
+          date: p.date || pe.date || null,
+          pages: p.pages || pe.pages || null,
+          justCompleted: true,
+        };
+      }));
+    }, 1500);
+    processingTimeouts.current.push(t);
+  };
+
   const renderDropFirstPiecesTab = () => {
     const totalItems = dropFirstPieces.length;
     const allDone = dropFirstProcessingDone;
     const filtered = getFilteredPieces();
     const isFiltered = !!(piecesFilter.types?.length > 0 || piecesFilter.search);
-    const selectedPiece = pieceOverviewPanel ? dropFirstPieces.find(p => p.id === pieceOverviewPanel) : null;
+    // Resolve the overview-panel target. A split (exploded) pile segment has
+    // a synthetic id "pileId::segId" that is NOT a dropFirstPiece — rebuild a
+    // piece-shaped object from the live pile segment so the panel can show it
+    // (and offer "Modifier le découpage").
+    const selectedPiece = (() => {
+      const panelId = pieceOverviewPanel;
+      if (!panelId) return null;
+      if (panelId.includes('::')) {
+        const [pid, sid] = panelId.split('::');
+        const pile = piles[pid];
+        if (!pile || !Array.isArray(pile.segments)) return null;
+        const index = pile.segments.findIndex(s => s.id === sid);
+        if (index < 0) return null;
+        const seg = pile.segments[index];
+        return {
+          id: panelId,
+          cleanName: seg._customName || seg.label,
+          originalName: pile.originalName,
+          type: pile.aggregate.typeForClassification,
+          date: seg.date,
+          pages: seg.pages,
+          pageRange: seg.pages > 1 ? `${seg.pageStart}–${seg.pageEnd}` : String(seg.pageStart),
+          summary: null,
+          postesLies: [],
+          _pileSegmentPanel: {
+            pileId: pid, segmentId: sid, index,
+            totalCount: pile.segments.length, sourceFile: pile.originalName,
+          },
+        };
+      }
+      return dropFirstPieces.find(p => p.id === panelId) || null;
+    })();
 
-    // Synthetic folders for split (exploded) documents — one per source file,
-    // so its segments stay grouped together instead of scattering by type.
-    const treeCategories = [...bordereauCategories, ...pileFolders(piles)];
+    // Split (exploded) segments are classified into the regular dossier folders
+    // by type (in dropFirstAsBordereauPieces) — no synthetic source-named folder.
+    const treeCategories = bordereauCategories;
+
+    // Ingest review zone vs. the list. A dropped file stays in the "À vérifier"
+    // zone (as a card) while it's still being analysed, flagged as a possible
+    // doublon, or awaiting a split decision — and only lands in the list once
+    // settled. The table renders the settled set; the zone renders the rest.
+    // Documents analyse in the background (the chat shows progress); only those
+    // needing attention surface as zone cards. A settled doc lands in the list;
+    // an in-progress doc shows nothing on the canvas.
+    const isUnresolvedDoublon = (p) => p._doublonOf && !p._doublonResolved;
+    const isPendingSplit = (p) => p._pileId && pendingPileReviews.includes(p._pileId);
+    const settledPieces = filtered.filter(p => p.status === 'done' && !isUnresolvedDoublon(p) && !isPendingSplit(p));
+    const errorZoneItems = filtered.filter(p => p.status === 'error').map(p => ({ id: p.id, name: p.originalName || p.id }));
+    const doublonZoneItems = filtered
+      .filter(p => p.status === 'done' && isUnresolvedDoublon(p))
+      .map(p => ({ id: p.id, name: p.cleanName || p.originalName || p.id, ofName: p._doublonOfName || 'un document existant', ofId: p._doublonOf }));
+    // Aggregate background-processing count (in-progress, not done/error).
+    const processingCount = filtered.filter(p => p.status !== 'done' && p.status !== 'error').length;
 
     // Adapt drop-first piece shape into the bordereau-piece shape that
     // BordereauTable expects. Auto-classification places each done piece
-    // into its detected folder; split-document segments land in their
-    // source-document folder; in-flight pieces (still processing) get
-    // categoryId=null and surface in Sans-catégorie with a spinner icon.
-    const adaptedPieces = dropFirstAsBordereauPieces(filtered, treeCategories, piles);
+    // into its detected folder; split-document segments are classified the
+    // same way (by type), not grouped into a source-named folder; in-flight
+    // pieces (still processing) get categoryId=null and surface in
+    // Sans-catégorie with a spinner icon.
+    const adaptedPieces = dropFirstAsBordereauPieces(settledPieces, treeCategories, piles);
 
     // Translate BordereauTable's setPieces updater calls (which operate on
     // the bordereau-piece shape) back into setDropFirstPieces mutations.
@@ -14190,7 +14371,7 @@ export default function App() {
     const isExternalFileDrag = (e) => !reorderDrag && e.dataTransfer.types.includes('Files');
     return (
       <div
-        className="flex h-full relative -mx-4 -mt-4"
+        className="flex h-full relative -mx-8 -mt-4"
         style={{ minHeight: '100vh' }}
         onDragOver={e => { e.preventDefault(); if (isExternalFileDrag(e)) { clearTimeout(dragLeaveTimer); setPiecesTabDragOver(true); } }}
         onDragLeave={e => { e.preventDefault(); if (isExternalFileDrag(e)) { dragLeaveTimer = setTimeout(() => setPiecesTabDragOver(false), 50); } }}
@@ -14228,8 +14409,8 @@ export default function App() {
             )}
           </div>
 
-          {/* Content with padding */}
-          <div className="p-4 flex-1 overflow-y-auto">
+          {/* Content — more horizontal padding than the (full-width) search bar above */}
+          <div className="px-8 py-4 flex-1 overflow-y-auto">
 
             {/* Reorder hint banner */}
             {showReorderHint && !manualReorder && (
@@ -14248,30 +14429,47 @@ export default function App() {
               </div>
             )}
 
-            {/* Pile review zone — only shows when there's something to verify. */}
-            {pendingPileReviews.length > 0 && (
-              <PileReviewBanner
-                pileIds={pendingPileReviews}
-                piles={piles}
-                rule={globalSplitRule}
-                onApply={applyPileChoice}
-                onUndo={undoPileChoice}
-                onDismiss={dismissPileReview}
-                onAdjust={(pileId) => setPileAdjustSheet(pileId)}
-              />
-            )}
-
             <BordereauTable
               pieces={adaptedPieces}
               categories={treeCategories}
               setPieces={setDropFirstViaBordereau}
               setCategories={setBordereauCategories}
-              onOpenPiecePreview={(pid) => setPieceOverviewPanel(pid)}
+              onOpenPiecePreview={(pid) => {
+                // Pile (exploded) segment → unified document panel, view mode.
+                if (typeof pid === 'string' && pid.includes('::')) {
+                  const [pileId, segId] = pid.split('::');
+                  setPileDocPanel({ pileId, segmentId: segId, mode: 'view' });
+                  return;
+                }
+                // Pile kept as one piece (bundle) → unified panel too.
+                const dfp = dropFirstPieces.find(p => p.id === pid);
+                if (dfp && dfp._pileId && piles[dfp._pileId]) {
+                  setPileDocPanel({ pileId: dfp._pileId, segmentId: null, mode: 'view' });
+                  return;
+                }
+                setPieceOverviewPanel(pid);
+              }}
               onAddFiles={handleAddMorePieces}
               onAskChato={askChatoAboutSelection}
-              onTogglePileMode={togglePileMode}
-              onOpenPileAdjust={(pileId) => setPileAdjustSheet(pileId)}
-              pileHighlight={pileHighlight}
+              reviewZone={(processingCount + errorZoneItems.length + doublonZoneItems.length + pendingPileReviews.length) > 0 ? (
+                <PileReviewBanner
+                  processingCount={processingCount}
+                  errorItems={errorZoneItems}
+                  doublonItems={doublonZoneItems}
+                  pileIds={pendingPileReviews}
+                  piles={piles}
+                  rule={globalSplitRule}
+                  onApply={applyPileChoice}
+                  onUndo={undoPileChoice}
+                  onDismiss={dismissPileReview}
+                  onAdjust={(pileId) => setPileDocPanel({ pileId, segmentId: null, mode: 'adjust' })}
+                  onDoublonKeepBoth={resolveDoublonKeepBoth}
+                  onDoublonIgnore={resolveDoublonIgnore}
+                  onDoublonView={openDoublonCompare}
+                  onErrorRetry={retryDoc}
+                  onErrorIgnore={resolveDoublonIgnore}
+                />
+              ) : null}
             />
 
           </div>
@@ -14304,39 +14502,65 @@ export default function App() {
         {/* Document Overview Panel (Right Drawer) */}
         {selectedPiece && renderPieceOverviewPanel(selectedPiece)}
 
-        {/* Pile adjust sheet — open when the user clicks "Ajuster le découpage". */}
-        {pileAdjustSheet && piles[pileAdjustSheet] && (
+        {/* Unified document panel (view ↔ adjust) for pile docs. */}
+        {pileDocPanel && piles[pileDocPanel.pileId] && (
           <PileAdjustSheet
-            pile={piles[pileAdjustSheet]}
+            key={`${pileDocPanel.pileId}:${pileDocPanel.segmentId || ''}`}
+            pile={piles[pileDocPanel.pileId]}
             rule={globalSplitRule}
             splitPrompt={preferenceSlots.decoupage}
-            onClose={() => setPileAdjustSheet(null)}
-            onCommit={(segments) => updatePileSegments(pileAdjustSheet, segments)}
+            isResolved={!pendingPileReviews.includes(pileDocPanel.pileId)}
+            initialMode={pileDocPanel.mode}
+            activeSegmentId={pileDocPanel.segmentId}
+            onClose={() => setPileDocPanel(null)}
+            onCommit={(segments) => updatePileSegments(pileDocPanel.pileId, segments)}
             onChoose={(mode) => {
-              const id = pileAdjustSheet;
-              setPileAdjustSheet(null);
+              const id = pileDocPanel.pileId;
+              const prevMode = piles[id]?.mode;
+              setPileDocPanel(null);
               if (pendingPileReviews.includes(id)) {
                 // Land on the same transforming À vérifier card (apply, keep
                 // pending → the card shows the confirmation + Annuler).
                 applyPileChoice(id, mode);
+              } else if (prevMode === mode) {
+                // Re-adjustment that keeps the same mode: segments are already
+                // committed via onCommit, but togglePileMode would no-op and
+                // give no feedback — confirm the update explicitly.
+                setPileHighlight(id);
+                setTimeout(() => setPileHighlight(curr => (curr === id ? null : curr)), 1300);
+                const text = 'Découpage mis à jour.';
+                setToastMessage({ text });
+                setTimeout(() => setToastMessage(curr => (curr && curr.text === text ? null : curr)), 4000);
               } else {
                 togglePileMode(id, mode);
               }
             }}
           />
         )}
+        {renderDoublonComparePanel()}
       </div>
     );
   };
 
   const renderPieceOverviewPanel = (piece) => {
     const pieceNum = getPieceNumber(piece);
-    const hasSplitInfo = !!piece.sourceFile;
+    const segPanel = piece._pileSegmentPanel || null;
+    const isPileSegment = !!segPanel;
+    const hasSplitInfo = !!piece.sourceFile || isPileSegment;
     const typeColorLight = piece.type === 'Expertise' ? 'bg-teal-50 border-teal-200' : piece.type === 'Décision' ? 'bg-purple-50 border-purple-200' : piece.type === 'Revenus' ? 'bg-green-50 border-green-200' : piece.type === 'Factures' ? 'bg-orange-50 border-orange-200' : piece.type === 'Médical' ? 'bg-blue-50 border-blue-200' : piece.type === 'Administratif' ? 'bg-slate-50 border-slate-200' : 'bg-[#F8F7F5] border-[#e7e5e3]';
 
-    // Navigation: get ordered list of done pieces
-    const donePieces = getFilteredPieces().filter(p => p.status === 'done');
-    const currentIdx = donePieces.findIndex(p => p.id === piece.id);
+    // Navigation: a split part pages through its own découpage (the pile's
+    // segments); a regular piece pages through the done-pieces list.
+    let donePieces, currentIdx;
+    if (isPileSegment) {
+      const segPile = piles[segPanel.pileId];
+      const segs = (segPile && segPile.segments) || [];
+      donePieces = segs.map(s => ({ id: `${segPanel.pileId}::${s.id}` }));
+      currentIdx = segPanel.index;
+    } else {
+      donePieces = getFilteredPieces().filter(p => p.status === 'done');
+      currentIdx = donePieces.findIndex(p => p.id === piece.id);
+    }
     const prevPiece = currentIdx > 0 ? donePieces[currentIdx - 1] : null;
     const nextPiece = currentIdx < donePieces.length - 1 ? donePieces[currentIdx + 1] : null;
 
@@ -14379,30 +14603,6 @@ export default function App() {
         <div className="flex flex-1 min-h-0">
         {/* Left: Document Preview */}
         <div className="w-[420px] flex flex-col border-r border-zinc-100 bg-[#F8F7F5]">
-          {/* Source file card — on top */}
-          <div className="px-4 pt-4 pb-2 flex-shrink-0">
-            <div className="rounded-lg border border-[#e7e5e3] bg-[#F8F7F5]/60 overflow-hidden">
-              <div className="flex items-center gap-1.5 px-3 py-2 border-b border-zinc-100">
-                {hasSplitInfo ? (
-                  <>
-                    <Scissors className="w-3 h-3 text-[#a8a29e]" />
-                    <span className="text-caption-medium text-[#a8a29e]">Document découpé · partie {piece.splitIndex + 1}/{piece.siblings.length}</span>
-                  </>
-                ) : (
-                  <span className="text-caption-medium text-[#a8a29e]">Document original</span>
-                )}
-              </div>
-              <div className="flex items-center gap-2.5 px-3 py-2.5">
-                <div className="flex items-center justify-center w-7 h-7 rounded-md bg-white border border-[#e7e5e3] flex-shrink-0">
-                  <FileText className="w-3.5 h-3.5 text-[#a8a29e]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-body-medium text-[#78716c] truncate">{piece.originalName || piece.sourceFile || '—'}</p>
-                  <p className="text-caption text-[#a8a29e]">{piece.pages || '?'} page{(piece.pages || 0) > 1 ? 's' : ''}</p>
-                </div>
-              </div>
-            </div>
-          </div>
           {/* Preview content — placeholder */}
           <div className="flex-1 p-4 overflow-y-auto">
             <div className={`w-full h-full min-h-[500px] rounded-lg border ${typeColorLight} flex flex-col items-center justify-center`}>
@@ -14442,8 +14642,44 @@ export default function App() {
               <input
                 className="text-body-medium text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-2 w-full hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
                 value={piece.cleanName}
-                onChange={e => setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, cleanName: e.target.value } : p))}
+                onChange={e => {
+                  const val = e.target.value;
+                  if (isPileSegment) {
+                    setPiles(prev => {
+                      const sp = prev[segPanel.pileId];
+                      if (!sp) return prev;
+                      return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.map(s => s.id === segPanel.segmentId ? { ...s, _customName: val } : s) } };
+                    });
+                  } else {
+                    setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, cleanName: val } : p));
+                  }
+                }}
               />
+            </div>
+
+            {/* Source + split context — quiet line under the name, no box */}
+            <div className="mb-4 flex flex-col gap-0.5">
+              {isPileSegment ? (
+                <button
+                  type="button"
+                  onClick={() => { setPieceOverviewPanel(null); setPileDocPanel({ pileId: segPanel.pileId, segmentId: segPanel.segmentId, mode: 'adjust' }); }}
+                  title="Rouvrir le panneau de découpage — recouper ou recoller"
+                  className="group inline-flex items-center gap-1.5 self-start text-[12px] leading-[16px] text-[#a8a29e] transition-colors"
+                >
+                  <Scissors className="w-3 h-3 text-[#a08355] flex-shrink-0" strokeWidth={1.75} />
+                  <span className="text-[#78716c]">Document éclaté · partie {segPanel.index + 1}/{segPanel.totalCount}</span>
+                  <span className="text-[#d6d3d1]">·</span>
+                  <span className="text-[#a08355] font-medium group-hover:underline underline-offset-2">Modifier le découpage</span>
+                </button>
+              ) : hasSplitInfo ? (
+                <span className="inline-flex items-center gap-1.5 text-[12px] leading-[16px] text-[#78716c]">
+                  <Scissors className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+                  Document découpé · partie {piece.splitIndex + 1}/{piece.siblings.length}
+                </span>
+              ) : null}
+              <span className="text-[12px] leading-[16px] text-[#a8a29e] truncate">
+                {piece.originalName || piece.sourceFile || '—'} · {piece.pages || '?'} page{(piece.pages || 0) > 1 ? 's' : ''}
+              </span>
             </div>
 
             {/* Description — extracted summary */}
@@ -14458,6 +14694,10 @@ export default function App() {
               {/* Type */}
               <div className="flex items-center justify-between py-3">
                 <span className="text-caption text-[#a8a29e]">Type</span>
+                {isPileSegment ? (
+                  // Split parts share the pile's type — shown, not edited here.
+                  <span className={`badge badge-md ${PIECE_TYPE_COLORS[piece.type] || 'badge-secondary'}`}>{piece.type}</span>
+                ) : (
                 <div className="relative">
                   <button
                     className={`badge badge-md cursor-pointer hover:opacity-80 transition-opacity ${PIECE_TYPE_COLORS[piece.type] || 'badge-secondary'}`}
@@ -14484,6 +14724,7 @@ export default function App() {
                     </div>
                   )}
                 </div>
+                )}
               </div>
 
               {/* Date */}
@@ -14512,12 +14753,22 @@ export default function App() {
             <button
               className="w-full px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg flex items-center justify-center gap-2 font-medium text-sm transition-colors"
               onClick={() => {
-                setDropFirstPieces(prev => prev.filter(p => p.id !== piece.id));
+                if (isPileSegment) {
+                  // Removing a split part re-shapes the découpage — drop just
+                  // this segment from the pile.
+                  setPiles(prev => {
+                    const sp = prev[segPanel.pileId];
+                    if (!sp) return prev;
+                    return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.filter(s => s.id !== segPanel.segmentId) } };
+                  });
+                } else {
+                  setDropFirstPieces(prev => prev.filter(p => p.id !== piece.id));
+                }
                 setPieceOverviewPanel(null);
               }}
             >
               <Trash2 className="w-4 h-4" />
-              Supprimer le document
+              {isPileSegment ? 'Retirer cette pièce du découpage' : 'Supprimer le document'}
             </button>
           </div>
         </div>
@@ -22660,3 +22911,4 @@ export default function App() {
   );
 }
 // Force deploy Fri Jan 30 16:16:33 CET 2026
+

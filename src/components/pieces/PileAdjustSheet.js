@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Scissors, Link2, Sparkles, Check, IterationCcw, Pencil } from 'lucide-react';
+import { X, Scissors, Link2, Sparkles, Check, IterationCcw, Pencil, Trash2, FileText, ChevronLeft } from 'lucide-react';
 import Input from '../ui/Input';
 
 // "Ajuster le découpage" — right-side sheet (slideInRight, 1040px).
@@ -30,9 +30,17 @@ function formatDateShort(iso) {
   }
 }
 
-export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCommit, onChoose }) {
+export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, initialMode = 'adjust', activeSegmentId = null, onClose, onCommit, onChoose }) {
   const [segments, setSegments] = useState(pile.segments);
-  const [activeIdx, setActiveIdx] = useState(0);
+  // 'view' = read the document + its metadata; 'adjust' = cut/heal the découpage.
+  // Both modes share the same persistent document pane (no layout shift on switch).
+  const [mode, setMode] = useState(initialMode);
+  // Initialise to the opened part so it renders correctly on first paint
+  // (no flash of part 1 before the effect corrects it).
+  const [activeIdx, setActiveIdx] = useState(() => {
+    const i = activeSegmentId ? pile.segments.findIndex(s => s.id === activeSegmentId) : 0;
+    return i >= 0 ? i : 0;
+  });
   // Index of the boundary being hovered (between segments[i-1] and segments[i]).
   // Drives the "draw closer" transform on the two adjacent documents.
   const [stitchHover, setStitchHover] = useState(null);
@@ -45,13 +53,18 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
 
   useEffect(() => {
     setSegments(pile.segments);
-    setActiveIdx(0);
+    const idx = activeSegmentId ? pile.segments.findIndex(s => s.id === activeSegmentId) : 0;
+    setActiveIdx(idx >= 0 ? idx : 0);
     undoStack.current = [];
-  }, [pile.id, pile.segments]);
+  }, [pile.id, pile.segments, activeSegmentId]);
+
+  // Commit the working segments and close. Used by ✕ / Escape / backdrop so
+  // edits made in either mode persist on exit.
+  const commitClose = () => { onCommit(segments); onClose(); };
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'Escape') { onCommit(segments); onClose(); return; }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         const prev = undoStack.current.pop();
@@ -60,7 +73,21 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, onCommit, segments]);
+
+  // On open, bring the clicked segment into view (the observer keeps it active).
+  useEffect(() => {
+    // Only auto-scroll when the whole document is shown (adjust mode). In view
+    // mode a single part renders already in position — scrolling it would jump.
+    if (!activeSegmentId || mode === 'view') return;
+    const idx = pile.segments.findIndex(s => s.id === activeSegmentId);
+    if (idx <= 0) return;
+    const t = setTimeout(() => {
+      const el = segmentRefs.current.get(idx);
+      if (el) el.scrollIntoView({ block: 'start' });
+    }, 60);
+    return () => clearTimeout(t);
+  }, [pile.id, activeSegmentId, pile.segments, mode]);
 
   // Scroll-sync: the most visible document drives the floating breadcrumb
   // and the sommaire highlight.
@@ -81,7 +108,7 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
     }, { root, threshold: [0, 0.25, 0.5, 0.75, 1] });
     segmentRefs.current.forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, [segments]);
+  }, [segments, mode]);
 
   useEffect(() => {
     const el = sommaireRowRefs.current.get(activeIdx);
@@ -149,11 +176,28 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
     });
   };
 
-  const recommended = rule === 'explode' ? 'exploded' : rule === 'group' ? 'bundle' : null;
+  // Remove a part from the découpage (view-mode delete). Guard the last one.
+  const deleteSegment = (i) => {
+    if (segments.length <= 1) return;
+    pushUndo();
+    setSegments(prev => prev.filter((_, idx) => idx !== i));
+    setActiveIdx(a => Math.max(0, Math.min(a, segments.length - 2)));
+  };
 
-  const commitAndChoose = (mode) => {
+  // Always-on name edit (view metadata) — no undo entry per keystroke.
+  const setSegmentName = (i, name) => {
+    setSegments(prev => prev.map((s, idx) => idx === i ? { ...s, _customName: name } : s));
+  };
+
+  const recommended = rule === 'explode' ? 'exploded' : rule === 'group' ? 'bundle' : null;
+  // When re-adjusting an already-resolved pile, the primary (dark) button
+  // reflects the pile's CURRENT mode — "save it as it stands" — rather than
+  // the cabinet's default rule, which only matters for the first decision.
+  const primaryMode = isResolved ? pile.mode : recommended;
+
+  const commitAndChoose = (choice) => {
     onCommit(segments);
-    onChoose(mode);
+    onChoose(choice);
   };
 
   const scrollToSegment = (idx) => {
@@ -164,132 +208,80 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
 
   const safe = Math.min(activeIdx, segments.length - 1);
   const active = segments[safe];
+  // In view mode opened on a specific split part, preview ONLY that part's pages.
+  // Adjust mode (and bundles, opened with no specific part) show the whole doc.
+  const previewSingle = mode === 'view' && !!activeSegmentId;
 
   return (
     <>
     {/* Backdrop */}
     <div
-      onClick={onClose}
+      onClick={commitClose}
       className="fixed inset-0 z-20"
       style={{ background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
     />
     <div
-      className="fixed right-0 top-0 h-screen bg-white z-30 flex flex-col"
-      style={{ width: '1040px', animation: 'slideInRight 0.2s ease-out', boxShadow: '-8px 0 40px -12px rgba(28, 25, 23, 0.18)' }}
+      className="fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col"
+      style={{ width: '1040px', animation: 'slideInRight 0.2s ease-out' }}
     >
-      {/* Header */}
-      <div className="px-6 py-4 flex items-center justify-between flex-shrink-0 bg-white border-b border-[#f0efed]">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0 bg-[#f5f5f4] text-[#44403c]">
-            <Scissors className="w-4 h-4" strokeWidth={1.75} />
-          </div>
-          <div className="min-w-0">
-            <div className="text-[16px] leading-[24px] font-semibold text-[#1c1917] truncate tracking-[-0.01em]">Ajuster le découpage</div>
-            <div className="text-[12px] leading-[16px] text-[#a8a29e] truncate">{pile.originalName}</div>
-          </div>
+      {/* Header — harmonized with the document preview panel. Title + actions
+          depend on the mode; the document pane below is shared across modes. */}
+      <div className="px-5 py-3 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {mode === 'adjust' && initialMode === 'view' && (
+            <button
+              type="button"
+              onClick={() => setMode('view')}
+              title="Retour à l'aperçu du document"
+              className="p-1 -ml-1 flex-shrink-0 text-[#a8a29e] hover:text-[#44403c] hover:bg-[#f5f5f4] rounded-md transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" strokeWidth={2} />
+            </button>
+          )}
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 bg-[#f5f5f4] text-[#44403c]">
+            {mode === 'adjust'
+              ? <Scissors className="w-3.5 h-3.5" strokeWidth={1.75} />
+              : <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />}
+          </span>
+          <span className="text-[14px] font-medium text-[#44403c] whitespace-nowrap truncate" style={{ maxWidth: 380 }}>
+            {mode === 'adjust' ? 'Ajuster le découpage' : (active ? docTitle(active) : 'Document')}
+          </span>
+          <span className="text-zinc-200">|</span>
+          <span className="text-[12px] text-[#a8a29e] truncate min-w-0">{pile.originalName}</span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button
-            onClick={() => commitAndChoose('bundle')}
-            className="h-9 px-4 text-[14px] font-medium rounded-lg transition-all"
-            style={recommended === 'bundle'
-              ? { background: '#1c1917', color: 'white', boxShadow: '0 1px 2px rgba(28,25,23,0.2)' }
-              : { background: 'white', color: '#44403c', border: '1px solid #e7e5e3' }}
-          >
-            Garder en une pièce
-          </button>
-          <button
-            onClick={() => commitAndChoose('exploded')}
-            className="h-9 px-4 text-[14px] font-medium rounded-lg transition-all"
-            style={recommended === 'exploded'
-              ? { background: '#1c1917', color: 'white', boxShadow: '0 1px 2px rgba(28,25,23,0.2)' }
-              : { background: 'white', color: '#44403c', border: '1px solid #e7e5e3' }}
-          >
-            Éclater en {segments.length} pièces
-          </button>
-          <span className="w-px h-6 bg-[#e7e5e3] mx-1" />
-          <button onClick={onClose} className="p-2 text-[#a8a29e] hover:text-[#44403c] hover:bg-[#f5f5f4] rounded-lg transition-colors">
+          {mode === 'adjust' && (
+            <>
+              <button
+                onClick={() => commitAndChoose('bundle')}
+                className="h-7 px-3.5 text-[14px] font-medium rounded-md transition-all"
+                style={primaryMode === 'bundle'
+                  ? { background: '#1c1917', color: 'white', boxShadow: '0 1px 2px rgba(28,25,23,0.2)' }
+                  : { background: 'white', color: '#44403c', border: '1px solid #e7e5e3' }}
+              >
+                Garder en une pièce
+              </button>
+              <button
+                onClick={() => commitAndChoose('exploded')}
+                className="h-7 px-3.5 text-[14px] font-medium rounded-md transition-all"
+                style={primaryMode === 'exploded'
+                  ? { background: '#1c1917', color: 'white', boxShadow: '0 1px 2px rgba(28,25,23,0.2)' }
+                  : { background: 'white', color: '#44403c', border: '1px solid #e7e5e3' }}
+              >
+                Éclater en {segments.length} pièces
+              </button>
+              <span className="w-px h-5 bg-[#e7e5e3] mx-1" />
+            </>
+          )}
+          <button onClick={commitClose} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
             <X className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
       </div>
 
       <div className="flex-1 flex min-h-0">
-        {/* Left — prompt + sommaire */}
-        <div className="w-[296px] flex flex-col bg-white flex-shrink-0 border-r border-[#f0efed]">
-          <div className="px-5 pt-4 pb-2 flex items-center justify-between flex-shrink-0">
-            <span className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>Découpage</span>
-            <span className="text-[12px] text-[#a8a29e] tabular-nums">{segments.length}</span>
-          </div>
-          <div className="flex-1 overflow-y-auto px-2 pb-3">
-            {segments.map((seg, idx) => {
-              const isActive = idx === safe;
-              const isRenaming = renamingIdx === idx;
-              return (
-                <div
-                  key={seg.id}
-                  ref={(el) => { if (el) sommaireRowRefs.current.set(idx, el); else sommaireRowRefs.current.delete(idx); }}
-                  onClick={() => { if (!isRenaming) scrollToSegment(idx); }}
-                  className="w-full text-left px-3 py-2 rounded-lg transition-colors flex items-start gap-2.5 group cursor-pointer"
-                  style={{
-                    background: isActive ? '#1c1917' : 'transparent',
-                    boxShadow: isActive ? '0 1px 2px rgba(28,25,23,0.18), 0 6px 16px -6px rgba(28,25,23,0.35)' : 'none',
-                  }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#fafaf9'; }}
-                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-                >
-                  <span
-                    className="text-[11px] tabular-nums mt-[2px] w-6 flex-shrink-0 transition-colors"
-                    style={{ color: isActive ? '#ffffff' : '#d6d3d1', fontWeight: isActive ? 600 : 400 }}
-                  >
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    {isRenaming ? (
-                      <SommaireRenameInput
-                        initial={seg._customName || seg.label}
-                        onCommit={(name) => { renameSegment(idx, name); setRenamingIdx(null); }}
-                        onCancel={() => setRenamingIdx(null)}
-                      />
-                    ) : (
-                      <div className="flex items-center gap-1 min-w-0">
-                        <span className="text-[14px] leading-[20px] truncate" style={{ color: isActive ? '#ffffff' : '#44403c', fontWeight: isActive ? 500 : 400 }}>
-                          {seg._customName || seg.label}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); setRenamingIdx(idx); }}
-                          className="flex-shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                          style={{ color: isActive ? 'rgba(255,255,255,0.6)' : '#a8a29e' }}
-                          title="Renommer"
-                        >
-                          <Pencil className="w-3 h-3" strokeWidth={1.75} />
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1 mt-1">
-                      <span
-                        className="inline-flex items-center h-[18px] px-1.5 rounded text-[10px] font-medium tabular-nums"
-                        style={isActive ? { background: 'rgba(255,255,255,0.14)', color: '#e7e5e4' } : { background: '#f5f5f4', color: '#78716c' }}
-                      >
-                        {seg.pages === 1 ? `P.${seg.pageStart}` : `P.${seg.pageStart}–${seg.pageEnd}`}
-                      </span>
-                      <span
-                        className="inline-flex items-center h-[18px] px-1.5 rounded text-[10px] font-medium tabular-nums"
-                        style={isActive ? { background: 'rgba(255,255,255,0.14)', color: '#e7e5e4' } : { background: '#f5f5f4', color: '#78716c' }}
-                      >
-                        {seg.pages} p.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <SplitPromptSection defaultPrompt={splitPrompt} />
-        </div>
-
-        {/* Right — continuous reading flow */}
+        {/* Left — document reading flow. Shared across view/adjust; only the
+            cut/heal junctions appear in adjust mode, so the pages never move. */}
         <div className="flex-1 min-w-0 relative bg-[#f8f7f5]">
           {/* Floating breadcrumb */}
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
@@ -312,13 +304,15 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
           {/* Scrollable preview */}
           <div ref={previewScrollRef} className="absolute inset-0 overflow-y-auto px-10 pt-16 pb-10 flex flex-col items-center">
             {segments.map((seg, idx) => {
+              // View mode on a single split part: render only that part's pages.
+              if (previewSingle && idx !== safe) return null;
               // When a boundary is hovered, the doc above it slides down and
               // the doc below slides up — previewing the stitch. Pure transform
               // (no reflow) so the boundary's hit area never moves → no flicker.
               const dy = stitchHover === idx ? -16 : stitchHover === idx + 1 ? 16 : 0;
               return (
               <React.Fragment key={seg.id}>
-                {idx > 0 && (
+                {idx > 0 && mode === 'adjust' && (
                   <CutBoundary
                     onHeal={() => healBoundary(idx - 1)}
                     onHoverChange={(on) => setStitchHover(on ? idx : (v) => (v === idx ? null : v))}
@@ -333,7 +327,7 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
                   {Array.from({ length: seg.pages }).map((_, p) => (
                     <React.Fragment key={p}>
                       <MockPage pageNum={seg.pageStart + p} relIdx={p} segment={seg} docNumber={idx + 1} first={p === 0} last={p === seg.pages - 1} />
-                      {p < seg.pages - 1 && <GhostCut onCut={() => splitAtPage(idx, p + 1)} />}
+                      {mode === 'adjust' && p < seg.pages - 1 && <GhostCut onCut={() => splitAtPage(idx, p + 1)} />}
                     </React.Fragment>
                   ))}
                 </div>
@@ -341,6 +335,130 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, onClose, onCo
               );
             })}
           </div>
+        </div>
+
+        {/* Right — controls. Adjust: découpage sommaire + prompt. View: the
+            active part's document metadata. */}
+        <div className="w-[360px] flex flex-col bg-white flex-shrink-0 border-l border-[#e7e5e3]">
+          {mode === 'adjust' ? (
+            <>
+              <div className="px-5 pt-4 pb-2 flex items-center justify-between flex-shrink-0">
+                <span className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>Découpage</span>
+                <span className="text-[12px] text-[#a8a29e] tabular-nums">{segments.length}</span>
+              </div>
+              <div className="flex-1 overflow-y-auto px-2 pb-3">
+                {segments.map((seg, idx) => {
+                  const isActive = idx === safe;
+                  const isRenaming = renamingIdx === idx;
+                  return (
+                    <div
+                      key={seg.id}
+                      ref={(el) => { if (el) sommaireRowRefs.current.set(idx, el); else sommaireRowRefs.current.delete(idx); }}
+                      onClick={() => { if (!isRenaming) scrollToSegment(idx); }}
+                      className="w-full text-left px-3 py-2 rounded-lg transition-colors flex items-start gap-2.5 group cursor-pointer"
+                      style={{
+                        background: isActive ? '#1c1917' : 'transparent',
+                        boxShadow: isActive ? '0 1px 2px rgba(28,25,23,0.18), 0 6px 16px -6px rgba(28,25,23,0.35)' : 'none',
+                      }}
+                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#fafaf9'; }}
+                      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <span
+                        className="text-[11px] tabular-nums mt-[2px] w-6 flex-shrink-0 transition-colors"
+                        style={{ color: isActive ? '#ffffff' : '#d6d3d1', fontWeight: isActive ? 600 : 400 }}
+                      >
+                        {idx + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        {isRenaming ? (
+                          <SommaireRenameInput
+                            initial={seg._customName || seg.label}
+                            onCommit={(name) => { renameSegment(idx, name); setRenamingIdx(null); }}
+                            onCancel={() => setRenamingIdx(null)}
+                          />
+                        ) : (
+                          <div className="flex items-center gap-1 min-w-0">
+                            <span className="text-[14px] leading-[20px] truncate" style={{ color: isActive ? '#ffffff' : '#44403c', fontWeight: isActive ? 500 : 400 }}>
+                              {seg._customName || seg.label}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setRenamingIdx(idx); }}
+                              className="flex-shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                              style={{ color: isActive ? 'rgba(255,255,255,0.6)' : '#a8a29e' }}
+                              title="Renommer"
+                            >
+                              <Pencil className="w-3 h-3" strokeWidth={1.75} />
+                            </button>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 mt-1">
+                          <span
+                            className="inline-flex items-center h-[18px] px-1.5 rounded text-[10px] font-medium tabular-nums"
+                            style={isActive ? { background: 'rgba(255,255,255,0.14)', color: '#e7e5e4' } : { background: '#f5f5f4', color: '#78716c' }}
+                          >
+                            {seg.pages === 1 ? `P.${seg.pageStart}` : `P.${seg.pageStart}–${seg.pageEnd}`}
+                          </span>
+                          <span
+                            className="inline-flex items-center h-[18px] px-1.5 rounded text-[10px] font-medium tabular-nums"
+                            style={isActive ? { background: 'rgba(255,255,255,0.14)', color: '#e7e5e4' } : { background: '#f5f5f4', color: '#78716c' }}
+                          >
+                            {seg.pages} p.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <SplitPromptSection defaultPrompt={splitPrompt} />
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto px-5 py-5">
+              <label className="text-[12px] text-[#a8a29e] mb-1 block">Nom du document</label>
+              <input
+                value={active ? (active._customName || active.label) : ''}
+                onChange={(e) => setSegmentName(safe, e.target.value)}
+                className="text-[14px] font-medium text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-2 w-full hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
+              />
+              <div className="mt-2 mb-4 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-[12px] leading-[16px] text-[#78716c]">
+                  <Scissors className="w-3 h-3 text-[#a08355] flex-shrink-0" strokeWidth={1.75} />
+                  <span className="truncate">Document éclaté · partie {safe + 1}/{segments.length}</span>
+                </div>
+                <span className="text-[12px] leading-[16px] text-[#a8a29e] truncate">
+                  {pile.originalName} · {active ? active.pages : 0} page{active && active.pages > 1 ? 's' : ''}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMode('adjust')}
+                  title="Recouper ou recoller les pièces de ce document"
+                  className="self-start text-[12px] leading-[16px] font-medium text-[#a08355] hover:underline underline-offset-2"
+                >
+                  Modifier le découpage
+                </button>
+              </div>
+              <div className="divide-y divide-[#e7e5e3]">
+                <div className="flex items-center justify-between py-3">
+                  <span className="text-[12px] text-[#a8a29e]">Type</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-medium bg-[#f5f5f4] text-[#78716c]">{pile.aggregate.typeForClassification}</span>
+                </div>
+                <div className="flex items-center justify-between py-3">
+                  <span className="text-[12px] text-[#a8a29e]">Date</span>
+                  <span className="text-[14px] text-[#44403c] tabular-nums">{active ? formatDateShort(active.date) : '—'}</span>
+                </div>
+              </div>
+              <div className="flex-1" />
+              <button
+                onClick={() => deleteSegment(safe)}
+                disabled={segments.length <= 1}
+                className="w-full mt-4 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 disabled:opacity-40 disabled:hover:bg-red-50 rounded-lg flex items-center justify-center gap-2 font-medium text-sm transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Supprimer la pièce
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
