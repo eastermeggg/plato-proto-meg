@@ -35,6 +35,7 @@ import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows }
 import { getPileById, pickRandomPiles } from './data/pilesSeed';
 import PileReviewBanner from './components/pieces/PileReviewBanner';
 import PileAdjustSheet from './components/pieces/PileAdjustSheet';
+import FusePiecesModal from './components/pieces/FusePiecesModal';
 import SplitVariantsLab from './components/pieces/SplitVariantsLab';
 import {
   ChiffrageSlot,
@@ -1136,6 +1137,7 @@ export default function App() {
   const [globalSplitRule, setGlobalSplitRule] = useState('group'); // 'group' | 'explode' | 'ask'
   const [pileDocPanel, setPileDocPanel] = useState(null); // null | { pileId, segmentId, mode } — unified document panel (view ↔ adjust)
   const [doublonCompare, setDoublonCompare] = useState(null); // null | { newId, existingId } — side-by-side doublon comparison
+  const [fusionModal, setFusionModal] = useState(null); // null | { sources, defaultName } — merge several documents into one pièce
   const [pileHighlight, setPileHighlight] = useState(null); // pileId — amber-flashed after a recent bascule
   const [infoDossierStreaming, setInfoDossierStreaming] = useState(null); // null | { active, fieldsRevealed: [], streamingField: null, streamingText: '' }
   const [pieceOverviewPanel, setPieceOverviewPanel] = useState(null); // null | pieceId
@@ -14174,6 +14176,130 @@ export default function App() {
     });
   };
 
+  // ── Fusion — merge several selected documents into a single pièce ─────────
+  // The inverse of split: each selected document becomes one part (segment) of
+  // a new bundle pile, so the merge is fully reversible — « Modifier le
+  // découpage » re-separates them along the original document boundaries. The
+  // result renders as one ordinary document row (bundle mode), auto-classified
+  // by type like any other piece. Folders and split (exploded) segments are
+  // filtered out upstream (BordereauTable), so sources are whole documents:
+  // plain drop-first pieces, or a doc already kept-as-one from a prior split.
+  const resolveFusionSource = (rowId) => {
+    const dfp = dropFirstPieces.find(p => p.id === rowId);
+    if (!dfp) return null;
+    if (dfp._pileId && piles[dfp._pileId]) {
+      // Kept-as-one (bundle) pile — collapse to a single part here (its own
+      // internal cut points aren't carried into the new fusion in v1).
+      const pile = piles[dfp._pileId];
+      const pages = pile.pages || (pile.segments || []).reduce((n, s) => n + (s.pages || 1), 0) || 1;
+      return {
+        rowId, kind: 'bundle', dfpId: dfp.id, pileId: dfp._pileId,
+        name: pile.aggregate?.label || dfp.cleanName || dfp.originalName || 'Document',
+        pages,
+        date: (pile.segments && pile.segments[0] && pile.segments[0].date) || dfp.date || null,
+        type: pile.aggregate?.typeForClassification || dfp.type || null,
+      };
+    }
+    return {
+      rowId, kind: 'piece', dfpId: dfp.id,
+      name: dfp.cleanName || (dfp.originalName ? dfp.originalName.replace(/\.[^/.]+$/, '') : dfp.id),
+      pages: dfp.pages || 1,
+      date: dfp.date || null,
+      type: dfp.type || null,
+    };
+  };
+
+  const openFusionModal = (rowIds) => {
+    const sources = (rowIds || []).map(resolveFusionSource).filter(Boolean);
+    if (sources.length < 2) return;
+    setFusionModal({ sources, defaultName: sources[0].name || 'Document fusionné' });
+  };
+
+  const confirmFusion = (sources, mergedName) => {
+    if (!sources || sources.length < 2) { setFusionModal(null); return; }
+    const stamp = Date.now();
+    const rand = Math.floor(Math.random() * 1e6);
+    const newPileId = `fuse-${stamp}-${rand}`;
+    const newDfpId = `df-fuse-${stamp}-${rand}`;
+    const name = (mergedName || '').trim() || sources[0].name || 'Document fusionné';
+
+    // One part per selected document, pages laid end-to-end.
+    let cursor = 1;
+    const segments = sources.map((src, i) => {
+      const pages = Math.max(1, src.pages || 1);
+      const seg = {
+        id: `${newPileId}-seg-${i}`,
+        index: i,
+        label: src.name,
+        date: src.date || null,
+        emetteur: '',
+        montantCents: 0,
+        pages,
+        pageStart: cursor,
+        pageEnd: cursor + pages - 1,
+        _anomaly: null,
+        _fused: true,
+      };
+      cursor += pages;
+      return seg;
+    });
+    const totalPages = cursor - 1;
+
+    // Classify by the shared type (else the first source's) — no source-named folder.
+    const distinctTypes = [...new Set(sources.map(s => s.type).filter(Boolean))];
+    const mergedType = distinctTypes.length === 1 ? distinctTypes[0] : (sources[0].type || null);
+    const sortedDates = segments.map(s => s.date).filter(Boolean).sort();
+    const dateRangeLabel = sortedDates.length
+      ? (sortedDates.length > 1 ? `${sortedDates[0]} → ${sortedDates[sortedDates.length - 1]}` : sortedDates[0])
+      : '';
+
+    const newPile = {
+      id: newPileId,
+      originalName: name,
+      pileType: 'fusion',
+      aggregate: {
+        label: name,
+        count: segments.length,
+        totalLabel: '',
+        dateRangeLabel,
+        typeForClassification: mergedType,
+      },
+      pages: totalPages,
+      segments,
+      mode: 'bundle',
+      autoApplied: false,
+      badgeUntil: 0,
+    };
+
+    const consumedDfpIds = new Set(sources.map(s => s.dfpId));
+    const consumedPileIds = new Set(sources.filter(s => s.kind === 'bundle').map(s => s.pileId));
+
+    setPiles(prev => {
+      const next = { ...prev };
+      consumedPileIds.forEach(pid => { delete next[pid]; });
+      next[newPileId] = newPile;
+      return next;
+    });
+    setDropFirstPieces(prev => {
+      const kept = prev.filter(p => !consumedDfpIds.has(p.id));
+      return [...kept, {
+        id: newDfpId,
+        originalName: name,
+        cleanName: name,
+        type: mergedType,
+        date: sortedDates[0] || null,
+        pages: totalPages,
+        status: 'done',
+        _pileId: newPileId,
+      }];
+    });
+
+    setFusionModal(null);
+    const text = `${sources.length} documents fusionnés en une pièce.`;
+    setToastMessage({ text });
+    setTimeout(() => setToastMessage(curr => (curr && curr.text === text ? null : curr)), 4000);
+  };
+
   // ── Doublon (possible duplicate) resolution ──────────────────────────────
   const resolveDoublonKeepBoth = (id) => {
     setDropFirstPieces(prev => prev.map(p => p.id === id ? { ...p, _doublonResolved: true } : p));
@@ -14451,6 +14577,7 @@ export default function App() {
               }}
               onAddFiles={handleAddMorePieces}
               onAskChato={askChatoAboutSelection}
+              onFusePieces={openFusionModal}
               reviewZone={(processingCount + errorZoneItems.length + doublonZoneItems.length + pendingPileReviews.length) > 0 ? (
                 <PileReviewBanner
                   processingCount={processingCount}
@@ -14538,6 +14665,15 @@ export default function App() {
           />
         )}
         {renderDoublonComparePanel()}
+
+        {/* Fusionner — merge several selected documents into one pièce. */}
+        <FusePiecesModal
+          open={!!fusionModal}
+          onOpenChange={(o) => { if (!o) setFusionModal(null); }}
+          sources={fusionModal?.sources || []}
+          defaultName={fusionModal?.defaultName || ''}
+          onConfirm={(name) => confirmFusion(fusionModal?.sources || [], name)}
+        />
       </div>
     );
   };
