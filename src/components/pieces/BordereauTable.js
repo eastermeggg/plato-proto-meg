@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, Sparkles, Plus, ChevronDown, FilePlus2 } from 'lucide-react';
+import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, MessageSquarePlus, Plus, ChevronDown, FilePlus2, Combine } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import { buildTreeViewRows } from '../../data/piecesModel';
 import CategoryHeader from './CategoryHeader';
@@ -24,6 +24,7 @@ export default function BordereauTable({
   onOpenPiecePreview,
   onAddFiles,
   onAskChato,
+  onFusePieces,
   reviewZone = null,
   forceExpandAll = false,
 }) {
@@ -250,6 +251,14 @@ export default function BordereauTable({
     () => [...selectedIds].some(k => k.startsWith(CAT_PREFIX)),
     [selectedIds]
   );
+  // A split (exploded) pile segment carries a synthetic "pileId::segId" id;
+  // those re-merge via the panel's « Recoller », not the bulk fusion action.
+  const selectionHasSegment = useMemo(
+    () => [...selectedIds].some(k => k.startsWith(PIECE_PREFIX) && k.slice(PIECE_PREFIX.length).includes('::')),
+    [selectedIds]
+  );
+  // Fusionner merges 2+ whole documents into one pièce — no folders, no segments.
+  const canFuse = selectedIds.size >= 2 && !selectionHasFolder && !selectionHasSegment && !!onFusePieces;
 
   return (
     <div>
@@ -258,6 +267,14 @@ export default function BordereauTable({
           <SelectionActionBar
             count={selectedIds.size}
             showAskChato={!selectionHasFolder}
+            showFuse={canFuse}
+            onFuse={() => {
+              const pieceIds = [...selectedIds]
+                .filter(k => k.startsWith(PIECE_PREFIX))
+                .map(k => k.slice(PIECE_PREFIX.length));
+              onFusePieces?.(pieceIds);
+              clearSelection();
+            }}
             onMove={() => openMoveModal([...selectedIds])}
             onDelete={() => openDeleteModal([...selectedIds])}
             onDownload={() => { /* stub */ }}
@@ -567,7 +584,7 @@ function SortCell({ label, col, sort, onSort, width, flex }) {
 // from passive cream to dark stone with cream typography. The mode shift
 // itself is the bold gesture: this row now leads the page. Inset highlight
 // gives the bar dimension; existing fade-slide-up entrance gives it weight.
-function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAskChato, showAskChato }) {
+function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAskChato, showAskChato, onFuse, showFuse }) {
   return (
     <div
       className="animate-fade-up"
@@ -602,19 +619,22 @@ function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAs
 
       {showAskChato && (
         <>
-          {/* Vertical hairline divider — sets off Chato as a privileged action */}
+          {/* Vertical hairline divider — sets off the chat action from the count */}
           <span style={{
             width: 1,
             height: 18,
             background: 'rgba(238, 236, 230, 0.16)',
             marginRight: 6,
           }} />
-          <AskChatoLink tone="dark" onClick={onAskChato} />
+          <AddToContextButton tone="dark" onClick={onAskChato} />
         </>
       )}
 
       <span style={{ flex: 1 }} />
 
+      {showFuse && (
+        <ActionIcon icon={Combine} title="Fusionner en une pièce" onClick={onFuse} tone="dark" />
+      )}
       <ActionIcon icon={Download} title="Télécharger"     onClick={onDownload} tone="dark" />
       <ActionIcon icon={Move}     title="Déplacer vers…"  onClick={onMove}     tone="dark" />
       <ActionIcon icon={Trash2}   title="Supprimer"       onClick={onDelete}   tone="dark" destructive />
@@ -689,7 +709,10 @@ function PileProcessingRow({ piece, depth }) {
   );
 }
 
-function AskChatoLink({ tone, onClick }) {
+// Stage the selected documents as context in the chat composer (same as
+// @-mentioning them), then open the conversation so the avocat can write
+// their own prompt with those pièces attached.
+function AddToContextButton({ tone, onClick }) {
   const dark = tone === 'dark';
   // On dark bg: light info-blue (#93c5fd) reads clearly; on light bg keep the existing info accent.
   const restColor  = dark ? '#93c5fd' : colors.banner.info.accent;
@@ -698,6 +721,7 @@ function AskChatoLink({ tone, onClick }) {
     <button
       type="button"
       onClick={onClick}
+      title="Ajouter au contexte de la conversation"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -716,8 +740,8 @@ function AskChatoLink({ tone, onClick }) {
       onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; e.currentTarget.style.color = hoverColor; }}
       onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; e.currentTarget.style.color = restColor; }}
     >
-      <Sparkles style={{ width: 14, height: 14 }} strokeWidth={2} />
-      <span>Demander à Chato</span>
+      <MessageSquarePlus style={{ width: 14, height: 14 }} strokeWidth={2} />
+      <span>Ajouter au contexte</span>
     </button>
   );
 }
