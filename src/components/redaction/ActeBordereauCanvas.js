@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ListOrdered, Sparkles, GripVertical, X } from 'lucide-react';
+import { ListOrdered, Sparkles, X } from 'lucide-react';
 import { numberEntries } from '../../data/bordereauModel';
 
 // Read-only canvas for a `kind: 'bordereau'` artefact.
@@ -10,8 +10,8 @@ import { numberEntries } from '../../data/bordereauModel';
 // numbering (I, I-1, I-2, II, II-1…) — the numbering algorithm lives in
 // bordereauModel.numberEntries.
 //
-// P1A: read-only. Manipulation (DnD reorder, inline rename, remove, add) lands
-// in P1B. Title + export live in the acte sub-header (App.js), not here.
+// Reordering is driven through the chat, not direct manipulation — there is no
+// drag-and-drop here. Title + export live in the acte sub-header (App.js).
 //
 // Props:
 //   entries — heterogeneous: section markers + pieces
@@ -25,9 +25,8 @@ import { numberEntries } from '../../data/bordereauModel';
 //                        the same tree as the Pièces tab so users can browse
 //                        and search in parity.
 //   onAddPiece(piece)  — called when the user picks a piece in the modal.
-//   onReorder(fromEntriesIdx, toEntriesIdx) — called when the user drops a
-//                        piece row at a new position. Indices are over the
-//                        original `entries` array (sections included).
+//   onPieceClick(pieceRow) — called when the user clicks a pièce row; opens the
+//                        shared piece-detail panel.
 //   onExclude(entriesIdx, pieceEntry) — called when the user removes a pièce
 //                        from the bordereau. Index is over the original
 //                        `entries` array. App decides whether the linked acte
@@ -37,8 +36,6 @@ export default function ActeBordereauCanvas({
   onGenerate,
   generateSource = 'acte',
   shimmer = false,
-  onReorder,
-  onMoveSection,
   onExclude,
   onPieceClick,
 }) {
@@ -60,7 +57,7 @@ export default function ActeBordereauCanvas({
               </span>
               {' '}— Vous pouvez modifier le bordereau directement via le chat
             </p>
-            <BordereauTable rows={numbered} onReorder={onReorder} onMoveSection={onMoveSection} onExclude={onExclude} onPieceClick={onPieceClick} shimmer={shimmer} />
+            <BordereauTable rows={numbered} onExclude={onExclude} onPieceClick={onPieceClick} shimmer={shimmer} />
           </>
         )}
       </div>
@@ -72,107 +69,11 @@ export default function ActeBordereauCanvas({
 const COL_NUM_W = 72;
 const COL_DATE_W = 130;
 
-// Range [start, end) of the section block that starts at row index `sIdx`:
-// the section header plus every row up to (not including) the next section.
-function sectionBlockRange(rows, sIdx) {
-  let end = sIdx + 1;
-  while (end < rows.length && rows[end].kind !== 'section') end += 1;
-  return [sIdx, end];
-}
-
-function BordereauTable({ rows, onReorder, onMoveSection, onExclude, onPieceClick, shimmer = false }) {
+function BordereauTable({ rows, onExclude, onPieceClick, shimmer = false }) {
   // Alternating-row index across pieces only (sections don't count).
   let pieceIdx = -1;
-  const dndEnabled = !!onReorder && !shimmer;
   const excludeEnabled = !!onExclude && !shimmer;
   const clickEnabled = !!onPieceClick && !shimmer;
-  const sectionDndEnabled = !!onMoveSection && !shimmer && rows.some((r) => r.kind === 'section');
-
-  // DnD state: source row index (in `rows`), hover row index, drop position
-  // ('above' | 'below') relative to the hover row.
-  const [dragIdx, setDragIdx] = useState(null);
-  const [hoverIdx, setHoverIdx] = useState(null);
-  const [hoverPos, setHoverPos] = useState(null);
-
-  const handleDragStart = (idx) => (e) => {
-    setDragIdx(idx);
-    // Firefox needs data to start a drag.
-    try { e.dataTransfer.setData('text/plain', String(idx)); } catch {}
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (idx) => (e) => {
-    if (dragIdx == null) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mid = rect.top + rect.height / 2;
-    const pos = e.clientY < mid ? 'above' : 'below';
-    if (hoverIdx !== idx || hoverPos !== pos) {
-      setHoverIdx(idx);
-      setHoverPos(pos);
-    }
-  };
-
-  const handleDrop = (idx) => (e) => {
-    if (dragIdx == null) return;
-    e.preventDefault();
-    const targetIdx = hoverPos === 'below' ? idx + 1 : idx;
-    // Adjust for the source being removed before insertion when moving forward.
-    const finalIdx = dragIdx < targetIdx ? targetIdx - 1 : targetIdx;
-    if (finalIdx !== dragIdx) onReorder(dragIdx, finalIdx);
-    setDragIdx(null);
-    setHoverIdx(null);
-    setHoverPos(null);
-  };
-
-  const handleDragEnd = () => {
-    setDragIdx(null);
-    setHoverIdx(null);
-    setHoverPos(null);
-  };
-
-  // ─── Section DnD ─────────────────────────────────────────────────
-  // A whole section block can be moved, but it may only be dropped BELOW
-  // another complete section (discrete drop slots at section boundaries).
-  // While a section drag is in progress every row is inert/dimmed — only
-  // the drop slots react.
-  const [secDragIdx, setSecDragIdx] = useState(null);     // row idx of dragged section header
-  const [secHoverBefore, setSecHoverBefore] = useState(null); // active slot's insertBefore idx
-  const sectionDragActive = secDragIdx != null;
-
-  const handleSecDragStart = (idx) => (e) => {
-    setSecDragIdx(idx);
-    try { e.dataTransfer.setData('text/plain', `sec:${idx}`); } catch {}
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleSlotDragOver = (insertBefore) => (e) => {
-    if (!sectionDragActive) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (secHoverBefore !== insertBefore) setSecHoverBefore(insertBefore);
-  };
-
-  const handleSlotDrop = (insertBefore) => (e) => {
-    if (!sectionDragActive) return;
-    e.preventDefault();
-    const [bStart, bEnd] = sectionBlockRange(rows, secDragIdx);
-    // No-op if dropping the block back into its own current position.
-    if (insertBefore !== bStart && insertBefore !== bEnd) {
-      onMoveSection(bStart, bEnd, insertBefore);
-    }
-    setSecDragIdx(null);
-    setSecHoverBefore(null);
-  };
-
-  const handleSecDragEnd = () => {
-    setSecDragIdx(null);
-    setSecHoverBefore(null);
-  };
-
-  // Block range of the section currently being dragged (for no-op checks).
-  const draggedBlock = sectionDragActive ? sectionBlockRange(rows, secDragIdx) : null;
 
   return (
     <div
@@ -184,108 +85,28 @@ function BordereauTable({ rows, onReorder, onMoveSection, onExclude, onPieceClic
       }}
     >
       <ColumnHeader />
-      {(() => {
-        const firstSectionIdx = rows.findIndex((r) => r.kind === 'section');
-
-        // A gap that sits BELOW a complete section (insertBefore = boundary
-        // index). Idle → thin 6px divider. During a section drag → a taller
-        // active drop slot (unless it's a no-op position for the dragged
-        // block, in which case it stays an inert divider).
-        const gap = (insertBefore, key, { idleVisible }) => {
-          const isNoop = draggedBlock && (insertBefore === draggedBlock[0] || insertBefore === draggedBlock[1]);
-          if (sectionDragActive && !isNoop) {
-            const hovered = secHoverBefore === insertBefore;
-            return (
-              <div
-                key={key}
-                onDragOver={handleSlotDragOver(insertBefore)}
-                onDrop={handleSlotDrop(insertBefore)}
-                style={{
-                  height: 16,
-                  position: 'relative',
-                  backgroundColor: hovered ? '#eef0f4' : '#f5f4f0',
-                  borderTop: '1px solid #e7e5e3',
-                  borderBottom: '1px solid #e7e5e3',
-                  transition: 'background-color 120ms',
-                }}
-              >
-                {hovered && (
-                  <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 2, backgroundColor: '#292524', pointerEvents: 'none' }} />
-                )}
-              </div>
-            );
-          }
-          if (!idleVisible) return null;
-          return <div key={key} style={{ height: 6, backgroundColor: '#f5f4f0', borderTop: '1px solid #e7e5e3', borderBottom: '1px solid #e7e5e3' }} />;
-        };
-
-        // While dragging a section, every row is dimmed and inert — only the
-        // drop slots respond.
-        const rowWrap = (i, node) => {
-          if (!sectionDragActive) return node;
-          const inDragged = draggedBlock && i >= draggedBlock[0] && i < draggedBlock[1];
-          return (
-            // Keep the dragged block interactive so its dragend still fires;
-            // dim + disable everything else so only the drop slots respond.
-            <div key={`w-${i}`} style={{ opacity: inDragged ? 0.4 : 0.5, pointerEvents: inDragged ? 'auto' : 'none', transition: 'opacity 120ms' }}>
-              {node}
-            </div>
-          );
-        };
-
-        const out = [];
-        rows.forEach((row, i) => {
-          if (row.kind === 'section') {
-            // Gap above a non-first section = drop slot BELOW the previous
-            // section (insertBefore = i).
-            if (i !== firstSectionIdx) {
-              out.push(gap(i, `gap-${i}`, { idleVisible: true }));
-            }
-            out.push(rowWrap(i, (
-              <SectionHeader
-                key={`s-${i}`}
-                number={row.number}
-                name={row.name}
-                draggable={sectionDndEnabled}
-                dragging={secDragIdx === i}
-                onDragStart={handleSecDragStart(i)}
-                onDragEnd={handleSecDragEnd}
-              />
-            )));
-            return;
-          }
-          pieceIdx += 1;
-          const isLast = i === rows.length - 1;
-          out.push(rowWrap(i, (
-            <PieceRow
-              key={`p-${i}-${row.pieceId || row.intitule}`}
-              number={row.number}
-              intitule={row.intitule}
-              date={row.date}
-              description={row.description}
-              alternate={pieceIdx % 2 === 1}
-              isLast={isLast}
-              draggable={dndEnabled}
-              dragging={dragIdx === i}
-              dropAbove={dndEnabled && hoverIdx === i && hoverPos === 'above' && dragIdx !== i}
-              dropBelow={dndEnabled && hoverIdx === i && hoverPos === 'below' && dragIdx !== i}
-              onDragStart={handleDragStart(i)}
-              onDragOver={handleDragOver(i)}
-              onDrop={handleDrop(i)}
-              onDragEnd={handleDragEnd}
-              onExclude={excludeEnabled ? () => onExclude(i, row) : undefined}
-              onClick={clickEnabled ? () => onPieceClick(row) : undefined}
-              shimmer={shimmer}
-              shimmerDelay={pieceIdx * 60}
-            />
-          )));
-        });
-        // End slot — drop BELOW the last section (only meaningful while dragging).
-        if (firstSectionIdx !== -1) {
-          out.push(gap(rows.length, 'gap-end', { idleVisible: false }));
+      {rows.map((row, i) => {
+        if (row.kind === 'section') {
+          return <SectionHeader key={`s-${i}`} number={row.number} name={row.name} />;
         }
-        return out;
-      })()}
+        pieceIdx += 1;
+        const isLast = i === rows.length - 1;
+        return (
+          <PieceRow
+            key={`p-${i}-${row.pieceId || row.intitule}`}
+            number={row.number}
+            intitule={row.intitule}
+            date={row.date}
+            description={row.description}
+            alternate={pieceIdx % 2 === 1}
+            isLast={isLast}
+            onExclude={excludeEnabled ? () => onExclude(i, row) : undefined}
+            onClick={clickEnabled ? () => onPieceClick(row) : undefined}
+            shimmer={shimmer}
+            shimmerDelay={pieceIdx * 60}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -321,24 +142,11 @@ function ColumnHeader() {
   );
 }
 
-function SectionHeader({
-  number,
-  name,
-  draggable,
-  dragging,
-  onDragStart,
-  onDragEnd,
-}) {
+function SectionHeader({ number, name }) {
   const mono = "'IBM Plex Mono', monospace";
   const font = "'Inter', system-ui, sans-serif";
-  const [hover, setHover] = useState(false);
   return (
     <div
-      draggable={!!draggable}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={{
         position: 'relative',
         display: 'flex',
@@ -347,34 +155,14 @@ function SectionHeader({
         backgroundColor: 'white',
         borderBottom: '1px solid #e7e5e3',
         borderTop: '1px solid #e7e5e3',
-        opacity: dragging ? 0.4 : 1,
-        cursor: draggable ? 'grab' : 'default',
-        transition: 'opacity 120ms',
       }}
     >
-      {/* Grip — signals the section is draggable */}
-      {draggable && (
-        <GripVertical
-          style={{
-            width: 12,
-            height: 12,
-            color: hover ? '#78716c' : '#d6d3d1',
-            position: 'absolute',
-            left: 10,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            transition: 'color 120ms',
-            pointerEvents: 'none',
-          }}
-          strokeWidth={1.5}
-        />
-      )}
       {/* Number + name in a single cell: "I - Médical" */}
       <div
         style={{
           flex: 1,
           minWidth: 0,
-          padding: draggable ? '0 12px 0 28px' : '0 12px',
+          padding: '0 12px',
           display: 'flex',
           alignItems: 'baseline',
           gap: 6,
@@ -419,14 +207,6 @@ function PieceRow({
   description,
   alternate,
   isLast,
-  draggable,
-  dragging,
-  dropAbove,
-  dropBelow,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
   onExclude,
   onClick,
   shimmer = false,
@@ -450,11 +230,6 @@ function PieceRow({
 
   return (
     <div
-      draggable={!!draggable}
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -463,46 +238,13 @@ function PieceRow({
         display: 'flex',
         alignItems: 'center',
         minHeight: 52,
-        backgroundColor: hover && (clickable || draggable) ? '#f5f4f0' : (alternate ? '#fafaf9' : 'white'),
+        backgroundColor: hover && clickable ? '#f5f4f0' : (alternate ? '#fafaf9' : 'white'),
         borderBottom: isLast ? 'none' : '1px solid #e7e5e3',
-        opacity: dragging ? 0.4 : 1,
-        cursor: clickable ? 'pointer' : (draggable ? 'grab' : 'default'),
-        transition: 'opacity 120ms, background-color 120ms',
+        cursor: clickable ? 'pointer' : 'default',
+        transition: 'background-color 120ms',
       }}
     >
-      {/* Drop indicator — a 2px stone line above/below the row when the user
-          drags another row to this position. */}
-      {dropAbove && (
-        <div
-          style={{
-            position: 'absolute',
-            top: -1,
-            left: 0,
-            right: 0,
-            height: 2,
-            backgroundColor: '#292524',
-            zIndex: 2,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-      {dropBelow && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: -1,
-            left: 0,
-            right: 0,
-            height: 2,
-            backgroundColor: '#292524',
-            zIndex: 2,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-
-      {/* N° badge — grip glyph always shown when DnD is enabled (darkens on
-          row hover to signal it's draggable). */}
+      {/* N° badge */}
       <div
         style={{
           width: COL_NUM_W,
@@ -511,23 +253,8 @@ function PieceRow({
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          paddingLeft: draggable ? 14 : 0,
         }}
       >
-        {draggable && (
-          <GripVertical
-            style={{
-              width: 12,
-              height: 12,
-              color: hover ? '#78716c' : '#d6d3d1',
-              position: 'absolute',
-              left: 10,
-              transition: 'color 120ms',
-              pointerEvents: 'none',
-            }}
-            strokeWidth={1.5}
-          />
-        )}
         <span
           style={{
             display: 'inline-flex',
@@ -643,7 +370,6 @@ function PieceRow({
               right: '100%',
               marginRight: 6,
               top: '50%',
-              transform: 'translateY(-50%)',
               whiteSpace: 'nowrap',
               padding: '3px 7px',
               borderRadius: 5,

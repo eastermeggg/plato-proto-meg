@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -13,9 +13,10 @@ import useRedactionCommands from './hooks/useRedactionCommands';
 import { REDACTION_SCENARIOS, REDACTION_COMMAND_LIST, REDACTION_COMMAND_MAP, REDACTION_ACT_TYPES } from './data/redactionScenarios';
 import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
+import Input from './components/ui/Input';
 import PairTabs from './components/redaction/PairTabs';
 import ExportBordereauMenu from './components/redaction/ExportBordereauMenu';
-import { extractCitations, buildEntriesFromCitations, addPieceToEntries, removeEntryAt, countCitationsForIntitule, stripCitationsForIntitule, moveSectionBlock } from './data/bordereauModel';
+import { extractCitations, buildEntriesFromCitations, addPieceToEntries, removeEntryAt, countCitationsForIntitule, stripCitationsForIntitule, numberEntries } from './data/bordereauModel';
 import { MOCK_STANDALONE_BORDEREAU_ENTRIES } from './data/redactionScenarios';
 import EmptyState from './components/EmptyState';
 import PromptSuggestionCard from './components/PromptSuggestionCard';
@@ -900,6 +901,45 @@ const PIECE_TYPE_COLORS = {
 };
 
 const PIECE_TYPE_OPTIONS = ['Expertise', 'Factures', 'Revenus', 'Décision', 'Médical', 'Correspondance', 'Administratif'];
+
+// Uppercase mono group header for the document panel's field groups
+// (Figma: caption/header-cols — IBM Plex Mono Medium 11px, muted).
+function FieldGroupLabel({ children }) {
+  return (
+    <p
+      className="text-[#78716c]"
+      style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}
+    >
+      {children}
+    </p>
+  );
+}
+
+// Skeleton document "aperçu" — a paper-shaped card with the real title/date in
+// the header and deterministic grey text lines for the body (same visual
+// language as the split panel's page mock). Stands in for a real render.
+function DocPreviewSkeleton({ title, date }) {
+  const seed = (title || '').length + 7;
+  const rows = Array.from({ length: 20 }, (_, i) => 0.5 + ((seed + i * 17) % 45) / 100);
+  return (
+    <div className="relative bg-white rounded-xl shadow-sm border border-[#e7e5e3] w-full overflow-hidden" style={{ aspectRatio: '1 / 1.414' }}>
+      <div className="px-6 pt-6 pb-4">
+        <div
+          className="text-[13px] font-semibold text-[#44403c] leading-snug"
+          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+        >
+          {title}
+        </div>
+        {date && <div className="text-[11px] text-[#a8a29e] mt-1 tabular-nums">{date}</div>}
+      </div>
+      <div className="px-6 space-y-[7px]">
+        {rows.map((w, i) => (
+          <div key={i} className="h-[5px] rounded-full" style={{ width: `${Math.round(w * 100)}%`, background: i % 6 === 5 ? 'transparent' : '#f1f0ee' }} />
+        ))}
+      </div>
+    </div>
+  );
+}
 // eslint-disable-next-line no-unused-vars
 const _POSTES_DINTILHAC_ALL = ['DFT', 'DFP', 'DSA', 'DSF', 'PGPA', 'PGPF', 'SE', 'PE', 'PA', 'IP', 'PAS', 'AIPP'];
 
@@ -1141,6 +1181,8 @@ export default function App() {
   const [pileHighlight, setPileHighlight] = useState(null); // pileId — amber-flashed after a recent bascule
   const [infoDossierStreaming, setInfoDossierStreaming] = useState(null); // null | { active, fieldsRevealed: [], streamingField: null, streamingText: '' }
   const [pieceOverviewPanel, setPieceOverviewPanel] = useState(null); // null | pieceId
+  const [bordereauPiecePanel, setBordereauPiecePanel] = useState(null); // null | { acteId, entryIdx }
+  const [pieceDownloadMenu, setPieceDownloadMenu] = useState(false); // doc preview "Télécharger" dropdown
   const [piecesFilter, setPiecesFilter] = useState({ types: [], search: '' });
   const [piecesTypeMenuOpen, setPiecesTypeMenuOpen] = useState(false);
   const [, setShowAddPiecesZone] = useState(false);
@@ -8952,6 +8994,7 @@ export default function App() {
         } : undefined;
 
         return (
+          <>
           <ActeBordereauCanvas
             entries={acte?.bordereauEntries || []}
             onGenerate={onGenerate}
@@ -8995,46 +9038,15 @@ export default function App() {
               setToastMessage(`${n} pièce${n > 1 ? 's' : ''} ajoutée${n > 1 ? 's' : ''} au bordereau`);
               setTimeout(() => setToastMessage(null), 2200);
             }}
-            onReorder={(fromIdx, toIdx) => {
-              const current = acte?.bordereauEntries || [];
-              if (fromIdx < 0 || fromIdx >= current.length) return;
-              if (toIdx < 0 || toIdx > current.length) return;
-              const next = current.slice();
-              const [moved] = next.splice(fromIdx, 1);
-              next.splice(toIdx, 0, moved);
-              redaction.dispatch({
-                type: 'UPDATE_ACTE',
-                acteId: acte.id,
-                updates: { bordereauEntries: next },
-              });
-            }}
-            onMoveSection={(blockStart, blockEnd, insertBefore) => {
-              const current = acte?.bordereauEntries || [];
-              const next = moveSectionBlock(current, blockStart, blockEnd, insertBefore);
-              redaction.dispatch({
-                type: 'UPDATE_ACTE',
-                acteId: acte.id,
-                updates: { bordereauEntries: next },
-              });
-            }}
             onPieceClick={(entry) => {
-              // Open the shared piece-detail side panel (same as the Pièces
-              // tab). Resolve the full dossier piece by id; fall back to the
-              // bordereau entry's own fields for synthetic/cited-only pieces.
-              const full = pieces.find(p => p.id === entry.pieceId);
-              const data = full
-                ? { ...full, index: entry.number, usages: full.usages }
-                : {
-                    id: entry.pieceId,
-                    intitule: entry.intitule,
-                    nom: entry.intitule,
-                    nomOriginal: entry.intitule,
-                    type: entry.type || 'Document',
-                    date: entry.date,
-                    index: entry.number,
-                    usages: [],
-                  };
-              setEditPanel({ type: 'piece-detail', data });
+              // Open the shared document preview panel (same component as the
+              // Pièces tab) in bordereau mode. We address the pièce by its
+              // index in the original entries array so the panel can edit its
+              // N° / section live.
+              const current = acte?.bordereauEntries || [];
+              const entryIdx = current.findIndex((e) => e.kind === 'piece' && e.pieceId === entry.pieceId);
+              if (entryIdx === -1) return;
+              setBordereauPiecePanel({ acteId: acte.id, entryIdx });
             }}
             onExclude={(entryIdx, entry) => {
               const current = acte?.bordereauEntries || [];
@@ -9075,6 +9087,8 @@ export default function App() {
               ]);
             }}
           />
+          {bordereauPiecePanel && renderBordereauPiecePanel()}
+          </>
         );
       }
       return (
@@ -14678,15 +14692,49 @@ export default function App() {
     );
   };
 
-  const renderPieceOverviewPanel = (piece) => {
-    const pieceNum = getPieceNumber(piece);
+  const renderPieceOverviewPanel = (piece, ctx = null) => {
+    // Bordereau mode reuses this exact panel but pages/edits through a
+    // bordereau's entries instead of the Pièces-tab dropFirst list. All
+    // bordereau-specific behaviour comes in via `ctx` (callbacks + display).
+    const bordereau = ctx?.mode === 'bordereau';
     const segPanel = piece._pileSegmentPanel || null;
     const isPileSegment = !!segPanel;
-    const hasSplitInfo = !!piece.sourceFile || isPileSegment;
-    const typeColorLight = piece.type === 'Expertise' ? 'bg-teal-50 border-teal-200' : piece.type === 'Décision' ? 'bg-purple-50 border-purple-200' : piece.type === 'Revenus' ? 'bg-green-50 border-green-200' : piece.type === 'Factures' ? 'bg-orange-50 border-orange-200' : piece.type === 'Médical' ? 'bg-blue-50 border-blue-200' : piece.type === 'Administratif' ? 'bg-slate-50 border-slate-200' : 'bg-[#F8F7F5] border-[#e7e5e3]';
+
+    // Provenance — découpage (split) vs fusion (merge). Resolve the owning pile
+    // whether we're looking at an exploded segment or a bundle kept as one.
+    // Shown in both the Pièces tab and the bordereau (a cited pièce can itself
+    // be a split part).
+    const provPile = isPileSegment ? piles[segPanel.pileId] : (piece._pileId ? piles[piece._pileId] : null);
+    const isFusion = provPile?.pileType === 'fusion';
+    const isSplit = !isFusion && (isPileSegment || !!piece.siblings || provPile?.pileType === 'split');
+    const provPileId = isPileSegment ? segPanel.pileId : piece._pileId;
+    const provSegmentId = isPileSegment ? segPanel.segmentId : null;
+    const splitPart = isPileSegment ? segPanel.index + 1 : (piece.splitIndex != null ? piece.splitIndex + 1 : null);
+    const splitTotal = isPileSegment ? segPanel.totalCount : (piece.siblings ? piece.siblings.length : null);
+    const fusionSources = isFusion && provPile ? provPile.segments.map(s => s._customName || s.label) : [];
+    const totalPages = piece.pages || provPile?.pages || 1;
+    // Date label: keep dd/mm/yyyy as-is, otherwise format an ISO date.
+    const dateLabel = !piece.date ? '' : (/^\d{2}\/\d{2}\/\d{4}$/.test(piece.date) ? piece.date : (isNaN(new Date(piece.date)) ? piece.date : new Date(piece.date).toLocaleDateString('fr-FR')));
+    const flashToast = (text) => { setToastMessage(text); setTimeout(() => setToastMessage(curr => (curr === text ? null : curr)), 2400); };
+
+    // Commit an edited date back to the right store for this context.
+    const commitDate = (val) => {
+      if (bordereau) {
+        ctx.onChangeDate(val);
+      } else if (isPileSegment) {
+        setPiles(prev => {
+          const sp = prev[segPanel.pileId];
+          if (!sp) return prev;
+          return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.map(s => s.id === segPanel.segmentId ? { ...s, date: val } : s) } };
+        });
+      } else {
+        setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, date: val } : p));
+      }
+    };
 
     // Navigation: a split part pages through its own découpage (the pile's
-    // segments); a regular piece pages through the done-pieces list.
+    // segments); a regular piece pages through the done-pieces list; a
+    // bordereau pièce pages through the bordereau's pièces (driven by ctx).
     let donePieces, currentIdx;
     if (isPileSegment) {
       const segPile = piles[segPanel.pileId];
@@ -14700,195 +14748,229 @@ export default function App() {
     const prevPiece = currentIdx > 0 ? donePieces[currentIdx - 1] : null;
     const nextPiece = currentIdx < donePieces.length - 1 ? donePieces[currentIdx + 1] : null;
 
-    const editingPanelType = editingPieceField?.pieceId === piece.id && editingPieceField?.field === 'panelType';
+    // Header nav: prev/next handlers + the "x / n" label, unified across modes.
+    const navPrev = bordereau ? ctx.onPrev : (prevPiece ? () => setPieceOverviewPanel(prevPiece.id) : null);
+    const navNext = bordereau ? ctx.onNext : (nextPiece ? () => setPieceOverviewPanel(nextPiece.id) : null);
+    const navPos = bordereau ? ctx.navIndex + 1 : currentIdx + 1;
+    const navTotal = bordereau ? ctx.navTotal : donePieces.length;
+    const onClosePanel = () => { setPieceDownloadMenu(false); if (bordereau) ctx.onClose(); else setPieceOverviewPanel(null); };
 
     return (
       <div className="fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col" style={{ width: '860px', animation: 'slideInRight 0.2s ease-out' }}>
-        {/* Common header: navigation + close — spans full width */}
-        <div className="px-5 py-3 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-[6px] bg-[#dfe8f5] text-caption-medium text-[#292524]">{pieceNum || '—'}</span>
-              <span className="text-body-medium text-[#44403c] truncate max-w-[300px]">{piece.cleanName}</span>
-            </div>
-            <span className="text-zinc-200 mx-1">|</span>
+        {/* Common header: file icon + title (left), nav + close (right) */}
+        <div className="px-4 py-3.5 border-b border-[#e7e5e3] flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-[#eeece6] text-[#44403c] flex-shrink-0">
+              <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />
+            </span>
+            <span className="text-body-medium text-[#1c1917] truncate">{piece.cleanName}</span>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex items-center gap-1">
               <button
-                onClick={() => prevPiece && setPieceOverviewPanel(prevPiece.id)}
-                disabled={!prevPiece}
-                className={`p-1.5 rounded-md transition-colors ${prevPiece ? 'text-[#78716c] hover:text-[#292524] hover:bg-[#eeece6]' : 'text-zinc-200 cursor-not-allowed'}`}
+                onClick={() => navPrev && navPrev()}
+                disabled={!navPrev}
+                aria-label="Pièce précédente"
+                className={`p-1 rounded-md transition-colors ${navPrev ? 'text-[#78716c] hover:text-[#292524] hover:bg-[#eeece6]' : 'text-zinc-200 cursor-not-allowed'}`}
               >
-                <ChevronRight className="w-4 h-4 rotate-180" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-caption text-[#a8a29e] min-w-[40px] text-center">{currentIdx + 1} / {donePieces.length}</span>
+              <span className="text-caption text-[#a8a29e] min-w-[34px] text-center tabular-nums">{navPos} / {navTotal}</span>
               <button
-                onClick={() => nextPiece && setPieceOverviewPanel(nextPiece.id)}
-                disabled={!nextPiece}
-                className={`p-1.5 rounded-md transition-colors ${nextPiece ? 'text-[#78716c] hover:text-[#292524] hover:bg-[#eeece6]' : 'text-zinc-200 cursor-not-allowed'}`}
+                onClick={() => navNext && navNext()}
+                disabled={!navNext}
+                aria-label="Pièce suivante"
+                className={`p-1 rounded-md transition-colors ${navNext ? 'text-[#78716c] hover:text-[#292524] hover:bg-[#eeece6]' : 'text-zinc-200 cursor-not-allowed'}`}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
+            <span className="w-px h-4 bg-[#e7e5e3]" />
+            <button onClick={onClosePanel} aria-label="Fermer" className="p-1 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button onClick={() => setPieceOverviewPanel(null)} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
-            <X className="w-4 h-4" />
-          </button>
         </div>
 
         {/* Two-column body */}
         <div className="flex flex-1 min-h-0">
-        {/* Left: Document Preview */}
+        {/* Left: document aperçu — a skeleton paper render. Multi-page docs get
+            a stacked-pages effect behind the front page. */}
         <div className="w-[420px] flex flex-col border-r border-zinc-100 bg-[#F8F7F5]">
-          {/* Preview content — placeholder */}
-          <div className="flex-1 p-4 overflow-y-auto">
-            <div className={`w-full h-full min-h-[500px] rounded-lg border ${typeColorLight} flex flex-col items-center justify-center`}>
-              <FileText className="w-12 h-12 text-[#d6d3d1] mb-3" />
-              <p className="text-body-medium text-[#a8a29e] mb-1">Aperçu du document</p>
-              <p className="text-caption text-[#d6d3d1] text-center px-8">
-                {piece.cleanName}
+          <div className="flex-1 overflow-y-auto p-7 flex items-start justify-center">
+            <div className="relative w-full max-w-[300px]">
+              {totalPages > 1 && (
+                <>
+                  <div className="absolute inset-0 translate-x-[7px] translate-y-[7px] bg-white rounded-xl border border-[#ece9e4]" />
+                  <div className="absolute inset-0 translate-x-[3px] translate-y-[3px] bg-white rounded-xl border border-[#e7e5e3]" />
+                </>
+              )}
+              <div className="relative">
+                <DocPreviewSkeleton title={piece.cleanName} date={dateLabel} />
+              </div>
+              <p className="mt-3 text-center text-caption text-[#a8a29e]">
+                {totalPages} page{totalPages > 1 ? 's' : ''}{piece.pageRange ? ` · p. ${piece.pageRange}` : ''}
               </p>
-              <div className="mt-4 flex items-center gap-2 text-caption text-[#d6d3d1]">
-                <span>{piece.pages || '?'} page{(piece.pages || 0) > 1 ? 's' : ''}</span>
-                {hasSplitInfo && <span>· p. {piece.pageRange}</span>}
-              </div>
-              {/* Fake page thumbnails */}
-              <div className="mt-6 flex flex-wrap gap-2 justify-center px-6">
-                {Array.from({ length: Math.min(piece.pages || 1, 6) }).map((_, i) => (
-                  <div key={i} className="w-[60px] h-[80px] bg-white rounded border border-[#e7e5e3] shadow-sm flex items-center justify-center">
-                    <span className="text-counter text-[#d6d3d1]">{i + 1}</span>
-                  </div>
-                ))}
-                {(piece.pages || 0) > 6 && (
-                  <div className="w-[60px] h-[80px] bg-white rounded border border-[#e7e5e3] shadow-sm flex items-center justify-center">
-                    <span className="text-counter text-[#d6d3d1]">+{piece.pages - 6}</span>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
 
         {/* Right: Metadata panel */}
         <div className="flex-1 flex flex-col min-h-0">
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto px-5 py-5">
-            {/* 1. Name — always-editable input */}
-            <div className="mb-2">
-              <label className="text-caption text-[#a8a29e] mb-1 block">Nom du document</label>
-              <input
-                className="text-body-medium text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-2 w-full hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
-                value={piece.cleanName}
-                onChange={e => {
-                  const val = e.target.value;
-                  if (isPileSegment) {
-                    setPiles(prev => {
-                      const sp = prev[segPanel.pileId];
-                      if (!sp) return prev;
-                      return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.map(s => s.id === segPanel.segmentId ? { ...s, _customName: val } : s) } };
-                    });
-                  } else {
-                    setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, cleanName: val } : p));
-                  }
-                }}
-              />
-            </div>
+          {/* Content — two labelled groups (Figma 2514:23979). */}
+          <div className="flex-1 overflow-y-auto py-5 flex flex-col gap-5">
 
-            {/* Source + split context — quiet line under the name, no box */}
-            <div className="mb-4 flex flex-col gap-0.5">
-              {isPileSegment ? (
-                <button
-                  type="button"
-                  onClick={() => { setPieceOverviewPanel(null); setPileDocPanel({ pileId: segPanel.pileId, segmentId: segPanel.segmentId, mode: 'adjust' }); }}
-                  title="Rouvrir le panneau de découpage — recouper ou recoller"
-                  className="group inline-flex items-center gap-1.5 self-start text-[12px] leading-[16px] text-[#a8a29e] transition-colors"
-                >
-                  <Scissors className="w-3 h-3 text-[#a08355] flex-shrink-0" strokeWidth={1.75} />
-                  <span className="text-[#78716c]">Document éclaté · partie {segPanel.index + 1}/{segPanel.totalCount}</span>
-                  <span className="text-[#d6d3d1]">·</span>
-                  <span className="text-[#a08355] font-medium group-hover:underline underline-offset-2">Modifier le découpage</span>
-                </button>
-              ) : hasSplitInfo ? (
-                <span className="inline-flex items-center gap-1.5 text-[12px] leading-[16px] text-[#78716c]">
-                  <Scissors className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
-                  Document découpé · partie {piece.splitIndex + 1}/{piece.siblings.length}
-                </span>
-              ) : null}
-              <span className="text-[12px] leading-[16px] text-[#a8a29e] truncate">
-                {piece.originalName || piece.sourceFile || '—'} · {piece.pages || '?'} page{(piece.pages || 0) > 1 ? 's' : ''}
-              </span>
-            </div>
-
-            {/* Description — extracted summary */}
-            {piece.summary && (
-              <div className="mb-4">
-                <p className="text-caption text-[#78716c] leading-relaxed">{piece.summary}</p>
-              </div>
-            )}
-
-            {/* Data rows — label / value, separated by border */}
-            <div className="divide-y divide-[#e7e5e3]">
-              {/* Type */}
-              <div className="flex items-center justify-between py-3">
-                <span className="text-caption text-[#a8a29e]">Type</span>
-                {isPileSegment ? (
-                  // Split parts share the pile's type — shown, not edited here.
-                  <span className={`badge badge-md ${PIECE_TYPE_COLORS[piece.type] || 'badge-secondary'}`}>{piece.type}</span>
-                ) : (
-                <div className="relative">
-                  <button
-                    className={`badge badge-md cursor-pointer hover:opacity-80 transition-opacity ${PIECE_TYPE_COLORS[piece.type] || 'badge-secondary'}`}
-                    onClick={() => setEditingPieceField(editingPanelType ? null : { pieceId: piece.id, field: 'panelType' })}
-                  >
-                    {piece.type}
-                    <ChevronDown className="w-3 h-3 opacity-50" />
-                  </button>
-                  {editingPanelType && (
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-[#e7e5e3] rounded-lg shadow-lg py-1 z-10 min-w-[160px]">
-                      {PIECE_TYPE_OPTIONS.map(t => (
-                        <button
-                          key={t}
-                          className={`w-full text-left px-3 py-1.5 text-body hover:bg-[#fafaf9] transition-colors flex items-center gap-2 ${piece.type === t ? 'font-medium text-[#292524]' : 'text-[#78716c]'}`}
-                          onClick={() => {
-                            setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, type: t } : p));
-                            setEditingPieceField(null);
-                          }}
-                        >
-                          <span className={`w-2 h-2 rounded-full ${piece.type === t ? 'bg-stone-800' : ''}`} />
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+            {/* ── Informations du document ─────────────────────────────── */}
+            <div className="px-5 flex flex-col gap-4">
+              <FieldGroupLabel>Informations du document</FieldGroupLabel>
+              <div className="flex flex-col gap-1.5">
+                <Input
+                  label="Nom du document"
+                  aiGenerated
+                  value={piece.cleanName}
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (bordereau) {
+                      ctx.onChangeName(val);
+                    } else if (isPileSegment) {
+                      setPiles(prev => {
+                        const sp = prev[segPanel.pileId];
+                        if (!sp) return prev;
+                        return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.map(s => s.id === segPanel.segmentId ? { ...s, _customName: val } : s) } };
+                      });
+                    } else {
+                      setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, cleanName: val } : p));
+                    }
+                  }}
+                />
+                {/* Original filename + description, just under the name */}
+                {((!isFusion && (piece.originalName || piece.sourceFile)) || piece.summary) && (
+                  <div className="px-0.5 flex flex-col gap-1.5 text-[#78716c]">
+                    {!isFusion && (piece.originalName || piece.sourceFile) && (
+                      <p className="text-[12px] leading-4 truncate" title={piece.originalName || piece.sourceFile}>
+                        <span className="font-medium">Nom original</span> - {piece.originalName || piece.sourceFile}
+                      </p>
+                    )}
+                    {piece.summary && (
+                      <p
+                        className="text-[12px] leading-5"
+                        style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                        title={piece.summary}
+                      >
+                        {piece.summary}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
-              {/* Date */}
-              <div className="flex items-center justify-between py-3">
-                <span className="text-caption text-[#a8a29e]">Date</span>
-                <span className="text-body text-[#44403c]">{piece.date ? new Date(piece.date).toLocaleDateString('fr-FR') : '—'}</span>
-              </div>
-
-              {/* Postes liés */}
-              <div className="flex items-start justify-between py-3">
-                <span className="text-caption text-[#a8a29e] pt-0.5">Postes liés</span>
-                <div className="flex flex-wrap gap-1 justify-end max-w-[65%]">
-                  {piece.postesLies && piece.postesLies.length > 0 ? piece.postesLies.map(p => (
-                    <span key={p} className="badge badge-sm badge-secondary">{p}</span>
-                  )) : (
-                    <span className="text-caption text-[#d6d3d1]">—</span>
-                  )}
+              {/* Date du document — editable, with calendar adornment */}
+              <Input label="Date du document" aiGenerated>
+                <div className="flex items-center gap-2 h-9 px-3 bg-white border border-[#e7e5e3] rounded-lg shadow-xs transition-colors focus-within:border-stone-400 focus-within:ring-1 focus-within:ring-stone-200">
+                  <Calendar className="w-4 h-4 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+                  <input
+                    key={`date-${bordereau ? `b-${ctx.entryIdx}` : piece.id}`}
+                    type="text"
+                    defaultValue={dateLabel}
+                    placeholder="jj/mm/aaaa"
+                    onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+                    onBlur={e => commitDate(e.target.value)}
+                    className="flex-1 min-w-0 bg-transparent outline-none text-[14px] leading-5 text-[#292524] placeholder:text-[#a8a29e]"
+                  />
                 </div>
-              </div>
+              </Input>
             </div>
 
+            {/* Provenance — découpage / fusion (a pièce can be one part of a
+                split source, or the result of merging several documents). */}
+            {(isSplit || isFusion) && (
+              <div className="px-5">
+                <div className="rounded-lg border border-[#e7e5e3] bg-[#faf9f7] p-3">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-7 h-7 rounded-md bg-white border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                      {isFusion
+                        ? <Layers className="w-3.5 h-3.5 text-[#a08355]" strokeWidth={1.75} />
+                        : <Scissors className="w-3.5 h-3.5 text-[#a08355]" strokeWidth={1.75} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-medium text-[#292524]">{isFusion ? 'Document fusionné' : 'Document découpé'}</div>
+                      <div className="text-[12px] text-[#78716c] mt-0.5">
+                        {isFusion
+                          ? `${fusionSources.length} document${fusionSources.length > 1 ? 's' : ''} · ${totalPages} page${totalPages > 1 ? 's' : ''}`
+                          : `Partie ${splitPart} sur ${splitTotal}${piece.pageRange ? ` · p. ${piece.pageRange}` : ''}`}
+                      </div>
+                      {isFusion && fusionSources.length > 0 && (
+                        <div className="mt-2 flex flex-col gap-1">
+                          {fusionSources.slice(0, 3).map((s, i) => (
+                            <div key={i} className="flex items-center gap-1.5 text-[12px] text-[#78716c] min-w-0">
+                              <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+                              <span className="truncate">{s}</span>
+                            </div>
+                          ))}
+                          {fusionSources.length > 3 && (
+                            <span className="text-[12px] text-[#a8a29e]">+{fusionSources.length - 3} autre{fusionSources.length - 3 > 1 ? 's' : ''}</span>
+                          )}
+                        </div>
+                      )}
+                      {provPileId && (
+                        <button
+                          type="button"
+                          onClick={() => { setPieceOverviewPanel(null); setPileDocPanel({ pileId: provPileId, segmentId: provSegmentId, mode: 'adjust' }); }}
+                          className="mt-2 inline-flex items-center gap-0.5 text-[12px] font-medium text-[#a08355] hover:underline underline-offset-2"
+                        >
+                          {isFusion ? 'Modifier la fusion' : 'Modifier le découpage'}
+                          <ChevronRight className="w-3 h-3" strokeWidth={2} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
+            {/* ── Numérotation de la pièce (bordereau only) ────────────── */}
+            {bordereau && (
+              <>
+                <div className="h-px bg-[#e7e5e3]" />
+                <div className="px-5 flex flex-col gap-5">
+                  <FieldGroupLabel>Numérotation de la pièce</FieldGroupLabel>
+                  <div className="flex gap-5">
+                    <Input
+                      key={`bord-sec-${ctx.entryIdx}`}
+                      label="Section"
+                      className="flex-1"
+                      defaultValue={ctx.sectionName || ''}
+                      placeholder="Section…"
+                      inputProps={{
+                        onKeyDown: e => { if (e.key === 'Enter') e.currentTarget.blur(); },
+                        onBlur: e => ctx.onChangeSection(e.target.value),
+                      }}
+                    />
+                    <Input
+                      key={`bord-num-${ctx.entryIdx}`}
+                      label="Numéro"
+                      className="flex-1"
+                      defaultValue={ctx.hasSections ? String(ctx.number).split('-').pop() : ctx.number}
+                      inputProps={{
+                        onKeyDown: e => { if (e.key === 'Enter') e.currentTarget.blur(); },
+                        onBlur: e => ctx.onChangeNumber(e.target.value),
+                      }}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-          {/* Footer — fixed at bottom of right column */}
-          <div className="px-5 py-4 border-t border-[#e7e5e3] bg-white flex-shrink-0">
+          {/* Footer — Supprimer (hug, left) + Télécharger le document
+              (primary fill, right). Matches Figma 2514:23979. */}
+          <div className="px-5 py-4 border-t border-[#e7e5e3] bg-white flex-shrink-0 flex items-center gap-3">
             <button
-              className="w-full px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg flex items-center justify-center gap-2 font-medium text-sm transition-colors"
+              className="flex-shrink-0 h-9 px-4 rounded-lg bg-[#fee2e2] text-[#7f1d1d] hover:bg-[#fecaca] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
               onClick={() => {
+                if (bordereau) {
+                  ctx.onRemove();
+                  return;
+                }
                 if (isPileSegment) {
                   // Removing a split part re-shapes the découpage — drop just
                   // this segment from the pile.
@@ -14903,14 +14985,187 @@ export default function App() {
                 setPieceOverviewPanel(null);
               }}
             >
-              <Trash2 className="w-4 h-4" />
-              {isPileSegment ? 'Retirer cette pièce du découpage' : 'Supprimer le document'}
+              <Trash2 className="w-4 h-4" strokeWidth={1.75} />
+              Supprimer
             </button>
+            <div className="relative flex-1">
+              <button
+                onClick={() => setPieceDownloadMenu(o => !o)}
+                className="w-full h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#44403c] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+              >
+                <Download className="w-4 h-4" strokeWidth={1.75} />
+                Télécharger le document
+                <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform ${pieceDownloadMenu ? 'rotate-180' : ''}`} />
+              </button>
+              {pieceDownloadMenu && (
+                <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-white border border-[#e7e5e3] rounded-lg shadow-lg py-1 z-20">
+                  <button
+                    onClick={() => { setPieceDownloadMenu(false); flashToast('Téléchargement du document original…'); }}
+                    className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Document original
+                  </button>
+                  {bordereau && (
+                    <button
+                      onClick={() => { setPieceDownloadMenu(false); flashToast(`Téléchargement avec tampon « pièce n° ${ctx.number} »…`); }}
+                      className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
+                    >
+                      <Stamp className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Avec tampon de pièce
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         </div>{/* end two-column body */}
       </div>
     );
+  };
+
+  // Bordereau document preview — reuses renderPieceOverviewPanel (same panel as
+  // the Pièces tab) but addressed by an acte's bordereau entry. Derives the
+  // pièce + a `ctx` carrying the editable N° / Section and the reorder /
+  // reclassify / remove operations. Everything is recomputed from the live
+  // entries so edits reflect immediately and navigation stays in sync.
+  const renderBordereauPiecePanel = () => {
+    const { acteId, entryIdx } = bordereauPiecePanel;
+    const acte = redaction.redactionState.dossierActes.find(a => a.id === acteId);
+    if (!acte) return null;
+    const entries = acte.bordereauEntries || [];
+    const entry = entries[entryIdx];
+    if (!entry || entry.kind !== 'piece') return null;
+
+    const numbered = numberEntries(entries);
+    const number = numbered[entryIdx]?.number || '';
+    const hasSections = entries.some(e => e.kind === 'section');
+
+    // Current section (nearest header above) + the available sections.
+    let sectionName = null;
+    for (let i = entryIdx; i >= 0; i--) { if (entries[i].kind === 'section') { sectionName = entries[i].name; break; } }
+    const sectionOptions = entries.filter(e => e.kind === 'section').map(e => e.name);
+
+    // Navigation pages through the bordereau's pièces (sections skipped).
+    const pieceIdxs = entries.map((e, i) => (e.kind === 'piece' ? i : -1)).filter(i => i !== -1);
+    const navIndex = pieceIdxs.indexOf(entryIdx);
+    const prevIdx = navIndex > 0 ? pieceIdxs[navIndex - 1] : null;
+    const nextIdx = navIndex < pieceIdxs.length - 1 ? pieceIdxs[navIndex + 1] : null;
+
+    const dossierPiece = pieces.find(p => p.id === entry.pieceId);
+    const piece = {
+      id: entry.pieceId,
+      cleanName: dossierPiece?.intitule || entry.intitule || '',
+      originalName: dossierPiece?.nomOriginal || dossierPiece?.nom || '',
+      type: dossierPiece?.type || entry.type || 'Document',
+      date: dossierPiece?.date || entry.date || null,
+      pages: dossierPiece?.pages || 1,
+      summary: dossierPiece?.summary || dossierPiece?.description || entry.description || null,
+      postesLies: dossierPiece?.postesLies || [],
+      // Split/découpage provenance — from the dossier pièce, falling back to the
+      // bordereau entry (so a cited-only pièce can still carry it).
+      siblings: dossierPiece?.siblings || entry.siblings || null,
+      splitIndex: dossierPiece?.splitIndex ?? entry.splitIndex,
+      pageRange: dossierPiece?.pageRange || entry.pageRange || null,
+      _pileId: dossierPiece?._pileId || entry._pileId || null,
+    };
+
+    const commitEntries = (next) => redaction.dispatch({ type: 'UPDATE_ACTE', acteId, updates: { bordereauEntries: next } });
+    const patchEntry = (patch) => commitEntries(entries.map((e, i) => (i === entryIdx ? { ...e, ...patch } : e)));
+
+    const ctx = {
+      mode: 'bordereau',
+      entryIdx,
+      number,
+      hasSections,
+      sectionName,
+      sectionOptions,
+      navIndex,
+      navTotal: pieceIdxs.length,
+      onPrev: prevIdx != null ? () => setBordereauPiecePanel({ acteId, entryIdx: prevIdx }) : null,
+      onNext: nextIdx != null ? () => setBordereauPiecePanel({ acteId, entryIdx: nextIdx }) : null,
+      onClose: () => setBordereauPiecePanel(null),
+      onChangeName: (val) => {
+        patchEntry({ intitule: val });
+        if (dossierPiece) setPieces(prev => prev.map(p => (p.id === entry.pieceId ? { ...p, intitule: val } : p)));
+      },
+      onChangeType: (t) => {
+        patchEntry({ type: t });
+        if (dossierPiece) setPieces(prev => prev.map(p => (p.id === entry.pieceId ? { ...p, type: t } : p)));
+      },
+      onChangeDate: (val) => {
+        patchEntry({ date: val });
+        if (dossierPiece) setPieces(prev => prev.map(p => (p.id === entry.pieceId ? { ...p, date: val } : p)));
+      },
+      // Reorder by position number. Within the current section block (flat
+      // bordereau → the whole list). The trailing digits of the input drive it,
+      // so editing "II-2" → "II-3" or just "3" both work.
+      onChangeNumber: (raw) => {
+        const m = String(raw).match(/(\d+)\s*$/);
+        if (!m) return;
+        const v = parseInt(m[1], 10);
+        if (!Number.isFinite(v)) return;
+        let sh = -1;
+        for (let i = entryIdx; i >= 0; i--) { if (entries[i].kind === 'section') { sh = i; break; } }
+        let end = sh + 1;
+        while (end < entries.length && entries[end].kind !== 'section') end++;
+        const blockStart = sh + 1;
+        const blockPieces = entries.slice(blockStart, end);
+        const curSub = entryIdx - blockStart;
+        const tgtSub = Math.max(0, Math.min(blockPieces.length - 1, v - 1));
+        if (tgtSub === curSub) return;
+        const reordered = blockPieces.slice();
+        const [moved] = reordered.splice(curSub, 1);
+        reordered.splice(tgtSub, 0, moved);
+        const next = entries.slice();
+        for (let k = 0; k < reordered.length; k++) next[blockStart + k] = reordered[k];
+        commitEntries(next);
+        setBordereauPiecePanel({ acteId, entryIdx: blockStart + tgtSub });
+      },
+      // Free-form section assignment. Typing an existing name moves the pièce
+      // to the end of that section's block; a new name creates that section
+      // (appended) and moves the pièce into it. A source section left with no
+      // pièces is dropped.
+      onChangeSection: (raw) => {
+        const target = (raw || '').trim();
+        if (!target || target === sectionName) return;
+        const next = entries.slice();
+        const [moved] = next.splice(entryIdx, 1);
+        const sh = next.findIndex(e => e.kind === 'section' && e.name === target);
+        if (sh !== -1) {
+          let end = sh + 1;
+          while (end < next.length && next[end].kind !== 'section') end++;
+          next.splice(end, 0, moved);
+        } else {
+          next.push({ kind: 'section', name: target }, moved);
+        }
+        // Drop any section header now left without a pièce under it.
+        const cleaned = next.filter((e, i) => {
+          if (e.kind !== 'section') return true;
+          const following = next[i + 1];
+          return !!following && following.kind === 'piece';
+        });
+        commitEntries(cleaned);
+        setBordereauPiecePanel({ acteId, entryIdx: cleaned.indexOf(moved) });
+      },
+      onRemove: () => {
+        const label = entry.intitule || piece.cleanName || 'Pièce';
+        const next = removeEntryAt(entries, entryIdx);
+        const linkedActe = acte.pairId
+          ? redaction.redactionState.dossierActes.find(a => a.id !== acte.id && a.pairId === acte.pairId && a.kind === 'text')
+          : null;
+        const citeCount = linkedActe ? countCitationsForIntitule(linkedActe.content || '', entry.intitule) : 0;
+        if (citeCount > 0 && linkedActe) {
+          const rewritten = stripCitationsForIntitule(linkedActe.content || '', entry.intitule);
+          redaction.dispatch({ type: 'UPDATE_ACTE', acteId: linkedActe.id, updates: { content: rewritten } });
+        }
+        commitEntries(next);
+        setBordereauPiecePanel(null);
+        setToastMessage(`« ${label} » retirée du bordereau`);
+        setTimeout(() => setToastMessage(null), 2200);
+      },
+    };
+
+    return renderPieceOverviewPanel(piece, ctx);
   };
 
   // ========== DROP FIRST — MODAL ==========
