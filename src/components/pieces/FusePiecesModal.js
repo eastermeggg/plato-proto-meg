@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Combine, FileText } from 'lucide-react';
+import { Paperclip, FoldHorizontal } from 'lucide-react';
 
 // Fusionner — confirm + name the merge of several selected documents into a
-// single pièce. Chrome mirrors MoveToFolderModal (white rounded card, header
-// with icon + subtitle, body, footer Annuler / primary dark action) so the
-// bulk-action modals feel like one family.
+// single pièce. Layout follows the Plato "DialogMerge" design: a serif title,
+// a named-input block, a mono-headed list of the documents being merged, and a
+// footer with Annuler / a primary « Fusionner (N docs) » action.
 //
 // Each selected document becomes one part of the merged pièce, in the order
 // shown here — so the result can be re-separated at any time via the document
 // preview's « Modifier le découpage ». The actual state mutation lives in
 // App.js (it spans dropFirstPieces + piles); this modal only confirms + names.
+
+const SANS = "'Inter', system-ui, sans-serif";
+const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
+const MONO = "'IBM Plex Mono', monospace";
 
 export default function FusePiecesModal({ open, onOpenChange, sources = [], defaultName = '', onConfirm }) {
   const [name, setName] = useState(defaultName);
@@ -38,7 +42,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
 
   if (!open) return null;
 
-  const totalPages = sources.reduce((n, s) => n + (s.pages || 1), 0);
+  const count = sources.length;
 
   return (
     <div
@@ -50,97 +54,92 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[480px] bg-white rounded-[12px] overflow-hidden"
+        className="relative w-full max-w-[500px] bg-white rounded-[12px] overflow-hidden"
         style={{
           boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
           border: '1px solid #e7e5e3',
         }}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between px-4 pt-3.5 pb-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 bg-[#f5f5f4] text-[#44403c]">
-              <Combine className="w-3.5 h-3.5" strokeWidth={1.75} />
-            </span>
-            <div className="min-w-0">
-              <h2 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
-                Fusionner {sources.length} documents
-              </h2>
-              <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
-                Combinés en une seule pièce de {totalPages} page{totalPages > 1 ? 's' : ''}.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => onOpenChange?.(false)}
-            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#78716c] hover:bg-[#fafaf9] hover:text-[#292524] transition-colors flex-shrink-0"
-            aria-label="Fermer"
+        {/* Header — serif title only */}
+        <div className="flex items-start gap-3 px-6 pt-6">
+          <h2
+            className="flex-1 min-w-0"
+            style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, lineHeight: '28px', letterSpacing: '-0.6px', color: '#292524', margin: 0, wordBreak: 'break-word' }}
           >
-            <X className="w-4 h-4" strokeWidth={1.75} />
-          </button>
+            Fusionner {count} document{count > 1 ? 's' : ''}
+          </h2>
         </div>
 
-        {/* Body */}
-        <div className="px-4 pb-4 pt-3" style={{ borderTop: '1px solid #e7e5e3' }}>
-          <label className="block text-[12px] text-[#a8a29e] mb-1" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-            Nom de la pièce fusionnée
-          </label>
-          <input
-            ref={inputRef}
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') commit(); }}
-            placeholder="Nom du document…"
-            className="w-full rounded-[8px] px-3 h-10 text-[14px] text-[#292524] bg-[#fafaf9] border border-[#e7e5e3] hover:border-[#d6d3d1] focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
-            style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
-          />
-
-          <div className="text-[12px] text-[#a8a29e] mt-4 mb-1.5" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-            Documents à fusionner ({sources.length})
+        {/* Content */}
+        <div className="flex flex-col gap-7 px-6 py-8">
+          {/* Name input */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="fuse-name" style={{ fontFamily: SANS, fontSize: 14, fontWeight: 500, lineHeight: '20px', color: '#292524' }}>
+              Nom de la pièce fusionnée
+            </label>
+            <input
+              id="fuse-name"
+              ref={inputRef}
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') commit(); }}
+              placeholder="Nom du document…"
+              className="w-full rounded-[8px] px-3 py-2 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] hover:border-[#d6d3d1] focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
+              style={{ fontFamily: SANS, boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}
+            />
           </div>
-          <ul
-            className="rounded-[8px] border border-[#e7e5e3] overflow-hidden"
-            style={{ listStyle: 'none', padding: 0, margin: 0, maxHeight: 220, overflowY: 'auto' }}
-          >
-            {sources.map((s, i) => (
-              <li
-                key={s.rowId}
-                className="flex items-center gap-2.5 px-3 py-2"
-                style={{ borderBottom: i < sources.length - 1 ? '1px solid #f0efed' : 'none' }}
-              >
-                <span className="text-[11px] tabular-nums text-[#d6d3d1] w-4 flex-shrink-0 text-right">{i + 1}</span>
-                <FileText className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
-                <span className="flex-1 min-w-0 text-[13px] text-[#44403c] truncate" title={s.name}>{s.name}</span>
-                <span className="text-[11px] tabular-nums text-[#a8a29e] flex-shrink-0">{s.pages || 1} p.</span>
-              </li>
-            ))}
-          </ul>
 
-          <p className="text-[12px] text-[#a8a29e] mt-3 leading-[16px]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-            Vous pourrez les re-séparer à tout moment via « Modifier le découpage ».
-          </p>
+          {/* Documents being merged */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center pb-4" style={{ borderBottom: '1px solid #e7e5e3' }}>
+              <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
+                Documents fusionnés
+              </span>
+            </div>
+            <ul
+              className="rounded-[8px] border border-[#e7e5e3] overflow-hidden"
+              style={{ listStyle: 'none', padding: 0, margin: 0, maxHeight: 240, overflowY: 'auto' }}
+            >
+              {sources.map((s, i) => (
+                <li
+                  key={s.rowId}
+                  className="flex items-center gap-2 px-3 py-2.5"
+                  style={{ borderBottom: i < sources.length - 1 ? '1px solid #e7e5e3' : 'none' }}
+                >
+                  <span className="inline-flex items-center justify-center w-[22px] h-[22px] flex-shrink-0">
+                    <Paperclip className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                  </span>
+                  <span
+                    className="flex-1 min-w-0 truncate"
+                    style={{ fontFamily: SANS, fontSize: 14, lineHeight: '20px', color: '#292524' }}
+                    title={s.name}
+                  >
+                    {s.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Footer */}
-        <div
-          className="flex items-center justify-end gap-2 px-4 py-3"
-          style={{ borderTop: '1px solid #e7e5e3', backgroundColor: '#fafaf9' }}
-        >
+        <div className="flex items-center justify-end gap-2 px-6 pb-6">
           <button
             onClick={() => onOpenChange?.(false)}
-            className="inline-flex items-center px-3 h-9 rounded-[8px] text-[13px] font-medium text-[#44403c] hover:bg-[#f0efed] transition-colors"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-[8px] bg-white border border-[#e7e5e3] hover:bg-[#fafaf9] transition-colors"
+            style={{ fontFamily: SANS, fontSize: 14, fontWeight: 500, color: '#292524', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}
           >
             Annuler
           </button>
           <button
             onClick={commit}
             disabled={!clean}
-            className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-[8px] text-[13px] font-medium text-white transition-colors"
-            style={{ backgroundColor: clean ? '#292524' : '#d6d3d1', cursor: clean ? 'pointer' : 'not-allowed' }}
+            className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-[8px] text-white transition-colors"
+            style={{ fontFamily: SANS, fontSize: 14, fontWeight: 500, backgroundColor: clean ? '#292524' : '#d6d3d1', cursor: clean ? 'pointer' : 'not-allowed', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}
           >
-            <Combine className="w-3.5 h-3.5" strokeWidth={2} />
-            Fusionner
+            <FoldHorizontal className="w-4 h-4" strokeWidth={1.75} />
+            Fusionner ({count} doc{count > 1 ? 's' : ''})
           </button>
         </div>
       </div>

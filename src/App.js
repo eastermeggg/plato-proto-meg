@@ -1174,7 +1174,11 @@ export default function App() {
   // Identity (pile.id + segment.id) is stable across bundle/explode toggles.
   const [piles, setPiles] = useState({}); // pileId → { id, originalName, pileType, aggregate, segments, mode, autoApplied, badgeUntil }
   const [pendingPileReviews, setPendingPileReviews] = useState([]); // pileIds waiting for the user's binary call
-  const [globalSplitRule, setGlobalSplitRule] = useState('group'); // 'group' | 'explode' | 'ask'
+  // Split is automatic now — this rule is no longer user-configurable. Kept as
+  // an inert default only because the adjust panel still accepts a `rule` prop
+  // (used solely to pick the recommended button for not-yet-resolved piles,
+  // which no longer occur). No setter: nothing changes it anymore.
+  const [globalSplitRule] = useState('group'); // 'group' | 'explode' | 'ask'
   const [pileDocPanel, setPileDocPanel] = useState(null); // null | { pileId, segmentId, mode } — unified document panel (view ↔ adjust)
   const [doublonCompare, setDoublonCompare] = useState(null); // null | { newId, existingId } — side-by-side doublon comparison
   const [fusionModal, setFusionModal] = useState(null); // null | { sources, defaultName } — merge several documents into one pièce
@@ -1735,7 +1739,9 @@ export default function App() {
       }
     });
     setPiles(restoredPiles);
-    setPendingPileReviews((data.pendingPileReviews ?? []).filter(id => restoredPiles[id]));
+    // Split is now automatic — no review limbo. Drop any legacy pending
+    // reviews from older saved sessions so no decision card resurfaces.
+    setPendingPileReviews([]);
     setPileDocPanel(null);
     setInfoDossierStreaming(null);
     setPieceOverviewPanel(null);
@@ -13651,17 +13657,13 @@ export default function App() {
       cumulativeDelay += delay;
       const tid = setTimeout(() => {
         // ── Pile branch ────────────────────────────────────────────────
-        // The simulator detects the file is a homogeneous stack, registers
-        // the pile in app state, and routes to silent application or the
-        // "À vérifier" zone depending on the global rule + confidence.
+        // The simulator detects the file is a homogeneous stack and splits it
+        // automatically: the pile is registered already exploded into its
+        // segments — no "pile identification" step, no decision card in the
+        // "À vérifier" zone. The avocat reviews/adjusts the cut after the fact
+        // from the document panel (« Modifier le découpage »).
         if (item._pilePoolRef) {
           const pilePool = item._pilePoolRef;
-          const rule = globalSplitRule;
-          const confidence = pilePool.confidence;
-          const autoResolves = rule !== 'ask' && confidence === 'high';
-          const initialMode = autoResolves
-            ? (rule === 'explode' ? 'exploded' : 'bundle')
-            : 'bundle'; // default render before user decides
 
           setPiles(prev => ({
             ...prev,
@@ -13671,10 +13673,10 @@ export default function App() {
               pileType: pilePool.pileType,
               aggregate: pilePool.aggregate,
               segments: pilePool.segments,
-              mode: initialMode,
-              autoApplied: autoResolves,
-              badgeUntil: autoResolves ? Date.now() + 8000 : 0,
-              awaitingReview: !autoResolves,
+              mode: 'exploded',          // auto-split on ingest
+              autoApplied: true,         // surfaces the "auto-découpé" badge
+              badgeUntil: Date.now() + 8000,
+              awaitingReview: false,
             },
           }));
 
@@ -13691,9 +13693,6 @@ export default function App() {
               justCompleted: true,
             };
           }));
-          if (!autoResolves) {
-            setPendingPileReviews(prev => prev.includes(pilePool.id) ? prev : [...prev, pilePool.id]);
-          }
           setTimeout(() => {
             setDropFirstPieces(prev => prev.map(p => ({ ...p, justCompleted: false })));
           }, 600);
@@ -19430,8 +19429,6 @@ export default function App() {
               <DecoupageSlot
                 value={preferenceSlots.decoupage}
                 onChange={(v) => setPreferenceSlot('decoupage', v)}
-                rule={globalSplitRule}
-                onRuleChange={setGlobalSplitRule}
               />
             </div>
 

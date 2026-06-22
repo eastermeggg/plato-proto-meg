@@ -632,9 +632,7 @@ function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAs
 
       <span style={{ flex: 1 }} />
 
-      {showFuse && (
-        <ActionIcon icon={Combine} title="Fusionner en une pièce" onClick={onFuse} tone="dark" />
-      )}
+      {showFuse && <FuseButton onClick={onFuse} />}
       <ActionIcon icon={Download} title="Télécharger"     onClick={onDownload} tone="dark" />
       <ActionIcon icon={Move}     title="Déplacer vers…"  onClick={onMove}     tone="dark" />
       <ActionIcon icon={Trash2}   title="Supprimer"       onClick={onDelete}   tone="dark" destructive />
@@ -677,6 +675,41 @@ function ActionIcon({ icon: Icon, title, onClick, destructive, tone }) {
       onMouseLeave={(e) => { e.currentTarget.style.color = restColor; }}
     >
       <Icon style={{ width: 16, height: 16 }} strokeWidth={1.75} />
+    </button>
+  );
+}
+
+// Primary bulk action on the selection bar: merge the selected documents into
+// one pièce. Unlike the icon-only utilities (download/move/delete) it carries a
+// visible label, since "fusionner" is the headline action when several whole
+// documents are picked.
+function FuseButton({ onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title="Fusionner les documents sélectionnés en une seule pièce"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        height: 30,
+        padding: '0 10px',
+        borderRadius: 6,
+        border: '1px solid rgba(238, 236, 230, 0.18)',
+        background: 'rgba(238, 236, 230, 0.10)',
+        cursor: 'pointer',
+        fontFamily: typography.fontFamily.sans,
+        fontSize: 13,
+        fontWeight: 500,
+        color: colors.semantic.cream,
+        transition: 'background 120ms ease-out, color 120ms ease-out',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(238, 236, 230, 0.18)'; e.currentTarget.style.color = '#ffffff'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(238, 236, 230, 0.10)'; e.currentTarget.style.color = colors.semantic.cream; }}
+    >
+      <Combine style={{ width: 15, height: 15 }} strokeWidth={1.75} />
+      <span>Fusionner</span>
     </button>
   );
 }
