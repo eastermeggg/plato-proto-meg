@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Scissors, Link2, Sparkles, Check, IterationCcw, Pencil, Trash2, FileText, ChevronLeft } from 'lucide-react';
-import Input from '../ui/Input';
+import { X, Scissors, Link2, Check, Pencil, Trash2, FileText, ChevronLeft, Play, RotateCcw, FoldHorizontal, Sparkles, Calendar } from 'lucide-react';
+
+// Design tokens lifted from the Plato "DocumentPanelCut" Figma frame.
+const SHADOW_LG = '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 10px 15px -3px rgba(26,26,26,0.05)';
+const SHADOW_MD = '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)';
+const SHADOW_XS = '0px 1px 2px rgba(26,26,26,0.05)';
+const SHADOW_2XS = '0px 1px 1px rgba(26,26,26,0.05)';
+const SANS = "'Inter', system-ui, sans-serif";
+const MONO = "'IBM Plex Mono', monospace";
 
 // "Ajuster le découpage" — right-side sheet (slideInRight, 1040px).
 //
@@ -30,7 +37,7 @@ function formatDateShort(iso) {
   }
 }
 
-export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, initialMode = 'adjust', activeSegmentId = null, onClose, onCommit, onChoose }) {
+export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adjust', activeSegmentId = null, onClose, onCommit, onChoose }) {
   const [segments, setSegments] = useState(pile.segments);
   // 'view' = read the document + its metadata; 'adjust' = cut/heal the découpage.
   // Both modes share the same persistent document pane (no layout shift on switch).
@@ -58,13 +65,17 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
     undoStack.current = [];
   }, [pile.id, pile.segments, activeSegmentId]);
 
-  // Commit the working segments and close. Used by ✕ / Escape / backdrop so
-  // edits made in either mode persist on exit.
-  const commitClose = () => { onCommit(segments); onClose(); };
+  // Adjust mode commits only through the explicit footer (Enregistrer); closing
+  // it any other way (✕ / Échap / backdrop) discards the in-progress cuts. View
+  // mode keeps its lightweight autosave so rename / delete persist on close.
+  const closePanel = () => {
+    if (mode !== 'adjust') onCommit(segments);
+    onClose();
+  };
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape') { onCommit(segments); onClose(); return; }
+      if (e.key === 'Escape') { closePanel(); return; }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         const prev = undoStack.current.pop();
@@ -73,7 +84,8 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose, onCommit, segments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onClose, onCommit, segments, mode]);
 
   // On open, bring the clicked segment into view (the observer keeps it active).
   useEffect(() => {
@@ -136,6 +148,28 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
     });
   };
 
+  // Réunir tout en 1 document — heal every boundary at once, collapsing the
+  // whole découpage into a single segment (vs. clicking « Recoller » N times).
+  // The first part keeps its name/metadata; pages run end to end.
+  const mergeAll = () => {
+    if (segments.length <= 1) return;
+    pushUndo();
+    setSegments(prev => {
+      const first = prev[0];
+      const last = prev[prev.length - 1];
+      return [{
+        ...first,
+        pages: prev.reduce((n, s) => n + s.pages, 0),
+        pageStart: first.pageStart,
+        pageEnd: last.pageEnd,
+        montantCents: prev.reduce((n, s) => n + (s.montantCents || 0), 0),
+        _merged: true,
+        _anomaly: null,
+      }];
+    });
+    setActiveIdx(0);
+  };
+
   // Split segments[i] before its relative page `relPage` (1-based).
   const splitAtPage = (i, relPage) => {
     pushUndo();
@@ -189,16 +223,15 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
     setSegments(prev => prev.map((s, idx) => idx === i ? { ...s, _customName: name } : s));
   };
 
-  const recommended = rule === 'explode' ? 'exploded' : rule === 'group' ? 'bundle' : null;
-  // When re-adjusting an already-resolved pile, the primary (dark) button
-  // reflects the pile's CURRENT mode — "save it as it stands" — rather than
-  // the cabinet's default rule, which only matters for the first decision.
-  const primaryMode = isResolved ? pile.mode : recommended;
-
   const commitAndChoose = (choice) => {
     onCommit(segments);
     onChoose(choice);
   };
+
+  // Single "Enregistrer" action: save the current découpage and close. The
+  // mode follows the découpage itself — one part left = one document (bundle),
+  // several = exploded — so there's no separate keep/explode choice to make.
+  const saveAndClose = () => commitAndChoose(segments.length > 1 ? 'exploded' : 'bundle');
 
   const scrollToSegment = (idx) => {
     setActiveIdx(idx); // immediate active state — don't wait for the scroll observer
@@ -216,7 +249,7 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
     <>
     {/* Backdrop */}
     <div
-      onClick={commitClose}
+      onClick={closePanel}
       className="fixed inset-0 z-20"
       style={{ background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
     />
@@ -226,8 +259,8 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
     >
       {/* Header — harmonized with the document preview panel. Title + actions
           depend on the mode; the document pane below is shared across modes. */}
-      <div className="px-5 py-3 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="px-4 py-3.5 border-b border-[#e7e5e3] flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           {mode === 'adjust' && initialMode === 'view' && (
             <button
               type="button"
@@ -238,42 +271,29 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
               <ChevronLeft className="w-4 h-4" strokeWidth={2} />
             </button>
           )}
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 bg-[#f5f5f4] text-[#44403c]">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 bg-[#eeece6] text-[#292524]">
             {mode === 'adjust'
               ? <Scissors className="w-3.5 h-3.5" strokeWidth={1.75} />
               : <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />}
           </span>
-          <span className="text-[14px] font-medium text-[#44403c] whitespace-nowrap truncate" style={{ maxWidth: 380 }}>
-            {mode === 'adjust' ? 'Ajuster le découpage' : (active ? docTitle(active) : 'Document')}
+          <span className="flex-1 min-w-0 text-[14px] leading-[20px] font-medium text-black whitespace-nowrap truncate" style={{ fontFamily: SANS }}>
+            {mode === 'adjust' ? pile.originalName : (active ? docTitle(active) : 'Document')}
           </span>
-          <span className="text-zinc-200">|</span>
-          <span className="text-[12px] text-[#a8a29e] truncate min-w-0">{pile.originalName}</span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {mode === 'adjust' && (
             <>
               <button
-                onClick={() => commitAndChoose('bundle')}
-                className="h-7 px-3.5 text-[14px] font-medium rounded-md transition-all"
-                style={primaryMode === 'bundle'
-                  ? { background: '#1c1917', color: 'white', boxShadow: '0 1px 2px rgba(28,25,23,0.2)' }
-                  : { background: 'white', color: '#44403c', border: '1px solid #e7e5e3' }}
+                onClick={saveAndClose}
+                className="inline-flex items-center h-8 px-3 rounded-lg text-[14px] font-medium text-white transition-colors"
+                style={{ fontFamily: SANS, background: '#292524', boxShadow: SHADOW_2XS }}
               >
-                Garder en une pièce
+                Enregistrer
               </button>
-              <button
-                onClick={() => commitAndChoose('exploded')}
-                className="h-7 px-3.5 text-[14px] font-medium rounded-md transition-all"
-                style={primaryMode === 'exploded'
-                  ? { background: '#1c1917', color: 'white', boxShadow: '0 1px 2px rgba(28,25,23,0.2)' }
-                  : { background: 'white', color: '#44403c', border: '1px solid #e7e5e3' }}
-              >
-                Éclater en {segments.length} pièces
-              </button>
-              <span className="w-px h-5 bg-[#e7e5e3] mx-1" />
+              <span className="w-px h-[15px] bg-[#d9d9d9] mx-1" />
             </>
           )}
-          <button onClick={commitClose} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
+          <button onClick={closePanel} className="p-1 text-[#78716c] hover:text-[#292524] hover:bg-[#f5f5f4] rounded-md transition-colors" aria-label="Fermer" title="Fermer sans enregistrer">
             <X className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
@@ -339,14 +359,30 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
 
         {/* Right — controls. Adjust: découpage sommaire + prompt. View: the
             active part's document metadata. */}
-        <div className="w-[360px] flex flex-col bg-white flex-shrink-0 border-l border-[#e7e5e3]">
+        <div className="w-[440px] flex flex-col bg-white flex-shrink-0 border-l border-[#e7e5e3]">
           {mode === 'adjust' ? (
             <>
-              <div className="px-5 pt-4 pb-2 flex items-center justify-between flex-shrink-0">
-                <span className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>Découpage</span>
-                <span className="text-[12px] text-[#a8a29e] tabular-nums">{segments.length}</span>
+              <div className="px-5 py-4 flex items-center justify-between flex-shrink-0">
+                <span className="text-[11px] uppercase text-[#78716c]" style={{ fontFamily: MONO }}>Découpage</span>
+                <span className="text-[11px] uppercase text-[#292524] tabular-nums" style={{ fontFamily: MONO }}>
+                  {segments.length} pièce{segments.length > 1 ? 's' : ''}
+                </span>
               </div>
-              <div className="flex-1 overflow-y-auto px-2 pb-3">
+              {segments.length > 1 && (
+                <div className="px-2 pb-2 w-full flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={mergeAll}
+                    title="Recoller toutes les parties en un seul document"
+                    className="w-full inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-[#44403c] bg-[#eeece6] hover:bg-[#e7e5e3] transition-colors"
+                    style={{ fontFamily: SANS }}
+                  >
+                    <FoldHorizontal className="w-4 h-4" strokeWidth={1.75} />
+                    Réunir en 1 seul document
+                  </button>
+                </div>
+              )}
+              <div className="flex-1 overflow-y-auto flex flex-col gap-0.5 px-2 pb-3">
                 {segments.map((seg, idx) => {
                   const isActive = idx === safe;
                   const isRenaming = renamingIdx === idx;
@@ -355,21 +391,21 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
                       key={seg.id}
                       ref={(el) => { if (el) sommaireRowRefs.current.set(idx, el); else sommaireRowRefs.current.delete(idx); }}
                       onClick={() => { if (!isRenaming) scrollToSegment(idx); }}
-                      className="w-full text-left px-3 py-2 rounded-lg transition-colors flex items-start gap-2.5 group cursor-pointer"
+                      className="w-full text-left px-4 pt-2 pb-2.5 rounded-lg transition-colors flex items-start gap-2 group cursor-pointer"
                       style={{
-                        background: isActive ? '#1c1917' : 'transparent',
-                        boxShadow: isActive ? '0 1px 2px rgba(28,25,23,0.18), 0 6px 16px -6px rgba(28,25,23,0.35)' : 'none',
+                        background: isActive ? '#292524' : 'transparent',
+                        boxShadow: isActive ? SHADOW_MD : 'none',
                       }}
-                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#fafaf9'; }}
+                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#f8f7f5'; }}
                       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
                     >
                       <span
-                        className="text-[11px] tabular-nums mt-[2px] w-6 flex-shrink-0 transition-colors"
-                        style={{ color: isActive ? '#ffffff' : '#d6d3d1', fontWeight: isActive ? 600 : 400 }}
+                        className="text-[11px] uppercase tabular-nums py-1.5 w-[30px] flex-shrink-0 transition-colors"
+                        style={{ fontFamily: MONO, color: isActive ? '#ffffff' : '#78716c' }}
                       >
                         {idx + 1}
                       </span>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                         {isRenaming ? (
                           <SommaireRenameInput
                             initial={seg._customName || seg.label}
@@ -378,7 +414,7 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
                           />
                         ) : (
                           <div className="flex items-center gap-1 min-w-0">
-                            <span className="text-[14px] leading-[20px] truncate" style={{ color: isActive ? '#ffffff' : '#44403c', fontWeight: isActive ? 500 : 400 }}>
+                            <span className="text-[14px] leading-[20px] truncate" style={{ fontFamily: SANS, color: isActive ? '#ffffff' : '#292524', fontWeight: isActive ? 500 : 400 }}>
                               {seg._customName || seg.label}
                             </span>
                             <button
@@ -392,19 +428,11 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
                             </button>
                           </div>
                         )}
-                        <div className="flex items-center gap-1 mt-1">
-                          <span
-                            className="inline-flex items-center h-[18px] px-1.5 rounded text-[10px] font-medium tabular-nums"
-                            style={isActive ? { background: 'rgba(255,255,255,0.14)', color: '#e7e5e4' } : { background: '#f5f5f4', color: '#78716c' }}
-                          >
-                            {seg.pages === 1 ? `P.${seg.pageStart}` : `P.${seg.pageStart}–${seg.pageEnd}`}
-                          </span>
-                          <span
-                            className="inline-flex items-center h-[18px] px-1.5 rounded text-[10px] font-medium tabular-nums"
-                            style={isActive ? { background: 'rgba(255,255,255,0.14)', color: '#e7e5e4' } : { background: '#f5f5f4', color: '#78716c' }}
-                          >
-                            {seg.pages} p.
-                          </span>
+                        <div className="flex items-center gap-1.5">
+                          <SegBadge active={isActive}>
+                            {seg.pages === 1 ? `P.${seg.pageStart}` : `P.${seg.pageStart}-${seg.pageEnd}`}
+                          </SegBadge>
+                          <SegBadge active={isActive}>{seg.pages} P.</SegBadge>
                         </div>
                       </div>
                     </div>
@@ -414,55 +442,100 @@ export default function PileAdjustSheet({ pile, rule, splitPrompt, isResolved, i
               <SplitPromptSection defaultPrompt={splitPrompt} />
             </>
           ) : (
-            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto px-5 py-5">
-              <label className="text-[12px] text-[#a8a29e] mb-1 block">Nom du document</label>
-              <input
-                value={active ? (active._customName || active.label) : ''}
-                onChange={(e) => setSegmentName(safe, e.target.value)}
-                className="text-[14px] font-medium text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-2 w-full hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
-              />
-              <div className="mt-2 mb-4 flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-[12px] leading-[16px] text-[#78716c]">
-                  <Scissors className="w-3 h-3 text-[#a08355] flex-shrink-0" strokeWidth={1.75} />
-                  <span className="truncate">Document éclaté · partie {safe + 1}/{segments.length}</span>
+            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+              <div className="flex flex-col gap-4 px-5 py-5">
+                {/* Nom du document */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1">
+                    <label className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Nom du document</label>
+                    <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
+                  </div>
+                  <input
+                    value={active ? (active._customName || active.label) : ''}
+                    onChange={(e) => setSegmentName(safe, e.target.value)}
+                    className="w-full text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-2.5 hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
+                    style={{ fontFamily: SANS, boxShadow: SHADOW_XS }}
+                  />
+
+                  {/* Document découpé — provenance callout (« the splitted box ») */}
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg border border-[#e7e5e3] bg-[#f8f7f5]">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-md border border-[#e7e5e3] bg-white flex-shrink-0">
+                      <Scissors className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={1.75} />
+                    </span>
+                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                      <span className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Document découpé</span>
+                      <span className="text-[12px] leading-[16px] text-[#78716c] truncate" style={{ fontFamily: SANS }} title={pile.originalName}>
+                        Nom original · {pile.originalName}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMode('adjust')}
+                      title="Revoir et ajuster le découpage"
+                      className="flex-shrink-0 text-[14px] leading-[20px] font-medium hover:underline underline-offset-2"
+                      style={{ fontFamily: SANS, color: '#1e3a8a' }}
+                    >
+                      Ajuster
+                    </button>
+                  </div>
                 </div>
-                <span className="text-[12px] leading-[16px] text-[#a8a29e] truncate">
-                  {pile.originalName} · {active ? active.pages : 0} page{active && active.pages > 1 ? 's' : ''}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setMode('adjust')}
-                  title="Recouper ou recoller les pièces de ce document"
-                  className="self-start text-[12px] leading-[16px] font-medium text-[#a08355] hover:underline underline-offset-2"
-                >
-                  Modifier le découpage
-                </button>
-              </div>
-              <div className="divide-y divide-[#e7e5e3]">
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-[12px] text-[#a8a29e]">Type</span>
+
+                {/* Date du document */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1">
+                    <label className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Date du document</label>
+                    <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
+                  </div>
+                  <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-[#e7e5e3] bg-white" style={{ boxShadow: SHADOW_XS }}>
+                    <Calendar className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
+                    <span className="text-[14px] text-[#292524] tabular-nums" style={{ fontFamily: SANS }}>
+                      {active ? formatDateShort(active.date) : '—'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Classement */}
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[12px] text-[#a8a29e]" style={{ fontFamily: SANS }}>Type</span>
                   <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-medium bg-[#f5f5f4] text-[#78716c]">{pile.aggregate.typeForClassification}</span>
                 </div>
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-[12px] text-[#a8a29e]">Date</span>
-                  <span className="text-[14px] text-[#44403c] tabular-nums">{active ? formatDateShort(active.date) : '—'}</span>
-                </div>
               </div>
+
               <div className="flex-1" />
-              <button
-                onClick={() => deleteSegment(safe)}
-                disabled={segments.length <= 1}
-                className="w-full mt-4 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 disabled:opacity-40 disabled:hover:bg-red-50 rounded-lg flex items-center justify-center gap-2 font-medium text-sm transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                Supprimer la pièce
-              </button>
+
+              {/* Footer */}
+              <div className="border-t border-[#e7e5e3] px-5 py-4 flex-shrink-0">
+                <button
+                  onClick={() => deleteSegment(safe)}
+                  disabled={segments.length <= 1}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-[#7f1d1d] bg-[#fee2e2] hover:bg-[#fecaca] disabled:opacity-40 disabled:hover:bg-[#fee2e2] transition-colors"
+                  style={{ fontFamily: SANS }}
+                >
+                  <Trash2 className="w-4 h-4" strokeWidth={1.75} />
+                  Supprimer
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
     </div>
     </>
+  );
+}
+
+// Page-range / page-count badge in the sommaire. Filled secondary on the
+// selected (dark) row, outlined elsewhere.
+function SegBadge({ active, children }) {
+  return (
+    <span
+      className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-[12px] leading-[16px] font-medium tabular-nums whitespace-nowrap"
+      style={active
+        ? { background: '#eeece6', color: '#44403c', fontFamily: SANS }
+        : { border: '1px solid #e7e5e3', color: '#44403c', fontFamily: SANS }}
+    >
+      {children}
+    </span>
   );
 }
 
@@ -492,64 +565,62 @@ function SplitPromptSection({ defaultPrompt }) {
   };
 
   return (
-    <div className="flex-shrink-0 border-t border-[#f0efed] px-5 pt-4 pb-4">
-      <Input
-        label="Consigne de découpage"
-        aiGenerated
-      >
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          disabled={applying}
-          placeholder="Décrivez comment découper ce document…"
-          className="w-full rounded-md bg-[#f8f7f5] border border-[#e7e5e3] focus:outline-none focus:border-[#a8a29e] transition-colors"
-          style={{
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: 14,
-            lineHeight: '20px',
-            color: '#292524',
-            padding: '8px 10px',
-            minHeight: 96,
-            maxHeight: 160,
-            resize: 'vertical',
-            overflowY: 'auto',
-            boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
-            opacity: applying ? 0.6 : 1,
-          }}
-        />
-      </Input>
-      <div className="flex items-center gap-2 mt-2.5">
+    <div className="flex-shrink-0 border-t border-[#e7e5e3] flex flex-col gap-4 px-5 py-4">
+      <span className="text-[11px] uppercase text-[#78716c]" style={{ fontFamily: MONO }}>
+        Consignes de découpage
+      </span>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        disabled={applying}
+        placeholder="Décrivez comment découper ce document…"
+        className="w-full rounded-md bg-white border border-[#e7e5e3] focus:outline-none focus:border-[#a8a29e] transition-colors"
+        style={{
+          fontFamily: SANS,
+          fontSize: 14,
+          lineHeight: '20px',
+          color: '#292524',
+          padding: '10px 12px',
+          minHeight: 80,
+          maxHeight: 160,
+          resize: 'vertical',
+          overflowY: 'auto',
+          boxShadow: SHADOW_XS,
+          opacity: applying ? 0.6 : 1,
+        }}
+      />
+      <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={() => setText(base)}
           disabled={!dirty || applying}
-          className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-md text-[14px] font-medium text-[#292524] hover:bg-[#f8f7f5] disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-default transition-colors"
+          className="inline-flex items-center gap-2 h-8 px-3 rounded-lg text-[14px] font-medium text-[#292524] hover:bg-[#f8f7f5] disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-default transition-colors"
           title="Restaurer la consigne du cabinet"
-          style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+          style={{ fontFamily: SANS }}
         >
-          <IterationCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
+          <RotateCcw className="w-4 h-4" strokeWidth={1.75} />
           Réinitialiser
         </button>
         <button
           type="button"
           onClick={apply}
           disabled={applying}
-          className="ml-auto inline-flex items-center gap-1.5 h-9 px-3 text-[14px] font-medium text-[#292524] bg-white border border-[#e7e5e3] rounded-md hover:bg-[#f8f7f5] disabled:opacity-60 transition-colors"
-          style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+          className="inline-flex items-center gap-2 h-8 px-3 text-[14px] font-medium text-[#44403c] bg-[#eeece6] rounded-lg hover:bg-[#e7e5e3] disabled:opacity-60 transition-colors"
+          style={{ fontFamily: SANS }}
         >
           {applying ? (
             <>
-              <span className="inline-block w-3 h-3 rounded-full border-[1.5px] border-[#a8a29e]/40 border-t-[#78716c] animate-spin" />
+              <span className="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-[#a8a29e]/40 border-t-[#78716c] animate-spin" />
               Analyse…
             </>
           ) : appliedFlash ? (
             <>
-              <Check className="w-3.5 h-3.5" strokeWidth={2.5} style={{ color: '#4a9168' }} />
+              <Check className="w-4 h-4" strokeWidth={2.5} style={{ color: '#4a9168' }} />
               Relancé
             </>
           ) : (
             <>
-              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+              <Play className="w-4 h-4" strokeWidth={2} />
               Relancer
             </>
           )}
@@ -603,11 +674,11 @@ function MockPage({ pageNum, relIdx, segment, docNumber, first, last }) {
 
   return (
     <div
-      className="bg-white rounded-2xl flex flex-col transition-shadow duration-200"
+      className="bg-white rounded-xl border border-[#e7e5e3] flex flex-col transition-shadow duration-200"
       style={{
         width: 520,
         minHeight: 680,
-        boxShadow: '0 1px 2px rgba(28,25,23,0.04), 0 12px 32px -8px rgba(28,25,23,0.08)',
+        boxShadow: SHADOW_LG,
       }}
     >
       <div className="px-11 pt-11 pb-7">
