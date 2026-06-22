@@ -1758,18 +1758,26 @@ export default function App() {
 
   // Init: restore from localStorage on mount
   useEffect(() => {
+    // A bare /dossier URL (bookmark, stale link) carries no dossier ID — there's no
+    // valid dossier to open, so it can only land on a stale/broken view. Always send
+    // such direct loads home to "Mes dossiers" instead of restoring stale state.
+    const landedOnBareDossier = window.location.pathname.replace(/\/+$/, '') === '/dossier';
+    if (landedOnBareDossier) navigate('/', { replace: true });
+
     const savedGlobal = lsLoad(LS_GLOBAL);
     if (savedGlobal) {
       setDossiers((savedGlobal.dossiers || []).map(d => ({ ...d, statut: d.statut ?? 'ouvert' })));
       // URL is the source of truth — only restore page from storage when user landed at root
-      if (window.location.pathname === '/' && savedGlobal.currentPage && savedGlobal.currentPage !== 'list') {
+      if (!landedOnBareDossier && window.location.pathname === '/' && savedGlobal.currentPage && savedGlobal.currentPage !== 'list') {
         setCurrentPage(savedGlobal.currentPage);
       }
-      setActiveDossierId(savedGlobal.activeDossierId);
       // Migration: rename 'détail' → 'info dossier' in saved navStack
       if (savedGlobal.navStack) setNavStack(savedGlobal.navStack.map(n => ({ ...n, activeTab: n.activeTab === 'détail' || n.activeTab === 'info dossier' ? 'dossier' : n.activeTab })));
-      if (savedGlobal.activeDossierId && savedGlobal.currentPage === 'dossier') {
-        loadDossierData(savedGlobal.activeDossierId);
+      if (!landedOnBareDossier) {
+        setActiveDossierId(savedGlobal.activeDossierId);
+        if (savedGlobal.activeDossierId && savedGlobal.currentPage === 'dossier') {
+          loadDossierData(savedGlobal.activeDossierId);
+        }
       }
     } else {
       // First-ever load: start with empty list
