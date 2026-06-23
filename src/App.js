@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -50,6 +50,46 @@ import {
 } from './components/preferences/PreferenceSlots';
 
 const DEFAULT_PREFERENCE_SLOTS = { ...PREFERENCE_SLOT_DEFAULTS };
+
+// ───────────────────────────────────────────────────────────────────────────
+// Pricing model (Réflexion Vic) — per-user licences + weekly usage quota.
+// Replaces the legacy "prix au dossier / quota annuel" model: matters are now
+// unlimited, and each licensed user gets a weekly token-consumption budget shown
+// only as a 0–100 % gauge (never tokens, never euros). `quotaMult` (×1/×2/×6) is
+// the relative weekly headroom; the euro-equivalent budget is internal.
+// ───────────────────────────────────────────────────────────────────────────
+const PRICING_PLANS = [
+  // weeklyEuros = euro-equivalent of real AI usage the weekly quota covers (admin-facing
+  // pricing context only — lawyers only ever see the 0–100 % gauge).
+  { id: 'PRO',  name: 'Pro',   monthly: 150, quotaMult: 1, weeklyEuros: 40 },
+  { id: 'MAX',  name: 'Max',   monthly: 290, quotaMult: 2, weeklyEuros: 80 },
+  { id: 'MAX+', name: 'Max +', monthly: 590, quotaMult: 6, weeklyEuros: 160 },
+];
+const PLAN_BY_ID = Object.fromEntries(PRICING_PLANS.map((p) => [p.id, p]));
+
+// Weekly-usage gauge ramp — on-brand stone → amber → peach as the week fills.
+// No green/red: stays inside the stone+cream+peach palette. Mirrors the existing
+// warning palette (#bd6c1a fill / #855b31 text) at the top of the range.
+const quotaTone = (pct) => {
+  if (pct >= 90) return { fill: '#bd6c1a', text: '#855b31', track: '#f1e4d3', warn: true };
+  if (pct >= 70) return { fill: '#c98a3c', text: '#855b31', track: '#eeece6', warn: false };
+  return { fill: '#292524', text: '#78716c', track: '#eeece6', warn: false };
+};
+
+// Demo weekly-usage % for the current user, driven by the billing demo switcher.
+const QUOTA_FILL_PCT = { fresh: 16, mid: 63, full: 100 };
+
+// What every licence includes — shown on "Mon usage" and (historically) the plan page.
+const PLAN_FEATURES = [
+  { icon: Folder, label: 'Dossiers illimités' },
+  { icon: Users, label: 'Utilisateurs illimités' },
+  { icon: Sparkles, label: 'Agent IA — quota hebdomadaire selon le plan' },
+  { icon: Calculator, label: 'Chiffrages illimités' },
+  { icon: BookOpen, label: 'Accès à Plato Jurisprudence illimité' },
+  { icon: ClipboardList, label: 'Bordereau et découpe automatique des documents', hint: "jusqu'à 1 000p par PDF" },
+  { icon: ShieldCheck, label: 'Tamponnage automatique des pièces' },
+  { icon: Download, label: 'Export PDF et Word' },
+];
 
 const POSTES_TAXONOMY = [
   {
@@ -1094,23 +1134,88 @@ export default function App() {
   const [tamponLine2, setTamponLine2] = useState('Avocat à la cour');
   const [tamponFirstPageOnly, setTamponFirstPageOnly] = useState(false);
   const [tamponPosition, setTamponPosition] = useState('bas-droite'); // 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite'
-  const [billingState, setBillingState] = useState('paid'); // 'free' | 'trial' | 'trial-end' | 'paid' | 'credits' | 'over'
-  const [billingTierIndex, setBillingTierIndex] = useState(1); // selected tier in upgrade slider
+  // Billing demo model (Réflexion Vic). `billingState` = current user's lifecycle;
+  // `quotaFill` = their weekly-gauge level; `demoPersona` flips who "me" is.
+  const [billingState, setBillingState] = useState('active'); // 'active' | 'trial' | 'trial-end' | 'none' (Ø licence → lecture seule)
+  const [quotaFill, setQuotaFill] = useState('mid');          // 'fresh' | 'mid' | 'full'
+  const [demoPersona, setDemoPersona] = useState('admin');    // 'admin' (u-1) | 'member' (u-2)
   const [billingUpgradeModalOpen, setBillingUpgradeModalOpen] = useState(false);
-  const [billingModalTab, setBillingModalTab] = useState('plan'); // 'plan' | 'credits'
-  const [billingCreditQty, setBillingCreditQty] = useState(1);
+  const [licenceDraft, setLicenceDraft] = useState({ PRO: 0, MAX: 0, 'MAX+': 0 }); // buy-licences modal counters
+  const [licenceInventory, setLicenceInventory] = useState({ PRO: 3, MAX: 2, 'MAX+': 1 }); // purchased licences per tier
+  const [licenceUpgradeModal, setLicenceUpgradeModal] = useState(null); // { memberId, planId } pending paid-upgrade confirm
+  const [quotaUpgradeOpen, setQuotaUpgradeOpen] = useState(false); // admin self-upgrade when weekly quota is exhausted
+  const [askUpgradeOpen, setAskUpgradeOpen] = useState(false); // member requests an upgrade from their admin
+  const [addLicencePlan, setAddLicencePlan] = useState(null); // plan id for the "add licence" confirm modal
+  const [addLicenceQty, setAddLicenceQty] = useState(1);
   const [dossierIndicatorHover, setDossierIndicatorHover] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [workspaceMembers, setWorkspaceMembers] = useState([
-    { id: 'u-1', name: 'Meghan Régior',  email: 'meghan@hexa.com',           role: 'Admin',  joinedDate: '12 janv. 2026', dossiersCreated: 7, initials: 'MR', color: 'from-violet-400 to-indigo-500' },
-    { id: 'u-2', name: 'Antoine Mercier', email: 'antoine.mercier@hexa.com', role: 'Membre', joinedDate: '03 févr. 2026', dossiersCreated: 3, initials: 'AM', color: 'from-emerald-400 to-teal-500' },
-    { id: 'u-3', name: 'Claire Dubois',   email: 'claire.dubois@hexa.com',   role: 'Membre', joinedDate: '14 mars 2026',  dossiersCreated: 2, initials: 'CD', color: 'from-rose-400 to-pink-500' },
+    { id: 'u-1', name: 'Meghan Régior',  email: 'meghan@hexa.com',           role: 'Admin',  joinedDate: '12 janv. 2026', dossiersCreated: 7, plan: 'MAX', initials: 'MR', color: 'from-violet-400 to-indigo-500' },
+    { id: 'u-2', name: 'Antoine Mercier', email: 'antoine.mercier@hexa.com', role: 'Membre', joinedDate: '03 févr. 2026', dossiersCreated: 3, plan: 'PRO', initials: 'AM', color: 'from-emerald-400 to-teal-500' },
+    { id: 'u-3', name: 'Claire Dubois',   email: 'claire.dubois@hexa.com',   role: 'Membre', joinedDate: '14 mars 2026',  dossiersCreated: 2, plan: null,  initials: 'CD', color: 'from-rose-400 to-pink-500' },
   ]);
+  // Demo "current user": admin persona = Meghan (u-1), member persona = Antoine (u-2).
+  const currentUserId = demoPersona === 'admin' ? 'u-1' : 'u-2';
+  const currentUser = workspaceMembers.find((m) => m.id === currentUserId) || workspaceMembers[0];
+  const isAdmin = currentUser?.role === 'Admin';
+  // Licences in use, derived from member assignments; remaining = purchased − assigned.
+  const licencesAssigned = workspaceMembers.reduce((acc, m) => {
+    if (m.plan) acc[m.plan] = (acc[m.plan] || 0) + 1;
+    return acc;
+  }, {});
+  // Effective plan shown for the current user's own gauge: trial/active use their
+  // assignment (fallback Pro); 'none' = Ø licence (lecture seule).
+  const myPlan = billingState === 'none' ? null : (currentUser?.plan ? PLAN_BY_ID[currentUser.plan] : PLAN_BY_ID.PRO);
+  const myQuotaPct = QUOTA_FILL_PCT[quotaFill] ?? 63;
+  // Free licences of a tier = purchased − assigned.
+  const licenceAvailable = (planId) => Math.max(0, (licenceInventory[planId] || 0) - (licencesAssigned[planId] || 0));
+  const applyAssignPlan = (memberId, planId) => {
+    setWorkspaceMembers(prev => prev.map(m => m.id === memberId ? { ...m, plan: planId || null } : m));
+    setToastMessage(`Licence mise à jour — ${planId ? `Plan ${PLAN_BY_ID[planId].name}` : 'lecture seule'}.`);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+  // Assigning a paid plan with no free licence of that tier → confirm a paid upgrade first.
+  const requestAssignPlan = (memberId, planId) => {
+    if (planId && licenceAvailable(planId) <= 0) {
+      setLicenceUpgradeModal({ memberId, planId });
+    } else {
+      applyAssignPlan(memberId, planId);
+    }
+  };
+  const confirmLicenceUpgrade = () => {
+    if (!licenceUpgradeModal) return;
+    const { memberId, planId } = licenceUpgradeModal;
+    setLicenceInventory(inv => ({ ...inv, [planId]: (inv[planId] || 0) + 1 }));
+    setWorkspaceMembers(prev => prev.map(m => m.id === memberId ? { ...m, plan: planId } : m));
+    const monthly = PLAN_BY_ID[planId]?.monthly || 0;
+    setToastMessage(`Licence ${PLAN_BY_ID[planId]?.name} ajoutée — ${monthly} € HT/mois, au prorata.`);
+    setTimeout(() => setToastMessage(null), 3500);
+    setLicenceUpgradeModal(null);
+  };
+  // Out-of-quota self-upgrade (admin): bump own tier — switching tier resets the weekly quota.
+  const nextPlanAbove = (planId) => {
+    const idx = PRICING_PLANS.findIndex(p => p.id === planId);
+    return idx >= 0 ? (PRICING_PLANS[idx + 1] || null) : PRICING_PLANS[0];
+  };
+  const confirmQuotaUpgrade = () => {
+    const next = nextPlanAbove(currentUser?.plan);
+    if (!next) { setQuotaUpgradeOpen(false); return; }
+    setLicenceInventory(inv => {
+      const free = (inv[next.id] || 0) - (licencesAssigned[next.id] || 0);
+      return free > 0 ? inv : { ...inv, [next.id]: (inv[next.id] || 0) + 1 };
+    });
+    setWorkspaceMembers(prev => prev.map(m => m.id === currentUserId ? { ...m, plan: next.id } : m));
+    setQuotaFill('fresh');
+    setQuotaUpgradeOpen(false);
+    setToastMessage(`Plan ${next.name} activé — quota rechargé.`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState(''); // current text being typed
   const [inviteEmails, setInviteEmails] = useState([]); // array of confirmed emails
   const [inviteRole, setInviteRole] = useState('Membre');
-  const [memberMenuOpenId, setMemberMenuOpenId] = useState(null);
+  const [profileMemberId, setProfileMemberId] = useState(null); // collaborator profile panel (open member id)
+  const [profilePlanEditing, setProfilePlanEditing] = useState(false); // "Changer" toggle in the profile panel
   const [preferenceDocs, setPreferenceDocs] = useState([]);
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
@@ -4666,7 +4771,9 @@ export default function App() {
   const renderChatSidebar = () => {
     const hasContent = chatInputValue.trim().length > 0 || stagedDocs.length > 0;
     const isDossierClosed = dossierStatut === 'fermé';
-    const chatLocked = chatBlocked || isDossierClosed;
+    // Weekly AI quota exhausted (demo: quotaFill='full'). Members can't self-upgrade.
+    const outOfQuota = quotaFill === 'full' && billingState !== 'none' && !!myPlan;
+    const chatLocked = chatBlocked || isDossierClosed || outOfQuota;
 
     // @-mention source — pieces organised by their folder (GED structure),
     // then templates. Returns { sections: [{ label, docs }], flat: [docs] }
@@ -5398,13 +5505,48 @@ export default function App() {
                   <span style={{ fontSize: 11, color: '#a8a29e' }}>Plato analyse vos documents...</span>
                 </div>
               )}
+              {/* Weekly-quota gate — locks the composer; admin can upgrade, member must ask. */}
+              {outOfQuota && (
+                <div className="mx-3 mt-3 mb-1 rounded-lg border px-3.5 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
+                  <div className="flex items-start gap-2.5">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#bd6c1a' }} strokeWidth={1.75} />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[13px] font-medium" style={{ color: '#855b31' }}>Quota hebdomadaire atteint</div>
+                      <p className="text-[12px] mt-0.5" style={{ color: '#855b31', opacity: 0.9, lineHeight: '16px' }}>
+                        {isAdmin
+                          ? "Passez à un plan supérieur pour débloquer plus d'usage cette semaine, ou attendez le rechargement de lundi."
+                          : "Il se recharge lundi. Pour plus d'usage dès maintenant, votre administrateur doit vous attribuer un plan supérieur."}
+                      </p>
+                      <div className="mt-2.5">
+                        {isAdmin ? (
+                          <button
+                            onClick={() => setQuotaUpgradeOpen(true)}
+                            className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
+                          >
+                            <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
+                            Augmenter mon plan
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setAskUpgradeOpen(true)}
+                            className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
+                          >
+                            <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
+                            Demander une mise à niveau
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* Text area + @mention dropdown */}
               <div style={{ padding: '12px 12px 32px 12px', position: 'relative' }}>
                 <textarea
                   ref={chatTextareaRef}
                   className="w-full text-[14px] resize-none focus:outline-none"
                   style={{ color: chatInputValue ? '#11181c' : '#78716c', lineHeight: '20px', minHeight: 20, maxHeight: 120, opacity: chatLocked ? 0.5 : 1, cursor: chatLocked ? 'not-allowed' : undefined }}
-                  placeholder={isDossierClosed ? 'Dossier terminé — Plato indisponible' : chatBlocked ? 'Plato analyse vos documents...' : selectedActeZone ? 'Demandez une modification sur cette partie…' : 'Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...'}
+                  placeholder={isDossierClosed ? 'Dossier terminé — Plato indisponible' : outOfQuota ? 'Quota hebdomadaire atteint — revient lundi' : chatBlocked ? 'Plato analyse vos documents...' : selectedActeZone ? 'Demandez une modification sur cette partie…' : 'Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...'}
                   value={chatInputValue}
                   onChange={(e) => {
                     if (chatLocked) return;
@@ -13441,38 +13583,29 @@ export default function App() {
           Le dossier passe en lecture seule&nbsp;: plus aucune modification possible (chiffrage, pièces, rédactions).
         </li>
         <li className="text-body text-[#44403c] leading-relaxed">
-          Reprendre un dossier terminé consommera un crédit sur votre quota.
+          Vous pourrez le reprendre à tout moment&nbsp;: vos dossiers sont illimités.
         </li>
       </ul>
     </AlertDialog>
   );
 
   const renderReopenDossierModal = () => {
-    // Mirrors renderDossierIndicator quota math so the disable logic stays in sync with the PlanCard component.
-    const isFree = billingState === 'free';
-    const used = isFree ? 1 : (billingState === 'over' || billingState === 'credits') ? 20 : billingState === 'trial' ? 1 : billingState === 'trial-end' ? 4 : 12;
-    const limit = isFree ? 1 : 20;
-    const remaining = Math.max(0, limit - used);
-    const maxActifs = isFree ? 1 : 50;
-    const usedActifs = isFree ? 1 : billingState === 'over' ? maxActifs : billingState === 'trial' ? 1 : billingState === 'trial-end' ? 3 : 8;
-    const matterAvailable = remaining > 0;
-    const actifsAtLimit = usedActifs >= maxActifs;
-    const cannotReopen = !matterAvailable || actifsAtLimit;
+    // Matters are unlimited in the new model — the only blocker is read-only access
+    // (no active licence). Reopening never consumes a credit.
+    const cannotReopen = billingState === 'none';
 
     const warningText = cannotReopen
-      ? (!matterAvailable
-          ? 'Quota annuel atteint. Augmentez votre forfait pour ré-ouvrir ce dossier.'
-          : 'Limite de dossiers en cours atteinte. Marquez un dossier comme terminé pour libérer une place.')
+      ? 'Accès en lecture seule — aucune licence active. Demandez une licence pour reprendre ce dossier.'
       : null;
 
     const description = cannotReopen
-      ? 'Votre forfait actuel ne permet pas de ré-ouvrir ce dossier.'
-      : 'Le dossier redeviendra modifiable. Cette action consommera un crédit sur votre quota.';
+      ? 'Votre accès est en lecture seule. Une licence est nécessaire pour modifier un dossier.'
+      : 'Le dossier redeviendra modifiable. Vos dossiers sont illimités.';
 
     const handleReopenAction = () => {
       if (cannotReopen) {
         setReopenConfirmOpen(false);
-        setSettingsSection('billing');
+        setSettingsSection('usage');
         setCurrentPage('settings');
       } else {
         handleReopenDossier();
@@ -13492,13 +13625,15 @@ export default function App() {
         actionVariant="primary"
         onAction={handleReopenAction}
       >
-        {/* PlanCard — same component used in the sidebar. Click closes the modal and routes to billing. */}
-        <div
-          className="rounded-lg border border-[#e7e5e3] bg-white overflow-hidden mt-1"
-          onClickCapture={() => setReopenConfirmOpen(false)}
-        >
-          {renderDossierIndicator()}
-        </div>
+        {/* When read-only, show the licence state and route to billing on click. */}
+        {cannotReopen && (
+          <div
+            className="rounded-lg border border-[#e7e5e3] bg-white overflow-hidden mt-1"
+            onClickCapture={() => setReopenConfirmOpen(false)}
+          >
+            {renderDossierIndicator()}
+          </div>
+        )}
       </AlertDialog>
     );
   };
@@ -15917,7 +16052,7 @@ export default function App() {
             lineHeight: '20px',
           }}
         >
-          Gagnez 5 dossiers gratuits
+          10 % offerts à votre confrère
         </div>
         <div
           className="inline-flex items-center"
@@ -15928,7 +16063,7 @@ export default function App() {
             lineHeight: '20px',
           }}
         >
-          Inviter un confrère
+          Partager mon code promo
           <ArrowRight
             className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
             strokeWidth={2}
@@ -15940,172 +16075,107 @@ export default function App() {
 
   // Workspace dossier-quota indicator. The full Figma "Small" PlanCard
   // rendered directly inside the sidebar's footer (no hover-to-expand).
-  const renderDossierIndicator = () => {
-    const isFree = billingState === 'free';
-    const isTrial = billingState === 'trial' || billingState === 'trial-end';
-    // Trial = 7-day grace period on top of the chosen plan. Demo: 5 days mid-trial, 1 day end-of-trial.
-    const trialDaysTotal = 7;
-    const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
+  // Weekly-usage quota gauge (Réflexion Vic) — shared by the sidebar indicator and
+  // the Plan & facturation page. Shows a 0–100 % gauge that refills Monday; never
+  // tokens, never euros. `variant`: 'full' (bordered card) or 'compact' (sidebar).
+  const renderWeeklyQuotaCard = ({ plan, pct = 0, lifecycle = 'active', trialDaysRemaining = 0, variant = 'full' }) => {
+    const compact = variant === 'compact';
+    const isTrial = lifecycle === 'trial' || lifecycle === 'trial-end';
+    const isNone = lifecycle === 'none' || !plan;
+    const tone = quotaTone(pct);
     const trialEndingSoon = isTrial && trialDaysRemaining > 0 && trialDaysRemaining <= 2;
-    const trialPctRemaining = isTrial ? Math.max(0, Math.min(100, (trialDaysRemaining / trialDaysTotal) * 100)) : 0;
-    // Trial uses the same consumption shape as paid (chosen tier matters).
-    const used = isFree ? 1 : (billingState === 'over' || billingState === 'credits') ? 20 : billingState === 'trial' ? 1 : billingState === 'trial-end' ? 4 : 12;
-    const limit = isFree ? 1 : 20;
-    const remaining = Math.max(0, limit - used);
-    const atLimit = remaining === 0;
-    const pct = Math.min(100, Math.round((used / limit) * 100));
+    const shell = {
+      borderRadius: 4,
+      border: compact ? 'none' : (tone.warn && !isTrial ? '1px solid rgba(238,185,126,0.5)' : '1px solid #e7e5e3'),
+      boxShadow: compact ? 'none' : '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)',
+      backgroundColor: compact ? 'transparent' : '#ffffff',
+    };
 
-    const maxActifs = isFree ? 1 : 50;
-    const usedActifs = isFree ? 1 : billingState === 'over' ? maxActifs : billingState === 'trial' ? 1 : billingState === 'trial-end' ? 3 : 8;
-    const actifsAtLimit = usedActifs >= maxActifs;
-
-    const totalCredits = billingState === 'credits' ? 2 : 0;
-    const creditsUsed = billingState === 'credits' ? 1 : 0;
-    const hasExtras = totalCredits > 0;
-    const extrasAtLimit = hasExtras && creditsUsed >= totalCredits;
-    const bodyWarning = atLimit;
-
-    const headerLabel = isFree ? 'Essai gratuit' : 'Consommation dossiers';
-    const heroNum = isFree ? remaining : used;
-    const caption = isFree
-      ? `dossier${remaining > 1 ? 's' : ''} gratuit${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`
-      : 'dossiers utilisés';
-    const showSuppl = !isFree && !isTrial && (creditsUsed > 0 || atLimit) && totalCredits > 0;
-
-    // During trial, the body emphasizes DAYS REMAINING (hero) and consumption rows are
-    // hidden (focus on time pressure). Outside trial, body shows dossier consumption.
-    // Trial colors per Figma: info-blue (#1e3a8a) when fresh, warning-brown (#855b31) when ending.
-    const heroBigNum = isTrial ? trialDaysRemaining : heroNum;
-    const heroDenom = isTrial ? trialDaysTotal : limit;
-    const heroCaption = isTrial
-      ? `jour${trialDaysRemaining > 1 ? 's' : ''} d'essai restant${trialDaysRemaining > 1 ? 's' : ''}`
-      : caption;
-    const bodyHeaderText = isTrial ? 'Essai gratuit' : headerLabel;
-    // Trial uses info colors (fresh) or warning colors (ending). Non-trial uses the existing peach-when-at-limit palette.
-    const trialInfoBg = 'linear-gradient(180deg, #e0eaf6 0%, #ffffff 100%)';
-    const peachBg = 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)';
-    const headerBg = isTrial
-      ? (trialEndingSoon ? peachBg : trialInfoBg)
-      : (bodyWarning ? peachBg : 'transparent');
-    const headerTextColor = isTrial
-      ? (trialEndingSoon ? '#855b31' : '#1e3a8a')
-      : (bodyWarning ? '#855b31' : '#78716c');
-    const heroNumColor = isTrial
-      ? (trialEndingSoon ? '#bd6c1a' : '#1e3a8a')
-      : (bodyWarning ? '#bd6c1a' : '#000');
-    const barPct = isTrial ? trialPctRemaining : pct;
-    const barWarn = isTrial ? false : bodyWarning;
-    const barFill = isTrial ? (trialEndingSoon ? '#bd6c1a' : '#000') : '#000';
-
-    return (
-      <button
-        onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }}
-        className="block w-full text-left overflow-hidden transition-colors"
-        style={{
-          backgroundColor: 'transparent',
-          fontFamily: "'Inter', system-ui, sans-serif",
-        }}
-      >
-        {/* Header — info gradient (fresh trial), peach gradient (warning), transparent otherwise */}
-        <div
-          style={{
-            padding: '14px 16px',
-            background: headerBg,
-          }}
-        >
-          <div style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11, fontWeight: 500,
-            color: headerTextColor,
-            textTransform: 'uppercase', letterSpacing: 'normal',
-          }} className="inline-flex items-center gap-1.5">
-            {isTrial && <Clock className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />}
-            <span>{bodyHeaderText}</span>
+    // ── Ø licence — lecture seule ────────────────────────────────────────────
+    if (isNone) {
+      return (
+        <div className="overflow-hidden" style={shell}>
+          <div style={{ padding: compact ? '14px 16px 16px' : '20px' }}>
+            <div className="inline-flex items-center gap-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
+              <Eye className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />
+              <span>Lecture seule</span>
+            </div>
+            <div style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 22 : 28, fontWeight: 400, color: '#292524', letterSpacing: '-0.015em', marginTop: 8 }}>
+              Aucune licence
+            </div>
+            <p style={{ fontSize: 12, fontWeight: 500, color: '#78716c', marginTop: 4, lineHeight: '16px' }}>
+              Demandez une licence à votre administrateur pour reprendre la main.
+            </p>
           </div>
         </div>
+      );
+    }
 
-        {/* Body — pb-20 px-16, no top padding (header carries it), gap-10 */}
-        <div style={{ padding: '0 16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div className="flex items-baseline gap-1">
-              <span style={{
-                fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
-                fontSize: 30, fontWeight: 400,
-                color: heroNumColor,
-                letterSpacing: '-0.6px', lineHeight: '28px',
-              }} className="tabular-nums">
-                {heroBigNum}
-              </span>
-              <span style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
-                fontSize: 14, fontWeight: 500,
-                color: '#78716c', opacity: 0.5,
-                lineHeight: '20px',
-              }} className="tabular-nums">/ {heroDenom}</span>
-            </div>
-            <div style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: 12, fontWeight: 500, color: '#78716c',
-              lineHeight: '16px',
-            }}>
-              {heroCaption}
-            </div>
-          </div>
+    const headerWarn = !isTrial && tone.warn;
+    const headerBg = isTrial
+      ? (trialEndingSoon ? 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' : 'linear-gradient(180deg, #e0eaf6 0%, #ffffff 100%)')
+      : (headerWarn ? 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' : 'transparent');
+    const headerColor = isTrial
+      ? (trialEndingSoon ? '#855b31' : '#1e3a8a')
+      : (headerWarn ? '#855b31' : '#78716c');
 
-          {/* Progress bar — solid peach 100% when warning (no track),
-              muted track + fill otherwise. */}
-          <div style={{
-            height: 4, width: '100%', borderRadius: 9999, overflow: 'hidden',
-            backgroundColor: barWarn ? '#bd6c1a' : '#eeece6',
-          }}>
-            {!barWarn && (
-              <div style={{
-                height: '100%', width: `${barPct}%`,
-                backgroundColor: barFill,
-                borderRadius: 9999,
-                transition: 'width 0.5s ease',
-              }} />
+    return (
+      <div className="overflow-hidden" style={shell}>
+        {/* Header — eyebrow + plan chip / trial countdown */}
+        <div style={{ padding: compact ? '14px 16px 0' : '20px 20px 0', background: headerBg }}>
+          <div className="flex items-center justify-between gap-2" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: headerColor, textTransform: 'uppercase', letterSpacing: 'normal' }}>
+            <span className="inline-flex items-center gap-1.5 min-w-0">
+              {isTrial && <Clock className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />}
+              <span className="truncate">{isTrial ? 'Essai gratuit' : 'Quota hebdomadaire'}</span>
+            </span>
+            {isTrial && trialDaysRemaining > 0 && (
+              <span className="flex-shrink-0">Expire dans <span className="tabular-nums" style={{ fontWeight: 700 }}>{trialDaysRemaining} j</span></span>
+            )}
+            {!isTrial && plan && (
+              <span className="flex-shrink-0" style={{ color: tone.warn ? '#855b31' : '#a8a29e' }}>{plan.name} · ×{plan.quotaMult}</span>
             )}
           </div>
         </div>
 
-        {/* Footer row — Dossiers supplémentaires (conditional) */}
-        {showSuppl && (
-          <div
-            className="flex items-center justify-between"
-            style={{
-              borderTop: '1px solid #e7e5e3',
-              padding: '12px 16px',
-              backgroundColor: 'transparent',
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 11, fontWeight: 500,
-              color: '#78716c',
-              textTransform: 'uppercase', letterSpacing: 'normal',
-            }}
-          >
-            <span>Dossier supplémentaires</span>
-            <span className="tabular-nums">{creditsUsed}/{totalCredits}</span>
+        {/* Body — big % + caption + gauge bar */}
+        <div style={{ padding: compact ? '8px 16px 18px' : '12px 20px 24px', display: 'flex', flexDirection: 'column', gap: compact ? 10 : 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div className="flex items-baseline gap-0.5">
+              <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 30 : 48, fontWeight: 400, color: tone.warn ? '#bd6c1a' : '#292524', letterSpacing: '-0.6px', lineHeight: 1 }}>
+                {pct}
+              </span>
+              <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: compact ? 16 : 24, fontWeight: 500, color: '#78716c', opacity: 0.5 }}>%</span>
+            </div>
+            <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>
+              {pct >= 100 ? 'Quota atteint · se recharge lundi' : 'utilisé cette semaine · se recharge lundi'}
+            </div>
           </div>
-        )}
+          <div style={{ height: 4, width: '100%', borderRadius: 999, overflow: 'hidden', backgroundColor: tone.warn ? tone.fill : tone.track }}>
+            {!tone.warn && (
+              <div style={{ height: '100%', width: `${Math.min(100, pct)}%`, backgroundColor: tone.fill, borderRadius: 999, transition: 'width 0.5s ease' }} />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
-        {/* Footer row — Actifs en cours (paid only, not during trial since hero is days) */}
-        {!isFree && !isTrial && (
-          <div
-            className="flex items-center justify-between"
-            style={{
-              borderTop: '1px solid #e7e5e3',
-              padding: '12px 16px',
-              backgroundColor: 'transparent',
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 11, fontWeight: 500,
-              color: '#78716c',
-              textTransform: 'uppercase', letterSpacing: 'normal',
-            }}
-          >
-            <span>Actifs en cours</span>
-            <span className="tabular-nums">{usedActifs}/{maxActifs}</span>
-          </div>
-        )}
+  // Sidebar weekly-usage indicator for the current user — deep-links to billing.
+  const renderDossierIndicator = () => {
+    const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
+    return (
+      <button
+        onClick={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
+        className="block w-full text-left overflow-hidden transition-colors hover:bg-[#fafaf9]"
+        style={{ backgroundColor: 'transparent', fontFamily: "'Inter', system-ui, sans-serif" }}
+      >
+        {renderWeeklyQuotaCard({
+          plan: myPlan,
+          pct: myQuotaPct,
+          lifecycle: billingState,
+          trialDaysRemaining,
+          variant: 'compact',
+        })}
       </button>
     );
   };
@@ -19255,6 +19325,427 @@ export default function App() {
     </>
   );
 
+  // Confirm modal when assigning a plan with no free licence — adds a paid licence.
+  const renderLicenceUpgradeModal = () => {
+    if (!licenceUpgradeModal) return null;
+    const { memberId, planId } = licenceUpgradeModal;
+    const plan = PLAN_BY_ID[planId];
+    if (!plan) return null;
+    const member = workspaceMembers.find((m) => m.id === memberId);
+    return (
+      <AlertDialog
+        open={!!licenceUpgradeModal}
+        onOpenChange={(o) => { if (!o) setLicenceUpgradeModal(null); }}
+        icon={CreditCard}
+        iconVariant="warning"
+        title={`Ajouter une licence ${plan.name} ?`}
+        description={`Vous n'avez plus de licence ${plan.name} disponible. En attribuer une${member ? ` à ${member.name}` : ''} ajoutera une licence à votre abonnement.`}
+        cancelLabel="Annuler"
+        actionLabel={`Ajouter la licence · ${plan.monthly} €/mois`}
+        actionVariant="primary"
+        onAction={confirmLicenceUpgrade}
+      >
+        <div className="mt-1 rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-[13px] text-[#44403c]">Plan {plan.name} · quota ×{plan.quotaMult}</span>
+            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 18, color: '#18181b' }}>
+              {plan.monthly} € <span className="text-[12px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT/mois</span>
+            </span>
+          </div>
+          <p className="text-[12px] text-[#78716c] mt-1.5">
+            Facturée au prorata jusqu'à la fin du mois, puis {plan.monthly} € HT/mois à chaque échéance.
+          </p>
+        </div>
+      </AlertDialog>
+    );
+  };
+
+  // Member asks their admin for an upgrade when their weekly quota is exhausted.
+  const renderAskUpgradeModal = () => {
+    if (!askUpgradeOpen) return null;
+    const admins = workspaceMembers.filter(x => x.role === 'Admin');
+    const adminNames = admins.map(a => a.name).join(', ') || 'votre administrateur';
+    const myPlanName = currentUser?.plan ? PLAN_BY_ID[currentUser.plan]?.name : null;
+    return (
+      <AlertDialog
+        open
+        onOpenChange={(o) => { if (!o) setAskUpgradeOpen(false); }}
+        icon={CircleArrowUp}
+        iconVariant="warning"
+        title="Demander une mise à niveau"
+        description={`Votre quota hebdomadaire${myPlanName ? ` (plan ${myPlanName})` : ''} est atteint. Demandez à votre administrateur de vous passer sur un plan supérieur pour débloquer plus d'usage cette semaine.`}
+        cancelLabel="Annuler"
+        actionLabel="Envoyer la demande"
+        actionVariant="primary"
+        onAction={() => {
+          setAskUpgradeOpen(false);
+          setToastMessage(`Demande envoyée à ${adminNames}.`);
+          setTimeout(() => setToastMessage(null), 3500);
+        }}
+      >
+        <div className="mt-1 rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3">
+          <div className="text-[11px] uppercase mb-2" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e', letterSpacing: '0.04em' }}>
+            Destinataire{admins.length > 1 ? 's' : ''}
+          </div>
+          {admins.length > 0 ? (
+            <div className="space-y-1.5">
+              {admins.map((a) => (
+                <div key={a.id} className="flex items-center gap-2.5">
+                  {userAvatar(workspaceMembers.findIndex(x => x.id === a.id), a.role, 24)}
+                  <div className="min-w-0">
+                    <div className="text-[13px] text-[#292524] font-medium leading-tight">{a.name}</div>
+                    <div className="text-[12px] text-[#78716c] truncate">{a.email}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-[13px] text-[#78716c]">Votre administrateur</span>
+          )}
+        </div>
+      </AlertDialog>
+    );
+  };
+
+  // Admin self-upgrade modal when the weekly quota is exhausted.
+  const renderQuotaUpgradeModal = () => {
+    if (!quotaUpgradeOpen) return null;
+    const current = currentUser?.plan ? PLAN_BY_ID[currentUser.plan] : null;
+    const next = nextPlanAbove(currentUser?.plan);
+    if (!next) {
+      return (
+        <AlertDialog
+          open={quotaUpgradeOpen}
+          onOpenChange={(o) => { if (!o) setQuotaUpgradeOpen(false); }}
+          icon={Crown}
+          iconVariant="warning"
+          title="Vous êtes déjà au plan maximum"
+          description={`Votre plan ${current?.name || 'Max +'} offre le quota le plus élevé. Il se recharge automatiquement lundi.`}
+          cancelLabel="Fermer"
+          actionLabel="Compris"
+          actionVariant="primary"
+          onAction={() => setQuotaUpgradeOpen(false)}
+        />
+      );
+    }
+    return (
+      <AlertDialog
+        open={quotaUpgradeOpen}
+        onOpenChange={(o) => { if (!o) setQuotaUpgradeOpen(false); }}
+        icon={CircleArrowUp}
+        iconVariant="warning"
+        title="Augmenter votre quota hebdomadaire"
+        description={`Votre plan ${current?.name || 'actuel'} a atteint son quota cette semaine. Passez au plan ${next.name} pour repartir immédiatement avec un quota plus large.`}
+        cancelLabel="Annuler"
+        actionLabel={`Passer à ${next.name} · ${next.monthly} €/mois`}
+        actionVariant="primary"
+        onAction={confirmQuotaUpgrade}
+      >
+        <div className="mt-1 rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-[13px] text-[#44403c]">Plan {next.name} · quota ×{next.quotaMult}</span>
+            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 18, color: '#18181b' }}>
+              {next.monthly} € <span className="text-[12px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT/mois</span>
+            </span>
+          </div>
+          <p className="text-[12px] text-[#78716c] mt-1.5">
+            ≈ {next.weeklyEuros} € d'usage IA réel / semaine. Le quota est rechargé immédiatement au changement.
+          </p>
+        </div>
+      </AlertDialog>
+    );
+  };
+
+  // Confirm modal for adding licence(s) — shows the resulting monthly price and updates the account total.
+  const renderAddLicenceModal = () => {
+    if (!addLicencePlan) return null;
+    const plan = PLAN_BY_ID[addLicencePlan];
+    if (!plan) return null;
+    const qty = Math.max(1, addLicenceQty);
+    const currentTotal = PRICING_PLANS.reduce((s, p) => s + (licenceInventory[p.id] || 0) * p.monthly, 0);
+    const addCost = qty * plan.monthly;
+    const futureTotal = currentTotal + addCost;
+    const fmt = (n) => n.toLocaleString('fr-FR');
+    const confirm = () => {
+      setLicenceInventory(inv => ({ ...inv, [plan.id]: (inv[plan.id] || 0) + qty }));
+      setAddLicencePlan(null);
+      setToastMessage(`${qty} licence${qty > 1 ? 's' : ''} ${plan.name} ajoutée${qty > 1 ? 's' : ''} · +${fmt(addCost)} € HT/mois (démo).`);
+      setTimeout(() => setToastMessage(null), 3500);
+    };
+    return (
+      <AlertDialog
+        open
+        onOpenChange={(o) => { if (!o) setAddLicencePlan(null); }}
+        icon={CreditCard}
+        iconVariant="warning"
+        title={`Ajouter une licence ${plan.name}`}
+        description="Facturée au prorata jusqu'à la fin du mois, puis à chaque échéance annuelle."
+        cancelLabel="Annuler"
+        actionLabel={`Ajouter · +${fmt(addCost)} €/mois`}
+        actionVariant="primary"
+        onAction={confirm}
+      >
+        <div className="mt-1 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[13px] text-[#44403c]">Quantité</span>
+            <div className="inline-flex items-center bg-white border border-[#e7e5e3] rounded-lg overflow-hidden">
+              <button onClick={() => setAddLicenceQty(q => Math.max(1, q - 1))} className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors">−</button>
+              <span className="w-10 text-center text-[15px] font-medium tabular-nums text-[#292524]">{qty}</span>
+              <button onClick={() => setAddLicenceQty(q => q + 1)} className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors">+</button>
+            </div>
+          </div>
+          <div className="rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3 space-y-2">
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="text-[#78716c] tabular-nums">{plan.monthly} € × {qty}</span>
+              <span className="tabular-nums font-medium text-[#292524]">+{fmt(addCost)} € / mois</span>
+            </div>
+            <div className="flex items-baseline justify-between border-t border-[#e7e5e3] pt-2">
+              <span className="text-[13px] text-[#78716c]">Nouveau total du compte</span>
+              <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 18, color: '#18181b' }}>
+                {fmt(futureTotal)} € <span className="text-[12px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT / mois</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </AlertDialog>
+    );
+  };
+
+  // Shared licence-dispatch table — the SAME component in Collaborateurs and Plan & facturation.
+  // Rows are clickable (admin) → renderMemberProfilePanel (role / plan / delete).
+  const renderMemberTable = () => (
+    <div className="rounded-md border border-[#e7e5e3] overflow-hidden">
+      <table className="w-full">
+        <thead>
+          <tr className="bg-white border-b border-[#e7e5e3]">
+            <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Nom</th>
+            <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Rôle</th>
+            <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Plan</th>
+            <th className="px-3 py-3 h-10 w-11"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {workspaceMembers.map((m, idx) => {
+            const isLast = idx === workspaceMembers.length - 1;
+            return (
+              <tr
+                key={m.id}
+                onClick={isAdmin ? () => setProfileMemberId(m.id) : undefined}
+                className={`bg-white transition-colors ${isLast ? '' : 'border-b border-[#e7e5e3]'} group ${isAdmin ? 'hover:bg-[#fafaf9] cursor-pointer' : ''}`}
+              >
+                <td className="px-3 py-3">
+                  <div className="flex items-center gap-3">
+                    {userAvatar(idx, m.role, 32)}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-body-medium text-[#292524]">{m.name}</span>
+                        {m.id === currentUserId && <span className="badge badge-sm badge-outline">Vous</span>}
+                        {m.pending && (
+                          <span className="badge badge-sm badge-warning">Invité</span>
+                        )}
+                      </div>
+                      <div className="text-caption text-[#78716c]">{m.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-3 py-3">
+                  <span className={`badge badge-sm ${m.role === 'Admin' ? 'badge-info' : 'badge-secondary'}`}>
+                    {m.role}
+                  </span>
+                </td>
+                <td className="px-3 py-3">
+                  {m.pending ? (
+                    <span className="text-body text-[#a8a29e]">—</span>
+                  ) : m.plan ? (
+                    <span className="badge badge-sm badge-secondary">{PLAN_BY_ID[m.plan].name}</span>
+                  ) : (
+                    <span className="badge badge-sm badge-outline">Lecture seule</span>
+                  )}
+                </td>
+                <td className="pl-3 pr-4 py-3 align-middle">
+                  {isAdmin && (
+                    <div className="flex justify-end">
+                      <ChevronRight className="w-4 h-4 text-[#d6d3d1] group-hover:text-[#78716c] transition-colors" strokeWidth={2} />
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  // Collaborator profile panel — name/email, role, plan (changeable), delete.
+  // No "leave organization" (you can't remove yourself).
+  const renderMemberProfilePanel = () => {
+    if (!profileMemberId) return null;
+    const idx = workspaceMembers.findIndex(x => x.id === profileMemberId);
+    if (idx === -1) return null;
+    const m = workspaceMembers[idx];
+    const isSelf = m.id === currentUserId;
+    const plan = m.plan ? PLAN_BY_ID[m.plan] : null;
+    const Glyph = m.plan === 'MAX+' ? ChessQueen : m.plan === 'MAX' ? ChessRook : m.plan === 'PRO' ? ChessPawn : Eye;
+    const quotaPct = isSelf ? myQuotaPct : [42, 68, 18, 30, 55][idx % 5];
+    const tone = quotaTone(quotaPct);
+    const close = () => { setProfileMemberId(null); setProfilePlanEditing(false); };
+    const setRole = (role) => {
+      setWorkspaceMembers(prev => prev.map(x => x.id === m.id ? { ...x, role } : x));
+      setToastMessage(`Rôle changé en ${role}.`);
+      setTimeout(() => setToastMessage(null), 2500);
+    };
+    const removeMember = () => {
+      setWorkspaceMembers(prev => prev.filter(x => x.id !== m.id));
+      close();
+      setToastMessage('Collaborateur supprimé.');
+      setTimeout(() => setToastMessage(null), 2500);
+    };
+    const cardLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.04em' };
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={close}>
+        <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 460, maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
+          {/* Header — identity */}
+          <div className="px-6 pt-6 pb-5 flex items-start gap-3.5 relative flex-shrink-0">
+            {userAvatar(idx, m.role, 52)}
+            <div className="min-w-0 flex-1 pt-0.5 pr-8">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 20, fontWeight: 500, color: '#18181b', letterSpacing: '-0.01em' }}>{m.name}</h2>
+                {isSelf && <span className="badge badge-sm badge-outline">Vous</span>}
+                {m.pending && <span className="badge badge-sm badge-warning">Invité</span>}
+              </div>
+              <div className="text-[13px] text-[#78716c] truncate">{m.email}</div>
+            </div>
+            <button onClick={close} className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors">
+              <X className="w-4 h-4 text-[#78716c]" />
+            </button>
+          </div>
+
+          {/* Section label */}
+          <div className="px-6 flex-shrink-0">
+            <div className="border-t border-[#e7e5e3] pt-3.5 pb-1">
+              <span style={cardLabel}>Gérer</span>
+            </div>
+          </div>
+
+          {/* Cards */}
+          <div className="px-6 py-4 space-y-3.5 overflow-y-auto">
+            {/* Type de licence */}
+            <div className="rounded-xl border border-[#e7e5e3] p-4">
+              <div className="flex items-center justify-between">
+                <span style={cardLabel}>Type de licence</span>
+                {!m.pending && (
+                  <button onClick={() => setProfilePlanEditing(v => !v)} className="text-[13px] font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity">
+                    {profilePlanEditing ? 'Fermer' : 'Changer'}
+                  </button>
+                )}
+              </div>
+              {m.pending ? (
+                <p className="text-[13px] text-[#78716c] mt-2.5">Invitation en attente — la licence sera attribuable une fois acceptée.</p>
+              ) : profilePlanEditing ? (
+                <div className="mt-3 space-y-1.5">
+                  <button
+                    onClick={() => { if (m.plan) requestAssignPlan(m.id, ''); setProfilePlanEditing(false); }}
+                    className={`w-full flex items-center justify-between gap-3 px-3 h-10 rounded-lg border text-left transition-colors ${!m.plan ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                  >
+                    <span className="flex items-center gap-2 min-w-0">
+                      <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                      <span className="text-[14px] text-[#292524]">Lecture seule</span>
+                      <span className="text-[12px] text-[#a8a29e]">gratuit</span>
+                    </span>
+                    {!m.plan && <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />}
+                  </button>
+                  {PRICING_PLANS.map((p) => {
+                    const avail = licenceAvailable(p.id);
+                    const isCurrent = m.plan === p.id;
+                    const PG = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => { if (!isCurrent) requestAssignPlan(m.id, p.id); setProfilePlanEditing(false); }}
+                        className={`w-full flex items-center justify-between gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${isCurrent ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                      >
+                        <span className="flex items-center gap-2 min-w-0">
+                          <PG className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                          <span className="text-[14px] text-[#292524]">Plan {p.name}</span>
+                          <span className="text-[12px] text-[#a8a29e] tabular-nums">{p.monthly} €/mois</span>
+                        </span>
+                        {isCurrent ? (
+                          <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />
+                        ) : avail > 0 ? (
+                          <span className="text-[12px] text-[#78716c] tabular-nums flex-shrink-0">{avail} dispo</span>
+                        ) : (
+                          <span className="text-[11px] font-medium text-[#855b31] tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-2.5 flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                    <Glyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                  </div>
+                  <span className="text-[14px] text-[#292524] font-medium">{plan ? `Plan ${plan.name}` : 'Lecture seule'}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Quota IA */}
+            <div className="rounded-xl border border-[#e7e5e3] p-4">
+              <div className="flex items-center justify-between">
+                <span style={cardLabel}>Quota IA</span>
+                <span className="text-[12px] text-[#a8a29e]">Se recharge lundi</span>
+              </div>
+              {plan ? (
+                <>
+                  <div className="mt-3 flex items-baseline justify-between gap-3">
+                    <span className="text-[13px] text-[#44403c]">
+                      Quota hebdomadaire <span className="text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11 }}>×{plan.quotaMult}</span>
+                    </span>
+                    <span className="text-[13px] tabular-nums font-medium" style={{ color: tone.warn ? '#855b31' : '#292524' }}>{quotaPct}% utilisé</span>
+                  </div>
+                  <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ backgroundColor: tone.warn ? tone.fill : tone.track }}>
+                    {!tone.warn && <div style={{ width: `${Math.min(100, quotaPct)}%`, height: '100%', backgroundColor: tone.fill, borderRadius: 999 }} />}
+                  </div>
+                </>
+              ) : (
+                <p className="text-[13px] text-[#78716c] mt-2.5">Sans licence, l'accès est en lecture seule — aucun quota IA.</p>
+              )}
+            </div>
+
+            {/* Détails */}
+            <div className="rounded-xl border border-[#e7e5e3] p-4">
+              <span style={cardLabel}>Détails</span>
+              <div className="mt-3 space-y-2.5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[13px] text-[#78716c]">Rôle</span>
+                  <span className="text-[13px] text-[#292524] font-medium">{m.role}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[13px] text-[#78716c]">Membre depuis</span>
+                  <span className="text-[13px] text-[#292524] font-medium">{m.joinedDate || '—'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer — role + remove (others only) */}
+          {!isSelf && (
+            <div className="px-6 py-4 border-t border-[#e7e5e3] flex items-center gap-2 flex-shrink-0">
+              <button onClick={() => setRole(m.role === 'Admin' ? 'Membre' : 'Admin')} className="h-9 px-4 rounded-lg border border-[#e7e5e3] bg-white text-[13px] font-medium text-[#292524] hover:bg-[#fafaf9] transition-colors">
+                {m.role === 'Admin' ? 'Passer en membre' : 'Passer en admin'}
+              </button>
+              <button onClick={removeMember} className="h-9 px-4 rounded-lg border border-[#e7e5e3] text-[13px] font-medium text-[#7f1d1d] hover:bg-[#fef2f2] transition-colors">
+                Supprimer de l'organisation
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderSettingsUsers = () => (
     <>
       <div className="flex-1 overflow-y-auto px-8 py-10">
@@ -19262,135 +19753,44 @@ export default function App() {
           {renderSettingsHeader(
             'Collaborateurs',
             'Gérez les membres de votre organisation et leurs accès.',
-            <button
-              onClick={() => setInviteModalOpen(true)}
-              className="flex items-center gap-2 h-9 px-4 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
-              style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
-            >
-              <Plus className="w-4 h-4" />
-              Inviter un collaborateur
-            </button>
+            isAdmin && (
+              <button
+                onClick={() => setInviteModalOpen(true)}
+                className="flex items-center gap-2 h-9 px-4 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+                style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+              >
+                <Plus className="w-4 h-4" />
+                Inviter un collaborateur
+              </button>
+            )
           )}
-          <div className="rounded-md border border-[#e7e5e3] overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-white border-b border-[#e7e5e3]">
-                  <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Nom</th>
-                  <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Rôle</th>
-                  <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Nombre de dossiers créé</th>
-                  <th className="px-3 py-3 h-10 w-11"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {workspaceMembers.map((m, idx) => {
-                  const isLast = idx === workspaceMembers.length - 1;
+
+          {/* Licence recap — purchased vs dispatched per plan (admin only) */}
+          {isAdmin && (
+            <div className="mb-5 rounded-md border border-[#e7e5e3] bg-white overflow-hidden">
+              <div className="grid grid-cols-3 divide-x divide-[#e7e5e3]">
+                {PRICING_PLANS.map((p) => {
+                  const purchased = licenceInventory[p.id] || 0;
+                  const assigned = licencesAssigned[p.id] || 0;
+                  const available = Math.max(0, purchased - assigned);
+                  const Glyph = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
                   return (
-                    <tr key={m.id} className={`bg-white hover:bg-[#fafaf9] transition-colors ${isLast ? '' : 'border-b border-[#e7e5e3]'} group`}>
-                      <td className="px-3 py-3">
-                        <div className="flex items-center gap-3">
-                          {userAvatar(idx, m.role, 32)}
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-body-medium text-[#292524]">{m.name}</span>
-                              {m.pending && (
-                                <span className="badge badge-sm badge-warning">Invité</span>
-                              )}
-                            </div>
-                            <div className="text-caption text-[#78716c]">{m.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-3 py-3">
-                        <span className={`badge badge-sm ${m.role === 'Admin' ? 'badge-info' : 'badge-secondary'}`}>
-                          {m.role}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3">
-                        {m.pending ? (
-                          <span className="text-body text-[#a8a29e]">—</span>
-                        ) : (
-                          <span className="badge badge-sm badge-outline tabular-nums">{m.dossiersCreated || 0}</span>
-                        )}
-                      </td>
-                      <td className="pl-3 pr-4 py-3 align-middle">
-                        <div className="relative flex justify-end">
-                          <button
-                            onClick={() => setMemberMenuOpenId(prev => prev === m.id ? null : m.id)}
-                            className={`p-1 rounded-md text-[#a8a29e] hover:text-[#292524] hover:bg-[#eeece6] transition-all ${memberMenuOpenId === m.id ? 'opacity-100 bg-[#eeece6] text-[#292524]' : 'opacity-0 group-hover:opacity-100'}`}
-                            title="Actions"
-                            aria-haspopup="menu"
-                            aria-expanded={memberMenuOpenId === m.id}
-                          >
-                            <MoreVertical className="w-4 h-4" strokeWidth={1.75} />
-                          </button>
-                          {memberMenuOpenId === m.id && (
-                            <>
-                              <div className="fixed inset-0 z-40" onClick={() => setMemberMenuOpenId(null)} />
-                              <div
-                                role="menu"
-                                className="absolute z-50 right-0 top-full mt-1 bg-white border border-[#e7e5e3] overflow-hidden"
-                                style={{
-                                  width: 242,
-                                  borderRadius: 8,
-                                  boxShadow: '0 4px 6px -4px rgba(26,26,26,0.05), 0 8px 10px -1px rgba(26,26,26,0.05)',
-                                }}
-                              >
-                                <div className="p-1">
-                                  <div className="px-2 py-1.5">
-                                    <span style={{
-                                      fontFamily: "'IBM Plex Mono', monospace",
-                                      fontSize: 11, fontWeight: 500,
-                                      color: '#78716c', opacity: 0.7,
-                                      textTransform: 'uppercase', letterSpacing: '0.04em',
-                                    }}>
-                                      Action collaborateurs
-                                    </span>
-                                  </div>
-                                  {m.id !== 'u-1' && (
-                                    <button
-                                      role="menuitem"
-                                      onClick={() => {
-                                        const nextRole = m.role === 'Admin' ? 'Membre' : 'Admin';
-                                        setWorkspaceMembers(prev => prev.map(x => x.id === m.id ? { ...x, role: nextRole } : x));
-                                        setMemberMenuOpenId(null);
-                                        setToastMessage(`Rôle changé en ${nextRole}.`);
-                                        setTimeout(() => setToastMessage(null), 2500);
-                                      }}
-                                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-body text-[#292524] hover:bg-[#fafaf9] transition-colors text-left"
-                                    >
-                                      Changer en {m.role === 'Admin' ? 'Membre' : 'Admin'}
-                                    </button>
-                                  )}
-                                  <button
-                                    role="menuitem"
-                                    onClick={() => {
-                                      if (m.id === 'u-1') {
-                                        setMemberMenuOpenId(null);
-                                        setToastMessage('Quitter l\'organisation — démo.');
-                                      } else {
-                                        setWorkspaceMembers(prev => prev.filter(x => x.id !== m.id));
-                                        setMemberMenuOpenId(null);
-                                        setToastMessage('Collaborateur supprimé.');
-                                      }
-                                      setTimeout(() => setToastMessage(null), 2500);
-                                    }}
-                                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-body text-[#7f1d1d] hover:bg-[#fef2f2] transition-colors text-left"
-                                  >
-                                    <Trash2 className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
-                                    {m.id === 'u-1' ? 'Quitter l\'organisation' : 'Supprimer de l\'organisation'}
-                                  </button>
-                                </div>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
+                    <div key={p.id} className="px-4 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <Glyph className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Plan {p.name}</span>
+                      </div>
+                      <div className="mt-1.5 flex items-baseline gap-1.5">
+                        <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: available > 0 ? '#18181b' : '#bd6c1a', lineHeight: 1 }}>{available}</span>
+                        <span className="text-[13px]" style={{ color: available > 0 ? '#78716c' : '#855b31' }}>/ {purchased} licence{purchased > 1 ? 's' : ''} disponible{purchased > 1 ? 's' : ''}</span>
+                      </div>                    </div>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </div>
+            </div>
+          )}
+
+          {renderMemberTable()}
         </div>
       </div>
     </>
@@ -19453,24 +19853,26 @@ export default function App() {
 
   const renderParrainageModal = () => {
     if (!parrainageModalOpen) return null;
-    const trimmed = {
-      prenom: parrainageForm.prenom.trim(),
-      nom: parrainageForm.nom.trim(),
-      email: parrainageForm.email.trim(),
-    };
-    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed.email);
-    const canSubmit = trimmed.prenom && trimmed.nom && emailValid;
+    const email = parrainageForm.email.trim();
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    // Promo code derived from the current user's family name (e.g. Régior → REGIOR-10).
+    const promoCode = `${((currentUser?.name || 'Plato').split(' ').pop() || 'Plato').normalize('NFD').replace(/[^A-Za-z]/g, '').toUpperCase() || 'PLATO'}-10`;
 
     const close = () => {
       setParrainageModalOpen(false);
       setParrainageForm({ prenom: '', nom: '', email: '' });
     };
 
-    const submitReferral = () => {
-      if (!canSubmit) return;
-      const firstName = trimmed.prenom;
+    const copyCode = () => {
+      try { if (navigator.clipboard) navigator.clipboard.writeText(promoCode); } catch (e) { /* noop */ }
+      setToastMessage('Code promo copié.');
+      setTimeout(() => setToastMessage(null), 2500);
+    };
+
+    const sendByEmail = () => {
+      if (!emailValid) return;
       close();
-      setToastMessage(`Invitation envoyée à ${firstName}.`);
+      setToastMessage(`Code promo envoyé à ${email}.`);
       setTimeout(() => setToastMessage(null), 3000);
     };
 
@@ -19569,15 +19971,15 @@ export default function App() {
                   }}
                 >
                   Parrainez un confrère,<br />
-                  gagnez 5 dossiers.
+                  offrez-lui 10 %.
                 </h1>
               </div>
 
               {/* Benefits */}
               <div className="flex flex-col" style={{ gap: 12 }}>
                 {[
-                  { lead: 'Votre confrère reçoit ', strong: '5 dossiers offerts', tail: ' à sa souscription' },
-                  { lead: 'Vous recevez ', strong: '5 dossiers gratuits', tail: ' dès souscription' },
+                  { lead: 'Votre confrère reçoit ', strong: '10 % de réduction', tail: ' sur sa première année' },
+                  { lead: 'Un seul code, ', strong: 'partageable à volonté', tail: '' },
                 ].map((b, i) => (
                   <div key={i} className="flex items-center" style={{ gap: 12 }}>
                     <div
@@ -19619,15 +20021,55 @@ export default function App() {
                     lineHeight: 1,
                   }}
                 >
-                  Invitez un confrère
+                  Votre code promo
                 </div>
 
+                {/* Code box + copy */}
+                <div className="flex items-stretch" style={{ gap: 12 }}>
+                  <div
+                    className="flex-1 min-w-0 flex items-center tabular-nums"
+                    style={{
+                      height: 40,
+                      padding: '8px 14px',
+                      background: '#faf6ef',
+                      border: '1px solid rgba(238,185,126,0.5)',
+                      borderRadius: 8,
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 15, fontWeight: 500,
+                      letterSpacing: '0.08em',
+                      color: '#bd6c1a',
+                    }}
+                  >
+                    {promoCode}
+                  </div>
+                  <button
+                    onClick={copyCode}
+                    className="flex items-center justify-center transition-colors hover:bg-[#44403c]"
+                    style={{
+                      gap: 8,
+                      height: 40,
+                      padding: '8px 20px',
+                      background: '#292524',
+                      color: '#ffffff',
+                      borderRadius: 8,
+                      fontFamily: "'Inter', system-ui, sans-serif",
+                      fontSize: 14, fontWeight: 500, lineHeight: '20px',
+                      filter: 'drop-shadow(0 1px 1px rgba(26,26,26,0.05))',
+                    }}
+                  >
+                    <Copy className="w-4 h-4" strokeWidth={2} />
+                    Copier
+                  </button>
+                </div>
+
+                {/* Optional — send the code by email */}
                 <div className="flex" style={{ gap: 12 }}>
                   <input
-                    type="text"
-                    value={parrainageForm.prenom}
-                    onChange={(e) => setParrainageForm(f => ({ ...f, prenom: e.target.value }))}
-                    placeholder="Prénom.."
+                    type="email"
+                    value={parrainageForm.email}
+                    onChange={(e) => setParrainageForm(f => ({ ...f, email: e.target.value }))}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && emailValid) sendByEmail(); }}
+                    placeholder="E-mail du confrère (optionnel)..."
                     className="flex-1 min-w-0 placeholder:text-[#78716c]"
                     style={{
                       height: 36,
@@ -19641,65 +20083,26 @@ export default function App() {
                       outline: 'none',
                     }}
                   />
-                  <input
-                    type="text"
-                    value={parrainageForm.nom}
-                    onChange={(e) => setParrainageForm(f => ({ ...f, nom: e.target.value }))}
-                    placeholder="Nom.."
-                    className="flex-1 min-w-0 placeholder:text-[#78716c]"
+                  <button
+                    onClick={sendByEmail}
+                    disabled={!emailValid}
+                    className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#eeece6]"
                     style={{
+                      gap: 8,
                       height: 36,
-                      padding: '8px 12px',
-                      fontSize: 14, lineHeight: '20px',
-                      color: '#292524',
+                      padding: '8px 16px',
                       background: '#ffffff',
+                      color: '#292524',
                       border: '1px solid #e7e5e3',
                       borderRadius: 8,
-                      boxShadow: '0 1px 2px 0 rgba(26,26,26,0.05)',
-                      outline: 'none',
+                      fontFamily: "'Inter', system-ui, sans-serif",
+                      fontSize: 14, fontWeight: 500, lineHeight: '20px',
+                      whiteSpace: 'nowrap',
                     }}
-                  />
+                  >
+                    Envoyer
+                  </button>
                 </div>
-
-                <input
-                  type="email"
-                  value={parrainageForm.email}
-                  onChange={(e) => setParrainageForm(f => ({ ...f, email: e.target.value }))}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && canSubmit) submitReferral(); }}
-                  placeholder="E-mail professionnel..."
-                  className="w-full placeholder:text-[#78716c]"
-                  style={{
-                    height: 36,
-                    padding: '8px 12px',
-                    fontSize: 14, lineHeight: '20px',
-                    color: '#292524',
-                    background: '#ffffff',
-                    border: '1px solid #e7e5e3',
-                    borderRadius: 8,
-                    boxShadow: '0 1px 2px 0 rgba(26,26,26,0.05)',
-                    outline: 'none',
-                  }}
-                />
-
-                <button
-                  onClick={submitReferral}
-                  disabled={!canSubmit}
-                  className="w-full flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#44403c]"
-                  style={{
-                    gap: 8,
-                    height: 40,
-                    padding: '8px 24px',
-                    background: '#292524',
-                    color: '#ffffff',
-                    borderRadius: 8,
-                    fontFamily: "'Inter', system-ui, sans-serif",
-                    fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                    filter: 'drop-shadow(0 1px 1px rgba(26,26,26,0.05))',
-                  }}
-                >
-                  <Gift className="w-4 h-4" strokeWidth={2} />
-                  Envoyer l'invitation
-                </button>
               </div>
             </div>
 
@@ -19713,7 +20116,7 @@ export default function App() {
                 margin: 0,
               }}
             >
-              En envoyant l'invitation, vous acceptez nos{' '}
+              En partageant votre code promo, vous acceptez nos{' '}
               <a
                 href="#"
                 onClick={(e) => e.preventDefault()}
@@ -19729,50 +20132,107 @@ export default function App() {
     );
   };
 
+  // "Mon usage" — personal settings section every user sees (plan + weekly gauge).
+  // The cabinet billing page (renderSettingsBilling) is admin-only.
+  const renderSettingsUsage = () => {
+    const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
+    const isTrial = billingState === 'trial' || billingState === 'trial-end';
+    const pillCls = (on) => `px-2 py-0.5 rounded-md transition-colors ${on ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`;
+    const sectionLabel = (text) => (
+      <div className="flex items-baseline gap-3 mb-4">
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{text}</span>
+        <span className="flex-1 h-px bg-[#e7e5e3]" />
+      </div>
+    );
+    return (
+      <>
+        <div className="flex-1 overflow-y-auto px-8 py-10">
+          <div className="max-w-5xl w-full mx-auto">
+            {renderSettingsHeader(
+              'Mon usage',
+              'Votre plan et votre consommation hebdomadaire.',
+              <div className="flex flex-col items-end gap-1.5 text-[10px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                <div className="flex items-center gap-1">
+                  <span className="uppercase tracking-wider mr-1">Démo</span>
+                  {[{ id: 'active', label: 'actif' }, { id: 'trial', label: 'essai 5j' }, { id: 'trial-end', label: 'essai 1j' }, { id: 'none', label: 'Ø licence' }].map(s => (
+                    <button key={s.id} onClick={() => setBillingState(s.id)} className={pillCls(billingState === s.id)}>{s.label}</button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1">
+                  {[{ id: 'fresh', label: 'quota 16%' }, { id: 'mid', label: 'quota 63%' }, { id: 'full', label: 'quota 100%' }].map(s => (
+                    <button key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="space-y-4">
+              <div className="pt-2">
+                {sectionLabel('MON PLAN')}
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em' }}>
+                    {myPlan ? myPlan.name : 'Lecture seule'}
+                  </h2>
+                  {isTrial ? (
+                    <span className="text-[13px] text-[#78716c]">
+                      Période d'essai — <span className="font-medium text-[#292524] tabular-nums">{trialDaysRemaining} jour{trialDaysRemaining > 1 ? 's' : ''}</span> restant{trialDaysRemaining > 1 ? 's' : ''}
+                    </span>
+                  ) : myPlan ? (
+                    <span className="text-[13px] text-[#78716c]">— quota hebdomadaire ×{myPlan.quotaMult}</span>
+                  ) : (
+                    <span className="text-[13px] text-[#78716c]">— aucune licence active</span>
+                  )}
+                </div>
+
+                <div className="mt-5">
+                  {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, lifecycle: billingState, trialDaysRemaining, variant: 'full' })}
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE PLAN' : 'VOTRE ACCÈS'}</span>
+                  <span className="flex-1 h-px bg-[#e7e5e3]" />
+                </div>
+                {myPlan && <p className="text-[12px] text-[#78716c] mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
+                <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
+                  {myPlan ? PLAN_FEATURES.map((f, i) => {
+                    const Icon = f.icon;
+                    return (
+                      <div key={i} className="flex items-center gap-3 px-5 py-3.5">
+                        <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-[13px] text-[#292524] font-medium">{f.label}</span>
+                        {f.hint && <span className="text-[12px] text-[#a8a29e]">({f.hint})</span>}
+                      </div>
+                    );
+                  }) : (
+                    <div className="flex items-center gap-3 px-5 py-3.5">
+                      <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                      <span className="text-[13px] text-[#292524] font-medium">Accès aux dossiers en lecture seule</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   const renderSettingsBilling = () => {
-    const TIERS = [
-      { matters: 5,   pricePerMatter: 200, maxActifs: 13  },
-      { matters: 10,  pricePerMatter: 170, maxActifs: 25  },
-      { matters: 20,  pricePerMatter: 140, maxActifs: 50  },
-      { matters: 50,  pricePerMatter: 100, maxActifs: 125 },
-      { matters: 100, pricePerMatter: 80,  maxActifs: 250 },
-      { matters: 150, pricePerMatter: 65,  maxActifs: 375 },
-      { matters: 200, pricePerMatter: 55,  maxActifs: 500 },
-      { matters: null, pricePerMatter: null, maxActifs: null }, // 200+ → custom
-    ];
-    const selectedTier = TIERS[billingTierIndex];
-    const selectedYearlyTotal = selectedTier.pricePerMatter ? selectedTier.matters * selectedTier.pricePerMatter : null;
-    const currentTierIndex = 2; // 20 dossiers
-    const currentTier = TIERS[currentTierIndex];
-    const currentYearlyTotal = currentTier.matters * currentTier.pricePerMatter;
     const fmtEur = (n) => n.toLocaleString('fr-FR');
+    const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
+    const draftCount = PRICING_PLANS.reduce((s, p) => s + (licenceDraft[p.id] || 0), 0);
+    const draftTotal = PRICING_PLANS.reduce((s, p) => s + (licenceDraft[p.id] || 0) * p.monthly, 0);
+    // What the account pays each month = all purchased seats × their price (assigned or not).
+    const purchasedTotal = PRICING_PLANS.reduce((s, p) => s + (licenceInventory[p.id] || 0) * p.monthly, 0);
 
-    const FEATURES = [
-      { icon: Users, label: 'Utilisateurs illimités' },
-      { icon: Sparkles, label: 'Agent IA illimité' },
-      { icon: Calculator, label: 'Chiffrages illimités' },
-      { icon: BookOpen, label: 'Accès à Plato Jurisprudence illimité' },
-      { icon: ClipboardList, label: 'Bordereau et découpe automatique des documents', hint: "jusqu'à 1 000p par PDF" },
-      { icon: ShieldCheck, label: 'Tamponnage automatique des pièces' },
-      { icon: Download, label: 'Export PDF et Word' },
-    ];
-
-    // State-dependent values
-    const stateConfig = {
-      free:    { used: 1,                   limit: 1,                   usedActifs: 1,                  maxActifs: 1,                   credits: 0, creditsUsed: 0, label: 'Plan gratuit',                 priceLabel: '0 € / an' },
-      // 7-day Stripe-style trial layered on top of a chosen plan. Same plan label as `paid`,
-      // same consumption, just unbilled until day 8. Demo: day 2 of 7 → 5 days remaining.
-      trial:    { used: 1,                  limit: currentTier.matters, usedActifs: 1,                  maxActifs: currentTier.maxActifs, credits: 0, creditsUsed: 0, label: `${currentTier.matters} dossiers / an`, priceLabel: `Gratuit pendant 7 jours`, daysRemaining: 5, trialDays: 7, trialEndDate: '9 mai 2026' },
-      // End-of-trial — 1 day remaining (peach warning, urgency).
-      'trial-end': { used: 4,               limit: currentTier.matters, usedActifs: 3,                  maxActifs: currentTier.maxActifs, credits: 0, creditsUsed: 0, label: `${currentTier.matters} dossiers / an`, priceLabel: `Gratuit pendant 7 jours`, daysRemaining: 1, trialDays: 7, trialEndDate: '5 mai 2026' },
-      paid:    { used: 12,                  limit: currentTier.matters, usedActifs: 8,                  maxActifs: currentTier.maxActifs, credits: 0, creditsUsed: 0, label: `${currentTier.matters} dossiers / an`, priceLabel: `${fmtEur(currentYearlyTotal)} € HT / an` },
-      // Plan exhausted (20/20) + 2 extra credits purchased, 1 already used
-      credits: { used: currentTier.matters, limit: currentTier.matters, usedActifs: 14,                 maxActifs: currentTier.maxActifs, credits: 2, creditsUsed: 1, label: `${currentTier.matters} dossiers / an`, priceLabel: `${fmtEur(currentYearlyTotal)} € HT / an` },
-      over:    { used: currentTier.matters, limit: currentTier.matters, usedActifs: currentTier.maxActifs, maxActifs: currentTier.maxActifs, credits: 0, creditsUsed: 0, label: `${currentTier.matters} dossiers / an`, priceLabel: `${fmtEur(currentYearlyTotal)} € HT / an` },
-    };
-    const cfg = stateConfig[billingState];
-    const pct = Math.min(100, Math.round((cfg.used / cfg.limit) * 100));
-    const showUpgradeFlow = billingState === 'free' || billingState === 'over';
+    const sectionLabel = (text) => (
+      <div className="flex items-baseline gap-3 mb-4">
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{text}</span>
+        <span className="flex-1 h-px bg-[#e7e5e3]" />
+      </div>
+    );
 
     return (
       <>
@@ -19780,637 +20240,198 @@ export default function App() {
           <div className="max-w-5xl w-full mx-auto">
             {renderSettingsHeader(
               'Plan et facturation',
-              "Votre plan, votre consommation et vos factures.",
-              <div className="flex items-center gap-2 text-[10px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-                <span className="uppercase tracking-wider">Démo</span>
-                {[
-                  { id: 'free', label: 'free' },
-                  { id: 'trial', label: 'trial · 5j' },
-                  { id: 'trial-end', label: 'trial · 1j' },
-                  { id: 'paid', label: 'paid' },
-                  { id: 'credits', label: 'paid · +crédits' },
-                  { id: 'over', label: 'paid · out' },
-                ].map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => {
-                      setBillingState(s.id);
-                      if (s.id === 'over') setBillingTierIndex(currentTierIndex);
-                    }}
-                    className={`px-2 py-0.5 rounded-md transition-colors ${billingState === s.id ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
+              'Le forfait du cabinet, la répartition des licences et la facturation.'
             )}
             <div className="space-y-4">
 
-            {/* Plan + usage — inline editorial block (no card) for visual harmony with pricing component */}
-            <div className="pt-2">
-              <div className="flex items-baseline gap-3 mb-4">
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>
-                  PLAN ACTUEL
-                </span>
-                <span className="flex-1 h-px bg-[#e7e5e3]" />
-              </div>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-2">
-                    <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em' }}>
-                      {cfg.label}
-                    </h2>
-                    {(billingState === 'trial' || billingState === 'trial-end') ? (
-                      <span className="text-[13px] text-[#78716c]">
-                        Période d'essai jusqu'au{' '}
-                        <span className="font-medium text-[#292524]">{cfg.trialEndDate}</span>
-                      </span>
-                    ) : (
-                      <span className="text-[13px] text-[#78716c]">— {cfg.priceLabel}</span>
-                    )}
+            {/* ── ABONNEMENT DU CABINET (admin) — licences per tier + total ─── */}
+            {isAdmin && (
+              <div className="pt-6">
+                {sectionLabel('ABONNEMENT DU CABINET')}
+                <div className="rounded-md border border-[#e7e5e3] bg-white overflow-hidden">
+                  <div className="grid grid-cols-3 divide-x divide-[#e7e5e3]">
+                    {PRICING_PLANS.map((p) => {
+                      const purchased = licenceInventory[p.id] || 0;
+                      const assigned = licencesAssigned[p.id] || 0;
+                      const available = Math.max(0, purchased - assigned);
+                      const Glyph = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
+                      return (
+                        <div key={p.id} className="px-4 py-4 flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <Glyph className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Plan {p.name}</span>
+                            <span className="text-[10px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>×{p.quotaMult}</span>
+                          </div>
+                          {/* Pricing per plan */}
+                          <div className="text-[12px] text-[#78716c] tabular-nums mt-1">{p.monthly} € HT / mois / licence</div>
+                          {/* Seats available — the focus metric */}
+                          <div className="mt-2.5 flex items-baseline gap-1.5">
+                            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: available > 0 ? '#18181b' : '#bd6c1a', lineHeight: 1 }}>{available}</span>
+                            <span className="text-[13px]" style={{ color: available > 0 ? '#78716c' : '#855b31' }}>/ {purchased} licence{purchased > 1 ? 's' : ''} disponible{purchased > 1 ? 's' : ''}</span>
+                          </div>
+                          {/* Add a seat */}
+                          <button
+                            onClick={() => { setAddLicencePlan(p.id); setAddLicenceQty(1); }}
+                            className="mt-3 self-start inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg border border-[#e7e5e3] bg-white text-[13px] font-medium text-[#292524] hover:bg-[#fafaf9] transition-colors"
+                          >
+                            <Plus className="w-3.5 h-3.5" strokeWidth={2} />
+                            Ajouter une licence
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <p className="text-[12px] text-[#78716c] mt-1">
-                    {billingState === 'free' ? (
-                      'Aucun renouvellement.'
-                    ) : (billingState === 'trial' || billingState === 'trial-end') ? (
-                      <>
-                        Première facturation prévue le{' '}
-                        <span className="font-medium text-[#292524]">{cfg.trialEndDate}</span>
-                        {' '}-{' '}
-                        <span className="font-medium text-[#292524] tabular-nums">{fmtEur(currentYearlyTotal)} € HT</span>
-                        . Annulable à tout moment, sans débit.
-                      </>
-                    ) : (
-                      'Renouvellement automatique le 1ᵉʳ mai 2026.'
-                    )}
-                  </p>
+                  {/* Global account pricing per month (all purchased seats) */}
+                  <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-[#fafaf9] border-t border-[#e7e5e3]">
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: 'normal' }}>Total du compte</span>
+                    <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 20, color: '#18181b' }}>
+                      {fmtEur(purchasedTotal)} €{' '}
+                      <span className="text-[13px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT / mois</span>
+                    </span>
+                  </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setBillingTierIndex(billingState === 'free' ? 1 : currentTierIndex);
-                    setBillingUpgradeModalOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 h-9 px-3 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
-                  style={{ boxShadow: '0 1px 2px rgba(26, 26, 26, 0.05)' }}
-                >
-                  {billingState === 'free' ? 'Choisir mon plan' : billingState === 'over' ? 'Augmenter mon plan' : 'Gérer mon plan'}
-                </button>
+                <p className="text-[12px] text-[#78716c] mt-2">
+                  Engagement 1 an · facturation annuelle. Les utilisateurs sans licence restent en lecture seule, gratuitement.
+                </p>
               </div>
+            )}
 
-              {/* PlanCard — Figma "Default" composable variants. Data-driven, no enum props.
-                  Header = mono label (peach gradient bg + warning text + " - LIMITE ATTEINTE" suffix when bodyWarning).
-                  Body = 48px serif + 24px denom + caption + 4px progress bar (solid peach when bodyWarning).
-                  Footer rows = label + info icon · mini progress (130px) · ratio (60px right). Peach inset rail when row's own counter at limit. */}
-              {(() => {
-                const isFree = billingState === 'free';
-                const isTrial = billingState === 'trial' || billingState === 'trial-end';
-                const remaining = Math.max(0, cfg.limit - cfg.used);
-                const daysRemaining = isTrial ? (cfg.daysRemaining ?? 0) : 0;
-                const trialDays = isTrial ? (cfg.trialDays ?? 7) : 0;
-                const mainAtLimit = pct >= 100;
-                const trialEndingSoon = isTrial && daysRemaining > 0 && daysRemaining <= 2;
-                const trialExpired = isTrial && daysRemaining <= 0;
-                const totalCredits = cfg.credits || 0;
-                const creditsUsed = cfg.creditsUsed || 0;
-                const hasExtras = totalCredits > 0;
-                const extrasAtLimit = hasExtras && creditsUsed >= totalCredits;
-                // bodyWarning controls hero/body styling (consumption-driven). Trial doesn't paint it peach.
-                const bodyWarning = mainAtLimit;
-                const showSuppl = !isFree && (hasExtras || mainAtLimit) && totalCredits > 0;
-                // Trial users have full access to the paid tier — show the simultaneous-actifs row.
-                const showActifs = cfg.maxActifs && !isFree;
-                const actifsAtLimitFooter = showActifs && cfg.usedActifs >= cfg.maxActifs;
-
-                const heroNum = isFree ? remaining : cfg.used;
-                const baseHeader = isFree ? 'Essai gratuit' : 'Consommation dossiers';
-                const headerLabel = bodyWarning
-                  ? `${baseHeader.toUpperCase()} ${isFree ? '-LIMITE ATTEINTE' : '- LIMITE ATTEINTE'}`
-                  : baseHeader.toUpperCase();
-                const subtitle = isFree
-                  ? `dossier${remaining > 1 ? 's' : ''} gratuit${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`
-                  : 'dossiers utilisés';
-
-                // Body progress fill width:
-                //   free not at limit → full black (1/1 available)
-                //   free at limit → empty (0 available)
-                //   paid/trial not at quota limit → proportional black fill (consumption)
-                //   paid at quota limit → solid peach full (no track visible)
-                const barFillWidth = isFree
-                  ? (remaining > 0 ? 100 : 0)
-                  : Math.min(100, pct);
-                const barFillColor = bodyWarning ? '#bd6c1a' : '#000000';
-
-                // Trial header colors per Figma: info-blue when fresh, warning-brown when ending.
-                const trialTextColor = trialEndingSoon || trialExpired ? '#855b31' : '#1e3a8a';
-                const trialBg = trialEndingSoon || trialExpired
-                  ? 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)'
-                  : 'linear-gradient(180deg, #e0eaf6 0%, #ffffff 100%)';
-                const trialBorderColor = trialEndingSoon || trialExpired
-                  ? 'rgba(238,185,126,0.5)'
-                  : 'rgba(147,170,209,0.5)';
-
-                // Footer mini-progress: 130px wide, 4px tall.
-                // Track: rgba(23,23,23,0.12). Default fill: #292524 at 50% (decorative).
-                // Warning: solid peach full bar (130px), no track.
-                const renderMiniProgress = (atLimit, ratio) => (
-                  <div
-                    aria-hidden
-                    style={{
-                      width: 130, height: 4, borderRadius: 999, overflow: 'hidden',
-                      backgroundColor: atLimit ? '#bd6c1a' : 'rgba(23,23,23,0.12)',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {!atLimit && (
-                      <div style={{
-                        height: '100%',
-                        width: `${Math.min(100, ratio)}%`,
-                        backgroundColor: '#292524',
-                        borderRadius: 999,
-                        transition: 'width 0.5s ease',
-                      }} />
-                    )}
-                  </div>
-                );
-
-                return (
-                  <div
-                    className="mt-5 bg-white overflow-hidden"
-                    style={{
-                      borderRadius: 4,
-                      border: bodyWarning
-                        ? '1px solid rgba(238,185,126,0.5)'
-                        : isTrial
-                          ? `1px solid ${trialBorderColor}`
-                          : '1px solid #e7e5e3',
-                      // shadow/lg from Figma — two layers
-                      boxShadow:
-                        '0 4px 6px -4px rgba(26,26,26,0.05), ' +
-                        '0 10px 15px -3px rgba(26,26,26,0.05)',
-                    }}
-                  >
-                    {/* Header — trial badge (icon + ESSAI GRATUIT left + EXPIRE DANS X JOURS right)
-                        when in trial, otherwise the consumption label.
-                        Peach gradient when bodyWarning OR trial ending. */}
-                    {isTrial ? (
-                      <div
-                        style={{
-                          padding: '16px 20px',
-                          borderBottom: '1px solid #e7e5e3',
-                          background: trialBg,
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          gap: 12,
-                          fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 11, fontWeight: 500,
-                          color: trialTextColor,
-                          textTransform: 'uppercase', letterSpacing: 'normal',
-                        }}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <Clock className="w-3 h-3" strokeWidth={1.75} />
-                          <span>Essai gratuit</span>
-                        </span>
-                        {!trialExpired && (
-                          <span>
-                            Expire dans{' '}
-                            <span className="tabular-nums" style={{ fontWeight: 700 }}>
-                              {daysRemaining} jour{daysRemaining > 1 ? 's' : ''}
-                            </span>
-                          </span>
-                        )}
-                        {trialExpired && <span style={{ fontWeight: 700 }}>Expiré</span>}
+            {/* ── INCLUS DANS CHAQUE LICENCE — rappel des fonctionnalités ───── */}
+            {isAdmin && (
+              <div className="pt-6">
+                {sectionLabel('INCLUS DANS CHAQUE LICENCE')}
+                <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
+                  {PLAN_FEATURES.map((f, i) => {
+                    const Icon = f.icon;
+                    return (
+                      <div key={i} className="flex items-center gap-3 px-5 py-3.5">
+                        <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-[13px] text-[#292524] font-medium">{f.label}</span>
+                        {f.hint && <span className="text-[12px] text-[#a8a29e]">({f.hint})</span>}
                       </div>
-                    ) : (
-                      <div
-                        style={{
-                          padding: '20px',
-                          background: bodyWarning
-                            ? 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)'
-                            : 'transparent',
-                        }}
-                      >
-                        <div style={{
-                          fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 11, fontWeight: 500,
-                          color: bodyWarning ? '#855b31' : '#78716c',
-                          textTransform: 'uppercase', letterSpacing: 'normal',
-                        }}>
-                          {headerLabel}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Body */}
-                    <div style={{
-                      padding: isTrial ? '20px 20px 24px' : '0 20px 24px',
-                      display: 'flex', flexDirection: 'column',
-                      gap: bodyWarning ? 10 : 16,
-                    }}>
-                      <div className="flex flex-col gap-0.5" style={{ letterSpacing: '-0.6px' }}>
-                        <div className="flex items-baseline gap-1">
-                          <span style={{
-                            fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
-                            fontSize: 48, fontWeight: 400,
-                            color: bodyWarning ? '#bd6c1a' : '#292524',
-                            letterSpacing: '-0.6px', lineHeight: '40px',
-                          }} className="tabular-nums">
-                            {heroNum}
-                          </span>
-                          <span style={{
-                            fontFamily: "'Inter', system-ui, sans-serif",
-                            fontSize: 24, fontWeight: 500,
-                            color: '#78716c', opacity: 0.5,
-                            lineHeight: '32px',
-                          }} className="tabular-nums">
-                            / {cfg.limit}
-                          </span>
-                        </div>
-                        <div style={{
-                          fontFamily: "'Inter', system-ui, sans-serif",
-                          fontSize: 12, fontWeight: 500, color: '#78716c',
-                          lineHeight: '16px',
-                        }}>
-                          {subtitle}
-                        </div>
-                      </div>
-
-                      {/* Body progress bar */}
-                      <div style={{
-                        height: 4, width: '100%', borderRadius: 999, overflow: 'hidden',
-                        backgroundColor: bodyWarning ? '#bd6c1a' : '#eeece6',
-                      }}>
-                        {!bodyWarning && barFillWidth > 0 && (
-                          <div style={{
-                            height: '100%', width: `${barFillWidth}%`,
-                            backgroundColor: barFillColor,
-                            borderRadius: 999,
-                            transition: 'width 0.5s ease',
-                          }} />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Footer row — Dossiers supplémentaires (conditional) */}
-                    {showSuppl && (() => {
-                      const supplRatio = totalCredits > 0 ? (creditsUsed / totalCredits) * 100 : 0;
-                      return (
-                        <div
-                          className="flex items-center justify-between gap-3"
-                          style={{
-                            borderTop: '1px solid #e7e5e3',
-                            padding: '16px 20px',
-                            backgroundColor: 'white',
-                            boxShadow: extrasAtLimit ? 'inset 3px 0 0 0 #bd6c1a' : 'none',
-                            fontFamily: "'IBM Plex Mono', monospace",
-                            fontSize: 11, fontWeight: 500,
-                            color: extrasAtLimit ? '#855b31' : '#78716c',
-                            textTransform: 'uppercase', letterSpacing: 'normal',
-                          }}
-                        >
-                          <span className="inline-flex items-center gap-2.5 min-w-0">
-                            <span>Dossiers supplémentaires</span>
-                            <InfoTip label="Information sur les dossiers supplémentaires">
-                              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#b9703f', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
-                                Crédits dossier
-                              </div>
-                              <div>
-                                Dossiers achetés en supplément de votre forfait annuel. Ils s'activent automatiquement quand le quota est atteint, restent disponibles jusqu'à utilisation et n'expirent pas.
-                              </div>
-                            </InfoTip>
-                          </span>
-                          <span className="inline-flex items-center gap-2.5 flex-shrink-0">
-                            {renderMiniProgress(extrasAtLimit, supplRatio)}
-                            <span
-                              className="tabular-nums text-right"
-                              style={{ width: 60, color: extrasAtLimit ? '#855b31' : '#78716c' }}
-                            >
-                              {creditsUsed}/{totalCredits}
-                            </span>
-                          </span>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Footer row — Dossiers actifs en cours (paid only) */}
-                    {showActifs && (() => {
-                      const actifsRatio = cfg.maxActifs > 0 ? (cfg.usedActifs / cfg.maxActifs) * 100 : 0;
-                      return (
-                        <div
-                          className="flex items-center justify-between gap-3"
-                          style={{
-                            borderTop: '1px solid #e7e5e3',
-                            padding: '16px 20px',
-                            backgroundColor: 'white',
-                            boxShadow: actifsAtLimitFooter ? 'inset 3px 0 0 0 #bd6c1a' : 'none',
-                            fontFamily: "'IBM Plex Mono', monospace",
-                            fontSize: 11, fontWeight: 500,
-                            color: actifsAtLimitFooter ? '#855b31' : '#78716c',
-                            textTransform: 'uppercase', letterSpacing: 'normal',
-                          }}
-                        >
-                          <span className="inline-flex items-center gap-2.5 min-w-0">
-                            <span>Dossiers actifs en cours</span>
-                            <InfoTip label="Information sur les dossiers actifs en cours">
-                              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#b9703f', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
-                                Capacité simultanée
-                              </div>
-                              <div>
-                                Nombre maximum de dossiers ouverts en parallèle, défini par votre forfait : <span className="tabular-nums">{cfg.limit}</span> dossiers/an donne droit à <span className="tabular-nums">{cfg.maxActifs}</span> dossiers actifs simultanés. Marquez un dossier comme terminé — sans le supprimer — pour libérer une place.
-                              </div>
-                            </InfoTip>
-                          </span>
-                          <span className="inline-flex items-center gap-2.5 flex-shrink-0">
-                            {renderMiniProgress(actifsAtLimitFooter, actifsRatio)}
-                            <span
-                              className="tabular-nums text-right"
-                              style={{ width: 60, color: actifsAtLimitFooter ? '#855b31' : '#78716c' }}
-                            >
-                              {cfg.usedActifs}/{cfg.maxActifs}
-                            </span>
-                          </span>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                );
-              })()}
-
-              {/* Always remind the benefits/features (same list across free, paid, paid·out) */}
-              <div className="mt-6 bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
-                {FEATURES.map((f, i) => {
-                  const Icon = f.icon;
-                  return (
-                    <div key={i} className="flex items-center gap-3 px-5 py-3.5">
-                      <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                      <span className="text-[13px] text-[#292524] font-medium">{f.label}</span>
-                      {f.hint && <span className="text-[12px] text-[#a8a29e]">({f.hint})</span>}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+            )}
 
-            </div>
-
-            {/* Upgrade modal — tabs: Modifier mon plan / Acheter des crédits */}
-            {billingUpgradeModalOpen && (() => {
-              const activeTab = billingModalTab;
-              const UNIT_PRICE = 150;
-              const creditTotal = billingCreditQty * UNIT_PRICE;
-              return (
+            {/* Buy-licences modal — pick a plan + a number of licences (admin) */}
+            {billingUpgradeModalOpen && isAdmin && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+                onClick={() => setBillingUpgradeModalOpen(false)}
+              >
                 <div
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                  style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
-                  onClick={() => setBillingUpgradeModalOpen(false)}
+                  className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
+                  style={{ width: 640, maxHeight: '90vh' }}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <div
-                    className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
-                    style={{ width: 720, maxHeight: '90vh' }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {/* Tabs row — doubles as the modal header (no separate title) */}
-                    <div className="px-6 pt-4 border-b border-[#e7e5e3] flex items-end justify-between gap-2">
-                      <div className="flex gap-1">
-                        {[
-                          { id: 'plan', label: 'Modifier mon plan' },
-                          { id: 'credits', label: 'Acheter des crédits unitaires' },
-                        ].map(t => {
-                          const active = activeTab === t.id;
-                          return (
-                            <button
-                              key={t.id}
-                              onClick={() => setBillingModalTab(t.id)}
-                              className={`relative px-3 pb-3 text-[13px] font-medium transition-colors ${active ? 'text-[#292524]' : 'text-[#78716c] hover:text-[#292524]'}`}
-                            >
-                              {t.label}
-                              {active && <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-[#292524]" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <button
-                        onClick={() => setBillingUpgradeModalOpen(false)}
-                        className="w-8 h-8 mb-1 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors flex-shrink-0"
-                      >
-                        <X className="w-4 h-4 text-[#78716c]" />
-                      </button>
+                  <div className="px-6 pt-5 pb-4 border-b border-[#e7e5e3] flex items-start justify-between gap-2">
+                    <div>
+                      <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '20px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em' }}>
+                        Ajouter des licences
+                      </h2>
+                      <p className="text-[12px] text-[#78716c] mt-1">
+                        Choisissez un plan et un nombre de licences. Vous les attribuerez ensuite à vos collaborateurs.
+                      </p>
                     </div>
+                    <button
+                      onClick={() => setBillingUpgradeModalOpen(false)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors flex-shrink-0"
+                    >
+                      <X className="w-4 h-4 text-[#78716c]" />
+                    </button>
+                  </div>
 
-                    <div className="flex-1 overflow-y-auto px-8 py-6">
-                      {activeTab === 'plan' ? (
-                        <>
-                          {/* Serif headline with peach pill */}
-                          <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '22px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em', lineHeight: 1.3 }}>
-                            J'ai besoin de{' '}
-                            <span
-                              className="inline-flex items-center justify-center align-middle text-white tabular-nums"
-                              style={{ background: '#e88f5c', borderRadius: 9999, padding: '2px 12px', fontSize: '15px', fontWeight: 500, fontFamily: "'Inter', system-ui, sans-serif", lineHeight: 1.2, minWidth: 40 }}
-                            >
-                              {selectedTier.matters || '200+'}
-                            </span>
-                            {' '}nouveaux dossiers par an
-                          </h2>
-
-                          {/* Slider */}
-                          <div className="mt-5">
-                            <input
-                              type="range"
-                              min={0}
-                              max={TIERS.length - 1}
-                              step={1}
-                              value={billingTierIndex}
-                              onChange={(e) => setBillingTierIndex(Number(e.target.value))}
-                              className="w-full h-1 appearance-none bg-[#e7e5e3] rounded-full cursor-pointer accent-[#292524]"
-                            />
-                            <div className="flex justify-between mt-2.5">
-                              {TIERS.map((t, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() => setBillingTierIndex(i)}
-                                  className={`text-[12px] tabular-nums transition-colors ${i === billingTierIndex ? 'text-[#292524] font-medium' : 'text-[#a8a29e] hover:text-[#78716c]'}`}
-                                >
-                                  {t.matters || '200+'}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Price */}
-                          <div className="mt-6">
-                            <div className="flex items-baseline gap-1.5">
-                              <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '36px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                                {selectedTier.pricePerMatter ? `${selectedTier.pricePerMatter}€` : 'Sur devis'}
-                              </span>
-                              {selectedTier.pricePerMatter && (
-                                <span className="text-[13px] text-[#78716c]">/dossier</span>
-                              )}
-                            </div>
-                            {selectedYearlyTotal && (
-                              <p className="text-[14px] text-[#44403c] mt-2">
-                                soit <span className="font-medium text-[#292524] tabular-nums">{fmtEur(selectedYearlyTotal)} €</span> HT par an
-                              </p>
-                            )}
-                            {selectedTier.maxActifs && (
-                              <p className="text-[12px] text-[#78716c] mt-1.5">
-                                Jusqu'à <span className="font-medium text-[#292524] tabular-nums">{selectedTier.maxActifs}</span> dossiers actifs en parallèle
-                              </p>
-                            )}
-                            {!selectedTier.pricePerMatter && (
-                              <p className="text-[12px] text-[#78716c] mt-1">Volume sur mesure pour les cabinets de plus grande taille.</p>
-                            )}
-                          </div>
-
-                          {/* Features list */}
-                          <div className="mt-6 bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
-                            {FEATURES.map((f, i) => {
-                              const Icon = f.icon;
-                              return (
-                                <div key={i} className="flex items-center gap-3 px-5 py-2.5">
-                                  <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                                  <span className="text-[13px] text-[#292524] font-medium">{f.label}</span>
-                                  {f.hint && <span className="text-[12px] text-[#a8a29e]">({f.hint})</span>}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {/* Credits tab */}
-                          <p className="text-[14px] text-[#44403c] leading-relaxed max-w-md">
-                            Sans changer de plan, payez à la consommation. Idéal pour absorber un dépassement ponctuel.
-                          </p>
-
-                          {/* Quantity stepper */}
-                          <div className="mt-8 flex items-center gap-5">
-                            <div className="flex items-center gap-3">
-                              <span className="text-[12px] text-[#78716c]">Quantité</span>
-                              <div className="inline-flex items-center bg-white border border-[#e7e5e3] rounded-lg overflow-hidden">
-                                <button
-                                  onClick={() => setBillingCreditQty(Math.max(1, billingCreditQty - 1))}
-                                  className="w-9 h-10 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors"
-                                >
-                                  −
-                                </button>
-                                <span className="w-12 text-center text-[15px] font-medium tabular-nums text-[#292524]">
-                                  {billingCreditQty}
-                                </span>
-                                <button
-                                  onClick={() => setBillingCreditQty(billingCreditQty + 1)}
-                                  className="w-9 h-10 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors"
-                                >
-                                  +
-                                </button>
+                  <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
+                    {PRICING_PLANS.map((p) => {
+                      const qty = licenceDraft[p.id] || 0;
+                      const Glyph = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
+                      return (
+                        <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg border border-[#e7e5e3] px-4 py-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Glyph className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                            <div className="min-w-0">
+                              <div className="text-[14px] text-[#292524] font-medium">
+                                Plan {p.name}{' '}
+                                <span className="text-[11px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>· quota ×{p.quotaMult}</span>
                               </div>
+                              <div className="text-[12px] text-[#78716c] tabular-nums">{p.monthly} € HT / mois / licence</div>
+                              <div className="text-[11px] text-[#a8a29e] tabular-nums">Quota IA ≈ {p.weeklyEuros} € d'usage réel / semaine</div>
                             </div>
-                            <span className="text-[12px] text-[#78716c]">×</span>
-                            <span className="text-[14px] text-[#292524] tabular-nums">{UNIT_PRICE} € HT</span>
                           </div>
-
-                          {/* Total — big serif */}
-                          <div className="mt-8">
-                            <div className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider mb-1">Total</div>
-                            <div className="flex items-baseline gap-1.5">
-                              <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '36px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.02em', lineHeight: 1 }} className="tabular-nums">
-                                {fmtEur(creditTotal)} €
-                              </span>
-                              <span className="text-[13px] text-[#78716c]">HT</span>
-                            </div>
-                            <p className="text-[12px] text-[#78716c] mt-2">
-                              {billingCreditQty} dossier{billingCreditQty > 1 ? 's' : ''} supplémentaire{billingCreditQty > 1 ? 's' : ''} · paiement unique
-                            </p>
+                          <div className="inline-flex items-center bg-white border border-[#e7e5e3] rounded-lg overflow-hidden flex-shrink-0">
+                            <button
+                              onClick={() => setLicenceDraft((d) => ({ ...d, [p.id]: Math.max(0, (d[p.id] || 0) - 1) }))}
+                              className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors"
+                            >
+                              −
+                            </button>
+                            <span className="w-10 text-center text-[15px] font-medium tabular-nums text-[#292524]">{qty}</span>
+                            <button
+                              onClick={() => setLicenceDraft((d) => ({ ...d, [p.id]: (d[p.id] || 0) + 1 }))}
+                              className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors"
+                            >
+                              +
+                            </button>
                           </div>
-                        </>
-                      )}
-                    </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-                    {/* Footer CTA */}
-                    <div className="px-6 py-4 border-t border-[#e7e5e3] bg-[#fafaf9] flex items-center justify-between gap-3">
-                      {activeTab === 'plan' ? (
-                        <>
-                          <p className="text-[12px] text-[#78716c]">
-                            {selectedTier.pricePerMatter
-                              ? 'Paiement sécurisé sur Stripe · facturation annuelle'
-                              : 'Au-delà de 200 dossiers — contactez notre équipe.'}
-                          </p>
-                          <button
-                            onClick={() => {
-                              if (!selectedTier.pricePerMatter) {
-                                setBillingUpgradeModalOpen(false);
-                                setToastMessage('Demande de contact envoyée (démo).');
-                                setTimeout(() => setToastMessage(null), 3000);
-                              } else {
-                                setBillingUpgradeModalOpen(false);
-                                setToastMessage(`Redirection vers Stripe Checkout pour ${selectedTier.matters} dossiers / an…`);
-                                setTimeout(() => {
-                                  setBillingState('paid');
-                                  setToastMessage(`Plan ${selectedTier.matters} dossiers / an activé.`);
-                                  setTimeout(() => setToastMessage(null), 3000);
-                                }, 1800);
-                              }
-                            }}
-                            className="flex items-center gap-2 h-10 px-5 bg-[#292524] text-white text-[14px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
-                          >
-                            {selectedTier.pricePerMatter ? 'Souscrire' : 'Nous contacter'}
-                            {selectedTier.pricePerMatter && <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />}
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-[12px] text-[#78716c]">
-                            Paiement unique sur Stripe · sans engagement
-                          </p>
-                          <button
-                            onClick={() => {
-                              setBillingUpgradeModalOpen(false);
-                              setToastMessage(`Redirection vers Stripe Checkout pour ${billingCreditQty} dossier${billingCreditQty > 1 ? 's' : ''} (${fmtEur(creditTotal)} € HT)…`);
-                              setTimeout(() => setToastMessage(null), 3000);
-                            }}
-                            className="flex items-center gap-2 h-10 px-5 bg-[#292524] text-white text-[14px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
-                          >
-                            Acheter {billingCreditQty} dossier{billingCreditQty > 1 ? 's' : ''}
-                            <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
-                          </button>
-                        </>
-                      )}
+                  <div className="px-6 py-4 border-t border-[#e7e5e3] bg-[#fafaf9] flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider">Total mensuel</div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 400, color: '#18181b' }}>
+                          {fmtEur(draftTotal)} €
+                        </span>
+                        <span className="text-[12px] text-[#78716c]">HT / mois · {draftCount} licence{draftCount > 1 ? 's' : ''}</span>
+                      </div>
                     </div>
+                    <button
+                      disabled={draftCount === 0}
+                      onClick={() => {
+                        setLicenceInventory((inv) => {
+                          const next = { ...inv };
+                          PRICING_PLANS.forEach((p) => { next[p.id] = (next[p.id] || 0) + (licenceDraft[p.id] || 0); });
+                          return next;
+                        });
+                        setBillingUpgradeModalOpen(false);
+                        setToastMessage(`${draftCount} licence${draftCount > 1 ? 's' : ''} ajoutée${draftCount > 1 ? 's' : ''} · ${fmtEur(draftTotal)} € HT / mois (démo).`);
+                        setTimeout(() => setToastMessage(null), 3500);
+                      }}
+                      className={`flex items-center gap-2 h-10 px-5 text-white text-[14px] font-medium rounded-lg transition-colors ${draftCount === 0 ? 'bg-[#d6d3d1] cursor-not-allowed' : 'bg-[#292524] hover:bg-[#44403c]'}`}
+                    >
+                      Souscrire · engagement 1 an
+                      <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
+                    </button>
                   </div>
                 </div>
-              );
-            })()}
+              </div>
+            )}
 
-            {/* Stripe portal — broken down into clickable links on every paid scenario */}
-            {billingState !== 'free' && (
+            {/* Manage subscription — Stripe portal links (admin, has a plan) */}
+            {isAdmin && billingState !== 'none' && (
               <div className="pt-8">
-                <div className="flex items-baseline gap-3 mb-4">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>
-                    GÉRER MON ABONNEMENT
-                  </span>
-                  <span className="flex-1 h-px bg-[#e7e5e3]" />
-                </div>
+                {sectionLabel('GÉRER MON ABONNEMENT')}
                 <div className="rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
                   {[
-                    { label: 'Mes factures', target: 'factures', external: true },
-                    { label: 'Changer ma méthode de paiement', target: 'paiement', external: true },
-                    ...(billingState !== 'over' ? [{ label: 'Acheter des crédits supplémentaires', target: 'crédits', external: true }] : []),
+                    { label: 'Mes factures', target: 'factures' },
+                    { label: 'Changer ma méthode de paiement', target: 'paiement' },
                   ].map((link) => (
                     <button
                       key={link.target}
                       onClick={() => {
-                        if (link.target === 'plan') {
-                          setBillingTierIndex(currentTierIndex);
-                          setBillingUpgradeModalOpen(true);
-                        } else {
-                          setToastMessage(`Redirection vers Stripe — ${link.label.toLowerCase()}…`);
-                          setTimeout(() => setToastMessage(null), 3000);
-                        }
+                        setToastMessage(`Redirection vers Stripe — ${link.label.toLowerCase()}…`);
+                        setTimeout(() => setToastMessage(null), 3000);
                       }}
                       className="w-full flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-[#eeece6] transition-colors text-left group"
                     >
                       <span className="text-[14px] text-[#292524] font-medium">{link.label}</span>
-                      {link.external
-                        ? <ExternalLink className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
-                        : <ChevronRight className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={2} />
-                      }
+                      <ExternalLink className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
                     </button>
                   ))}
                 </div>
@@ -21069,6 +21090,7 @@ export default function App() {
         label: 'Votre compte',
         items: [
           { id: 'general', label: 'Général', icon: User },
+          { id: 'usage', label: 'Mon usage', icon: Activity },
           { id: 'tampon', label: 'Tamponnage', icon: Stamp },
         ],
       },
@@ -21076,7 +21098,8 @@ export default function App() {
         label: 'Organisation',
         items: [
           { id: 'users', label: 'Collaborateurs', icon: Users },
-          { id: 'billing', label: 'Plan et facturation', icon: Receipt },
+          // Plan & facturation (cabinet billing) is admin-only — members see their plan in "Mon usage".
+          ...(isAdmin ? [{ id: 'billing', label: 'Plan et facturation', icon: Receipt }] : []),
           { id: 'baremes', label: 'Référentiels', icon: Scale },
           { id: 'templates', label: "Modèles d'actes", icon: BookOpen },
           { id: 'preferences', label: 'Mémoire et préférences', icon: Brain },
@@ -21100,6 +21123,24 @@ export default function App() {
               Paramètres
             </span>
           </button>
+
+          {/* Demo view toggle — admin / membre (preview every settings page) */}
+          <div className="px-3 py-2.5 border-b border-[#e7e5e3]">
+            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+              Démo · vue
+            </div>
+            <div className="flex items-center gap-1.5">
+              {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setDemoPersona(s.id)}
+                  className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Section groups */}
           <div className="flex-1 overflow-y-auto">
@@ -21137,8 +21178,10 @@ export default function App() {
           {settingsSection === 'users' && renderSettingsUsers()}
           {settingsSection === 'general' && renderSettingsGeneral()}
           {settingsSection === 'tampon' && renderSettingsTampon()}
+          {settingsSection === 'usage' && renderSettingsUsage()}
           {settingsSection === 'preferences' && renderSettingsPreferences()}
-          {settingsSection === 'billing' && renderSettingsBilling()}
+          {/* Cabinet billing is admin-only; members are routed to "Mon usage" instead. */}
+          {settingsSection === 'billing' && (isAdmin ? renderSettingsBilling() : renderSettingsUsage())}
           {settingsSection === 'baremes' && renderSettingsBaremes()}
           {settingsSection === 'templates' && renderSettingsTemplates()}
         </div>
@@ -22989,6 +23032,21 @@ export default function App() {
       {/* Parrainage modal — triggered from the sidebar promo card */}
       {renderParrainageModal()}
 
+      {/* Add-licence confirm — shows the resulting monthly price */}
+      {renderAddLicenceModal()}
+
+      {/* Collaborator profile panel — view/edit a member (role, plan, delete) */}
+      {renderMemberProfilePanel()}
+
+      {/* Licence upgrade confirm — when assigning a plan with no free licence */}
+      {renderLicenceUpgradeModal()}
+
+      {/* Weekly-quota exhausted — admin self-upgrade */}
+      {renderQuotaUpgradeModal()}
+
+      {/* Weekly-quota exhausted — member asks admin for an upgrade */}
+      {renderAskUpgradeModal()}
+
       {/* Toast notification */}
       {toastMessage && (
         <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 text-white text-body rounded-lg shadow-lg flex items-center gap-2 animate-fade-up bg-zinc-800`}>
@@ -23058,7 +23116,7 @@ export default function App() {
             <Eye className="w-4 h-4 flex-shrink-0" style={{ color: '#855b31' }} strokeWidth={1.75} />
             <p className="text-body-medium truncate" style={{ color: '#855b31' }}>
               Dossier terminé en lecture seule.
-              <span className="ml-1 font-normal">Reprendre consomme un crédit.</span>
+              <span className="ml-1 font-normal">Reprenez-le à tout moment.</span>
             </p>
           </div>
           <button
