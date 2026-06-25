@@ -20,13 +20,14 @@ export default function PieceRow({
   onContextMenu,
   onOpenMenu,
 }) {
-  const label = piece.intitule || (piece.nom ? piece.nom.replace(/\.[^/.]+$/, '') : '');
-  // Split parts (a découpé document's pieces / exploded pile segments) get a
-  // small scissors marker so they're recognisable in the flat document list.
-  // Drop-first rows carry `_docSplit`; seeded bordereau pieces carry
-  // `splitIndex` / `siblings` — either signals a découpé part.
+  // Split parts (a découpé document's pieces / exploded pile segments) keep their
+  // AI clean name and get the scissors marker; whole (non-split) documents show
+  // their ORIGINAL filename instead. Drop-first rows carry `_docSplit`; seeded
+  // bordereau pieces carry `splitIndex` / `siblings` — either signals a part.
   const isSplitDoc = piece._docSplit === 'split' || piece._docSplit === 'exploded'
     || piece.splitIndex != null || !!piece.siblings;
+  const cleanLabel = piece.intitule || (piece.nom ? piece.nom.replace(/\.[^/.]+$/, '') : '');
+  const label = isSplitDoc ? cleanLabel : (piece.nomOriginal || cleanLabel);
   const [hover, setHover] = useState(false);
 
   const handleClick = (e) => {
