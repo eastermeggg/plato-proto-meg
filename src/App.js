@@ -442,42 +442,6 @@ function TriStateCheckbox({ state, onClick, label }) {
 // must be renamed, so a sensible default is always provided (and is editable).
 const DEFAULT_SPLIT_PROMPT = 'Nomme chaque pièce selon sa nature, son auteur et sa date (ex. « Facture - Cabinet Martin - mars 2023 »).';
 
-// Posteriori split-progress card shown ON TOP of the Pièces table while a
-// document is being split: « Découpage en cours… », then « N pièces détectées »
-// with Garder en 1 pièce / Voir et ajuster. (Committed splits render inline.)
-function SplitProgressCard({ piece, onKeepAsOne, onAdjust }) {
-  const ps = piece._pSplit || {};
-  const splitting = ps.state === 'splitting';
-  const name = piece.cleanName || (piece.originalName ? piece.originalName.replace(/\.[^/.]+$/, '') : 'Document');
-  const count = ps.count || 0;
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-[#e7e5e3] bg-white px-3.5 py-3 shadow-sm">
-      <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-[#eeece6] flex-shrink-0">
-        {splitting
-          ? <Loader2 className="w-4 h-4 text-[#44403c] animate-spin" strokeWidth={2} />
-          : <Scissors className="w-4 h-4 text-[#44403c]" strokeWidth={1.75} />}
-      </span>
-      <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-[#292524] truncate">{name}</div>
-        <div className="text-[12px] text-[#78716c]">
-          {splitting ? 'Découpage en cours…' : `${count} pièce${count > 1 ? 's' : ''} détectée${count > 1 ? 's' : ''}`}
-        </div>
-      </div>
-      {!splitting && (
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <button onClick={onKeepAsOne} className="h-8 px-3 rounded-lg text-sm font-medium text-[#44403c] hover:bg-[#f8f7f5] transition-colors">
-            Garder en 1 pièce
-          </button>
-          <button onClick={onAdjust} className="h-8 px-3 rounded-lg text-sm font-medium text-white bg-[#292524] hover:bg-[#44403c] transition-colors inline-flex items-center gap-1.5">
-            <Scissors className="w-3.5 h-3.5" strokeWidth={1.75} />
-            Voir et ajuster
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // Two-option segmented control for a document's split choice - reuses the IV
 // view-mode toggle style: cream track, white selected pill (subtle shadow),
 // IBM Plex Mono 11px uppercase. « Ne pas découper » (keep whole) / « Découper ».
@@ -15229,41 +15193,39 @@ export default function App() {
               onRequestDocSplit={requestDocSplit}
               onPosterioriAdjust={posterioriAdjust}
               reviewZone={(() => {
-                // Posteriori split-progress cards sit on top of the table while a
-                // document is being split or awaits review, above the À vérifier banner.
-                const splitCards = dropFirstPieces.filter(p => p._pSplit && (p._pSplit.state === 'splitting' || p._pSplit.state === 'detected'));
-                const hasBanner = (processingCount + errorZoneItems.length + doublonZoneItems.length + pendingPileReviews.length) > 0;
-                if (!splitCards.length && !hasBanner) return null;
+                // Posteriori split (splitting/detected) docs render as cards INSIDE
+                // the À vérifier banner — same shell/buttons as the error/doublon cards.
+                const posterioriSplits = dropFirstPieces
+                  .filter(p => p._pSplit && (p._pSplit.state === 'splitting' || p._pSplit.state === 'detected'))
+                  .map(p => ({
+                    id: p.id,
+                    name: p.cleanName || (p.originalName ? p.originalName.replace(/\.[^/.]+$/, '') : 'Document'),
+                    state: p._pSplit.state,
+                    count: p._pSplit.count || 0,
+                  }));
+                const total = posterioriSplits.length + processingCount + errorZoneItems.length + doublonZoneItems.length + pendingPileReviews.length;
+                if (total === 0) return null;
                 return (
-                  <div className="flex flex-col gap-2">
-                    {splitCards.map(p => (
-                      <SplitProgressCard
-                        key={`psc-${p.id}`}
-                        piece={p}
-                        onKeepAsOne={() => posterioriKeepAsOne(p.id)}
-                        onAdjust={() => posterioriAdjust(p.id)}
-                      />
-                    ))}
-                    {hasBanner && (
-                      <PileReviewBanner
-                        processingCount={processingCount}
-                        errorItems={errorZoneItems}
-                        doublonItems={doublonZoneItems}
-                        pileIds={pendingPileReviews}
-                        piles={piles}
-                        rule={globalSplitRule}
-                        onApply={applyPileChoice}
-                        onUndo={undoPileChoice}
-                        onDismiss={dismissPileReview}
-                        onAdjust={(pileId) => setPileDocPanel({ pileId, segmentId: null, mode: 'adjust' })}
-                        onDoublonKeepBoth={resolveDoublonKeepBoth}
-                        onDoublonIgnore={resolveDoublonIgnore}
-                        onDoublonView={openDoublonCompare}
-                        onErrorRetry={retryDoc}
-                        onErrorIgnore={resolveDoublonIgnore}
-                      />
-                    )}
-                  </div>
+                  <PileReviewBanner
+                    processingCount={processingCount}
+                    errorItems={errorZoneItems}
+                    doublonItems={doublonZoneItems}
+                    pileIds={pendingPileReviews}
+                    piles={piles}
+                    rule={globalSplitRule}
+                    posterioriSplits={posterioriSplits}
+                    onPosterioriKeepAsOne={posterioriKeepAsOne}
+                    onPosterioriAdjust={posterioriAdjust}
+                    onApply={applyPileChoice}
+                    onUndo={undoPileChoice}
+                    onDismiss={dismissPileReview}
+                    onAdjust={(pileId) => setPileDocPanel({ pileId, segmentId: null, mode: 'adjust' })}
+                    onDoublonKeepBoth={resolveDoublonKeepBoth}
+                    onDoublonIgnore={resolveDoublonIgnore}
+                    onDoublonView={openDoublonCompare}
+                    onErrorRetry={retryDoc}
+                    onErrorIgnore={resolveDoublonIgnore}
+                  />
                 );
               })()}
             />
