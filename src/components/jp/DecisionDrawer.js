@@ -165,7 +165,7 @@ export default function DecisionDrawer({
       <>
         <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, bottom: 0, right: 'var(--chat-offset, 0px)', zIndex: 29, backgroundColor: 'rgba(41, 37, 36, 0.12)' }} />
         <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col"
-             style={{ width: 820, maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}>
+             style={{ width: 820, maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
 
           {/* Top bar */}
           <div className="px-4 py-2.5 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white">
@@ -324,7 +324,7 @@ export default function DecisionDrawer({
         }
         style={inline
           ? { animation: 'slideInRightSubtle 0.22s ease-out' }
-          : { width: 820, maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}
+          : { width: 820, maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}
       >
         {/* ═══════════ TOP BAR ═══════════
             Row 1: prev/next (left) ······································· close (right)

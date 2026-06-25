@@ -15455,7 +15455,7 @@ export default function App() {
       {/* Dimmed backdrop — covers the canvas left of the chat (respects --chat-offset
           so the chat + its resize divider stay clear); click to close. */}
       <div onClick={onClosePanel} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
-      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}>
+      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Common header: file icon + title (left), nav + close (right) */}
         <div className="px-4 py-3.5 border-b border-[#e7e5e3] flex items-center justify-between gap-3 flex-shrink-0 bg-white">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -19161,7 +19161,7 @@ export default function App() {
       {/* Dimmed backdrop — covers the canvas left of the chat (respects --chat-offset);
           click to close. */}
       <div onClick={() => setBaremeViewerOpen(null)} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
-      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}>
+      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Header — matches doc preview pattern */}
         <div className="px-4 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white" style={{ paddingTop: 14, paddingBottom: 14 }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -255,7 +255,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
     />
     <div
       className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col"
-      style={{ width: '1040px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}
+      style={{ width: '1040px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}
     >
       {/* Header — harmonized with the document preview panel. Title + actions
           depend on the mode; the document pane below is shared across modes. */}
