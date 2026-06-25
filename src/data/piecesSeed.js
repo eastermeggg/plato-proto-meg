@@ -1,4 +1,4 @@
-// Bordereau seed — MARTINIE-style example mapping the legacy 14 pieces
+// Bordereau seed - MARTINIE-style example mapping the legacy 14 pieces
 // (p-1 … p-14) into a hierarchical category tree, plus a few extra pieces
 // to showcase the Hors bordereau section and the rare "Sans catégorie"
 // case.
@@ -7,23 +7,22 @@
 // PRP, IV postes) references them via `pieceIds: ['p-1', 'p-7', …]` and
 // renaming would break those references.
 //
-// Gap at IV: root categories have orders [0, 1, 2, 4]. The numbering helper
-// derives romans from `order + 1`, so the displayed sequence is I, II, III,
-// V — IV is intentionally skipped (MARTINIE pattern from spec §3).
+// Gaps at III & IV: root categories have orders [0, 1, 4] - « Frais médicaux »
+// is now nested under Médical, not a root. The numbering helper derives romans
+// from `order + 1`, so the displayed top-level sequence is I, II, V.
 
 export const BORDEREAU_CATEGORIES = [
-  // I. Procédure — empty, shows the design for an empty category
+  // I. Procédure - empty, shows the design for an empty category
   { id: 'cat-procedure', name: 'Procédure', parentId: null, order: 0 },
 
   // II. Médical
   { id: 'cat-medical', name: 'Médical', parentId: null, order: 1 },
   { id: 'cat-expertises', name: 'Expertises', parentId: 'cat-medical', order: 0 },
   { id: 'cat-soins', name: 'Comptes-rendus & soins', parentId: 'cat-medical', order: 1 },
+  // Frais médicaux - folder nested INSIDE Médical (holds the split factures).
+  { id: 'cat-frais-med', name: 'Frais médicaux', parentId: 'cat-medical', order: 2 },
 
-  // III. Frais médicaux — flat (no subcategories)
-  { id: 'cat-frais-med', name: 'Frais médicaux', parentId: null, order: 2 },
-
-  // ── (order=3 deliberately absent → IV is skipped in the rendered sequence)
+  // ── (root orders 2 & 3 deliberately absent → III and IV are skipped)
 
   // V. Pertes de revenus
   { id: 'cat-revenus', name: 'Pertes de revenus', parentId: null, order: 4 },
@@ -86,15 +85,15 @@ export const BORDEREAU_PIECES = [
     description: "Décompte des indemnités de prévoyance versées par AG2R.",
     categoryId: 'cat-indemnites', inclureDansBordereau: true, orderInCategory: 2 },
 
-  // ── Sans catégorie (not yet classified — newly arrived, rare in practice)
-  { id: 'p-sc1', nom: 'Constat huissier voirie.pdf', nomOriginal: 'constat_huissier_2024.pdf', intitule: "Constat d'huissier — état de la chaussée", date: '18/03/2024', type: 'Constat', used: false,
+  // ── Sans catégorie (not yet classified - newly arrived, rare in practice)
+  { id: 'p-sc1', nom: 'Constat huissier voirie.pdf', nomOriginal: 'constat_huissier_2024.pdf', intitule: "Constat d'huissier - état de la chaussée", date: '18/03/2024', type: 'Constat', used: false,
     description: "Constat d'huissier sur l'état de la chaussée au lieu de l'accident.",
     categoryId: null, inclureDansBordereau: true, orderInCategory: 0 },
 
-  // ── Extra dossier pieces NOT cited in the demo bordereau — so the "Ajouter
+  // ── Extra dossier pieces NOT cited in the demo bordereau - so the "Ajouter
   // une pièce" modal shows a real mix of already-added (locked) and addable.
 
-  // I. Procédure (was empty — now has pieces)
+  // I. Procédure (was empty - now has pieces)
   { id: 'p-15', nom: 'PV gendarmerie.pdf', nomOriginal: 'pv_gendarmerie_140924.pdf', intitule: 'Procès-verbal de gendarmerie', date: '14/09/2024', type: 'PV', used: false,
     categoryId: 'cat-procedure', inclureDansBordereau: true, orderInCategory: 0 },
   { id: 'p-16', nom: 'Ordonnance référé.pdf', nomOriginal: 'ordonnance_refere_2024.pdf', intitule: 'Ordonnance de référé-expertise', date: '03/10/2024', type: 'Décision', used: false,

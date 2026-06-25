@@ -9,7 +9,7 @@ const SHADOW_2XS = '0px 1px 1px rgba(26,26,26,0.05)';
 const SANS = "'Inter', system-ui, sans-serif";
 const MONO = "'IBM Plex Mono', monospace";
 
-// "Ajuster le découpage" — right-side sheet (slideInRight, 1040px).
+// "Ajuster le découpage" - right-side sheet (slideInRight, 1040px).
 //
 // Reading flow (Lecteur) + cut/heal interactions (Massicot), restyled:
 // light neutral canvas, borderless pages floating on layered shadows,
@@ -90,7 +90,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
   // On open, bring the clicked segment into view (the observer keeps it active).
   useEffect(() => {
     // Only auto-scroll when the whole document is shown (adjust mode). In view
-    // mode a single part renders already in position — scrolling it would jump.
+    // mode a single part renders already in position - scrolling it would jump.
     if (!activeSegmentId || mode === 'view') return;
     const idx = pile.segments.findIndex(s => s.id === activeSegmentId);
     if (idx <= 0) return;
@@ -148,7 +148,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
     });
   };
 
-  // Réunir tout en 1 document — heal every boundary at once, collapsing the
+  // Réunir tout en 1 document - heal every boundary at once, collapsing the
   // whole découpage into a single segment (vs. clicking « Recoller » N times).
   // The first part keeps its name/metadata; pages run end to end.
   const mergeAll = () => {
@@ -196,7 +196,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
     });
   };
 
-  // Rename a document — stores a custom name that overrides the derived
+  // Rename a document - stores a custom name that overrides the derived
   // title everywhere (page card, sommaire, breadcrumb). Empty clears it.
   const renameSegment = (i, name) => {
     const clean = (name || '').trim();
@@ -218,7 +218,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
     setActiveIdx(a => Math.max(0, Math.min(a, segments.length - 2)));
   };
 
-  // Always-on name edit (view metadata) — no undo entry per keystroke.
+  // Always-on name edit (view metadata) - no undo entry per keystroke.
   const setSegmentName = (i, name) => {
     setSegments(prev => prev.map((s, idx) => idx === i ? { ...s, _customName: name } : s));
   };
@@ -229,12 +229,12 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
   };
 
   // Single "Enregistrer" action: save the current découpage and close. The
-  // mode follows the découpage itself — one part left = one document (bundle),
-  // several = exploded — so there's no separate keep/explode choice to make.
+  // mode follows the découpage itself - one part left = one document (bundle),
+  // several = exploded - so there's no separate keep/explode choice to make.
   const saveAndClose = () => commitAndChoose(segments.length > 1 ? 'exploded' : 'bundle');
 
   const scrollToSegment = (idx) => {
-    setActiveIdx(idx); // immediate active state — don't wait for the scroll observer
+    setActiveIdx(idx); // immediate active state - don't wait for the scroll observer
     const el = segmentRefs.current.get(idx);
     if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
   };
@@ -250,14 +250,14 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
     {/* Backdrop */}
     <div
       onClick={closePanel}
-      className="fixed inset-0 z-20"
-      style={{ background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
+      className="fixed top-0 left-0 bottom-0 z-20"
+      style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
     />
     <div
-      className="fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col"
-      style={{ width: '1040px', animation: 'slideInRight 0.2s ease-out' }}
+      className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col"
+      style={{ width: '1040px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}
     >
-      {/* Header — harmonized with the document preview panel. Title + actions
+      {/* Header - harmonized with the document preview panel. Title + actions
           depend on the mode; the document pane below is shared across modes. */}
       <div className="px-4 py-3.5 border-b border-[#e7e5e3] flex items-center justify-between gap-3 flex-shrink-0 bg-white">
         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -300,34 +300,16 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
       </div>
 
       <div className="flex-1 flex min-h-0">
-        {/* Left — document reading flow. Shared across view/adjust; only the
+        {/* Left - document reading flow. Shared across view/adjust; only the
             cut/heal junctions appear in adjust mode, so the pages never move. */}
         <div className="flex-1 min-w-0 relative bg-[#f8f7f5]">
-          {/* Floating breadcrumb */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <div
-              className="flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/85 text-[12px]"
-              style={{ backdropFilter: 'blur(8px)', boxShadow: '0 1px 2px rgba(28,25,23,0.06), 0 4px 16px -4px rgba(28,25,23,0.12)' }}
-            >
-              <span className="text-[#78716c] tabular-nums">
-                <span className="text-[#1c1917] font-semibold">{safe + 1}</span>
-                <span className="mx-0.5 text-[#d6d3d1]">/</span>{segments.length}
-              </span>
-              <span className="w-px h-3.5 bg-[#e7e5e3]" />
-              <span className="text-[#44403c] font-medium truncate" style={{ maxWidth: 320 }}>
-                {active ? docTitle(active) : ''}
-              </span>
-              <span className="text-[#a8a29e] tabular-nums">{formatDateShort(active?.date)}</span>
-            </div>
-          </div>
-
           {/* Scrollable preview */}
-          <div ref={previewScrollRef} className="absolute inset-0 overflow-y-auto px-10 pt-16 pb-10 flex flex-col items-center">
+          <div ref={previewScrollRef} className="absolute inset-0 overflow-y-auto px-10 pt-10 pb-10 flex flex-col items-center">
             {segments.map((seg, idx) => {
               // View mode on a single split part: render only that part's pages.
               if (previewSingle && idx !== safe) return null;
               // When a boundary is hovered, the doc above it slides down and
-              // the doc below slides up — previewing the stitch. Pure transform
+              // the doc below slides up - previewing the stitch. Pure transform
               // (no reflow) so the boundary's hit area never moves → no flicker.
               const dy = stitchHover === idx ? -16 : stitchHover === idx + 1 ? 16 : 0;
               return (
@@ -357,7 +339,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
           </div>
         </div>
 
-        {/* Right — controls. Adjust: découpage sommaire + prompt. View: the
+        {/* Right - controls. Adjust: découpage sommaire + prompt. View: the
             active part's document metadata. */}
         <div className="w-[440px] flex flex-col bg-white flex-shrink-0 border-l border-[#e7e5e3]">
           {mode === 'adjust' ? (
@@ -439,7 +421,8 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                   );
                 })}
               </div>
-              <SplitPromptSection defaultPrompt={splitPrompt} />
+              {/* Consignes de découpage - hidden for now */}
+              {false && <SplitPromptSection defaultPrompt={splitPrompt} />}
             </>
           ) : (
             <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
@@ -457,7 +440,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                     style={{ fontFamily: SANS, boxShadow: SHADOW_XS }}
                   />
 
-                  {/* Document découpé — provenance callout (« the splitted box ») */}
+                  {/* Document découpé - provenance callout (« the splitted box ») */}
                   <div className="flex items-start gap-2.5 p-3 rounded-lg border border-[#e7e5e3] bg-[#f8f7f5]">
                     <span className="flex items-center justify-center w-7 h-7 rounded-md border border-[#e7e5e3] bg-white flex-shrink-0">
                       <Scissors className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={1.75} />
@@ -540,7 +523,7 @@ function SegBadge({ active, children }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Consigne de découpage — the prompt that drove this document's split.
+// Consigne de découpage - the prompt that drove this document's split.
 // Seeded from the cabinet's découpage preference; editable per document.
 // "Relancer le découpage" fakes a re-analysis (front sandbox).
 // ─────────────────────────────────────────────────────────────────────────
@@ -631,7 +614,7 @@ function SplitPromptSection({ defaultPrompt }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Page card — borderless, floating on layered shadows
+// Page card - borderless, floating on layered shadows
 // ─────────────────────────────────────────────────────────────────────────
 
 // Inline rename input for a sommaire row. Enter / blur commits, Esc cancels.
@@ -710,7 +693,7 @@ function MockPage({ pageNum, relIdx, segment, docNumber, first, last }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Junctions — hairline boundaries with dark pill actions
+// Junctions - hairline boundaries with dark pill actions
 // ─────────────────────────────────────────────────────────────────────────
 
 // Boundary between two documents: a fading hairline with a center dot.
@@ -725,18 +708,18 @@ function CutBoundary({ onHeal, onHoverChange }) {
       onClick={onHeal}
       className="relative self-stretch flex items-center justify-center cursor-pointer"
       style={{
-        // Constant-size hit zone — never resizes on hover (otherwise the box
+        // Constant-size hit zone - never resizes on hover (otherwise the box
         // moves out from under the cursor and the hover flickers). The
         // "draw closer" effect is done by transforming the neighbour docs.
         paddingTop: 22,
         paddingBottom: 22,
         marginLeft: -40,
         marginRight: -40,
-        // On hover the pill must straddle BOTH document cards — lift the
+        // On hover the pill must straddle BOTH document cards - lift the
         // boundary above the (later-painted) card below.
         zIndex: hover ? 30 : 'auto',
       }}
-      title="Recoller — fusionner les deux documents"
+      title="Recoller - fusionner les deux documents"
     >
       {/* dashed cut line, full width, always visible */}
       <div
@@ -748,7 +731,7 @@ function CutBoundary({ onHeal, onHoverChange }) {
           transition: 'border-color 150ms',
         }}
       />
-      {/* heal pill — revealed on hover, sits in the tightened gap */}
+      {/* heal pill - revealed on hover, sits in the tightened gap */}
       <span
         className="absolute left-1/2 top-1/2 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium text-white whitespace-nowrap"
         style={{
@@ -778,7 +761,7 @@ function GhostCut({ onCut }) {
       onClick={onCut}
       className="relative w-full max-w-[560px] flex items-center justify-center cursor-pointer"
       style={{ height: hover ? 44 : 14, transition: 'height 200ms cubic-bezier(0.3, 1.2, 0.4, 1)' }}
-      title="Couper ici — insérer une frontière"
+      title="Couper ici - insérer une frontière"
     >
       <div
         className="absolute left-4 right-4 top-1/2 h-px"

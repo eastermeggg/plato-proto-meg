@@ -1,4 +1,4 @@
-// Pièces & Bordereau — data model + numbering helpers
+// Pièces & Bordereau - data model + numbering helpers
 //
 // Phase 1 of US #1: structure de données + numérotation hiérarchique.
 // See .context/attachments/e8dIF2/us1-bordereau-reorganisation-spec.md §2-3.
@@ -10,7 +10,7 @@
 //   Pieces           → Number suffix on parent category (I-A-1)
 //   Sans-catégorie   → Flat 1, 2, 3…
 //
-// Gaps at root level are allowed (MARTINIE pattern: I, II, III, V — no IV).
+// Gaps at root level are allowed (MARTINIE pattern: I, II, III, V - no IV).
 // They emerge from the `order` field having a hole; we derive the displayed
 // numeral from `order + 1` directly, not from the index in the sorted list.
 
@@ -19,7 +19,7 @@
  * @property {string} id
  * @property {string} name
  * @property {string|null} docType
- * @property {string|null} date                 // dd/mm/yyyy or ISO — renderer formats
+ * @property {string|null} date                 // dd/mm/yyyy or ISO - renderer formats
  * @property {string} [uploadedAt]
  * @property {boolean} inclureDansBordereau
  * @property {string|null} categoryId
@@ -123,7 +123,7 @@ export function categoryPrefix(category, categories) {
 }
 
 /**
- * Piece display prefix — categoryPrefix + "-" + (orderInCategory + 1).
+ * Piece display prefix - categoryPrefix + "-" + (orderInCategory + 1).
  * Sans-catégorie pieces are handled separately by the renderer (flat numbering).
  */
 export function piecePrefix(piece, categories) {
@@ -234,7 +234,7 @@ export function buildBordereauRows(pieces, categories) {
 }
 
 /**
- * Build a flat row list for the tree view — the full hierarchy is walked,
+ * Build a flat row list for the tree view - the full hierarchy is walked,
  * but a folder's children are only emitted when its id is in `expandedIds`.
  * Each row carries `depth` (0 at root) so the renderer can indent.
  *
@@ -306,7 +306,7 @@ export function buildTreeViewRows(pieces, categories, expandedIds, sortConfig = 
       expanded,
     });
     if (!expanded) return;
-    // Pieces first, then sub-folders — matches the bordereau ordering.
+    // Pieces first, then sub-folders - matches the bordereau ordering.
     sortPieces(directPieces).forEach(piece => {
       rows.push({
         kind: 'piece',
@@ -323,7 +323,7 @@ export function buildTreeViewRows(pieces, categories, expandedIds, sortConfig = 
 }
 
 /**
- * Parse a piece's `date` field — supports ISO yyyy-mm-dd and dd/mm/yyyy.
+ * Parse a piece's `date` field - supports ISO yyyy-mm-dd and dd/mm/yyyy.
  * Returns null when unparseable.
  * @param {string|null} str
  * @returns {Date|null}
@@ -373,7 +373,7 @@ export function folderStats(categoryId, pieces, categories) {
 // When a piece lands via the drop-first ingest pipeline, we guess which
 // existing category it belongs to from its `type` (and a name-keyword
 // fallback). Returns a categoryId from the provided categories list, or
-// null when no category fits — the renderer puts those in a Sans-catégorie
+// null when no category fits - the renderer puts those in a Sans-catégorie
 // group at the top.
 //
 // This is a heuristic for the demo: in production it'd be backed by an
@@ -415,13 +415,13 @@ const NAME_KEYWORDS = [
  *
  * Pieces still being processed (status !== 'done') get `_processing = true`
  * and land in Sans-catégorie until classification fires. A `categoryIdOverride`
- * field on the source piece — set when the user manually moves a piece in
- * the drop-first view — wins over auto-classification.
+ * field on the source piece - set when the user manually moves a piece in
+ * the drop-first view - wins over auto-classification.
  *
  * If a drop-first item has a `_pileId`, the matching pile entry from `piles`
  * decides whether to emit one synthetic bundle row (mode === 'bundle') or
  * N segment rows (mode === 'exploded'). Bundle/explode mutates rendering
- * only — the underlying segments are stable.
+ * only - the underlying segments are stable.
  *
  * @param {Object[]} dfPieces
  * @param {Category[]} categories
@@ -450,7 +450,7 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
         : (isDone ? classifyDropFirstPiece({ type: pile.aggregate.typeForClassification, name: pile.originalName }, categories) : null);
 
       if (!isDone) {
-        // Still analysing — surface as a single processing row.
+        // Still analysing - surface as a single processing row.
         const next = bumpOrder(categoryId);
         result.push({
           id: df.id,
@@ -470,7 +470,7 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
 
       if (pile.mode === 'exploded') {
         // Each segment is classified like a normal piece (by the pile's type),
-        // so split pieces land in their matching dossier folder — never a
+        // so split pieces land in their matching dossier folder - never a
         // synthetic folder named after the source document. A manual move
         // (categoryIdOverride) still wins per-segment; each row's "issues de
         // <source>" subtitle + the group bandeau keep the "same file" link.
@@ -492,6 +492,9 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
             inclureDansBordereau: true,
             orderInCategory: next,
             _processing: false,
+            // Per-document découpage state - an exploded segment can be regrouped.
+            _pileId: pile.id,
+            _docSplit: 'exploded',
             _pileSegment: {
               pileId: pile.id,
               segmentId: seg.id,
@@ -507,7 +510,7 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
         return;
       }
 
-      // Bundle mode — kept as one piece. Fall through to the standard branch
+      // Bundle mode - kept as one piece. Fall through to the standard branch
       // below so it renders as a normal document row (no aggregate "pile"
       // chrome). The raw drop-first piece keeps `_pileId`, so the source can
       // still be re-split from elsewhere if needed.
@@ -526,6 +529,17 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       ? rawDate.toLocaleDateString('fr-FR')
       : (df.date || null);
 
+    // Per-document découpage state for the after-upload scissors override:
+    //  • 'split'              - one part of a découpé document → can be regrouped
+    //  • 'bundled-splittable' - a stack kept as one document → can be découpé
+    //  • 'whole-splittable'   - a multi-part doc kept whole   → can be découpé
+    const bundledPile = df._pileId && piles[df._pileId] && piles[df._pileId].mode !== 'exploded';
+    const docSplit = !isDone ? null
+      : df._splitParentId ? 'split'
+      : bundledPile ? 'bundled-splittable'
+      : df._splittableSplits ? 'whole-splittable'
+      : null;
+
     result.push({
       id: df.id,
       nom: df.cleanName || df.originalName || df.id,
@@ -537,6 +551,15 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       inclureDansBordereau: !df.horsBordereau,
       orderInCategory: next,
       _processing: !isDone,
+      _pileId: df._pileId || undefined,
+      _splitParentId: df._splitParentId || undefined,
+      _splittableSplits: df._splittableSplits || undefined,
+      _docSplit: docSplit,
+      // Posteriori split state (config → splitting → detected → reviewed). When
+      // set, the row renders as a single « N pièces » card (PosterioriSplitRow).
+      _pSplit: df._pSplit || undefined,
+      // User renamed it in the panel/list → keep showing the original name as a subtitle.
+      _userRenamed: df._userRenamed || undefined,
     });
   });
   return result;

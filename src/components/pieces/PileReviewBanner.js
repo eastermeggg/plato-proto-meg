@@ -3,6 +3,7 @@ import LoadingCard from './reviewCards/LoadingCard';
 import ErrorCard from './reviewCards/ErrorCard';
 import DoublonCard from './reviewCards/DoublonCard';
 import SplitReviewCard from './reviewCards/SplitReviewCard';
+import PosterioriSplitCard from './reviewCards/PosterioriSplitCard';
 
 // "À vérifier" zone — sits between the "N pièces · Ajouter" header and the table.
 // Documents are analysed in the background (the chat shows progress); only the
@@ -19,16 +20,28 @@ export default function PileReviewBanner({
   pileIds = [],
   piles,
   rule,
+  posterioriSplits = [],
+  onPosterioriKeepAsOne, onPosterioriAdjust,
   onApply, onUndo, onDismiss, onAdjust,
   onDoublonKeepBoth, onDoublonIgnore, onDoublonView,
   onErrorRetry, onErrorIgnore,
 }) {
   const splitItems = pileIds.map(id => piles[id]).filter(Boolean);
-  const toCheck = errorItems.length + doublonItems.length + splitItems.length;
+  const toCheck = errorItems.length + doublonItems.length + splitItems.length + posterioriSplits.length;
   if (processingCount <= 0 && toCheck === 0) return null;
 
   return (
     <section className="mt-3 flex flex-col gap-1.5" aria-label="Documents à vérifier">
+      {posterioriSplits.map(s => (
+        <PosterioriSplitCard
+          key={`psplit-${s.id}`}
+          name={s.name}
+          state={s.state}
+          count={s.count}
+          onKeepAsOne={() => onPosterioriKeepAsOne(s.id)}
+          onAdjust={() => onPosterioriAdjust(s.id)}
+        />
+      ))}
       {processingCount > 0 && <LoadingCard count={processingCount} />}
       {errorItems.map(it => (
         <ErrorCard key={`err-${it.id}`} name={it.name} onRetry={() => onErrorRetry(it.id)} onIgnore={() => onErrorIgnore(it.id)} />

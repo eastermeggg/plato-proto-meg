@@ -163,9 +163,9 @@ export default function DecisionDrawer({
     const showUrl = !showPdf && !!customJP.url;
     return (
       <>
-        <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 29, backgroundColor: 'rgba(41, 37, 36, 0.12)' }} />
-        <div className="fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col"
-             style={{ width: 820, animation: 'slideInRight 0.2s ease-out' }}>
+        <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, bottom: 0, right: 'var(--chat-offset, 0px)', zIndex: 29, backgroundColor: 'rgba(41, 37, 36, 0.12)' }} />
+        <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col"
+             style={{ width: 820, maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
 
           {/* Top bar */}
           <div className="px-4 py-2.5 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white">
@@ -309,7 +309,7 @@ export default function DecisionDrawer({
       {!inline && (
         <div
           onClick={onClose}
-          style={{ position: 'fixed', inset: 0, zIndex: 29, backgroundColor: 'rgba(41, 37, 36, 0.12)' }}
+          style={{ position: 'fixed', top: 0, left: 0, bottom: 0, right: 'var(--chat-offset, 0px)', zIndex: 29, backgroundColor: 'rgba(41, 37, 36, 0.12)' }}
         />
       )}
 
@@ -320,11 +320,11 @@ export default function DecisionDrawer({
       <div
         className={inline
           ? 'w-full flex-1 min-h-0 bg-white flex flex-col'
-          : 'fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col'
+          : 'fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col'
         }
         style={inline
           ? { animation: 'slideInRightSubtle 0.22s ease-out' }
-          : { width: 820, animation: 'slideInRight 0.2s ease-out' }}
+          : { width: 820, maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}
       >
         {/* ═══════════ TOP BAR ═══════════
             Row 1: prev/next (left) ······································· close (right)
