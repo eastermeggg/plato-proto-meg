@@ -1423,6 +1423,7 @@ export default function App() {
   const [inviteEmail, setInviteEmail] = useState(''); // current text being typed
   const [inviteEmails, setInviteEmails] = useState([]); // array of confirmed emails
   const [inviteRole, setInviteRole] = useState('Membre');
+  const [invitePlan, setInvitePlan] = useState(null); // licence reserved at invite time (null = lecture seule)
   const [profileMemberId, setProfileMemberId] = useState(null); // collaborator profile panel (open member id)
   const [profilePlanEditing, setProfilePlanEditing] = useState(false); // "Changer" toggle in the profile panel
   const [preferenceDocs, setPreferenceDocs] = useState([]);
@@ -15194,7 +15195,7 @@ export default function App() {
               onPosterioriAdjust={posterioriAdjust}
               reviewZone={(() => {
                 // Posteriori split (splitting/detected) docs render as cards INSIDE
-                // the À vérifier banner — same shell/buttons as the error/doublon cards.
+                // the À vérifier banner - same shell/buttons as the error/doublon cards.
                 const posterioriSplits = dropFirstPieces
                   .filter(p => p._pSplit && (p._pSplit.state === 'splitting' || p._pSplit.state === 'detected'))
                   .map(p => ({
@@ -19624,6 +19625,7 @@ export default function App() {
       setInviteEmail('');
       setInviteEmails([]);
       setInviteRole('Membre');
+      setInvitePlan(null);
     };
     // Pull emails out of a string (Enter / comma / space / paste). Returns
     // valid new emails not already in the list.
@@ -19669,6 +19671,7 @@ export default function App() {
         name: email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
         email,
         role: inviteRole,
+        plan: invitePlan,
         joinedDate: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }),
         dossiersCreated: 0,
         initials,
@@ -19811,6 +19814,56 @@ export default function App() {
                 {inviteRole === 'Admin'
                   ? 'Accès complet : facturation, membres, référentiels.'
                   : 'Peut créer et éditer des dossiers.'}
+              </p>
+            </div>
+
+            {/* Plan / licence selector - reserved at invite time, active on acceptance */}
+            <div className="flex flex-col gap-2">
+              <label className="text-body-medium" style={{ color: '#292524' }}>
+                Licence
+              </label>
+              <div className="flex flex-col gap-1.5">
+                <button
+                  onClick={() => setInvitePlan(null)}
+                  className={`w-full flex items-center justify-between gap-3 px-3 h-10 rounded-lg border text-left transition-colors ${invitePlan === null ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                >
+                  <span className="flex items-center gap-2 min-w-0">
+                    <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-[14px] text-[#292524]">Lecture seule</span>
+                    <span className="text-[12px] text-[#a8a29e]">gratuit</span>
+                  </span>
+                  {invitePlan === null && <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />}
+                </button>
+                {PRICING_PLANS.map((p) => {
+                  const avail = licenceAvailable(p.id);
+                  const isCurrent = invitePlan === p.id;
+                  const PG = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setInvitePlan(p.id)}
+                      className={`w-full flex items-center justify-between gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${isCurrent ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                    >
+                      <span className="flex items-center gap-2 min-w-0">
+                        <PG className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-[14px] text-[#292524]">Plan {p.name}</span>
+                        <span className="text-[12px] text-[#a8a29e] tabular-nums">{p.monthly} €/mois</span>
+                      </span>
+                      {isCurrent ? (
+                        <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />
+                      ) : avail > 0 ? (
+                        <span className="text-[12px] text-[#78716c] tabular-nums flex-shrink-0">{avail} dispo</span>
+                      ) : (
+                        <span className="text-[11px] font-medium text-[#855b31] tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-caption text-[#78716c]" style={{ letterSpacing: '0.12px' }}>
+                {invitePlan === null
+                  ? 'Sans licence, l\'accès reste en lecture seule.'
+                  : 'La licence est réservée maintenant et s\'active à l\'acceptation de l\'invitation.'}
               </p>
             </div>
           </div>
@@ -20074,7 +20127,7 @@ export default function App() {
         icon={CreditCard}
         iconVariant="warning"
         title={`Ajouter une licence ${plan.name}`}
-        description="Facturée au prorata jusqu'à la fin du mois, puis à chaque échéance annuelle."
+        description="Facturée au prorata jusqu'à la fin du mois, puis à chaque échéance mensuelle."
         cancelLabel="Annuler"
         actionLabel={`Ajouter · +${fmt(addCost)} €/mois`}
         actionVariant="primary"
@@ -20149,10 +20202,13 @@ export default function App() {
                   </span>
                 </td>
                 <td className="px-3 py-3">
-                  {m.pending ? (
+                  {m.plan ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="badge badge-sm badge-secondary">{PLAN_BY_ID[m.plan].name}</span>
+                      {m.pending && <span className="text-caption text-[#a8a29e]">réservée</span>}
+                    </span>
+                  ) : m.pending ? (
                     <span className="text-body text-[#a8a29e]">—</span>
-                  ) : m.plan ? (
-                    <span className="badge badge-sm badge-secondary">{PLAN_BY_ID[m.plan].name}</span>
                   ) : (
                     <span className="badge badge-sm badge-outline">Lecture seule</span>
                   )}
@@ -20236,7 +20292,15 @@ export default function App() {
                 )}
               </div>
               {m.pending ? (
-                <p className="text-[13px] text-[#78716c] mt-2.5">Invitation en attente - la licence sera attribuable une fois acceptée.</p>
+                <div className="mt-2.5 flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                    <Glyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[14px] text-[#292524] font-medium">{plan ? `Plan ${plan.name}` : 'Lecture seule'}</span>
+                    <p className="text-[12px] text-[#a8a29e]">{plan ? 'Licence réservée - active à l\'acceptation.' : 'Aucune licence - accès en lecture seule.'}</p>
+                  </div>
+                </div>
               ) : profilePlanEditing ? (
                 <div className="mt-3 space-y-1.5">
                   <button
@@ -20886,7 +20950,7 @@ export default function App() {
                   </div>
                 </div>
                 <p className="text-[12px] text-[#78716c] mt-2">
-                  Engagement 1 an · facturation annuelle. Les utilisateurs sans licence restent en lecture seule, gratuitement.
+                  Sans engagement · facturation mensuelle. Les utilisateurs sans licence restent en lecture seule, gratuitement.
                 </p>
               </div>
             )}
@@ -21000,7 +21064,7 @@ export default function App() {
                       }}
                       className={`flex items-center gap-2 h-10 px-5 text-white text-[14px] font-medium rounded-lg transition-colors ${draftCount === 0 ? 'bg-[#d6d3d1] cursor-not-allowed' : 'bg-[#292524] hover:bg-[#44403c]'}`}
                     >
-                      Souscrire · engagement 1 an
+                      Souscrire · sans engagement
                       <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
                     </button>
                   </div>
