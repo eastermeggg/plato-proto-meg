@@ -558,6 +558,8 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       // Posteriori split state (config → splitting → detected → reviewed). When
       // set, the row renders as a single « N pièces » card (PosterioriSplitRow).
       _pSplit: df._pSplit || undefined,
+      // User renamed it in the panel/list → keep showing the original name as a subtitle.
+      _userRenamed: df._userRenamed || undefined,
     });
   });
   return result;

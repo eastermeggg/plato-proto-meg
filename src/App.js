@@ -4241,7 +4241,7 @@ export default function App() {
     // and play the matching emit scenario.
     if (redaction.redactionState.activeStepper === 'awaiting-bordereau-type-reply') {
       redaction.dispatch({ type: 'CLOSE_STEPPER' });
-      const normalized = lowerText.normalize('NFD').replace(/[̀-ͯ]/g, '');
+      const normalized = lowerText.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       setChatMessages(prev => [...prev, { type: 'user', text }]);
       let emitKey = 'bordereau-emit-full';
       if (/(medic|sant|sois|expert)/.test(normalized)) emitKey = 'bordereau-emit-medical';
@@ -14339,8 +14339,10 @@ export default function App() {
     let result = items;
     if (piecesFilter.types?.length > 0) result = result.filter(p => (piecesFilter.types || []).includes(p.type));
     if (piecesFilter.search) {
-      const s = piecesFilter.search.toLowerCase();
-      result = result.filter(p => (p.cleanName || p.originalName || '').toLowerCase().includes(s));
+      const norm = (x) => (x == null ? '' : String(x)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const s = norm(piecesFilter.search);
+      // Match either the renamed/clean name OR the original filename.
+      result = result.filter(p => norm(p.cleanName).includes(s) || norm(p.originalName).includes(s) || norm(p.intitule).includes(s));
     }
     return result;
   };
@@ -15128,7 +15130,7 @@ export default function App() {
             const u = byId.get(p.id);
             const changes = {};
             const originalIntitule = p.cleanName || (p.originalName ? p.originalName.replace(/\.[^/.]+$/, '') : '');
-            if (u.intitule && u.intitule !== originalIntitule) changes.cleanName = u.intitule;
+            if (u.intitule && u.intitule !== originalIntitule) { changes.cleanName = u.intitule; changes._userRenamed = true; }
             if ('categoryId' in u) changes.categoryIdOverride = u.categoryId;
             return Object.keys(changes).length ? { ...p, ...changes } : p;
           });
@@ -15538,7 +15540,7 @@ export default function App() {
                         return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.map(s => s.id === segPanel.segmentId ? { ...s, _customName: val } : s) } };
                       });
                     } else {
-                      setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, cleanName: val } : p));
+                      setDropFirstPieces(prev => prev.map(p => p.id === piece.id ? { ...p, cleanName: val, _userRenamed: true } : p));
                     }
                   }}
                 />
@@ -20487,7 +20489,7 @@ export default function App() {
     const email = parrainageForm.email.trim();
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     // Promo code derived from the current user's family name (e.g. Régior → REGIOR-10).
-    const promoCode = `${((currentUser?.name || 'Plato').split(' ').pop() || 'Plato').normalize('NFD').replace(/[^A-Za-z]/g, '').toUpperCase() || 'PLATO'}-10`;
+    const promoCode = `${((currentUser?.name || 'Plato').split(' ').pop() || 'Plato').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() || 'PLATO'}-10`;
 
     const close = () => {
       setParrainageModalOpen(false);

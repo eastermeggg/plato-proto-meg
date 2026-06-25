@@ -27,7 +27,10 @@ export default function PieceRow({
   const isSplitDoc = piece._docSplit === 'split' || piece._docSplit === 'exploded'
     || piece.splitIndex != null || !!piece.siblings;
   const cleanLabel = piece.intitule || (piece.nom ? piece.nom.replace(/\.[^/.]+$/, '') : '');
-  const label = isSplitDoc ? cleanLabel : (piece.nomOriginal || cleanLabel);
+  // Show the clean/renamed name (with the original as a subtitle) for split parts
+  // OR docs the user renamed in the panel; otherwise a whole doc shows its original name.
+  const showCleanName = isSplitDoc || !!piece._userRenamed;
+  const label = showCleanName ? cleanLabel : (piece.nomOriginal || cleanLabel);
   const [hover, setHover] = useState(false);
 
   const handleClick = (e) => {
