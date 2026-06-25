@@ -175,7 +175,7 @@ export default function BordereauTable({
     if (!p) return [];
     const keys = affectedKeysFromAnchor(selectionKeyForPiece(pieceId));
     const isBulk = keys.length > 1;
-    // Per-document découpage (single-row only — bulk runs from the selection
+    // Per-document découpage (single-row only - bulk runs from the selection
     // bar). A split part / exploded segment can be regrouped; any other (whole)
     // document can be découpé, which opens the analyse → suggestion → adjust
     // → validate flow.
@@ -273,7 +273,7 @@ export default function BordereauTable({
     () => [...selectedIds].some(k => k.startsWith(PIECE_PREFIX) && k.slice(PIECE_PREFIX.length).includes('::')),
     [selectedIds]
   );
-  // Fusionner merges 2+ whole documents into one pièce — no folders, no segments.
+  // Fusionner merges 2+ whole documents into one pièce - no folders, no segments.
   const canFuse = selectedIds.size >= 2 && !selectionHasFolder && !selectionHasSegment && !!onFusePieces;
 
   // Bulk découpage: découper every kept-whole selected document at once, or
@@ -399,7 +399,7 @@ export default function BordereauTable({
         )}
       </div>
 
-      {/* "À vérifier" zone — sits between the count/Ajouter header and the table. */}
+      {/* "À vérifier" zone - sits between the count/Ajouter header and the table. */}
       {reviewZone}
 
       <div style={{
@@ -447,7 +447,7 @@ export default function BordereauTable({
                 const isSansCat = row.kind === 'sansCategoriePiece';
                 const pieceKey = selectionKeyForPiece(piece.id);
 
-                // ── Pile segment row — rendered as a normal classified piece.
+                // ── Pile segment row - rendered as a normal classified piece.
                 // No group bandeau: the source file shows as the row subtitle,
                 // and re-splitting lives in the document preview ("Modifier le
                 // découpage").
@@ -589,7 +589,7 @@ function TreeColumnHeader({ sort, onSort }) {
       backgroundColor: colors.semantic.backgroundCanvas,
       borderBottom: `1px solid ${colors.semantic.border}`,
     }}>
-      {/* Indent column + chevron/folder slot — matches the row layout. */}
+      {/* Indent column + chevron/folder slot - matches the row layout. */}
       <span style={{ width: 40, flexShrink: 0 }} />
       <span style={{ width: 24, flexShrink: 0, marginRight: 8 }} />
       <SortCell label="Dossier" col="name" sort={sort} onSort={onSort} flex />
@@ -637,7 +637,7 @@ function SortCell({ label, col, sort, onSort, width, flex }) {
   );
 }
 
-// "Command-bar inversion" — when selection is active, the chrome flips
+// "Command-bar inversion" - when selection is active, the chrome flips
 // from passive cream to dark stone with cream typography. The mode shift
 // itself is the bold gesture: this row now leads the page. Inset highlight
 // gives the bar dimension; existing fade-slide-up entrance gives it weight.
@@ -676,7 +676,7 @@ function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAs
 
       {showAskChato && (
         <>
-          {/* Vertical hairline divider — sets off the chat action from the count */}
+          {/* Vertical hairline divider - sets off the chat action from the count */}
           <span style={{
             width: 1,
             height: 18,
@@ -831,7 +831,7 @@ function PosterioriSplitRow({ piece, depth, onAdjust }) {
   // Committed aggregate row for an already-split document (reviewed / split):
   // « N pièces · Revu · Ajuster ». The splitting + detected phases render as a
   // card ON TOP of the table (SplitProgressCard in the reviewZone), never
-  // inline — they're skipped before this row is ever reached.
+  // inline - they're skipped before this row is ever reached.
   const indent = 40 + Math.max(0, depth) * 16;
   const ps = piece._pSplit || {};
   const name = piece.intitule || piece.nom || '';

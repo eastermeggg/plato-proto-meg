@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileText, MoreVertical, Loader2, Check, Download, Scissors } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 
-// Doc row aligned with Figma "Row Documents" — 64px tall.
+// Doc row aligned with Figma "Row Documents" - 64px tall.
 // - Resting: file icon + name (with original filename subtitle) + type pill + date + invisible action slots.
 // - Hover: Download + kebab fade in to the right.
 // - Selected: file icon swaps to a filled stone checkbox; hover icons still appear.
@@ -23,7 +23,7 @@ export default function PieceRow({
   // Split parts (a découpé document's pieces / exploded pile segments) keep their
   // AI clean name and get the scissors marker; whole (non-split) documents show
   // their ORIGINAL filename instead. Drop-first rows carry `_docSplit`; seeded
-  // bordereau pieces carry `splitIndex` / `siblings` — either signals a part.
+  // bordereau pieces carry `splitIndex` / `siblings` - either signals a part.
   const isSplitDoc = piece._docSplit === 'split' || piece._docSplit === 'exploded'
     || piece.splitIndex != null || !!piece.siblings;
   const cleanLabel = piece.intitule || (piece.nom ? piece.nom.replace(/\.[^/.]+$/, '') : '');
@@ -68,11 +68,11 @@ export default function PieceRow({
         transition: 'background-color 100ms',
       }}
     >
-      {/* Indent spacer — mirrors the chevron/folder column width on folder rows so
+      {/* Indent spacer - mirrors the chevron/folder column width on folder rows so
           the file icon aligns under its parent folder. */}
       <span style={{ width: 40 + depth * INDENT, flexShrink: 0 }} />
 
-      {/* Icon slot — file at rest, checkbox on hover or when selected; spinner during drop-first processing */}
+      {/* Icon slot - file at rest, checkbox on hover or when selected; spinner during drop-first processing */}
       <div
         onClick={(e) => {
           if (!(hover || selected)) return;

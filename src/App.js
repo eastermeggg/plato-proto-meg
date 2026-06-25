@@ -52,7 +52,7 @@ import {
 const DEFAULT_PREFERENCE_SLOTS = { ...PREFERENCE_SLOT_DEFAULTS };
 
 // ───────────────────────────────────────────────────────────────────────────
-// Pricing model (Réflexion Vic) — per-user licences + weekly usage quota.
+// Pricing model (Réflexion Vic) - per-user licences + weekly usage quota.
 // Replaces the legacy "prix au dossier / quota annuel" model: matters are now
 // unlimited, and each licensed user gets a weekly token-consumption budget shown
 // only as a 0–100 % gauge (never tokens, never euros). `quotaMult` (×1/×2/×6) is
@@ -60,14 +60,14 @@ const DEFAULT_PREFERENCE_SLOTS = { ...PREFERENCE_SLOT_DEFAULTS };
 // ───────────────────────────────────────────────────────────────────────────
 const PRICING_PLANS = [
   // weeklyEuros = euro-equivalent of real AI usage the weekly quota covers (admin-facing
-  // pricing context only — lawyers only ever see the 0–100 % gauge).
+  // pricing context only - lawyers only ever see the 0–100 % gauge).
   { id: 'PRO',  name: 'Pro',   monthly: 150, quotaMult: 1, weeklyEuros: 40 },
   { id: 'MAX',  name: 'Max',   monthly: 290, quotaMult: 2, weeklyEuros: 80 },
   { id: 'MAX+', name: 'Max +', monthly: 590, quotaMult: 6, weeklyEuros: 160 },
 ];
 const PLAN_BY_ID = Object.fromEntries(PRICING_PLANS.map((p) => [p.id, p]));
 
-// Weekly-usage gauge ramp — on-brand stone → amber → peach as the week fills.
+// Weekly-usage gauge ramp - on-brand stone → amber → peach as the week fills.
 // No green/red: stays inside the stone+cream+peach palette. Mirrors the existing
 // warning palette (#bd6c1a fill / #855b31 text) at the top of the range.
 const quotaTone = (pct) => {
@@ -79,11 +79,11 @@ const quotaTone = (pct) => {
 // Demo weekly-usage % for the current user, driven by the billing demo switcher.
 const QUOTA_FILL_PCT = { fresh: 16, mid: 63, full: 100 };
 
-// What every licence includes — shown on "Mon usage" and (historically) the plan page.
+// What every licence includes - shown on "Mon usage" and (historically) the plan page.
 const PLAN_FEATURES = [
   { icon: Folder, label: 'Dossiers illimités' },
   { icon: Users, label: 'Utilisateurs illimités' },
-  { icon: Sparkles, label: 'Agent IA — quota hebdomadaire selon le plan' },
+  { icon: Sparkles, label: 'Agent IA - quota hebdomadaire selon le plan' },
   { icon: Calculator, label: 'Chiffrages illimités' },
   { icon: BookOpen, label: 'Accès à Plato Jurisprudence illimité' },
   { icon: ClipboardList, label: 'Bordereau et découpe automatique des documents', hint: "jusqu'à 1 000p par PDF" },
@@ -154,7 +154,7 @@ const POSTES_TAXONOMY = [
   }
 ];
 
-// ========== IV POSTE CONFIG — type-driven rendering ==========
+// ========== IV POSTE CONFIG - type-driven rendering ==========
 const IV_POSTE_CONFIG = {
   pai:  { type: 'A', columns: ['victime', 'montant'] },
   pafv: { type: 'A', columns: ['victime', 'montant'] },
@@ -164,7 +164,7 @@ const IV_POSTE_CONFIG = {
   prp:  { type: 'D', columns: ['victime', 'lien', 'partIndividuelle', 'dureeIndemnisation', 'coeffCapitalisation', 'total'] },
 };
 
-// ========== PRP — AUTO-CONSOMMATION SCALES & SCENARIOS ==========
+// ========== PRP - AUTO-CONSOMMATION SCALES & SCENARIOS ==========
 const AUTO_CONSO_SCALES = {
   libre:   { label: '% Libre', description: 'Pourcentage défini manuellement', weights: null },
   ocde:    { label: 'OCDE', description: '1er adulte 1 / Conjoint 0,5 / Enfant 0,3', weights: { adult: 1, spouse: 0.5, child: 0.3 } },
@@ -196,7 +196,7 @@ const PRP_COMMAND_LIST = [
   { command: 'prp-alerts', label: 'PRP · Alertes', description: "Liste les zones potentiellement attaquables" },
 ];
 
-// ========== BARÈMES & RÉFÉRENTIELS — DEFAULT DATA ==========
+// ========== BARÈMES & RÉFÉRENTIELS - DEFAULT DATA ==========
 const DEFAULT_BAREMES = [
   {
     id: 'gdp_2025_prospective',
@@ -360,7 +360,7 @@ const DEFAULT_BAREMES = [
 // scissors override, so a document découpé on ingest and one découpé later are
 // identical. `_splitParentId` ties the parts back together for regrouping;
 // `_renamedBase` lets a regroup rebuild the original single-document name.
-// Guess a document type from its filename — always returns a category. Drives
+// Guess a document type from its filename - always returns a category. Drives
 // classification (which folder a piece lands in) for both the matter-creation
 // drop and the Pièces-tab "add files" staging.
 function guessFileType(name) {
@@ -440,7 +440,7 @@ function TriStateCheckbox({ state, onClick, label }) {
 
 // Default naming consigne pre-filled in the split-naming textarea. Split pieces
 // must be renamed, so a sensible default is always provided (and is editable).
-const DEFAULT_SPLIT_PROMPT = 'Nomme chaque pièce selon sa nature, son auteur et sa date (ex. « Facture — Cabinet Martin — mars 2023 »).';
+const DEFAULT_SPLIT_PROMPT = 'Nomme chaque pièce selon sa nature, son auteur et sa date (ex. « Facture - Cabinet Martin - mars 2023 »).';
 
 // Posteriori split-progress card shown ON TOP of the Pièces table while a
 // document is being split: « Découpage en cours… », then « N pièces détectées »
@@ -478,7 +478,7 @@ function SplitProgressCard({ piece, onKeepAsOne, onAdjust }) {
   );
 }
 
-// Two-option segmented control for a document's split choice — reuses the IV
+// Two-option segmented control for a document's split choice - reuses the IV
 // view-mode toggle style: cream track, white selected pill (subtle shadow),
 // IBM Plex Mono 11px uppercase. « Ne pas découper » (keep whole) / « Découper ».
 function SplitSegmentedControl({ value, onChange }) {
@@ -521,7 +521,7 @@ function SplitSegmentedControl({ value, onChange }) {
   );
 }
 
-// Even split of a document into 2–3 parts by page count — used when the avocat
+// Even split of a document into 2–3 parts by page count - used when the avocat
 // chose to découper a document that has no pre-detected parts, so the choice
 // always takes effect. Returns the {name, pages, pageCount} shape splits use.
 function genericSplits(totalPages) {
@@ -541,11 +541,11 @@ function genericSplits(totalPages) {
 }
 
 function buildDropFirstSplitRows(parentId, originalName, fakeSize, isRapport, poolEntry, renamedBase) {
-  const baseName = renamedBase || poolEntry.cleanName.split('—')[0].trim();
+  const baseName = renamedBase || poolEntry.cleanName.split(/\s[-—]\s/)[0].trim();
   return poolEntry.splits.map((split, si) => ({
     id: `${parentId}-split-${si}`,
     originalName,
-    cleanName: `${baseName} — ${split.name}`,
+    cleanName: `${baseName} - ${split.name}`,
     type: poolEntry.type,
     date: poolEntry.date,
     postesLies: [...poolEntry.postesLies],
@@ -567,12 +567,12 @@ function buildDropFirstSplitRows(parentId, originalName, fakeSize, isRapport, po
   }));
 }
 
-// ========== DROP FIRST — MOCK DATA ==========
+// ========== DROP FIRST - MOCK DATA ==========
 const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-1',
     originalName: 'scan_20240312.pdf',
-    cleanName: 'Rapport d\'expertise médicale Dr. Dubois — 12/03/2024',
+    cleanName: 'Rapport d\'expertise médicale Dr. Dubois - 12/03/2024',
     type: 'Expertise',
     date: '2024-03-12',
     postesLies: ['DFT', 'PGPA', 'SE', 'AIPP'],
@@ -588,7 +588,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-2',
     originalName: 'factures_kine_2023.pdf',
-    cleanName: 'Factures kinésithérapie — Cabinet Martin — 2023',
+    cleanName: 'Factures kinésithérapie - Cabinet Martin - 2023',
     type: 'Factures',
     date: '2023-11-15',
     postesLies: ['DSA'],
@@ -600,7 +600,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-3',
     originalName: 'decompte_cpam.pdf',
-    cleanName: 'Décompte prestations CPAM — Période 2022–2024',
+    cleanName: 'Décompte prestations CPAM - Période 2022–2024',
     type: 'Médical',
     date: '2024-02-20',
     postesLies: ['DSA', 'DFT'],
@@ -612,7 +612,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-4',
     originalName: 'bulletins_salaire.pdf',
-    cleanName: 'Bulletins de salaire — Dupont Martin SAS — Jan–Déc 2022',
+    cleanName: 'Bulletins de salaire - Dupont Martin SAS - Jan–Déc 2022',
     type: 'Revenus',
     date: '2022-12-31',
     postesLies: ['PGPA', 'PGPF'],
@@ -624,7 +624,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-5',
     originalName: 'IMG_4521.jpg',
-    cleanName: 'Certificat médical initial — Dr. Lefèvre — 05/06/2022',
+    cleanName: 'Certificat médical initial - Dr. Lefèvre - 05/06/2022',
     type: 'Médical',
     date: '2022-06-05',
     postesLies: ['DFT'],
@@ -636,7 +636,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-6',
     originalName: 'jugement_tgi.pdf',
-    cleanName: 'Jugement TGI Paris — 14ème chambre — 18/09/2023',
+    cleanName: 'Jugement TGI Paris - 14ème chambre - 18/09/2023',
     type: 'Décision',
     date: '2023-09-18',
     postesLies: ['DFT', 'SE', 'PGPA'],
@@ -648,7 +648,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-7',
     originalName: 'courrier_assurance_jan24.pdf',
-    cleanName: 'Courrier Allianz — Offre d\'indemnisation — 10/01/2024',
+    cleanName: 'Courrier Allianz - Offre d\'indemnisation - 10/01/2024',
     type: 'Correspondance',
     date: '2024-01-10',
     postesLies: [],
@@ -660,7 +660,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-8',
     originalName: 'avis_impots_2022.pdf',
-    cleanName: 'Avis d\'imposition 2022 — Revenus 2021',
+    cleanName: 'Avis d\'imposition 2022 - Revenus 2021',
     type: 'Revenus',
     date: '2022-08-01',
     postesLies: ['PGPA', 'PGPF'],
@@ -672,7 +672,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-9',
     originalName: 'compte_rendu_hospitalisation.pdf',
-    cleanName: 'Compte-rendu d\'hospitalisation — CHU Pitié-Salpêtrière — Juin 2022',
+    cleanName: 'Compte-rendu d\'hospitalisation - CHU Pitié-Salpêtrière - Juin 2022',
     type: 'Médical',
     date: '2022-06-12',
     postesLies: ['DFT', 'SE', 'DSA'],
@@ -684,7 +684,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-10',
     originalName: 'photos_blessures.zip',
-    cleanName: 'Photographies des blessures — Constatations initiales — 05/06/2022',
+    cleanName: 'Photographies des blessures - Constatations initiales - 05/06/2022',
     type: 'Médical',
     date: '2022-06-05',
     postesLies: ['PE', 'SE'],
@@ -696,7 +696,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-11',
     originalName: 'pv_police.pdf',
-    cleanName: 'Procès-verbal de police — Commissariat du 12ème — 05/06/2022',
+    cleanName: 'Procès-verbal de police - Commissariat du 12ème - 05/06/2022',
     type: 'Administratif',
     date: '2022-06-05',
     postesLies: [],
@@ -711,7 +711,7 @@ const DROP_FIRST_DOCUMENT_POOL = [
   {
     id: 'df-12',
     originalName: 'arret_travail_prolongation.pdf',
-    cleanName: 'Arrêts de travail et prolongations — Juin 2022 – Mars 2023',
+    cleanName: 'Arrêts de travail et prolongations - Juin 2022 – Mars 2023',
     type: 'Médical',
     date: '2022-06-05',
     postesLies: ['DFT', 'PGPA'],
@@ -722,23 +722,23 @@ const DROP_FIRST_DOCUMENT_POOL = [
   }
 ];
 
-// Demo seed — a « PIECES_MEDICALES.pdf » scan découpé en 10 factures, always
+// Demo seed - a « PIECES_MEDICALES.pdf » scan découpé en 10 factures, always
 // shown in the drop-first Pièces tab under the « Frais médicaux » folder (which
 // is nested in Médical). They classify into cat-frais-med by their « Facture »
 // type and render as plain rows subtitled with the source scan. Read-only
-// (rename/move/delete don't persist) — purely illustrative for the demo.
+// (rename/move/delete don't persist) - purely illustrative for the demo.
 const DEMO_FRAIS_MEDICAUX_SOURCE = 'PIECES_MEDICALES.pdf';
 const DEMO_FRAIS_MEDICAUX_FACTURES = [
-  ['Facture hospitalisation — CHU Bordeaux', '2023-03-15'],
-  ['Facture kinésithérapie — Cabinet Martin', '2023-04-12'],
+  ['Facture hospitalisation - CHU Bordeaux', '2023-03-15'],
+  ['Facture kinésithérapie - Cabinet Martin', '2023-04-12'],
   ['Facture pharmacie des Lilas', '2023-04-20'],
-  ['Facture IRM — Centre Imagerie Sud', '2023-05-25'],
-  ['Facture consultation orthopédique — Dr. Petit', '2023-06-15'],
+  ['Facture IRM - Centre Imagerie Sud', '2023-05-25'],
+  ['Facture consultation orthopédique - Dr. Petit', '2023-06-15'],
   ['Facture transport VSL (taxi médical)', '2023-07-05'],
   ['Facture orthèse de genou', '2023-07-28'],
   ["Facture séances d'ostéopathie", '2023-08-10'],
-  ['Facture matériel médical — béquilles', '2023-08-22'],
-  ['Facture consultation de suivi — Dr. Dubois', '2023-09-15'],
+  ['Facture matériel médical - béquilles', '2023-08-22'],
+  ['Facture consultation de suivi - Dr. Dubois', '2023-09-15'],
 ].map(([cleanName, date], i, arr) => ({
   id: `demo-frais-${i}`,
   originalName: DEMO_FRAIS_MEDICAUX_SOURCE,
@@ -767,7 +767,7 @@ const DROP_FIRST_ACCIDENT_DATA = {
   resume: 'Collision frontale avec un véhicule en état d\'ivresse (0,8 g/L) sur la RN7 à hauteur de Fontainebleau. Mme Martin, conductrice, a subi un choc violent au niveau des membres inférieurs.'
 };
 const DROP_FIRST_MEDICAL_DATA = {
-  premiereConstatation: '05/06/2022 — CHU Pitié-Salpêtrière', dateConsolidation: '15/01/2024', aipp: '8%',
+  premiereConstatation: '05/06/2022 - CHU Pitié-Salpêtrière', dateConsolidation: '15/01/2024', aipp: '8%',
   commentaire: 'Fracture complexe du fémur droit avec ostéosynthèse. Séquelles : raideur articulaire, douleurs résiduelles, boiterie légère. Retentissement professionnel modéré.'
 };
 const DROP_FIRST_POSTES_DETECTES = ['DFT', 'DSA', 'PGPA', 'PGPF', 'SE', 'PE', 'AIPP'];
@@ -1003,7 +1003,7 @@ const MOCK_DIFF_STORE = {
 };
 
 /* ============================================================================
- * PARAMETER PILL — SPEC
+ * PARAMETER PILL - SPEC
  * ============================================================================
  *
  * A parameter pill is a compact, rounded-full chip displayed in a chiffrage
@@ -1029,8 +1029,8 @@ const MOCK_DIFF_STORE = {
  * ── COLOR MODEL ──────────────────────────────────────────────────────────────
  *
  *  Pill background/border = TARGET STATE of the parameter (where it's going):
- *    • ON  → info (blue)   — bg #eef3fa, border #aabcd5, text #1e3a8a
- *    • OFF → neutral (gray) — bg transparent, border #d6d3d1, text #78716c
+ *    • ON  → info (blue)   - bg #eef3fa, border #aabcd5, text #1e3a8a
+ *    • OFF → neutral (gray) - bg transparent, border #d6d3d1, text #78716c
  *
  *  Diamond color = DIFF TYPE (what kind of change):
  *    • add    → green  #059669   (param was OFF, turning ON)
@@ -1044,9 +1044,9 @@ const MOCK_DIFF_STORE = {
  *  │ add      │ info (blue)  │ green ◆      │ new value(s)                   │
  *  │ edit     │ info (blue)  │ orange ◆     │ ~~old~~ → new                  │
  *  │ delete   │ neutral (gray)│ red ◆       │ ~~On~~ → Off                   │
- *  │ (none)   │ info / neutral│ —           │ current value(s)               │
- *  │ accepted │ info (blue)  │ —            │ accepted value (no buttons)     │
- *  │ rejected │ info / neutral│ —           │ original value (no buttons)     │
+ *  │ (none)   │ info / neutral│ -           │ current value(s)               │
+ *  │ accepted │ info (blue)  │ -            │ accepted value (no buttons)     │
+ *  │ rejected │ info / neutral│ -           │ original value (no buttons)     │
  *  └──────────┴──────────────┴──────────────┴────────────────────────────────┘
  *
  * ── ACCEPT / REJECT BUTTONS ─────────────────────────────────────────────────
@@ -1093,7 +1093,7 @@ const MOCK_DIFF_STORE = {
  * ── IMPLEMENTATION ───────────────────────────────────────────────────────────
  *
  *  Helper:       renderParamPill({ paramKey, label, values, enabled, onClick })
- *  Diff lookup:  getParamDiff(paramKey) — finds matching pending diff
+ *  Diff lookup:  getParamDiff(paramKey) - finds matching pending diff
  *  Wire format:  diff.paramKey must match enabledParams key
  *  Pill shape:   rounded-full, px-3 py-1.5, text-xs font-medium, border
  *  Diamond:      w-1.5 h-1.5, rotate(45deg), borderRadius 0.5px
@@ -1110,7 +1110,7 @@ const PILL_SCHEMES = {
 const DIAMOND_COLORS = { add: '#059669', edit: '#bd6c1a', delete: '#991b1b' };
 
 /* ============================================================================
- * TABLE ROW DIFF — SPEC
+ * TABLE ROW DIFF - SPEC
  * ============================================================================
  *
  * Figma ref: node 1324:17669
@@ -1192,7 +1192,7 @@ const PIECE_TYPE_COLORS = {
 const PIECE_TYPE_OPTIONS = ['Expertise', 'Factures', 'Revenus', 'Décision', 'Médical', 'Correspondance', 'Administratif'];
 
 // Uppercase mono group header for the document panel's field groups
-// (Figma: caption/header-cols — IBM Plex Mono Medium 11px, muted).
+// (Figma: caption/header-cols - IBM Plex Mono Medium 11px, muted).
 function FieldGroupLabel({ children }) {
   return (
     <p
@@ -1204,7 +1204,7 @@ function FieldGroupLabel({ children }) {
   );
 }
 
-// Skeleton document "aperçu" — a paper-shaped card with the real title/date in
+// Skeleton document "aperçu" - a paper-shaped card with the real title/date in
 // the header and deterministic grey text lines for the body (same visual
 // language as the split panel's page mock). Stands in for a real render.
 function DocPreviewSkeleton({ title, date }) {
@@ -1238,7 +1238,7 @@ if (window.location.search.includes('reset')) {
   window.location.replace(window.location.pathname);
 }
 
-// Small hover-triggered info tooltip — renders a peach-tinted popover above
+// Small hover-triggered info tooltip - renders a peach-tinted popover above
 // the icon with a short explanation. Used in PlanCard footer rows to explain
 // what each metric means.
 function InfoTip({ children, label, placement = 'top', align = 'center', icon: Icon = HelpCircle, iconClassName }) {
@@ -1280,7 +1280,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
             pointerEvents: 'none',
           }}
         >
-          {/* Tail — small dark diamond pointing at the icon */}
+          {/* Tail - small dark diamond pointing at the icon */}
           <span
             aria-hidden
             style={{
@@ -1371,10 +1371,10 @@ export default function App() {
 
   // ========== SETTINGS ==========
   const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
-  // Parrainage — modal-only feature triggered from the sidebar promo card
+  // Parrainage - modal-only feature triggered from the sidebar promo card
   const [parrainageModalOpen, setParrainageModalOpen] = useState(false);
   const [parrainageForm, setParrainageForm] = useState({ prenom: '', nom: '', email: '' });
-  // Votre tampon — defaults derived from {{family_Name}} ("Régior") and the lawyer's standard role.
+  // Votre tampon - defaults derived from {{family_Name}} ("Régior") and the lawyer's standard role.
   const [tamponLine1, setTamponLine1] = useState('Maître Régior');
   const [tamponLine2, setTamponLine2] = useState('Avocat à la cour');
   const [tamponFirstPageOnly, setTamponFirstPageOnly] = useState(false);
@@ -1416,7 +1416,7 @@ export default function App() {
   const licenceAvailable = (planId) => Math.max(0, (licenceInventory[planId] || 0) - (licencesAssigned[planId] || 0));
   const applyAssignPlan = (memberId, planId) => {
     setWorkspaceMembers(prev => prev.map(m => m.id === memberId ? { ...m, plan: planId || null } : m));
-    setToastMessage(`Licence mise à jour — ${planId ? `Plan ${PLAN_BY_ID[planId].name}` : 'lecture seule'}.`);
+    setToastMessage(`Licence mise à jour - ${planId ? `Plan ${PLAN_BY_ID[planId].name}` : 'lecture seule'}.`);
     setTimeout(() => setToastMessage(null), 2500);
   };
   // Assigning a paid plan with no free licence of that tier → confirm a paid upgrade first.
@@ -1433,11 +1433,11 @@ export default function App() {
     setLicenceInventory(inv => ({ ...inv, [planId]: (inv[planId] || 0) + 1 }));
     setWorkspaceMembers(prev => prev.map(m => m.id === memberId ? { ...m, plan: planId } : m));
     const monthly = PLAN_BY_ID[planId]?.monthly || 0;
-    setToastMessage(`Licence ${PLAN_BY_ID[planId]?.name} ajoutée — ${monthly} € HT/mois, au prorata.`);
+    setToastMessage(`Licence ${PLAN_BY_ID[planId]?.name} ajoutée - ${monthly} € HT/mois, au prorata.`);
     setTimeout(() => setToastMessage(null), 3500);
     setLicenceUpgradeModal(null);
   };
-  // Out-of-quota self-upgrade (admin): bump own tier — switching tier resets the weekly quota.
+  // Out-of-quota self-upgrade (admin): bump own tier - switching tier resets the weekly quota.
   const nextPlanAbove = (planId) => {
     const idx = PRICING_PLANS.findIndex(p => p.id === planId);
     return idx >= 0 ? (PRICING_PLANS[idx + 1] || null) : PRICING_PLANS[0];
@@ -1452,7 +1452,7 @@ export default function App() {
     setWorkspaceMembers(prev => prev.map(m => m.id === currentUserId ? { ...m, plan: next.id } : m));
     setQuotaFill('fresh');
     setQuotaUpgradeOpen(false);
-    setToastMessage(`Plan ${next.name} activé — quota rechargé.`);
+    setToastMessage(`Plan ${next.name} activé - quota rechargé.`);
     setTimeout(() => setToastMessage(null), 3500);
   };
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -1524,17 +1524,17 @@ export default function App() {
   // Identity (pile.id + segment.id) is stable across bundle/explode toggles.
   const [piles, setPiles] = useState({}); // pileId → { id, originalName, pileType, aggregate, segments, mode, autoApplied, badgeUntil }
   const [pendingPileReviews, setPendingPileReviews] = useState([]); // pileIds waiting for the user's binary call
-  // Split is automatic now — this rule is no longer user-configurable. Kept as
+  // Split is automatic now - this rule is no longer user-configurable. Kept as
   // an inert default only because the adjust panel still accepts a `rule` prop
   // (used solely to pick the recommended button for not-yet-resolved piles,
   // which no longer occur). No setter: nothing changes it anymore.
   const [globalSplitRule] = useState('group'); // 'group' | 'explode' | 'ask'
-  const [pileDocPanel, setPileDocPanel] = useState(null); // null | { pileId, segmentId, mode } — unified document panel (view ↔ adjust)
-  const [panelSplitConfig, setPanelSplitConfig] = useState(null); // { pieceId, prompt } — inline « instructions de nommage » config in the doc panel (posteriori split, step 1)
-  const [docSplitDraft, setDocSplitDraft] = useState(null); // { pieceId, pile, prompt } — cut modal (PileAdjustSheet); saving updates the source card's _pSplit
-  const [doublonCompare, setDoublonCompare] = useState(null); // null | { newId, existingId } — side-by-side doublon comparison
-  const [fusionModal, setFusionModal] = useState(null); // null | { sources, defaultName } — merge several documents into one pièce
-  const [pileHighlight, setPileHighlight] = useState(null); // pileId — amber-flashed after a recent bascule
+  const [pileDocPanel, setPileDocPanel] = useState(null); // null | { pileId, segmentId, mode } - unified document panel (view ↔ adjust)
+  const [panelSplitConfig, setPanelSplitConfig] = useState(null); // { pieceId, prompt } - inline « instructions de nommage » config in the doc panel (posteriori split, step 1)
+  const [docSplitDraft, setDocSplitDraft] = useState(null); // { pieceId, pile, prompt } - cut modal (PileAdjustSheet); saving updates the source card's _pSplit
+  const [doublonCompare, setDoublonCompare] = useState(null); // null | { newId, existingId } - side-by-side doublon comparison
+  const [fusionModal, setFusionModal] = useState(null); // null | { sources, defaultName } - merge several documents into one pièce
+  const [pileHighlight, setPileHighlight] = useState(null); // pileId - amber-flashed after a recent bascule
   const [infoDossierStreaming, setInfoDossierStreaming] = useState(null); // null | { active, fieldsRevealed: [], streamingField: null, streamingText: '' }
   const [pieceOverviewPanel, setPieceOverviewPanel] = useState(null); // null | pieceId
   const [bordereauPiecePanel, setBordereauPiecePanel] = useState(null); // null | { acteId, entryIdx }
@@ -1584,23 +1584,23 @@ export default function App() {
   const [dossierPostes, setDossierPostes] = useState(['dsa', 'fda', 'pgpa', 'dft', 'pgpf', 'dsf', 'se', 'dfp', 'pep']); // IDs of postes added to this dossier
   const [ivDossierPostes, setIvDossierPostes] = useState(['pai', 'pafv', 'pepe', 'fdp', 'fo', 'prp']); // IDs of IV postes enabled in this dossier
   const [ivPosteData, setIvPosteData] = useState({
-    // Type A — Préjudice d'affection
+    // Type A - Préjudice d'affection
     pai: { bareme: 'mornet-2024', lignes: [
       { victimeId: 'vi-1', montant: 25000, pieceIds: [] },
       { victimeId: 'vi-2', montant: 15000, pieceIds: [] },
       { victimeId: 'vi-3', montant: 15000, pieceIds: [] },
     ]},
-    // Type A — Préjudice d'accompagnement de fin de vie
+    // Type A - Préjudice d'accompagnement de fin de vie
     pafv: { bareme: 'cours-appel-2024', lignes: [
       { victimeId: 'vi-1', montant: 8000, pieceIds: [] },
       { victimeId: 'vi-2', montant: 5000, pieceIds: [] },
       { victimeId: 'vi-3', montant: 5000, pieceIds: [] },
     ]},
-    // Type A + intitulé — Préjudices extra-patrimoniaux exceptionnels
+    // Type A + intitulé - Préjudices extra-patrimoniaux exceptionnels
     pepe: { bareme: '', lignes: [
       { victimeId: 'vi-1', montant: 10000, pieceIds: [], intitule: 'Syndrome de stress post-traumatique sévère' },
     ]},
-    // Type B — Frais divers des proches (grouped by victim)
+    // Type B - Frais divers des proches (grouped by victim)
     fdp: { lignes: [
       { id: 'fdp-1', victimeId: 'vi-1', montant: 1200, pieceIds: ['p-1'], intitule: 'Déplacements hôpital (48 trajets)', source: 'ocr' },
       { id: 'fdp-2', victimeId: 'vi-1', montant: 2800, pieceIds: ['p-2'], intitule: 'Hébergement proche hôpital', source: 'ocr' },
@@ -1608,7 +1608,7 @@ export default function App() {
       { id: 'fdp-4', victimeId: 'vi-2', montant: 600, pieceIds: [], intitule: 'Déplacements' },
       { id: 'fdp-5', victimeId: 'vi-3', montant: 600, pieceIds: [], intitule: 'Déplacements' },
     ]},
-    // Type C — Frais d'obsèques (shared expenses with attributions)
+    // Type C - Frais d'obsèques (shared expenses with attributions)
     fo: { lignes: [
       { id: 'fo-1', label: 'Cercueil et préparation', totalAmount: 3200, pieceIds: ['p-7'], attributions: [{ viId: 'vi-1', amount: 1600 }, { viId: 'vi-3', amount: 1600 }] },
       { id: 'fo-2', label: 'Cérémonie religieuse', totalAmount: 800, pieceIds: [], attributions: [{ viId: 'vi-1', amount: 800 }] },
@@ -1616,7 +1616,7 @@ export default function App() {
       { id: 'fo-4', label: 'Marbrerie et gravure', totalAmount: 1450, pieceIds: [], attributions: [{ viId: 'vi-3', amount: 1450 }] },
       { id: 'fo-5', label: 'Transport du corps', totalAmount: 680, pieceIds: [], attributions: [{ viId: 'vi-1', amount: 680 }] },
     ]},
-    // Type D — Pertes de revenus des proches (shared foyer + per-VI ventilation)
+    // Type D - Pertes de revenus des proches (shared foyer + per-VI ventilation)
     prp: { lignes: [
       { victimeId: 'vi-1', partIndividuelle: 50, dureeIndemnisation: 'Viager', anneesEchues: 3, mode: 'capitalisation', coeffCapitalisation: 20,
         deductionsTP: [
@@ -1668,8 +1668,8 @@ export default function App() {
       dateLiquidation: '2025-03-15',
     },
   }); // { [posteId]: { ... } }
-  const [ivOverviewExpanded, setIvOverviewExpanded] = useState({}); // { [posteId]: boolean } — UI only
-  const [ivViewMode, setIvViewMode] = useState('poste'); // 'poste' | 'victime' — UI only
+  const [ivOverviewExpanded, setIvOverviewExpanded] = useState({}); // { [posteId]: boolean } - UI only
+  const [ivViewMode, setIvViewMode] = useState('poste'); // 'poste' | 'victime' - UI only
   const [prpUseCase, setPrpUseCase] = useState('decede-capital-echu'); // preset selector for PRP
   const [formPosteData, setFormPosteData] = useState(BASELINE_FORM_POSTE_DATA);
 
@@ -1679,7 +1679,7 @@ export default function App() {
   const hasTP = tpScenario.key !== 'baseline' && tpScenario.tiersPayeurs.length > 0;
   const tauxFinal = tpScenario.tauxResponsabilite ?? 100;
 
-  // Shared style for all column/table headers — IBM Plex Mono, uppercase, small
+  // Shared style for all column/table headers - IBM Plex Mono, uppercase, small
   const colHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
   // Section headers: DETAIL DU CALCUL, NOTES / ARGUMENTAIRE, JURISPRUDENCES
   const sectionHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '1px' };
@@ -1709,7 +1709,7 @@ export default function App() {
     { bg: '#ffe4e6', fill: '#881337' }, // rose/plum
     { bg: '#eeece6', fill: '#44403c' }, // cream/stone
   ];
-  const VD_AVATAR = { bg: '#cce6d9', fill: '#064E3B' }; // green — matching Figma
+  const VD_AVATAR = { bg: '#cce6d9', fill: '#064E3B' }; // green - matching Figma
 
   const chessPiece = (piece, fill, size) => {
     const p = CHESS_PATHS[piece] || CHESS_PATHS.knight;
@@ -1737,7 +1737,7 @@ export default function App() {
     </div>
   );
 
-  // Workspace member avatar — same square-box + chess piece pattern as viAvatar.
+  // Workspace member avatar - same square-box + chess piece pattern as viAvatar.
   // Palette cycles by member index; piece reflects role (Admin → king, Membre → pawn).
   const userAvatar = (idx, role, size = 32) => {
     const pal = VI_AVATAR_PALETTE[(idx >= 0 ? idx : 0) % VI_AVATAR_PALETTE.length];
@@ -1809,9 +1809,9 @@ export default function App() {
   // ========== MODÈLES D'ACTES LIBRARY STATE ==========
   const [templatesLibrary, setTemplatesLibrary] = useState([
     { id: 'tpl-assignation-re', label: 'Assignation en référé-expertise', actType: 'assignation', addedBy: 'Cabinet', addedDate: '12/03/2026', fileName: 'modele_assignation_re.docx' },
-    { id: 'tpl-conclusions-rc', label: 'Conclusions récapitulatives — RC corporelle', actType: 'conclusions', addedBy: 'Cabinet', addedDate: '05/01/2026', fileName: 'modele_conclusions_rc.docx' },
+    { id: 'tpl-conclusions-rc', label: 'Conclusions récapitulatives - RC corporelle', actType: 'conclusions', addedBy: 'Cabinet', addedDate: '05/01/2026', fileName: 'modele_conclusions_rc.docx' },
     { id: 'tpl-mise-en-demeure', label: 'Mise en demeure assureur', actType: 'email', addedBy: 'Me Bernard', addedDate: '18/02/2026', fileName: 'modele_med_assureur.docx' },
-    { id: 'tpl-dire-expert', label: 'Dire à expert — contestation DFP', actType: 'dire', addedBy: 'Me Bernard', addedDate: '22/11/2025', fileName: 'modele_dire_dfp.docx' },
+    { id: 'tpl-dire-expert', label: 'Dire à expert - contestation DFP', actType: 'dire', addedBy: 'Me Bernard', addedDate: '22/11/2025', fileName: 'modele_dire_dfp.docx' },
     { id: 'tpl-protocole', label: 'Protocole transactionnel type', actType: 'protocole', addedBy: 'Cabinet', addedDate: '10/04/2026', fileName: 'modele_protocole.docx' },
   ]);
   const [templateUploadFormOpen, setTemplateUploadFormOpen] = useState(false);
@@ -2103,7 +2103,7 @@ export default function App() {
       }
     });
     setPiles(restoredPiles);
-    // Split is now automatic — no review limbo. Drop any legacy pending
+    // Split is now automatic - no review limbo. Drop any legacy pending
     // reviews from older saved sessions so no decision card resurfaces.
     setPendingPileReviews([]);
     setPileDocPanel(null);
@@ -2122,7 +2122,7 @@ export default function App() {
 
   // Init: restore from localStorage on mount
   useEffect(() => {
-    // A bare /dossier URL (bookmark, stale link) carries no dossier ID — there's no
+    // A bare /dossier URL (bookmark, stale link) carries no dossier ID - there's no
     // valid dossier to open, so it can only land on a stale/broken view. Always send
     // such direct loads home to "Mes dossiers" instead of restoring stale state.
     const landedOnBareDossier = window.location.pathname.replace(/\/+$/, '') === '/dossier';
@@ -2131,7 +2131,7 @@ export default function App() {
     const savedGlobal = lsLoad(LS_GLOBAL);
     if (savedGlobal) {
       setDossiers((savedGlobal.dossiers || []).map(d => ({ ...d, statut: d.statut ?? 'ouvert' })));
-      // URL is the source of truth — only restore page from storage when user landed at root
+      // URL is the source of truth - only restore page from storage when user landed at root
       if (!landedOnBareDossier && window.location.pathname === '/' && savedGlobal.currentPage && savedGlobal.currentPage !== 'list') {
         setCurrentPage(savedGlobal.currentPage);
       }
@@ -2176,7 +2176,7 @@ export default function App() {
   useEffect(() => {
     if (dropFirstProcessingDone && !chatExtractionAnnounced.current && dropFirstPieces.length > 0) {
       chatExtractionAnnounced.current = true;
-      // Thinking message already exists from handleDropFirstCreate — no new message needed
+      // Thinking message already exists from handleDropFirstCreate - no new message needed
     }
   }, [dropFirstProcessingDone, dropFirstPieces]);
 
@@ -2190,7 +2190,7 @@ export default function App() {
         return found?.id;
       }).filter(Boolean);
 
-      // Add detected VD postes to dossier (at 0€ — not calculated yet)
+      // Add detected VD postes to dossier (at 0€ - not calculated yet)
       setDossierPostes(prev => {
         const newIds = posteIds.filter(id => !prev.includes(id));
         return newIds.length > 0 ? [...prev, ...newIds] : prev;
@@ -2219,7 +2219,7 @@ export default function App() {
         return updated;
       });
 
-      // No tab switch — the chat message below announces it's done; the user
+      // No tab switch - the chat message below announces it's done; the user
       // navigates to Dossier / Chiffrage themselves.
 
       // Update the thinking stepper with extraction + postes steps, mark as done
@@ -2261,7 +2261,7 @@ export default function App() {
             zone: 'postes',
             actionIds: [`extraction-poste-${posteId}`],
             navigateTo: 'chiffrage',
-            posteLabel: taxo ? `${acronym} — ${taxo.label}` : acronym,
+            posteLabel: taxo ? `${acronym} - ${taxo.label}` : acronym,
           };
         });
 
@@ -2270,7 +2270,7 @@ export default function App() {
           {
             type: 'ai-thinking',
             status: 'done',
-            summary: `Analyse du dossier — ${detectedPostes.length} postes identifiés`,
+            summary: `Analyse du dossier - ${detectedPostes.length} postes identifiés`,
             counters: { add: detectedPostes.length, update: 1 },
             steps: [
               { type: 'read_documents', label: 'Analyse de 8 documents', status: 'done' },
@@ -2361,7 +2361,7 @@ export default function App() {
       chatAnalysisTimeouts.current.forEach(t => clearTimeout(t));
       chatAnalysisTimeouts.current = [];
 
-      // Phase 1: Welcome message — skipped when the user invited the poste from the
+      // Phase 1: Welcome message - skipped when the user invited the poste from the
       // canvas "+ poste" modal (their own user message provides the context).
       const skipGreeting = chatJustInvitedPoste.current === posteId;
       if (skipGreeting) {
@@ -2373,7 +2373,7 @@ export default function App() {
         ]);
       }
 
-      // Phase 2: Thinking — reading docs
+      // Phase 2: Thinking - reading docs
       const t1 = setTimeout(() => {
         setChatMessages(prev => [
           ...prev,
@@ -2533,7 +2533,7 @@ export default function App() {
 
   // IV computed helpers
   // ========== PRP COMPUTATION ENGINE ==========
-  // Pure functions — used by both rendering and getIvPosteMontant.
+  // Pure functions - used by both rendering and getIvPosteMontant.
   // Backward-compatible: handles legacy 'percentage' method and missing fields.
   const computeAutoConso = (shared, vis) => {
     const method = shared.autoConsommationMethod || 'libre';
@@ -2553,7 +2553,7 @@ export default function App() {
     let totalParts = 1; // défunt = 1 part
     totalParts += spouseCount * (scale.weights.spouse || 0.5);
     if (method === 'insee') {
-      // INSEE: distinguish enfants 14+ et <14 — for now treat all as childUnder14 default
+      // INSEE: distinguish enfants 14+ et <14 - for now treat all as childUnder14 default
       totalParts += childCount * (scale.weights.childUnder14 || 0.3);
     } else {
       totalParts += childCount * (scale.weights.child || 0.3);
@@ -2812,7 +2812,7 @@ export default function App() {
 
     return (
       <div className="flex flex-col -mx-4 -mt-4">
-        {/* Sub-header bar — full width, edge-to-edge */}
+        {/* Sub-header bar - full width, edge-to-edge */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#e7e5e3]">
           {/* Doc count */}
           <span className="text-sm font-medium text-black">{pieces.length} pièce{pieces.length !== 1 ? 's' : ''}</span>
@@ -3161,7 +3161,7 @@ export default function App() {
         el.classList.add('is-highlighted');
         setTimeout(() => el.classList.remove('is-highlighted'), 3000);
       } else {
-        // Entity not found by ID — fall back to zone-level navigation
+        // Entity not found by ID - fall back to zone-level navigation
         const zoneEl = zone && document.querySelector(`[data-zone-id="${zone}"]`);
         if (zoneEl) {
           zoneEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3641,7 +3641,7 @@ export default function App() {
 
   // (handleCreateProcedureFromWizard supprimé - wizard supprimé)
 
-  // ========== ACTIONS IA — Génération à la demande ==========
+  // ========== ACTIONS IA - Génération à la demande ==========
   const handleGenerateExpertise = async () => {
     setAiGenerating('expertise');
     await new Promise(r => setTimeout(r, 2500));
@@ -3963,7 +3963,7 @@ export default function App() {
     }
   };
 
-  // ========== SMART ADD POSTE — shared handler for badge click + chat ==========
+  // ========== SMART ADD POSTE - shared handler for badge click + chat ==========
   const handleSmartAddPoste = (posteId) => {
     const taxo = allTaxoPostes.find(p => p.id === posteId);
     if (!taxo) return;
@@ -3973,7 +3973,7 @@ export default function App() {
       setDossierPostes(prev => [...prev, posteId]);
     }
 
-    // Navigate to poste detail — the navStack useEffect will auto-trigger chat analysis
+    // Navigate to poste detail - the navStack useEffect will auto-trigger chat analysis
     navigateTo({ id: posteId, title: taxo.acronym || posteId.toUpperCase(), fullTitle: taxo.label, type: 'poste', montant: 0 });
     setChatSidebarOpen(true);
   };
@@ -4020,12 +4020,12 @@ export default function App() {
       const lignes = ivPosteData['prp']?.lignes || [];
       const foyer = computePrpFoyer(shared, victimesIndirectes);
       const alerts = [];
-      if (foyer.partAutoConso > 35) alerts.push(`⚠️ Auto-consommation à ${foyer.partAutoConso}% — supérieur à la fourchette habituelle (15-35%), attaquable.`);
-      if (foyer.partAutoConso < 15 && foyer.partAutoConso > 0) alerts.push(`ℹ️ Auto-consommation à ${foyer.partAutoConso}% — en dessous des seuils habituels.`);
+      if (foyer.partAutoConso > 35) alerts.push(`⚠️ Auto-consommation à ${foyer.partAutoConso}% - supérieur à la fourchette habituelle (15-35%), attaquable.`);
+      if (foyer.partAutoConso < 15 && foyer.partAutoConso > 0) alerts.push(`ℹ️ Auto-consommation à ${foyer.partAutoConso}% - en dessous des seuils habituels.`);
       const conjointVI = victimesIndirectes.find(v => ['Épouse','Époux','Concubin','Concubine','Partenaire'].includes(v.lien));
       const conjointLigne = conjointVI ? lignes.find(l => l.victimeId === conjointVI.id) : null;
       if (conjointVI && conjointLigne && !(conjointLigne.deductionsTP || []).some(d => d.type === 'pension-reversion' && (d.montantAnnuel || 0) > 0)) {
-        alerts.push(`⚠️ Pension de réversion non déclarée pour ${conjointVI.prenom} ${conjointVI.nom} — risque de rejet par la défense.`);
+        alerts.push(`⚠️ Pension de réversion non déclarée pour ${conjointVI.prenom} ${conjointVI.nom} - risque de rejet par la défense.`);
       }
       const sumParts = lignes.reduce((s, l) => s + (l.partIndividuelle || 0), 0);
       if (sumParts !== 100 && sumParts > 0) alerts.push(`⚠️ Somme des parts : ${sumParts}% (devrait être 100%).`);
@@ -4048,7 +4048,7 @@ export default function App() {
 
   // ========== CANVAS-ANCHORED PROMPT TRIGGERS ==========
   // Fires a hardcoded natural-language prompt into Chato (as if the user typed it).
-  // Used by empty-state buttons on the canvas — see .context/attachments/prompt-suggestions-v1.md
+  // Used by empty-state buttons on the canvas - see .context/attachments/prompt-suggestions-v1.md
   // - scenarioKey: play a DEMO_SCENARIOS entry that already includes USER_MESSAGE.
   // - aiReply: when no scenario, push a single inline AI confirmation after the user bubble.
   const fireCanvasPrompt = (text, { scenarioKey = null, aiReply = null, aiDelay = 400 } = {}) => {
@@ -4064,10 +4064,10 @@ export default function App() {
     }
   };
 
-  // ========== JP RATIONALE — chat-flow capture ==========
+  // ========== JP RATIONALE - chat-flow capture ==========
   // When a JP is saved (workspace / matter / poste), push:
-  //   1. user bubble — "Sauvegarde cette JP pour {scope}"
-  //   2. agent prompt — "Pourquoi avoir sauvegardé {dec} pour {scope} ?"
+  //   1. user bubble - "Sauvegarde cette JP pour {scope}"
+  //   2. agent prompt - "Pourquoi avoir sauvegardé {dec} pour {scope} ?"
   // Then set `pendingRationale` so the next user-typed chat message is captured
   // as the rationale (saved on matching attachments), instead of being sent.
   const initiateRationaleCapture = ({ decisionId, targets, scopeLabel, userText }) => {
@@ -4080,7 +4080,7 @@ export default function App() {
     setPendingRationale({ promptId, decisionId, targets, scopeLabel });
   };
 
-  // ========== CHAT SEND — handles user messages + intent detection ==========
+  // ========== CHAT SEND - handles user messages + intent detection ==========
   const handleChatSend = () => {
     const text = chatInputValue.trim();
 
@@ -4117,12 +4117,12 @@ export default function App() {
     }
     if (!text && stagedDocs.length === 0) return;
 
-    // Slash command detection — TP commands first, then demo scenarios
+    // Slash command detection - TP commands first, then demo scenarios
     if (text.startsWith('/')) {
       const cmd = text.slice(1).trim();
       setChatInputValue('');
 
-      // Standalone bordereau — handled before the generic 'redaction' branch.
+      // Standalone bordereau - handled before the generic 'redaction' branch.
       // `/bordereau` and `/bordereau-standalone` still emit the sectioned demo;
       // `/redaction-bordereau` emits a FLAT one (entry point for the modify-
       // section demo); `/bordereau-modify-section` regroups the current
@@ -4160,7 +4160,7 @@ export default function App() {
       // TP commands
       if (cmd.startsWith('tp-')) {
         if (cmd === 'tp-help') {
-          setChatMessages(prev => [...prev, { type: 'ai', text: "Commandes Tiers payeurs disponibles :\n\n/tp-simple — Récap multi-postes (CPAM + Harmonie + SNCF)\n/tp-cascade — Cascade AT/MP (rente capitalisée PGPF → IP → DFP)\n/tp-reset — Revenir au scénario de base" }]);
+          setChatMessages(prev => [...prev, { type: 'ai', text: "Commandes Tiers payeurs disponibles :\n\n/tp-simple - Récap multi-postes (CPAM + Harmonie + SNCF)\n/tp-cascade - Cascade AT/MP (rente capitalisée PGPF → IP → DFP)\n/tp-reset - Revenir au scénario de base" }]);
           return;
         }
         const newKey = TP_COMMAND_MAP[cmd];
@@ -4178,7 +4178,7 @@ export default function App() {
         return;
       }
 
-      // /empty — wipe the matter to its empty state (info, chiffrage, JP) but keep documents.
+      // /empty - wipe the matter to its empty state (info, chiffrage, JP) but keep documents.
       // Useful for testing the canvas-anchored prompt-suggestion empty states.
       if (cmd === 'empty' || cmd === 'reset' || cmd === 'empty-matter') {
         setVictimeData(EMPTY_DOSSIER.victimeData);
@@ -4237,7 +4237,7 @@ export default function App() {
       return;
     }
 
-    // Redaction: bordereau-type reply — detect theme (médical / procédure / complet)
+    // Redaction: bordereau-type reply - detect theme (médical / procédure / complet)
     // and play the matching emit scenario.
     if (redaction.redactionState.activeStepper === 'awaiting-bordereau-type-reply') {
       redaction.dispatch({ type: 'CLOSE_STEPPER' });
@@ -4250,7 +4250,7 @@ export default function App() {
       return;
     }
 
-    // Redaction: onboarding reply — detect act type from free text and start the 5-step flow
+    // Redaction: onboarding reply - detect act type from free text and start the 5-step flow
     if (redaction.redactionState.activeStepper === 'awaiting-onboarding-reply') {
       redaction.dispatch({ type: 'CLOSE_STEPPER' });
       // Detect act type from user's reply
@@ -4540,7 +4540,7 @@ export default function App() {
           if (!prev) return null;
           const newCount = prev.extractedCount + 1;
           if (newCount >= prev.totalDocs) {
-            // Done — clear after a short delay
+            // Done - clear after a short delay
             setTimeout(() => setPosteExtracting(null), 1500);
             return { ...prev, extractedCount: newCount };
           }
@@ -4632,11 +4632,11 @@ export default function App() {
       // For infos_dossier, approving means keeping the agent's "after" value (already set in state)
       // Just mark as approved in activeDiffs below
     }
-    // Remove from activeDiffs — accepted changes become the new baseline
+    // Remove from activeDiffs - accepted changes become the new baseline
     setActiveDiffs(prev => prev.filter(d => d.entityId !== ligneId));
   };
 
-  // Reject a diff: revert the change — for additions remove the row, for edits/deletes clear diffType
+  // Reject a diff: revert the change - for additions remove the row, for edits/deletes clear diffType
   const handleRejectDiff = (ligneId, zone) => {
     const clearDiff = (list) => list.map(l => l.id === ligneId ? { ...l, diffType: undefined } : l);
     const removeLigne = (list) => list.filter(l => l.id !== ligneId);
@@ -4729,7 +4729,7 @@ export default function App() {
           </span>
         </div>
 
-        {/* Center: Tabs — absolutely centered so they never shift.
+        {/* Center: Tabs - absolutely centered so they never shift.
             items-stretch + h-full on the tab buttons puts the active underline
             flush with the bar's bottom border (no gap below the tabs). */}
         <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 flex items-stretch pointer-events-none">
@@ -4742,7 +4742,7 @@ export default function App() {
                 : navStack[0]?.activeTab === tabKey;
 
               // Diff diamond: check activeDiffs for pending diffs in this tab's zone.
-              // Hidden in closed dossiers — no edits possible, so no diff signals.
+              // Hidden in closed dossiers - no edits possible, so no diff signals.
               const tabZoneMap = { dossier: 'infos_dossier', chiffrage: 'postes', 'pièces': 'pieces' };
               const tabZone = tabZoneMap[tabKey];
               const zoneDiffs = tabZone && !isClosed ? activeDiffs.filter(d => d.zone === tabZone && !d.approved && !d.rejected) : [];
@@ -4830,7 +4830,7 @@ export default function App() {
               </div>
             )}
           </div>
-          {/* Re-open Plato button — only shown when chat is collapsed.
+          {/* Re-open Plato button - only shown when chat is collapsed.
               The collapse-chat affordance lives inside the chat sidebar header,
               next to PLATO MASTER (see renderChatSidebar). */}
           {!isClosed && !chatSidebarOpen && (
@@ -4881,7 +4881,7 @@ export default function App() {
     document.addEventListener('mouseup', onUp);
   };
 
-  // Plato logo icon (orange P) — reusable
+  // Plato logo icon (orange P) - reusable
   const PlatoIcon = ({ size = 16, color = '#292524' }) => (
     <svg width={size} height={size} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
       <path d="M73.5996 0C75.8398 0 76.9608 -0.000427067 77.8164 0.435547C78.5689 0.819016 79.181 1.43109 79.5645 2.18359C80.0004 3.03924 80 4.16018 80 6.40039V73.5996C80 75.8398 80.0004 76.9608 79.5645 77.8164C79.181 78.5689 78.5689 79.181 77.8164 79.5645C76.9608 80.0004 75.8398 80 73.5996 80H55L53 70H57V62H23V70H27L25 80H6.40039C4.16018 80 3.03924 80.0004 2.18359 79.5645C1.43109 79.181 0.819016 78.5689 0.435547 77.8164C-0.000427067 76.9608 0 75.8398 0 73.5996V6.40039C0 4.16018 -0.000427067 3.03924 0.435547 2.18359C0.819016 1.43109 1.43109 0.819016 2.18359 0.435547C3.03924 -0.000427067 4.16018 0 6.40039 0H73.5996ZM28.916 39.083L21 32L15 36L26 56H54L65 36L59 32L51.083 39.083L40 28L28.916 39.083ZM33 17L40 24L47 17L40 10L33 17Z" fill={color} />
@@ -5011,7 +5011,7 @@ export default function App() {
     prevChatCountRef.current = chatMessages.length;
   }, [chatMessages.length]);
 
-  // Demo coherence — act-generation scenarios populate the bordereau from mock
+  // Demo coherence - act-generation scenarios populate the bordereau from mock
   // entries (MOCK_*_BORDEREAU_ENTRIES) without touching the matter's pieces
   // state. If a bordereau artefact exists with entries but the matter is
   // empty, seed it with the canonical BORDEREAU_PIECES so the bordereau's
@@ -5034,7 +5034,7 @@ export default function App() {
     const outOfQuota = quotaFill === 'full' && billingState !== 'none' && !!myPlan;
     const chatLocked = chatBlocked || isDossierClosed || outOfQuota;
 
-    // @-mention source — pieces organised by their folder (GED structure),
+    // @-mention source - pieces organised by their folder (GED structure),
     // then templates. Returns { sections: [{ label, docs }], flat: [docs] }
     // so the keyboard nav and the rendered list iterate the same order.
     const buildMentionList = (rawQuery) => {
@@ -5068,7 +5068,7 @@ export default function App() {
           <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-stone-300/30 transition-colors" />
         </div>
         <div className="flex-shrink-0 flex flex-col h-full" style={{ width: chatWidth, backgroundColor: '#F8F7F5' }}>
-          {/* Header — collapse · Plato logo · PLATO MASTER */}
+          {/* Header - collapse · Plato logo · PLATO MASTER */}
           <div className="px-3 h-12 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: '#e7e5e3' }}>
             <button
               onClick={() => setChatSidebarOpen(false)}
@@ -5174,7 +5174,7 @@ export default function App() {
                 );
               }
 
-              // AI thinking status — collapsible stepper
+              // AI thinking status - collapsible stepper
               if (msg.type === 'ai-thinking') {
                 return (
                   <ReasoningStepper
@@ -5190,7 +5190,7 @@ export default function App() {
                 );
               }
 
-              // Artifact card — removed
+              // Artifact card - removed
               if (msg.type === 'artifact-card') return null;
 
               // Tool call chip (collapsed)
@@ -5231,13 +5231,13 @@ export default function App() {
                 );
               }
 
-              // Artifact cards — removed, reasoning stepper handles diffs
+              // Artifact cards - removed, reasoning stepper handles diffs
               if (msg.type === 'artifact-cards') {
                 return null;
               }
 
 
-              // AI JP cards message — line-aware renderer supporting:
+              // AI JP cards message - line-aware renderer supporting:
               //   • {{jp:id}}   → inline JPPill
               //   • **bold**    → emphasis
               //   • blank line  → paragraph spacer
@@ -5266,7 +5266,7 @@ export default function App() {
                       {lines.map((line, li) => {
                         const trimmed = line.trim();
                         if (!trimmed) return <div key={`br-${li}`} style={{ height: 8 }} />;
-                        // Numbered citation header: `**N.** ... {{jp:id:ref}} — title`
+                        // Numbered citation header: `**N.** ... {{jp:id:ref}} - title`
                         const isCitationHeader = /^\*\*\d+\.\*\*/.test(trimmed) && /\{\{jp:/.test(trimmed);
                         if (isCitationHeader) citationCount += 1;
                         const showDividerAbove = isCitationHeader && citationCount > 1;
@@ -5339,7 +5339,7 @@ export default function App() {
                 );
               }
 
-              // Post-save rationale prompt — text-only. User answers in the main
+              // Post-save rationale prompt - text-only. User answers in the main
               // chat input bar; handleChatSend intercepts the next text message and
               // saves it as rationale on the matching attachment(s). "Pas maintenant"
               // clears the pending capture without saving.
@@ -5412,10 +5412,10 @@ export default function App() {
               return null;
             })}
 
-            {/* Redaction stepper removed — flow is fully conversational */}
+            {/* Redaction stepper removed - flow is fully conversational */}
           </div>
 
-          {/* Bottom input — Chat Input component */}
+          {/* Bottom input - Chat Input component */}
           <div
             className="px-3 pb-3 flex-shrink-0"
             style={{ backgroundColor: '#F8F7F5' }}
@@ -5477,7 +5477,7 @@ export default function App() {
                     return;
                   } else if (cmd.startsWith('tp-')) {
                     if (cmd === 'tp-help') {
-                      setChatMessages(prev => [...prev, { type: 'ai', text: "Commandes Tiers payeurs disponibles :\n\n/tp-simple — Récap multi-postes (CPAM + Harmonie + SNCF)\n/tp-cascade — Cascade AT/MP (rente capitalisée PGPF → IP → DFP)\n/tp-reset — Revenir au scénario de base" }]);
+                      setChatMessages(prev => [...prev, { type: 'ai', text: "Commandes Tiers payeurs disponibles :\n\n/tp-simple - Récap multi-postes (CPAM + Harmonie + SNCF)\n/tp-cascade - Cascade AT/MP (rente capitalisée PGPF → IP → DFP)\n/tp-reset - Revenir au scénario de base" }]);
                     } else {
                       const newKey = TP_COMMAND_MAP[cmd];
                       if (newKey) {
@@ -5507,7 +5507,7 @@ export default function App() {
                 flexDirection: 'column',
               }}
             >
-              {/* CONTEXT bar — only when a zone is selected in the acte */}
+              {/* CONTEXT bar - only when a zone is selected in the acte */}
               {currentLevel.type === 'acte' && selectedActeZone && (
                 <div className="border-b border-[#e7e5e3] flex flex-wrap gap-y-[7px] items-start p-[6px] w-full">
                   <div
@@ -5533,7 +5533,7 @@ export default function App() {
                 </div>
               )}
 
-              {/* Drop zone — visible when dragging files over the chat */}
+              {/* Drop zone - visible when dragging files over the chat */}
               {isDraggingFile && (
                 <div className="pt-3 px-3">
                   <div
@@ -5587,11 +5587,11 @@ export default function App() {
                   if (currentIdx < total - 1) {
                     setUserAskState(s => ({ ...s, answers: newAnswers, currentIdx: currentIdx + 1, selectedProposal: null, customText: '' }));
                   } else {
-                    // All done — post answers as user message and close
+                    // All done - post answers as user message and close
                     const summary = questions.map((qq, i) => `**${qq.text}**\n→ ${newAnswers[i] || '(passé)'}`).join('\n\n');
                     setChatMessages(prev => [...prev, { type: 'user', text: summary }]);
                     setUserAskState({ active: false, questions: [], currentIdx: 0, selectedProposal: null, customText: '', answers: {} });
-                    // Continue the flow — treat as clarification reply
+                    // Continue the flow - treat as clarification reply
                     const allAnswerTexts = questions.map((qq, i) => newAnswers[i] || '').filter(Boolean).join('. ');
                     setTimeout(() => redaction.handleClarificationReply(allAnswerTexts), 400);
                   }
@@ -5620,7 +5620,7 @@ export default function App() {
                     <div style={{ borderBottom: '1px solid #e7e5e3', padding: 16, background: 'linear-gradient(to bottom, white 0%, #f8f7f5 100%)' }}>
                       <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
                         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#9c8973', textTransform: 'uppercase' }}>
-                          USER ASK — {currentIdx + 1}/{total}
+                          USER ASK - {currentIdx + 1}/{total}
                         </span>
                         <button onClick={dismiss} className="hover:opacity-70 transition-opacity">
                           <X className="w-3.5 h-3.5" style={{ color: '#9c8973' }} strokeWidth={2} />
@@ -5695,7 +5695,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Footer — pagination + actions */}
+                    {/* Footer - pagination + actions */}
                     <div className="flex items-center justify-between" style={{ padding: 12 }}>
                       {/* Pagination dots */}
                       <div className="flex items-center gap-1">
@@ -5764,7 +5764,7 @@ export default function App() {
                   <span style={{ fontSize: 11, color: '#a8a29e' }}>Plato analyse vos documents...</span>
                 </div>
               )}
-              {/* Weekly-quota gate — locks the composer; admin can upgrade, member must ask. */}
+              {/* Weekly-quota gate - locks the composer; admin can upgrade, member must ask. */}
               {outOfQuota && (
                 <div className="mx-3 mt-3 mb-1 rounded-lg border px-3.5 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
                   <div className="flex items-start gap-2.5">
@@ -5805,7 +5805,7 @@ export default function App() {
                   ref={chatTextareaRef}
                   className="w-full text-[14px] resize-none focus:outline-none"
                   style={{ color: chatInputValue ? '#11181c' : '#78716c', lineHeight: '20px', minHeight: 20, maxHeight: 120, opacity: chatLocked ? 0.5 : 1, cursor: chatLocked ? 'not-allowed' : undefined }}
-                  placeholder={isDossierClosed ? 'Dossier terminé — Plato indisponible' : outOfQuota ? 'Quota hebdomadaire atteint — revient lundi' : chatBlocked ? 'Plato analyse vos documents...' : selectedActeZone ? 'Demandez une modification sur cette partie…' : 'Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...'}
+                  placeholder={isDossierClosed ? 'Dossier terminé - Plato indisponible' : outOfQuota ? 'Quota hebdomadaire atteint - revient lundi' : chatBlocked ? 'Plato analyse vos documents...' : selectedActeZone ? 'Demandez une modification sur cette partie…' : 'Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...'}
                   value={chatInputValue}
                   onChange={(e) => {
                     if (chatLocked) return;
@@ -5853,7 +5853,7 @@ export default function App() {
                   rows={1}
                   disabled={chatLocked}
                 />
-                {/* @mention dropdown — pieces grouped by their folder (GED) */}
+                {/* @mention dropdown - pieces grouped by their folder (GED) */}
                 {mentionQuery !== null && (() => {
                   const { sections } = buildMentionList(mentionQuery.query);
                   if (sections.length === 0) return null;
@@ -5971,7 +5971,7 @@ export default function App() {
 
                   {/* Pièces sub-menu */}
                   {attachMenuOpen === 'pieces' && (() => {
-                    // Compact folder-tree browser — mirrors the GED structure
+                    // Compact folder-tree browser - mirrors the GED structure
                     // (folders + files) using the shared buildTreeViewRows
                     // engine. Search prunes empty branches; multi-select stages
                     // the chosen files together.
@@ -6318,7 +6318,7 @@ export default function App() {
       const pairActe = isBordereau ? sibling : acte;
       const pairBordereau = isBordereau ? acte : sibling;
       // Back arrow always returns to the Actes listing of the parent
-      // dossier — never to a sibling doc or a different tab — so the user
+      // dossier - never to a sibling doc or a different tab - so the user
       // exits any acte/bordereau in one click and lands where they can pick
       // another. PairTabs (below) still let them swap between the paired
       // text acte and its bordereau without leaving the canvas.
@@ -6383,7 +6383,7 @@ export default function App() {
               >
                 <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />
               </button>
-              {/* Télécharger — single primary dropdown on both tabs of a pair.
+              {/* Télécharger - single primary dropdown on both tabs of a pair.
                   The menu's scope picker (Acte / Bordereau / Tout) is
                   symmetric, so the export contract feels continuous regardless
                   of which side the user is on. */}
@@ -6395,7 +6395,7 @@ export default function App() {
                     tout: 'Acte + bordereau + pièces',
                   };
                   const suffix = tamponnage ? ' avec tamponnage' : '';
-                  setToastMessage(`${scopeLabels[scope] || 'Export'}${suffix} — à venir`);
+                  setToastMessage(`${scopeLabels[scope] || 'Export'}${suffix} - à venir`);
                   setTimeout(() => setToastMessage(null), 2500);
                 }}
               />
@@ -6481,11 +6481,11 @@ export default function App() {
         PGPA: ['Revenus', 'Revenus', 'Administratif'],
       };
       const cleanNames = {
-        Expertise: (n) => `Rapport d'expertise — ${n}`,
-        Médical: (n) => `Certificat médical — ${n}`,
-        Factures: (n) => `Facture — ${n}`,
-        Revenus: (n) => `Justificatif de revenus — ${n}`,
-        Administratif: (n) => `Document administratif — ${n}`,
+        Expertise: (n) => `Rapport d'expertise - ${n}`,
+        Médical: (n) => `Certificat médical - ${n}`,
+        Factures: (n) => `Facture - ${n}`,
+        Revenus: (n) => `Justificatif de revenus - ${n}`,
+        Administratif: (n) => `Document administratif - ${n}`,
       };
       const newIds = [];
       for (const file of Array.from(fileList)) {
@@ -7348,7 +7348,7 @@ export default function App() {
                   </div>
                 )}
                 
-                {/* Panel IV ligne — Type A (one amount per VI) */}
+                {/* Panel IV ligne - Type A (one amount per VI) */}
                 {editPanel.type === 'iv-ligne-a' && (
                   <div className="space-y-6">
                     {data?.hasIntitule && (
@@ -7370,7 +7370,7 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Panel IV ligne — Type B (expense per VI) */}
+                {/* Panel IV ligne - Type B (expense per VI) */}
                 {editPanel.type === 'iv-ligne-b' && (
                   <div className="space-y-6">
                     <div>
@@ -7387,7 +7387,7 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Panel IV ligne — Type C (shared expense with attributions) */}
+                {/* Panel IV ligne - Type C (shared expense with attributions) */}
                 {editPanel.type === 'iv-ligne-c' && (
                   <div className="space-y-6">
                     <div>
@@ -7424,7 +7424,7 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Panel IV ligne — Type D (per-VI ventilation) */}
+                {/* Panel IV ligne - Type D (per-VI ventilation) */}
                 {editPanel.type === 'iv-ligne-d' && (
                   <div className="space-y-6">
                     <div>
@@ -7453,7 +7453,7 @@ export default function App() {
                       <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Coefficient de capitalisation</h4>
                       <input type="number" id="iv-ligne-coeff" defaultValue={data?.coeffCapitalisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="0.1" min="0" />
                       <p className="mt-2" style={{ fontSize: 11, color: '#78716c' }}>
-                        Réf : Gazette du Palais 2022, table A, taux 1,2 % — Cass. 2e civ. 14 nov. 2019 n°18-22.969
+                        Réf : Gazette du Palais 2022, table A, taux 1,2 % - Cass. 2e civ. 14 nov. 2019 n°18-22.969
                       </p>
                     </div>
                     {data?.perteAnnuelle > 0 && (data?.partIndividuelle > 0 || data?.coeffCapitalisation > 0) && (
@@ -7472,7 +7472,7 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Panel IV ligne TP — Type D (déduction tiers payeur per VI) */}
+                {/* Panel IV ligne TP - Type D (déduction tiers payeur per VI) */}
                 {editPanel.type === 'iv-ligne-d-tp' && (
                   <div className="space-y-6">
                     <div>
@@ -7498,7 +7498,7 @@ export default function App() {
                     </div>
                     <div className="p-3 bg-[#fafaf9] rounded-lg border border-[#e7e5e3]">
                       <span style={{ fontSize: 11, color: '#78716c' }}>
-                        Imputation poste par poste — Cass. 2e civ. 16 mai 2013. La déduction s'applique à la perte indemnisable de cette VI.
+                        Imputation poste par poste - Cass. 2e civ. 16 mai 2013. La déduction s'applique à la perte indemnisable de cette VI.
                       </span>
                     </div>
                   </div>
@@ -8237,7 +8237,7 @@ export default function App() {
 
               </div>
 
-              {/* Charge Details — Figma style */}
+              {/* Charge Details - Figma style */}
               {editPanel.type === 'dsa-ligne' && (
                 <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
                   <div className="px-5 py-4 space-y-1.5">
@@ -8467,7 +8467,7 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {/* IV ligne save — Type A */}
+              {/* IV ligne save - Type A */}
               {editPanel.type === 'iv-ligne-a' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
@@ -8488,7 +8488,7 @@ export default function App() {
                   }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
-              {/* IV ligne save — Type B */}
+              {/* IV ligne save - Type B */}
               {editPanel.type === 'iv-ligne-b' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
@@ -8509,7 +8509,7 @@ export default function App() {
                   }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
-              {/* IV ligne save — Type C */}
+              {/* IV ligne save - Type C */}
               {editPanel.type === 'iv-ligne-c' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
@@ -8535,7 +8535,7 @@ export default function App() {
                   }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
-              {/* IV ligne save — Type D */}
+              {/* IV ligne save - Type D */}
               {editPanel.type === 'iv-ligne-d' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
@@ -8560,7 +8560,7 @@ export default function App() {
                   }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
-              {/* IV ligne TP save — Type D (déduction TP per VI) */}
+              {/* IV ligne TP save - Type D (déduction TP per VI) */}
               {editPanel.type === 'iv-ligne-d-tp' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
@@ -8942,13 +8942,13 @@ export default function App() {
   // (wizard supprimé - aplati au niveau dossier)
   const renderSmartProcedureWizard = () => null;
 
-  // ========== TIERS PAYEURS — RENDER HELPERS ==========
+  // ========== TIERS PAYEURS - RENDER HELPERS ==========
 
   const fmtTP = (n) => n != null ? n.toLocaleString('fr-FR') + ' €' : '—';
 
   // ── TP rows injected inside a poste's Total Block expansion ──
-  // Returns rows (not a card) — caller wraps in the existing expanded section
-  // Shared row style for receipt sublines — 13px, consistent across all rows
+  // Returns rows (not a card) - caller wraps in the existing expanded section
+  // Shared row style for receipt sublines - 13px, consistent across all rows
   const receiptRowStyle = { fontSize: 13, fontWeight: 400, color: '#78716c' };
   const receiptAmountStyle = { fontSize: 13, fontWeight: 400, color: '#292524', fontFamily: "'IBM Plex Mono', monospace" };
 
@@ -8965,7 +8965,7 @@ export default function App() {
     </div>
   );
 
-  /** Subtotal line with dashed border above — visually closes a section */
+  /** Subtotal line with dashed border above - visually closes a section */
   const tpSubtotal = (label, amount) => (
     <div className="border-t border-dashed border-[#d6d3d1] mt-1 pt-1 flex items-center justify-between">
       <span style={{ fontSize: 13, fontWeight: 500, color: '#44403c' }}>{label}</span>
@@ -8973,7 +8973,7 @@ export default function App() {
     </div>
   );
 
-  /** Solid section divider — separates damage calc from TP deductions */
+  /** Solid section divider - separates damage calc from TP deductions */
   const tpDivider = () => <div className="mt-3 pt-3 border-t border-[#e7e5e3]" />;
 
   /** TP imputation line: "Imputation {sigle}" with minus amount + explanatory sub-label */
@@ -8987,7 +8987,7 @@ export default function App() {
     </div>
   );
 
-  /** Droit de préférence block — the core "traceability" display */
+  /** Droit de préférence block - the core "traceability" display */
   const tpPreference = (dp) => {
     if (!dp) return null;
     return (
@@ -9012,7 +9012,7 @@ export default function App() {
     );
   };
 
-  // ── Créances TP Table — reusable table component (spec §5) ──
+  // ── Créances TP Table - reusable table component (spec §5) ──
   // Shows LigneCreance items imputed on a poste, grouped by TP.
   // Supports hospital aggregation and negative amounts (franchises).
   const renderCreancesTPTable = (posteId) => {
@@ -9188,7 +9188,7 @@ export default function App() {
     );
   };
 
-  // ── Shared Total Block — receipt-style wrapper ──
+  // ── Shared Total Block - receipt-style wrapper ──
   // Renders the expandable "Total à indemniser" block for any poste.
   // Pass `content` to inject custom children (damage calc, temporal TP sections) before the footer.
   // Without `content`, renders the standard pattern: footer only (TP detail now lives in CreancesTPTable above).
@@ -9370,7 +9370,7 @@ export default function App() {
 
   // ========== RENDER CONTENT ==========
   const renderContent = () => {
-    // ACTE — document view with streaming
+    // ACTE - document view with streaming
     if (currentLevel.type === 'acte') {
       const acte = redaction.redactionState.dossierActes.find(a => a.id === currentLevel.id);
       const kind = acte?.kind || 'text';
@@ -9474,14 +9474,14 @@ export default function App() {
                 : 0;
 
               if (citeCount === 0) {
-                // Not cited (e.g. complément) — straight removal.
+                // Not cited (e.g. complément) - straight removal.
                 redaction.dispatch({ type: 'UPDATE_ACTE', acteId: acte.id, updates: { bordereauEntries: nextEntries } });
                 setToastMessage(`« ${label} » retirée du bordereau`);
                 setTimeout(() => setToastMessage(null), 2200);
                 return;
               }
 
-              // Cited — exclude from the bordereau AND rewrite the citing
+              // Cited - exclude from the bordereau AND rewrite the citing
               // passages of the linked acte so the reference disappears.
               const occ = `${citeCount} passage${citeCount > 1 ? 's' : ''}`;
               const rewrittenContent = stripCitationsForIntitule(linkedActe.content || '', entry?.intitule);
@@ -9709,7 +9709,7 @@ export default function App() {
                     <span className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider" style={colHeaderStyle}>Tiers payeurs</span>
                   </div>
 
-                  {/* CreanceTP per TP entity — show postes impactés */}
+                  {/* CreanceTP per TP entity - show postes impactés */}
                   {tpScenario.tiersPayeurs.map((tp) => {
                     const creances = (tpScenario.creancesTP || []).filter(c => c.tiersPayeurId === tp.id);
                     const totalTP = creances.reduce((s, c) => s + (c.lignes || []).reduce((s2, l) => s2 + l.montant, 0), 0);
@@ -10085,7 +10085,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Colonne droite — Encart Chiffrage (sticky) */}
+            {/* Colonne droite - Encart Chiffrage (sticky) */}
             <div className="col-span-1 sticky top-0">
               <div className="bg-white rounded-lg border border-[#e7e5e3]/60 shadow-sm">
                 <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
@@ -10124,7 +10124,7 @@ export default function App() {
         // eslint-disable-next-line no-unused-vars
         const _getPosteAiReasoning = () => null;
 
-        // Extraction banner (non-blocking — renders inline above chiffrage content)
+        // Extraction banner (non-blocking - renders inline above chiffrage content)
         const extractionBanner = (extractionState && extractionState.phase !== 'done') ? (() => {
           const extractionPhases = [
             { key: 'upload', label: 'Réception', icon: Upload },
@@ -10237,7 +10237,7 @@ export default function App() {
 
             {/* Toolbar: summary pills + actions */}
             <div className="flex items-center gap-2 px-px">
-              {/* Breakdown pills — compact, white bg */}
+              {/* Breakdown pills - compact, white bg */}
               {[
                 { label: 'VD', amount: totalVd },
                 ...(totalIv > 0 ? [{ label: 'VI', amount: totalIv }] : []),
@@ -10250,7 +10250,7 @@ export default function App() {
                   </span>
                 </div>
               ))}
-              {/* Total pill — cream bg, prominent */}
+              {/* Total pill - cream bg, prominent */}
               <div className="h-8 px-2.5 flex items-center gap-1.5 border border-[#e7e5e3] rounded-lg whitespace-nowrap cursor-default" style={{ backgroundColor: '#eeece6' }}>
                 <span style={{ fontSize: 11, fontWeight: 500, color: '#292524', letterSpacing: 0.1, lineHeight: '16px' }}>Indemnisation totale</span>
                 <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{fmt(totalIndem)}</span>
@@ -10296,7 +10296,7 @@ export default function App() {
                   <div className="space-y-4">
                     {vdCategories.map((cat) => (
                       <div key={cat.id} className="border border-[#e7e5e3] rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-                        {/* RowCalculation Header/Direct — category label + column headers */}
+                        {/* RowCalculation Header/Direct - category label + column headers */}
                         <div className="h-10 px-4 flex items-center border-b border-[#e7e5e3]" style={{ backgroundColor: '#f8f7f5' }}>
                           <div className="flex-1">
                             <span style={colHeaderStyle}>{cat.title}</span>
@@ -10405,7 +10405,7 @@ export default function App() {
                         <div className="space-y-4">
                           {ivCategories.map(cat => (
                             <div key={cat.id} className="border border-[#e7e5e3] rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-                              {/* RowCalculation Header/Direct — category label + column headers */}
+                              {/* RowCalculation Header/Direct - category label + column headers */}
                               <div className="h-10 px-4 flex items-center border-b border-[#e7e5e3]" style={{ backgroundColor: '#f8f7f5' }}>
                                 <span style={colHeaderStyle}>{cat.title}</span>
                               </div>
@@ -10557,7 +10557,7 @@ export default function App() {
 
             </div>
 
-            {/* Global total — the final answer */}
+            {/* Global total - the final answer */}
             {(totalVd > 0 || totalIv > 0) && (
               <div className="border-t-2 border-[#d6d3d1] pt-6">
                 <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#292524', boxShadow: '0px 2px 8px 0px rgba(26,26,26,0.12)' }}>
@@ -10773,7 +10773,7 @@ export default function App() {
         );
       }
 
-      // Actes tab — drafted legal documents
+      // Actes tab - drafted legal documents
       if (currentLevel.activeTab === 'actes') {
         const isClosed = dossierStatut === 'fermé';
         return (
@@ -10801,7 +10801,7 @@ export default function App() {
         );
       }
 
-      // JP tab — flat list of all JPs saved on this matter.
+      // JP tab - flat list of all JPs saved on this matter.
       // Cards drop the quantum and show poste-acronym chips when the JP is
       // attached to one or more postes (Figma 36758:48508).
       if (currentLevel.activeTab === 'jp') {
@@ -10833,7 +10833,7 @@ export default function App() {
           "Liste-moi les jurisprudences récentes pour ce dossier, je veux comparer les taux.",
           { scenarioKey: 'jp-cards' }
         );
-        // When empty, skip the header entirely — let the EmptyState own the screen.
+        // When empty, skip the header entirely - let the EmptyState own the screen.
         if (decisions.length === 0) {
           return (
             <div className="flex-1 overflow-y-auto" style={{ backgroundColor: '#F8F7F5' }}>
@@ -10850,7 +10850,7 @@ export default function App() {
         }
         return (
           <div className="flex-1 overflow-y-auto" style={{ backgroundColor: '#F8F7F5' }}>
-            {/* Header band (Figma 36770:53805) — flush, side-to-side, on the cream canvas */}
+            {/* Header band (Figma 36770:53805) - flush, side-to-side, on the cream canvas */}
             <div
               className="border-b border-[#e7e5e3] flex items-center gap-3"
               style={{ padding: '13px 16px' }}
@@ -10877,7 +10877,7 @@ export default function App() {
                 Rechercher
               </button>
             </div>
-            {/* List body — keeps its readable max width */}
+            {/* List body - keeps its readable max width */}
             <div className="px-8 pt-6 pb-8">
               <div className="max-w-3xl mx-auto" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {decisions.map((d) => {
@@ -10982,7 +10982,7 @@ export default function App() {
                 <span className="text-[14px] font-medium text-[#292524]">Dépenses de santé actuelles</span>
               </div>
             </div>
-            {/* Header — dashed drop zone + buttons */}
+            {/* Header - dashed drop zone + buttons */}
             <div
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
@@ -11180,7 +11180,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -11218,7 +11218,7 @@ export default function App() {
       const pgpaDamageOverride = tpScenario.damageOverrides?.pgpa;
       const indemniteVictimePGPA = allPostes.find(p => p.id === 'pgpa')?.victimeAmount ?? (perteDeGains - ijPercuesTotal);
 
-      // FLAT PGPA — all cards on one page (per Figma)
+      // FLAT PGPA - all cards on one page (per Figma)
       const revenus = pgpaData.revenuRef.lignes.filter(l => l.type === 'revenu');
       const gains = pgpaData.revenuRef.lignes.filter(l => l.type === 'gain');
       const allRevenuRefLignes = [...revenus, ...gains];
@@ -11492,7 +11492,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -11580,7 +11580,7 @@ export default function App() {
             <>
             <div style={sectionHeaderStyle} className="mt-2">NOM DE PÉRIODE</div>
 
-            {/* Card: Revenu de référence — synced from PGPA */}
+            {/* Card: Revenu de référence - synced from PGPA */}
             <div className={cardBlockClass}>
               <div className="flex items-center justify-between h-12 px-4">
                 <div className="flex items-center gap-3">
@@ -11808,7 +11808,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -11881,7 +11881,7 @@ export default function App() {
                   <span className="text-[14px] font-medium text-[#292524]">Déficit fonctionnel temporaire</span>
                 </div>
               </div>
-              {/* Header — dashed drop zone + buttons */}
+              {/* Header - dashed drop zone + buttons */}
               <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
@@ -12035,7 +12035,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -12063,7 +12063,7 @@ export default function App() {
     }
 
 
-    // ========== SE — Souffrances Endurées ==========
+    // ========== SE - Souffrances Endurées ==========
     if (currentLevel.id === 'se') {
       const seData = formPosteData.se || { referentiel: 'cours-appel-2024', cotation: 0, montant: 0 };
       const seTotalDisplay = allPostes.find(p => p.id === 'se')?.victimeAmount ?? seData.montant;
@@ -12177,7 +12177,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -12203,7 +12203,7 @@ export default function App() {
       );
     }
 
-    // ========== PEP — Préjudice Esthétique Permanent ==========
+    // ========== PEP - Préjudice Esthétique Permanent ==========
     if (currentLevel.id === 'pep') {
       const pepData = formPosteData.pep || { referentiel: 'cours-appel-2024', cotation: 0, montant: 0 };
       const cotations = [1, 2, 3, 4, 5, 6, 7];
@@ -12316,7 +12316,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -12342,7 +12342,7 @@ export default function App() {
       );
     }
 
-    // ========== DFP — Déficit Fonctionnel Permanent ==========
+    // ========== DFP - Déficit Fonctionnel Permanent ==========
     if (currentLevel.id === 'dfp') {
       const dfpData = formPosteData.dfp || { referentiel: 'cours-appel-2024', age: 0, taux: 0, trancheAge: 'inferieure', trancheTaux: 'inferieure', pointBase: 0, montant: 0 };
       const dfpTotalDisplay = allPostes.find(p => p.id === 'dfp')?.victimeAmount ?? dfpData.montant;
@@ -12395,7 +12395,7 @@ export default function App() {
                         label: 'Référentiel',
                       })}
                     </div>
-                    {/* Âge + Taux — 2 columns */}
+                    {/* Âge + Taux - 2 columns */}
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-[14px] font-medium text-[#78716c] mb-2">Âge à la consolidation</label>
@@ -12484,7 +12484,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -12791,7 +12791,7 @@ export default function App() {
                   </div>
 
                   <div className={cardBlockClass}>
-                    {/* Column headers — RowPostIV Header */}
+                    {/* Column headers - RowPostIV Header */}
                     <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
                       <div className={hasIntitule ? 'w-[240px] px-3' : 'flex-1 px-3'}>
                         <span style={colHeaderStyle}>Nom victime indirecte</span>
@@ -12807,7 +12807,7 @@ export default function App() {
                       <div className="w-11" />
                     </div>
 
-                    {/* Data rows — one per declared VI — RowPostIV Line */}
+                    {/* Data rows - one per declared VI - RowPostIV Line */}
                     {victimesIndirectes.map((vi, idx) => {
                       const ligne = ivLignes.find(l => l.victimeId === vi.id);
                       const montant = ligne?.montant || 0;
@@ -12817,7 +12817,7 @@ export default function App() {
                           className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
                           onClick={() => setEditPanel({
                             type: 'iv-ligne-a',
-                            title: `${vi.prenom} ${vi.nom} — ${ivTaxo?.label || ivPosteId}`,
+                            title: `${vi.prenom} ${vi.nom} - ${ivTaxo?.label || ivPosteId}`,
                             data: { victimeId: vi.id, posteId: ivPosteId, montant, pieceIds: ligne?.pieceIds || [], intitule: ligne?.intitule || '', hasIntitule }
                           })}
                         >
@@ -12867,7 +12867,7 @@ export default function App() {
 
                 return (
                   <div className={cardBlockClass}>
-                    {/* Column headers — RowPostIV Header */}
+                    {/* Column headers - RowPostIV Header */}
                     <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
                       <div className="w-[52px] px-3"><span style={colHeaderStyle}></span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Nom victime indirecte</span></div>
@@ -12876,7 +12876,7 @@ export default function App() {
                       <div className="w-11" />
                     </div>
 
-                    {/* Flat rows — RowPostIV Line */}
+                    {/* Flat rows - RowPostIV Line */}
                     {flatRows.map((row, idx) => {
                       const pieceCount = (row.ligne.pieceIds || []).length;
                       return (
@@ -12885,7 +12885,7 @@ export default function App() {
                         className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
                         onClick={() => setEditPanel({
                           type: 'iv-ligne-b',
-                          title: `${row.vi.prenom} ${row.vi.nom} — Dépense`,
+                          title: `${row.vi.prenom} ${row.vi.nom} - Dépense`,
                           data: { id: row.ligne.id, victimeId: row.vi.id, posteId: ivPosteId, intitule: row.ligne.intitule || '', montant: row.ligne.montant || 0, pieceIds: row.ligne.pieceIds || [] }
                         })}
                       >
@@ -12946,7 +12946,7 @@ export default function App() {
                 );
               })()}
 
-              {/* ===== TYPE C: flat list — one row per VI attribution ===== */}
+              {/* ===== TYPE C: flat list - one row per VI attribution ===== */}
               {config.type === 'C' && (() => {
                 const viInitials = (vi) => `${(vi.prenom || '')[0] || ''}${(vi.nom || '')[0] || ''}`.toUpperCase();
                 const grandTotal = ivLignes.reduce((s, l) => s + (l.totalAmount || 0), 0);
@@ -13032,7 +13032,7 @@ export default function App() {
                 );
               })()}
 
-              {/* ===== TYPE D: PRP — 6-level cascade (Revenu → Calcul → Répartition → TP → Échu → À échoir → Total) ===== */}
+              {/* ===== TYPE D: PRP - 6-level cascade (Revenu → Calcul → Répartition → TP → Échu → À échoir → Total) ===== */}
               {config.type === 'D' && (() => {
                 const shared = ivPosteSharedData[ivPosteId] || {};
                 const refLignes = shared.revenuRefLignes || [];
@@ -13168,7 +13168,7 @@ export default function App() {
 
                 return (
                   <>
-                    {/* Header — scenario selector + scenario badge */}
+                    {/* Header - scenario selector + scenario badge */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c', letterSpacing: '0.02em' }}>Scénario</span>
@@ -13208,7 +13208,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* ════════ Card 1 — Revenu de référence (foyer) ════════ */}
+                    {/* ════════ Card 1 - Revenu de référence (foyer) ════════ */}
                     <div className={cardBlockClass + ' mb-4'}>
                       <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-revenu`)}>
                         <div className="flex items-center gap-3">
@@ -13273,7 +13273,7 @@ export default function App() {
                       )}
                     </div>
 
-                    {/* ════════ Card 2 — Calcul de la perte (foyer) ════════ */}
+                    {/* ════════ Card 2 - Calcul de la perte (foyer) ════════ */}
                     <div className={cardBlockClass + ' mb-4'}>
                       <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-calcul`)}>
                         <div className="flex items-center gap-3">
@@ -13329,7 +13329,7 @@ export default function App() {
                               <div className="flex items-start gap-2 px-3 py-2 mt-2 bg-amber-50 border border-amber-200 rounded-lg">
                                 <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
                                 <span style={{ fontSize: 12, color: '#92400e' }}>
-                                  Auto-consommation à {partAutoConso}% — hors fourchette jurisprudentielle [15-35%].
+                                  Auto-consommation à {partAutoConso}% - hors fourchette jurisprudentielle [15-35%].
                                 </span>
                               </div>
                             )}
@@ -13343,7 +13343,7 @@ export default function App() {
                       )}
                     </div>
 
-                    {/* ════════ Card 3 — Cascade par bénéficiaire (Répartition + TP + Échu + À échoir) ════════ */}
+                    {/* ════════ Card 3 - Cascade par bénéficiaire (Répartition + TP + Échu + À échoir) ════════ */}
                     <div className={cardBlockClass + ' mb-4'}>
                       <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-cascade`)}>
                         <div className="flex items-center gap-3">
@@ -13459,7 +13459,7 @@ export default function App() {
                       </>)}
                     </div>
 
-                    {/* ════════ Card 4 — Total par bénéficiaire (beige) ════════ */}
+                    {/* ════════ Card 4 - Total par bénéficiaire (beige) ════════ */}
                     <div className={totalBlockClass}>
                       <button onClick={() => toggleCard(`iv-${ivPosteId}-d-recap`)} className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-3">
@@ -13531,7 +13531,7 @@ export default function App() {
 
             </div>
 
-            {/* Total block — hidden for Type D (PRP uses Table 3c as total) */}
+            {/* Total block - hidden for Type D (PRP uses Table 3c as total) */}
             {config.type !== 'D' && <div className="p-4 pt-0">
               <div className={totalBlockClass}>
                 <button onClick={() => setTotalExpanded(prev => ({...prev, [ivPosteId]: !prev[ivPosteId]}))} className="flex items-center justify-between w-full">
@@ -13597,7 +13597,7 @@ export default function App() {
       );
     }
 
-    // ========== GENERIC MINIMAL FORM — Fallthrough for all other postes ==========
+    // ========== GENERIC MINIMAL FORM - Fallthrough for all other postes ==========
     {
       const posteId = currentLevel.id;
       const data = formPosteData[posteId] || { montant: 0, tiersPayeur: 0 };
@@ -13688,7 +13688,7 @@ export default function App() {
                 }
               }}
               removeTitle="Retirer du poste"
-              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste — privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
+              onSearchJP={() => fireCanvasPrompt('Recherche une jurisprudence pour ce poste - privilégie mes JP de référence si pertinentes, sinon cherche dans Plato JP en fonction du contexte du dossier', { scenarioKey: 'canvas-jp-generic' })}
               onEmptySearchJP={() => fireCanvasPrompt('Liste-moi les jurisprudences récentes sur ce poste, je veux comparer les taux.', { scenarioKey: 'jp-cards' })}
             />
           </div>
@@ -13788,7 +13788,7 @@ export default function App() {
     ];
 
     const titre = currentLevel.type === 'poste'
-      ? `Exporter — ${currentLevel.fullTitle || currentLevel.title}`
+      ? `Exporter - ${currentLevel.fullTitle || currentLevel.title}`
       : 'Exporter le chiffrage';
 
     return (
@@ -13849,12 +13849,12 @@ export default function App() {
   );
 
   const renderReopenDossierModal = () => {
-    // Matters are unlimited in the new model — the only blocker is read-only access
+    // Matters are unlimited in the new model - the only blocker is read-only access
     // (no active licence). Reopening never consumes a credit.
     const cannotReopen = billingState === 'none';
 
     const warningText = cannotReopen
-      ? 'Accès en lecture seule — aucune licence active. Demandez une licence pour reprendre ce dossier.'
+      ? 'Accès en lecture seule - aucune licence active. Demandez une licence pour reprendre ce dossier.'
       : null;
 
     const description = cannotReopen
@@ -13897,7 +13897,7 @@ export default function App() {
     );
   };
 
-  // ========== DROP FIRST — HANDLERS ==========
+  // ========== DROP FIRST - HANDLERS ==========
   const handleDropFirstCreate = () => {
     if (!dropModal || dropModal.files.length === 0) return;
     const files = [...dropModal.files];
@@ -13962,7 +13962,7 @@ export default function App() {
     setIvPosteData(EMPTY_DOSSIER.ivPosteData);
     setIvPosteSharedData(EMPTY_DOSSIER.ivPosteSharedData);
 
-    // One processing item per dropped document — matched to its name's type,
+    // One processing item per dropped document - matched to its name's type,
     // split per the per-document choice (see buildStagedProcessingItems).
     const processingItems = buildStagedProcessingItems(files, dropModal.rapportFileId, 'dfp');
 
@@ -13999,7 +13999,7 @@ export default function App() {
 
     // Start processing simulation after render (allow doublon detection so the
     // duplicate state is demoable on the creation drop, not just on "add").
-    // allowDetections, but NOT forced — so we don't inject a guaranteed fake
+    // allowDetections, but NOT forced - so we don't inject a guaranteed fake
     // doublon on every drop; the processed pièces reflect the dropped files.
     setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs), 300);
   };
@@ -14023,7 +14023,7 @@ export default function App() {
         // ── Pile branch ────────────────────────────────────────────────
         // The simulator detects the file is a homogeneous stack and splits it
         // automatically: the pile is registered already exploded into its
-        // segments — no "pile identification" step, no decision card in the
+        // segments - no "pile identification" step, no decision card in the
         // "À vérifier" zone. The avocat reviews/adjusts the cut after the fact
         // from the document panel (« Modifier le découpage »).
         //
@@ -14087,7 +14087,7 @@ export default function App() {
 
           if (shouldSplit) {
             // This document's choice is "split": replace the single row with one
-            // row per part — the detected parts when known, else generated parts
+            // row per part - the detected parts when known, else generated parts
             // so the choice always takes effect. Classified by the filename type.
             const splits = (poolEntry.splits && poolEntry.splits.length > 1) ? poolEntry.splits : genericSplits(poolEntry.pages);
             const splitEntry = { ...poolEntry, type: item.guessedType || poolEntry.type, splits };
@@ -14095,7 +14095,7 @@ export default function App() {
               .map(r => ({ ...r, justCompleted: true }));
             newPieces.splice(itemIndex, 1, ...splitRows);
           } else {
-            // Decide this (non-split) doc's outcome — a mock processing error, a
+            // Decide this (non-split) doc's outcome - a mock processing error, a
             // possible doublon, or a normal completion (each capped per drop).
             let doublonOf = null;
             let failed = false;
@@ -14225,7 +14225,7 @@ export default function App() {
   const startInfoDossierStreaming = () => {
     setInfoDossierStreaming({ active: true, fieldsRevealed: [], streamingField: null, streamingText: '' });
     // No tab switch: the dossier fields fill in the background and the chat
-    // announces when it's done — we stay on whatever tab the user is on.
+    // announces when it's done - we stay on whatever tab the user is on.
 
     const fields = [
       { key: 'nom', section: 'victime', value: DROP_FIRST_VICTIM_DATA.nom, delay: 400 },
@@ -14322,7 +14322,7 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // ========== DROP FIRST — PIÈCES TAB ==========
+  // ========== DROP FIRST - PIÈCES TAB ==========
   const getProcessedPieces = () => dropFirstPieces.filter(p => p.status === 'done' && !p.horsBordereau);
   const getHorsBordereauPieces = () => dropFirstPieces.filter(p => p.status === 'done' && p.horsBordereau);
   const getPieceNumber = (piece) => {
@@ -14439,7 +14439,7 @@ export default function App() {
       splitEnabled: true, // add-files default: split enabled for all documents
     }));
     setShowAddPiecesZone(false);
-    // Open the SAS staging modal in add mode — same as matter creation but
+    // Open the SAS staging modal in add mode - same as matter creation but
     // without the dossier-name field. Empty when launched from « Nouveau
     // fichier » (the modal's own drop zone takes over), or pre-filled when files
     // were dropped onto the Pièces tab.
@@ -14476,7 +14476,7 @@ export default function App() {
       const p = prev[pileId];
       if (!p) return prev;
       prevMode = p.mode;
-      // Live segment count — reflects any re-adjustment (merges/cuts) the user
+      // Live segment count - reflects any re-adjustment (merges/cuts) the user
       // made in the sheet, not the original "as detected" aggregate.
       liveCount = Array.isArray(p.segments) ? p.segments.length : (p.aggregate?.count || 0);
       if (p.mode === nextMode) return prev;
@@ -14506,7 +14506,7 @@ export default function App() {
 
   // ── Per-document découpage override (after-upload scissors) ───────────────
   // A multi-part document kept whole (the matter-level default) can still be
-  // split into its parts one document at a time — and a découpé one regrouped —
+  // split into its parts one document at a time - and a découpé one regrouped —
   // mirroring togglePileMode for pile stacks. Both flips are undoable.
   const splitDropFirstDoc = (pieceId, opts = {}) => {
     let partCount = 0;
@@ -14561,7 +14561,7 @@ export default function App() {
       };
       didRegroup = true;
       // Parts are contiguous and `idx` is the first one, so nothing before it is
-      // removed — splicing the single row back at `idx` restores its position.
+      // removed - splicing the single row back at `idx` restores its position.
       const next = prev.filter(p => p._splitParentId !== parentId);
       next.splice(idx, 0, single);
       return next;
@@ -14576,7 +14576,7 @@ export default function App() {
   };
 
   // Resolve a bordereau row's découpage state (stamped in dropFirstAsBordereauPieces)
-  // and flip it — pile stacks via togglePileMode, multi-part docs via split/regroup.
+  // and flip it - pile stacks via togglePileMode, multi-part docs via split/regroup.
   const toggleDocSplit = (piece) => {
     switch (piece._docSplit) {
       case 'exploded': {
@@ -14627,7 +14627,7 @@ export default function App() {
 
   // ── Découper un document (analyse → suggestion → ajustement → validation) ──
   // Any whole document can be split after upload. "Découper" runs a short mock
-  // analysis, then opens PileAdjustSheet on a *transient* suggestion — nothing
+  // analysis, then opens PileAdjustSheet on a *transient* suggestion - nothing
   // is committed until the avocat validates. A document already cut into a pile
   // re-opens the existing adjust panel, since its segments are already real.
   const makeSplitSegment = (id, index, label, pageStart, pageCount, date) => ({
@@ -14646,7 +14646,7 @@ export default function App() {
   // ── Découpage a posteriori (depuis le panel de pièce) ─────────────────────
   // A document already in the matter can be split after the fact. The source
   // stays a SINGLE card that moves through states (config → splitting →
-  // detected → kept | split | reviewed) — it is not exploded into rows. The
+  // detected → kept | split | reviewed) - it is not exploded into rows. The
   // detected parts live on the card (`_pSplit.segments`) and are edited in the
   // cut modal. Separate from the drop-time SAS split.
 
@@ -14667,11 +14667,11 @@ export default function App() {
     return Array.from({ length: total }, (_, i) => makeSplitSegment(`pseg-${i}`, i, `Pièce ${i + 1}`, i + 1, 1, date));
   };
 
-  // Step 1 — open the inline « instructions de nommage » config in the panel.
+  // Step 1 - open the inline « instructions de nommage » config in the panel.
   const openPanelSplitConfig = (pieceId) =>
     setPanelSplitConfig({ pieceId, prompt: DEFAULT_SPLIT_PROMPT });
 
-  // Step 4 — open the cut modal on the card's detected parts (prompt pre-loaded).
+  // Step 4 - open the cut modal on the card's detected parts (prompt pre-loaded).
   const posterioriAdjust = (pieceId) => {
     const piece = dropFirstPieces.find(p => p.id === pieceId);
     if (!piece || !piece._pSplit) return;
@@ -14724,7 +14724,7 @@ export default function App() {
     setDocSplitDraft({ pieceId: piece.id, pile, prompt: '' });
   };
 
-  // Step 2/3 — run the (mock) analysis: card → « Découpage en cours… » then
+  // Step 2/3 - run the (mock) analysis: card → « Découpage en cours… » then
   // « N pièces détectées » + a toast offering Adjust.
   const startPosterioriSplit = (pieceId, prompt) => {
     setPanelSplitConfig(null);
@@ -14740,14 +14740,14 @@ export default function App() {
         detectedCount = segments.length;
         return { ...p, _pSplit: { state: 'detected', count: segments.length, segments, prompt: prompt || '' } };
       }));
-      const text = `Découpage terminé — ${detectedName} · ${detectedCount} pièces`;
+      const text = `Découpage terminé - ${detectedName} · ${detectedCount} pièces`;
       setToastMessage({ text, action: { label: 'Ajuster', onClick: () => posterioriAdjust(pieceId) } });
       setTimeout(() => setToastMessage(curr => (curr && typeof curr === 'object' && curr.text === text ? null : curr)), 6000);
     }, 2000);
     processingTimeouts.current.push(tid);
   };
 
-  // From the three-dots menu — quick split with the cabinet default prompt (no
+  // From the three-dots menu - quick split with the cabinet default prompt (no
   // inline config step). The panel uses openPanelSplitConfig instead.
   const requestDocSplit = (pieceId) => startPosterioriSplit(pieceId, DEFAULT_SPLIT_PROMPT);
 
@@ -14756,7 +14756,7 @@ export default function App() {
     showToast('Document conservé en une pièce.');
   };
 
-  // Save from the cut modal — store the adjusted parts on the card and mark it
+  // Save from the cut modal - store the adjusted parts on the card and mark it
   // reviewed. ≤1 part = keep the document whole.
   const finalizePosterioriSplit = (pieceId, finalSegments) => {
     const segs = Array.isArray(finalSegments) ? finalSegments : [];
@@ -14769,13 +14769,13 @@ export default function App() {
     setDropFirstPieces(prev => prev.map(p => p.id === pieceId
       ? { ...p, _pSplit: { state: 'reviewed', count: segs.length, segments: segs, prompt: p._pSplit?.prompt || '' } }
       : p));
-    showToast(`Découpage vérifié — ${segs.length} pièces.`);
+    showToast(`Découpage vérifié - ${segs.length} pièces.`);
   };
 
   // Apply a découpage choice to a pile WITHOUT leaving the À vérifier zone.
   // `reviewChoice` flips the pile's review card into its confirmation state
   // (with Annuler). Both the card's own CTAs and the adjust panel's exit
-  // buttons (and, later, the chat agent's split tool) call this — they all
+  // buttons (and, later, the chat agent's split tool) call this - they all
   // land on the same transforming card.
   const applyPileChoice = (pileId, mode) => {
     setPiles(prev => {
@@ -14787,7 +14787,7 @@ export default function App() {
     setTimeout(() => setPileHighlight(curr => (curr === pileId ? null : curr)), 1300);
   };
 
-  // Undo a review choice — back to the neutral pending (bundle) state, card
+  // Undo a review choice - back to the neutral pending (bundle) state, card
   // returns to its choice phase.
   const undoPileChoice = (pileId) => {
     setPiles(prev => {
@@ -14797,7 +14797,7 @@ export default function App() {
     });
   };
 
-  // Commit the choice — the card leaves the À vérifier zone.
+  // Commit the choice - the card leaves the À vérifier zone.
   const dismissPileReview = (pileId) => {
     setPendingPileReviews(prev => prev.filter(id => id !== pileId));
     setPiles(prev => {
@@ -14807,7 +14807,7 @@ export default function App() {
     });
   };
 
-  // Sheet handler — commit segments edits + close.
+  // Sheet handler - commit segments edits + close.
   const updatePileSegments = (pileId, nextSegments) => {
     setPiles(prev => {
       const p = prev[pileId];
@@ -14816,9 +14816,9 @@ export default function App() {
     });
   };
 
-  // ── Fusion — merge several selected documents into a single pièce ─────────
+  // ── Fusion - merge several selected documents into a single pièce ─────────
   // The inverse of split: each selected document becomes one part (segment) of
-  // a new bundle pile, so the merge is fully reversible — « Modifier le
+  // a new bundle pile, so the merge is fully reversible - « Modifier le
   // découpage » re-separates them along the original document boundaries. The
   // result renders as one ordinary document row (bundle mode), auto-classified
   // by type like any other piece. Folders and split (exploded) segments are
@@ -14828,7 +14828,7 @@ export default function App() {
     const dfp = dropFirstPieces.find(p => p.id === rowId);
     if (!dfp) return null;
     if (dfp._pileId && piles[dfp._pileId]) {
-      // Kept-as-one (bundle) pile — collapse to a single part here (its own
+      // Kept-as-one (bundle) pile - collapse to a single part here (its own
       // internal cut points aren't carried into the new fusion in v1).
       const pile = piles[dfp._pileId];
       const pages = pile.pages || (pile.segments || []).reduce((n, s) => n + (s.pages || 1), 0) || 1;
@@ -14885,7 +14885,7 @@ export default function App() {
     });
     const totalPages = cursor - 1;
 
-    // Classify by the shared type (else the first source's) — no source-named folder.
+    // Classify by the shared type (else the first source's) - no source-named folder.
     const distinctTypes = [...new Set(sources.map(s => s.type).filter(Boolean))];
     const mergedType = distinctTypes.length === 1 ? distinctTypes[0] : (sources[0].type || null);
     const sortedDates = segments.map(s => s.date).filter(Boolean).sort();
@@ -14951,7 +14951,7 @@ export default function App() {
     if (newId && existingId) setDoublonCompare({ newId, existingId });
   };
 
-  // Side-by-side comparison of a possible-duplicate pair — the new file vs the
+  // Side-by-side comparison of a possible-duplicate pair - the new file vs the
   // one already in the dossier. Opened from the doublon card's "Voir".
   const renderDoublonComparePanel = () => {
     if (!doublonCompare) return null;
@@ -14993,7 +14993,7 @@ export default function App() {
               <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0" style={{ background: '#fdf4e7', color: '#b45309' }}>
                 <Copy className="w-3.5 h-3.5" strokeWidth={1.75} />
               </span>
-              <span className="text-[14px] font-medium text-[#44403c]">Doublon possible — comparer les documents</span>
+              <span className="text-[14px] font-medium text-[#44403c]">Doublon possible - comparer les documents</span>
             </div>
             <button onClick={close} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
               <X className="w-4 h-4" />
@@ -15023,7 +15023,7 @@ export default function App() {
     );
   };
 
-  // Retry a document whose background analysis failed — re-run it (succeeds).
+  // Retry a document whose background analysis failed - re-run it (succeeds).
   const retryDoc = (id) => {
     setDropFirstPieces(prev => prev.map(p => p.id === id ? { ...p, status: 'pending' } : p));
     const t = setTimeout(() => {
@@ -15050,7 +15050,7 @@ export default function App() {
     const filtered = getFilteredPieces();
     const isFiltered = !!(piecesFilter.types?.length > 0 || piecesFilter.search);
     // Resolve the overview-panel target. A split (exploded) pile segment has
-    // a synthetic id "pileId::segId" that is NOT a dropFirstPiece — rebuild a
+    // a synthetic id "pileId::segId" that is NOT a dropFirstPiece - rebuild a
     // piece-shaped object from the live pile segment so the panel can show it
     // (and offer "Modifier le découpage").
     const selectedPiece = (() => {
@@ -15085,12 +15085,12 @@ export default function App() {
     })();
 
     // Split (exploded) segments are classified into the regular dossier folders
-    // by type (in dropFirstAsBordereauPieces) — no synthetic source-named folder.
+    // by type (in dropFirstAsBordereauPieces) - no synthetic source-named folder.
     const treeCategories = bordereauCategories;
 
     // Ingest review zone vs. the list. A dropped file stays in the "À vérifier"
     // zone (as a card) while it's still being analysed, flagged as a possible
-    // doublon, or awaiting a split decision — and only lands in the list once
+    // doublon, or awaiting a split decision - and only lands in the list once
     // settled. The table renders the settled set; the zone renders the rest.
     // Documents analyse in the background (the chat shows progress); only those
     // needing attention surface as zone cards. A settled doc lands in the list;
@@ -15159,7 +15159,7 @@ export default function App() {
         {/* Main content */}
         {!piecesTabDragOver && (
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Sub-header bar — edge-to-edge */}
+          {/* Sub-header bar - edge-to-edge */}
           <div className="flex items-center gap-2 px-4 py-3.5 border-b border-[#e7e5e3]">
             <Search className="w-4 h-4 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
             <input
@@ -15179,7 +15179,7 @@ export default function App() {
             )}
           </div>
 
-          {/* Content — more horizontal padding than the (full-width) search bar above */}
+          {/* Content - more horizontal padding than the (full-width) search bar above */}
           <div className="px-8 py-4 flex-1 overflow-y-auto">
 
             {/* Reorder hint banner */}
@@ -15285,7 +15285,7 @@ export default function App() {
             </div>
           )}
 
-          {/* Track B hint — no rapport */}
+          {/* Track B hint - no rapport */}
           {allDone && !dropFirstHasRapport && !rapportBannerDismissed && (
             <div className="mt-3 px-4 py-3 text-sm text-[#78716c] flex items-center gap-2">
               <span>💡</span>
@@ -15321,7 +15321,7 @@ export default function App() {
               } else if (prevMode === mode) {
                 // Re-adjustment that keeps the same mode: segments are already
                 // committed via onCommit, but togglePileMode would no-op and
-                // give no feedback — confirm the update explicitly.
+                // give no feedback - confirm the update explicitly.
                 setPileHighlight(id);
                 setTimeout(() => setPileHighlight(curr => (curr === id ? null : curr)), 1300);
                 const text = 'Découpage mis à jour.';
@@ -15333,7 +15333,7 @@ export default function App() {
             }}
           />
         )}
-        {/* Cut modal (« Ajuster ») for a posteriori split — opened from the
+        {/* Cut modal (« Ajuster ») for a posteriori split - opened from the
             card's [Ajuster] or the completion toast. Saving stores the adjusted
             parts on the card (_pSplit) and marks it reviewed. */}
         {docSplitDraft && (
@@ -15349,7 +15349,7 @@ export default function App() {
         )}
         {renderDoublonComparePanel()}
 
-        {/* Fusionner — merge several selected documents into one pièce. */}
+        {/* Fusionner - merge several selected documents into one pièce. */}
         <FusePiecesModal
           open={!!fusionModal}
           onOpenChange={(o) => { if (!o) setFusionModal(null); }}
@@ -15369,7 +15369,7 @@ export default function App() {
     const segPanel = piece._pileSegmentPanel || null;
     const isPileSegment = !!segPanel;
 
-    // Provenance — découpage (split) vs fusion (merge). Resolve the owning pile
+    // Provenance - découpage (split) vs fusion (merge). Resolve the owning pile
     // whether we're looking at an exploded segment or a bundle kept as one.
     // Shown in both the Pièces tab and the bordereau (a cited pièce can itself
     // be a split part).
@@ -15377,7 +15377,7 @@ export default function App() {
     const isFusion = provPile?.pileType === 'fusion';
     const isSplit = !isFusion && (isPileSegment || !!piece.siblings || provPile?.pileType === 'split');
     // A whole drop-first document (not already split/fused, not a segment) can be
-    // découpé from here — opens the analyse → suggestion → adjust → validate flow.
+    // découpé from here - opens the analyse → suggestion → adjust → validate flow.
     const canOfferSplit = !isSplit && !isFusion && !isPileSegment && dropFirstPieces.some(p => p.id === piece.id);
     // The « Découper » inline config is open for this document → show it as a
     // section at the top of the panel (not the footer), and hide the footer's
@@ -15454,7 +15454,7 @@ export default function App() {
 
     return (
       <>
-      {/* Dimmed backdrop — covers the canvas left of the chat (respects --chat-offset
+      {/* Dimmed backdrop - covers the canvas left of the chat (respects --chat-offset
           so the chat + its resize divider stay clear); click to close. */}
       <div onClick={onClosePanel} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
       <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
@@ -15495,7 +15495,7 @@ export default function App() {
 
         {/* Two-column body */}
         <div className="flex flex-1 min-h-0">
-        {/* Left: document aperçu — a skeleton paper render. Multi-page docs get
+        {/* Left: document aperçu - a skeleton paper render. Multi-page docs get
             a stacked-pages effect behind the front page. */}
         <div className="w-[420px] flex flex-col border-r border-zinc-100 bg-[#F8F7F5]">
           <div className="flex-1 overflow-y-auto p-7 flex items-start justify-center">
@@ -15518,7 +15518,7 @@ export default function App() {
 
         {/* Right: Metadata panel */}
         <div className="flex-1 flex flex-col min-h-0">
-          {/* Content — two labelled groups (Figma 2514:23979). */}
+          {/* Content - two labelled groups (Figma 2514:23979). */}
           <div className="flex-1 overflow-y-auto py-5 flex flex-col gap-5">
 
             {/* ── Informations du document ─────────────────────────────── */}
@@ -15604,7 +15604,7 @@ export default function App() {
                 )}
               </div>
 
-              {/* Date du document — editable, with calendar adornment */}
+              {/* Date du document - editable, with calendar adornment */}
               <Input label="Date du document" aiGenerated>
                 <div className="flex items-center gap-2 h-9 px-3 bg-white border border-[#e7e5e3] rounded-lg shadow-xs transition-colors focus-within:border-stone-400 focus-within:ring-1 focus-within:ring-stone-200">
                   <Calendar className="w-4 h-4 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
@@ -15756,7 +15756,7 @@ export default function App() {
     );
   };
 
-  // Bordereau document preview — reuses renderPieceOverviewPanel (same panel as
+  // Bordereau document preview - reuses renderPieceOverviewPanel (same panel as
   // the Pièces tab) but addressed by an acte's bordereau entry. Derives the
   // pièce + a `ctx` carrying the editable N° / Section and the reorder /
   // reclassify / remove operations. Everything is recomputed from the live
@@ -15794,7 +15794,7 @@ export default function App() {
       pages: dossierPiece?.pages || 1,
       summary: dossierPiece?.summary || dossierPiece?.description || entry.description || null,
       postesLies: dossierPiece?.postesLies || [],
-      // Split/découpage provenance — from the dossier pièce, falling back to the
+      // Split/découpage provenance - from the dossier pièce, falling back to the
       // bordereau entry (so a cited-only pièce can still carry it).
       siblings: dossierPiece?.siblings || entry.siblings || null,
       splitIndex: dossierPiece?.splitIndex ?? entry.splitIndex,
@@ -15901,7 +15901,7 @@ export default function App() {
     return renderPieceOverviewPanel(piece, ctx);
   };
 
-  // ========== DROP FIRST — MODAL ==========
+  // ========== DROP FIRST - MODAL ==========
   const renderDropFirstModal = () => {
     if (!dropModal) return null;
 
@@ -16040,7 +16040,7 @@ export default function App() {
     // dossier); default 'create' = the matter-creation modal.
     const isAdd = dropModal.mode === 'add';
     // Filter the added-documents list by filename or detected type. Accent- and
-    // case-insensitive so « decoupe » matches « Découpé ». Purely visual — the
+    // case-insensitive so « decoupe » matches « Découpé ». Purely visual - the
     // global toggle and ingestion always operate on the full `files` list.
     const normalizeSearch = (s) => (s == null ? '' : String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const docQuery = normalizeSearch((dropModal.docSearch || '').trim());
@@ -16061,7 +16061,7 @@ export default function App() {
 
           {/* Body */}
           <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
-            {/* Matter reference — creation only (add-files targets the open dossier) */}
+            {/* Matter reference - creation only (add-files targets the open dossier) */}
             {!isAdd && (
               <div className="mb-4 flex-shrink-0">
                 <label className="block text-sm font-medium text-[#292524] mb-1.5">Référence du dossier</label>
@@ -16086,7 +16086,7 @@ export default function App() {
             >
               {!hasFiles ? (
                 <>
-                  {/* Default/hover state — start context */}
+                  {/* Default/hover state - start context */}
                   <div className="dropzone-default-content flex flex-col items-center justify-center rounded-lg flex-1 min-h-0" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 0%, #f8f7f5 100%)' }}>
                     <div className="pt-8 pb-8 px-8 flex flex-col items-center gap-8 w-full max-w-[576px] mx-auto">
                       <div className="bg-[#eeece6] border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
@@ -16121,7 +16121,7 @@ export default function App() {
                 </>
               ) : (
                 <>
-                  {/* Default/hover — panel context */}
+                  {/* Default/hover - panel context */}
                   <div className="dropzone-default-content flex items-center justify-center gap-2.5 py-4 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}>
                     <Upload className="w-5 h-5 text-stone-400" />
                     <p className="text-body text-stone-500">Déposez ou <span className="font-medium text-[#1e3a8a]">cliquez</span> pour ajouter un justificatif</p>
@@ -16139,7 +16139,7 @@ export default function App() {
             {/* File list */}
             {hasFiles && (
               <div className="mt-4 flex-1 min-h-0 flex flex-col">
-                {/* List toolbar — anchored as a header above the rows: title on
+                {/* List toolbar - anchored as a header above the rows: title on
                     the left, search + « Tout découper » master grouped on the
                     right (divider between), so nothing floats. */}
                 <div className="flex items-center justify-between gap-4 mb-3 pb-2.5 border-b border-[#e7e5e3] flex-shrink-0">
@@ -16198,7 +16198,7 @@ export default function App() {
                           {/* Filename */}
                           <span className={`text-sm truncate ${isUploading ? 'italic opacity-40 text-[#292524]' : 'text-[#292524]'}`}>{f.name}</span>
                         </div>
-                        {/* Right side — per-document split choice (segmented) */}
+                        {/* Right side - per-document split choice (segmented) */}
                         {!isUploading && (
                           <SplitSegmentedControl
                             value={!!f.splitEnabled}
@@ -16215,7 +16215,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Split naming preferences — shown once at least one document is set
+            {/* Split naming preferences - shown once at least one document is set
                 to be split. Smooth fade + slide (max-height) instead of an abrupt
                 layout shift. Naming the resulting pieces is optional. */}
             <div
@@ -16235,11 +16235,11 @@ export default function App() {
                 <textarea
                   value={renamePattern}
                   onChange={(e) => setDropModal(prev => ({ ...prev, renamePattern: e.target.value }))}
-                  placeholder="ex. Nature de la pièce — Auteur — Date"
+                  placeholder="ex. Nature de la pièce - Auteur - Date"
                   className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
                   style={{ minHeight: 72, maxHeight: 140, resize: 'vertical', fontFamily: 'inherit' }}
                 />
-                <p className="text-xs text-[#78716c] leading-relaxed">Les pièces issues d'un découpage doivent être renommées. Plato applique la consigne ci-dessus par défaut — modifiez-la si besoin, ou renommez chaque pièce individuellement après l'import.</p>
+                <p className="text-xs text-[#78716c] leading-relaxed">Les pièces issues d'un découpage doivent être renommées. Plato applique la consigne ci-dessus par défaut - modifiez-la si besoin, ou renommez chaque pièce individuellement après l'import.</p>
               </div>
             </div>
 
@@ -16468,7 +16468,7 @@ export default function App() {
 
   // ========== RENDER PAGE LISTE ==========
   // ========== SHARED SIDEBAR (used by Mes dossiers + Settings) ==========
-  // Avatar dropdown panel — used by home sidebar and collapsed rail
+  // Avatar dropdown panel - used by home sidebar and collapsed rail
   const renderUserDropdownPanel = (placement = 'above') => (
     <>
       <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
@@ -16501,8 +16501,8 @@ export default function App() {
     </>
   );
 
-  // Collapsed rail (48px, icons only) — shown in settings alongside the settings sub-rail
-  // Unified sidebar — single component that animates between expanded (244px)
+  // Collapsed rail (48px, icons only) - shown in settings alongside the settings sub-rail
+  // Unified sidebar - single component that animates between expanded (244px)
   // and collapsed (48px). When collapsed, labels fade out and only icons remain.
   // Both the dossier list page and the settings page render this at the same
   // JSX position so React reconciles the DOM and the width transition fires.
@@ -16520,7 +16520,7 @@ export default function App() {
           transition: 'width 250ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
-        {/* Header — logo (always) + wordmark (expanded only) */}
+        {/* Header - logo (always) + wordmark (expanded only) */}
         <div
           className={`h-12 border-b border-[#e7e5e3] flex items-center flex-shrink-0 ${collapsed ? 'justify-center' : 'pl-3 pr-4 gap-2'}`}
         >
@@ -16570,7 +16570,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Parrainage — Figma section component (info-blue gradient + accent rail).
+        {/* Parrainage - Figma section component (info-blue gradient + accent rail).
             The card carries its own top border, so the wrapper stays borderless. */}
         {!collapsed && (
           <div className="flex-shrink-0">
@@ -16578,14 +16578,14 @@ export default function App() {
           </div>
         )}
 
-        {/* Workspace dossier indicator — hidden when collapsed */}
+        {/* Workspace dossier indicator - hidden when collapsed */}
         {!collapsed && (
           <div className="border-t border-[#e7e5e3] flex-shrink-0">
             {renderDossierIndicator()}
           </div>
         )}
 
-        {/* Avatar footer — full pill expanded, single-tap initials when collapsed */}
+        {/* Avatar footer - full pill expanded, single-tap initials when collapsed */}
         <div className={`border-t border-[#e7e5e3] flex-shrink-0 ${collapsed ? 'p-2 flex justify-center' : 'p-2'}`}>
           <div className="relative group">
             <button
@@ -16625,7 +16625,7 @@ export default function App() {
 
   const renderCollapsedRail = () => renderUnifiedSidebar({ collapsed: true });
 
-  // Parrainage promo — matches Figma node 36867:2516 (Plato system).
+  // Parrainage promo - matches Figma node 36867:2516 (Plato system).
   // Info-subtle blue gradient bg + 2px info-text accent rail on the left,
   // mono eyebrow with fading hairline, sans title, blue CTA with arrow.
   const renderParrainageCard = () => (
@@ -16641,7 +16641,7 @@ export default function App() {
         fontFamily: "'Inter', system-ui, sans-serif",
       }}
     >
-      {/* Icon Text Container — Gift + eyebrow + fading hairline */}
+      {/* Icon Text Container - Gift + eyebrow + fading hairline */}
       <div className="flex items-center" style={{ gap: 6 }}>
         <Gift
           className="w-4 h-4 flex-shrink-0"
@@ -16672,7 +16672,7 @@ export default function App() {
         />
       </div>
 
-      {/* Text Container — title + CTA, stacked with 4px gap, 8px below eyebrow */}
+      {/* Text Container - title + CTA, stacked with 4px gap, 8px below eyebrow */}
       <div className="flex flex-col mt-2" style={{ gap: 4 }}>
         <div
           style={{
@@ -16704,7 +16704,7 @@ export default function App() {
 
   // Workspace dossier-quota indicator. The full Figma "Small" PlanCard
   // rendered directly inside the sidebar's footer (no hover-to-expand).
-  // Weekly-usage quota gauge (Réflexion Vic) — shared by the sidebar indicator and
+  // Weekly-usage quota gauge (Réflexion Vic) - shared by the sidebar indicator and
   // the Plan & facturation page. Shows a 0–100 % gauge that refills Monday; never
   // tokens, never euros. `variant`: 'full' (bordered card) or 'compact' (sidebar).
   const renderWeeklyQuotaCard = ({ plan, pct = 0, lifecycle = 'active', trialDaysRemaining = 0, variant = 'full' }) => {
@@ -16720,7 +16720,7 @@ export default function App() {
       backgroundColor: compact ? 'transparent' : '#ffffff',
     };
 
-    // ── Ø licence — lecture seule ────────────────────────────────────────────
+    // ── Ø licence - lecture seule ────────────────────────────────────────────
     if (isNone) {
       return (
         <div className="overflow-hidden" style={shell}>
@@ -16750,7 +16750,7 @@ export default function App() {
 
     return (
       <div className="overflow-hidden" style={shell}>
-        {/* Header — eyebrow + plan chip / trial countdown */}
+        {/* Header - eyebrow + plan chip / trial countdown */}
         <div style={{ padding: compact ? '14px 16px 0' : '20px 20px 0', background: headerBg }}>
           <div className="flex items-center justify-between gap-2" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: headerColor, textTransform: 'uppercase', letterSpacing: 'normal' }}>
             <span className="inline-flex items-center gap-1.5 min-w-0">
@@ -16766,7 +16766,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Body — big % + caption + gauge bar */}
+        {/* Body - big % + caption + gauge bar */}
         <div style={{ padding: compact ? '8px 16px 18px' : '12px 20px 24px', display: 'flex', flexDirection: 'column', gap: compact ? 10 : 14 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div className="flex items-baseline gap-0.5">
@@ -16789,7 +16789,7 @@ export default function App() {
     );
   };
 
-  // Sidebar weekly-usage indicator for the current user — deep-links to billing.
+  // Sidebar weekly-usage indicator for the current user - deep-links to billing.
   const renderDossierIndicator = () => {
     const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
     return (
@@ -17005,7 +17005,7 @@ export default function App() {
     { id: 'info-6', entityLabel: 'AIPP', type: 'add', fields: [{ label: 'Valeur', after: '8%' }] },
   ];
   const ARTIFACT_CARD_DEFS = [
-    { id: 'kit-dsa', title: 'DSA — Dépenses de santé actuelles', Icon: HeartPulse, diffIds: ['dsa-1', 'dsa-2', 'dsa-3', 'dsa-4', 'dsa-5', 'dsa-6'] },
+    { id: 'kit-dsa', title: 'DSA - Dépenses de santé actuelles', Icon: HeartPulse, diffIds: ['dsa-1', 'dsa-2', 'dsa-3', 'dsa-4', 'dsa-5', 'dsa-6'] },
     { id: 'kit-info', title: 'Info dossier', Icon: ClipboardList, diffIds: ['info-1', 'info-2', 'info-3', 'info-4', 'info-5', 'info-6'] },
   ];
 
@@ -17272,8 +17272,8 @@ export default function App() {
               { label: 'Chat Messages', slug: 'chat-messages' },
               { label: 'Artifact Cards', slug: 'artifact-cards' },
               { label: 'Barème Components', slug: 'bareme-components' },
-              { label: 'JP — Jurisprudence', slug: 'jp' },
-              { label: 'Split — Variantes A/B/C', slug: 'split-variants' },
+              { label: 'JP - Jurisprudence', slug: 'jp' },
+              { label: 'Split - Variantes A/B/C', slug: 'split-variants' },
             ].map(({ label, slug }) => (
               <button
                 key={slug}
@@ -17312,13 +17312,13 @@ export default function App() {
           )}
           <div className="ui-kit-content">
             <h1 style={{ fontSize: 24, fontWeight: 700, color: '#292524', marginBottom: 4 }}>Plato UI Components</h1>
-            <p style={{ fontSize: 14, color: '#78716c', marginBottom: 32 }}>Composants visuels du prototype Plato — tester les propriétés et variantes en situation.</p>
+            <p style={{ fontSize: 14, color: '#78716c', marginBottom: 32 }}>Composants visuels du prototype Plato - tester les propriétés et variantes en situation.</p>
 
             {/* ====== DESIGN TOKENS ====== */}
             <div id="section-tokens" className={sectionClass}>
               {sectionTitle('Design Tokens')}
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>
-                Catalog of every token currently used across the app — colors, typography, spacing, radius, shadows, and motion. Source: <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/design-system/tokens.js</code> + <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/data/designSystemInventory.json</code>. Validation status is updated by Claude in follow-up turns: tell Claude the token id, the Figma ref, notes, and the new status.
+                Catalog of every token currently used across the app - colors, typography, spacing, radius, shadows, and motion. Source: <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/design-system/tokens.js</code> + <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/data/designSystemInventory.json</code>. Validation status is updated by Claude in follow-up turns: tell Claude the token id, the Figma ref, notes, and the new status.
               </p>
               <TokensSection />
             </div>
@@ -17337,12 +17337,12 @@ export default function App() {
               {sectionTitle('Diff Rows')}
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Table rows with cell-level diff rendering. Left 4px strip encodes row diff type. Changed cells stack old→new. Figma ref: 1324:17669.</p>
 
-              {subTitle('Multi-column table — all diff types')}
+              {subTitle('Multi-column table - all diff types')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Interactive sandbox. Accept/reject per row on hover. Reset to restore all pending diffs.</p>
               <SharedDiffTableSandbox />
 
 
-              {subTitle('Legend — Diff dot colors')}
+              {subTitle('Legend - Diff dot colors')}
               {row(<>
                 {[
                   { type: 'add', color: ROW_DIFF_COLORS.add, label: 'Ajout' },
@@ -17363,7 +17363,7 @@ export default function App() {
                 const cellCard = (children, opts = {}) => <div className="border border-[#e7e5e3] rounded-lg bg-white p-3" style={opts.deleted ? { opacity: 0.55 } : undefined}>{children}</div>;
                 return (
               <div style={{ maxWidth: 680 }}>
-                {/* TEXT — label never changes, only default + deleted */}
+                {/* TEXT - label never changes, only default + deleted */}
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#292524', marginBottom: 8, marginTop: 4 }}>Text</div>
                 <div className="grid grid-cols-2 gap-3 mb-5" style={{ maxWidth: 440 }}>
                   {cellCard(<>
@@ -17374,7 +17374,7 @@ export default function App() {
                   {cellCard(<>
                     {cellLabel('Deleted')}
                     <div style={{ fontSize: 14, fontWeight: 500, color: '#a8a29e', textDecoration: 'line-through' }}>Consultation Dr. Dupont</div>
-                    <div style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through' }}>Doublon — déjà comptabilisé</div>
+                    <div style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through' }}>Doublon - déjà comptabilisé</div>
                   </>, { deleted: true })}
                 </div>
 
@@ -17467,7 +17467,7 @@ export default function App() {
                     </div>
                   </>)}
                   {cellCard(<>
-                    {cellLabel('Modified — amount changed')}
+                    {cellLabel('Modified - amount changed')}
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1.5">
                         <span style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>29 800 €</span>
@@ -17484,7 +17484,7 @@ export default function App() {
                     </div>
                   </>)}
                   {cellCard(<>
-                    {cellLabel('Modified — revalo toggled ON')}
+                    {cellLabel('Modified - revalo toggled ON')}
                     <div className="flex flex-col gap-1">
                       <div>
                         <span style={{ fontSize: 13, color: '#a8a29e', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
@@ -17500,7 +17500,7 @@ export default function App() {
                 </div>
                 <div className="grid grid-cols-3 gap-3 mb-2">
                   {cellCard(<>
-                    {cellLabel('Modified — revalo index changed')}
+                    {cellLabel('Modified - revalo index changed')}
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1.5">
                         <span style={{ fontSize: 11, color: '#a8a29e', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
@@ -17526,7 +17526,7 @@ export default function App() {
                     </div>
                   </>, { deleted: true })}
                   {cellCard(<>
-                    {cellLabel('Default — no revalo')}
+                    {cellLabel('Default - no revalo')}
                     <div className="flex items-center gap-1.5">
                       <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
                     </div>
@@ -17601,7 +17601,7 @@ export default function App() {
                 </span>
               </div>
 
-              {subTitle('In-context — settings row with mixed states')}
+              {subTitle('In-context - settings row with mixed states')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Simulates a real settings row: icon + stacked pills, some default, some with pending diffs.</p>
               <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden" style={{ maxWidth: 880, marginBottom: 24, boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
                 <div className="flex items-center gap-3 px-4 h-[52px] flex-wrap">
@@ -17639,13 +17639,13 @@ export default function App() {
               {sectionTitle('Artifact Cards')}
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Cartes affichées dans le chat pour résumer les changements par zone. Expandable avec actions approve/reject.</p>
 
-              {subTitle('By zone type — collapsed')}
+              {subTitle('By zone type - collapsed')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 16 }}>Icon + title identify the zone. Color is reserved exclusively for diff counters (green/orange/red).</p>
 
               {/* Three cards side by side */}
               <div className="grid grid-cols-3 gap-4" style={{ maxWidth: 880, marginBottom: 24 }}>
                 {[
-                  { label: 'Poste / Chiffrage', title: 'DSA — Dépenses de santé actuelles', Icon: HeartPulse, adds: 3, edits: 1, deletes: 1 },
+                  { label: 'Poste / Chiffrage', title: 'DSA - Dépenses de santé actuelles', Icon: HeartPulse, adds: 3, edits: 1, deletes: 1 },
                   { label: 'Documents', title: 'Pièces du dossier', Icon: FileText, adds: 4, edits: 0, deletes: 0 },
                   { label: 'Infos dossier', title: 'Info dossier', Icon: ClipboardList, adds: 8, edits: 2, deletes: 0 },
                 ].map((zone, zi) => (
@@ -17668,7 +17668,7 @@ export default function App() {
                           <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#a8a29e', transform: 'rotate(-90deg)' }} />
                         </div>
                       </div>
-                      {/* Footer — always visible */}
+                      {/* Footer - always visible */}
                       <div style={{ borderTop: '1px solid #f0efed' }} className="flex items-center">
                         <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-[#fafaf9]" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
                           <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter
@@ -17683,7 +17683,7 @@ export default function App() {
                 ))}
               </div>
 
-              {subTitle('Interactive — expand/collapse + accept/reject')}
+              {subTitle('Interactive - expand/collapse + accept/reject')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Click chevron to expand/collapse. Accept/reject per row or bulk. Card collapses to "Traité" when all resolved. Click reset to start over.</p>
 
               <SharedInteractiveCards />
@@ -17709,7 +17709,7 @@ export default function App() {
                   ['update_row',      'Mise à jour du champ'],
                   ['delete_row',      'X lignes supprimées'],
                   ['sub_agent',       'Agent extraction factures'],
-                  ['error',           'Extraction impossible — fichier illisible'],
+                  ['error',           'Extraction impossible - fichier illisible'],
                 ].map(([type, label], i) => {
                   const cfg = STEP_TYPE_CONFIG[type];
                   if (!cfg) return null;
@@ -17757,7 +17757,7 @@ export default function App() {
                 />
               </div>
 
-              {subTitle('Collapsed (done — with CRUD counters)')}
+              {subTitle('Collapsed (done - with CRUD counters)')}
               <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
@@ -17766,7 +17766,7 @@ export default function App() {
                   steps={[
                     { type: 'read_documents', label: 'Analyse de 6 documents', status: 'done' },
                     { type: 'read_rapport', label: "Lecture du rapport d'expertise", status: 'done' },
-                    { type: 'extract_data', label: 'Extraction facture CHU Bordeaux', status: 'done', children: ['4 500 € — CPAM 3 200 €'] },
+                    { type: 'extract_data', label: 'Extraction facture CHU Bordeaux', status: 'done', children: ['4 500 € - CPAM 3 200 €'] },
                     { type: 'add_row', label: '3 lignes DSA', status: 'done', poste: 'DSA', children: ['Consultation spécialiste', 'IRM lombaire', 'Kinésithérapie'] },
                     { type: 'update_row', label: 'Taux DFP', status: 'done', poste: 'DFP', children: ['15% → 20%'] },
                   ]}
@@ -17775,7 +17775,7 @@ export default function App() {
                 />
               </div>
 
-              {subTitle('Collapsed (read-only — no counters)')}
+              {subTitle('Collapsed (read-only - no counters)')}
               <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
@@ -17815,8 +17815,8 @@ export default function App() {
                   counters={{ add: 2, error: 1 }}
                   steps={[
                     { type: 'read_documents', label: 'Analyse de 3 documents', status: 'done' },
-                    { type: 'extract_data', label: 'Extraction facture CHU', status: 'done', children: ['4 500 € — CPAM 3 200 €'] },
-                    { type: 'error', label: 'Extraction impossible — facture_scan.pdf illisible', status: 'error' },
+                    { type: 'extract_data', label: 'Extraction facture CHU', status: 'done', children: ['4 500 € - CPAM 3 200 €'] },
+                    { type: 'error', label: 'Extraction impossible - facture_scan.pdf illisible', status: 'error' },
                     { type: 'add_row', label: '2 lignes DSA', status: 'done', poste: 'DSA', children: ['Consultation spécialiste', 'IRM lombaire'] },
                   ]}
                   expanded={true}
@@ -17862,7 +17862,7 @@ export default function App() {
               <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
-                  summary="Analyse du poste DFT — 2 problèmes détectés"
+                  summary="Analyse du poste DFT - 2 problèmes détectés"
                   counters={{ update: 2, delete: 1 }}
                   steps={[
                     { type: 'read_documents', label: 'Lecture du dossier', status: 'done', children: ['rapport_expertise.pdf', 'consolidation_2023.pdf'] },
@@ -17896,17 +17896,17 @@ export default function App() {
               </div>
             </div>
 
-            {/* ====== JP — JURISPRUDENCE ====== */}
+            {/* ====== JP - JURISPRUDENCE ====== */}
             <div id="section-jp" className={sectionClass}>
-              {sectionTitle('JP — Jurisprudence')}
+              {sectionTitle('JP - Jurisprudence')}
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 24, maxWidth: 720 }}>
                 Three surfaces only: <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPPill xs</code> (inline citation, <em>actes/documents only</em> for now), <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPCard</code> (mini-table in chat, separated cards in PosteDetailView, list in Mémoire et préférences) and <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>DecisionDrawer</code>.
               </p>
 
-              {/* ── 1. JPPill — variant xs (actes / documents only) ─────────── */}
-              {subTitle('1. JPPill — variant xs (actes only)')}
+              {/* ── 1. JPPill - variant xs (actes / documents only) ─────────── */}
+              {subTitle('1. JPPill - variant xs (actes only)')}
               <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720 }}>
-                Minimal density (jurisdiction · n° pourvoi). Reserved for inline citation inside generated actes/documents. <strong>Not used in chat anymore</strong> — chat surfaces a list of <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPCard</code>s instead.
+                Minimal density (jurisdiction · n° pourvoi). Reserved for inline citation inside generated actes/documents. <strong>Not used in chat anymore</strong> - chat surfaces a list of <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPCard</code>s instead.
               </p>
               <div style={{ maxWidth: 720, padding: 16, backgroundColor: 'white', border: '1px solid #e7e5e3', borderRadius: 8 }}>
                 <div style={{ fontSize: 14, lineHeight: '24px', color: '#292524' }}>
@@ -17950,8 +17950,8 @@ export default function App() {
                 </div>
               </div>
 
-              {/* ── 2. JPCard — chat result list (mini-table) ──────────────── */}
-              {subTitle('2. JPCard — chat result list (mini-table)')}
+              {/* ── 2. JPCard - chat result list (mini-table) ──────────────── */}
+              {subTitle('2. JPCard - chat result list (mini-table)')}
               <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720, display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 <span>Single row shape used in chat results. </span>
                 <Star className="inline-block" style={{ width: 12, height: 12, color: '#b9703f', fill: '#b9703f' }} />
@@ -17961,11 +17961,11 @@ export default function App() {
               </p>
               {(() => {
                 const ids = ['jp-atpt-01', 'jp-se-03', 'jp-atpt-06', 'jp-atpt-02'];
-                // 4 demo states — same decision, different save flags
+                // 4 demo states - same decision, different save flags
                 const stateRows = [
-                  { id: 'jp-atpt-01', favorited: false, bookmarked: false, label: 'Default — aucune sauvegarde' },
-                  { id: 'jp-se-03',   favorited: true,  bookmarked: false, label: 'Préférée (org level) — étoile' },
-                  { id: 'jp-atpt-06', favorited: false, bookmarked: true,  label: 'Sauvegardée (matter level) — marque-page' },
+                  { id: 'jp-atpt-01', favorited: false, bookmarked: false, label: 'Default - aucune sauvegarde' },
+                  { id: 'jp-se-03',   favorited: true,  bookmarked: false, label: 'Préférée (org level) - étoile' },
+                  { id: 'jp-atpt-06', favorited: false, bookmarked: true,  label: 'Sauvegardée (matter level) - marque-page' },
                   { id: 'jp-atpt-02', favorited: true,  bookmarked: true,  label: 'Préférée + sauvegardée' },
                 ];
                 return (
@@ -18001,8 +18001,8 @@ export default function App() {
               })()}
 
 
-              {/* ── 3. JPCard — PosteDetailView (separated cards) ───────────── */}
-              {subTitle('3. JPCard — PosteDetailView (separated cards)')}
+              {/* ── 3. JPCard - PosteDetailView (separated cards) ───────────── */}
+              {subTitle('3. JPCard - PosteDetailView (separated cards)')}
               <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720 }}>
                 <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPListingPosteDetail</code> wraps a stack of floating <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPRow</code> cards with a section header (count + search CTA). <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>currentPosteId</code> picks the matching amount per card.
               </p>
@@ -18018,8 +18018,8 @@ export default function App() {
                 />
               </div>
 
-              {/* ── 4. DecisionDrawer — canvas detail ───────────────────────── */}
-              {subTitle('4. DecisionDrawer — canvas detail')}
+              {/* ── 4. DecisionDrawer - canvas detail ───────────────────────── */}
+              {subTitle('4. DecisionDrawer - canvas detail')}
               <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720 }}>
                 Right-side drawer with the full decision: identity, montants (mini-table), profil victime, données médicales, préjudices (acronymes), sections de texte avec recherche, lien Legifrance. Triggered from any pill or card above.
               </p>
@@ -18082,7 +18082,7 @@ export default function App() {
                         <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5">
                           <div className="flex items-center gap-2 p-3 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                             <Check className="w-4 h-4" style={{ color: ROW_DIFF_COLORS.add }} strokeWidth={2.5} />
-                            <span className="text-body-medium" style={{ color: ROW_DIFF_COLORS.add }}>Enregistré — diffs effacés</span>
+                            <span className="text-body-medium" style={{ color: ROW_DIFF_COLORS.add }}>Enregistré - diffs effacés</span>
                           </div>
                           <Field label="Libellé dépense"><input type="text" readOnly value={label} className={inputBase} style={{ boxShadow: shadowXs, background: '#fafaf9' }} /></Field>
                           <Field label="Montant"><input type="text" readOnly value={`€ ${montant}`} className={inputBase} style={{ boxShadow: shadowXs, background: '#fafaf9' }} /></Field>
@@ -18097,19 +18097,19 @@ export default function App() {
                   return (
                     <div style={{ maxWidth: 380 }}>
                       {/* ---- Edit diff ---- */}
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Edit — agent modified fields</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Edit - agent modified fields</div>
                       <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5">
                         <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#fff7ed', border: '1px solid #fed7aa' }}>
                           <div className="w-1.5 h-1.5" style={{ background: ROW_DIFF_COLORS.edit, transform: 'rotate(45deg)' }} />
                           <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.edit }}>Ligne modifiée par l'agent</span>
                         </div>
 
-                        {/* Untouched field — no sparkle, no description */}
+                        {/* Untouched field - no sparkle, no description */}
                         <Field label="Libellé dépense">
                           <input type="text" value={label} onChange={e => setLabel(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs }} />
                         </Field>
 
-                        {/* Agent-touched field — sparkle + old value in description */}
+                        {/* Agent-touched field - sparkle + old value in description */}
                         <Field label="Montant" diffColor={ROW_DIFF_COLORS.edit} description="Ancien : 960,00 €">
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" style={{ fontSize: 14 }}>€</span>
@@ -18117,7 +18117,7 @@ export default function App() {
                           </div>
                         </Field>
 
-                        {/* Agent-touched field — sparkle + old value */}
+                        {/* Agent-touched field - sparkle + old value */}
                         <Field label="Date" diffColor={ROW_DIFF_COLORS.edit} description="Ancien : 01/03/2023">
                           <input type="text" value={date} onChange={e => setDate(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs }} />
                         </Field>
@@ -18128,7 +18128,7 @@ export default function App() {
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" style={{ fontSize: 14 }}>€</span>
                             <input type="text" value={base} onChange={e => setBase(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs, paddingLeft: 28 }} />
                           </div>
-                          {/* Revalo row — matches Figma ↳ Revalo pattern */}
+                          {/* Revalo row - matches Figma ↳ Revalo pattern */}
                           <div className="flex items-center gap-2 px-0.5" style={{ marginTop: 6 }}>
                             <div className="flex items-center gap-1 flex-1 min-w-0">
                               <CircleArrowUp className="w-3 h-3 flex-shrink-0" style={{ color: '#1e3a8a' }} />
@@ -18141,7 +18141,7 @@ export default function App() {
                           </div>
                         </Field>
 
-                        {/* Warning state — missing info */}
+                        {/* Warning state - missing info */}
                         <Field label="Taux de responsabilité" warning description="Info. manquante pour calculer">
                           <input type="text" placeholder="Ex: 100" className={inputBase} style={{ boxShadow: '0 0 0 3px #f9ecd6', borderColor: '#eeb97e' }} />
                         </Field>
@@ -18153,7 +18153,7 @@ export default function App() {
                       </div>
 
                       {/* ---- Add ---- */}
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Add — all fields are new</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Add - all fields are new</div>
                       <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5">
                         <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                           <div className="w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
@@ -18174,7 +18174,7 @@ export default function App() {
                       </div>
 
                       {/* ---- Delete ---- */}
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Delete — read-only</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Delete - read-only</div>
                       <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5" style={{ opacity: 0.6 }}>
                         <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
                           <div className="w-1.5 h-1.5" style={{ background: ROW_DIFF_COLORS.delete, transform: 'rotate(45deg)' }} />
@@ -18287,7 +18287,7 @@ export default function App() {
             <div id="section-prompt-suggestion-card" className={sectionClass}>
               {sectionTitle('Prompt Suggestion Card')}
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 8, maxWidth: 680 }}>
-                Carte cliquable (320px) pour exposer un prompt comme un CTA visuel. Utilisée pour le chat empty state — les 3 prompts cold start (Compléter / Chiffrer / Rédiger).
+                Carte cliquable (320px) pour exposer un prompt comme un CTA visuel. Utilisée pour le chat empty state - les 3 prompts cold start (Compléter / Chiffrer / Rédiger).
               </p>
               <p style={{ fontSize: 13, color: '#78716c', marginBottom: 16, maxWidth: 680 }}>
                 Source&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>src/components/PromptSuggestionCard.js</code>
@@ -18311,7 +18311,7 @@ export default function App() {
                 </div>
               </div>
 
-              {subTitle('Exemple — chat empty state (3 chips)')}
+              {subTitle('Exemple - chat empty state (3 chips)')}
               <div className="flex flex-col gap-2 mb-2" style={{ maxWidth: 320 }}>
                 <PromptSuggestionCard icon={Sparkles}   label="Compléter les infos du dossier" />
                 <PromptSuggestionCard icon={Calculator} label="Commencer le chiffrage" />
@@ -18332,7 +18332,7 @@ export default function App() {
                 Figma&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>2057:17743</code>
               </p>
 
-              {subTitle('Variant — chat empty state (5 items)')}
+              {subTitle('Variant - chat empty state (5 items)')}
               <div className="mb-8" style={{ maxWidth: 320 }}>
                 <SuggestionsMenu
                   items={[
@@ -18383,7 +18383,7 @@ export default function App() {
                 ))}
               </div>
 
-              {subTitle('Variant — ampoule menu (4 items)')}
+              {subTitle('Variant - ampoule menu (4 items)')}
               <div className="mb-2" style={{ maxWidth: 320 }}>
                 <SuggestionsMenu
                   header="Suggestions"
@@ -18409,19 +18409,19 @@ export default function App() {
                   <span style={{ color: '#78716c' }}>— popover au-dessus de l'input avec 4 prompts d'aide à la formulation.</span>
                 </li>
                 <li>
-                  <strong>UI Kit — Prompt Suggestions</strong>{' '}
+                  <strong>UI Kit - Prompt Suggestions</strong>{' '}
                   <span style={{ color: '#78716c' }}>— spec page.</span>
                 </li>
               </ul>
             </div>
 
             {/* ====== BARÈME COMPONENTS ====== */}
-            {/* ====== SPLIT — VARIANTES A/B/C ====== */}
+            {/* ====== SPLIT - VARIANTES A/B/C ====== */}
             <div id="section-split-variants" className={sectionClass}>
-              {sectionTitle('Split — Variantes A/B/C')}
+              {sectionTitle('Split - Variantes A/B/C')}
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>
                 Trois explorations UX pour le flow de split des piles homogènes, sur les mêmes données de démo (12 factures, 3 émetteurs, 1 anomalie).
-                A — la pile comme objet physique ; B — la coupe comme geste tactile ; C — le découpage comme grain paramétrique.
+                A - la pile comme objet physique ; B - la coupe comme geste tactile ; C - le découpage comme grain paramétrique.
                 Source : <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/components/pieces/SplitVariantsLab.js</code>.
               </p>
               <SplitVariantsLab />
@@ -18429,9 +18429,9 @@ export default function App() {
 
             <div id="section-bareme-components" className={sectionClass}>
               {sectionTitle('Barème Components')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Composants pour la gestion des barèmes et référentiels — bibliothèque, sélecteur, viewer, upload.</p>
+              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Composants pour la gestion des barèmes et référentiels - bibliothèque, sélecteur, viewer, upload.</p>
 
-              {subTitle('StatusBadge — Actif / En traitement')}
+              {subTitle('StatusBadge - Actif / En traitement')}
               {row(<>
                 <div className="flex items-center gap-3">
                   <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#065f46' }}>Actif</span>
@@ -18444,7 +18444,7 @@ export default function App() {
               </>)}
 
 
-              {subTitle('BaremeListItem — Row variants')}
+              {subTitle('BaremeListItem - Row variants')}
               <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden mb-4" style={{ maxWidth: 500 }}>
                 <table className="w-full">
                   <thead>
@@ -18478,7 +18478,7 @@ export default function App() {
                 </table>
               </div>
 
-              {subTitle('BaremeSelect — Vertical (label above)')}
+              {subTitle('BaremeSelect - Vertical (label above)')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Popover dropdown with search + "Ajouter le vôtre" at the bottom. Live component below.</p>
               <div className="bg-white rounded-lg border border-[#e7e5e3] p-5 mb-4" style={{ maxWidth: 420 }}>
                 {renderBaremePopoverSelect({
@@ -18490,7 +18490,7 @@ export default function App() {
                 })}
               </div>
 
-              {subTitle('BaremeSelect — Horizontal (inline label)')}
+              {subTitle('BaremeSelect - Horizontal (inline label)')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Same popover, inline layout. Used in param chip bars (PGPF).</p>
               <div className="bg-white rounded-lg border border-[#e7e5e3] p-5 mb-4" style={{ maxWidth: 560 }}>
                 <div className="flex items-center gap-3">
@@ -18511,7 +18511,7 @@ export default function App() {
                 </div>
               </div>
 
-              {subTitle('BaremeTableViewer — Sidepanel preview')}
+              {subTitle('BaremeTableViewer - Sidepanel preview')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Opens as a right-side panel (same pattern as document preview). Table is rendered inside.</p>
               <div className="bg-white rounded-lg border-l-2 border border-[#e7e5e3] overflow-hidden mb-4 shadow-lg" style={{ maxWidth: 600 }}>
                 <div className="px-4 py-3 border-b border-[#e7e5e3] flex items-center gap-3">
@@ -18557,7 +18557,7 @@ export default function App() {
                 </div>
               </div>
 
-              {subTitle('BaremeUploadForm — States')}
+              {subTitle('BaremeUploadForm - States')}
               {row(<>
                 {/* Empty form preview */}
                 <div className="bg-white rounded-lg border border-[#e7e5e3] p-5" style={{ width: 260 }}>
@@ -18615,7 +18615,7 @@ export default function App() {
           </div>
           <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden" style={{ maxWidth: 700 }}>
             {view === 'before' ? (
-              /* Before: flat row, no indication of what changed — the user sees final values but has zero visibility */
+              /* Before: flat row, no indication of what changed - the user sees final values but has zero visibility */
               <div className="flex items-center h-[56px] px-4 gap-4">
                 <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md"><FileText className="w-4 h-4 text-[#2563eb]" /></span>
                 <span className="text-body-medium text-[#292524] flex-1">Hospitalisation jour</span>
@@ -18879,7 +18879,7 @@ export default function App() {
                 {[
                   { n: '1', title: 'Show', desc: 'What changed (addition, modification, deletion) with before/after values' },
                   { n: '2', title: 'Validate', desc: 'Accept or reject at different levels of granularity' },
-                  { n: '3', title: 'Stay transparent', desc: 'Only agent actions are tracked — manual edits by the lawyer don\'t go through the diff system' },
+                  { n: '3', title: 'Stay transparent', desc: 'Only agent actions are tracked - manual edits by the lawyer don\'t go through the diff system' },
                 ].map(item => (
                   <div key={item.n} className="flex items-start gap-3 p-4 rounded-lg border border-[#e7e5e3] bg-white">
                     <span className="w-6 h-6 rounded-full bg-[#292524] text-white text-caption-medium flex items-center justify-center flex-shrink-0">{item.n}</span>
@@ -18894,7 +18894,7 @@ export default function App() {
 
             {/* S3: Visual System */}
             <div id="de-visual" className={sectionClass}>
-              {heading('Visual System — Typography & Color')}
+              {heading('Visual System - Typography & Color')}
               {prose('The diff relies on typography hierarchy to separate old vs new values, not color on text. Color lives only in structural markers (left border, status tags).')}
               {sandboxLabel()}
               <div className="flex flex-wrap gap-3 mb-8">
@@ -18966,7 +18966,7 @@ export default function App() {
                       { id: 'ba-1', entityLabel: 'Hospitalisation CHU', type: 'add', fields: [{ label: 'Montant', after: '4 500 €' }], approved: true },
                       { id: 'ba-2', entityLabel: 'Kinésithérapie', type: 'edit', fields: [{ label: 'Montant', before: '960 €', after: '1 280 €' }], approved: true },
                     ]}
-                    cardDefs={[{ id: 'bulk-approved', title: 'DSA — Batch 1', Icon: HeartPulse, diffIds: ['ba-1', 'ba-2'] }]}
+                    cardDefs={[{ id: 'bulk-approved', title: 'DSA - Batch 1', Icon: HeartPulse, diffIds: ['ba-1', 'ba-2'] }]}
                   />
                 </div>
                 <div style={{ flex: 1, minWidth: 300 }}>
@@ -18976,7 +18976,7 @@ export default function App() {
                       { id: 'br-1', entityLabel: 'Hospitalisation CHU', type: 'add', fields: [{ label: 'Montant', after: '4 500 €' }], rejected: true },
                       { id: 'br-2', entityLabel: 'Consultation doublon', type: 'delete', fields: [{ label: 'Montant', before: '55 €' }], rejected: true },
                     ]}
-                    cardDefs={[{ id: 'bulk-rejected', title: 'DSA — Batch 2', Icon: HeartPulse, diffIds: ['br-1', 'br-2'] }]}
+                    cardDefs={[{ id: 'bulk-rejected', title: 'DSA - Batch 2', Icon: HeartPulse, diffIds: ['br-1', 'br-2'] }]}
                   />
                 </div>
                 <div style={{ flex: 1, minWidth: 300 }}>
@@ -18987,7 +18987,7 @@ export default function App() {
                       { id: 'bm-2', entityLabel: 'Kinésithérapie', type: 'edit', fields: [{ label: 'Montant', before: '960 €', after: '1 280 €' }], rejected: true },
                       { id: 'bm-3', entityLabel: 'Consultation', type: 'edit', fields: [{ label: 'Date', before: '04/06', after: '05/06' }], approved: true },
                     ]}
-                    cardDefs={[{ id: 'bulk-mixed', title: 'DSA — Batch 3', Icon: HeartPulse, diffIds: ['bm-1', 'bm-2', 'bm-3'] }]}
+                    cardDefs={[{ id: 'bulk-mixed', title: 'DSA - Batch 3', Icon: HeartPulse, diffIds: ['bm-1', 'bm-2', 'bm-3'] }]}
                   />
                 </div>
               </div>
@@ -19012,7 +19012,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Panel (Manual Editing) — last section */}
+            {/* Panel (Manual Editing) - last section */}
             <div id="de-panel" className="mb-8">
               {heading('Panel (Manual Editing)')}
               {prose('The panel is NOT part of the diff system. It always shows the latest version. A subtle banner indicates "Modified by assistant" when a diff is pending. Edit + save = implicit accept. Deleted lines cannot be opened in the panel.')}
@@ -19154,17 +19154,17 @@ export default function App() {
     );
   };
 
-  // ========== BARÈME TABLE VIEWER (sidepanel — adapted from doc preview) ==========
+  // ========== BARÈME TABLE VIEWER (sidepanel - adapted from doc preview) ==========
   const renderBaremeViewer = () => {
     const bareme = baremesLibrary.find(b => b.id === baremeViewerOpen);
     if (!bareme) return null;
     return (
       <>
-      {/* Dimmed backdrop — covers the canvas left of the chat (respects --chat-offset);
+      {/* Dimmed backdrop - covers the canvas left of the chat (respects --chat-offset);
           click to close. */}
       <div onClick={() => setBaremeViewerOpen(null)} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
       <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
-        {/* Header — matches doc preview pattern */}
+        {/* Header - matches doc preview pattern */}
         <div className="px-4 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white" style={{ paddingTop: 14, paddingBottom: 14 }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="w-[22px] h-[22px] rounded-[6px] bg-[#eeece6] flex items-center justify-center flex-shrink-0">
@@ -19182,7 +19182,7 @@ export default function App() {
           </button>
         </div>
 
-        {/* Content — full width, no padding, table fills panel */}
+        {/* Content - full width, no padding, table fills panel */}
         {bareme.status === 'active' && bareme.tableData ? (
           <div className="flex-1 overflow-auto">
               <div className="overflow-auto">
@@ -19342,7 +19342,7 @@ export default function App() {
                     setBaremesLibrary(prev => [...prev, newBareme]);
                     setBaremeUploadFormOpen(false);
                     setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' });
-                    setToastMessage('Demande prise en compte — votre barème sera activé sous 48h.');
+                    setToastMessage('Demande prise en compte - votre barème sera activé sous 48h.');
                     setTimeout(() => setToastMessage(null), 5000);
                   }}
                   disabled={!baremeUploadData.nom || !baremeUploadData.fileName}
@@ -19888,7 +19888,7 @@ export default function App() {
     );
   };
 
-  // Editorial chapter intro — designed to live inside a max-w-5xl wrapper.
+  // Editorial chapter intro - designed to live inside a max-w-5xl wrapper.
   // monoLabel is opt-in: only render the surtitle + hairline when explicitly provided
   // (otherwise it just duplicates the title in uppercase, which is visual noise).
   const renderSettingsHeader = (title, subtitle, action, monoLabel = null) => (
@@ -19958,7 +19958,7 @@ export default function App() {
     </>
   );
 
-  // Confirm modal when assigning a plan with no free licence — adds a paid licence.
+  // Confirm modal when assigning a plan with no free licence - adds a paid licence.
   const renderLicenceUpgradeModal = () => {
     if (!licenceUpgradeModal) return null;
     const { memberId, planId } = licenceUpgradeModal;
@@ -20089,7 +20089,7 @@ export default function App() {
     );
   };
 
-  // Confirm modal for adding licence(s) — shows the resulting monthly price and updates the account total.
+  // Confirm modal for adding licence(s) - shows the resulting monthly price and updates the account total.
   const renderAddLicenceModal = () => {
     if (!addLicencePlan) return null;
     const plan = PLAN_BY_ID[addLicencePlan];
@@ -20144,7 +20144,7 @@ export default function App() {
     );
   };
 
-  // Shared licence-dispatch table — the SAME component in Collaborateurs and Plan & facturation.
+  // Shared licence-dispatch table - the SAME component in Collaborateurs and Plan & facturation.
   // Rows are clickable (admin) → renderMemberProfilePanel (role / plan / delete).
   const renderMemberTable = () => (
     <div className="rounded-md border border-[#e7e5e3] overflow-hidden">
@@ -20210,7 +20210,7 @@ export default function App() {
     </div>
   );
 
-  // Collaborator profile panel — name/email, role, plan (changeable), delete.
+  // Collaborator profile panel - name/email, role, plan (changeable), delete.
   // No "leave organization" (you can't remove yourself).
   const renderMemberProfilePanel = () => {
     if (!profileMemberId) return null;
@@ -20238,7 +20238,7 @@ export default function App() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={close}>
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 460, maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
-          {/* Header — identity */}
+          {/* Header - identity */}
           <div className="px-6 pt-6 pb-5 flex items-start gap-3.5 relative flex-shrink-0">
             {userAvatar(idx, m.role, 52)}
             <div className="min-w-0 flex-1 pt-0.5 pr-8">
@@ -20274,7 +20274,7 @@ export default function App() {
                 )}
               </div>
               {m.pending ? (
-                <p className="text-[13px] text-[#78716c] mt-2.5">Invitation en attente — la licence sera attribuable une fois acceptée.</p>
+                <p className="text-[13px] text-[#78716c] mt-2.5">Invitation en attente - la licence sera attribuable une fois acceptée.</p>
               ) : profilePlanEditing ? (
                 <div className="mt-3 space-y-1.5">
                   <button
@@ -20343,7 +20343,7 @@ export default function App() {
                   </div>
                 </>
               ) : (
-                <p className="text-[13px] text-[#78716c] mt-2.5">Sans licence, l'accès est en lecture seule — aucun quota IA.</p>
+                <p className="text-[13px] text-[#78716c] mt-2.5">Sans licence, l'accès est en lecture seule - aucun quota IA.</p>
               )}
             </div>
 
@@ -20363,7 +20363,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Footer — role + remove (others only) */}
+          {/* Footer - role + remove (others only) */}
           {!isSelf && (
             <div className="px-6 py-4 border-t border-[#e7e5e3] flex items-center gap-2 flex-shrink-0">
               <button onClick={() => setRole(m.role === 'Admin' ? 'Membre' : 'Admin')} className="h-9 px-4 rounded-lg border border-[#e7e5e3] bg-white text-[13px] font-medium text-[#292524] hover:bg-[#fafaf9] transition-colors">
@@ -20398,7 +20398,7 @@ export default function App() {
             )
           )}
 
-          {/* Licence recap — purchased vs dispatched per plan (admin only) */}
+          {/* Licence recap - purchased vs dispatched per plan (admin only) */}
           {isAdmin && (
             <div className="mb-5 rounded-md border border-[#e7e5e3] bg-white overflow-hidden">
               <div className="grid grid-cols-3 divide-x divide-[#e7e5e3]">
@@ -20528,7 +20528,7 @@ export default function App() {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* ─── LEFT — cream panel with illustration.
+          {/* ─── LEFT - cream panel with illustration.
               Dimensions match Figma exactly (420 × 661.594).
               Image carries the cream backdrop + chess king composition;
               object-fit:cover fills the panel even when the modal scales. */}
@@ -20555,7 +20555,7 @@ export default function App() {
             />
           </div>
 
-          {/* ─── RIGHT — copy + form ─── */}
+          {/* ─── RIGHT - copy + form ─── */}
           <div
             className="flex flex-col justify-between self-stretch relative flex-1 min-w-0"
             style={{
@@ -20563,7 +20563,7 @@ export default function App() {
               minHeight: 540,
             }}
           >
-            {/* Close button — top-right */}
+            {/* Close button - top-right */}
             <button
               onClick={close}
               aria-label="Fermer"
@@ -20695,7 +20695,7 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Optional — send the code by email */}
+                {/* Optional - send the code by email */}
                 <div className="flex" style={{ gap: 12 }}>
                   <input
                     type="email"
@@ -20765,7 +20765,7 @@ export default function App() {
     );
   };
 
-  // "Mon usage" — personal settings section every user sees (plan + weekly gauge).
+  // "Mon usage" - personal settings section every user sees (plan + weekly gauge).
   // The cabinet billing page (renderSettingsBilling) is admin-only.
   const renderSettingsUsage = () => {
     const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
@@ -20807,7 +20807,7 @@ export default function App() {
                   </h2>
                   {isTrial ? (
                     <span className="text-[13px] text-[#78716c]">
-                      Période d'essai — <span className="font-medium text-[#292524] tabular-nums">{trialDaysRemaining} jour{trialDaysRemaining > 1 ? 's' : ''}</span> restant{trialDaysRemaining > 1 ? 's' : ''}
+                      Période d'essai - <span className="font-medium text-[#292524] tabular-nums">{trialDaysRemaining} jour{trialDaysRemaining > 1 ? 's' : ''}</span> restant{trialDaysRemaining > 1 ? 's' : ''}
                     </span>
                   ) : myPlan ? (
                     <span className="text-[13px] text-[#78716c]">— quota hebdomadaire ×{myPlan.quotaMult}</span>
@@ -20877,7 +20877,7 @@ export default function App() {
             )}
             <div className="space-y-4">
 
-            {/* ── ABONNEMENT DU CABINET (admin) — licences per tier + total ─── */}
+            {/* ── ABONNEMENT DU CABINET (admin) - licences per tier + total ─── */}
             {isAdmin && (
               <div className="pt-6">
                 {sectionLabel('ABONNEMENT DU CABINET')}
@@ -20897,7 +20897,7 @@ export default function App() {
                           </div>
                           {/* Pricing per plan */}
                           <div className="text-[12px] text-[#78716c] tabular-nums mt-1">{p.monthly} € HT / mois / licence</div>
-                          {/* Seats available — the focus metric */}
+                          {/* Seats available - the focus metric */}
                           <div className="mt-2.5 flex items-baseline gap-1.5">
                             <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: available > 0 ? '#18181b' : '#bd6c1a', lineHeight: 1 }}>{available}</span>
                             <span className="text-[13px]" style={{ color: available > 0 ? '#78716c' : '#855b31' }}>/ {purchased} licence{purchased > 1 ? 's' : ''} disponible{purchased > 1 ? 's' : ''}</span>
@@ -20929,7 +20929,7 @@ export default function App() {
               </div>
             )}
 
-            {/* ── INCLUS DANS CHAQUE LICENCE — rappel des fonctionnalités ───── */}
+            {/* ── INCLUS DANS CHAQUE LICENCE - rappel des fonctionnalités ───── */}
             {isAdmin && (
               <div className="pt-6">
                 {sectionLabel('INCLUS DANS CHAQUE LICENCE')}
@@ -20948,7 +20948,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Buy-licences modal — pick a plan + a number of licences (admin) */}
+            {/* Buy-licences modal - pick a plan + a number of licences (admin) */}
             {billingUpgradeModalOpen && isAdmin && (
               <div
                 className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -21046,7 +21046,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Manage subscription — Stripe portal links (admin, has a plan) */}
+            {/* Manage subscription - Stripe portal links (admin, has a plan) */}
             {isAdmin && billingState !== 'none' && (
               <div className="pt-8">
                 {sectionLabel('GÉRER MON ABONNEMENT')}
@@ -21058,7 +21058,7 @@ export default function App() {
                     <button
                       key={link.target}
                       onClick={() => {
-                        setToastMessage(`Redirection vers Stripe — ${link.label.toLowerCase()}…`);
+                        setToastMessage(`Redirection vers Stripe - ${link.label.toLowerCase()}…`);
                         setTimeout(() => setToastMessage(null), 3000);
                       }}
                       className="w-full flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-[#eeece6] transition-colors text-left group"
@@ -21108,7 +21108,7 @@ export default function App() {
     });
     const isAlreadySaved = (id) => seen.has(id);
 
-    // Queue the JP for the "ask why" modal — the actual attachment + rationale
+    // Queue the JP for the "ask why" modal - the actual attachment + rationale
     // are committed when the user confirms in JPRationaleModal.
     const queueCanonicalForRationale = (decision) => {
       setPendingCabinetDecision(decision);
@@ -21228,7 +21228,7 @@ export default function App() {
                 </div>
               )}
 
-              {/* JP Introuvable CTA — visible when results exist, to invite manual add */}
+              {/* JP Introuvable CTA - visible when results exist, to invite manual add */}
               {q && matches.length > 0 && (
                 <div className="border-t border-[#f0efed]">
                   <button
@@ -21427,7 +21427,7 @@ export default function App() {
     </>
   );
 
-  // Visual stamp preview — circular tampon with curved text top/bottom, "PIÈCE N°" inner ring,
+  // Visual stamp preview - circular tampon with curved text top/bottom, "PIÈCE N°" inner ring,
   // diamond markers on the equator. Mirrors the Figma reference (node 1939:23283).
   const renderTamponStamp = ({ size = 160, line1 = tamponLine1, line2 = tamponLine2, sample = 60 } = {}) => {
     const s = size;
@@ -21446,7 +21446,7 @@ export default function App() {
     const charSpacing = s * 0.0035;
 
     // Vertically center the label + number stack inside the inner circle, using approximate
-    // cap heights so the visual block (not the line boxes) is balanced — same effect as
+    // cap heights so the visual block (not the line boxes) is balanced - same effect as
     // Figma's [text-box-trim:trim-both] with a 6px gap.
     const labelCap = fontLabel * 0.7;      // IBM Plex Mono cap height ≈ 0.7em
     const numberCap = fontNumber * 0.715;  // Arial digit height ≈ 0.715em
@@ -21506,7 +21506,7 @@ export default function App() {
           {sample}
         </text>
 
-        {/* Top + bottom curved text — `central` baseline centers each glyph's em-box
+        {/* Top + bottom curved text - `central` baseline centers each glyph's em-box
             on the arc path, so the text is visually centered in the annulus regardless
             of which side of the path the renderer lays glyphs out on. */}
         {line1 ? (
@@ -21525,7 +21525,7 @@ export default function App() {
           </text>
         ) : null}
 
-        {/* Equator diamonds — white stroke creates a halo that masks the outer ring
+        {/* Equator diamonds - white stroke creates a halo that masks the outer ring
             passing through the diamond, matching the Figma reference. */}
         <rect
           x={cx - rOuter - diamondSize / 2}
@@ -21731,7 +21731,7 @@ export default function App() {
         label: 'Organisation',
         items: [
           { id: 'users', label: 'Collaborateurs', icon: Users },
-          // Plan & facturation (cabinet billing) is admin-only — members see their plan in "Mon usage".
+          // Plan & facturation (cabinet billing) is admin-only - members see their plan in "Mon usage".
           ...(isAdmin ? [{ id: 'billing', label: 'Plan et facturation', icon: Receipt }] : []),
           { id: 'baremes', label: 'Référentiels', icon: Scale },
           { id: 'templates', label: "Modèles d'actes", icon: BookOpen },
@@ -21757,7 +21757,7 @@ export default function App() {
             </span>
           </button>
 
-          {/* Demo view toggle — admin / membre (preview every settings page) */}
+          {/* Demo view toggle - admin / membre (preview every settings page) */}
           <div className="px-3 py-2.5 border-b border-[#e7e5e3]">
             <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
               Démo · vue
@@ -21908,7 +21908,7 @@ export default function App() {
       </div>
     );
 
-    // Use existing expandedCards state for demo collapse — keys prefixed with 'uikit-'
+    // Use existing expandedCards state for demo collapse - keys prefixed with 'uikit-'
     const isDemoExpanded = (key) => expandedCards[`uikit-${key}`] !== false;
     const toggleDemoExpanded = (key) => setExpandedCards(prev => ({ ...prev, [`uikit-${key}`]: prev[`uikit-${key}`] === false ? true : false }));
 
@@ -21921,7 +21921,7 @@ export default function App() {
           </button>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#292524', marginBottom: 16 }}>IV Table Structures</div>
           <nav className="flex flex-col gap-1">
-            {['Vue d\'ensemble', 'Type A — Simple', 'Type B — Groupé', 'Type C — Frais partagés', 'Type D — Foyer (PRP)', 'Scénarios PRP', 'Adaptation IA'].map(s => (
+            {['Vue d\'ensemble', 'Type A - Simple', 'Type B - Groupé', 'Type C - Frais partagés', 'Type D - Foyer (PRP)', 'Scénarios PRP', 'Adaptation IA'].map(s => (
               <a key={s} href={`#iv-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">{s}</a>
             ))}
           </nav>
@@ -21930,7 +21930,7 @@ export default function App() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto" style={{ padding: '32px 48px' }}>
           <div>
-            <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 28, fontWeight: 400, color: '#18181b', marginBottom: 4 }}>Victimes indirectes — Table Structures</h1>
+            <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 28, fontWeight: 400, color: '#18181b', marginBottom: 4 }}>Victimes indirectes - Table Structures</h1>
             <p style={{ fontSize: 14, color: '#78716c', marginBottom: 40 }}>Architecture des 4 types de tables IV, modes d'affichage, scénarios PRP, et logique d'adaptation IA.</p>
 
             {/* ====== VUE D'ENSEMBLE ====== */}
@@ -21944,10 +21944,10 @@ export default function App() {
                   <div className="w-[160px] px-3"><span style={colHeaderStyle}>Postes</span></div>
                 </div>
                 {[
-                  { type: 'A — Simple', desc: '1 ligne par VI, montant direct', codes: ['pai', 'pafv', 'pepe'] },
-                  { type: 'B — Groupé', desc: 'Lignes groupées par VI', codes: ['fdp'] },
-                  { type: 'C — Frais partagés', desc: 'Dépenses communes, réparties', codes: ['fo'] },
-                  { type: 'D — Foyer (PRP)', desc: 'Revenu → perte → répartition', codes: ['prp'] },
+                  { type: 'A - Simple', desc: '1 ligne par VI, montant direct', codes: ['pai', 'pafv', 'pepe'] },
+                  { type: 'B - Groupé', desc: 'Lignes groupées par VI', codes: ['fdp'] },
+                  { type: 'C - Frais partagés', desc: 'Dépenses communes, réparties', codes: ['fo'] },
+                  { type: 'D - Foyer (PRP)', desc: 'Revenu → perte → répartition', codes: ['prp'] },
                 ].map((row, idx) => (
                   <div key={idx} className="flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white">
                     <div className="flex-1 px-3"><span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{row.type}</span></div>
@@ -21959,9 +21959,9 @@ export default function App() {
               {prose('Toutes les tables utilisent le même cardBlockClass (blanc, border-radius, shadow), les mêmes hauteurs de ligne (52px data, 44px sub-rows, 40px headers), et la même palette de couleurs.')}
             </div>
 
-            {/* ====== TYPE A — LIVE TABLE ====== */}
+            {/* ====== TYPE A - LIVE TABLE ====== */}
             <div id="iv-type-a---simple" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type A — Simple</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type A - Simple</h2>
               {prose('Une ligne par victime indirecte. Le montant est saisi individuellement. Utilisé pour les postes où chaque VI a une indemnisation distincte (PAI, PAFV, PEPE).')}
 
               <div className={cardBlockClass} style={{ maxWidth: 680 }}>
@@ -21991,9 +21991,9 @@ export default function App() {
               <div className="mt-4">{prose('Colonnes : avatar + prénom nom, montant aligné à droite. Hauteur de ligne 52px. Clic sur la ligne → side panel d\'édition.')}</div>
             </div>
 
-            {/* ====== TYPE B — LIVE TABLE ====== */}
+            {/* ====== TYPE B - LIVE TABLE ====== */}
             <div id="iv-type-b---group-" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type B — Frais divers (FDP)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type B - Frais divers (FDP)</h2>
               {prose('Plusieurs lignes de dépenses par victime indirecte. Même table plate que les autres types, triée par victime puis par dépense.')}
 
               {(() => {
@@ -22032,9 +22032,9 @@ export default function App() {
               <div className="mt-4">{prose('Même structure que Type A et C : Victime (w-[200px]) | Dépense (flex-1) | Montant. Plusieurs lignes par VI, triées par victime. Marie apparaît 3 fois, Lucas 1 fois.')}</div>
             </div>
 
-            {/* ====== TYPE C — FLAT LIST ====== */}
+            {/* ====== TYPE C - FLAT LIST ====== */}
             <div id="iv-type-c---frais-partag-s" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type C — Frais partagés (Obsèques)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type C - Frais partagés (Obsèques)</h2>
               {prose('Les frais d\'obsèques sont des dépenses communes réparties entre plusieurs VI. Chaque ligne = une attribution VI, triée par victime puis par dépense.')}
 
               {(() => {
@@ -22069,19 +22069,19 @@ export default function App() {
                   </div>
                 );
               })()}
-              <div className="mt-4">{prose('Colonnes : avatar + nom VI (w-[200px]), intitulé dépense (flex-1), montant. Lignes triées par victime — toutes les dépenses de Marie, puis Lucas, puis Emma. Clic → side panel d\'édition.')}</div>
+              <div className="mt-4">{prose('Colonnes : avatar + nom VI (w-[200px]), intitulé dépense (flex-1), montant. Lignes triées par victime - toutes les dépenses de Marie, puis Lucas, puis Emma. Clic → side panel d\'édition.')}</div>
             </div>
 
-            {/* ====== TYPE D — LIVE PRP TABLES ====== */}
+            {/* ====== TYPE D - LIVE PRP TABLES ====== */}
             <div id="iv-type-d---foyer--prp-" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type D — Foyer (PRP)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type D - Foyer (PRP)</h2>
               {prose('Le poste Pertes de Revenus des Proches suit une logique économique en 3 étapes : établir le revenu de référence, calculer la perte, puis la répartir entre bénéficiaires.')}
 
-              {/* Table 1 — Revenu de référence */}
+              {/* Table 1 - Revenu de référence */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Calculator className="w-4 h-4 text-[#78716c]" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 1 — Revenu de référence</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 1 - Revenu de référence</span>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
                   <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
@@ -22112,11 +22112,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Table 2 — Calcul de la perte */}
+              {/* Table 2 - Calcul de la perte */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Calculator className="w-4 h-4 text-[#78716c]" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 2 — Calcul de la perte</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 2 - Calcul de la perte</span>
                   {badge('DÉCÉDÉ', 'amber')}
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
@@ -22155,11 +22155,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Table 3a — Échu */}
+              {/* Table 3a - Échu */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4 text-[#78716c]" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3a — Échu</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3a - Échu</span>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
                   <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
@@ -22196,11 +22196,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Table 3b — À échoir */}
+              {/* Table 3b - À échoir */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="w-4 h-4 text-[#78716c]" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3b — À échoir</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3b - À échoir</span>
                   <div className="flex items-center gap-2 ml-2">{badge('CAPITAL', 'green')} {badge('RENTE', 'amber')}</div>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 740 }}>
@@ -22258,11 +22258,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Table 3c — Total par bénéficiaire (beige total block) */}
+              {/* Table 3c - Total par bénéficiaire (beige total block) */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <User className="w-4 h-4 text-[#78716c]" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3c — Total par bénéficiaire</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3c - Total par bénéficiaire</span>
                 </div>
                 {(() => {
                   const demoTotalDistribue = demoPrpLignes.reduce((s, l) => s + demoComputeLine(l).total, 0);
@@ -22384,7 +22384,7 @@ export default function App() {
                 ))}
               </div>
 
-              {prose('L\'IA utilise setPrpUseCase() et la navigation (navigateTo) pour adapter l\'affichage. Le scénario est un paramètre d\'affichage, pas une modification de données — la source de vérité reste ivPosteData.')}
+              {prose('L\'IA utilise setPrpUseCase() et la navigation (navigateTo) pour adapter l\'affichage. Le scénario est un paramètre d\'affichage, pas une modification de données - la source de vérité reste ivPosteData.')}
             </div>
 
           </div>
@@ -23166,7 +23166,7 @@ export default function App() {
             {/* ══════════════════════════════════════════════════════════════ */}
             <h1 style={sH1}>Examples & stages</h1>
             <p style={{ ...sP, maxWidth: 700 }}>
-              Component designed to integrate streaming of agent actions, but also designed for V1 where there is no per-action streaming — instead, a single streaming process runs, and at the end, the full payload is displayed (reflecting the trace and all actions performed).
+              Component designed to integrate streaming of agent actions, but also designed for V1 where there is no per-action streaming - instead, a single streaming process runs, and at the end, the full payload is displayed (reflecting the trace and all actions performed).
             </p>
 
             {/* ── Live streaming (future) ── */}
@@ -23181,7 +23181,7 @@ export default function App() {
                 allSteps={[
                   { type: 'read_documents', label: 'Analyse de 4 documents', status: 'done' },
                   { type: 'read_rapport', label: "Lecture du rapport d'expertise médicale", status: 'done' },
-                  { type: 'extract_data', label: 'Extraction facture CHU Bordeaux', status: 'done', children: ['4 500 € — CPAM 3 200 €'] },
+                  { type: 'extract_data', label: 'Extraction facture CHU Bordeaux', status: 'done', children: ['4 500 € - CPAM 3 200 €'] },
                   { type: 'verify_data', label: 'Vérification des données', status: 'done' },
                   { type: 'add_row', label: '3 lignes DSA', status: 'done', poste: 'DSA', children: ['Consultation spécialiste', 'IRM lombaire', 'Kinésithérapie'] },
                   { type: 'update_row', label: 'Taux DFP', status: 'done', poste: 'DFP', children: ['15% → 20%'] },
@@ -23193,20 +23193,20 @@ export default function App() {
                 steps={[
                   { type: 'read_documents', label: 'Analyse de 6 documents', status: 'done' },
                   { type: 'read_rapport', label: "Lecture du rapport d'expertise", status: 'done' },
-                  { type: 'extract_data', label: 'Extraction facture CHU Bordeaux', status: 'done', children: ['4 500 € — CPAM 3 200 €'] },
+                  { type: 'extract_data', label: 'Extraction facture CHU Bordeaux', status: 'done', children: ['4 500 € - CPAM 3 200 €'] },
                   { type: 'verify_data', label: 'Vérification des données', status: 'done' },
                   { type: 'calculate', label: 'Calcul du poste DSA', status: 'done' },
                   { type: 'add_row', label: '3 lignes DSA', status: 'done', poste: 'DSA', children: ['Consultation spécialiste', 'IRM lombaire', 'Kinésithérapie'] },
                   { type: 'update_row', label: 'Taux DFP', status: 'done', poste: 'DFP', children: ['15% → 20%'] },
                   { type: 'navigate', label: 'Navigation vers le poste', status: 'done' },
                   { type: 'add_row', label: '1 ligne DFT', status: 'done', poste: 'DFT' },
-                  { type: 'error', label: 'Extraction impossible — fichier illisible', status: 'error' },
+                  { type: 'error', label: 'Extraction impossible - fichier illisible', status: 'error' },
                 ]}
               />
             </div>
 
-            {/* ── V1 — no per-action streaming ── */}
-            <h2 style={sH2}>V1 — no per-action streaming</h2>
+            {/* ── V1 - no per-action streaming ── */}
+            <h2 style={sH2}>V1 - no per-action streaming</h2>
             <p style={{ fontSize: 12, color: '#a8a29e', lineHeight: '18px', marginBottom: 12 }}>No step-by-step detail during processing. A single process runs, then the full trace payload arrives at once.</p>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -23223,7 +23223,7 @@ export default function App() {
 
               {/* V1 Finished */}
               <FinishedInspectableCard
-                summary="Complétion du poste DSA — 3 factures traitées"
+                summary="Complétion du poste DSA - 3 factures traitées"
                 counters={{ add: 3, update: 1 }}
                 steps={[
                   { type: 'read_documents', label: 'Analyse de 4 documents', status: 'done' },
@@ -23266,7 +23266,7 @@ export default function App() {
                   ['update_row',      'Mise à jour du champ'],
                   ['delete_row',      'X lignes supprimées'],
                   ['sub_agent',       'Agent extraction factures'],
-                  ['error',           'Extraction impossible — Fichier illisible'],
+                  ['error',           'Extraction impossible - Fichier illisible'],
                 ].map(([type, label]) => {
                   const cfg = STEP_TYPE_CONFIG[type];
                   if (!cfg) return null;
@@ -23384,7 +23384,7 @@ export default function App() {
               {/* Tree component visual */}
               <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#292524', padding: 20 }}>
                 <div className="flex flex-col">
-                  {/* Tree connector piece — vertical + horizontal branch */}
+                  {/* Tree connector piece - vertical + horizontal branch */}
                   {[0, 1, 2].map((i) => (
                     <div key={i} className="flex items-stretch" style={{ height: 24 }}>
                       <div className="relative" style={{ width: 20 }}>
@@ -23399,7 +23399,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Tree zone — Level 1 */}
+              {/* Tree zone - Level 1 */}
               <div className="rounded-lg overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#292524', padding: 20 }}>
                 <div className="rounded border border-dashed flex items-center justify-center" style={{ borderColor: '#78716c', width: 80, height: 64, position: 'relative' }}>
                   <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Level 1</span>
@@ -23464,7 +23464,7 @@ export default function App() {
               <div className={sCard}>
                 <p style={sLabel}>1 child = description</p>
                 <ReasoningStepper status="done" steps={[
-                  { type: 'extract_data', label: 'Extraction facture CHU', status: 'done', children: ['4 500 € — CPAM 3 200 €'] },
+                  { type: 'extract_data', label: 'Extraction facture CHU', status: 'done', children: ['4 500 € - CPAM 3 200 €'] },
                 ]} expanded={true} onToggle={() => {}} />
               </div>
               <div className={sCard}>
@@ -23637,7 +23637,7 @@ export default function App() {
         />
       )}
 
-      {/* Cabinet rationale modal — "ask why" when adding a Plato JP search result */}
+      {/* Cabinet rationale modal - "ask why" when adding a Plato JP search result */}
       {pendingCabinetDecision && (
         <JPRationaleModal
           decision={pendingCabinetDecision}
@@ -23662,25 +23662,25 @@ export default function App() {
         />
       )}
 
-      {/* Parrainage modal — triggered from the sidebar promo card */}
+      {/* Parrainage modal - triggered from the sidebar promo card */}
       {renderParrainageModal()}
 
-      {/* Add-licence confirm — shows the resulting monthly price */}
+      {/* Add-licence confirm - shows the resulting monthly price */}
       {renderAddLicenceModal()}
 
-      {/* Collaborator profile panel — view/edit a member (role, plan, delete) */}
+      {/* Collaborator profile panel - view/edit a member (role, plan, delete) */}
       {renderMemberProfilePanel()}
 
-      {/* Licence upgrade confirm — when assigning a plan with no free licence */}
+      {/* Licence upgrade confirm - when assigning a plan with no free licence */}
       {renderLicenceUpgradeModal()}
 
-      {/* Weekly-quota exhausted — admin self-upgrade */}
+      {/* Weekly-quota exhausted - admin self-upgrade */}
       {renderQuotaUpgradeModal()}
 
-      {/* Weekly-quota exhausted — member asks admin for an upgrade */}
+      {/* Weekly-quota exhausted - member asks admin for an upgrade */}
       {renderAskUpgradeModal()}
 
-      {/* Document staging modal (matter creation + add-files SAS) — mounted
+      {/* Document staging modal (matter creation + add-files SAS) - mounted
           globally so it overlays whichever page is active (e.g. the Pièces tab),
           not only the dossiers list. */}
       {renderDropFirstModal()}
@@ -23744,7 +23744,7 @@ export default function App() {
         color: '#27272a'
       }}
     >
-      {/* Closed-dossier banner — full viewport width, above the top nav (Figma node 2018:119250) */}
+      {/* Closed-dossier banner - full viewport width, above the top nav (Figma node 2018:119250) */}
       {dossierStatut === 'fermé' && (
         <div
           className="w-full h-12 flex items-center justify-between px-4 flex-shrink-0"
@@ -23772,9 +23772,9 @@ export default function App() {
         {/* Left: Top Bar + Content */}
         <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#F8F7F5' }}>
           {jp.jpState.drawerDecisionId ? (
-            /* JP detail page — entered "into the canvas" when a JP is clicked.
+            /* JP detail page - entered "into the canvas" when a JP is clicked.
                Keep the dossier top bar so tab nav still works (clicking a tab
-               closes the drawer — see renderTopBar). Skip the parent sub-header
+               closes the drawer - see renderTopBar). Skip the parent sub-header
                entirely: the drawer carries its own identity (title · date · n°
                + back/close + prev/next), so the poste/cascade/acte chrome is
                redundant here and crowds the JP detail. */
@@ -23872,7 +23872,7 @@ export default function App() {
                   ? atts.find(a => a.scope === 'matter' && a.scopeTargetId === jp.DEFAULT_MATTER_ID && a.lineItem === highlight)
                   : atts.find(a => a.scope === 'matter' && a.scopeTargetId === jp.DEFAULT_MATTER_ID && !a.lineItem);
                 if (!target) {
-                  // No matching attachment yet — create matter-transverse so the note has somewhere to live.
+                  // No matching attachment yet - create matter-transverse so the note has somewhere to live.
                   jp.addAttachment(jp.jpState.drawerDecisionId, 'matter', jp.DEFAULT_MATTER_ID, highlight || null);
                   // Apply rationale on next tick once the attachment exists.
                   setTimeout(() => {
@@ -23919,12 +23919,12 @@ export default function App() {
       {baremeViewerOpen && renderBaremeViewer()}
       {renderNewActeModal()}
 
-      {/* Document preview — right side drawer with backdrop */}
+      {/* Document preview - right side drawer with backdrop */}
       {chatPreviewPiece && (
         <div className="fixed top-0 left-0 bottom-0 z-50 flex" style={{ right: 'var(--chat-offset, 0px)' }} onClick={() => setChatPreviewPiece(null)}>
           {/* Backdrop */}
           <div className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} />
-          {/* Drawer — slides in from right */}
+          {/* Drawer - slides in from right */}
           <div
             className="h-full bg-white flex flex-col overflow-hidden flex-shrink-0"
             style={{ width: 520, boxShadow: '-8px 0 32px rgba(0,0,0,0.12)' }}
