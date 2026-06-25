@@ -492,6 +492,9 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
             inclureDansBordereau: true,
             orderInCategory: next,
             _processing: false,
+            // Per-document découpage state — an exploded segment can be regrouped.
+            _pileId: pile.id,
+            _docSplit: 'exploded',
             _pileSegment: {
               pileId: pile.id,
               segmentId: seg.id,
@@ -526,6 +529,17 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       ? rawDate.toLocaleDateString('fr-FR')
       : (df.date || null);
 
+    // Per-document découpage state for the after-upload scissors override:
+    //  • 'split'              — one part of a découpé document → can be regrouped
+    //  • 'bundled-splittable' — a stack kept as one document → can be découpé
+    //  • 'whole-splittable'   — a multi-part doc kept whole   → can be découpé
+    const bundledPile = df._pileId && piles[df._pileId] && piles[df._pileId].mode !== 'exploded';
+    const docSplit = !isDone ? null
+      : df._splitParentId ? 'split'
+      : bundledPile ? 'bundled-splittable'
+      : df._splittableSplits ? 'whole-splittable'
+      : null;
+
     result.push({
       id: df.id,
       nom: df.cleanName || df.originalName || df.id,
@@ -537,6 +551,13 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       inclureDansBordereau: !df.horsBordereau,
       orderInCategory: next,
       _processing: !isDone,
+      _pileId: df._pileId || undefined,
+      _splitParentId: df._splitParentId || undefined,
+      _splittableSplits: df._splittableSplits || undefined,
+      _docSplit: docSplit,
+      // Posteriori split state (config → splitting → detected → reviewed). When
+      // set, the row renders as a single « N pièces » card (PosterioriSplitRow).
+      _pSplit: df._pSplit || undefined,
     });
   });
   return result;

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, MessageSquarePlus, Plus, ChevronDown, FilePlus2, Combine } from 'lucide-react';
+import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, MessageSquarePlus, Plus, ChevronDown, FilePlus2, Combine, Scissors, Link2, Check } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import { buildTreeViewRows } from '../../data/piecesModel';
 import CategoryHeader from './CategoryHeader';
@@ -25,13 +25,18 @@ export default function BordereauTable({
   onAddFiles,
   onAskChato,
   onFusePieces,
+  onToggleDocSplit,
+  onBulkToggleDocSplit,
+  onRequestDocSplit,
+  onPosterioriAdjust,
   reviewZone = null,
   forceExpandAll = false,
+  initialExpandedIds = null,
 }) {
   const fileInputRef = useRef(null);
   const addButtonRef = useRef(null);
   const [addMenu, setAddMenu] = useState(null); // { x, y }
-  const [expandedIds, setExpandedIds] = useState(() => new Set());
+  const [expandedIds, setExpandedIds] = useState(() => new Set(initialExpandedIds || []));
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [menu, setMenu] = useState(null);
   const [moveModal, setMoveModal] = useState(null);
@@ -170,11 +175,22 @@ export default function BordereauTable({
     if (!p) return [];
     const keys = affectedKeysFromAnchor(selectionKeyForPiece(pieceId));
     const isBulk = keys.length > 1;
+    // Per-document découpage (single-row only — bulk runs from the selection
+    // bar). A split part / exploded segment can be regrouped; any other (whole)
+    // document can be découpé, which opens the analyse → suggestion → adjust
+    // → validate flow.
+    const canRegroup = p._docSplit === 'split' || p._docSplit === 'exploded';
+    const splitAction = isBulk
+      ? []
+      : canRegroup
+        ? (onToggleDocSplit ? [{ icon: Link2, label: 'Regrouper en un document', onClick: () => onToggleDocSplit(p) }] : [])
+        : (onRequestDocSplit ? [{ icon: Scissors, label: 'Découper le document', onClick: () => onRequestDocSplit(p.id) }] : []);
     return [
       { icon: Pencil, label: isBulk ? 'Renommer (uniquement la pièce ciblée)' : 'Renommer',
         onClick: () => triggerPieceRename(pieceId) },
       { icon: Move, label: isBulk ? `Déplacer ${keys.length} éléments` : 'Déplacer',
         onClick: () => openMoveModal(keys) },
+      ...splitAction,
       { separator: true },
       { icon: Trash2, label: isBulk ? `Supprimer ${keys.length} éléments` : 'Supprimer la pièce', destructive: true,
         onClick: () => openDeleteModal(keys) },
@@ -260,6 +276,24 @@ export default function BordereauTable({
   // Fusionner merges 2+ whole documents into one pièce — no folders, no segments.
   const canFuse = selectedIds.size >= 2 && !selectionHasFolder && !selectionHasSegment && !!onFusePieces;
 
+  // Bulk découpage: découper every kept-whole selected document at once, or
+  // regrouper every découpé one. Reads the selection the same way Fusionner does.
+  const selectedPieces = useMemo(
+    () => [...selectedIds]
+      .filter(k => k.startsWith(PIECE_PREFIX))
+      .map(k => findPiece(k.slice(PIECE_PREFIX.length)))
+      .filter(Boolean),
+    [selectedIds, findPiece]
+  );
+  const bulkSplittable = useMemo(
+    () => selectedPieces.filter(p => p._docSplit === 'bundled-splittable' || p._docSplit === 'whole-splittable'),
+    [selectedPieces]
+  );
+  const bulkRegroupable = useMemo(
+    () => selectedPieces.filter(p => p._docSplit === 'split' || p._docSplit === 'exploded'),
+    [selectedPieces]
+  );
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 56, paddingTop: 8 }}>
@@ -275,6 +309,10 @@ export default function BordereauTable({
               onFusePieces?.(pieceIds);
               clearSelection();
             }}
+            showSplit={!!onBulkToggleDocSplit && bulkSplittable.length > 0}
+            showRegroup={!!onBulkToggleDocSplit && bulkRegroupable.length > 0}
+            onSplit={() => { onBulkToggleDocSplit?.(bulkSplittable, 'split'); clearSelection(); }}
+            onRegroup={() => { onBulkToggleDocSplit?.(bulkRegroupable, 'regroup'); clearSelection(); }}
             onMove={() => openMoveModal([...selectedIds])}
             onDelete={() => openDeleteModal([...selectedIds])}
             onDownload={() => { /* stub */ }}
@@ -440,6 +478,25 @@ export default function BordereauTable({
                   );
                 }
 
+                // ── Posteriori split (splitting / detected / reviewed) ──
+                // While splitting or awaiting review, the document shows as a
+                // progress card ON TOP of the table (reviewZone), not inline —
+                // skip its row here. Only the committed/reviewed aggregate renders
+                // inline.
+                if (piece._pSplit && (piece._pSplit.state === 'splitting' || piece._pSplit.state === 'detected')) {
+                  return null;
+                }
+                if (piece._pSplit) {
+                  return (
+                    <PosterioriSplitRow
+                      key={`psplit-${piece.id}`}
+                      piece={piece}
+                      depth={row.depth}
+                      onAdjust={() => onPosterioriAdjust?.(piece.id)}
+                    />
+                  );
+                }
+
                 return (
                   <PieceRow
                     key={`piece-${piece.id}`}
@@ -514,7 +571,7 @@ export default function BordereauTable({
         open={!!addMenu}
         position={addMenu}
         items={[
-          { icon: FilePlus2,  label: 'Nouveau fichier', onClick: () => fileInputRef.current?.click() },
+          { icon: FilePlus2,  label: 'Nouveau fichier', onClick: () => onAddFiles?.() },
           { icon: FolderPlus, label: 'Nouveau dossier', onClick: () => setCreateFolderOpen(true) },
         ]}
         onClose={() => setAddMenu(null)}
@@ -584,7 +641,7 @@ function SortCell({ label, col, sort, onSort, width, flex }) {
 // from passive cream to dark stone with cream typography. The mode shift
 // itself is the bold gesture: this row now leads the page. Inset highlight
 // gives the bar dimension; existing fade-slide-up entrance gives it weight.
-function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAskChato, showAskChato, onFuse, showFuse }) {
+function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAskChato, showAskChato, onFuse, showFuse, showSplit, showRegroup, onSplit, onRegroup }) {
   return (
     <div
       className="animate-fade-up"
@@ -632,7 +689,9 @@ function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAs
 
       <span style={{ flex: 1 }} />
 
-      {showFuse && <FuseButton onClick={onFuse} />}
+      {showSplit && <SelectionBarButton icon={Scissors} label="Découper" title="Découper les documents sélectionnés en leurs parties" onClick={onSplit} />}
+      {showRegroup && <SelectionBarButton icon={Link2} label="Regrouper" title="Regrouper les documents découpés sélectionnés en une seule pièce chacun" onClick={onRegroup} />}
+      {showFuse && <SelectionBarButton icon={Combine} label="Fusionner" title="Fusionner les documents sélectionnés en une seule pièce" onClick={onFuse} />}
       <ActionIcon icon={Download} title="Télécharger"     onClick={onDownload} tone="dark" />
       <ActionIcon icon={Move}     title="Déplacer vers…"  onClick={onMove}     tone="dark" />
       <ActionIcon icon={Trash2}   title="Supprimer"       onClick={onDelete}   tone="dark" destructive />
@@ -683,12 +742,15 @@ function ActionIcon({ icon: Icon, title, onClick, destructive, tone }) {
 // one pièce. Unlike the icon-only utilities (download/move/delete) it carries a
 // visible label, since "fusionner" is the headline action when several whole
 // documents are picked.
-function FuseButton({ onClick }) {
+// Labeled action on the selection bar (Découper / Regrouper / Fusionner) —
+// unlike the icon-only utilities these carry a visible label, since they are the
+// headline actions when several whole documents are picked.
+function SelectionBarButton({ icon: Icon, label, title, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      title="Fusionner les documents sélectionnés en une seule pièce"
+      title={title}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -708,8 +770,8 @@ function FuseButton({ onClick }) {
       onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(238, 236, 230, 0.18)'; e.currentTarget.style.color = '#ffffff'; }}
       onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(238, 236, 230, 0.10)'; e.currentTarget.style.color = colors.semantic.cream; }}
     >
-      <Combine style={{ width: 15, height: 15 }} strokeWidth={1.75} />
-      <span>Fusionner</span>
+      <Icon style={{ width: 15, height: 15 }} strokeWidth={1.75} />
+      <span>{label}</span>
     </button>
   );
 }
@@ -738,6 +800,69 @@ function PileProcessingRow({ piece, depth }) {
           {label}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Posteriori split card ────────────────────────────────────────────────
+// A document being split after the fact stays a single row that moves through
+// states: « Découpage en cours… » → « N pièces détectées » (Garder en 1 pièce /
+// Découper / Ajuster) → « N pièces · Revu » (Ajuster).
+function SplitActionButton({ onClick, variant, icon: Icon, children }) {
+  const base = {
+    display: 'inline-flex', alignItems: 'center', gap: 5, height: 30, padding: '0 10px',
+    borderRadius: 6, fontFamily: typography.fontFamily.sans, fontSize: 13, fontWeight: 500,
+    cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background-color 100ms, color 100ms',
+  };
+  const style = variant === 'dark'
+    ? { ...base, background: colors.semantic.foreground, color: colors.semantic.white, border: 'none' }
+    : variant === 'outline'
+      ? { ...base, background: colors.semantic.white, color: colors.semantic.foreground, border: `1px solid ${colors.semantic.border}` }
+      : { ...base, background: 'transparent', color: colors.semantic.foregroundSecondary, border: 'none' };
+  return (
+    <button type="button" onClick={(e) => { e.stopPropagation(); onClick?.(); }} style={style}>
+      {Icon && <Icon style={{ width: 13, height: 13 }} strokeWidth={1.75} />}
+      {children}
+    </button>
+  );
+}
+
+function PosterioriSplitRow({ piece, depth, onAdjust }) {
+  // Committed aggregate row for an already-split document (reviewed / split):
+  // « N pièces · Revu · Ajuster ». The splitting + detected phases render as a
+  // card ON TOP of the table (SplitProgressCard in the reviewZone), never
+  // inline — they're skipped before this row is ever reached.
+  const indent = 40 + Math.max(0, depth) * 16;
+  const ps = piece._pSplit || {};
+  const name = piece.intitule || piece.nom || '';
+  const reviewed = ps.state === 'reviewed';
+  const count = ps.count || 0;
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', minHeight: 60, gap: 10,
+      paddingLeft: indent, paddingRight: 12,
+      borderBottom: `1px solid ${colors.semantic.border}`,
+    }}>
+      <Scissors style={{ width: 15, height: 15, color: colors.semantic.foregroundSecondary, flexShrink: 0 }} strokeWidth={1.75} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontSize: 14, fontWeight: 500, color: colors.semantic.foreground,
+          fontFamily: typography.fontFamily.sans, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {name}
+        </div>
+        <div style={{ fontSize: 12, color: colors.semantic.foregroundMuted, marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>{count} pièce{count > 1 ? 's' : ''}</span>
+          {reviewed && (
+            <span style={{ color: '#4a9168', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+              <Check style={{ width: 12, height: 12 }} strokeWidth={2.5} /> Revu
+            </span>
+          )}
+        </div>
+      </div>
+      <span style={{ flexShrink: 0 }}>
+        <SplitActionButton onClick={onAdjust} variant="outline" icon={Scissors}>Ajuster</SplitActionButton>
+      </span>
     </div>
   );
 }

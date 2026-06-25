@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, MoreVertical, Loader2, Check, Download } from 'lucide-react';
+import { FileText, MoreVertical, Loader2, Check, Download, Scissors } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 
 // Doc row aligned with Figma "Row Documents" — 64px tall.
@@ -21,6 +21,12 @@ export default function PieceRow({
   onOpenMenu,
 }) {
   const label = piece.intitule || (piece.nom ? piece.nom.replace(/\.[^/.]+$/, '') : '');
+  // Split parts (a découpé document's pieces / exploded pile segments) get a
+  // small scissors marker so they're recognisable in the flat document list.
+  // Drop-first rows carry `_docSplit`; seeded bordereau pieces carry
+  // `splitIndex` / `siblings` — either signals a découpé part.
+  const isSplitDoc = piece._docSplit === 'split' || piece._docSplit === 'exploded'
+    || piece.splitIndex != null || !!piece.siblings;
   const [hover, setHover] = useState(false);
 
   const handleClick = (e) => {
@@ -90,18 +96,28 @@ export default function PieceRow({
       </div>
 
       <div style={{ flex: 1, minWidth: 0, paddingRight: 12, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
-        <span style={{
-          fontFamily: typography.fontFamily.sans,
-          fontSize: 14,
-          fontWeight: 500,
-          color: colors.semantic.foreground,
-          fontStyle: italic ? 'italic' : 'normal',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}>
-          {label}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+          <span style={{
+            fontFamily: typography.fontFamily.sans,
+            fontSize: 14,
+            fontWeight: 500,
+            color: colors.semantic.foreground,
+            fontStyle: italic ? 'italic' : 'normal',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+          }}>
+            {label}
+          </span>
+          {isSplitDoc && (
+            <Scissors
+              title="Document découpé"
+              style={{ width: 13, height: 13, color: colors.semantic.foregroundMuted, flexShrink: 0 }}
+              strokeWidth={1.75}
+            />
+          )}
+        </div>
         {piece.nomOriginal && piece.nomOriginal !== label && piece.nomOriginal !== piece.nom && (
           <span
             title={`Nom d'origine : ${piece.nomOriginal}`}

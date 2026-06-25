@@ -7,9 +7,9 @@
 // PRP, IV postes) references them via `pieceIds: ['p-1', 'p-7', …]` and
 // renaming would break those references.
 //
-// Gap at IV: root categories have orders [0, 1, 2, 4]. The numbering helper
-// derives romans from `order + 1`, so the displayed sequence is I, II, III,
-// V — IV is intentionally skipped (MARTINIE pattern from spec §3).
+// Gaps at III & IV: root categories have orders [0, 1, 4] — « Frais médicaux »
+// is now nested under Médical, not a root. The numbering helper derives romans
+// from `order + 1`, so the displayed top-level sequence is I, II, V.
 
 export const BORDEREAU_CATEGORIES = [
   // I. Procédure — empty, shows the design for an empty category
@@ -19,11 +19,10 @@ export const BORDEREAU_CATEGORIES = [
   { id: 'cat-medical', name: 'Médical', parentId: null, order: 1 },
   { id: 'cat-expertises', name: 'Expertises', parentId: 'cat-medical', order: 0 },
   { id: 'cat-soins', name: 'Comptes-rendus & soins', parentId: 'cat-medical', order: 1 },
+  // Frais médicaux — folder nested INSIDE Médical (holds the split factures).
+  { id: 'cat-frais-med', name: 'Frais médicaux', parentId: 'cat-medical', order: 2 },
 
-  // III. Frais médicaux — flat (no subcategories)
-  { id: 'cat-frais-med', name: 'Frais médicaux', parentId: null, order: 2 },
-
-  // ── (order=3 deliberately absent → IV is skipped in the rendered sequence)
+  // ── (root orders 2 & 3 deliberately absent → III and IV are skipped)
 
   // V. Pertes de revenus
   { id: 'cat-revenus', name: 'Pertes de revenus', parentId: null, order: 4 },

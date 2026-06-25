@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -33,7 +33,7 @@ import BordereauTable from './components/pieces/BordereauTable';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
 import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
 import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows } from './data/piecesModel';
-import { getPileById, pickRandomPiles } from './data/pilesSeed';
+import { getPileById } from './data/pilesSeed';
 import PileReviewBanner from './components/pieces/PileReviewBanner';
 import PileAdjustSheet from './components/pieces/PileAdjustSheet';
 import FusePiecesModal from './components/pieces/FusePiecesModal';
@@ -355,6 +355,218 @@ const DEFAULT_BAREMES = [
   },
 ];
 
+// Build the per-part rows for a splittable drop-first document. Shared by the
+// initial ingestion (matter-level "split" choice) and the after-upload per-doc
+// scissors override, so a document découpé on ingest and one découpé later are
+// identical. `_splitParentId` ties the parts back together for regrouping;
+// `_renamedBase` lets a regroup rebuild the original single-document name.
+// Guess a document type from its filename — always returns a category. Drives
+// classification (which folder a piece lands in) for both the matter-creation
+// drop and the Pièces-tab "add files" staging.
+function guessFileType(name) {
+  const ln = (name || '').toLowerCase();
+  if (ln.includes('expertise') || ln.includes('rapport')) return 'Expertise';
+  if (ln.includes('facture') || ln.includes('kine') || ln.includes('kiné')) return 'Factures';
+  if (ln.includes('salaire') || ln.includes('bulletin') || ln.includes('impot') || ln.includes('impôt') || ln.includes('revenu') || ln.includes('avis')) return 'Revenus';
+  if (ln.includes('jugement') || ln.includes('decision') || ln.includes('décision') || ln.includes('arret') || ln.includes('arrêt') || ln.includes('ordonnance')) return 'Décision';
+  if (ln.includes('medical') || ln.includes('médical') || ln.includes('certificat') || ln.includes('hospitalisation') || ln.includes('cpam') || ln.includes('travail') || ln.includes('irm') || ln.includes('scanner') || ln.includes('radio') || ln.includes('compte_rendu') || ln.includes('compte-rendu') || ln.includes('decompte') || ln.includes('décompte') || ln.includes('blessure')) return 'Médical';
+  if (ln.includes('courrier') || ln.includes('lettre') || ln.includes('mail') || ln.includes('assurance') || ln.includes('correspondance')) return 'Correspondance';
+  if (ln.includes('pv') || ln.includes('police') || ln.includes('constat') || ln.includes('administratif')) return 'Administratif';
+  const fallbackTypes = ['Médical', 'Administratif', 'Correspondance', 'Factures', 'Revenus'];
+  return fallbackTypes[Math.floor(Math.random() * fallbackTypes.length)];
+}
+
+// Turn a list of staged files (from the matter-creation drop or the Pièces-tab
+// add flow) into processing items. Each file is matched to mock metadata of its
+// detected type (so it's classified by its name), one item per file, carrying
+// the per-document split choice. No random stack injection.
+function buildStagedProcessingItems(files, rapportFileId, idPrefix) {
+  const poolByType = {};
+  DROP_FIRST_DOCUMENT_POOL.forEach(e => { (poolByType[e.type] || (poolByType[e.type] = [])).push(e); });
+  const typeSeq = {};
+  let seq = 0;
+  const stamp = Date.now();
+  return files.map((f, i) => {
+    const isRapport = f.id === rapportFileId || !!f.isRapport;
+    const guessedType = isRapport ? 'Expertise' : (f.guessedType || guessFileType(f.name));
+    const bucket = poolByType[guessedType];
+    let poolEntry;
+    if (bucket && bucket.length) {
+      const n = typeSeq[guessedType] || 0;
+      typeSeq[guessedType] = n + 1;
+      poolEntry = bucket[n % bucket.length];
+    } else {
+      poolEntry = DROP_FIRST_DOCUMENT_POOL[seq++ % DROP_FIRST_DOCUMENT_POOL.length];
+    }
+    return {
+      id: `${idPrefix}-${stamp}-${i}`,
+      originalName: f.name,
+      cleanName: null, type: null, date: null, postesLies: [], summary: null,
+      extractedInfo: null, pages: null, status: 'pending',
+      poolRef: poolEntry, guessedType,
+      sourceFile: null, pageRange: null, siblings: null,
+      fakeSize: f.fakeSize,
+      isRapport,
+      splitChoice: !!f.splitEnabled,
+    };
+  });
+}
+
+// Tri-state "Tout découper" checkbox in the staging counter row: checked (all
+// split) / indeterminate (mixed) / unchecked (none). Clicking when checked sets
+// all to Don't split; otherwise sets all to Split.
+function TriStateCheckbox({ state, onClick, label }) {
+  const filled = state === 'checked' || state === 'indeterminate';
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={state === 'indeterminate' ? 'mixed' : state === 'checked'}
+      onClick={onClick}
+      className="inline-flex items-center gap-2 text-sm font-medium text-[#292524] flex-shrink-0"
+    >
+      <span
+        className={`inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px] border transition-colors ${
+          filled ? 'bg-[#292524] border-[#292524] text-white' : 'bg-white border-[#d6d3d1] hover:border-[#a8a29e]'
+        }`}
+      >
+        {state === 'checked' && <Check className="w-3 h-3" strokeWidth={3} />}
+        {state === 'indeterminate' && <Minus className="w-3 h-3" strokeWidth={3} />}
+      </span>
+      {label && <span>{label}</span>}
+    </button>
+  );
+}
+
+// Default naming consigne pre-filled in the split-naming textarea. Split pieces
+// must be renamed, so a sensible default is always provided (and is editable).
+const DEFAULT_SPLIT_PROMPT = 'Nomme chaque pièce selon sa nature, son auteur et sa date (ex. « Facture — Cabinet Martin — mars 2023 »).';
+
+// Posteriori split-progress card shown ON TOP of the Pièces table while a
+// document is being split: « Découpage en cours… », then « N pièces détectées »
+// with Garder en 1 pièce / Voir et ajuster. (Committed splits render inline.)
+function SplitProgressCard({ piece, onKeepAsOne, onAdjust }) {
+  const ps = piece._pSplit || {};
+  const splitting = ps.state === 'splitting';
+  const name = piece.cleanName || (piece.originalName ? piece.originalName.replace(/\.[^/.]+$/, '') : 'Document');
+  const count = ps.count || 0;
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-[#e7e5e3] bg-white px-3.5 py-3 shadow-sm">
+      <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-[#eeece6] flex-shrink-0">
+        {splitting
+          ? <Loader2 className="w-4 h-4 text-[#44403c] animate-spin" strokeWidth={2} />
+          : <Scissors className="w-4 h-4 text-[#44403c]" strokeWidth={1.75} />}
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="text-[13px] font-medium text-[#292524] truncate">{name}</div>
+        <div className="text-[12px] text-[#78716c]">
+          {splitting ? 'Découpage en cours…' : `${count} pièce${count > 1 ? 's' : ''} détectée${count > 1 ? 's' : ''}`}
+        </div>
+      </div>
+      {!splitting && (
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button onClick={onKeepAsOne} className="h-8 px-3 rounded-lg text-sm font-medium text-[#44403c] hover:bg-[#f8f7f5] transition-colors">
+            Garder en 1 pièce
+          </button>
+          <button onClick={onAdjust} className="h-8 px-3 rounded-lg text-sm font-medium text-white bg-[#292524] hover:bg-[#44403c] transition-colors inline-flex items-center gap-1.5">
+            <Scissors className="w-3.5 h-3.5" strokeWidth={1.75} />
+            Voir et ajuster
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Two-option segmented control for a document's split choice — reuses the IV
+// view-mode toggle style: cream track, white selected pill (subtle shadow),
+// IBM Plex Mono 11px uppercase. « Ne pas découper » (keep whole) / « Découper ».
+function SplitSegmentedControl({ value, onChange }) {
+  const seg = (active) => ({
+    height: '100%',
+    padding: '0 10px',
+    minWidth: 56,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderRadius: 6,
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 150ms',
+    background: active ? '#ffffff' : 'transparent',
+    boxShadow: active ? '0 1px 4px 0 rgba(26,26,26,0.05), 0 1px 2px 0 rgba(26,26,26,0.05)' : 'none',
+    fontFamily: "'IBM Plex Mono', monospace",
+    fontSize: 11,
+    fontWeight: 500,
+    color: active ? '#292524' : '#78716c',
+    textTransform: 'uppercase',
+    whiteSpace: 'nowrap',
+  });
+  return (
+    <div
+      className="flex items-center h-8 rounded-lg p-1 flex-shrink-0"
+      style={{ backgroundColor: '#eeece6' }}
+      role="group"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button type="button" aria-pressed={!value} onClick={(e) => { e.stopPropagation(); onChange(false); }} style={seg(!value)}>
+        Ne pas découper
+      </button>
+      <button type="button" aria-pressed={!!value} onClick={(e) => { e.stopPropagation(); onChange(true); }} style={seg(!!value)}>
+        <Scissors className="w-3 h-3" strokeWidth={2} />
+        Découper
+      </button>
+    </div>
+  );
+}
+
+// Even split of a document into 2–3 parts by page count — used when the avocat
+// chose to découper a document that has no pre-detected parts, so the choice
+// always takes effect. Returns the {name, pages, pageCount} shape splits use.
+function genericSplits(totalPages) {
+  const total = Math.max(1, totalPages || 2);
+  const parts = Math.max(2, Math.min(3, total));
+  const per = Math.max(1, Math.floor(total / parts));
+  const out = [];
+  let cursor = 1;
+  for (let i = 0; i < parts; i++) {
+    const remaining = total - cursor + 1;
+    const count = i === parts - 1 ? remaining : Math.min(per, remaining);
+    if (count <= 0) break;
+    out.push({ name: `partie ${i + 1}`, pages: count > 1 ? `${cursor}–${cursor + count - 1}` : `${cursor}`, pageCount: count });
+    cursor += count;
+  }
+  return out;
+}
+
+function buildDropFirstSplitRows(parentId, originalName, fakeSize, isRapport, poolEntry, renamedBase) {
+  const baseName = renamedBase || poolEntry.cleanName.split('—')[0].trim();
+  return poolEntry.splits.map((split, si) => ({
+    id: `${parentId}-split-${si}`,
+    originalName,
+    cleanName: `${baseName} — ${split.name}`,
+    type: poolEntry.type,
+    date: poolEntry.date,
+    postesLies: [...poolEntry.postesLies],
+    summary: poolEntry.summary,
+    extractedInfo: poolEntry.extractedInfo,
+    pages: split.pageCount,
+    status: 'done',
+    poolRef: poolEntry,
+    sourceFile: originalName,
+    pageRange: split.pages,
+    splitName: split.name,
+    siblings: poolEntry.splits.map((s, j) => ({ name: s.name, pages: s.pages, pageCount: s.pageCount, index: j })),
+    splitIndex: si,
+    totalSourcePages: poolEntry.pages,
+    fakeSize,
+    isRapport,
+    _splitParentId: parentId,
+    _renamedBase: renamedBase || null,
+  }));
+}
+
 // ========== DROP FIRST — MOCK DATA ==========
 const DROP_FIRST_DOCUMENT_POOL = [
   {
@@ -509,6 +721,43 @@ const DROP_FIRST_DOCUMENT_POOL = [
     splits: null
   }
 ];
+
+// Demo seed — a « PIECES_MEDICALES.pdf » scan découpé en 10 factures, always
+// shown in the drop-first Pièces tab under the « Frais médicaux » folder (which
+// is nested in Médical). They classify into cat-frais-med by their « Facture »
+// type and render as plain rows subtitled with the source scan. Read-only
+// (rename/move/delete don't persist) — purely illustrative for the demo.
+const DEMO_FRAIS_MEDICAUX_SOURCE = 'PIECES_MEDICALES.pdf';
+const DEMO_FRAIS_MEDICAUX_FACTURES = [
+  ['Facture hospitalisation — CHU Bordeaux', '2023-03-15'],
+  ['Facture kinésithérapie — Cabinet Martin', '2023-04-12'],
+  ['Facture pharmacie des Lilas', '2023-04-20'],
+  ['Facture IRM — Centre Imagerie Sud', '2023-05-25'],
+  ['Facture consultation orthopédique — Dr. Petit', '2023-06-15'],
+  ['Facture transport VSL (taxi médical)', '2023-07-05'],
+  ['Facture orthèse de genou', '2023-07-28'],
+  ["Facture séances d'ostéopathie", '2023-08-10'],
+  ['Facture matériel médical — béquilles', '2023-08-22'],
+  ['Facture consultation de suivi — Dr. Dubois', '2023-09-15'],
+].map(([cleanName, date], i, arr) => ({
+  id: `demo-frais-${i}`,
+  originalName: DEMO_FRAIS_MEDICAUX_SOURCE,
+  cleanName,
+  type: 'Facture',
+  date,
+  status: 'done',
+  pages: 1,
+  postesLies: ['DSA'],
+  summary: null,
+  extractedInfo: null,
+  // Parts of the découpé scan → list row shows the scissors marker (_docSplit
+  // 'split'), and the panel shows the « Document découpé » callout + « Ajuster »
+  // (siblings drive isSplit + the cut modal).
+  splitIndex: i,
+  siblings: arr.map(([n], j) => ({ name: n, pages: '1', pageCount: 1, index: j })),
+  _splitParentId: 'demo-frais-src',
+  _demo: true,
+}));
 
 const DROP_FIRST_VICTIM_DATA = {
   nom: 'Martin', prenom: 'Sophie', sexe: 'Féminin', dateNaissance: '14/03/1985', profession: 'Cadre commercial'
@@ -992,7 +1241,7 @@ if (window.location.search.includes('reset')) {
 // Small hover-triggered info tooltip — renders a peach-tinted popover above
 // the icon with a short explanation. Used in PlanCard footer rows to explain
 // what each metric means.
-function InfoTip({ children, label, placement = 'top' }) {
+function InfoTip({ children, label, placement = 'top', align = 'center', icon: Icon = HelpCircle, iconClassName }) {
   const [open, setOpen] = useState(false);
   return (
     <span
@@ -1005,8 +1254,8 @@ function InfoTip({ children, label, placement = 'top' }) {
       role="button"
       aria-label={label || 'Plus d\'informations'}
     >
-      <HelpCircle
-        className="w-3 h-3 opacity-60 hover:opacity-100 transition-opacity flex-shrink-0"
+      <Icon
+        className={iconClassName || "w-3 h-3 opacity-60 hover:opacity-100 transition-opacity flex-shrink-0"}
         strokeWidth={1.75}
       />
       {open && (
@@ -1014,17 +1263,16 @@ function InfoTip({ children, label, placement = 'top' }) {
           role="tooltip"
           className="absolute z-50"
           style={{
-            ...(placement === 'top'
-              ? { bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)' }
-              : { top: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)' }),
+            ...(placement === 'top' ? { bottom: 'calc(100% + 8px)' } : { top: 'calc(100% + 8px)' }),
+            ...(align === 'right' ? { right: 0 } : align === 'left' ? { left: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
             width: 260,
             borderRadius: 6,
-            backgroundColor: 'white',
-            border: '1px solid #e7e5e3',
-            boxShadow: '0 8px 24px rgba(41,37,36,0.10), 0 2px 8px rgba(41,37,36,0.04)',
+            backgroundColor: '#292524',
+            border: 'none',
+            boxShadow: '0 8px 24px rgba(41,37,36,0.20), 0 2px 8px rgba(41,37,36,0.12)',
             padding: '10px 12px',
             fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: 12, fontWeight: 400, color: '#44403c',
+            fontSize: 12, fontWeight: 400, color: '#ffffff',
             lineHeight: '17px',
             letterSpacing: 'normal',
             textTransform: 'none',
@@ -1032,21 +1280,18 @@ function InfoTip({ children, label, placement = 'top' }) {
             pointerEvents: 'none',
           }}
         >
-          {/* Tail — subtle peach accent that matches the brand */}
+          {/* Tail — small dark diamond pointing at the icon */}
           <span
             aria-hidden
             style={{
               position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%) rotate(45deg)',
+              ...(align === 'right' ? { right: 14, transform: 'rotate(45deg)' } : align === 'left' ? { left: 14, transform: 'rotate(45deg)' } : { left: '50%', transform: 'translateX(-50%) rotate(45deg)' }),
               width: 8, height: 8,
-              backgroundColor: 'white',
-              border: '1px solid #e7e5e3',
-              borderTop: 'none',
-              borderLeft: 'none',
+              backgroundColor: '#292524',
+              border: 'none',
               ...(placement === 'top'
                 ? { bottom: -5 }
-                : { top: -5, borderTop: '1px solid #e7e5e3', borderLeft: '1px solid #e7e5e3', borderBottom: 'none', borderRight: 'none' }),
+                : { top: -5 }),
             }}
           />
           {children}
@@ -1285,6 +1530,8 @@ export default function App() {
   // which no longer occur). No setter: nothing changes it anymore.
   const [globalSplitRule] = useState('group'); // 'group' | 'explode' | 'ask'
   const [pileDocPanel, setPileDocPanel] = useState(null); // null | { pileId, segmentId, mode } — unified document panel (view ↔ adjust)
+  const [panelSplitConfig, setPanelSplitConfig] = useState(null); // { pieceId, prompt } — inline « instructions de nommage » config in the doc panel (posteriori split, step 1)
+  const [docSplitDraft, setDocSplitDraft] = useState(null); // { pieceId, pile, prompt } — cut modal (PileAdjustSheet); saving updates the source card's _pSplit
   const [doublonCompare, setDoublonCompare] = useState(null); // null | { newId, existingId } — side-by-side doublon comparison
   const [fusionModal, setFusionModal] = useState(null); // null | { sources, defaultName } — merge several documents into one pièce
   const [pileHighlight, setPileHighlight] = useState(null); // pileId — amber-flashed after a recent bascule
@@ -1653,6 +1900,18 @@ export default function App() {
 
   // ========== INFORMATIONS DOSSIER ==========
   const [dossierStatut, setDossierStatut] = useState('ouvert'); // 'ouvert' | 'fermé'
+
+  // Side-panel drawers open flush to the LEFT of the chat (not over it): a
+  // global --chat-offset CSS var holds the chat width while it's visible, and
+  // every drawer (+ its backdrop) anchors its right edge to it. 0 → no chat,
+  // so the drawer reverts to the screen's right edge.
+  useEffect(() => {
+    const chatVisible = chatSidebarOpen && dossierStatut !== 'fermé' && !editPanel;
+    // +6px so the drawer stops at the chat's resize divider (6px wide), leaving it
+    // visible and draggable rather than tucked under the drawer.
+    document.documentElement.style.setProperty('--chat-offset', chatVisible ? `${chatWidth + 6}px` : '0px');
+  }, [chatSidebarOpen, dossierStatut, editPanel, chatWidth]);
+
   const [dossierRef, setDossierRef] = useState('DOS-2024-001');
   const [dossierIntitule, setDossierIntitule] = useState('Dossier Dupont');
   const [dossierDateOuverture, setDossierDateOuverture] = useState('15/03/2023');
@@ -1960,8 +2219,8 @@ export default function App() {
         return updated;
       });
 
-      // Auto-switch to chiffrage tab after a short pause so user sees the transition
-      setTimeout(() => setActiveTab('chiffrage'), 800);
+      // No tab switch — the chat message below announces it's done; the user
+      // navigates to Dossier / Chiffrage themselves.
 
       // Update the thinking stepper with extraction + postes steps, mark as done
       setChatMessages(prev => {
@@ -2027,7 +2286,7 @@ export default function App() {
           },
           {
             type: 'ai',
-            text: `J'ai analysé vos documents, rempli les informations du dossier et identifié ${detectedPostes.length} postes de préjudice à 0 €. Cliquez sur un poste pour lancer le calcul.`,
+            text: `C'est fait : j'ai rempli les informations du dossier (onglet Dossier) et identifié ${detectedPostes.length} postes de préjudice à 0 € (onglet Chiffrage). Cliquez sur un poste pour lancer le calcul.`,
           },
         ];
       });
@@ -10447,7 +10706,7 @@ export default function App() {
 
             {/* Panel Paramètres Chiffrage */}
             {showChiffrageParams && (
-              <div className="fixed inset-0 z-50 flex justify-end">
+              <div className="fixed top-0 left-0 bottom-0 z-50 flex justify-end" style={{ right: 'var(--chat-offset, 0px)' }}>
                 <div className="absolute inset-0 bg-black/30" onClick={() => setShowChiffrageParams(false)} />
                 <div className="relative w-full max-w-md bg-white shadow-xl flex flex-col">
                   <div className="flex items-center justify-between px-5 py-3 border-b">
@@ -13644,7 +13903,14 @@ export default function App() {
     const files = [...dropModal.files];
     const hasRapport = !!dropModal.rapportFileId;
     const userReference = (dropModal.reference || '').trim();
-    const renameOpts = dropModal.renameDocsEnabled ? null : { keepOriginal: true };
+    // Documents are renamed to clean, understandable names (the matched type's
+    // cleanName, e.g. « Rapport d'expertise médicale… »). The raw filename is
+    // kept as the row's subtitle, shown only where it differs (i.e. renamed).
+    const renameOpts = null;
+    // Matter-level découpage default, committed in the first modal before any
+    // ingestion. Off = keep documents as-is (no surprise splitting); on = split
+    // multi-part documents automatically. Overridable per-doc / in bulk later.
+    const splitDocs = !!dropModal.splitDocsEnabled;
 
     // Save current dossier if any
     if (activeDossierId) saveDossierData(activeDossierId);
@@ -13696,56 +13962,9 @@ export default function App() {
     setIvPosteData(EMPTY_DOSSIER.ivPosteData);
     setIvPosteSharedData(EMPTY_DOSSIER.ivPosteSharedData);
 
-    // Map files to processing items. Same automatic pile-injection rule
-    // as the post-onboarding add-pieces flow: between 1 and 3 of the
-    // dropped files are detected as homogeneous stacks and land in the
-    // À vérifier zone. The rapport file (if any) is never flagged as a
-    // pile — it has its own special downstream behaviour.
-    const rapportIdx = files.findIndex(f => f.id === dropModal.rapportFileId);
-    const eligibleIdxs = files.map((_, i) => i).filter(i => i !== rapportIdx);
-    const pileCount = Math.min(eligibleIdxs.length, 1 + Math.floor(Math.random() * 3));
-    const shuffledEligible = [...eligibleIdxs].sort(() => Math.random() - 0.5);
-    const pilePicks = pickRandomPiles(pileCount);
-    const pileForIdxOnboard = new Map();
-    shuffledEligible.slice(0, pilePicks.length).forEach((idx, k) => {
-      pileForIdxOnboard.set(idx, pilePicks[k]);
-    });
-
-    let nonPilePoolSeq = 0;
-    const processingItems = files.map((f, i) => {
-      const pileRef = pileForIdxOnboard.get(i);
-      if (pileRef) {
-        return {
-          id: `dfp-${Date.now()}-${i}`,
-          originalName: pileRef.originalName || f.name,
-          cleanName: null, type: null, date: null, postesLies: [], summary: null,
-          extractedInfo: null, pages: null, status: 'pending', poolRef: null,
-          sourceFile: null, pageRange: null, siblings: null,
-          fakeSize: f.fakeSize,
-          isRapport: false,
-          _pilePoolRef: pileRef,
-        };
-      }
-      const poolEntry = DROP_FIRST_DOCUMENT_POOL[nonPilePoolSeq++ % DROP_FIRST_DOCUMENT_POOL.length];
-      return {
-        id: `dfp-${Date.now()}-${i}`,
-        originalName: f.name,
-        cleanName: null,
-        type: null,
-        date: null,
-        postesLies: [],
-        summary: null,
-        extractedInfo: null,
-        pages: null,
-        status: 'pending', // pending → processing → done
-        poolRef: poolEntry,
-        sourceFile: null,
-        pageRange: null,
-        siblings: null,
-        fakeSize: f.fakeSize,
-        isRapport: f.id === dropModal.rapportFileId,
-      };
-    });
+    // One processing item per dropped document — matched to its name's type,
+    // split per the per-document choice (see buildStagedProcessingItems).
+    const processingItems = buildStagedProcessingItems(files, dropModal.rapportFileId, 'dfp');
 
     setDropFirstPieces(processingItems);
     setDropFirstHasRapport(hasRapport);
@@ -13780,10 +13999,12 @@ export default function App() {
 
     // Start processing simulation after render (allow doublon detection so the
     // duplicate state is demoable on the creation drop, not just on "add").
-    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, true), 300);
+    // allowDetections, but NOT forced — so we don't inject a guaranteed fake
+    // doublon on every drop; the processed pièces reflect the dropped files.
+    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs), 300);
   };
 
-  const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false) => {
+  const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false, splitDocs = false) => {
     // Clear any existing timeouts
     processingTimeouts.current.forEach(t => clearTimeout(t));
     processingTimeouts.current = [];
@@ -13805,8 +14026,18 @@ export default function App() {
         // segments — no "pile identification" step, no decision card in the
         // "À vérifier" zone. The avocat reviews/adjusts the cut after the fact
         // from the document panel (« Modifier le découpage »).
+        //
+        // Per-document découpage choice, committed row-by-row in the modal
+        // (item.splitChoice). Falls back to the matter-level default for any
+        // flow that doesn't set a per-doc choice (e.g. adding pieces later).
+        const shouldSplit = item.splitChoice !== undefined ? item.splitChoice : splitDocs;
         if (item._pilePoolRef) {
           const pilePool = item._pilePoolRef;
+          // Bundle mode keeps the stack as one document; its row shows a clean
+          // name (or the original filename when the avocat opted out of renaming).
+          const pileBundleName = renameOpts?.keepOriginal
+            ? (pilePool.originalName || '').replace(/\.[^.]+$/, '')
+            : pilePool.aggregate.label;
 
           setPiles(prev => ({
             ...prev,
@@ -13816,9 +14047,11 @@ export default function App() {
               pileType: pilePool.pileType,
               aggregate: pilePool.aggregate,
               segments: pilePool.segments,
-              mode: 'exploded',          // auto-split on ingest
-              autoApplied: true,         // surfaces the "auto-découpé" badge
-              badgeUntil: Date.now() + 8000,
+              // Honour this document's découpage choice. Off = keep the stack as
+              // one document; on = split into its segments.
+              mode: shouldSplit ? 'exploded' : 'bundle',
+              autoApplied: shouldSplit,    // badge only surfaces when we actually split
+              badgeUntil: shouldSplit ? Date.now() + 8000 : 0,
               awaitingReview: false,
             },
           }));
@@ -13828,7 +14061,7 @@ export default function App() {
             return {
               ...p,
               status: 'done',
-              cleanName: pilePool.aggregate.label,
+              cleanName: pileBundleName,
               type: pilePool.aggregate.typeForClassification,
               pages: pilePool.pages,
               _pileId: pilePool.id,
@@ -13852,32 +14085,14 @@ export default function App() {
             ? (item.originalName || '').replace(/\.[^.]+$/, '')
             : null;
 
-          if (poolEntry.splits) {
-            // Replace single row with multiple split rows
-            const splitRows = poolEntry.splits.map((split, si) => ({
-              id: `${item.id}-split-${si}`,
-              originalName: item.originalName,
-              cleanName: renamedBase
-                ? `${renamedBase} — ${split.name}`
-                : `${poolEntry.cleanName.split('—')[0].trim()} — ${split.name}`,
-              type: poolEntry.type,
-              date: poolEntry.date,
-              postesLies: [...poolEntry.postesLies],
-              summary: poolEntry.summary,
-              extractedInfo: poolEntry.extractedInfo,
-              pages: split.pageCount,
-              status: 'done',
-              poolRef: poolEntry,
-              sourceFile: item.originalName,
-              pageRange: split.pages,
-              splitName: split.name,
-              siblings: poolEntry.splits.map((s, j) => ({ name: s.name, pages: s.pages, pageCount: s.pageCount, index: j })),
-              splitIndex: si,
-              totalSourcePages: poolEntry.pages,
-              fakeSize: item.fakeSize,
-              isRapport: item.isRapport,
-              justCompleted: true,
-            }));
+          if (shouldSplit) {
+            // This document's choice is "split": replace the single row with one
+            // row per part — the detected parts when known, else generated parts
+            // so the choice always takes effect. Classified by the filename type.
+            const splits = (poolEntry.splits && poolEntry.splits.length > 1) ? poolEntry.splits : genericSplits(poolEntry.pages);
+            const splitEntry = { ...poolEntry, type: item.guessedType || poolEntry.type, splits };
+            const splitRows = buildDropFirstSplitRows(item.id, item.originalName, item.fakeSize, item.isRapport, splitEntry, renamedBase)
+              .map(r => ({ ...r, justCompleted: true }));
             newPieces.splice(itemIndex, 1, ...splitRows);
           } else {
             // Decide this (non-split) doc's outcome — a mock processing error, a
@@ -13901,7 +14116,7 @@ export default function App() {
               newPieces[itemIndex] = {
                 ...newPieces[itemIndex],
                 cleanName: renamedBase || poolEntry.cleanName,
-                type: poolEntry.type,
+                type: item.guessedType || poolEntry.type,
                 date: poolEntry.date,
                 postesLies: [...poolEntry.postesLies],
                 summary: poolEntry.summary,
@@ -13911,6 +14126,11 @@ export default function App() {
                 justCompleted: true,
                 _doublonOf: doublonOf ? doublonOf.id : null,
                 _doublonOfName: doublonOf ? (doublonOf.cleanName || doublonOf.originalName) : null,
+                // Kept whole by the matter-level default, but the document is
+                // splittable: stash its latent parts so the avocat can still
+                // découper it per-doc or in bulk after upload.
+                _splittableSplits: poolEntry.splits || null,
+                _renamedBase: renamedBase,
               };
             }
           }
@@ -14004,8 +14224,8 @@ export default function App() {
 
   const startInfoDossierStreaming = () => {
     setInfoDossierStreaming({ active: true, fieldsRevealed: [], streamingField: null, streamingText: '' });
-    // Auto-navigate to info dossier tab so user sees fields filling live
-    setActiveTab('dossier');
+    // No tab switch: the dossier fields fill in the background and the chat
+    // announces when it's done — we stay on whatever tab the user is on.
 
     const fields = [
       { key: 'nom', section: 'victime', value: DROP_FIRST_VICTIM_DATA.nom, delay: 400 },
@@ -14202,54 +14422,48 @@ export default function App() {
     setTimeout(() => chatTextareaRef.current?.focus(), 50);
   };
 
+  // Adding pièces to an open dossier goes through the same split-staging SAS as
+  // matter creation: dropped files are staged (default: split ON), the avocat
+  // reviews per-document choices, then validates → confirmAddPieces.
   const handleAddMorePieces = (fileList) => {
-    const accepted = Array.from(fileList).filter(f => /\.(pdf|png|jpe?g|docx?)$/i.test(f.name));
-    if (accepted.length === 0) return;
-
-    // Pile suggestion is automatic: every real upload (drag/drop or
-    // picker) flags between 1 and 3 of the dropped files as homogeneous
-    // stacks. The picked piles always land in the À vérifier zone — that's
-    // the "suggestion" surface. Piles are drawn from the global PILE_POOL
-    // without replacement so the same pile never appears twice in one batch.
-    const pileCount = Math.min(accepted.length, 1 + Math.floor(Math.random() * 3));
-    const picks = pickRandomPiles(pileCount);
-    const pileIdxPool = [...Array(accepted.length).keys()].sort(() => Math.random() - 0.5);
-    const pileIdxs = new Set(pileIdxPool.slice(0, picks.length));
-    const pileForIdx = new Map();
-    let pIdx = 0;
-    pileIdxs.forEach(i => { pileForIdx.set(i, picks[pIdx++]); });
-
-    let nonPileSeq = 0;
-    const newItems = accepted.map((f, i) => {
-      if (pileForIdx.has(i)) {
-        const pileRef = pileForIdx.get(i);
-        return {
-          id: `dfp-pile-${Date.now()}-${i}`,
-          originalName: pileRef.originalName || f.name,
-          cleanName: null, type: null, date: null, postesLies: [], summary: null,
-          extractedInfo: null, pages: null, status: 'pending', poolRef: null,
-          sourceFile: null, pageRange: null, siblings: null,
-          fakeSize: (Math.random() * 6 + 4).toFixed(1) + ' Mo',
-          isRapport: false,
-          _pilePoolRef: pileRef,
-        };
-      }
-      const poolEntry = DROP_FIRST_DOCUMENT_POOL[(dropFirstPieces.length + nonPileSeq++) % DROP_FIRST_DOCUMENT_POOL.length];
-      return {
-        id: `dfp-add-${Date.now()}-${i}`,
-        originalName: f.name,
-        cleanName: null, type: null, date: null, postesLies: [], summary: null,
-        extractedInfo: null, pages: null, status: 'pending', poolRef: poolEntry,
-        sourceFile: null, pageRange: null, siblings: null,
-        fakeSize: (Math.random() * 4 + 0.2).toFixed(1) + ' Mo',
-        isRapport: false,
-      };
+    const accepted = fileList ? Array.from(fileList).filter(f => /\.(pdf|png|jpe?g|docx?)$/i.test(f.name)) : [];
+    const stamp = Date.now();
+    const staged = accepted.map((f, i) => ({
+      id: `addfile-${stamp}-${i}`,
+      name: f.name,
+      fakeSize: (Math.random() * 4 + 0.2).toFixed(1) + ' Mo',
+      status: 'ready',
+      guessedType: guessFileType(f.name),
+      splitEnabled: true, // add-files default: split enabled for all documents
+    }));
+    setShowAddPiecesZone(false);
+    // Open the SAS staging modal in add mode — same as matter creation but
+    // without the dossier-name field. Empty when launched from « Nouveau
+    // fichier » (the modal's own drop zone takes over), or pre-filled when files
+    // were dropped onto the Pièces tab.
+    setDropModal({
+      files: staged,
+      rapportFileId: null,
+      rapportDismissed: true,
+      renamePattern: DEFAULT_SPLIT_PROMPT,
+      reference: '',
+      splitDocsEnabled: true,
+      docSearch: '',
+      mode: 'add',
     });
+  };
 
+  // Validate the add-files staging: append one processing item per staged file
+  // to the current dossier (no reset), split per the per-document choices.
+  const confirmAddPieces = () => {
+    const files = [...((dropModal && dropModal.files) || [])];
+    if (files.length === 0) { setDropModal(null); return; }
+    const newItems = buildStagedProcessingItems(files, null, 'dfp-add');
     setDropFirstPieces(prev => [...prev, ...newItems]);
     setDropFirstProcessingDone(false);
     setShowAddPiecesZone(false);
-    setTimeout(() => startProcessingSimulation(newItems, false, null, true), 300);
+    setDropModal(null);
+    setTimeout(() => startProcessingSimulation(newItems, false, null, true, false), 300);
   };
 
   // ── Pile mode toggle (bundle ⇄ exploded) + Undo toast ─────────────────
@@ -14286,6 +14500,274 @@ export default function App() {
       });
       setTimeout(() => setToastMessage(curr => (curr && curr.text === text ? null : curr)), 6000);
     }
+  };
+
+  // ── Per-document découpage override (after-upload scissors) ───────────────
+  // A multi-part document kept whole (the matter-level default) can still be
+  // split into its parts one document at a time — and a découpé one regrouped —
+  // mirroring togglePileMode for pile stacks. Both flips are undoable.
+  const splitDropFirstDoc = (pieceId, opts = {}) => {
+    let partCount = 0;
+    setDropFirstPieces(prev => {
+      const idx = prev.findIndex(p => p.id === pieceId);
+      if (idx === -1) return prev;
+      const p = prev[idx];
+      const poolEntry = p.poolRef;
+      if (!poolEntry || !poolEntry.splits) return prev;
+      const rows = buildDropFirstSplitRows(p.id, p.originalName, p.fakeSize, p.isRapport, poolEntry, p._renamedBase ?? null)
+        .map(r => ({ ...r, justCompleted: true }));
+      partCount = rows.length;
+      const next = [...prev];
+      next.splice(idx, 1, ...rows);
+      return next;
+    });
+    if (partCount === 0) return;
+    setTimeout(() => setDropFirstPieces(prev => prev.map(p => ({ ...p, justCompleted: false }))), 600);
+    if (!opts.silent) {
+      const text = `Document découpé en ${partCount} pièces.`;
+      setToastMessage({ text, action: { label: 'Annuler', onClick: () => regroupDropFirstDoc(pieceId, { silent: true }) } });
+      setTimeout(() => setToastMessage(curr => (curr && curr.text === text ? null : curr)), 6000);
+    }
+  };
+
+  const regroupDropFirstDoc = (parentId, opts = {}) => {
+    let didRegroup = false;
+    setDropFirstPieces(prev => {
+      const idx = prev.findIndex(p => p._splitParentId === parentId);
+      if (idx === -1) return prev;
+      const parts = prev.filter(p => p._splitParentId === parentId);
+      const first = parts[0];
+      const poolEntry = first.poolRef;
+      const renamedBase = first._renamedBase ?? null;
+      const single = {
+        id: parentId,
+        originalName: first.originalName,
+        cleanName: renamedBase || poolEntry.cleanName,
+        type: poolEntry.type,
+        date: poolEntry.date,
+        postesLies: [...poolEntry.postesLies],
+        summary: poolEntry.summary,
+        extractedInfo: poolEntry.extractedInfo,
+        pages: poolEntry.pages,
+        status: 'done',
+        poolRef: poolEntry,
+        fakeSize: first.fakeSize,
+        isRapport: first.isRapport,
+        _splittableSplits: poolEntry.splits || null,
+        _renamedBase: renamedBase,
+        justCompleted: true,
+      };
+      didRegroup = true;
+      // Parts are contiguous and `idx` is the first one, so nothing before it is
+      // removed — splicing the single row back at `idx` restores its position.
+      const next = prev.filter(p => p._splitParentId !== parentId);
+      next.splice(idx, 0, single);
+      return next;
+    });
+    if (!didRegroup) return;
+    setTimeout(() => setDropFirstPieces(prev => prev.map(p => ({ ...p, justCompleted: false }))), 600);
+    if (!opts.silent) {
+      const text = 'Document regroupé en une pièce.';
+      setToastMessage({ text, action: { label: 'Annuler', onClick: () => splitDropFirstDoc(parentId, { silent: true }) } });
+      setTimeout(() => setToastMessage(curr => (curr && curr.text === text ? null : curr)), 6000);
+    }
+  };
+
+  // Resolve a bordereau row's découpage state (stamped in dropFirstAsBordereauPieces)
+  // and flip it — pile stacks via togglePileMode, multi-part docs via split/regroup.
+  const toggleDocSplit = (piece) => {
+    switch (piece._docSplit) {
+      case 'exploded': {
+        const pid = piece._pileSegment?.pileId || piece._pileId;
+        if (pid) togglePileMode(pid, 'bundle');
+        break;
+      }
+      case 'bundled-splittable':
+        if (piece._pileId) togglePileMode(piece._pileId, 'exploded');
+        break;
+      case 'split':
+        if (piece._splitParentId) regroupDropFirstDoc(piece._splitParentId);
+        break;
+      case 'whole-splittable':
+        splitDropFirstDoc(piece.id);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Bulk découpage across the selected documents: découper every splittable one,
+  // or regrouper every découpé one. Individual flips are silent; one summary toast.
+  const bulkToggleDocSplit = (pieces, action) => {
+    const pileIds = new Set();
+    const parentIds = new Set();
+    const wholeIds = [];
+    pieces.forEach(p => {
+      const pid = p._pileId || p._pileSegment?.pileId;
+      if (pid) pileIds.add(pid);
+      else if (p._splitParentId) parentIds.add(p._splitParentId);
+      else if (p._splittableSplits) wholeIds.push(p.id);
+    });
+    if (action === 'split') {
+      pileIds.forEach(id => togglePileMode(id, 'exploded', { silent: true }));
+      wholeIds.forEach(id => splitDropFirstDoc(id, { silent: true }));
+    } else {
+      pileIds.forEach(id => togglePileMode(id, 'bundle', { silent: true }));
+      parentIds.forEach(id => regroupDropFirstDoc(id, { silent: true }));
+    }
+    const n = pileIds.size + parentIds.size + wholeIds.length;
+    if (n > 0) {
+      showToast(action === 'split'
+        ? `${n} document${n > 1 ? 's' : ''} découpé${n > 1 ? 's' : ''}.`
+        : `${n} document${n > 1 ? 's' : ''} regroupé${n > 1 ? 's' : ''}.`);
+    }
+  };
+
+  // ── Découper un document (analyse → suggestion → ajustement → validation) ──
+  // Any whole document can be split after upload. "Découper" runs a short mock
+  // analysis, then opens PileAdjustSheet on a *transient* suggestion — nothing
+  // is committed until the avocat validates. A document already cut into a pile
+  // re-opens the existing adjust panel, since its segments are already real.
+  const makeSplitSegment = (id, index, label, pageStart, pageCount, date) => ({
+    id,
+    index,
+    label,
+    date: date || null,
+    emetteur: '',
+    montantCents: 0,
+    pages: pageCount,
+    pageStart,
+    pageEnd: pageStart + pageCount - 1,
+    _anomaly: null,
+  });
+
+  // ── Découpage a posteriori (depuis le panel de pièce) ─────────────────────
+  // A document already in the matter can be split after the fact. The source
+  // stays a SINGLE card that moves through states (config → splitting →
+  // detected → kept | split | reviewed) — it is not exploded into rows. The
+  // detected parts live on the card (`_pSplit.segments`) and are edited in the
+  // cut modal. Separate from the drop-time SAS split.
+
+  // Detect parts: the document's known parts (poolEntry.splits) or one part per
+  // page, so the count feels real (« N pièces détectées »).
+  const detectPosterioriSegments = (piece) => {
+    const poolEntry = piece.poolRef || null;
+    const date = piece.date || poolEntry?.date || null;
+    if (poolEntry?.splits && poolEntry.splits.length > 1) {
+      let cursor = 1;
+      return poolEntry.splits.map((s, i) => {
+        const seg = makeSplitSegment(`pseg-${i}`, i, s.name, cursor, s.pageCount, date);
+        cursor += s.pageCount;
+        return seg;
+      });
+    }
+    const total = Math.max(1, piece.pages || poolEntry?.pages || 1);
+    return Array.from({ length: total }, (_, i) => makeSplitSegment(`pseg-${i}`, i, `Pièce ${i + 1}`, i + 1, 1, date));
+  };
+
+  // Step 1 — open the inline « instructions de nommage » config in the panel.
+  const openPanelSplitConfig = (pieceId) =>
+    setPanelSplitConfig({ pieceId, prompt: DEFAULT_SPLIT_PROMPT });
+
+  // Step 4 — open the cut modal on the card's detected parts (prompt pre-loaded).
+  const posterioriAdjust = (pieceId) => {
+    const piece = dropFirstPieces.find(p => p.id === pieceId);
+    if (!piece || !piece._pSplit) return;
+    const baseName = piece.cleanName || (piece.originalName ? piece.originalName.replace(/\.[^/.]+$/, '') : 'Document');
+    const type = piece.type || piece.poolRef?.type || null;
+    const pile = {
+      id: `psplit-${pieceId}`,
+      originalName: piece.originalName || baseName,
+      pileType: 'split',
+      aggregate: { label: baseName, count: piece._pSplit.segments.length, totalLabel: '', dateRangeLabel: '', typeForClassification: type },
+      pages: piece._pSplit.segments.reduce((n, s) => n + (s.pages || 1), 0),
+      segments: piece._pSplit.segments,
+      mode: 'exploded',
+    };
+    setPieceOverviewPanel(null);
+    setDocSplitDraft({ pieceId, pile, prompt: piece._pSplit.prompt || '' });
+  };
+
+  // « Ajuster » from a split document's panel callout. A live pile (drop-time
+  // pile or exploded segment) opens the pile adjust sheet directly; a split
+  // part with no live pile (e.g. siblings from an ingest-time découpage) is
+  // rebuilt into a transient pile so its découpage can still be re-adjusted in
+  // the cut modal.
+  const openSplitAdjustFromPanel = (piece, provPileId, provSegmentId) => {
+    setPieceOverviewPanel(null);
+    if (provPileId && piles[provPileId]) {
+      setPileDocPanel({ pileId: provPileId, segmentId: provSegmentId, mode: 'adjust' });
+      return;
+    }
+    const baseName = piece.cleanName || (piece.originalName ? piece.originalName.replace(/\.[^/.]+$/, '') : 'Document');
+    const sibs = Array.isArray(piece.siblings) && piece.siblings.length ? piece.siblings : null;
+    let cursor = 1;
+    const segments = sibs
+      ? sibs.map((s, i) => {
+          const pageCount = s.pageCount || 1;
+          const seg = makeSplitSegment(`seg-${i}`, i, s.name || `Partie ${i + 1}`, cursor, pageCount, piece.date);
+          cursor += pageCount;
+          return seg;
+        })
+      : detectPosterioriSegments(piece);
+    const pile = {
+      id: `split-${piece.id}`,
+      originalName: piece.originalName || baseName,
+      pileType: 'split',
+      aggregate: { label: baseName, count: segments.length, totalLabel: '', dateRangeLabel: '', typeForClassification: piece.type || piece.poolRef?.type || null },
+      pages: segments.reduce((n, s) => n + (s.pages || 1), 0),
+      segments,
+      mode: 'exploded',
+    };
+    setDocSplitDraft({ pieceId: piece.id, pile, prompt: '' });
+  };
+
+  // Step 2/3 — run the (mock) analysis: card → « Découpage en cours… » then
+  // « N pièces détectées » + a toast offering Adjust.
+  const startPosterioriSplit = (pieceId, prompt) => {
+    setPanelSplitConfig(null);
+    setPieceOverviewPanel(null);
+    setDropFirstPieces(prev => prev.map(p => p.id === pieceId ? { ...p, _pSplit: { state: 'splitting', prompt: prompt || '' } } : p));
+    const tid = setTimeout(() => {
+      let detectedName = 'Document';
+      let detectedCount = 0;
+      setDropFirstPieces(prev => prev.map(p => {
+        if (p.id !== pieceId) return p;
+        const segments = detectPosterioriSegments(p);
+        detectedName = p.cleanName || p.originalName || 'Document';
+        detectedCount = segments.length;
+        return { ...p, _pSplit: { state: 'detected', count: segments.length, segments, prompt: prompt || '' } };
+      }));
+      const text = `Découpage terminé — ${detectedName} · ${detectedCount} pièces`;
+      setToastMessage({ text, action: { label: 'Ajuster', onClick: () => posterioriAdjust(pieceId) } });
+      setTimeout(() => setToastMessage(curr => (curr && typeof curr === 'object' && curr.text === text ? null : curr)), 6000);
+    }, 2000);
+    processingTimeouts.current.push(tid);
+  };
+
+  // From the three-dots menu — quick split with the cabinet default prompt (no
+  // inline config step). The panel uses openPanelSplitConfig instead.
+  const requestDocSplit = (pieceId) => startPosterioriSplit(pieceId, DEFAULT_SPLIT_PROMPT);
+
+  const posterioriKeepAsOne = (pieceId) => {
+    setDropFirstPieces(prev => prev.map(p => p.id === pieceId ? { ...p, _pSplit: undefined } : p));
+    showToast('Document conservé en une pièce.');
+  };
+
+  // Save from the cut modal — store the adjusted parts on the card and mark it
+  // reviewed. ≤1 part = keep the document whole.
+  const finalizePosterioriSplit = (pieceId, finalSegments) => {
+    const segs = Array.isArray(finalSegments) ? finalSegments : [];
+    setDocSplitDraft(null);
+    if (segs.length <= 1) {
+      setDropFirstPieces(prev => prev.map(p => p.id === pieceId ? { ...p, _pSplit: undefined } : p));
+      showToast('Document conservé en une pièce.');
+      return;
+    }
+    setDropFirstPieces(prev => prev.map(p => p.id === pieceId
+      ? { ...p, _pSplit: { state: 'reviewed', count: segs.length, segments: segs, prompt: p._pSplit?.prompt || '' } }
+      : p));
+    showToast(`Découpage vérifié — ${segs.length} pièces.`);
   };
 
   // Apply a découpage choice to a pile WITHOUT leaving the À vérifier zone.
@@ -14595,7 +15077,9 @@ export default function App() {
           },
         };
       }
-      return dropFirstPieces.find(p => p.id === panelId) || null;
+      return dropFirstPieces.find(p => p.id === panelId)
+        || DEMO_FRAIS_MEDICAUX_FACTURES.find(p => p.id === panelId)
+        || null;
     })();
 
     // Split (exploded) segments are classified into the regular dossier folders
@@ -14625,7 +15109,9 @@ export default function App() {
     // same way (by type), not grouped into a source-named folder; in-flight
     // pieces (still processing) get categoryId=null and surface in
     // Sans-catégorie with a spinner icon.
-    const adaptedPieces = dropFirstAsBordereauPieces(settledPieces, treeCategories, piles);
+    // Demo: always surface a « Frais médicaux » folder (nested under Médical)
+    // holding 10 split factures, regardless of what's been dropped.
+    const adaptedPieces = dropFirstAsBordereauPieces([...DEMO_FRAIS_MEDICAUX_FACTURES, ...settledPieces], treeCategories, piles);
 
     // Translate BordereauTable's setPieces updater calls (which operate on
     // the bordereau-piece shape) back into setDropFirstPieces mutations.
@@ -14714,16 +15200,18 @@ export default function App() {
             <BordereauTable
               pieces={adaptedPieces}
               categories={treeCategories}
+              initialExpandedIds={['cat-medical', 'cat-frais-med']}
               setPieces={setDropFirstViaBordereau}
               setCategories={setBordereauCategories}
               onOpenPiecePreview={(pid) => {
-                // Pile (exploded) segment → unified document panel, view mode.
+                // Split (exploded) segment → document overview panel. selectedPiece
+                // resolves the segment and the panel shows its « Document découpé /
+                // Ajuster » provenance (Figma 2584-25234).
                 if (typeof pid === 'string' && pid.includes('::')) {
-                  const [pileId, segId] = pid.split('::');
-                  setPileDocPanel({ pileId, segmentId: segId, mode: 'view' });
+                  setPieceOverviewPanel(pid);
                   return;
                 }
-                // Pile kept as one piece (bundle) → unified panel too.
+                // Pile kept as one piece (bundle) → reading/adjust sheet.
                 const dfp = dropFirstPieces.find(p => p.id === pid);
                 if (dfp && dfp._pileId && piles[dfp._pileId]) {
                   setPileDocPanel({ pileId: dfp._pileId, segmentId: null, mode: 'view' });
@@ -14734,25 +15222,48 @@ export default function App() {
               onAddFiles={handleAddMorePieces}
               onAskChato={askChatoAboutSelection}
               onFusePieces={openFusionModal}
-              reviewZone={(processingCount + errorZoneItems.length + doublonZoneItems.length + pendingPileReviews.length) > 0 ? (
-                <PileReviewBanner
-                  processingCount={processingCount}
-                  errorItems={errorZoneItems}
-                  doublonItems={doublonZoneItems}
-                  pileIds={pendingPileReviews}
-                  piles={piles}
-                  rule={globalSplitRule}
-                  onApply={applyPileChoice}
-                  onUndo={undoPileChoice}
-                  onDismiss={dismissPileReview}
-                  onAdjust={(pileId) => setPileDocPanel({ pileId, segmentId: null, mode: 'adjust' })}
-                  onDoublonKeepBoth={resolveDoublonKeepBoth}
-                  onDoublonIgnore={resolveDoublonIgnore}
-                  onDoublonView={openDoublonCompare}
-                  onErrorRetry={retryDoc}
-                  onErrorIgnore={resolveDoublonIgnore}
-                />
-              ) : null}
+              onToggleDocSplit={toggleDocSplit}
+              onBulkToggleDocSplit={bulkToggleDocSplit}
+              onRequestDocSplit={requestDocSplit}
+              onPosterioriAdjust={posterioriAdjust}
+              reviewZone={(() => {
+                // Posteriori split-progress cards sit on top of the table while a
+                // document is being split or awaits review, above the À vérifier banner.
+                const splitCards = dropFirstPieces.filter(p => p._pSplit && (p._pSplit.state === 'splitting' || p._pSplit.state === 'detected'));
+                const hasBanner = (processingCount + errorZoneItems.length + doublonZoneItems.length + pendingPileReviews.length) > 0;
+                if (!splitCards.length && !hasBanner) return null;
+                return (
+                  <div className="flex flex-col gap-2">
+                    {splitCards.map(p => (
+                      <SplitProgressCard
+                        key={`psc-${p.id}`}
+                        piece={p}
+                        onKeepAsOne={() => posterioriKeepAsOne(p.id)}
+                        onAdjust={() => posterioriAdjust(p.id)}
+                      />
+                    ))}
+                    {hasBanner && (
+                      <PileReviewBanner
+                        processingCount={processingCount}
+                        errorItems={errorZoneItems}
+                        doublonItems={doublonZoneItems}
+                        pileIds={pendingPileReviews}
+                        piles={piles}
+                        rule={globalSplitRule}
+                        onApply={applyPileChoice}
+                        onUndo={undoPileChoice}
+                        onDismiss={dismissPileReview}
+                        onAdjust={(pileId) => setPileDocPanel({ pileId, segmentId: null, mode: 'adjust' })}
+                        onDoublonKeepBoth={resolveDoublonKeepBoth}
+                        onDoublonIgnore={resolveDoublonIgnore}
+                        onDoublonView={openDoublonCompare}
+                        onErrorRetry={retryDoc}
+                        onErrorIgnore={resolveDoublonIgnore}
+                      />
+                    )}
+                  </div>
+                );
+              })()}
             />
 
           </div>
@@ -14820,6 +15331,20 @@ export default function App() {
             }}
           />
         )}
+        {/* Cut modal (« Ajuster ») for a posteriori split — opened from the
+            card's [Ajuster] or the completion toast. Saving stores the adjusted
+            parts on the card (_pSplit) and marks it reviewed. */}
+        {docSplitDraft && (
+          <PileAdjustSheet
+            key={`docsplit:${docSplitDraft.pieceId}`}
+            pile={docSplitDraft.pile}
+            splitPrompt={docSplitDraft.prompt || preferenceSlots.decoupage}
+            initialMode="adjust"
+            onClose={() => setDocSplitDraft(null)}
+            onCommit={(segments) => finalizePosterioriSplit(docSplitDraft.pieceId, segments)}
+            onChoose={() => {}}
+          />
+        )}
         {renderDoublonComparePanel()}
 
         {/* Fusionner — merge several selected documents into one pièce. */}
@@ -14849,6 +15374,13 @@ export default function App() {
     const provPile = isPileSegment ? piles[segPanel.pileId] : (piece._pileId ? piles[piece._pileId] : null);
     const isFusion = provPile?.pileType === 'fusion';
     const isSplit = !isFusion && (isPileSegment || !!piece.siblings || provPile?.pileType === 'split');
+    // A whole drop-first document (not already split/fused, not a segment) can be
+    // découpé from here — opens the analyse → suggestion → adjust → validate flow.
+    const canOfferSplit = !isSplit && !isFusion && !isPileSegment && dropFirstPieces.some(p => p.id === piece.id);
+    // The « Découper » inline config is open for this document → show it as a
+    // section at the top of the panel (not the footer), and hide the footer's
+    // Découper button while it's open.
+    const splitConfigOpen = !!(panelSplitConfig && panelSplitConfig.pieceId === piece.id);
     const provPileId = isPileSegment ? segPanel.pileId : piece._pileId;
     const provSegmentId = isPileSegment ? segPanel.segmentId : null;
     const splitPart = isPileSegment ? segPanel.index + 1 : (piece.splitIndex != null ? piece.splitIndex + 1 : null);
@@ -14897,8 +15429,33 @@ export default function App() {
     const navTotal = bordereau ? ctx.navTotal : donePieces.length;
     const onClosePanel = () => { setPieceDownloadMenu(false); if (bordereau) ctx.onClose(); else setPieceOverviewPanel(null); };
 
+    // Shared download dropdown, reused by both footer layouts (the full-width
+    // Télécharger on whole docs and the inline one on split/other docs).
+    const downloadMenu = pieceDownloadMenu ? (
+      <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-white border border-[#e7e5e3] rounded-lg shadow-lg py-1 z-20">
+        <button
+          onClick={() => { setPieceDownloadMenu(false); flashToast('Téléchargement du document original…'); }}
+          className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
+        >
+          <FileText className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Document original
+        </button>
+        {bordereau && (
+          <button
+            onClick={() => { setPieceDownloadMenu(false); flashToast(`Téléchargement avec tampon « pièce n° ${ctx.number} »…`); }}
+            className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
+          >
+            <Stamp className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Avec tampon de pièce
+          </button>
+        )}
+      </div>
+    ) : null;
+
     return (
-      <div className="fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col" style={{ width: '860px', animation: 'slideInRight 0.2s ease-out' }}>
+      <>
+      {/* Dimmed backdrop — covers the canvas left of the chat (respects --chat-offset
+          so the chat + its resize divider stay clear); click to close. */}
+      <div onClick={onClosePanel} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
+      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Common header: file icon + title (left), nav + close (right) */}
         <div className="px-4 py-3.5 border-b border-[#e7e5e3] flex items-center justify-between gap-3 flex-shrink-0 bg-white">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -14985,24 +15542,63 @@ export default function App() {
                     }
                   }}
                 />
-                {/* Original filename + description, just under the name */}
-                {((!isFusion && (piece.originalName || piece.sourceFile)) || piece.summary) && (
-                  <div className="px-0.5 flex flex-col gap-1.5 text-[#78716c]">
-                    {!isFusion && (piece.originalName || piece.sourceFile) && (
-                      <p className="text-[12px] leading-4 truncate" title={piece.originalName || piece.sourceFile}>
-                        <span className="font-medium">Nom original</span> - {piece.originalName || piece.sourceFile}
-                      </p>
-                    )}
-                    {piece.summary && (
-                      <p
-                        className="text-[12px] leading-5"
-                        style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                        title={piece.summary}
-                      >
-                        {piece.summary}
-                      </p>
-                    )}
+                {/* Split / fusion → « Document découpé / <source> · Ajuster »
+                    callout (Figma 2584-25234); otherwise → the plain « Nom
+                    original » line. Then the AI summary. */}
+                {(isSplit || isFusion) ? (
+                  <div className="rounded-lg border border-[#e7e5e3] bg-[#f8f7f5] p-3">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-md bg-white border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                        {isFusion
+                          ? <Layers className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={1.75} />
+                          : <Scissors className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={1.75} />}
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                        <span className="text-[14px] leading-5 font-medium text-[#292524]">{isFusion ? 'Document fusionné' : 'Document découpé'}</span>
+                        <span className="text-[12px] leading-4 tracking-[0.12px] text-[#78716c] truncate" title={provPile?.originalName || piece.nomOriginal || ''}>
+                          {isFusion
+                            ? `${fusionSources.length} document${fusionSources.length > 1 ? 's' : ''}`
+                            : (provPile?.originalName || piece.nomOriginal || piece.originalName || `Partie ${splitPart} sur ${splitTotal}`)}
+                        </span>
+                        {isFusion && fusionSources.length > 0 && (
+                          <div className="mt-1 flex flex-col gap-1">
+                            {fusionSources.slice(0, 3).map((s, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-[12px] text-[#78716c] min-w-0">
+                                <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+                                <span className="truncate">{s}</span>
+                              </div>
+                            ))}
+                            {fusionSources.length > 3 && (
+                              <span className="text-[12px] text-[#a8a29e]">+{fusionSources.length - 3} autre{fusionSources.length - 3 > 1 ? 's' : ''}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {(isSplit || provPileId) && (
+                        <button
+                          type="button"
+                          onClick={() => openSplitAdjustFromPanel(piece, provPileId, provSegmentId)}
+                          className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
+                          style={{ color: '#1e3a8a' }}
+                        >
+                          {isFusion ? 'Modifier' : 'Ajuster'}
+                        </button>
+                      )}
+                    </div>
                   </div>
+                ) : (piece.originalName || piece.sourceFile) ? (
+                  <p className="px-0.5 text-[12px] leading-4 text-[#78716c] truncate" title={piece.originalName || piece.sourceFile}>
+                    <span className="font-medium">Nom original</span> - {piece.originalName || piece.sourceFile}
+                  </p>
+                ) : null}
+                {piece.summary && (
+                  <p
+                    className="px-0.5 text-[12px] leading-5 text-[#78716c]"
+                    style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                    title={piece.summary}
+                  >
+                    {piece.summary}
+                  </p>
                 )}
               </div>
 
@@ -15022,53 +15618,6 @@ export default function App() {
                 </div>
               </Input>
             </div>
-
-            {/* Provenance — découpage / fusion (a pièce can be one part of a
-                split source, or the result of merging several documents). */}
-            {(isSplit || isFusion) && (
-              <div className="px-5">
-                <div className="rounded-lg border border-[#e7e5e3] bg-[#faf9f7] p-3">
-                  <div className="flex items-start gap-2.5">
-                    <div className="w-7 h-7 rounded-md bg-white border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
-                      {isFusion
-                        ? <Layers className="w-3.5 h-3.5 text-[#a08355]" strokeWidth={1.75} />
-                        : <Scissors className="w-3.5 h-3.5 text-[#a08355]" strokeWidth={1.75} />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-medium text-[#292524]">{isFusion ? 'Document fusionné' : 'Document découpé'}</div>
-                      <div className="text-[12px] text-[#78716c] mt-0.5">
-                        {isFusion
-                          ? `${fusionSources.length} document${fusionSources.length > 1 ? 's' : ''} · ${totalPages} page${totalPages > 1 ? 's' : ''}`
-                          : `Partie ${splitPart} sur ${splitTotal}${piece.pageRange ? ` · p. ${piece.pageRange}` : ''}`}
-                      </div>
-                      {isFusion && fusionSources.length > 0 && (
-                        <div className="mt-2 flex flex-col gap-1">
-                          {fusionSources.slice(0, 3).map((s, i) => (
-                            <div key={i} className="flex items-center gap-1.5 text-[12px] text-[#78716c] min-w-0">
-                              <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
-                              <span className="truncate">{s}</span>
-                            </div>
-                          ))}
-                          {fusionSources.length > 3 && (
-                            <span className="text-[12px] text-[#a8a29e]">+{fusionSources.length - 3} autre{fusionSources.length - 3 > 1 ? 's' : ''}</span>
-                          )}
-                        </div>
-                      )}
-                      {provPileId && (
-                        <button
-                          type="button"
-                          onClick={() => { setPieceOverviewPanel(null); setPileDocPanel({ pileId: provPileId, segmentId: provSegmentId, mode: 'adjust' }); }}
-                          className="mt-2 inline-flex items-center gap-0.5 text-[12px] font-medium text-[#a08355] hover:underline underline-offset-2"
-                        >
-                          {isFusion ? 'Modifier la fusion' : 'Modifier le découpage'}
-                          <ChevronRight className="w-3 h-3" strokeWidth={2} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* ── Numérotation de la pièce (bordereau only) ────────────── */}
             {bordereau && (
@@ -15103,65 +15652,105 @@ export default function App() {
               </>
             )}
           </div>
-          {/* Footer — Supprimer (hug, left) + Télécharger le document
-              (primary fill, right). Matches Figma 2514:23979. */}
-          <div className="px-5 py-4 border-t border-[#e7e5e3] bg-white flex-shrink-0 flex items-center gap-3">
-            <button
-              className="flex-shrink-0 h-9 px-4 rounded-lg bg-[#fee2e2] text-[#7f1d1d] hover:bg-[#fecaca] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-              onClick={() => {
-                if (bordereau) {
-                  ctx.onRemove();
-                  return;
-                }
-                if (isPileSegment) {
-                  // Removing a split part re-shapes the découpage — drop just
-                  // this segment from the pile.
-                  setPiles(prev => {
-                    const sp = prev[segPanel.pileId];
-                    if (!sp) return prev;
-                    return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.filter(s => s.id !== segPanel.segmentId) } };
-                  });
-                } else {
-                  setDropFirstPieces(prev => prev.filter(p => p.id !== piece.id));
-                }
-                setPieceOverviewPanel(null);
-              }}
-            >
-              <Trash2 className="w-4 h-4" strokeWidth={1.75} />
-              Supprimer
-            </button>
-            <div className="relative flex-1">
+          {/* Footer. Whole doc → Télécharger + Supprimer/Découper. Split/other →
+              Supprimer + Télécharger le document. Clicking « Découper » expands
+              this footer in place (taller) to hold the naming-instructions config. */}
+          {splitConfigOpen ? (
+            <div className="px-5 py-4 border-t border-[#e7e5e3] bg-white flex-shrink-0 flex flex-col gap-3" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[13px] font-medium text-[#292524]">Instructions de nommage <span className="font-normal text-[#a8a29e]">(optionnel)</span></label>
+                <textarea
+                  autoFocus
+                  value={panelSplitConfig.prompt}
+                  onChange={e => setPanelSplitConfig(c => ({ ...c, prompt: e.target.value }))}
+                  placeholder="ex. Nomme chaque pièce par sa nature, son auteur et sa date"
+                  className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                  style={{ minHeight: 64, maxHeight: 120, resize: 'vertical', fontFamily: 'inherit' }}
+                />
+                <p className="text-xs text-[#78716c]">Laissez vide pour laisser l'IA nommer les pièces automatiquement.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setPanelSplitConfig(null)}
+                  className="flex-shrink-0 h-9 px-4 rounded-lg bg-white border border-[#e7e5e3] text-[#44403c] hover:bg-[#f8f7f5] transition-colors text-sm font-medium"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => startPosterioriSplit(piece.id, panelSplitConfig.prompt)}
+                  className="flex-1 h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#1c1917] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                >
+                  <Scissors className="w-4 h-4" strokeWidth={1.75} />
+                  Lancer le découpage
+                </button>
+              </div>
+            </div>
+          ) : (
+          <div className="px-5 py-4 border-t border-[#e7e5e3] bg-white flex-shrink-0 flex flex-col gap-2.5">
+            {canOfferSplit && (
+              <div className="relative">
+                <button
+                  onClick={() => setPieceDownloadMenu(o => !o)}
+                  className="w-full h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#44403c] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                >
+                  <Download className="w-4 h-4" strokeWidth={1.75} />
+                  Télécharger
+                  <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform ${pieceDownloadMenu ? 'rotate-180' : ''}`} />
+                </button>
+                {downloadMenu}
+              </div>
+            )}
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setPieceDownloadMenu(o => !o)}
-                className="w-full h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#44403c] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                className="flex-shrink-0 h-9 px-4 rounded-lg bg-[#fee2e2] text-[#7f1d1d] hover:bg-[#fecaca] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                onClick={() => {
+                  if (bordereau) {
+                    ctx.onRemove();
+                    return;
+                  }
+                  if (isPileSegment) {
+                    setPiles(prev => {
+                      const sp = prev[segPanel.pileId];
+                      if (!sp) return prev;
+                      return { ...prev, [segPanel.pileId]: { ...sp, segments: sp.segments.filter(s => s.id !== segPanel.segmentId) } };
+                    });
+                  } else {
+                    setDropFirstPieces(prev => prev.filter(p => p.id !== piece.id));
+                  }
+                  setPieceOverviewPanel(null);
+                }}
               >
-                <Download className="w-4 h-4" strokeWidth={1.75} />
-                Télécharger le document
-                <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform ${pieceDownloadMenu ? 'rotate-180' : ''}`} />
+                <Trash2 className="w-4 h-4" strokeWidth={1.75} />
+                Supprimer
               </button>
-              {pieceDownloadMenu && (
-                <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-white border border-[#e7e5e3] rounded-lg shadow-lg py-1 z-20">
+              {canOfferSplit ? (
+                <button
+                  onClick={() => openPanelSplitConfig(piece.id)}
+                  className="flex-1 h-9 px-4 rounded-lg bg-white border border-[#e7e5e3] text-[#292524] hover:bg-[#f8f7f5] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                >
+                  <Scissors className="w-4 h-4" strokeWidth={1.75} />
+                  Découper
+                </button>
+              ) : (
+                <div className="relative flex-1">
                   <button
-                    onClick={() => { setPieceDownloadMenu(false); flashToast('Téléchargement du document original…'); }}
-                    className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
+                    onClick={() => setPieceDownloadMenu(o => !o)}
+                    className="w-full h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#44403c] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                   >
-                    <FileText className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Document original
+                    <Download className="w-4 h-4" strokeWidth={1.75} />
+                    Télécharger le document
+                    <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform ${pieceDownloadMenu ? 'rotate-180' : ''}`} />
                   </button>
-                  {bordereau && (
-                    <button
-                      onClick={() => { setPieceDownloadMenu(false); flashToast(`Téléchargement avec tampon « pièce n° ${ctx.number} »…`); }}
-                      className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
-                    >
-                      <Stamp className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Avec tampon de pièce
-                    </button>
-                  )}
+                  {downloadMenu}
                 </div>
               )}
             </div>
           </div>
+          )}
         </div>
         </div>{/* end two-column body */}
       </div>
+      </>
     );
   };
 
@@ -15314,7 +15903,7 @@ export default function App() {
   const renderDropFirstModal = () => {
     if (!dropModal) return null;
 
-    const { files, rapportFileId, rapportDismissed, renameDocsEnabled, renamePattern, reference } = dropModal;
+    const { files, rapportFileId, rapportDismissed, renamePattern, reference, splitDocsEnabled } = dropModal;
     const hasFiles = files.length > 0;
 
     const handleFileDrop = (e) => {
@@ -15344,7 +15933,7 @@ export default function App() {
         };
         setDropModal(prev => ({
           ...prev,
-          files: [...prev.files, fileObj],
+          files: [...prev.files, { ...fileObj, splitEnabled: !!prev.splitDocsEnabled }],
           rapportFileId: fileObj.id,
         }));
         setTimeout(() => {
@@ -15362,21 +15951,6 @@ export default function App() {
       e.target.value = '';
     };
 
-    // Guess a document type from filename — always returns a category
-    const guessFileType = (name) => {
-      const ln = name.toLowerCase();
-      if (ln.includes('expertise') || ln.includes('rapport')) return 'Expertise';
-      if (ln.includes('facture') || ln.includes('kine') || ln.includes('kiné')) return 'Factures';
-      if (ln.includes('salaire') || ln.includes('bulletin') || ln.includes('impot') || ln.includes('impôt') || ln.includes('revenu') || ln.includes('avis')) return 'Revenus';
-      if (ln.includes('jugement') || ln.includes('decision') || ln.includes('décision') || ln.includes('arret') || ln.includes('arrêt') || ln.includes('ordonnance')) return 'Décision';
-      if (ln.includes('medical') || ln.includes('médical') || ln.includes('certificat') || ln.includes('hospitalisation') || ln.includes('cpam') || ln.includes('travail') || ln.includes('irm') || ln.includes('scanner') || ln.includes('radio') || ln.includes('compte_rendu') || ln.includes('compte-rendu') || ln.includes('decompte') || ln.includes('décompte') || ln.includes('blessure')) return 'Médical';
-      if (ln.includes('courrier') || ln.includes('lettre') || ln.includes('mail') || ln.includes('assurance') || ln.includes('correspondance')) return 'Correspondance';
-      if (ln.includes('pv') || ln.includes('police') || ln.includes('constat') || ln.includes('administratif')) return 'Administratif';
-      // Fallback: assign a random plausible type for unrecognized filenames
-      const fallbackTypes = ['Médical', 'Administratif', 'Correspondance', 'Factures', 'Revenus'];
-      return fallbackTypes[Math.floor(Math.random() * fallbackTypes.length)];
-    };
-
     const addFilesToModal = (fileList) => {
       const accepted = fileList.filter(f => /\.(pdf|png|jpe?g|docx?)$/i.test(f.name));
       if (accepted.length === 0) return;
@@ -15390,7 +15964,9 @@ export default function App() {
       }));
 
       setDropModal(prev => {
-        const updatedFiles = [...prev.files, ...newFiles];
+        // New rows inherit the current matter-level découpage default; each can
+        // be overridden individually in the list.
+        const updatedFiles = [...prev.files, ...newFiles.map(nf => ({ ...nf, splitEnabled: !!prev.splitDocsEnabled }))];
         // Auto-detect rapport
         let newRapportId = prev.rapportFileId;
         if (!newRapportId && !prev.rapportDismissed) {
@@ -15435,13 +16011,47 @@ export default function App() {
 
     const rapportFile = rapportFileId ? files.find(f => f.id === rapportFileId) : null;
     const showRapportCard = hasFiles && !rapportDismissed;
+    // The global "Découper" switch reflects the rows: on only when every
+    // document is set to split. With no files yet it shows the stored default.
+    // Tri-state "Tout découper": checked (all split) / indeterminate (mixed) /
+    // unchecked (none). Header ⇄ rows stay in sync (see toggleSplitAll).
+    const splitState = !hasFiles
+      ? 'unchecked'
+      : files.every(f => f.splitEnabled) ? 'checked'
+      : files.some(f => f.splitEnabled) ? 'indeterminate'
+      : 'unchecked';
+    // Label varies with state: « Tout découper » when all or none are set; in the
+    // mixed (indeterminate) state, clicking splits the remaining (un-split) docs
+    // → « Découper (N doc.) », where N is how many are not yet set to split.
+    const splitRemaining = files.filter(f => !f.splitEnabled).length;
+    const splitAllLabel = splitState === 'indeterminate'
+      ? `Découper (${splitRemaining} doc${splitRemaining > 1 ? 's' : ''}.)`
+      : 'Tout découper';
+    const toggleSplitAll = () => setDropModal(prev => {
+      const allOn = prev.files.length > 0 && prev.files.every(f => f.splitEnabled);
+      const next = !allOn; // checked → all Don't split; otherwise → all Split
+      return { ...prev, splitDocsEnabled: next, files: prev.files.map(f => ({ ...f, splitEnabled: next })) };
+    });
+    // At least one document set to split → show the split naming preferences.
+    const anySplit = hasFiles && files.some(f => !!f.splitEnabled);
+    // 'add' mode = staging area opened from the Pièces tab (adds to the current
+    // dossier); default 'create' = the matter-creation modal.
+    const isAdd = dropModal.mode === 'add';
+    // Filter the added-documents list by filename or detected type. Accent- and
+    // case-insensitive so « decoupe » matches « Découpé ». Purely visual — the
+    // global toggle and ingestion always operate on the full `files` list.
+    const normalizeSearch = (s) => (s == null ? '' : String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const docQuery = normalizeSearch((dropModal.docSearch || '').trim());
+    const visibleFiles = docQuery
+      ? files.filter(f => normalizeSearch(f.name).includes(docQuery) || normalizeSearch(f.guessedType).includes(docQuery))
+      : files;
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[700px] h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1000px] h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
-            <h2 className="text-display-sm text-[#292524]" style={{ fontFamily: 'Georgia, serif' }}>Nouveau dossier</h2>
+            <h2 className="text-display-sm text-[#292524]" style={{ fontFamily: 'Georgia, serif' }}>{isAdd ? 'Ajouter des pièces' : 'Nouveau dossier'}</h2>
             <button onClick={() => setDropModal(null)} className="p-1 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-lg transition-colors">
               <X className="w-5 h-5" />
             </button>
@@ -15449,17 +16059,19 @@ export default function App() {
 
           {/* Body */}
           <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
-            {/* Matter reference */}
-            <div className="mb-4 flex-shrink-0">
-              <label className="block text-sm font-medium text-[#292524] mb-1.5">Référence du dossier</label>
-              <input
-                type="text"
-                value={reference}
-                onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
-                placeholder="Dossier Leblanc..."
-                className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
-              />
-            </div>
+            {/* Matter reference — creation only (add-files targets the open dossier) */}
+            {!isAdd && (
+              <div className="mb-4 flex-shrink-0">
+                <label className="block text-sm font-medium text-[#292524] mb-1.5">Référence du dossier</label>
+                <input
+                  type="text"
+                  value={reference}
+                  onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
+                  placeholder="Dossier Leblanc..."
+                  className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                />
+              </div>
+            )}
 
             {/* Drop zone */}
             <div
@@ -15525,11 +16137,45 @@ export default function App() {
             {/* File list */}
             {hasFiles && (
               <div className="mt-4 flex-1 min-h-0 flex flex-col">
-                <p className="text-body-medium text-[#78716c] mb-2 flex-shrink-0">{files.length} document{files.length > 1 ? 's' : ''} ajouté{files.length > 1 ? 's' : ''}</p>
+                {/* List toolbar — anchored as a header above the rows: title on
+                    the left, search + « Tout découper » master grouped on the
+                    right (divider between), so nothing floats. */}
+                <div className="flex items-center justify-between gap-4 mb-3 pb-2.5 border-b border-[#e7e5e3] flex-shrink-0">
+                  <p className="text-sm font-medium text-[#44403c] whitespace-nowrap">{files.length} document{files.length > 1 ? 's' : ''} ajouté{files.length > 1 ? 's' : ''}</p>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    {files.length > 1 && (
+                      <>
+                        <div className="relative" style={{ width: 220 }}>
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a8a29e] pointer-events-none" strokeWidth={1.75} />
+                          <input
+                            type="text"
+                            value={dropModal.docSearch || ''}
+                            onChange={(e) => setDropModal(prev => ({ ...prev, docSearch: e.target.value }))}
+                            placeholder="Rechercher un document..."
+                            className="w-full h-8 pl-8 pr-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors"
+                          />
+                        </div>
+                        <span className="w-px h-5 bg-[#e7e5e3] flex-shrink-0" />
+                      </>
+                    )}
+                    <div className="flex items-center gap-1.5">
+                      <TriStateCheckbox state={splitState} onClick={toggleSplitAll} label={splitAllLabel} />
+                      <InfoTip
+                        icon={Info}
+                        align="right"
+                        label="À propos du découpage"
+                        iconClassName="w-[18px] h-[18px] text-[#a8a29e] hover:text-[#78716c] transition-colors flex-shrink-0"
+                      >
+                        Active ou désactive le découpage pour tous les documents à la fois. Réglez-le ensuite document par document dans la liste.
+                      </InfoTip>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto">
-                  {files.map((f, idx) => {
+                  {visibleFiles.length === 0 ? (
+                    <div className="flex items-center justify-center py-8 text-center text-sm text-[#a8a29e]">Aucun document ne correspond à votre recherche.</div>
+                  ) : visibleFiles.map((f, idx) => {
                     const isUploading = f.status === 'uploading';
-                    const fileType = (f.id === rapportFileId || f.isRapport) ? 'Expertise' : f.guessedType;
                     return (
                       <div key={f.id} className={`flex items-center justify-between px-3 py-2.5 rounded-lg group transition-all ${isUploading ? '' : 'hover:bg-[#f8f7f5]'}`}>
                         <div className="flex items-center gap-3 min-w-0">
@@ -15550,16 +16196,15 @@ export default function App() {
                           {/* Filename */}
                           <span className={`text-sm truncate ${isUploading ? 'italic opacity-40 text-[#292524]' : 'text-[#292524]'}`}>{f.name}</span>
                         </div>
-                        {/* Badge — only shown when ready */}
-                        {!isUploading && fileType && (
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium flex-shrink-0 ${
-                            (f.id === rapportFileId || f.isRapport)
-                              ? 'bg-[#cce6d9] text-[#064e3b]'
-                              : 'bg-[#dfe8f5] text-[#1e3a8a]'
-                          }`}>
-                            {fileType}
-                            <ChevronDown className="w-3 h-3" />
-                          </span>
+                        {/* Right side — per-document split choice (segmented) */}
+                        {!isUploading && (
+                          <SplitSegmentedControl
+                            value={!!f.splitEnabled}
+                            onChange={(v) => setDropModal(prev => ({
+                              ...prev,
+                              files: prev.files.map(x => x.id === f.id ? { ...x, splitEnabled: v } : x),
+                            }))}
+                          />
                         )}
                       </div>
                     );
@@ -15568,57 +16213,39 @@ export default function App() {
               </div>
             )}
 
-            {/* Rename preference */}
-            <div className="mt-4 rounded-xl bg-[#f8f7f5] p-4 flex-shrink-0">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <button
-                  type="button"
-                  onClick={() => setDropModal(prev => ({ ...prev, renameDocsEnabled: !prev.renameDocsEnabled }))}
-                  role="switch"
-                  aria-checked={renameDocsEnabled}
-                  className="relative flex-shrink-0 mt-0.5 rounded-full transition-colors"
-                  style={{
-                    width: 36, height: 20, padding: 0, border: 'none',
-                    background: renameDocsEnabled ? '#292524' : '#d6d3d1',
-                  }}
-                >
-                  <span
-                    style={{
-                      position: 'absolute', top: 2, left: renameDocsEnabled ? 18 : 2,
-                      width: 16, height: 16, borderRadius: 8, background: '#fff',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                      transition: 'left 150ms ease',
-                    }}
-                  />
-                </button>
-                <div className="flex flex-col gap-1 flex-1 min-w-0">
-                  <span className="text-sm font-medium text-[#292524] leading-none">Renommer les fichiers</span>
-                  <span className="text-sm text-[#78716c] leading-5">
-                    {renameDocsEnabled
-                      ? 'Plato uniformisera les noms de fichiers selon votre format'
-                      : 'Plato conservera les noms d\'origine de vos fichiers'}
-                  </span>
-                </div>
-              </label>
-              {renameDocsEnabled && (
-                <div className="mt-3 pl-[48px]">
-                  <input
-                    type="text"
-                    value={renamePattern}
-                    onChange={(e) => setDropModal(prev => ({ ...prev, renamePattern: e.target.value }))}
-                    placeholder="ex. N° - Nom - Auteur [Date]"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
-                  />
-                  <p className="mt-1.5 text-xs text-[#78716c] tracking-[0.12px]">Décrivez votre format en quelques mots, Plato l'interprétera.</p>
-                </div>
-              )}
+            {/* Split naming preferences — shown once at least one document is set
+                to be split. Smooth fade + slide (max-height) instead of an abrupt
+                layout shift. Naming the resulting pieces is optional. */}
+            <div
+              className="flex-shrink-0"
+              aria-hidden={!anySplit}
+              style={{
+                overflow: 'hidden',
+                maxHeight: anySplit ? 320 : 0,
+                opacity: anySplit ? 1 : 0,
+                transform: anySplit ? 'translateY(0)' : 'translateY(-8px)',
+                pointerEvents: anySplit ? 'auto' : 'none',
+                transition: 'max-height 300ms cubic-bezier(0.4,0,0.2,1), opacity 220ms ease, transform 280ms cubic-bezier(0.4,0,0.2,1)',
+              }}
+            >
+              <div className="mt-4 rounded-xl bg-[#f8f7f5] p-4 flex flex-col gap-3">
+                <span className="text-sm font-medium text-[#292524]">Préférences de nommage des pièces découpées</span>
+                <textarea
+                  value={renamePattern}
+                  onChange={(e) => setDropModal(prev => ({ ...prev, renamePattern: e.target.value }))}
+                  placeholder="ex. Nature de la pièce — Auteur — Date"
+                  className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                  style={{ minHeight: 72, maxHeight: 140, resize: 'vertical', fontFamily: 'inherit' }}
+                />
+                <p className="text-xs text-[#78716c] leading-relaxed">Les pièces issues d'un découpage doivent être renommées. Plato applique la consigne ci-dessus par défaut — modifiez-la si besoin, ou renommez chaque pièce individuellement après l'import.</p>
+              </div>
             </div>
 
           </div>
 
           {/* Footer */}
           <div className="px-6 py-4 flex items-center justify-between">
-            {hasFiles ? (
+            {(hasFiles || isAdd) ? (
               <button
                 onClick={() => setDropModal(null)}
                 className="h-10 px-4 text-sm font-medium text-[#44403c] bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#f8f7f5] transition-colors shadow-sm"
@@ -15638,7 +16265,7 @@ export default function App() {
               </button>
             )}
             <button
-              onClick={handleDropFirstCreate}
+              onClick={isAdd ? confirmAddPieces : handleDropFirstCreate}
               disabled={!hasFiles}
               className={`h-10 px-6 text-sm font-medium text-white bg-[#292524] rounded-lg transition-opacity shadow-sm ${
                 hasFiles
@@ -15646,7 +16273,7 @@ export default function App() {
                   : 'opacity-50 cursor-not-allowed'
               }`}
             >
-              Créer le dossier
+              {isAdd ? 'Ajouter les pièces' : 'Créer le dossier'}
             </button>
           </div>
         </div>
@@ -16201,7 +16828,7 @@ export default function App() {
             </h1>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renameDocsEnabled: true, renamePattern: '', reference: '' })}
+                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create' })}
                 className="flex items-center gap-2 px-4 py-2.5 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors"
               >
                 <Plus className="w-4 h-4" />
@@ -16315,7 +16942,6 @@ export default function App() {
         </div>
       </div>
       {renderCreationWizard()}
-      {renderDropFirstModal()}
     </div>
     );
   };
@@ -18531,7 +19157,11 @@ export default function App() {
     const bareme = baremesLibrary.find(b => b.id === baremeViewerOpen);
     if (!bareme) return null;
     return (
-      <div className="fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col" style={{ width: '860px', animation: 'slideInRight 0.2s ease-out' }}>
+      <>
+      {/* Dimmed backdrop — covers the canvas left of the chat (respects --chat-offset);
+          click to close. */}
+      <div onClick={() => setBaremeViewerOpen(null)} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
+      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Header — matches doc preview pattern */}
         <div className="px-4 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white" style={{ paddingTop: 14, paddingBottom: 14 }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -18594,6 +19224,7 @@ export default function App() {
           </div>
         )}
       </div>
+      </>
     );
   };
 
@@ -23047,6 +23678,11 @@ export default function App() {
       {/* Weekly-quota exhausted — member asks admin for an upgrade */}
       {renderAskUpgradeModal()}
 
+      {/* Document staging modal (matter creation + add-files SAS) — mounted
+          globally so it overlays whichever page is active (e.g. the Pièces tab),
+          not only the dossiers list. */}
+      {renderDropFirstModal()}
+
       {/* Toast notification */}
       {toastMessage && (
         <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 text-white text-body rounded-lg shadow-lg flex items-center gap-2 animate-fade-up bg-zinc-800`}>
@@ -23283,7 +23919,7 @@ export default function App() {
 
       {/* Document preview — right side drawer with backdrop */}
       {chatPreviewPiece && (
-        <div className="fixed inset-0 z-50 flex" onClick={() => setChatPreviewPiece(null)}>
+        <div className="fixed top-0 left-0 bottom-0 z-50 flex" style={{ right: 'var(--chat-offset, 0px)' }} onClick={() => setChatPreviewPiece(null)}>
           {/* Backdrop */}
           <div className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} />
           {/* Drawer — slides in from right */}

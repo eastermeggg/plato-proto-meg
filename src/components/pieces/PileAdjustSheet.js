@@ -250,12 +250,12 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
     {/* Backdrop */}
     <div
       onClick={closePanel}
-      className="fixed inset-0 z-20"
-      style={{ background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
+      className="fixed top-0 left-0 bottom-0 z-20"
+      style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
     />
     <div
-      className="fixed right-0 top-0 h-screen bg-white border-l border-[#e7e5e3] shadow-xl z-30 flex flex-col"
-      style={{ width: '1040px', animation: 'slideInRight 0.2s ease-out' }}
+      className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col"
+      style={{ width: '1040px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-10px 0 28px -10px rgba(28,25,23,0.14)', animation: 'slideInRight 0.2s ease-out' }}
     >
       {/* Header — harmonized with the document preview panel. Title + actions
           depend on the mode; the document pane below is shared across modes. */}
@@ -303,26 +303,8 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
         {/* Left — document reading flow. Shared across view/adjust; only the
             cut/heal junctions appear in adjust mode, so the pages never move. */}
         <div className="flex-1 min-w-0 relative bg-[#f8f7f5]">
-          {/* Floating breadcrumb */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <div
-              className="flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/85 text-[12px]"
-              style={{ backdropFilter: 'blur(8px)', boxShadow: '0 1px 2px rgba(28,25,23,0.06), 0 4px 16px -4px rgba(28,25,23,0.12)' }}
-            >
-              <span className="text-[#78716c] tabular-nums">
-                <span className="text-[#1c1917] font-semibold">{safe + 1}</span>
-                <span className="mx-0.5 text-[#d6d3d1]">/</span>{segments.length}
-              </span>
-              <span className="w-px h-3.5 bg-[#e7e5e3]" />
-              <span className="text-[#44403c] font-medium truncate" style={{ maxWidth: 320 }}>
-                {active ? docTitle(active) : ''}
-              </span>
-              <span className="text-[#a8a29e] tabular-nums">{formatDateShort(active?.date)}</span>
-            </div>
-          </div>
-
           {/* Scrollable preview */}
-          <div ref={previewScrollRef} className="absolute inset-0 overflow-y-auto px-10 pt-16 pb-10 flex flex-col items-center">
+          <div ref={previewScrollRef} className="absolute inset-0 overflow-y-auto px-10 pt-10 pb-10 flex flex-col items-center">
             {segments.map((seg, idx) => {
               // View mode on a single split part: render only that part's pages.
               if (previewSingle && idx !== safe) return null;
@@ -439,7 +421,8 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                   );
                 })}
               </div>
-              <SplitPromptSection defaultPrompt={splitPrompt} />
+              {/* Consignes de découpage — hidden for now */}
+              {false && <SplitPromptSection defaultPrompt={splitPrompt} />}
             </>
           ) : (
             <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">

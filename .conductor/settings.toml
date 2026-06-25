@@ -1,0 +1,22 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# Shared Conductor config for plato-proto-meg — a Create React App (react-scripts
+# 5) frontend prototype. Package manager: npm (package-lock.json). No backend or
+# database in this repo, so workspaces can run concurrently on separate ports.
+
+[scripts]
+# Install dependencies when a workspace is created.
+setup = "npm install"
+
+# Run button → CRA dev server. react-scripts reads PORT from the environment, so
+# each workspace serves on its own Conductor-assigned port; BROWSER=none stops it
+# from opening a browser tab on the host.
+run = "BROWSER=none PORT=$CONDUCTOR_PORT npm start"
+
+# Clean the regenerable production build output before archiving. node_modules
+# and build are gitignored; build is rebuilt by `npm run build` if ever needed.
+archive = "rm -rf build"
+
+# Frontend-only: no shared port/DB/stack, so multiple workspaces can run at once
+# (each on its own CONDUCTOR_PORT).
+run_mode = "concurrent"
