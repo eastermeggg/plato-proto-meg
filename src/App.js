@@ -15986,11 +15986,11 @@ export default function App() {
       : files.some(f => f.splitEnabled) ? 'indeterminate'
       : 'unchecked';
     // Label varies with state: « Tout découper » when all or none are set; in the
-    // mixed (indeterminate) state, clicking splits the remaining (un-split) docs
-    // → « Découper (N doc.) », where N is how many are not yet set to split.
-    const splitRemaining = files.filter(f => !f.splitEnabled).length;
+    // mixed (indeterminate) state → « Découper (N doc.) », where N is how many
+    // documents are currently set to be split (e.g. select 1 → « Découper (1 doc.) »).
+    const splitSelected = files.filter(f => f.splitEnabled).length;
     const splitAllLabel = splitState === 'indeterminate'
-      ? `Découper (${splitRemaining} doc${splitRemaining > 1 ? 's' : ''}.)`
+      ? `Découper (${splitSelected} doc${splitSelected > 1 ? 's' : ''}.)`
       : 'Tout découper';
     const toggleSplitAll = () => setDropModal(prev => {
       const allOn = prev.files.length > 0 && prev.files.every(f => f.splitEnabled);
