@@ -14731,10 +14731,35 @@ export default function App() {
       showToast('Document conservé en une pièce.');
       return;
     }
-    setDropFirstPieces(prev => prev.map(p => p.id === pieceId
-      ? { ...p, _pSplit: { state: 'reviewed', count: segs.length, segments: segs, prompt: p._pSplit?.prompt || '' } }
-      : p));
-    showToast(`Découpage vérifié - ${segs.length} pièces.`);
+    // Explode the document into its parts - they become regular split-document
+    // rows (classified by type, scissors marker, original name as subtitle),
+    // exactly like any other split doc. No aggregate « N pièces · Revu » row.
+    setDropFirstPieces(prev => {
+      const idx = prev.findIndex(p => p.id === pieceId);
+      if (idx < 0) return prev;
+      const src = prev[idx];
+      const type = src.type || src.poolRef?.type || null;
+      const siblings = segs.map((s, i) => ({ name: s._customName || s.label, pages: s.pages || 1, index: i }));
+      const parts = segs.map((s, i) => ({
+        id: `${pieceId}-part-${i}`,
+        originalName: src.originalName || src.cleanName || null,
+        cleanName: s._customName || s.label,
+        type,
+        date: s.date || src.date || null,
+        postesLies: [...(src.postesLies || [])],
+        summary: null,
+        extractedInfo: null,
+        pages: s.pages || 1,
+        status: 'done',
+        poolRef: src.poolRef || null,
+        sourceFile: src.originalName || null,
+        splitIndex: i,
+        siblings,
+        _splitParentId: pieceId,
+      }));
+      return [...prev.slice(0, idx), ...parts, ...prev.slice(idx + 1)];
+    });
+    showToast(`Document découpé en ${segs.length} pièces.`);
   };
 
   // Apply a découpage choice to a pile WITHOUT leaving the À vérifier zone.
@@ -15192,7 +15217,6 @@ export default function App() {
               onToggleDocSplit={toggleDocSplit}
               onBulkToggleDocSplit={bulkToggleDocSplit}
               onRequestDocSplit={requestDocSplit}
-              onPosterioriAdjust={posterioriAdjust}
               reviewZone={(() => {
                 // Posteriori split (splitting/detected) docs render as cards INSIDE
                 // the À vérifier banner - same shell/buttons as the error/doublon cards.

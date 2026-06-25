@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, MessageSquarePlus, Plus, ChevronDown, FilePlus2, Combine, Scissors, Link2, Check } from 'lucide-react';
+import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, MessageSquarePlus, Plus, ChevronDown, FilePlus2, Combine, Scissors, Link2 } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import { buildTreeViewRows } from '../../data/piecesModel';
 import CategoryHeader from './CategoryHeader';
@@ -28,7 +28,6 @@ export default function BordereauTable({
   onToggleDocSplit,
   onBulkToggleDocSplit,
   onRequestDocSplit,
-  onPosterioriAdjust,
   reviewZone = null,
   forceExpandAll = false,
   initialExpandedIds = null,
@@ -478,23 +477,13 @@ export default function BordereauTable({
                   );
                 }
 
-                // ── Posteriori split (splitting / detected / reviewed) ──
-                // While splitting or awaiting review, the document shows as a
-                // progress card ON TOP of the table (reviewZone), not inline —
-                // skip its row here. Only the committed/reviewed aggregate renders
-                // inline.
-                if (piece._pSplit && (piece._pSplit.state === 'splitting' || piece._pSplit.state === 'detected')) {
-                  return null;
-                }
+                // ── Posteriori split (splitting / detected) ──
+                // While splitting or awaiting review, the document shows ONLY as a
+                // card ON TOP of the table (reviewZone), never inline — skip its row
+                // here. Once the split is accepted it's exploded into regular split-
+                // document rows (no aggregate row).
                 if (piece._pSplit) {
-                  return (
-                    <PosterioriSplitRow
-                      key={`psplit-${piece.id}`}
-                      piece={piece}
-                      depth={row.depth}
-                      onAdjust={() => onPosterioriAdjust?.(piece.id)}
-                    />
-                  );
+                  return null;
                 }
 
                 return (
@@ -808,65 +797,6 @@ function PileProcessingRow({ piece, depth }) {
 // A document being split after the fact stays a single row that moves through
 // states: « Découpage en cours… » → « N pièces détectées » (Garder en 1 pièce /
 // Découper / Ajuster) → « N pièces · Revu » (Ajuster).
-function SplitActionButton({ onClick, variant, icon: Icon, children }) {
-  const base = {
-    display: 'inline-flex', alignItems: 'center', gap: 5, height: 30, padding: '0 10px',
-    borderRadius: 6, fontFamily: typography.fontFamily.sans, fontSize: 13, fontWeight: 500,
-    cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background-color 100ms, color 100ms',
-  };
-  const style = variant === 'dark'
-    ? { ...base, background: colors.semantic.foreground, color: colors.semantic.white, border: 'none' }
-    : variant === 'outline'
-      ? { ...base, background: colors.semantic.white, color: colors.semantic.foreground, border: `1px solid ${colors.semantic.border}` }
-      : { ...base, background: 'transparent', color: colors.semantic.foregroundSecondary, border: 'none' };
-  return (
-    <button type="button" onClick={(e) => { e.stopPropagation(); onClick?.(); }} style={style}>
-      {Icon && <Icon style={{ width: 13, height: 13 }} strokeWidth={1.75} />}
-      {children}
-    </button>
-  );
-}
-
-function PosterioriSplitRow({ piece, depth, onAdjust }) {
-  // Committed aggregate row for an already-split document (reviewed / split):
-  // « N pièces · Revu · Ajuster ». The splitting + detected phases render as a
-  // card ON TOP of the table (SplitProgressCard in the reviewZone), never
-  // inline - they're skipped before this row is ever reached.
-  const indent = 40 + Math.max(0, depth) * 16;
-  const ps = piece._pSplit || {};
-  const name = piece.intitule || piece.nom || '';
-  const reviewed = ps.state === 'reviewed';
-  const count = ps.count || 0;
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', minHeight: 60, gap: 10,
-      paddingLeft: indent, paddingRight: 12,
-      borderBottom: `1px solid ${colors.semantic.border}`,
-    }}>
-      <Scissors style={{ width: 15, height: 15, color: colors.semantic.foregroundSecondary, flexShrink: 0 }} strokeWidth={1.75} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontSize: 14, fontWeight: 500, color: colors.semantic.foreground,
-          fontFamily: typography.fontFamily.sans, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {name}
-        </div>
-        <div style={{ fontSize: 12, color: colors.semantic.foregroundMuted, marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span>{count} pièce{count > 1 ? 's' : ''}</span>
-          {reviewed && (
-            <span style={{ color: '#4a9168', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-              <Check style={{ width: 12, height: 12 }} strokeWidth={2.5} /> Revu
-            </span>
-          )}
-        </div>
-      </div>
-      <span style={{ flexShrink: 0 }}>
-        <SplitActionButton onClick={onAdjust} variant="outline" icon={Scissors}>Ajuster</SplitActionButton>
-      </span>
-    </div>
-  );
-}
-
 // Stage the selected documents as context in the chat composer (same as
 // @-mentioning them), then open the conversation so the avocat can write
 // their own prompt with those pièces attached.
