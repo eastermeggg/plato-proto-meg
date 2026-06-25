@@ -90,34 +90,26 @@ export default function PieceRow({
           <SelectionBox checked={selected} />
         ) : piece._processing ? (
           <Loader2 className="animate-spin" style={{ width: 15, height: 15 }} strokeWidth={1.5} />
+        ) : isSplitDoc ? (
+          <Scissors style={{ width: 15, height: 15 }} strokeWidth={1.5} />
         ) : (
           <FileText style={{ width: 15, height: 15 }} strokeWidth={1.5} />
         )}
       </div>
 
       <div style={{ flex: 1, minWidth: 0, paddingRight: 12, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-          <span style={{
-            fontFamily: typography.fontFamily.sans,
-            fontSize: 14,
-            fontWeight: 500,
-            color: colors.semantic.foreground,
-            fontStyle: italic ? 'italic' : 'normal',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            minWidth: 0,
-          }}>
-            {label}
-          </span>
-          {isSplitDoc && (
-            <Scissors
-              title="Document découpé"
-              style={{ width: 13, height: 13, color: colors.semantic.foregroundMuted, flexShrink: 0 }}
-              strokeWidth={1.75}
-            />
-          )}
-        </div>
+        <span style={{
+          fontFamily: typography.fontFamily.sans,
+          fontSize: 14,
+          fontWeight: 500,
+          color: colors.semantic.foreground,
+          fontStyle: italic ? 'italic' : 'normal',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}>
+          {label}
+        </span>
         {piece.nomOriginal && piece.nomOriginal !== label && piece.nomOriginal !== piece.nom && (
           <span
             title={`Nom d'origine : ${piece.nomOriginal}`}
