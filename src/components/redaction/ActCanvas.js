@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { FileText } from 'lucide-react';
 import JPPill from '../jp/JPPill';
 import { getDecisionById } from '../../data/mockDecisions';
+import { parseActStructure } from './actStructure';
+import ActOutline from './ActOutline';
 
 // Simple markdown-aware line renderer (bold, italic, pièce + JP citations)
 const renderInlineMarkdown = (text) => {
@@ -74,6 +76,15 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
   const pageRef = useRef(null);
   const [highlightRects, setHighlightRects] = useState([]);
 
+  // Derived legal structure → drives the floating sommaire and anchors each
+  // detected heading line so the sommaire can scroll-spy / jump to it.
+  const structure = useMemo(() => parseActStructure(content), [content]);
+  const headingIdByLine = useMemo(() => {
+    const map = {};
+    structure.forEach((h) => { map[h.lineIndex] = h.id; });
+    return map;
+  }, [structure]);
+
   // Auto-scroll while streaming
   useEffect(() => {
     if (streaming && scrollRef.current) {
@@ -129,7 +140,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
 
     const lines = content.split('\n');
 
-    const elements = lines.map((line, i) => {
+    const renderLine = (line, i) => {
       const trimmed = line.trim();
 
       if (!trimmed) return <div key={i} style={{ height: 8 }} />;
@@ -171,17 +182,27 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
 
       // Regular paragraph
       return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: '#37352f', margin: '3px 0' }}>{renderInlineMarkdown(trimmed)}</p>;
-    });
+    };
 
-    return elements;
+    // Anchor detected heading lines so the sommaire can target them.
+    return lines.map((line, i) => {
+      const el = renderLine(line, i);
+      const id = headingIdByLine[i];
+      return id && React.isValidElement(el) ? React.cloneElement(el, { id }) : el;
+    });
   };
 
   return (
-    <div
-      ref={scrollRef}
-      className="h-full overflow-y-auto"
-      style={{ backgroundColor: '#f8f7f5' }}
-    >
+    <div className="h-full relative" style={{ backgroundColor: '#f8f7f5' }}>
+      {/* Floating sommaire — overlays the margin, anchored to the stable wrapper
+          so it stays put while the acte scrolls underneath. Pinned to the right
+          edge, vertically centered. Hidden while streaming to avoid jitter as
+          the structure forms. */}
+      {!streaming && <ActOutline headings={structure} scrollRef={scrollRef} side="right" />}
+      <div
+        ref={scrollRef}
+        className="h-full overflow-y-auto"
+      >
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 32px' }}>
         <div
           ref={pageRef}
@@ -218,6 +239,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
           ))}
           {renderContent()}
         </div>
+      </div>
       </div>
     </div>
   );
