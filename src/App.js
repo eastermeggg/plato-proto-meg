@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, CreditCard, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -1331,6 +1331,14 @@ export default function App() {
   // setCurrentPage(page) calls navigate() so the URL stays the source of truth.
   const { page: currentPage, section: componentsSection, componentId: detailComponentId } = pathToPage(location.pathname);
   const setCurrentPage = (page) => navigate(pageToPath(page));
+  // TEMP CAPTURE - drives Figma capture of matter-creation screens via ?capture=<mode>. Remove after capture.
+  const captureMode = new URLSearchParams(location.search).get('capture');
+  const CAPTURE_SAMPLE_FILES = [
+    { id: 'cf-1', name: 'Rapport expertise médicale - Dr Lefèvre.pdf', fakeSize: '2.4 Mo', status: 'ready', guessedType: 'Expertise', splitEnabled: false },
+    { id: 'cf-2', name: 'Pièces communiquées - partie adverse.pdf', fakeSize: '5.1 Mo', status: 'ready', guessedType: 'Pièces adverses', splitEnabled: true },
+    { id: 'cf-3', name: 'Constat amiable.pdf', fakeSize: '0.8 Mo', status: 'ready', guessedType: 'Constat', splitEnabled: false },
+    { id: 'cf-4', name: 'Décompte CPAM 2023.pdf', fakeSize: '1.2 Mo', status: 'ready', guessedType: 'Décompte', splitEnabled: true },
+  ];
   const [activeDossierId, setActiveDossierId] = useState(null);
 
   // ========== SETTINGS ==========
@@ -1348,14 +1356,10 @@ export default function App() {
   const [billingState, setBillingState] = useState('active'); // 'active' | 'trial' | 'trial-end' | 'none' (Ø licence → lecture seule)
   const [quotaFill, setQuotaFill] = useState('mid');          // 'fresh' | 'mid' | 'full'
   const [demoPersona, setDemoPersona] = useState('admin');    // 'admin' (u-1) | 'member' (u-2)
-  const [billingUpgradeModalOpen, setBillingUpgradeModalOpen] = useState(false);
-  const [licenceDraft, setLicenceDraft] = useState({ PRO: 0, MAX: 0, 'MAX+': 0 }); // buy-licences modal counters
-  const [licenceInventory, setLicenceInventory] = useState({ PRO: 3, MAX: 2, 'MAX+': 1 }); // purchased licences per tier
-  const [licenceUpgradeModal, setLicenceUpgradeModal] = useState(null); // { memberId, planId } pending paid-upgrade confirm
-  const [quotaUpgradeOpen, setQuotaUpgradeOpen] = useState(false); // admin self-upgrade when weekly quota is exhausted
+  // A licence exists only when held by a collaborator - created at invite time
+  // or by assigning a plan to a member. There is no standalone "buy seats" pool,
+  // hence no purchased-vs-assigned counter (X/X licences).
   const [askUpgradeOpen, setAskUpgradeOpen] = useState(false); // member requests an upgrade from their admin
-  const [addLicencePlan, setAddLicencePlan] = useState(null); // plan id for the "add licence" confirm modal
-  const [addLicenceQty, setAddLicenceQty] = useState(1);
   const [dossierIndicatorHover, setDossierIndicatorHover] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [workspaceMembers, setWorkspaceMembers] = useState([
@@ -1367,7 +1371,8 @@ export default function App() {
   const currentUserId = demoPersona === 'admin' ? 'u-1' : 'u-2';
   const currentUser = workspaceMembers.find((m) => m.id === currentUserId) || workspaceMembers[0];
   const isAdmin = currentUser?.role === 'Admin';
-  // Licences in use, derived from member assignments; remaining = purchased − assigned.
+  // Active licences per tier = one per collaborator who holds that plan. This is
+  // the single source of truth: a licence cannot exist without a collaborator.
   const licencesAssigned = workspaceMembers.reduce((acc, m) => {
     if (m.plan) acc[m.plan] = (acc[m.plan] || 0) + 1;
     return acc;
@@ -1376,48 +1381,21 @@ export default function App() {
   // assignment (fallback Pro); 'none' = Ø licence (lecture seule).
   const myPlan = billingState === 'none' ? null : (currentUser?.plan ? PLAN_BY_ID[currentUser.plan] : PLAN_BY_ID.PRO);
   const myQuotaPct = QUOTA_FILL_PCT[quotaFill] ?? 63;
-  // Free licences of a tier = purchased − assigned.
-  const licenceAvailable = (planId) => Math.max(0, (licenceInventory[planId] || 0) - (licencesAssigned[planId] || 0));
+  // Account monthly total = every active licence × its price (one per collaborator).
+  const accountMonthlyTotal = PRICING_PLANS.reduce((s, p) => s + (licencesAssigned[p.id] || 0) * p.monthly, 0);
   const applyAssignPlan = (memberId, planId) => {
     setWorkspaceMembers(prev => prev.map(m => m.id === memberId ? { ...m, plan: planId || null } : m));
     setToastMessage(`Licence mise à jour - ${planId ? `Plan ${PLAN_BY_ID[planId].name}` : 'lecture seule'}.`);
     setTimeout(() => setToastMessage(null), 2500);
   };
-  // Assigning a paid plan with no free licence of that tier → confirm a paid upgrade first.
-  const requestAssignPlan = (memberId, planId) => {
-    if (planId && licenceAvailable(planId) <= 0) {
-      setLicenceUpgradeModal({ memberId, planId });
-    } else {
-      applyAssignPlan(memberId, planId);
-    }
-  };
-  const confirmLicenceUpgrade = () => {
-    if (!licenceUpgradeModal) return;
-    const { memberId, planId } = licenceUpgradeModal;
-    setLicenceInventory(inv => ({ ...inv, [planId]: (inv[planId] || 0) + 1 }));
-    setWorkspaceMembers(prev => prev.map(m => m.id === memberId ? { ...m, plan: planId } : m));
-    const monthly = PLAN_BY_ID[planId]?.monthly || 0;
-    setToastMessage(`Licence ${PLAN_BY_ID[planId]?.name} ajoutée - ${monthly} € HT/mois, au prorata.`);
-    setTimeout(() => setToastMessage(null), 3500);
-    setLicenceUpgradeModal(null);
-  };
-  // Out-of-quota self-upgrade (admin): bump own tier - switching tier resets the weekly quota.
-  const nextPlanAbove = (planId) => {
-    const idx = PRICING_PLANS.findIndex(p => p.id === planId);
-    return idx >= 0 ? (PRICING_PLANS[idx + 1] || null) : PRICING_PLANS[0];
-  };
-  const confirmQuotaUpgrade = () => {
-    const next = nextPlanAbove(currentUser?.plan);
-    if (!next) { setQuotaUpgradeOpen(false); return; }
-    setLicenceInventory(inv => {
-      const free = (inv[next.id] || 0) - (licencesAssigned[next.id] || 0);
-      return free > 0 ? inv : { ...inv, [next.id]: (inv[next.id] || 0) + 1 };
-    });
-    setWorkspaceMembers(prev => prev.map(m => m.id === currentUserId ? { ...m, plan: next.id } : m));
-    setQuotaFill('fresh');
-    setQuotaUpgradeOpen(false);
-    setToastMessage(`Plan ${next.name} activé - quota rechargé.`);
-    setTimeout(() => setToastMessage(null), 3500);
+  // Changing a member's plan: pick a tier in the licence-picker (renderPlanPickerModal).
+  // The picker shows the pricing impact inline (charge delta + new total), so
+  // confirming applies the change directly - no second modal.
+  const openPlanPicker = (member) => { setPlanPicker({ memberId: member.id }); setPlanPickerChoice(member.plan || ''); };
+  const confirmPlanPicker = () => {
+    if (!planPicker) return;
+    applyAssignPlan(planPicker.memberId, planPickerChoice || null);
+    setPlanPicker(null);
   };
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState(''); // current text being typed
@@ -1425,7 +1403,11 @@ export default function App() {
   const [inviteRole, setInviteRole] = useState('Membre');
   const [invitePlan, setInvitePlan] = useState(null); // licence reserved at invite time (null = lecture seule)
   const [profileMemberId, setProfileMemberId] = useState(null); // collaborator profile panel (open member id)
-  const [profilePlanEditing, setProfilePlanEditing] = useState(false); // "Changer" toggle in the profile panel
+  const [planPicker, setPlanPicker] = useState(null); // { memberId } when the licence-picker modal is open
+  const [planPickerChoice, setPlanPickerChoice] = useState(null); // selected tier in the picker ('' = lecture seule)
+  const [orgName, setOrgName] = useState('Cabinet Hexa'); // cabinet / organisation display name (editable by admin in org settings)
+  const [orgNameDraft, setOrgNameDraft] = useState(null); // in-progress org-name edit (null = not editing)
+  const [accountEdits, setAccountEdits] = useState({}); // in-progress edits to the current user's name + email (Général settings)
   const [preferenceDocs, setPreferenceDocs] = useState([]);
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
@@ -1475,10 +1457,19 @@ export default function App() {
   const [showChiffrageParams, setShowChiffrageParams] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(null); // null | 'resume' | 'expertise'
-  const [creationWizard, setCreationWizard] = useState(null); // null | { step: 'infos', formData: {...} }
+  const [creationWizard, setCreationWizard] = useState(
+    captureMode === 'wizard'
+      ? { step: 'infos', formData: { nom: 'Leblanc', prenom: 'Marie', sexe: 'Femme', dateNaissance: '14/03/1985', dateDeces: '', reference: 'Dossier Leblanc c/ AXA', typeFait: 'Accident de la route', dateAccident: '02/06/2023', dateConsolidation: '', dateLiquidation: '' } }
+      : null
+  ); // null | { step: 'infos', formData: {...} }
 
   // ========== DROP FIRST STATE ==========
-  const [dropModal, setDropModal] = useState(null); // null | { files: [...], rapportFileId: null|string, rapportDismissed: false }
+  const [dropModal, setDropModal] = useState(() => {
+    if (captureMode === 'create') return { files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create' };
+    if (captureMode === 'split') return { files: CAPTURE_SAMPLE_FILES, rapportFileId: null, rapportDismissed: true, renamePattern: DEFAULT_SPLIT_PROMPT, reference: 'Dossier Leblanc c/ AXA', splitDocsEnabled: true, docSearch: '', mode: 'create' };
+    if (captureMode === 'addfiles') return { files: CAPTURE_SAMPLE_FILES, rapportFileId: null, rapportDismissed: true, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'add' };
+    return null;
+  }); // null | { files: [...], rapportFileId: null|string, rapportDismissed: false }
   const [dropFirstPieces, setDropFirstPieces] = useState([]); // array of { id, originalName, cleanName, type, date, postesLies, summary, extractedInfo, pages, status, sourceFile?, pageRange?, siblings?, poolRef }
   const [dropFirstHasRapport, setDropFirstHasRapport] = useState(false);
   const [dropFirstProcessingDone, setDropFirstProcessingDone] = useState(false);
@@ -2087,6 +2078,7 @@ export default function App() {
 
   // Init: restore from localStorage on mount
   useEffect(() => {
+    if (captureMode) { isInitialLoad.current = false; return; } // TEMP CAPTURE: skip restore so we stay on the captured screen
     // A bare /dossier URL (bookmark, stale link) carries no dossier ID - there's no
     // valid dossier to open, so it can only land on a stale/broken view. Always send
     // such direct loads home to "Mes dossiers" instead of restoring stale state.
@@ -5729,7 +5721,7 @@ export default function App() {
                   <span style={{ fontSize: 11, color: '#a8a29e' }}>Plato analyse vos documents...</span>
                 </div>
               )}
-              {/* Weekly-quota gate - locks the composer; admin can upgrade, member must ask. */}
+              {/* Weekly-quota gate - locks the composer; the user requests an upgrade from an admin. */}
               {outOfQuota && (
                 <div className="mx-3 mt-3 mb-1 rounded-lg border px-3.5 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
                   <div className="flex items-start gap-2.5">
@@ -5737,28 +5729,16 @@ export default function App() {
                     <div className="min-w-0 flex-1">
                       <div className="text-[13px] font-medium" style={{ color: '#855b31' }}>Quota hebdomadaire atteint</div>
                       <p className="text-[12px] mt-0.5" style={{ color: '#855b31', opacity: 0.9, lineHeight: '16px' }}>
-                        {isAdmin
-                          ? "Passez à un plan supérieur pour débloquer plus d'usage cette semaine, ou attendez le rechargement de lundi."
-                          : "Il se recharge lundi. Pour plus d'usage dès maintenant, votre administrateur doit vous attribuer un plan supérieur."}
+                        Il se recharge lundi. Pour plus d'usage dès maintenant, demandez une mise à niveau à un administrateur.
                       </p>
                       <div className="mt-2.5">
-                        {isAdmin ? (
-                          <button
-                            onClick={() => setQuotaUpgradeOpen(true)}
-                            className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
-                          >
-                            <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
-                            Augmenter mon plan
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => setAskUpgradeOpen(true)}
-                            className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
-                          >
-                            <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
-                            Demander une mise à niveau
-                          </button>
-                        )}
+                        <button
+                          onClick={() => setAskUpgradeOpen(true)}
+                          className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
+                        >
+                          <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
+                          Demander une mise à niveau
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -16467,7 +16447,7 @@ export default function App() {
         }
       >
         <div className="px-3 py-2.5 border-b border-[#e7e5e3]">
-          <div className="text-[12px] text-[#78716c] truncate">meghan@hexa.com</div>
+          <div className="text-[12px] text-[#78716c] truncate">{currentUser?.email || ''}</div>
         </div>
         <button
           onClick={() => { setSettingsSection('general'); setCurrentPage('settings'); setUserMenuOpen(false); }}
@@ -16584,12 +16564,12 @@ export default function App() {
               }
               style={collapsed ? undefined : { borderRadius: 6 }}
             >
-              {collapsed ? userAvatar(0, 'Admin', 32) : (
+              {collapsed ? userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 32) : (
                 <>
-                  {userAvatar(0, 'Admin', 32)}
+                  {userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 32)}
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-medium text-[#292524] truncate leading-5">Meghan R.</div>
-                    <div className="text-[12px] text-[#a8a29e] truncate leading-4">Cabinet</div>
+                    <div className="text-[14px] font-medium text-[#292524] truncate leading-5">{currentUser?.name || 'Mon compte'}</div>
+                    <div className="text-[12px] text-[#a8a29e] truncate leading-4">{orgName}</div>
                   </div>
                   <ChevronDown className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
                 </>
@@ -16694,7 +16674,7 @@ export default function App() {
   // Weekly-usage quota gauge (Réflexion Vic) - shared by the sidebar indicator and
   // the Plan & facturation page. Shows a 0–100 % gauge that refills Monday; never
   // tokens, never euros. `variant`: 'full' (bordered card) or 'compact' (sidebar).
-  const renderWeeklyQuotaCard = ({ plan, pct = 0, lifecycle = 'active', trialDaysRemaining = 0, variant = 'full' }) => {
+  const renderWeeklyQuotaCard = ({ plan, pct = 0, lifecycle = 'active', trialDaysRemaining = 0, variant = 'full', org = false }) => {
     const compact = variant === 'compact';
     const isTrial = lifecycle === 'trial' || lifecycle === 'trial-end';
     const isNone = lifecycle === 'none' || !plan;
@@ -16742,7 +16722,7 @@ export default function App() {
           <div className="flex items-center justify-between gap-2" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: headerColor, textTransform: 'uppercase', letterSpacing: 'normal' }}>
             <span className="inline-flex items-center gap-1.5 min-w-0">
               {isTrial && <Clock className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />}
-              <span className="truncate">{isTrial ? 'Essai gratuit' : 'Quota hebdomadaire'}</span>
+              <span className="truncate">{isTrial ? (org ? "Essai gratuit pour toute l'organisation" : 'Essai gratuit') : 'Quota hebdomadaire'}</span>
             </span>
             {isTrial && trialDaysRemaining > 0 && (
               <span className="flex-shrink-0">Expire dans <span className="tabular-nums" style={{ fontWeight: 700 }}>{trialDaysRemaining} j</span></span>
@@ -19859,7 +19839,6 @@ export default function App() {
                   {invitePlan === null && <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />}
                 </button>
                 {PRICING_PLANS.map((p) => {
-                  const avail = licenceAvailable(p.id);
                   const isCurrent = invitePlan === p.id;
                   const PG = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
                   return (
@@ -19875,8 +19854,6 @@ export default function App() {
                       </span>
                       {isCurrent ? (
                         <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />
-                      ) : avail > 0 ? (
-                        <span className="text-[12px] text-[#78716c] tabular-nums flex-shrink-0">{avail} dispo</span>
                       ) : (
                         <span className="text-[11px] font-medium text-[#855b31] tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
                       )}
@@ -19887,7 +19864,7 @@ export default function App() {
               <p className="text-caption text-[#78716c]" style={{ letterSpacing: '0.12px' }}>
                 {invitePlan === null
                   ? 'Sans licence, l\'accès reste en lecture seule.'
-                  : 'La licence est réservée maintenant et s\'active à l\'acceptation de l\'invitation.'}
+                  : 'La licence s\'active dès que le confrère rejoint le cabinet.'}
               </p>
             </div>
           </div>
@@ -19952,83 +19929,109 @@ export default function App() {
     </div>
   );
 
-  const renderSettingsGeneral = () => (
+  const renderSettingsGeneral = () => {
+    // Split the stored full name into first / last for editing; recombine on save.
+    const nameParts = (currentUser?.name || '').trim().split(/\s+/).filter(Boolean);
+    const defFirst = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : (nameParts[0] || '');
+    const defLast = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+    const firstName = accountEdits.firstName ?? defFirst;
+    const lastName = accountEdits.lastName ?? defLast;
+    const email = accountEdits.email ?? (currentUser?.email || '');
+    const dirty = accountEdits.firstName !== undefined || accountEdits.lastName !== undefined || accountEdits.email !== undefined;
+    const inputClass = "h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]";
+    const saveAccount = () => {
+      const fullName = `${firstName} ${lastName}`.trim();
+      const initials = ((firstName.trim()[0] || '') + (lastName.trim()[0] || '')).toUpperCase() || (fullName[0] || '?').toUpperCase();
+      setWorkspaceMembers(prev => prev.map(x => x.id === currentUserId ? { ...x, name: fullName || x.name, email: email.trim() || x.email, initials } : x));
+      setAccountEdits({});
+      setToastMessage('Profil enregistré.');
+      setTimeout(() => setToastMessage(null), 3000);
+    };
+    return (
     <>
       <div className="flex-1 overflow-y-auto px-8 py-10">
         <div className="max-w-5xl w-full mx-auto">
           {renderSettingsHeader(
             'Général',
-            "Vos informations de compte."
+            'Vos informations de votre compte Plato.',
+            <button
+              onClick={saveAccount}
+              disabled={!dirty}
+              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-[#292524] hover:bg-[#44403c]' : 'bg-[#d6d3d1] cursor-not-allowed'}`}
+            >
+              Enregistrer
+            </button>
           )}
 
+          {/* Account info card - mono header + label/input rows */}
           <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]">
+            <div className="px-5 py-3">
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
+            </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
-              <label className="text-body-medium text-[#44403c]">Nom complet</label>
-              <input
-                type="text"
-                defaultValue="Meghan Régior"
-                className="h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
-              />
+              <label className="text-body-medium text-[#44403c]">Prénom</label>
+              <input type="text" value={firstName} onChange={(e) => setAccountEdits(s => ({ ...s, firstName: e.target.value }))} className={inputClass} />
+            </div>
+            <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
+              <label className="text-body-medium text-[#44403c]">Nom</label>
+              <input type="text" value={lastName} onChange={(e) => setAccountEdits(s => ({ ...s, lastName: e.target.value }))} className={inputClass} />
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-[#44403c]">Email</label>
-              <input
-                type="email"
-                defaultValue="meghan@hexa.com"
-                className="h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
-              />
+              <input type="email" value={email} onChange={(e) => setAccountEdits(s => ({ ...s, email: e.target.value }))} className={inputClass} />
             </div>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => {
-                setToastMessage('Profil enregistré.');
-                setTimeout(() => setToastMessage(null), 3000);
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors"
-            >
-              <Check className="w-3.5 h-3.5" />
-              Enregistrer
-            </button>
           </div>
         </div>
       </div>
     </>
-  );
+    );
+  };
 
-  // Confirm modal when assigning a plan with no free licence - adds a paid licence.
-  const renderLicenceUpgradeModal = () => {
-    if (!licenceUpgradeModal) return null;
-    const { memberId, planId } = licenceUpgradeModal;
-    const plan = PLAN_BY_ID[planId];
-    if (!plan) return null;
-    const member = workspaceMembers.find((m) => m.id === memberId);
+  // Organisation (cabinet) settings - admin only. For now: the org display name.
+  const renderSettingsOrganisation = () => {
+    const val = orgNameDraft ?? orgName;
+    const dirty = orgNameDraft !== null && orgNameDraft.trim() !== '' && orgNameDraft.trim() !== orgName;
+    const saveOrg = () => {
+      setOrgName(val.trim());
+      setOrgNameDraft(null);
+      setToastMessage('Organisation enregistrée.');
+      setTimeout(() => setToastMessage(null), 3000);
+    };
     return (
-      <AlertDialog
-        open={!!licenceUpgradeModal}
-        onOpenChange={(o) => { if (!o) setLicenceUpgradeModal(null); }}
-        icon={CreditCard}
-        iconVariant="warning"
-        title={`Ajouter une licence ${plan.name} ?`}
-        description={`Vous n'avez plus de licence ${plan.name} disponible. En attribuer une${member ? ` à ${member.name}` : ''} ajoutera une licence à votre abonnement.`}
-        cancelLabel="Annuler"
-        actionLabel={`Ajouter la licence · ${plan.monthly} €/mois`}
-        actionVariant="primary"
-        onAction={confirmLicenceUpgrade}
-      >
-        <div className="mt-1 rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-[#44403c]">Plan {plan.name} · quota ×{plan.quotaMult}</span>
-            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 18, color: '#18181b' }}>
-              {plan.monthly} € <span className="text-[12px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT/mois</span>
-            </span>
+    <>
+      <div className="flex-1 overflow-y-auto px-8 py-10">
+        <div className="max-w-5xl w-full mx-auto">
+          {renderSettingsHeader(
+            'Organisation',
+            'Les informations de votre compte cabinet Plato.',
+            <button
+              onClick={saveOrg}
+              disabled={!dirty}
+              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-[#292524] hover:bg-[#44403c]' : 'bg-[#d6d3d1] cursor-not-allowed'}`}
+            >
+              Enregistrer
+            </button>
+          )}
+
+          {/* Account info card - mono header + label/input row */}
+          <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]">
+            <div className="px-5 py-3">
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
+            </div>
+            <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
+              <label className="text-body-medium text-[#44403c]">Nom de l'organisation</label>
+              <input
+                type="text"
+                value={val}
+                onChange={(e) => setOrgNameDraft(e.target.value)}
+                placeholder="Nom du cabinet"
+                className="h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+              />
+            </div>
           </div>
-          <p className="text-[12px] text-[#78716c] mt-1.5">
-            Facturée au prorata jusqu'à la fin du mois, puis {plan.monthly} € HT/mois à chaque échéance.
-          </p>
         </div>
-      </AlertDialog>
+      </div>
+    </>
     );
   };
 
@@ -20079,109 +20082,100 @@ export default function App() {
     );
   };
 
-  // Admin self-upgrade modal when the weekly quota is exhausted.
-  const renderQuotaUpgradeModal = () => {
-    if (!quotaUpgradeOpen) return null;
-    const current = currentUser?.plan ? PLAN_BY_ID[currentUser.plan] : null;
-    const next = nextPlanAbove(currentUser?.plan);
-    if (!next) {
-      return (
-        <AlertDialog
-          open={quotaUpgradeOpen}
-          onOpenChange={(o) => { if (!o) setQuotaUpgradeOpen(false); }}
-          icon={Crown}
-          iconVariant="warning"
-          title="Vous êtes déjà au plan maximum"
-          description={`Votre plan ${current?.name || 'Max +'} offre le quota le plus élevé. Il se recharge automatiquement lundi.`}
-          cancelLabel="Fermer"
-          actionLabel="Compris"
-          actionVariant="primary"
-          onAction={() => setQuotaUpgradeOpen(false)}
-        />
-      );
-    }
+  // Licence picker (Figma 2638-24438) - "Choisir une licence pour {name}".
+  // Opened from the profile drawer's "Type de licence" card; confirming applies the tier.
+  const renderPlanPickerModal = () => {
+    if (!planPicker) return null;
+    const member = workspaceMembers.find(x => x.id === planPicker.memberId);
+    if (!member) return null;
+    const options = [
+      { id: '', name: 'Lecture seule', price: 'Gratuit', icon: Eye },
+      ...PRICING_PLANS.map((p) => ({
+        id: p.id,
+        name: `Plan ${p.name}`,
+        price: `+ ${p.monthly} €/mois`,
+        icon: p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn,
+      })),
+    ];
+    const selected = planPickerChoice ?? (member.plan || '');
+    const unchanged = (selected || '') === (member.plan || '');
+    const close = () => setPlanPicker(null);
+    // Live pricing impact of the selected tier (shown inline below the options).
+    const fmtEur = (n) => n.toLocaleString('fr-FR');
+    const currentPlan = member.plan ? PLAN_BY_ID[member.plan] : null;
+    const newPlan = selected ? PLAN_BY_ID[selected] : null;
+    const delta = (newPlan?.monthly || 0) - (currentPlan?.monthly || 0);
+    const newTotal = accountMonthlyTotal + delta;
+    const isRemoval = !newPlan;
+    const isIncrease = delta > 0;
     return (
-      <AlertDialog
-        open={quotaUpgradeOpen}
-        onOpenChange={(o) => { if (!o) setQuotaUpgradeOpen(false); }}
-        icon={CircleArrowUp}
-        iconVariant="warning"
-        title="Augmenter votre quota hebdomadaire"
-        description={`Votre plan ${current?.name || 'actuel'} a atteint son quota cette semaine. Passez au plan ${next.name} pour repartir immédiatement avec un quota plus large.`}
-        cancelLabel="Annuler"
-        actionLabel={`Passer à ${next.name} · ${next.monthly} €/mois`}
-        actionVariant="primary"
-        onAction={confirmQuotaUpgrade}
-      >
-        <div className="mt-1 rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-[#44403c]">Plan {next.name} · quota ×{next.quotaMult}</span>
-            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 18, color: '#18181b' }}>
-              {next.monthly} € <span className="text-[12px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT/mois</span>
-            </span>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={close}>
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          {/* Header */}
+          <div className="px-6 pt-6 pb-4">
+            <h2 className="text-display-sm text-[#292524]" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif" }}>
+              Choisir une licence pour {member.name}
+            </h2>
           </div>
-          <p className="text-[12px] text-[#78716c] mt-1.5">
-            ≈ {next.weeklyEuros} € d'usage IA réel / semaine. Le quota est rechargé immédiatement au changement.
-          </p>
+          {/* Options - radio group */}
+          <div className="px-6 pb-2 flex flex-col gap-2">
+            <label className="text-body-medium" style={{ color: '#292524' }}>Licence</label>
+            <div className="flex flex-col gap-1.5">
+              {options.map(({ id, name, price, icon: Icon }) => {
+                const active = (selected || '') === id;
+                return (
+                  <button
+                    key={id || 'free'}
+                    onClick={() => setPlanPickerChoice(id)}
+                    className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${active ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                  >
+                    <span className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0" style={{ borderColor: active ? '#292524' : '#d6d3d1' }}>
+                      {active && <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#292524' }} />}
+                    </span>
+                    <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-[14px] text-[#292524] font-medium">{name}</span>
+                    <span className="text-[12px] text-[#a8a29e] tabular-nums">{price}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <button type="button" className="self-start text-[13px] font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity mt-1">
+              En savoir plus sur les plans
+            </button>
+          </div>
+          {/* Pricing impact of the selected tier - inline info box */}
+          {!unchanged && (
+            <div className="px-6 pb-1">
+              <div className="rounded-lg px-3.5 py-3 text-[13px] leading-snug" style={{ background: '#eef3fb', border: '1px solid #dbe5f3', color: '#44403c' }}>
+                {isRemoval ? (
+                  <p>La licence est retirée, <span className="font-medium">{member.name}</span> repasse en lecture seule.</p>
+                ) : isIncrease ? (
+                  <p>Vous serez facturé <span className="font-medium" style={{ color: '#1e3a8a' }}>+{fmtEur(delta)} € HT/mois</span>, au prorata sur votre prochaine facture.</p>
+                ) : (
+                  <p>Votre facturation diminue de <span className="font-medium" style={{ color: '#1e3a8a' }}>{fmtEur(Math.abs(delta))} € HT/mois</span>.</p>
+                )}
+                <p className="mt-1" style={{ color: '#78716c' }}>Nouveau total : <span className="font-medium" style={{ color: '#292524' }}>{fmtEur(newTotal)} € HT/mois</span>.</p>
+              </div>
+            </div>
+          )}
+          {/* Footer */}
+          <div className="px-6 py-4 flex items-center justify-end gap-2">
+            <button onClick={close} className="h-9 px-4 text-sm font-medium text-[#44403c] bg-[#eeece6] rounded-lg hover:bg-[#e7e5e3] transition-colors">
+              Annuler
+            </button>
+            <button
+              onClick={confirmPlanPicker}
+              disabled={unchanged}
+              className={`h-9 px-4 text-sm font-medium text-white rounded-lg transition-colors ${unchanged ? 'bg-[#d6d3d1] cursor-not-allowed' : 'bg-[#292524] hover:bg-[#1c1917]'}`}
+            >
+              Confirmer
+            </button>
+          </div>
         </div>
-      </AlertDialog>
+      </div>
     );
   };
 
-  // Confirm modal for adding licence(s) - shows the resulting monthly price and updates the account total.
-  const renderAddLicenceModal = () => {
-    if (!addLicencePlan) return null;
-    const plan = PLAN_BY_ID[addLicencePlan];
-    if (!plan) return null;
-    const qty = Math.max(1, addLicenceQty);
-    const currentTotal = PRICING_PLANS.reduce((s, p) => s + (licenceInventory[p.id] || 0) * p.monthly, 0);
-    const addCost = qty * plan.monthly;
-    const futureTotal = currentTotal + addCost;
-    const fmt = (n) => n.toLocaleString('fr-FR');
-    const confirm = () => {
-      setLicenceInventory(inv => ({ ...inv, [plan.id]: (inv[plan.id] || 0) + qty }));
-      setAddLicencePlan(null);
-      setToastMessage(`${qty} licence${qty > 1 ? 's' : ''} ${plan.name} ajoutée${qty > 1 ? 's' : ''} · +${fmt(addCost)} € HT/mois (démo).`);
-      setTimeout(() => setToastMessage(null), 3500);
-    };
-    return (
-      <AlertDialog
-        open
-        onOpenChange={(o) => { if (!o) setAddLicencePlan(null); }}
-        icon={CreditCard}
-        iconVariant="warning"
-        title={`Ajouter une licence ${plan.name}`}
-        description="Facturée au prorata jusqu'à la fin du mois, puis à chaque échéance mensuelle."
-        cancelLabel="Annuler"
-        actionLabel={`Ajouter · +${fmt(addCost)} €/mois`}
-        actionVariant="primary"
-        onAction={confirm}
-      >
-        <div className="mt-1 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-[13px] text-[#44403c]">Quantité</span>
-            <div className="inline-flex items-center bg-white border border-[#e7e5e3] rounded-lg overflow-hidden">
-              <button onClick={() => setAddLicenceQty(q => Math.max(1, q - 1))} className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors">−</button>
-              <span className="w-10 text-center text-[15px] font-medium tabular-nums text-[#292524]">{qty}</span>
-              <button onClick={() => setAddLicenceQty(q => q + 1)} className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors">+</button>
-            </div>
-          </div>
-          <div className="rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3 space-y-2">
-            <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[#78716c] tabular-nums">{plan.monthly} € × {qty}</span>
-              <span className="tabular-nums font-medium text-[#292524]">+{fmt(addCost)} € / mois</span>
-            </div>
-            <div className="flex items-baseline justify-between border-t border-[#e7e5e3] pt-2">
-              <span className="text-[13px] text-[#78716c]">Nouveau total du compte</span>
-              <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 18, color: '#18181b' }}>
-                {fmt(futureTotal)} € <span className="text-[12px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT / mois</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </AlertDialog>
-    );
-  };
 
   // Shared licence-dispatch table - the SAME component in Collaborateurs and Plan & facturation.
   // Rows are clickable (admin) → renderMemberProfilePanel (role / plan / delete).
@@ -20227,12 +20221,7 @@ export default function App() {
                 </td>
                 <td className="px-3 py-3">
                   {m.plan ? (
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="badge badge-sm badge-secondary">{PLAN_BY_ID[m.plan].name}</span>
-                      {m.pending && <span className="text-caption text-[#a8a29e]">réservée</span>}
-                    </span>
-                  ) : m.pending ? (
-                    <span className="text-body text-[#a8a29e]">—</span>
+                    <span className="badge badge-sm badge-secondary">{PLAN_BY_ID[m.plan].name}</span>
                   ) : (
                     <span className="badge badge-sm badge-outline">Lecture seule</span>
                   )}
@@ -20264,7 +20253,7 @@ export default function App() {
     const Glyph = m.plan === 'MAX+' ? ChessQueen : m.plan === 'MAX' ? ChessRook : m.plan === 'PRO' ? ChessPawn : Eye;
     const quotaPct = isSelf ? myQuotaPct : [42, 68, 18, 30, 55][idx % 5];
     const tone = quotaTone(quotaPct);
-    const close = () => { setProfileMemberId(null); setProfilePlanEditing(false); };
+    const close = () => { setProfileMemberId(null); };
     const setRole = (role) => {
       setWorkspaceMembers(prev => prev.map(x => x.id === m.id ? { ...x, role } : x));
       setToastMessage(`Rôle changé en ${role}.`);
@@ -20276,116 +20265,80 @@ export default function App() {
       setToastMessage('Collaborateur supprimé.');
       setTimeout(() => setToastMessage(null), 2500);
     };
+    // Pending-invite lifecycle: resend, simulate acceptance (demo), cancel.
+    const firstName = m.name.split(' ')[0] || m.name;
+    const resendInvite = () => {
+      setToastMessage(`Invitation renvoyée à ${m.email}.`);
+      setTimeout(() => setToastMessage(null), 2500);
+    };
+    const markActive = () => {
+      setWorkspaceMembers(prev => prev.map(x => x.id === m.id ? { ...x, pending: false } : x));
+      setToastMessage(`${firstName} a rejoint le cabinet.`);
+      setTimeout(() => setToastMessage(null), 2500);
+    };
+    const cancelInvite = () => {
+      setWorkspaceMembers(prev => prev.filter(x => x.id !== m.id));
+      close();
+      setToastMessage('Invitation annulée.');
+      setTimeout(() => setToastMessage(null), 2500);
+    };
     const cardLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.04em' };
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={close}>
-        <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 460, maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
-          {/* Header - identity */}
-          <div className="px-6 pt-6 pb-5 flex items-start gap-3.5 relative flex-shrink-0">
-            {userAvatar(idx, m.role, 52)}
-            <div className="min-w-0 flex-1 pt-0.5 pr-8">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 20, fontWeight: 500, color: '#18181b', letterSpacing: '-0.01em' }}>{m.name}</h2>
-                {isSelf && <span className="badge badge-sm badge-outline">Vous</span>}
-                {m.pending && <span className="badge badge-sm badge-warning">Invité</span>}
-              </div>
-              <div className="text-[13px] text-[#78716c] truncate">{m.email}</div>
+      <>
+        {/* Backdrop */}
+        <div onClick={close} className="fixed inset-0 z-40" style={{ background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
+        {/* Right-side drawer */}
+        <div className="fixed top-0 right-0 h-screen bg-white border-l border-[#e7e5e3] z-40 flex flex-col overflow-hidden" style={{ width: 460, maxWidth: '100vw', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
+          {/* Header - avatar + name + close */}
+          <div className="px-6 pt-6 pb-5 flex items-center gap-3.5 relative flex-shrink-0">
+            {userAvatar(idx, m.role, 40)}
+            <div className="min-w-0 flex-1 pr-8 flex items-center gap-2 flex-wrap">
+              <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 20, fontWeight: 500, color: '#18181b', letterSpacing: '-0.01em' }}>{m.name}</h2>
+              {isSelf && <span className="badge badge-sm badge-outline">Vous</span>}
+              {m.pending && <span className="badge badge-sm badge-warning">Invité</span>}
             </div>
-            <button onClick={close} className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors">
+            <button onClick={close} className="absolute top-5 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-[#f5f5f4] hover:bg-[#eeece6] transition-colors">
               <X className="w-4 h-4 text-[#78716c]" />
             </button>
           </div>
 
-          {/* Section label */}
-          <div className="px-6 flex-shrink-0">
-            <div className="border-t border-[#e7e5e3] pt-3.5 pb-1">
-              <span style={cardLabel}>Gérer</span>
-            </div>
-          </div>
-
-          {/* Cards */}
-          <div className="px-6 py-4 space-y-3.5 overflow-y-auto">
-            {/* Type de licence */}
-            <div className="rounded-xl border border-[#e7e5e3] p-4">
-              <div className="flex items-center justify-between">
-                <span style={cardLabel}>Type de licence</span>
-                {!m.pending && (
-                  <button onClick={() => setProfilePlanEditing(v => !v)} className="text-[13px] font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity">
-                    {profilePlanEditing ? 'Fermer' : 'Changer'}
-                  </button>
-                )}
+          {/* Body - flat sections separated by hairlines */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Pending invite - awaiting the collaborator finishing setup */}
+            {m.pending && (
+              <div className="px-6 py-4 border-t border-[#e7e5e3]" style={{ background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
+                <div className="flex items-start gap-2.5">
+                  <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#bd6c1a' }} strokeWidth={1.75} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[13px] font-medium" style={{ color: '#855b31' }}>Invitation en attente</div>
+                    <p className="text-[12px] mt-0.5" style={{ color: '#855b31', opacity: 0.9, lineHeight: '16px' }}>
+                      {firstName} n'a pas encore finalisé son inscription sur la plateforme.
+                    </p>
+                    <div className="mt-2.5 flex items-center gap-2.5 text-[13px] font-medium">
+                      <button onClick={resendInvite} className="text-[#1e3a8a] hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
+                      <span className="text-[#e7c9a6]">·</span>
+                      <button onClick={markActive} className="text-[#78716c] hover:text-[#44403c] transition-colors">Marquer comme actif (démo)</button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              {m.pending ? (
-                <div className="mt-2.5 flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
-                    <Glyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="text-[14px] text-[#292524] font-medium">{plan ? `Plan ${plan.name}` : 'Lecture seule'}</span>
-                    <p className="text-[12px] text-[#a8a29e]">{plan ? 'Licence réservée - active à l\'acceptation.' : 'Aucune licence - accès en lecture seule.'}</p>
-                  </div>
-                </div>
-              ) : profilePlanEditing ? (
-                <div className="mt-3 space-y-1.5">
-                  <button
-                    onClick={() => { if (m.plan) requestAssignPlan(m.id, ''); setProfilePlanEditing(false); }}
-                    className={`w-full flex items-center justify-between gap-3 px-3 h-10 rounded-lg border text-left transition-colors ${!m.plan ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
-                  >
-                    <span className="flex items-center gap-2 min-w-0">
-                      <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                      <span className="text-[14px] text-[#292524]">Lecture seule</span>
-                      <span className="text-[12px] text-[#a8a29e]">gratuit</span>
-                    </span>
-                    {!m.plan && <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />}
-                  </button>
-                  {PRICING_PLANS.map((p) => {
-                    const avail = licenceAvailable(p.id);
-                    const isCurrent = m.plan === p.id;
-                    const PG = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => { if (!isCurrent) requestAssignPlan(m.id, p.id); setProfilePlanEditing(false); }}
-                        className={`w-full flex items-center justify-between gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${isCurrent ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
-                      >
-                        <span className="flex items-center gap-2 min-w-0">
-                          <PG className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                          <span className="text-[14px] text-[#292524]">Plan {p.name}</span>
-                          <span className="text-[12px] text-[#a8a29e] tabular-nums">{p.monthly} €/mois</span>
-                        </span>
-                        {isCurrent ? (
-                          <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />
-                        ) : avail > 0 ? (
-                          <span className="text-[12px] text-[#78716c] tabular-nums flex-shrink-0">{avail} dispo</span>
-                        ) : (
-                          <span className="text-[11px] font-medium text-[#855b31] tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="mt-2.5 flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
-                    <Glyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
-                  </div>
-                  <span className="text-[14px] text-[#292524] font-medium">{plan ? `Plan ${plan.name}` : 'Lecture seule'}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Quota IA */}
-            <div className="rounded-xl border border-[#e7e5e3] p-4">
+            )}
+            {/* Licence - plan + weekly quota; "Modifier" opens the picker */}
+            <div className="px-6 py-5 border-t border-[#e7e5e3]">
               <div className="flex items-center justify-between">
-                <span style={cardLabel}>Quota IA</span>
-                <span className="text-[12px] text-[#a8a29e]">Se recharge lundi</span>
+                <span style={cardLabel}>Licence</span>
+                <button onClick={() => openPlanPicker(m)} className="text-[13px] font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity">Modifier</button>
+              </div>
+              <div className="mt-3 flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                  <Glyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                </div>
+                <span className="text-[14px] text-[#292524] font-medium">{plan ? `Plan ${plan.name}` : 'Lecture seule'}</span>
               </div>
               {plan ? (
                 <>
-                  <div className="mt-3 flex items-baseline justify-between gap-3">
-                    <span className="text-[13px] text-[#44403c]">
-                      Quota hebdomadaire <span className="text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11 }}>×{plan.quotaMult}</span>
-                    </span>
+                  <div className="mt-4 flex items-baseline justify-between gap-3">
+                    <span className="text-[13px] text-[#44403c]">Quota hebdomadaire</span>
                     <span className="text-[13px] tabular-nums font-medium" style={{ color: tone.warn ? '#855b31' : '#292524' }}>{quotaPct}% utilisé</span>
                   </div>
                   <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ backgroundColor: tone.warn ? tone.fill : tone.track }}>
@@ -20393,39 +20346,69 @@ export default function App() {
                   </div>
                 </>
               ) : (
-                <p className="text-[13px] text-[#78716c] mt-2.5">Sans licence, l'accès est en lecture seule - aucun quota IA.</p>
+                <p className="text-[13px] text-[#78716c] mt-3">Sans licence, l'accès est en lecture seule - aucun quota IA.</p>
               )}
             </div>
 
-            {/* Détails */}
-            <div className="rounded-xl border border-[#e7e5e3] p-4">
-              <span style={cardLabel}>Détails</span>
+            {/* Rôle - direct segmented toggle (same control as the invite modal) */}
+            <div className="px-6 py-5 border-t border-[#e7e5e3]">
+              <span style={cardLabel}>Rôle</span>
+              <div className="mt-3 flex items-center gap-2">
+                {[
+                  { id: 'Membre', icon: UserRound },
+                  { id: 'Admin',  icon: Crown },
+                ].map(({ id, icon: Icon }) => {
+                  const active = m.role === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => { if (!isSelf && !active) setRole(id); }}
+                      disabled={isSelf}
+                      className="inline-flex items-center justify-center gap-2 h-9 px-3 transition-colors"
+                      style={{
+                        borderRadius: 8,
+                        backgroundColor: active ? '#292524' : '#f8f7f5',
+                        border: active ? '1px solid #292524' : '1px solid #e7e5e3',
+                        color: active ? 'white' : '#292524',
+                        cursor: isSelf ? 'not-allowed' : 'pointer',
+                        opacity: isSelf && !active ? 0.5 : 1,
+                      }}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                      <span className="text-body-medium leading-5">{id}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {isSelf && <p className="text-[12px] text-[#78716c] mt-2.5">Vous ne pouvez pas modifier votre propre rôle.</p>}
+            </div>
+
+            {/* Détail - membership info */}
+            <div className="px-6 py-5 border-t border-[#e7e5e3]">
+              <span style={cardLabel}>Détail</span>
               <div className="mt-3 space-y-2.5">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[13px] text-[#78716c]">Rôle</span>
-                  <span className="text-[13px] text-[#292524] font-medium">{m.role}</span>
-                </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-[13px] text-[#78716c]">Membre depuis</span>
                   <span className="text-[13px] text-[#292524] font-medium">{m.joinedDate || '—'}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 min-w-0">
+                  <span className="text-[13px] text-[#78716c] flex-shrink-0">E-mail</span>
+                  <span className="text-[13px] text-[#292524] font-medium truncate">{m.email}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Footer - role + remove (others only) */}
+          {/* Footer - cancel invite (pending) or remove (active); others only */}
           {!isSelf && (
-            <div className="px-6 py-4 border-t border-[#e7e5e3] flex items-center gap-2 flex-shrink-0">
-              <button onClick={() => setRole(m.role === 'Admin' ? 'Membre' : 'Admin')} className="h-9 px-4 rounded-lg border border-[#e7e5e3] bg-white text-[13px] font-medium text-[#292524] hover:bg-[#fafaf9] transition-colors">
-                {m.role === 'Admin' ? 'Passer en membre' : 'Passer en admin'}
-              </button>
-              <button onClick={removeMember} className="h-9 px-4 rounded-lg border border-[#e7e5e3] text-[13px] font-medium text-[#7f1d1d] hover:bg-[#fef2f2] transition-colors">
-                Supprimer de l'organisation
+            <div className="px-6 py-4 border-t border-[#e7e5e3] flex items-center justify-end flex-shrink-0">
+              <button onClick={m.pending ? cancelInvite : removeMember} className="h-9 px-4 rounded-lg text-[13px] font-medium text-[#b91c1c] bg-[#fef2f2] hover:bg-[#fee2e2] transition-colors">
+                {m.pending ? "Annuler l'invitation" : 'Supprimer'}
               </button>
             </div>
           )}
         </div>
-      </div>
+      </>
     );
   };
 
@@ -20448,14 +20431,12 @@ export default function App() {
             )
           )}
 
-          {/* Licence recap - purchased vs dispatched per plan (admin only) */}
+          {/* Licence recap - active licences per plan (one per collaborator), admin only */}
           {isAdmin && (
             <div className="mb-5 rounded-md border border-[#e7e5e3] bg-white overflow-hidden">
               <div className="grid grid-cols-3 divide-x divide-[#e7e5e3]">
                 {PRICING_PLANS.map((p) => {
-                  const purchased = licenceInventory[p.id] || 0;
-                  const assigned = licencesAssigned[p.id] || 0;
-                  const available = Math.max(0, purchased - assigned);
+                  const count = licencesAssigned[p.id] || 0;
                   const Glyph = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
                   return (
                     <div key={p.id} className="px-4 py-3.5">
@@ -20464,9 +20445,10 @@ export default function App() {
                         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Plan {p.name}</span>
                       </div>
                       <div className="mt-1.5 flex items-baseline gap-1.5">
-                        <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: available > 0 ? '#18181b' : '#bd6c1a', lineHeight: 1 }}>{available}</span>
-                        <span className="text-[13px]" style={{ color: available > 0 ? '#78716c' : '#855b31' }}>/ {purchased} licence{purchased > 1 ? 's' : ''} disponible{purchased > 1 ? 's' : ''}</span>
-                      </div>                    </div>
+                        <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: '#18181b', lineHeight: 1 }}>{count}</span>
+                        <span className="text-[13px] text-[#78716c]">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -20546,16 +20528,11 @@ export default function App() {
       setParrainageForm({ prenom: '', nom: '', email: '' });
     };
 
-    const copyCode = () => {
-      try { if (navigator.clipboard) navigator.clipboard.writeText(promoCode); } catch (e) { /* noop */ }
-      setToastMessage('Code promo copié.');
-      setTimeout(() => setToastMessage(null), 2500);
-    };
 
     const sendByEmail = () => {
       if (!emailValid) return;
       close();
-      setToastMessage(`Code promo envoyé à ${email}.`);
+      setToastMessage(`Parrainage envoyé à ${email}.`);
       setTimeout(() => setToastMessage(null), 3000);
     };
 
@@ -20704,58 +20681,20 @@ export default function App() {
                     lineHeight: 1,
                   }}
                 >
-                  Votre code promo
+                  Inviter un confrère
                 </div>
 
-                {/* Code box + copy */}
-                <div className="flex items-stretch" style={{ gap: 12 }}>
-                  <div
-                    className="flex-1 min-w-0 flex items-center tabular-nums"
-                    style={{
-                      height: 40,
-                      padding: '8px 14px',
-                      background: '#faf6ef',
-                      border: '1px solid rgba(238,185,126,0.5)',
-                      borderRadius: 8,
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 15, fontWeight: 500,
-                      letterSpacing: '0.08em',
-                      color: '#bd6c1a',
-                    }}
-                  >
-                    {promoCode}
-                  </div>
-                  <button
-                    onClick={copyCode}
-                    className="flex items-center justify-center transition-colors hover:bg-[#44403c]"
-                    style={{
-                      gap: 8,
-                      height: 40,
-                      padding: '8px 20px',
-                      background: '#292524',
-                      color: '#ffffff',
-                      borderRadius: 8,
-                      fontFamily: "'Inter', system-ui, sans-serif",
-                      fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                      filter: 'drop-shadow(0 1px 1px rgba(26,26,26,0.05))',
-                    }}
-                  >
-                    <Copy className="w-4 h-4" strokeWidth={2} />
-                    Copier
-                  </button>
-                </div>
-
-                {/* Optional - send the code by email */}
+                {/* Send the referral by email - the colleague receives your code */}
                 <div className="flex" style={{ gap: 12 }}>
                   <input
                     type="email"
                     value={parrainageForm.email}
                     onChange={(e) => setParrainageForm(f => ({ ...f, email: e.target.value }))}
                     onKeyDown={(e) => { if (e.key === 'Enter' && emailValid) sendByEmail(); }}
-                    placeholder="E-mail du confrère (optionnel)..."
+                    placeholder="E-mail du confrère..."
                     className="flex-1 min-w-0 placeholder:text-[#78716c]"
                     style={{
-                      height: 36,
+                      height: 40,
                       padding: '8px 12px',
                       fontSize: 14, lineHeight: '20px',
                       color: '#292524',
@@ -20769,23 +20708,27 @@ export default function App() {
                   <button
                     onClick={sendByEmail}
                     disabled={!emailValid}
-                    className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#eeece6]"
+                    className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#44403c]"
                     style={{
                       gap: 8,
-                      height: 36,
-                      padding: '8px 16px',
-                      background: '#ffffff',
-                      color: '#292524',
-                      border: '1px solid #e7e5e3',
+                      height: 40,
+                      padding: '8px 20px',
+                      background: '#292524',
+                      color: '#ffffff',
                       borderRadius: 8,
                       fontFamily: "'Inter', system-ui, sans-serif",
                       fontSize: 14, fontWeight: 500, lineHeight: '20px',
                       whiteSpace: 'nowrap',
+                      filter: 'drop-shadow(0 1px 1px rgba(26,26,26,0.05))',
                     }}
                   >
-                    Envoyer
+                    <ArrowRight className="w-4 h-4" strokeWidth={2} />
+                    Envoyer le parrainage
                   </button>
                 </div>
+                <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: '#78716c', lineHeight: '16px', margin: 0 }}>
+                  Votre confrère recevra une invitation avec votre code <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: '#bd6c1a' }}>{promoCode}</span>.
+                </p>
               </div>
             </div>
 
@@ -20799,7 +20742,7 @@ export default function App() {
                 margin: 0,
               }}
             >
-              En partageant votre code promo, vous acceptez nos{' '}
+              En envoyant un parrainage, vous acceptez nos{' '}
               <a
                 href="#"
                 onClick={(e) => e.preventDefault()}
@@ -20820,6 +20763,9 @@ export default function App() {
   const renderSettingsUsage = () => {
     const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
     const isTrial = billingState === 'trial' || billingState === 'trial-end';
+    // Weekly quota exhausted (demo: quota 100%). Members ask their admin for an
+    // upgrade; admins self-upgrade. Reuses the existing ask/self-upgrade modals.
+    const outOfQuota = myQuotaPct >= 100 && billingState !== 'none' && !!myPlan;
     const pillCls = (on) => `px-2 py-0.5 rounded-md transition-colors ${on ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`;
     const sectionLabel = (text) => (
       <div className="flex items-baseline gap-3 mb-4">
@@ -20869,6 +20815,21 @@ export default function App() {
                 <div className="mt-5">
                   {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, lifecycle: billingState, trialDaysRemaining, variant: 'full' })}
                 </div>
+
+                {outOfQuota && (
+                  <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border px-4 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
+                    <p className="text-[13px] min-w-0" style={{ color: '#855b31' }}>
+                      Besoin de plus d'usage cette semaine ? Demandez une mise à niveau à un administrateur.
+                    </p>
+                    <button
+                      onClick={() => setAskUpgradeOpen(true)}
+                      className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+                    >
+                      <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
+                      Demander une mise à niveau
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="pt-6">
@@ -20903,88 +20864,59 @@ export default function App() {
   };
 
   const renderSettingsBilling = () => {
-    const fmtEur = (n) => n.toLocaleString('fr-FR');
     const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
-    const draftCount = PRICING_PLANS.reduce((s, p) => s + (licenceDraft[p.id] || 0), 0);
-    const draftTotal = PRICING_PLANS.reduce((s, p) => s + (licenceDraft[p.id] || 0) * p.monthly, 0);
-    // What the account pays each month = all purchased seats × their price (assigned or not).
-    const purchasedTotal = PRICING_PLANS.reduce((s, p) => s + (licenceInventory[p.id] || 0) * p.monthly, 0);
-
-    const sectionLabel = (text) => (
-      <div className="flex items-baseline gap-3 mb-4">
-        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{text}</span>
-        <span className="flex-1 h-px bg-[#e7e5e3]" />
-      </div>
-    );
-
+    const pillCls = (on) => `px-2 py-0.5 rounded-md transition-colors ${on ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`;
+    const PlanGlyph = myPlan ? (myPlan.id === 'MAX+' ? ChessQueen : myPlan.id === 'MAX' ? ChessRook : ChessPawn) : Eye;
     return (
       <>
         <div className="flex-1 overflow-y-auto px-8 py-10">
           <div className="max-w-5xl w-full mx-auto">
             {renderSettingsHeader(
               'Plan et facturation',
-              'Le forfait du cabinet, la répartition des licences et la facturation.'
-            )}
-            <div className="space-y-4">
-
-            {/* ── ABONNEMENT DU CABINET (admin) - licences per tier + total ─── */}
-            {isAdmin && (
-              <div className="pt-6">
-                {sectionLabel('ABONNEMENT DU CABINET')}
-                <div className="rounded-md border border-[#e7e5e3] bg-white overflow-hidden">
-                  <div className="grid grid-cols-3 divide-x divide-[#e7e5e3]">
-                    {PRICING_PLANS.map((p) => {
-                      const purchased = licenceInventory[p.id] || 0;
-                      const assigned = licencesAssigned[p.id] || 0;
-                      const available = Math.max(0, purchased - assigned);
-                      const Glyph = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
-                      return (
-                        <div key={p.id} className="px-4 py-4 flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <Glyph className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Plan {p.name}</span>
-                            <span className="text-[10px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>×{p.quotaMult}</span>
-                          </div>
-                          {/* Pricing per plan */}
-                          <div className="text-[12px] text-[#78716c] tabular-nums mt-1">{p.monthly} € HT / mois / licence</div>
-                          {/* Seats available - the focus metric */}
-                          <div className="mt-2.5 flex items-baseline gap-1.5">
-                            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: available > 0 ? '#18181b' : '#bd6c1a', lineHeight: 1 }}>{available}</span>
-                            <span className="text-[13px]" style={{ color: available > 0 ? '#78716c' : '#855b31' }}>/ {purchased} licence{purchased > 1 ? 's' : ''} disponible{purchased > 1 ? 's' : ''}</span>
-                          </div>
-                          {/* Add a seat */}
-                          <button
-                            onClick={() => { setAddLicencePlan(p.id); setAddLicenceQty(1); }}
-                            className="mt-3 self-start inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg border border-[#e7e5e3] bg-white text-[13px] font-medium text-[#292524] hover:bg-[#fafaf9] transition-colors"
-                          >
-                            <Plus className="w-3.5 h-3.5" strokeWidth={2} />
-                            Ajouter une licence
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* Global account pricing per month (all purchased seats) */}
-                  <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-[#fafaf9] border-t border-[#e7e5e3]">
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: 'normal' }}>Total du compte</span>
-                    <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 20, color: '#18181b' }}>
-                      {fmtEur(purchasedTotal)} €{' '}
-                      <span className="text-[13px] text-[#78716c]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>HT / mois</span>
-                    </span>
-                  </div>
+              'Votre plan et votre consommation de dossiers.',
+              <div className="flex flex-col items-end gap-1.5 text-[10px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                <div className="flex items-center gap-1">
+                  <span className="uppercase tracking-wider mr-1">Démo</span>
+                  {[{ id: 'active', label: 'actif' }, { id: 'trial', label: 'essai 5j' }, { id: 'trial-end', label: 'essai 1j' }, { id: 'none', label: 'Ø licence' }].map(s => (
+                    <button key={s.id} onClick={() => setBillingState(s.id)} className={pillCls(billingState === s.id)}>{s.label}</button>
+                  ))}
                 </div>
-                <p className="text-[12px] text-[#78716c] mt-2">
-                  Sans engagement · facturation mensuelle. Les utilisateurs sans licence restent en lecture seule, gratuitement.
-                </p>
+                <div className="flex items-center gap-1">
+                  {[{ id: 'fresh', label: 'quota 16%' }, { id: 'mid', label: 'quota 63%' }, { id: 'full', label: 'quota 100%' }].map(s => (
+                    <button key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
+                  ))}
+                </div>
               </div>
             )}
+            <div className="space-y-4">
+              {/* VOTRE PLAN - org plan + weekly quota (trial banner carried by the card) */}
+              <div className="pt-2">
+                <div className="flex items-baseline gap-3 mb-4">
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>VOTRE PLAN</span>
+                  <span className="flex-1 h-px bg-[#e7e5e3]" />
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                    <PlanGlyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                  </div>
+                  <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em' }}>
+                    {myPlan ? `Plan ${myPlan.name}` : 'Lecture seule'}
+                  </h2>
+                </div>
+                <div className="mt-5">
+                  {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, lifecycle: billingState, trialDaysRemaining, variant: 'full', org: true })}
+                </div>
+              </div>
 
-            {/* ── INCLUS DANS CHAQUE LICENCE - rappel des fonctionnalités ───── */}
-            {isAdmin && (
+              {/* INCLUS DANS VOTRE PLAN - feature recap */}
               <div className="pt-6">
-                {sectionLabel('INCLUS DANS CHAQUE LICENCE')}
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE PLAN' : 'VOTRE ACCÈS'}</span>
+                  <span className="flex-1 h-px bg-[#e7e5e3]" />
+                </div>
+                {myPlan && <p className="text-[12px] text-[#78716c] mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
                 <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
-                  {PLAN_FEATURES.map((f, i) => {
+                  {myPlan ? PLAN_FEATURES.map((f, i) => {
                     const Icon = f.icon;
                     return (
                       <div key={i} className="flex items-center gap-3 px-5 py-3.5">
@@ -20993,134 +20925,39 @@ export default function App() {
                         {f.hint && <span className="text-[12px] text-[#a8a29e]">({f.hint})</span>}
                       </div>
                     );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Buy-licences modal - pick a plan + a number of licences (admin) */}
-            {billingUpgradeModalOpen && isAdmin && (
-              <div
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
-                onClick={() => setBillingUpgradeModalOpen(false)}
-              >
-                <div
-                  className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col"
-                  style={{ width: 640, maxHeight: '90vh' }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="px-6 pt-5 pb-4 border-b border-[#e7e5e3] flex items-start justify-between gap-2">
-                    <div>
-                      <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '20px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em' }}>
-                        Ajouter des licences
-                      </h2>
-                      <p className="text-[12px] text-[#78716c] mt-1">
-                        Choisissez un plan et un nombre de licences. Vous les attribuerez ensuite à vos collaborateurs.
-                      </p>
+                  }) : (
+                    <div className="flex items-center gap-3 px-5 py-3.5">
+                      <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                      <span className="text-[13px] text-[#292524] font-medium">Accès aux dossiers en lecture seule</span>
                     </div>
-                    <button
-                      onClick={() => setBillingUpgradeModalOpen(false)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors flex-shrink-0"
-                    >
-                      <X className="w-4 h-4 text-[#78716c]" />
-                    </button>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
-                    {PRICING_PLANS.map((p) => {
-                      const qty = licenceDraft[p.id] || 0;
-                      const Glyph = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
-                      return (
-                        <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg border border-[#e7e5e3] px-4 py-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <Glyph className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                            <div className="min-w-0">
-                              <div className="text-[14px] text-[#292524] font-medium">
-                                Plan {p.name}{' '}
-                                <span className="text-[11px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>· quota ×{p.quotaMult}</span>
-                              </div>
-                              <div className="text-[12px] text-[#78716c] tabular-nums">{p.monthly} € HT / mois / licence</div>
-                              <div className="text-[11px] text-[#a8a29e] tabular-nums">Quota IA ≈ {p.weeklyEuros} € d'usage réel / semaine</div>
-                            </div>
-                          </div>
-                          <div className="inline-flex items-center bg-white border border-[#e7e5e3] rounded-lg overflow-hidden flex-shrink-0">
-                            <button
-                              onClick={() => setLicenceDraft((d) => ({ ...d, [p.id]: Math.max(0, (d[p.id] || 0) - 1) }))}
-                              className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors"
-                            >
-                              −
-                            </button>
-                            <span className="w-10 text-center text-[15px] font-medium tabular-nums text-[#292524]">{qty}</span>
-                            <button
-                              onClick={() => setLicenceDraft((d) => ({ ...d, [p.id]: (d[p.id] || 0) + 1 }))}
-                              className="w-9 h-9 flex items-center justify-center text-[#78716c] hover:bg-[#fafaf9] transition-colors"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="px-6 py-4 border-t border-[#e7e5e3] bg-[#fafaf9] flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider">Total mensuel</div>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 400, color: '#18181b' }}>
-                          {fmtEur(draftTotal)} €
-                        </span>
-                        <span className="text-[12px] text-[#78716c]">HT / mois · {draftCount} licence{draftCount > 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
-                    <button
-                      disabled={draftCount === 0}
-                      onClick={() => {
-                        setLicenceInventory((inv) => {
-                          const next = { ...inv };
-                          PRICING_PLANS.forEach((p) => { next[p.id] = (next[p.id] || 0) + (licenceDraft[p.id] || 0); });
-                          return next;
-                        });
-                        setBillingUpgradeModalOpen(false);
-                        setToastMessage(`${draftCount} licence${draftCount > 1 ? 's' : ''} ajoutée${draftCount > 1 ? 's' : ''} · ${fmtEur(draftTotal)} € HT / mois (démo).`);
-                        setTimeout(() => setToastMessage(null), 3500);
-                      }}
-                      className={`flex items-center gap-2 h-10 px-5 text-white text-[14px] font-medium rounded-lg transition-colors ${draftCount === 0 ? 'bg-[#d6d3d1] cursor-not-allowed' : 'bg-[#292524] hover:bg-[#44403c]'}`}
-                    >
-                      Souscrire · sans engagement
-                      <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
-                    </button>
-                  </div>
+                  )}
                 </div>
               </div>
-            )}
 
-            {/* Manage subscription - Stripe portal links (admin, has a plan) */}
-            {isAdmin && billingState !== 'none' && (
-              <div className="pt-8">
-                {sectionLabel('GÉRER MON ABONNEMENT')}
-                <div className="rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
-                  {[
-                    { label: 'Mes factures', target: 'factures' },
-                    { label: 'Changer ma méthode de paiement', target: 'paiement' },
-                  ].map((link) => (
-                    <button
-                      key={link.target}
-                      onClick={() => {
-                        setToastMessage(`Redirection vers Stripe - ${link.label.toLowerCase()}…`);
-                        setTimeout(() => setToastMessage(null), 3000);
-                      }}
-                      className="w-full flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-[#eeece6] transition-colors text-left group"
-                    >
-                      <span className="text-[14px] text-[#292524] font-medium">{link.label}</span>
-                      <ExternalLink className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
-                    </button>
-                  ))}
+              {/* GÉRER MON ABONNEMENT - Stripe portal (only once the org is on a paid plan) */}
+              {billingState === 'active' && (
+                <div className="pt-8">
+                  <div className="flex items-baseline gap-3 mb-4">
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>GÉRER MON ABONNEMENT</span>
+                    <span className="flex-1 h-px bg-[#e7e5e3]" />
+                  </div>
+                  <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
+                    {[
+                      { label: 'Mes factures', target: 'factures' },
+                      { label: 'Changer ma méthode de paiement', target: 'paiement' },
+                    ].map((link) => (
+                      <button
+                        key={link.target}
+                        onClick={() => { setToastMessage(`Redirection vers Stripe - ${link.label.toLowerCase()}…`); setTimeout(() => setToastMessage(null), 3000); }}
+                        className="w-full flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-[#eeece6] transition-colors text-left group"
+                      >
+                        <span className="text-[14px] text-[#292524] font-medium">{link.label}</span>
+                        <ExternalLink className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-
+              )}
             </div>
           </div>
         </div>
@@ -21780,6 +21617,8 @@ export default function App() {
       {
         label: 'Organisation',
         items: [
+          // Org settings (cabinet name…) are admin-only.
+          ...(isAdmin ? [{ id: 'organisation', label: 'Organisation', icon: Landmark }] : []),
           { id: 'users', label: 'Collaborateurs', icon: Users },
           // Plan & facturation (cabinet billing) is admin-only - members see their plan in "Mon usage".
           ...(isAdmin ? [{ id: 'billing', label: 'Plan et facturation', icon: Receipt }] : []),
@@ -21816,7 +21655,7 @@ export default function App() {
               {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
                 <button
                   key={s.id}
-                  onClick={() => setDemoPersona(s.id)}
+                  onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
                   className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`}
                 >
                   {s.label}
@@ -21860,6 +21699,8 @@ export default function App() {
         <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#F8F7F5' }}>
           {settingsSection === 'users' && renderSettingsUsers()}
           {settingsSection === 'general' && renderSettingsGeneral()}
+          {/* Org settings are admin-only; non-admins fall back to their account page. */}
+          {settingsSection === 'organisation' && (isAdmin ? renderSettingsOrganisation() : renderSettingsGeneral())}
           {settingsSection === 'tampon' && renderSettingsTampon()}
           {settingsSection === 'usage' && renderSettingsUsage()}
           {settingsSection === 'preferences' && renderSettingsPreferences()}
@@ -23715,17 +23556,11 @@ export default function App() {
       {/* Parrainage modal - triggered from the sidebar promo card */}
       {renderParrainageModal()}
 
-      {/* Add-licence confirm - shows the resulting monthly price */}
-      {renderAddLicenceModal()}
-
       {/* Collaborator profile panel - view/edit a member (role, plan, delete) */}
       {renderMemberProfilePanel()}
 
-      {/* Licence upgrade confirm - when assigning a plan with no free licence */}
-      {renderLicenceUpgradeModal()}
-
-      {/* Weekly-quota exhausted - admin self-upgrade */}
-      {renderQuotaUpgradeModal()}
+      {/* Licence picker - choose a member's plan (opens from the profile drawer) */}
+      {renderPlanPickerModal()}
 
       {/* Weekly-quota exhausted - member asks admin for an upgrade */}
       {renderAskUpgradeModal()}
@@ -24053,4 +23888,5 @@ export default function App() {
   );
 }
 // Force deploy Fri Jan 30 16:16:33 CET 2026
+
 
