@@ -26,6 +26,7 @@ import AlertDialog from './components/AlertDialog';
 import TokensSection from './components/ui-kit/TokensSection';
 import ComponentsInventorySection from './components/ui-kit/ComponentsInventorySection';
 import ComponentDetailPage from './components/ui-kit/ComponentDetailPage';
+import SommaireActeLab from './components/ui-kit/SommaireActeLab';
 import { BASELINE_DSA_LIGNES, BASELINE_DFT_LIGNES, BASELINE_PGPA_DATA, BASELINE_PGPF_DATA, BASELINE_FORM_POSTE_DATA, BASELINE_FDA_LIGNES, BASELINE_DSF_DATA } from './data/baselineData';
 import { NATURE_CREANCE, NATURE_TO_POSTE, NATURE_LABELS } from './data/tpScenarios';
 import PiecesTab from './components/pieces/PiecesTab';
@@ -1268,7 +1269,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte'];
 const UI_KIT_SUBSECTION_SLUGS = [
   'tokens',
   'inventory',
@@ -17267,6 +17268,9 @@ export default function App() {
             <button onClick={() => navigate('/ui-kit/reasoning-demo')} className="w-full text-left text-body-medium text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Brain className="w-3.5 h-3.5" /> Reasoning Demo
             </button>
+            <button onClick={() => navigate('/ui-kit/sommaire-acte')} className="w-full text-left text-body-medium text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <AlignLeft className="w-3.5 h-3.5" /> Sommaire d'acte
+            </button>
           </nav>
         </div>
 
@@ -23610,6 +23614,9 @@ export default function App() {
   }
   if (currentPage === 'prompt-suggestions') {
     return (<>{renderPromptSuggestionsPage()}{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'sommaire-acte') {
+    return (<><SommaireActeLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'list') {
     return (<>{renderDossierListPage()}{renderGlobalOverlays()}</>);
