@@ -20,6 +20,10 @@ const TICK_ON = '#a8a29e';    // on-path tick
 // present in the document, so a flat acte never renders an empty 5-level tree.
 const TICK_WIDTHS = [22, 17, 13, 9, 6];
 
+// Indentation is capped at this depth — deeper entries stay at the 2nd level
+// rather than marching further right (fine nav is delegated to search).
+const MAX_DEPTH = 2;
+
 // Compact montant for the sommaire: euros rounded, French thousands grouping;
 // reserve / mémoire keywords collapse to a short tag.
 function compactMontant(m) {
@@ -55,17 +59,12 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
   // Tick density + depth cap. Indentation and tick width follow the outline
   // depth (document structure). Beyond a threshold we cap to 3 tick widths —
   // fine navigation is delegated to search.
-  const { maxRank, rowH } = useMemo(() => {
+  const rowH = useMemo(() => {
     const count = headings.length;
-    const cap = count > 40 ? 3 : 5;
-    const rh = count > 45 ? 5 : count > 28 ? 7 : 11; // compress to stay one card
-    return { maxRank: cap - 1, rowH: rh };
+    return count > 45 ? 5 : count > 28 ? 7 : 11; // compress to stay one card
   }, [headings]);
 
-  const tickWidth = useCallback(
-    (depth) => TICK_WIDTHS[Math.min(depth, maxRank, 4)],
-    [maxRank],
-  );
+  const tickWidth = useCallback((depth) => TICK_WIDTHS[Math.min(depth, MAX_DEPTH)], []);
 
   // Scroll-spy: the current section is the last heading whose top has crossed a
   // probe line just below the acte header. rAF-throttled.
@@ -206,7 +205,7 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
             const isActive = h.id === activeId;
             const isOnPath = onPath.has(h.id);
             const isHovered = h.id === hoveredId;
-            const depth = Math.min(h.depth, 4);
+            const depth = Math.min(h.depth, MAX_DEPTH);
             const montant = compactMontant(h.montant);
             return (
               <button
@@ -290,7 +289,7 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
           {headings.map((h) => {
             const isActive = h.id === activeId;
             const isOnPath = onPath.has(h.id);
-            const indent = Math.min(h.depth, maxRank) * 5;
+            const indent = Math.min(h.depth, MAX_DEPTH) * 5;
             return (
               <div
                 key={h.id}
