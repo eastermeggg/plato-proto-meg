@@ -62,7 +62,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
         <div className="flex flex-col gap-6 px-6 pt-6 pb-8">
           {/* PDF drop zone */}
           <div className="flex flex-col gap-2">
-            <label style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="fiche-cabinet-pdf" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
               PDF de la décision
             </label>
             <label
@@ -107,7 +107,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
                   </>
                 )}
               </div>
-              <input type="file" accept=".pdf" onChange={(e) => handleFile(e.target.files?.[0])} className="hidden" />
+              <input id="fiche-cabinet-pdf" type="file" accept=".pdf" onChange={(e) => handleFile(e.target.files?.[0])} className="hidden" />
             </label>
           </div>
 
@@ -122,7 +122,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
 
           {/* Lien de la décision */}
           <div className="flex flex-col gap-2">
-            <label style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="fiche-cabinet-url" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
               Lien de la décision
             </label>
             <div
@@ -135,6 +135,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
             >
               <LinkIcon className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />
               <input
+                id="fiche-cabinet-url"
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
@@ -150,10 +151,11 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
 
           {/* Apport */}
           <div className="flex flex-col gap-2">
-            <label style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="fiche-cabinet-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
               Apport de la décision
             </label>
             <textarea
+              id="fiche-cabinet-impact"
               value={impact}
               onChange={(e) => setImpact(e.target.value)}
               rows={6}

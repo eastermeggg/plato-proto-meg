@@ -430,10 +430,11 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                 {/* Nom du document */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1">
-                    <label className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Nom du document</label>
+                    <label htmlFor="pile-segment-name" className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Nom du document</label>
                     <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
                   </div>
                   <input
+                    id="pile-segment-name"
                     value={active ? (active._customName || active.label) : ''}
                     onChange={(e) => setSegmentName(safe, e.target.value)}
                     className="w-full text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-2.5 hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
@@ -466,7 +467,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                 {/* Date du document */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1">
-                    <label className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Date du document</label>
+                    <span className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Date du document</span>
                     <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
                   </div>
                   <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-[#e7e5e3] bg-white" style={{ boxShadow: SHADOW_XS }}>

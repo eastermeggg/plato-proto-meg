@@ -275,10 +275,11 @@ export default function JPAddStepper({
 
               {mode === 'link' && (
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
+                  <label htmlFor="jp-add-url" style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
                     URL Légifrance ou autre source
                   </label>
                   <input
+                    id="jp-add-url"
                     type="text"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
@@ -293,7 +294,7 @@ export default function JPAddStepper({
 
               {mode === 'upload' && (
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
+                  <label htmlFor="jp-add-pdf" style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
                     Décision au format PDF
                   </label>
                   <label
@@ -305,6 +306,7 @@ export default function JPAddStepper({
                       {pdfFile ? pdfFile.name : 'Sélectionner un PDF'}
                     </span>
                     <input
+                      id="jp-add-pdf"
                       type="file"
                       accept=".pdf"
                       onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
@@ -326,9 +328,9 @@ export default function JPAddStepper({
           {/* ── Step 2 — Portée ─────────────────────── */}
           {step === 2 && (
             <div>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
                 Où dans ce dossier ?
-              </label>
+              </div>
               <div className="space-y-1.5">
                 <CheckRow
                   checked={pinTransverse}
