@@ -92,6 +92,18 @@ const PLAN_FEATURES = [
   { icon: Download, label: 'Export PDF et Word' },
 ];
 
+// What each licence includes - shown on the cabinet "Plan et facturation" page.
+// Kept distinct from PLAN_FEATURES (the per-user "Mon usage" recap): here every
+// row is unlimited, framed at the licence level rather than the individual quota.
+const LICENCE_INCLUDED_FEATURES = [
+  { icon: Sparkles, label: 'Agent IA illimité' },
+  { icon: Calculator, label: 'Chiffrages illimités' },
+  { icon: Scale, label: 'Accès à Plato Jurisprudence illimité' },
+  { icon: FileSpreadsheet, label: 'Bordereau et découpe automatique des documents' },
+  { icon: Stamp, label: 'Tamponnage automatique des pièces' },
+  { icon: Download, label: 'Export PDF et Word' },
+];
+
 const POSTES_TAXONOMY = [
   {
     section: 'VICTIME DIRECTE',
@@ -20766,7 +20778,6 @@ export default function App() {
   // The cabinet billing page (renderSettingsBilling) is admin-only.
   const renderSettingsUsage = () => {
     const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
-    const isTrial = billingState === 'trial' || billingState === 'trial-end';
     // Weekly quota exhausted (demo: quota 100%). Members ask their admin for an
     // upgrade; admins self-upgrade. Reuses the existing ask/self-upgrade modals.
     const outOfQuota = myQuotaPct >= 100 && billingState !== 'none' && !!myPlan;
@@ -20800,20 +20811,14 @@ export default function App() {
             )}
             <div className="space-y-4">
               <div className="pt-2">
-                {sectionLabel('MON PLAN')}
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em' }}>
-                    {myPlan ? myPlan.name : 'Lecture seule'}
-                  </h2>
-                  {isTrial ? (
-                    <span className="text-[13px] text-[#78716c]">
-                      Période d'essai - <span className="font-medium text-[#292524] tabular-nums">{trialDaysRemaining} jour{trialDaysRemaining > 1 ? 's' : ''}</span> restant{trialDaysRemaining > 1 ? 's' : ''}
-                    </span>
-                  ) : myPlan ? (
-                    <span className="text-[13px] text-[#78716c]">— quota hebdomadaire ×{myPlan.quotaMult}</span>
-                  ) : (
-                    <span className="text-[13px] text-[#78716c]">— aucune licence active</span>
-                  )}
+                {sectionLabel('VOTRE PLAN')}
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#eeece6] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                    {(() => { const G = myPlan ? ({ PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen }[myPlan.id] || ChessPawn) : Eye; return <G className="w-5 h-5 text-[#78716c]" strokeWidth={1.5} />; })()}
+                  </div>
+                  <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }}>
+                    {myPlan ? `Plan ${myPlan.name}` : 'Lecture seule'}
+                  </span>
                 </div>
 
                 <div className="mt-5">
@@ -20867,101 +20872,102 @@ export default function App() {
     );
   };
 
+  // Cabinet-level "Plan et facturation" (admin-only): the forfait itself - one
+  // column per tier with its price and active-licence count, the account total,
+  // and what every licence includes. This is the org billing view; the per-user
+  // weekly consumption lives on "Mon usage" (renderSettingsUsage).
   const renderSettingsBilling = () => {
-    const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
-    const pillCls = (on) => `px-2 py-0.5 rounded-md transition-colors ${on ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`;
-    const PlanGlyph = myPlan ? (myPlan.id === 'MAX+' ? ChessQueen : myPlan.id === 'MAX' ? ChessRook : ChessPawn) : Eye;
+    // Tier glyph mirrors the licence-picker: Pawn → Rook → Queen.
+    const tierGlyph = { PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen };
+    const quotaLabel = { PRO: 'QUOTA DE BASE', MAX: 'QUOTA X2', 'MAX+': 'QUOTA X6' };
     return (
       <>
         <div className="flex-1 overflow-y-auto px-8 py-10">
           <div className="max-w-5xl w-full mx-auto">
             {renderSettingsHeader(
               'Plan et facturation',
-              'Votre plan et votre consommation de dossiers.',
-              <div className="flex flex-col items-end gap-1.5 text-[10px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-                <div className="flex items-center gap-1">
-                  <span className="uppercase tracking-wider mr-1">Démo</span>
-                  {[{ id: 'active', label: 'actif' }, { id: 'trial', label: 'essai 5j' }, { id: 'trial-end', label: 'essai 1j' }, { id: 'none', label: 'Ø licence' }].map(s => (
-                    <button key={s.id} onClick={() => setBillingState(s.id)} className={pillCls(billingState === s.id)}>{s.label}</button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-1">
-                  {[{ id: 'fresh', label: 'quota 16%' }, { id: 'mid', label: 'quota 63%' }, { id: 'full', label: 'quota 100%' }].map(s => (
-                    <button key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
-                  ))}
-                </div>
-              </div>
+              'Le forfait du cabinet, la répartition des licences et la facturation.',
+              <button
+                onClick={() => { setToastMessage('Redirection vers l’espace facturation Stripe…'); setTimeout(() => setToastMessage(null), 3000); }}
+                className="inline-flex items-center gap-2 h-9 px-4 bg-[#eeece6] text-[#44403c] text-[14px] font-medium rounded-lg hover:bg-[#e7e5e3] transition-colors flex-shrink-0"
+              >
+                Accéder à l'espace facturation
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </button>
             )}
-            <div className="space-y-4">
-              {/* VOTRE PLAN - org plan + weekly quota (trial banner carried by the card) */}
-              <div className="pt-2">
-                <div className="flex items-baseline gap-3 mb-4">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>VOTRE PLAN</span>
-                  <span className="flex-1 h-px bg-[#e7e5e3]" />
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
-                    <PlanGlyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+            <div className="space-y-5">
+              {/* Forfait - per-tier licence breakdown + account total */}
+              <div>
+                <div className="bg-white rounded-lg border border-[#e7e5e3] overflow-hidden">
+                  <div className="flex items-stretch">
+                    {PRICING_PLANS.map((p, i) => {
+                      const count = licencesAssigned[p.id] || 0;
+                      const Glyph = tierGlyph[p.id] || ChessPawn;
+                      return (
+                        <div key={p.id} className={`flex-1 min-w-0 px-4 py-4 ${i < PRICING_PLANS.length - 1 ? 'border-r border-[#e7e5e3]' : ''}`}>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Glyph className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                              <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }} className="truncate">
+                                Plan {p.name}
+                              </span>
+                            </div>
+                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase whitespace-nowrap">
+                              {quotaLabel[p.id]}
+                            </span>
+                          </div>
+                          <p className="mt-1.5 text-[14px] leading-5">
+                            <span className="text-[#292524] font-medium">{p.monthly} € </span>
+                            <span className="text-[#78716c]">HT / mois / licence</span>
+                          </p>
+                          <div className="h-px bg-[#e7e5e3] my-2.5" />
+                          <div className="flex items-baseline gap-1.5">
+                            <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 500, color: '#292524', letterSpacing: '-0.02em' }} className="tabular-nums">
+                              {count}
+                            </span>
+                            <span className="text-[14px] text-[#78716c]">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.015em' }}>
-                    {myPlan ? `Plan ${myPlan.name}` : 'Lecture seule'}
-                  </h2>
+                  <div className="flex items-center justify-between px-5 py-3.5 bg-[#fafaf9] border-t border-[#e7e5e3]">
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase">
+                      Total du compte
+                    </span>
+                    <p className="whitespace-nowrap">
+                      <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '30px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.02em' }} className="tabular-nums">
+                        {accountMonthlyTotal.toLocaleString('fr-FR')} €
+                      </span>
+                      <span className="text-[13px] text-[#78716c] ml-2">HT / mois</span>
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-5">
-                  {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, lifecycle: billingState, trialDaysRemaining, variant: 'full', org: true })}
-                </div>
+                <p className="text-[12px] text-[#78716c] leading-4 mt-2.5">
+                  Sans engagement, facturation mensuelle. Une licence s'obtient en invitant un collaborateur ; sans licence, accès lecture seule gratuit.
+                </p>
               </div>
 
-              {/* INCLUS DANS VOTRE PLAN - feature recap */}
-              <div className="pt-6">
-                <div className="flex items-baseline gap-3 mb-2">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE PLAN' : 'VOTRE ACCÈS'}</span>
+              {/* INCLUS DANS CHAQUE LICENCE - feature recap */}
+              <div className="pt-3">
+                <div className="flex items-center gap-5 mb-4">
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase whitespace-nowrap">
+                    Inclus dans chaque licence
+                  </span>
                   <span className="flex-1 h-px bg-[#e7e5e3]" />
                 </div>
-                {myPlan && <p className="text-[12px] text-[#78716c] mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
-                <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
-                  {myPlan ? PLAN_FEATURES.map((f, i) => {
+                <div className="bg-white rounded-lg border border-[#e7e5e3] overflow-hidden divide-y divide-[#e7e5e3]">
+                  {LICENCE_INCLUDED_FEATURES.map((f, i) => {
                     const Icon = f.icon;
                     return (
-                      <div key={i} className="flex items-center gap-3 px-5 py-3.5">
+                      <div key={i} className="flex items-center gap-4 px-5 py-3.5">
                         <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-[13px] text-[#292524] font-medium">{f.label}</span>
-                        {f.hint && <span className="text-[12px] text-[#a8a29e]">({f.hint})</span>}
+                        <span className="text-[14px] text-[#292524] font-medium">{f.label}</span>
                       </div>
                     );
-                  }) : (
-                    <div className="flex items-center gap-3 px-5 py-3.5">
-                      <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                      <span className="text-[13px] text-[#292524] font-medium">Accès aux dossiers en lecture seule</span>
-                    </div>
-                  )}
+                  })}
                 </div>
               </div>
-
-              {/* GÉRER MON ABONNEMENT - Stripe portal (only once the org is on a paid plan) */}
-              {billingState === 'active' && (
-                <div className="pt-8">
-                  <div className="flex items-baseline gap-3 mb-4">
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>GÉRER MON ABONNEMENT</span>
-                    <span className="flex-1 h-px bg-[#e7e5e3]" />
-                  </div>
-                  <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
-                    {[
-                      { label: 'Mes factures', target: 'factures' },
-                      { label: 'Changer ma méthode de paiement', target: 'paiement' },
-                    ].map((link) => (
-                      <button
-                        key={link.target}
-                        onClick={() => { setToastMessage(`Redirection vers Stripe - ${link.label.toLowerCase()}…`); setTimeout(() => setToastMessage(null), 3000); }}
-                        className="w-full flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-[#eeece6] transition-colors text-left group"
-                      >
-                        <span className="text-[14px] text-[#292524] font-medium">{link.label}</span>
-                        <ExternalLink className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
