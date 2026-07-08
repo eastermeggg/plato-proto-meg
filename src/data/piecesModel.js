@@ -577,6 +577,9 @@ export function classifyDropFirstPiece(piece, categories) {
   if (!piece) return null;
   const validId = (key) => categories.some(c => c.id === key) ? key : null;
 
+  // 0. Explicit categoryId carried by the piece (e.g. the droit-social drop pool) wins if valid here.
+  if (piece.categoryId && validId(piece.categoryId)) return piece.categoryId;
+
   // 1. Type-based mapping
   const type = piece.type || piece.docType;
   if (type && TYPE_TO_CATEGORY_KEY[type]) {

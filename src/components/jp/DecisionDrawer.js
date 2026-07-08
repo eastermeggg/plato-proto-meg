@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
-  X, ChevronRight, ChevronDown, ExternalLink, Download, Bookmark, Search, Tag,
-  Landmark, Calendar, Hash, FileText, Heart, Scale, LinkIcon,
-  User, Check, FileUp, AlertTriangle, Edit3,
+  X, ChevronRight, ChevronDown, ExternalLink, Download, Bookmark, Search,
+  Landmark, Calendar, Hash, FileText,
+  Check, Edit3,
 } from 'lucide-react';
-import { getDecisionById, getPrimaryAmount, formatDateLong } from '../../data/mockDecisions';
+import { getDecisionById, formatDateLong } from '../../data/mockDecisions';
 import SaveDestinationPopover from './SaveDestinationPopover';
 
 const fmt = (v) => v.toLocaleString('fr-FR');
@@ -105,12 +105,11 @@ export default function DecisionDrawer({
   const canNext = resultIndex < resultSet.length - 1;
   const hasDate = !!decision?.date && /^\d{4}-\d{2}-\d{2}/.test(decision.date);
 
-  const sections = decision?.textSections || [];
+  const sections = useMemo(() => decision?.textSections || [], [decision]);
   const themes = decision?.themes || [];
   const med = decision?.donneesMedicales;
   const prejudices = decision?.prejudices;
   const victime = decision?.victimProfile;
-  const primaryAmount = decision ? getPrimaryAmount(decision) : null;
 
   // Highlight search matches
   const highlightText = (text) => {

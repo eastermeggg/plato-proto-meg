@@ -32,13 +32,14 @@ import { NATURE_CREANCE, NATURE_TO_POSTE, NATURE_LABELS } from './data/tpScenari
 import PiecesTab from './components/pieces/PiecesTab';
 import BordereauTable from './components/pieces/BordereauTable';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
-import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
+import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES, BORDEREAU_PIECES_SOCIAL, BORDEREAU_CATEGORIES_SOCIAL } from './data/piecesSeed';
 import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows } from './data/piecesModel';
 import { getPileById } from './data/pilesSeed';
 import PileReviewBanner from './components/pieces/PileReviewBanner';
 import PileAdjustSheet from './components/pieces/PileAdjustSheet';
 import FusePiecesModal from './components/pieces/FusePiecesModal';
 import SplitVariantsLab from './components/pieces/SplitVariantsLab';
+import { ReleveEditor } from './components/social/ReleveHeuresLab';
 import {
   ChiffrageSlot,
   RedactionSlot,
@@ -381,9 +382,20 @@ function guessFileType(name) {
 // add flow) into processing items. Each file is matched to mock metadata of its
 // detected type (so it's classified by its name), one item per file, carrying
 // the per-document split choice. No random stack injection.
-function buildStagedProcessingItems(files, rapportFileId, idPrefix) {
+// Droit social drop pool — what the "extraction" reveals for a labour matter.
+// Each entry carries an explicit categoryId so it sorts into the social folders.
+const DROP_FIRST_DOCUMENT_POOL_SOCIAL = [
+  { id: 'dfs-1', originalName: 'contrat_cdi.pdf', cleanName: 'Contrat de travail (CDI)', type: 'Contrat', date: '2020-05-02', categoryId: 'soc-contrat', postesLies: [], summary: 'Contrat à durée indéterminée, poste de cariste, statut employée.', extractedInfo: { 'Type': 'CDI', 'Poste': 'Cariste', "Date d'embauche": '02/05/2020', 'Statut': 'Employée' }, pages: 6 },
+  { id: 'dfs-2', originalName: 'bulletins_paie.pdf', cleanName: 'Bulletins de salaire (12 mois)', type: 'Bulletin', date: '2023-06-30', categoryId: 'soc-contrat', postesLies: ['HS', 'IL'], summary: 'Bulletins de paie des 12 derniers mois, base du salaire de référence (moyenne 2 504 € brut).', extractedInfo: { 'Période': 'Juil. 2022 à juin 2023', 'Salaire brut moyen': '2 504 €', 'Convention': 'Transport routier' }, pages: 12 },
+  { id: 'dfs-3', originalName: 'releve_heures.pdf', cleanName: "Relevé d'heures", type: 'Relevé', date: '2023-06-30', categoryId: 'soc-temps', postesLies: ['HS', 'CP'], summary: 'Heures travaillées reconstituées : 430 h supplémentaires non rémunérées sur la période.', extractedInfo: { 'Heures supplémentaires': '430 h', 'Période': 'Janv. 2022 à juin 2023' }, pages: 9 },
+  { id: 'dfs-4', originalName: 'badges_acces.csv', cleanName: "Relevés de badge d'accès", type: 'Preuve', date: '2023-06-12', categoryId: 'soc-temps', postesLies: ['HS'], summary: "Heures d'entrée et de sortie issues du contrôle d'accès, étayant les dépassements.", extractedInfo: { 'Source': "Contrôle d'accès", 'Jours couverts': '312' }, pages: 4 },
+  { id: 'dfs-5', originalName: 'lettre_licenciement.pdf', cleanName: 'Lettre de licenciement', type: 'Courrier', date: '2023-06-30', categoryId: 'soc-rupture', postesLies: ['PRÉA', 'IL', 'DI'], summary: 'Notification du licenciement et de ses motifs (insuffisance professionnelle).', extractedInfo: { 'Motif': 'Insuffisance professionnelle', 'Date': '30/06/2023', 'Préavis': '2 mois' }, pages: 2 },
+  { id: 'dfs-6', originalName: 'requete_cph.pdf', cleanName: "Requête au conseil de prud'hommes", type: 'Procédure', date: '2023-09-12', categoryId: 'soc-proc', postesLies: [], summary: 'Saisine du conseil de prud’hommes de Nanterre.', extractedInfo: { 'Juridiction': 'CPH de Nanterre', 'Date de saisine': '12/09/2023' }, pages: 5 },
+];
+
+function buildStagedProcessingItems(files, rapportFileId, idPrefix, pool = DROP_FIRST_DOCUMENT_POOL) {
   const poolByType = {};
-  DROP_FIRST_DOCUMENT_POOL.forEach(e => { (poolByType[e.type] || (poolByType[e.type] = [])).push(e); });
+  pool.forEach(e => { (poolByType[e.type] || (poolByType[e.type] = [])).push(e); });
   const typeSeq = {};
   let seq = 0;
   const stamp = Date.now();
@@ -397,7 +409,7 @@ function buildStagedProcessingItems(files, rapportFileId, idPrefix) {
       typeSeq[guessedType] = n + 1;
       poolEntry = bucket[n % bucket.length];
     } else {
-      poolEntry = DROP_FIRST_DOCUMENT_POOL[seq++ % DROP_FIRST_DOCUMENT_POOL.length];
+      poolEntry = pool[seq++ % pool.length];
     }
     return {
       id: `${idPrefix}-${stamp}-${i}`,
@@ -1203,6 +1215,11 @@ if (window.location.search.includes('reset')) {
   window.location.replace(window.location.pathname);
 }
 
+// Captured once at load (before the router can strip the query) — « ?demo=social »
+// seeds + opens a droit-social matter straight on Chiffrage › Relevé d'heures.
+let DEMO_SOCIAL = false;
+try { DEMO_SOCIAL = new URLSearchParams(window.location.search).get('demo') === 'social'; } catch (e) {}
+
 // Small hover-triggered info tooltip - renders a peach-tinted popover above
 // the icon with a short explanation. Used in PlanCard footer rows to explain
 // what each metric means.
@@ -1471,6 +1488,8 @@ export default function App() {
     if (captureMode === 'addfiles') return { files: CAPTURE_SAMPLE_FILES, rapportFileId: null, rapportDismissed: true, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'add' };
     return null;
   }); // null | { files: [...], rapportFileId: null|string, rapportDismissed: false }
+  const [socialDetail, setSocialDetail] = useState(null); // droit social: null | 'salaire' | 'releve' — intrant detail sub-view inside the chiffrage
+  const [socialSalaireBasis, setSocialSalaireBasis] = useState('12'); // '12' | '3' — reference-salary basis
   const [dropFirstPieces, setDropFirstPieces] = useState([]); // array of { id, originalName, cleanName, type, date, postesLies, summary, extractedInfo, pages, status, sourceFile?, pageRange?, siblings?, poolRef }
   const [dropFirstHasRapport, setDropFirstHasRapport] = useState(false);
   const [dropFirstProcessingDone, setDropFirstProcessingDone] = useState(false);
@@ -1886,6 +1905,9 @@ export default function App() {
   // ========== PIECES (niveau dossier) ==========
   const [pieces, setPieces] = useState(BORDEREAU_PIECES);
   const [bordereauCategories, setBordereauCategories] = useState(BORDEREAU_CATEGORIES);
+  // Droit social: separate pièces + folders (adapted to the matter type), used when matterType === 'social'.
+  const [socialPieces, setSocialPieces] = useState(BORDEREAU_PIECES_SOCIAL);
+  const [socialCategories, setSocialCategories] = useState(BORDEREAU_CATEGORIES_SOCIAL);
 
   // ========== DSA ==========
   const [dsaLignes, setDsaLignes] = useState(BASELINE_DSA_LIGNES);
@@ -2080,6 +2102,7 @@ export default function App() {
   // Init: restore from localStorage on mount
   useEffect(() => {
     if (captureMode) { isInitialLoad.current = false; return; } // TEMP CAPTURE: skip restore so we stay on the captured screen
+    if (DEMO_SOCIAL) { isInitialLoad.current = false; return; } // « ?demo=social » — skip restore so the seeded demo matter isn't reverted
     // A bare /dossier URL (bookmark, stale link) carries no dossier ID - there's no
     // valid dossier to open, so it can only land on a stale/broken view. Always send
     // such direct loads home to "Mes dossiers" instead of restoring stale state.
@@ -2142,7 +2165,12 @@ export default function App() {
   useEffect(() => {
     if (infoDossierStreaming && !infoDossierStreaming.active && !chatPostesAnnounced.current) {
       chatPostesAnnounced.current = true;
-      const detectedPostes = DROP_FIRST_POSTES_DETECTES;
+      const isSocial = (dossiers.find(d => d.id === activeDossierId) || {}).matterType === 'social';
+      const detectedPostes = isSocial ? ['HS', 'CP', 'PRÉA', 'IL', 'DI'] : DROP_FIRST_POSTES_DETECTES;
+      const dossierFields = isSocial ? "Nom, prénom, poste occupé, date d'embauche, salaire de référence" : "Nom, prénom, date de naissance, profession, date de l'accident";
+      const postesNoun = isSocial ? 'postes (rappels et indemnités)' : 'postes de préjudice';
+      const readDocLabel = isSocial ? 'Lecture du contrat et des bulletins de salaire' : "Lecture du rapport d'expertise médicale";
+      const extractChildren = isSocial ? ['Identité', 'Poste occupé', 'Salaire de référence'] : ['Identité', 'Date de naissance', 'N° dossier'];
       const posteIds = detectedPostes.map(acronym => {
         const found = POSTES_TAXONOMY.flatMap(s => s.categories.flatMap(c => c.postes)).find(p => (p.acronym || '').toUpperCase() === acronym.toUpperCase() || p.id.toUpperCase() === acronym.toUpperCase());
         return found?.id;
@@ -2193,8 +2221,8 @@ export default function App() {
               expanded: false,
               steps: [
                 ...(m.steps || []),
-                { tool: 'extractInfoDossier', detail: 'Je remplis les informations du dossier', expandedText: 'Nom, prénom, date de naissance, profession, date de l\'accident' },
-                { tool: 'detectPostes', detail: `J'ai identifié ${detectedPostes.length} postes de préjudice`, expandedText: detectedPostes.join(', ') },
+                { tool: 'extractInfoDossier', detail: 'Je remplis les informations du dossier', expandedText: dossierFields },
+                { tool: 'detectPostes', detail: `J'ai identifié ${detectedPostes.length} ${postesNoun}`, expandedText: detectedPostes.join(', ') },
               ],
             };
           }
@@ -2232,8 +2260,8 @@ export default function App() {
             counters: { add: detectedPostes.length, update: 1 },
             steps: [
               { type: 'read_documents', label: 'Analyse de 8 documents', status: 'done' },
-              { type: 'read_rapport', label: "Lecture du rapport d'expertise médicale", status: 'done' },
-              { type: 'extract_data', label: 'Extraction des informations du dossier', status: 'done', children: ['Identité', 'Date de naissance', 'N° dossier'] },
+              { type: 'read_rapport', label: readDocLabel, status: 'done' },
+              { type: 'extract_data', label: 'Extraction des informations du dossier', status: 'done', children: extractChildren },
               { type: 'verify_data', label: 'Vérification des données extraites', status: 'done' },
               ...detectedPostes.map(acronym => ({
                 type: 'add_row', label: `Poste ${acronym} identifié`, status: 'done', poste: acronym,
@@ -2244,7 +2272,7 @@ export default function App() {
           },
           {
             type: 'ai',
-            text: `C'est fait : j'ai rempli les informations du dossier (onglet Dossier) et identifié ${detectedPostes.length} postes de préjudice à 0 € (onglet Chiffrage). Cliquez sur un poste pour lancer le calcul.`,
+            text: `C'est fait : j'ai rempli les informations du dossier (onglet Dossier) et identifié ${detectedPostes.length} ${postesNoun} à 0 € (onglet Chiffrage). Cliquez sur un poste pour lancer le calcul.`,
           },
         ];
       });
@@ -2673,6 +2701,8 @@ export default function App() {
   };
 
   const currentLevel = navStack[navStack.length - 1] || { type: 'dossier', activeTab: 'dossier' };
+  // Matter type of the active dossier — drives the Dossier + Chiffrage layout fork (corporel vs droit social).
+  const activeMatterType = (dossiers.find(d => d.id === activeDossierId) || {}).matterType || 'corporel';
 
   const fmt = (n) => n != null ? n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '— €';
   const getPieceLabel = (pieceId) => {
@@ -3621,7 +3651,8 @@ export default function App() {
       date: formData.dateAccident,
       lastEditBy: 'Meghan R.',
       lastEditDate: new Date().toLocaleDateString('fr-FR'),
-      statut: 'ouvert'
+      statut: 'ouvert',
+      matterType: formData.matterType || 'corporel'
     }, ...prev]);
 
     setVictimeData({
@@ -3685,6 +3716,18 @@ export default function App() {
     setCurrentPage('dossier');
     setCreationWizard(null);
   };
+
+  // one-click demo — « ?demo=social » seeds + opens a droit-social matter straight on
+  // Chiffrage › Relevé d'heures, so the labor flow is reachable without the drop-first modal.
+  const demoSocialBooted = useRef(false);
+  useEffect(() => {
+    if (DEMO_SOCIAL && !demoSocialBooted.current) {
+      demoSocialBooted.current = true;
+      handleCreateDossier({ nom: 'Aubert', prenom: 'Camille', matterType: 'social', typeFait: 'Rappel d’heures supplémentaires', dateAccident: '01/09/2022', sexe: 'Femme', dateNaissance: '14/03/1989' }, 'chiffrage');
+      setSocialDetail('releve');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ========== EXTRACTION DEPUIS EMPTY STATE ==========
   const [extractionState, setExtractionState] = useState(null); // { phase, progress }
@@ -9315,6 +9358,281 @@ export default function App() {
   };
 
   // ========== RENDER CONTENT ==========
+  // ===== DROIT SOCIAL — native Chiffrage (intrants « Fondamentaux et variables » + postes by category + dark total) =====
+  const renderSocialChiffrage = () => {
+    const INFO = '#1e3a8a', INFO_BG = '#dfe8f5', INFO_BORDER = '#aabcd5';
+    const salaire = 2504, hours = 430;
+    const hourly = salaire / 151.67;
+    const POSTES = [
+      { cat: 'Rappels de salaire', acro: 'HS', label: 'Rappel d’heures supplémentaires', montant: Math.round(hours * hourly * 1.25) },
+      { cat: 'Rappels de salaire', acro: 'CP', label: 'Congés payés sur heures supplémentaires', montant: Math.round(hours * hourly * 1.25 * 0.1) },
+      { cat: 'Indemnités de rupture', acro: 'PRÉA', label: 'Indemnité compensatrice de préavis', montant: Math.round(salaire * 2) },
+      { cat: 'Indemnités de rupture', acro: 'IL', label: 'Indemnité légale de licenciement', montant: Math.round(salaire * 0.25 * 3) },
+      { cat: 'Dommages-intérêts', acro: 'DI', label: 'Dommages-intérêts pour licenciement sans cause réelle', montant: Math.round(salaire * 4) },
+    ];
+    const CATS = ['Rappels de salaire', 'Indemnités de rupture', 'Dommages-intérêts'];
+    const total = POSTES.reduce((a, p) => a + p.montant, 0);
+    const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
+    const cardChrome = { border: '1px solid #e7e5e3', borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+    const intrants = [
+      { key: 'salaire', name: 'Salaire de référence', Icon: Wallet, value: fmt(salaire) },
+      { key: 'releve', name: 'Relevé d’heures', Icon: Clock, value: `${hours} H` },
+    ];
+    return (
+      <div className="space-y-6" data-zone-id="postes">
+        {/* toolbar */}
+        <div className="flex items-center gap-2 px-px">
+          <div className="h-8 px-2.5 flex items-center gap-1.5 border border-[#e7e5e3] rounded-lg whitespace-nowrap" style={{ backgroundColor: '#eeece6' }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#292524', letterSpacing: 0.1 }}>Total demandé</span>
+            <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, color: '#292524' }}>{fmt(total)}</span>
+          </div>
+          <div className="flex-1" />
+          <button className="h-9 px-3 flex items-center gap-2 border border-[#d6d3d1] rounded-lg hover:bg-stone-50 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#44403c' }}>
+            <Download className="w-3.5 h-3.5 text-[#78716c]" /> Exporter
+          </button>
+          <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: 'white', backgroundColor: '#292524' }}>
+            <Plus className="w-3.5 h-3.5" /> Nouveau poste
+          </button>
+        </div>
+
+        {/* intrants — « Fondamentaux et variables du chiffrage » */}
+        <div>
+          <div className="flex items-center justify-between" style={{ padding: '0 6px', marginBottom: 16 }}>
+            <div className="flex items-center" style={{ gap: 12 }}>
+              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: INFO_BG, border: `1px solid ${INFO_BORDER}` }}><SlidersHorizontal className="w-4 h-4" style={{ color: INFO }} /></span>
+              <div className="flex flex-col" style={{ gap: 5 }}>
+                <span style={{ ...colHeaderStyle, lineHeight: '1' }}>Variables</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px' }}>Fondamentaux et variables du chiffrage</span>
+              </div>
+            </div>
+            <p style={{ fontSize: 12, color: '#78716c', lineHeight: '16px', textAlign: 'right', maxWidth: 365, margin: 0 }}>Les variables d’entrée qui fournissent des données aux postes, mais qui ne sont pas cumulées dans le total global.</p>
+          </div>
+          <div style={{ ...cardChrome, background: 'white' }}>
+            {intrants.map((it, i) => (
+              <button key={it.key} onClick={() => setSocialDetail(it.key)} className="group flex items-center w-full transition-colors" style={{ height: 56, background: 'white', borderBottom: i < intrants.length - 1 ? '1px solid #e7e5e3' : 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#fafaf9'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
+                <div className="flex items-center flex-1 min-w-0" style={{ gap: 10, padding: '0 12px 0 14px' }}>
+                  <it.Icon className="w-4 h-4 flex-shrink-0" style={{ color: '#44403c' }} strokeWidth={1.75} />
+                  <span className="truncate" style={{ fontSize: 14, color: '#292524' }}>{it.name}</span>
+                </div>
+                <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}>
+                  <span className="inline-flex items-center rounded-md" style={{ padding: '2px 8px', background: INFO_BG, color: INFO, fontSize: 14, fontWeight: 500 }}>{it.value}</span>
+                </div>
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}>
+                  <ChevronRight className="w-4 h-4" style={{ color: '#a8a29e' }} />
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* postes — salarié subject header + category cards + dark total */}
+        <div>
+          <div className="flex items-center justify-between" style={{ padding: '0 6px', marginBottom: 16 }}>
+            <div className="flex items-center" style={{ gap: 12 }}>
+              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: '#e9f1ea', color: '#4a7256', fontSize: 12, fontWeight: 600 }}>{(matterRef[0] || 'S').toUpperCase()}</span>
+              <div className="flex flex-col" style={{ gap: 5 }}>
+                <span style={{ ...colHeaderStyle, lineHeight: '1' }}>Salarié</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px' }}>{matterRef}</span>
+              </div>
+            </div>
+            <span style={{ ...serifAmountStyle, color: '#292524' }}>{fmt(total)}</span>
+          </div>
+          <div className="flex flex-col" style={{ gap: 16 }}>
+            {CATS.map(cat => {
+              const rows = POSTES.filter(p => p.cat === cat);
+              if (!rows.length) return null;
+              return (
+                <div key={cat} style={{ ...cardChrome, background: 'white' }}>
+                  <div className="flex items-center" style={{ height: 40, padding: '0 16px', borderBottom: '1px solid #e7e5e3', background: '#f8f7f5' }}>
+                    <span className="flex-1" style={colHeaderStyle}>{cat}</span>
+                    <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Montant demandé</span></div>
+                    <div className="flex-shrink-0" style={{ width: 44 }} />
+                  </div>
+                  {rows.map((p, i) => (
+                    <div key={p.acro} className="group flex items-center" style={{ height: 56, background: 'white', borderBottom: i < rows.length - 1 ? '1px solid #e7e5e3' : 'none' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#fafaf9'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
+                      <div className="flex-shrink-0" style={{ width: 64, padding: '0 16px' }}><span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>{p.acro}</span></div>
+                      <div className="flex-1 min-w-0" style={{ padding: '0 12px' }}><span className="truncate block" style={{ fontSize: 14, color: '#292524' }}>{p.label}</span></div>
+                      <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>{fmt(p.montant)}</span></div>
+                      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}><MoreVertical className="w-4 h-4" style={{ color: '#a8a29e' }} /></div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between" style={{ background: '#292524', borderRadius: 8, padding: '14px 16px', marginTop: 16, boxShadow: '0px 1px 2px rgba(26,26,26,0.05)' }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <Calculator className="w-5 h-5" style={{ color: 'white' }} strokeWidth={1.75} />
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'white' }}>Indemnisation total</span>
+            </div>
+            <span style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 24, fontWeight: 500, color: 'white', letterSpacing: '-0.6px', lineHeight: '28px' }}>{fmt(total)}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ===== DROIT SOCIAL — native Dossier (salarié / relation de travail / contract timeline / employeur / procédure) =====
+  const renderSocialDossier = () => {
+    const LINE = '#e7e5e3', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', WHITE = 'white', SUBTLE = '#fafaf9', INFO = '#1e3a8a';
+    const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
+    const monoHead = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' };
+    const dHead = (Icon, title, right) => (
+      <div className="flex items-center gap-2.5" style={{ padding: '13px 16px', borderBottom: `1px solid ${LINE}`, background: WHITE }}>
+        <Icon className="w-4 h-4" style={{ color: MUTE }} strokeWidth={1.5} />
+        <span style={monoHead}>{title}</span>
+        {right && <span className="ml-auto" style={{ fontSize: 11, color: FAINT }}>{right}</span>}
+      </div>
+    );
+    const dField = (label, value) => (
+      <div className="flex-1" style={{ padding: '16px 20px', minWidth: 0 }}>
+        <div style={{ fontSize: 12, color: MUTE, marginBottom: 5 }}>{label}</div>
+        <div style={{ fontSize: 14, color: value ? INK : FAINT, fontWeight: value ? 500 : 400, lineHeight: '19px' }}>{value || 'Non renseigné'}</div>
+      </div>
+    );
+    const dRow = (a, b, last) => <div className="flex" style={last ? undefined : { borderBottom: `1px solid ${LINE}` }}>{a}{b}</div>;
+    const dCard = (Icon, title, children) => (
+      <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>{dHead(Icon, title)}{children}</div>
+    );
+    const events = [
+      { date: '02/05/2020', title: 'Embauche', desc: 'CDI · poste de Cariste · statut Employée · 2 100 € brut mensuel.', src: 'Pièce 1 · Contrat de travail', dot: '#4a7256' },
+      { date: '01/09/2021', title: 'Avenant n°1', desc: 'Passage en horaires postés (équipes 2×8).', src: 'Pièce 3 · Avenant', dot: MUTE },
+      { date: 'Janv. 2022 → juin 2023', title: 'Heures supplémentaires non rémunérées', desc: 'Dépassements réguliers de l’amplitude journalière, reconstitués à partir des badges d’accès et des e-mails.', src: 'Relevé d’heures', dot: INFO },
+      { date: '01/04/2023', title: 'Augmentation', desc: 'Salaire mensuel porté à 2 350 € brut.', src: 'Pièce 5 · Bulletins de salaire', dot: MUTE },
+      { date: '15/06/2023', title: 'Entretien préalable', desc: 'Convocation à un entretien préalable au licenciement.', src: 'Pièce 10 · Convocation', dot: MUTE },
+      { date: '30/06/2023', title: 'Licenciement', desc: 'Rupture du CDI notifiée (motif : insuffisance professionnelle).', src: 'Pièce 12 · Lettre de licenciement', dot: '#b4593f' },
+      { date: '12/09/2023', title: 'Saisine du conseil de prud’hommes', desc: 'CPH de Nanterre · tentative de conciliation échouée.', src: 'Pièce 14 · Requête', dot: INK },
+    ];
+    return (
+      <div className="flex flex-col" style={{ gap: 16, maxWidth: 960, margin: '0 auto' }}>
+        {dCard(User, 'Salarié', <>
+          {dRow(dField('Nom et prénom', matterRef), dField('Poste occupé', 'Cariste'))}
+          {dRow(dField('Date de naissance', '14/03/1989'), dField('Ancienneté', '3 ans · 2 mois'), true)}
+        </>)}
+        {dCard(ClipboardList, 'Relation de travail', <>
+          {dRow(dField('Type de contrat', 'CDI'), dField('Date d’embauche', '02/05/2020'))}
+          {dRow(dField('Fin du contrat', '30/06/2023'), dField('Motif de la rupture', 'Licenciement'))}
+          <div className="flex items-center gap-2" style={{ padding: '13px 20px', borderTop: `1px solid ${LINE}` }}>
+            <SlidersHorizontal className="w-3.5 h-3.5 flex-shrink-0" style={{ color: INFO }} />
+            <span style={{ fontSize: 13, color: MUTE }}>Salaire mensuel de référence</span>
+            <span className="ml-auto" style={{ fontSize: 14, fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmt(2504)}</span>
+          </div>
+        </>)}
+        {/* Chronologie du contrat — reconstructed timeline */}
+        <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>
+          {dHead(Calendar, 'Chronologie du contrat', 'Reconstituée à partir des pièces')}
+          <div style={{ padding: '18px 20px 6px' }}>
+            {events.map((e, i) => {
+              const last = i === events.length - 1;
+              return (
+                <div key={i} className="flex" style={{ gap: 14 }}>
+                  <div className="flex flex-col items-center flex-shrink-0" style={{ width: 10 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: 9, background: e.dot, marginTop: 3, flexShrink: 0 }} />
+                    {!last && <span style={{ flex: 1, width: 2, background: LINE, marginTop: 3 }} />}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1, paddingBottom: last ? 12 : 18 }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: MUTE, fontVariantNumeric: 'tabular-nums' }}>{e.date}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: INK, marginTop: 3, lineHeight: '18px' }}>{e.title}</div>
+                    <div style={{ fontSize: 13, color: MUTE, marginTop: 3, lineHeight: '18px' }}>{e.desc}</div>
+                    <span className="inline-flex items-center gap-1.5 rounded-md" style={{ marginTop: 8, padding: '3px 8px', background: SUBTLE, border: `1px solid ${LINE}`, fontSize: 11.5, color: INK2 }}>
+                      <FileText className="w-3 h-3 flex-shrink-0" style={{ color: FAINT }} /> {e.src}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {dCard(Landmark, 'Employeur', <>
+          {dRow(dField('Société', 'SAS Delprat Logistique'), dField('Forme', 'SAS'))}
+          {dRow(dField('Convention collective', 'Transport routier'), dField('Effectif', '120 salariés'), true)}
+        </>)}
+        {dCard(Scale, 'Procédure', <>
+          {dRow(dField('Juridiction', 'Conseil de prud’hommes de Nanterre'), dField('Stade', 'Bureau de jugement'))}
+          {dRow(dField('Objet', 'Rappel d’heures supplémentaires et indemnités'), <div className="flex-1" />, true)}
+        </>)}
+        {dCard(FileText, 'Faits et procédure', (
+          <div style={{ padding: '16px 20px' }}>
+            <div style={{ fontSize: 12, color: MUTE, marginBottom: 5 }}>Commentaire</div>
+            <div style={{ fontSize: 13.5, color: INK, lineHeight: '19px' }}>Saisine du conseil de prud’hommes le 12/09/2023 ; tentative de conciliation échouée. Demande principale : rappel d’heures supplémentaires et indemnités afférentes.</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // ===== DROIT SOCIAL — intrant detail sub-views (opened in-place from the chiffrage intrant rows) =====
+  const renderSocialDetail = () => {
+    const LINE = '#e7e5e3', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', WHITE = 'white', SUBTLE = '#fafaf9', PAPER = '#f8f7f5', INFO = '#1e3a8a', INFO_BG = '#dfe8f5';
+    const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+    const back = (
+      <button onClick={() => setSocialDetail(null)} className="inline-flex items-center gap-1.5 rounded-md transition-colors" style={{ height: 32, padding: '0 10px 0 7px', fontSize: 13, color: INK2, border: `1px solid ${LINE}`, background: 'transparent', cursor: 'pointer' }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
+        <ChevronLeft className="w-4 h-4" /> Chiffrage
+      </button>
+    );
+    if (socialDetail === 'salaire') {
+      const BULLETINS = [
+        { m: 'Juil. 2022', brut: 2300 }, { m: 'Août 2022', brut: 2300 }, { m: 'Sept. 2022', brut: 2300 },
+        { m: 'Oct. 2022', brut: 2300 }, { m: 'Nov. 2022', brut: 2300 }, { m: 'Déc. 2022', brut: 4600 },
+        { m: 'Janv. 2023', brut: 2300 }, { m: 'Févr. 2023', brut: 2300 }, { m: 'Mars 2023', brut: 2300 },
+        { m: 'Avr. 2023', brut: 2350 }, { m: 'Mai 2023', brut: 2350 }, { m: 'Juin 2023', brut: 2350 },
+      ];
+      const moy = (a) => a.reduce((s, b) => s + b.brut, 0) / a.length;
+      const moy12 = moy(BULLETINS), moy3 = moy(BULLETINS.slice(-3));
+      const fav = moy12 >= moy3 ? '12' : '3';
+      const salaireRef = Math.round(socialSalaireBasis === '3' ? moy3 : moy12);
+      return (
+        <div className="space-y-5" style={{ maxWidth: 920, margin: '0 auto' }}>
+          <div className="flex items-center gap-3">{back}<span style={{ fontSize: 15, fontWeight: 600, color: INK }}>Salaire de référence</span></div>
+          <div style={{ ...cardChrome, background: WHITE }}>
+            <div className="flex items-center" style={{ height: 40, padding: '0 16px', background: PAPER, borderBottom: `1px solid ${LINE}` }}>
+              <span className="flex-1" style={colHeaderStyle}>Salaire de référence retenu</span>
+              <span style={{ fontSize: 11, color: MUTE }}>base la plus favorable au salarié</span>
+            </div>
+            <div className="flex items-stretch">
+              <div className="flex flex-col justify-center flex-shrink-0" style={{ padding: '18px 22px', borderRight: `1px solid ${LINE}`, minWidth: 210 }}>
+                <span style={{ ...serifAmountStyle, fontSize: 30 }}>{fmt(salaireRef)}</span>
+                <span style={{ fontSize: 12, color: MUTE, marginTop: 4 }}>brut mensuel · moyenne {socialSalaireBasis === '3' ? 'sur 3 mois' : 'sur 12 mois'}</span>
+              </div>
+              <div className="flex-1 flex">
+                {[['12', '12 derniers mois', moy12], ['3', '3 derniers mois', moy3]].map(([k, label, val]) => {
+                  const active = socialSalaireBasis === k;
+                  return (
+                    <button key={k} onClick={() => setSocialSalaireBasis(k)} className="flex-1 flex flex-col justify-center transition-colors" style={{ padding: '14px 18px', borderRight: k === '12' ? `1px solid ${LINE}` : 'none', borderLeft: `3px solid ${active ? INFO : 'transparent'}`, background: active ? INFO_BG : WHITE, cursor: 'pointer', textAlign: 'left' }}>
+                      <div className="flex items-center gap-2"><span style={{ ...colHeaderStyle, color: active ? INFO : MUTE }}>{label}</span>{fav === k && <span className="rounded-md" style={{ padding: '1px 6px', background: INFO_BG, color: INFO, fontSize: 9.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Le plus favorable</span>}</div>
+                      <span style={{ fontSize: 16, fontWeight: 600, color: INK, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(Math.round(val))}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div style={{ ...cardChrome, background: WHITE }}>
+            <div className="flex items-center" style={{ height: 40, padding: '0 16px', background: PAPER, borderBottom: `1px solid ${LINE}` }}>
+              <span className="flex-1" style={colHeaderStyle}>Bulletins de salaire</span>
+              <div className="flex items-center justify-end" style={{ width: 140, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Brut</span></div>
+            </div>
+            {BULLETINS.map((b, i) => (
+              <div key={b.m} className="flex items-center" style={{ height: 48, borderBottom: i < BULLETINS.length - 1 ? `1px solid ${LINE}` : 'none' }}>
+                <div className="flex items-center flex-1 min-w-0" style={{ padding: '0 16px', gap: 10 }}>
+                  <span className="inline-flex items-center justify-center rounded-md flex-shrink-0" style={{ width: 28, height: 28, background: PAPER, border: `1px solid ${LINE}` }}><FileText className="w-3.5 h-3.5" style={{ color: MUTE }} /></span>
+                  <span style={{ fontSize: 13.5, color: INK }}>{b.m}</span>
+                  <span className="truncate" style={{ fontSize: 11.5, color: '#a8a29e' }}>Bulletin de paie.pdf</span>
+                </div>
+                <div className="flex items-center justify-end" style={{ width: 140, padding: '0 12px' }}><span style={{ fontSize: 13.5, fontWeight: 500, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmt(b.brut)}</span></div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 12, color: MUTE, margin: 0, lineHeight: '17px' }}>La moyenne sur 12 mois intègre les primes (13e mois, prime annuelle) au prorata. Le salaire de référence retenu est la moyenne la plus favorable au salarié (art. R. 1234-4 du Code du travail).</p>
+        </div>
+      );
+    }
+    return <ReleveEditor onBack={() => setSocialDetail(null)} demo={demoSocialBooted.current} />;
+  };
+
   const renderContent = () => {
     // ACTE - document view with streaming
     if (currentLevel.type === 'acte') {
@@ -9465,6 +9783,7 @@ export default function App() {
     // DOSSIER
     if (currentLevel.type === 'dossier') {
       if (currentLevel.activeTab === 'dossier') {
+        if (activeMatterType === 'social') return renderSocialDossier();
         // Drop-First Info Dossier (new layout with streaming)
         if (dropFirstActive || dropFirstPieces.length > 0) {
           const streaming = infoDossierStreaming;
@@ -10067,6 +10386,7 @@ export default function App() {
         );
       }
       if (currentLevel.activeTab === 'chiffrage') {
+        if (activeMatterType === 'social') return socialDetail ? renderSocialDetail() : renderSocialChiffrage();
         // eslint-disable-next-line no-unused-vars
         const _getPosteAiReasoning = () => null;
 
@@ -10700,12 +11020,13 @@ export default function App() {
       }
       if (currentLevel.activeTab === 'pièces') {
         if (dropFirstActive || dropFirstPieces.length > 0) return renderDropFirstPiecesTab();
+        const isSoc = activeMatterType === 'social';
         return (
           <PiecesTab
-            pieces={pieces}
-            categories={bordereauCategories}
-            setPieces={setPieces}
-            setCategories={setBordereauCategories}
+            pieces={isSoc ? socialPieces : pieces}
+            categories={isSoc ? socialCategories : bordereauCategories}
+            setPieces={isSoc ? setSocialPieces : setPieces}
+            setCategories={isSoc ? setSocialCategories : setBordereauCategories}
             onAddFiles={handleAddMorePieces}
             onAskChato={askChatoAboutSelection}
             onGenerateBordereau={() => {
@@ -13857,6 +14178,8 @@ export default function App() {
     // ingestion. Off = keep documents as-is (no surprise splitting); on = split
     // multi-part documents automatically. Overridable per-doc / in bulk later.
     const splitDocs = !!dropModal.splitDocsEnabled;
+    // Matter type chosen in the drop-first modal — drives the dossier layout (chiffrage postes, dossier content).
+    const matterType = dropModal.matterType || 'corporel';
 
     // Save current dossier if any
     if (activeDossierId) saveDossierData(activeDossierId);
@@ -13879,7 +14202,7 @@ export default function App() {
     setDossiers(prev => [{
       id: newId, reference: refName, typeFait: hasRapport ? 'Accident de la voie publique' : '',
       date: new Date().toLocaleDateString('fr-FR'), lastEditBy: 'Meghan R.', lastEditDate: new Date().toLocaleDateString('fr-FR'),
-      statut: 'ouvert'
+      statut: 'ouvert', matterType
     }, ...prev]);
 
     setVictimeData(extracted
@@ -13910,7 +14233,7 @@ export default function App() {
 
     // One processing item per dropped document - matched to its name's type,
     // split per the per-document choice (see buildStagedProcessingItems).
-    const processingItems = buildStagedProcessingItems(files, dropModal.rapportFileId, 'dfp');
+    const processingItems = buildStagedProcessingItems(files, dropModal.rapportFileId, 'dfp', matterType === 'social' ? DROP_FIRST_DOCUMENT_POOL_SOCIAL : DROP_FIRST_DOCUMENT_POOL);
 
     setDropFirstPieces(processingItems);
     setDropFirstHasRapport(hasRapport);
@@ -13947,10 +14270,10 @@ export default function App() {
     // duplicate state is demoable on the creation drop, not just on "add").
     // allowDetections, but NOT forced - so we don't inject a guaranteed fake
     // doublon on every drop; the processed pièces reflect the dropped files.
-    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs), 300);
+    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs, matterType), 300);
   };
 
-  const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false, splitDocs = false) => {
+  const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false, splitDocs = false, matterType = 'corporel') => {
     // Clear any existing timeouts
     processingTimeouts.current.forEach(t => clearTimeout(t));
     processingTimeouts.current = [];
@@ -14062,7 +14385,9 @@ export default function App() {
               newPieces[itemIndex] = {
                 ...newPieces[itemIndex],
                 cleanName: renamedBase || poolEntry.cleanName,
-                type: item.guessedType || poolEntry.type,
+                // Pool entries that carry a categoryId (droit social) are the source of truth for type + folder.
+                type: poolEntry.categoryId ? poolEntry.type : (item.guessedType || poolEntry.type),
+                categoryId: poolEntry.categoryId || undefined,
                 date: poolEntry.date,
                 postesLies: [...poolEntry.postesLies],
                 summary: poolEntry.summary,
@@ -14135,16 +14460,17 @@ export default function App() {
       setDropFirstProcessingDone(true);
 
       // Toast summarising where the just-processed batch landed.
+      const toastCats = matterType === 'social' ? socialCategories : bordereauCategories;
       const counts = new Map();
       items.forEach(it => {
         const cat = it.categoryIdOverride !== undefined
           ? it.categoryIdOverride
-          : classifyDropFirstPiece(it.poolRef || it, bordereauCategories);
+          : classifyDropFirstPiece(it.poolRef || it, toastCats);
         counts.set(cat, (counts.get(cat) || 0) + 1);
       });
       const labelFor = (catId) => {
         if (!catId) return 'Sans catégorie';
-        return bordereauCategories.find(c => c.id === catId)?.name || 'Sans catégorie';
+        return toastCats.find(c => c.id === catId)?.name || 'Sans catégorie';
       };
       const parts = [...counts.entries()].map(([catId, n]) => `${n} dans ${labelFor(catId)}`);
       const total = items.length;
@@ -15057,7 +15383,7 @@ export default function App() {
 
     // Split (exploded) segments are classified into the regular dossier folders
     // by type (in dropFirstAsBordereauPieces) - no synthetic source-named folder.
-    const treeCategories = bordereauCategories;
+    const treeCategories = activeMatterType === 'social' ? socialCategories : bordereauCategories;
 
     // Ingest review zone vs. the list. A dropped file stays in the "À vérifier"
     // zone (as a card) while it's still being analysed, flagged as a possible
@@ -15084,7 +15410,7 @@ export default function App() {
     // Sans-catégorie with a spinner icon.
     // Demo: always surface a « Frais médicaux » folder (nested under Médical)
     // holding 10 split factures, regardless of what's been dropped.
-    const adaptedPieces = dropFirstAsBordereauPieces([...DEMO_FRAIS_MEDICAUX_FACTURES, ...settledPieces], treeCategories, piles);
+    const adaptedPieces = dropFirstAsBordereauPieces([...(activeMatterType === 'social' ? [] : DEMO_FRAIS_MEDICAUX_FACTURES), ...settledPieces], treeCategories, piles);
 
     // Translate BordereauTable's setPieces updater calls (which operate on
     // the bordereau-piece shape) back into setDropFirstPieces mutations.
@@ -16029,17 +16355,30 @@ export default function App() {
 
           {/* Body */}
           <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
-            {/* Matter reference - creation only (add-files targets the open dossier) */}
+            {/* Matter reference + type - creation only; the type drives the layout (chiffrage postes, dossier content) */}
             {!isAdd && (
-              <div className="mb-4 flex-shrink-0">
-                <label className="block text-sm font-medium text-[#292524] mb-1.5">Référence du dossier</label>
-                <input
-                  type="text"
-                  value={reference}
-                  onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
-                  placeholder="Dossier Leblanc..."
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
-                />
+              <div className="mb-4 flex-shrink-0 flex items-end gap-3">
+                <div className="flex-1 min-w-0">
+                  <label className="block text-sm font-medium text-[#292524] mb-1.5">Référence du dossier</label>
+                  <input
+                    type="text"
+                    value={reference}
+                    onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
+                    placeholder="Dossier Leblanc..."
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                  />
+                </div>
+                <div className="flex-shrink-0" style={{ width: 220 }}>
+                  <label className="block text-sm font-medium text-[#292524] mb-1.5">Type de dossier</label>
+                  <select
+                    value={dropModal.matterType || 'corporel'}
+                    onChange={(e) => setDropModal(prev => ({ ...prev, matterType: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm cursor-pointer"
+                  >
+                    <option value="corporel">Dommages corporels</option>
+                    <option value="social">Droit social</option>
+                  </select>
+                </div>
               </div>
             )}
 
@@ -16798,7 +17137,7 @@ export default function App() {
             </h1>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create' })}
+                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create', matterType: 'corporel' })}
                 className="flex items-center gap-2 px-4 py-2.5 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors"
               >
                 <Plus className="w-4 h-4" />
