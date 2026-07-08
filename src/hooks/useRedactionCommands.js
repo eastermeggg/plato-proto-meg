@@ -389,6 +389,8 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
       actions.push({ type: 'SET_STEPPER_STATE', stepperType: 'awaiting-template-confirm' });
       playActions(actions);
     }
+    // buildReasoning1ThroughGeneration is a stable in-hook helper; omitted intentionally
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playActions]);
 
   // STEP 1 response — user confirms template choice

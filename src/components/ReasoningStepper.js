@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
-  FileText, SearchCode, XCircle,
+  SearchCode, XCircle,
   ChevronDown, ChevronRight, Plus, Pencil,
   ListChecks, Bot, Calculator,
   HeartPulse, AlignLeft, CheckCheck, Asterisk, SquareX,
@@ -21,12 +21,6 @@ export const STEP_COLORS = {
 
 // ── Icons ────────────────────────────────────────────────────────────
 
-const DoubleSparkle = ({ className, style }) => (
-  <svg className={className} style={style} width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5 1.5L5.6 3.8L8 4.5L5.6 5.2L5 7.5L4.4 5.2L2 4.5L4.4 3.8Z" />
-    <path d="M10.5 7L10.9 8.5L12.5 9L10.9 9.5L10.5 11L10.1 9.5L8.5 9L10.1 8.5Z" />
-  </svg>
-);
 
 const DocLinesIcon = ({ className, style }) => (
   <svg className={className} style={style} width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
@@ -278,7 +272,6 @@ const StepRow = ({ step, isLast, isStreaming }) => {
   const colors = STEP_COLORS[config.color] || STEP_COLORS.default;
   const isLoading = step.status === 'loading' || (isStreaming && isLast && step.status !== 'done' && step.status !== 'error');
   const isError = step.status === 'error';
-  const isCrud = CRUD_TYPES.has(step.type);
   const childCount = (!isError && step.children?.length) || 0;
   const isDescription = childCount === 1;
   const isSubItems = childCount > 1;
