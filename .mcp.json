@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "norma-design-system": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "./src/design-system",
+        "./src/components/ui-kit"
+      ]
+    }
+  }
+}

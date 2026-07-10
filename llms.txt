@@ -1,0 +1,28 @@
+# Norma
+
+> Norma is a design prototype for a legal-tech assistant (French law practice). Built with Create React App (React 18, JavaScript) and Tailwind CSS v3, using the "Plato" stone + cream design theme. This file maps the design-system surface so AI agents can navigate the repo and build on-brand UI.
+
+## Design system
+
+- [Design tokens](src/design-system/tokens.js): canonical color, spacing, typography, shadow and radius tokens — the single source of truth.
+- [Global styles](src/index.css): CSS custom properties, badge variants, base element styles.
+- [Tailwind config](tailwind.config.js): theme extension exposing tokens as utilities.
+- [Component manifest](lyse.components.json): machine-readable list of components and their source files.
+
+## Components
+
+- [UI-kit primitives](src/components/ui-kit/previews.jsx): Button, Checkbox, RadioGroup, Switch, Select, Combobox, Textarea, Modal, Sheet, Popover, Tooltip, Tabs, Table, Avatar, Skeleton, and chat primitives.
+- [JP components](src/components/jp): jurisprudence search, decision drawers, add/rationale steppers, pills and rows.
+- [Pièces components](src/components/pieces): document pile split/fusion flow, bordereau table, folder modals, review banners.
+- [Rédaction components](src/components/redaction): acte canvas, outline, bordereau, pièce pickers, export menu.
+
+## Conventions
+
+- [Agent guide](AGENTS.md): toolchain, design-system entry points, and coding conventions.
+- No emojis in UI; hyphens over em-dashes in copy; tokens over hardcoded values.
+
+## Meta
+
+- [README](README.md): Create React App getting-started.
+- [Changelog](CHANGELOG.md): version history (Keep a Changelog format).
+- [Migration guide](MIGRATION.md): upgrade notes across breaking versions.
