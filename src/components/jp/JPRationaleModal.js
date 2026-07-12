@@ -73,10 +73,11 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
 
           {/* Apport */}
           <div className="flex flex-col gap-2">
-            <label style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="jp-rationale-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
               Apport de la décision
             </label>
             <textarea
+              id="jp-rationale-impact"
               value={rationale}
               onChange={(e) => setRationale(e.target.value)}
               rows={6}

@@ -372,13 +372,13 @@ export default function JPSearchView({
               <FilterSection title="Periode">
                 <div className="space-y-2">
                   <div>
-                    <label className="text-[10px] text-[#a8a29e] uppercase font-medium" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Du</label>
-                    <input type="date" value={filters.dateFrom} onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+                    <label htmlFor="jp-filter-date-from" className="text-[10px] text-[#a8a29e] uppercase font-medium" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Du</label>
+                    <input id="jp-filter-date-from" type="date" value={filters.dateFrom} onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
                       className="w-full mt-1 px-2 py-1.5 rounded-md border border-[#e7e5e3] bg-white text-[12px] text-[#292524] focus:outline-none focus:border-[#b9a07a]" />
                   </div>
                   <div>
-                    <label className="text-[10px] text-[#a8a29e] uppercase font-medium" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Au</label>
-                    <input type="date" value={filters.dateTo} onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+                    <label htmlFor="jp-filter-date-to" className="text-[10px] text-[#a8a29e] uppercase font-medium" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Au</label>
+                    <input id="jp-filter-date-to" type="date" value={filters.dateTo} onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
                       className="w-full mt-1 px-2 py-1.5 rounded-md border border-[#e7e5e3] bg-white text-[12px] text-[#292524] focus:outline-none focus:border-[#b9a07a]" />
                   </div>
                 </div>

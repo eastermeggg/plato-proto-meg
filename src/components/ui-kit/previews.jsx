@@ -464,7 +464,12 @@ export function Popover({ open: openProp, anchor, children, side = 'bottom', ali
   const open = openProp !== undefined ? openProp : openInternal;
   return (
     <span style={{ position: 'relative', display: 'inline-flex' }}>
-      <span onClick={() => setOpen(o => !o)}>{anchor}</span>
+      <span
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(o => !o)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o); } }}
+      >{anchor}</span>
       {open && (
         <div
           style={{
@@ -496,6 +501,9 @@ export function Modal({ open, onClose, title, description, children, size = 'md'
   const widths = { sm: 380, md: 512, lg: 640 };
   return (
     <div
+      role="button"
+      tabIndex={-1}
+      aria-label="Fermer"
       style={{
         position: 'absolute', inset: 0,
         background: 'rgba(0,0,0,0.4)',
@@ -503,8 +511,12 @@ export function Modal({ open, onClose, title, description, children, size = 'md'
         padding: 24, zIndex: 5,
       }}
       onClick={onClose}
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
         style={{
           width: '100%', maxWidth: widths[size],
           background: '#fff',
@@ -543,7 +555,14 @@ export function Sheet({ open, side = 'right', onClose, title, children, width = 
   };
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 5 }}>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} />
+      <div
+        role="button"
+        tabIndex={-1}
+        aria-label="Fermer"
+        onClick={onClose}
+        onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }}
+      />
       <div
         style={{
           position: 'absolute',

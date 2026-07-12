@@ -1,6 +1,6 @@
 ---
 name: launch-local-server
-description: Launch (or relaunch) the local Create React App dev server for the Norma prototype. Use when the user asks to "launch the local server", "start the dev server", "relaunch local server", or otherwise wants the app running locally.
+description: Launch or relaunch the local Create React App dev server for the Norma prototype. Use when the user asks to "launch the local server", "start the dev server", or "relaunch local server".
 ---
 
 # Launch local server

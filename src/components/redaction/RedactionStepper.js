@@ -21,9 +21,9 @@ export default function RedactionStepper({ onClose, onSelectType }) {
 
         {/* Type grid */}
         <div className="px-4 py-4">
-          <label style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 8 }}>
             Quel type d'acte souhaitez-vous rédiger ?
-          </label>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             {REDACTION_ACT_TYPES.map(t => {
               const Icon = t.Icon;
