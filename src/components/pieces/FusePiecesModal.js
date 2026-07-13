@@ -85,7 +85,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') commit(); }}
               placeholder="Nom du document…"
-              className="w-full rounded-[8px] px-3 py-2 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] hover:border-[#d6d3d1] focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
+              className="w-full rounded-[8px] px-3 py-2 text-[14px] text-foreground bg-white border border-border hover:border-border-strong focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
               style={{ fontFamily: SANS, boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}
             />
           </div>
@@ -98,7 +98,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
               </span>
             </div>
             <ul
-              className="rounded-[8px] border border-[#e7e5e3] overflow-hidden"
+              className="rounded-[8px] border border-border overflow-hidden"
               style={{ listStyle: 'none', padding: 0, margin: 0, maxHeight: 240, overflowY: 'auto' }}
             >
               {sources.map((s, i) => (
@@ -108,7 +108,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
                   style={{ borderBottom: i < sources.length - 1 ? '1px solid #e7e5e3' : 'none' }}
                 >
                   <span className="inline-flex items-center justify-center w-[22px] h-[22px] flex-shrink-0">
-                    <Paperclip className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                    <Paperclip className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                   </span>
                   <span
                     className="flex-1 min-w-0 truncate"
@@ -127,7 +127,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
         <div className="flex items-center justify-end gap-2 px-6 pb-6">
           <button
             onClick={() => onOpenChange?.(false)}
-            className="inline-flex items-center justify-center h-9 px-4 rounded-[8px] bg-white border border-[#e7e5e3] hover:bg-[#fafaf9] transition-colors"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-[8px] bg-white border border-border hover:bg-background transition-colors"
             style={{ fontFamily: SANS, fontSize: 14, fontWeight: 500, color: '#292524', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}
           >
             Annuler

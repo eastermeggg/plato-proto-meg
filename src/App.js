@@ -436,11 +436,11 @@ function TriStateCheckbox({ state, onClick, label }) {
       role="checkbox"
       aria-checked={state === 'indeterminate' ? 'mixed' : state === 'checked'}
       onClick={onClick}
-      className="inline-flex items-center gap-2 text-sm font-medium text-[#292524] flex-shrink-0"
+      className="inline-flex items-center gap-2 text-sm font-medium text-foreground flex-shrink-0"
     >
       <span
         className={`inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px] border transition-colors ${
-          filled ? 'bg-[#292524] border-[#292524] text-white' : 'bg-white border-[#d6d3d1] hover:border-[#a8a29e]'
+          filled ? 'bg-foreground border-foreground text-white' : 'bg-white border-border-strong hover:border-foreground-muted'
         }`}
       >
         {state === 'checked' && <Check className="w-3 h-3" strokeWidth={3} />}
@@ -1157,12 +1157,12 @@ const posteIconMap = {
 };
 
 const PIECE_TYPE_COLORS = {
-  'Expertise': 'bg-[#dfe8f5] text-[#1e3a8a]',
+  'Expertise': 'bg-info-subtle text-link',
   'Décision': 'bg-[#ede9fe] text-[#5b21b6]',
   'Revenus': 'bg-[#dcfce7] text-[#166534]',
   'Factures': 'bg-[#f9ecd6] text-[#855b31]',
   'Médical': 'bg-[#dbeafe] text-[#1e40af]',
-  'Correspondance': 'bg-[#eeece6] text-[#44403c]',
+  'Correspondance': 'bg-cream text-foreground-tertiary',
   'Administratif': 'bg-[#f1f5f9] text-[#475569]',
 };
 
@@ -1173,7 +1173,7 @@ const PIECE_TYPE_OPTIONS = ['Expertise', 'Factures', 'Revenus', 'Décision', 'M�
 function FieldGroupLabel({ children }) {
   return (
     <p
-      className="text-[#78716c]"
+      className="text-foreground-secondary"
       style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}
     >
       {children}
@@ -1188,15 +1188,15 @@ function DocPreviewSkeleton({ title, date }) {
   const seed = (title || '').length + 7;
   const rows = Array.from({ length: 20 }, (_, i) => 0.5 + ((seed + i * 17) % 45) / 100);
   return (
-    <div className="relative bg-white rounded-xl shadow-sm border border-[#e7e5e3] w-full overflow-hidden" style={{ aspectRatio: '1 / 1.414' }}>
+    <div className="relative bg-white rounded-xl shadow-sm border border-border w-full overflow-hidden" style={{ aspectRatio: '1 / 1.414' }}>
       <div className="px-6 pt-6 pb-4">
         <div
-          className="text-[13px] font-semibold text-[#44403c] leading-snug"
+          className="text-[13px] font-semibold text-foreground-tertiary leading-snug"
           style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
         >
           {title}
         </div>
-        {date && <div className="text-[11px] text-[#a8a29e] mt-1 tabular-nums">{date}</div>}
+        {date && <div className="text-[11px] text-foreground-muted mt-1 tabular-nums">{date}</div>}
       </div>
       <div className="px-6 space-y-[7px]">
         {rows.map((w, i) => (
@@ -1655,9 +1655,9 @@ export default function App() {
   // Serif amounts for card titles and totals
   const serifAmountStyle = { fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', letterSpacing: '-0.5px', fontWeight: 400 };
   // Reusable card block class
-  const cardBlockClass = "bg-white rounded-lg border border-[#e7e5e3] overflow-hidden shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]";
+  const cardBlockClass = "bg-white rounded-lg border border-border overflow-hidden shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]";
   // Total block class
-  const totalBlockClass = "bg-[#eeece6] border border-[#e7e5e3] rounded-lg shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] p-4";
+  const totalBlockClass = "bg-cream border border-border rounded-lg shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] p-4";
 
   // ========== CHESS PIECE AVATARS ==========
   const CHESS_PATHS = {
@@ -2655,7 +2655,7 @@ export default function App() {
           return (
             <span
               key={pi}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] cursor-pointer hover:bg-[#e7e5e3] transition-colors align-middle"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] cursor-pointer hover:bg-border transition-colors align-middle"
               style={{ backgroundColor: '#eeece6', verticalAlign: 'baseline', lineHeight: '18px' }}
               onClick={() => {
                 const piece = pieces.find(p => p.nom === docName || p.intitule === docName) || dropFirstPieces.find(p => (p.cleanName || p.originalName) === docName);
@@ -2711,14 +2711,14 @@ export default function App() {
   // ========== PIECES HELPERS ==========
   const getTypeColor = (type) => {
     const colors = {
-      'Facture': 'bg-blue-100 text-[#1e3a8a]',
+      'Facture': 'bg-blue-100 text-link',
       'Bulletin': 'bg-green-100 text-green-700',
       'Attestation': 'bg-purple-100 text-purple-700',
       'Expertise': 'bg-amber-100 text-amber-700',
       'Imagerie': 'bg-pink-100 text-pink-700',
       'Ordonnance': 'bg-cyan-100 text-cyan-700'
     };
-    return colors[type] || 'bg-[#F8F7F5] text-gray-700';
+    return colors[type] || 'bg-background-canvas text-gray-700';
   };
 
   const getPieceUsage = (pieceId) => {
@@ -2783,7 +2783,7 @@ export default function App() {
     return (
       <div className="flex flex-col -mx-4 -mt-4">
         {/* Sub-header bar - full width, edge-to-edge */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#e7e5e3]">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
           {/* Doc count */}
           <span className="text-sm font-medium text-black">{pieces.length} pièce{pieces.length !== 1 ? 's' : ''}</span>
 
@@ -2800,8 +2800,8 @@ export default function App() {
               }}
               className={`flex items-center gap-2.5 h-[32px] px-3 text-[11px] font-medium uppercase tracking-wide rounded-[7px] transition-all ${
                 piecesSortMode === 'chrono'
-                  ? 'bg-[#dfe8f5] border border-[#aabcd5] text-[#1e3a8a] shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)]'
-                  : 'bg-[#eeece6] text-[#78716c] hover:text-[#44403c] border border-transparent'
+                  ? 'bg-info-subtle border border-[#aabcd5] text-link shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)]'
+                  : 'bg-cream text-foreground-secondary hover:text-foreground-tertiary border border-transparent'
               }`}
               style={{ fontFamily: "'IBM Plex Mono', monospace" }}
             >
@@ -2817,7 +2817,7 @@ export default function App() {
             <div className="relative" ref={downloadMenuRef}>
               <button
                 onClick={() => setDownloadMenuOpen(o => !o)}
-                className={`flex items-center gap-2 h-8 px-3 rounded-[6px] transition-colors ${downloadMenuOpen ? 'bg-[#e7e5e3] text-[#44403c]' : 'bg-[#eeece6] text-[#44403c] hover:bg-[#e7e5e3]'}`}
+                className={`flex items-center gap-2 h-8 px-3 rounded-[6px] transition-colors ${downloadMenuOpen ? 'bg-border text-foreground-tertiary' : 'bg-cream text-foreground-tertiary hover:bg-border'}`}
               >
                 <Download className="w-4 h-4" strokeWidth={1.5} />
                 <span className="text-sm font-medium">Télécharger</span>
@@ -2825,7 +2825,7 @@ export default function App() {
 
               {downloadMenuOpen && (
                 <div
-                  className="absolute right-0 top-10 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden"
+                  className="absolute right-0 top-10 z-50 bg-white rounded-[8px] border border-border overflow-hidden"
                   style={{ width: 260, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}
                 >
                   <div className="px-3 pt-2.5 pb-1.5">
@@ -2835,16 +2835,16 @@ export default function App() {
                   </div>
                   <div className="p-1">
                     <button
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                      className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                       onClick={() => { setDownloadMenuOpen(false); downloadAllAsZip(); }}
                     >
-                      <span className="text-[14px] text-[#292524]">Avec tamponnage</span>
+                      <span className="text-[14px] text-foreground">Avec tamponnage</span>
                     </button>
                     <button
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                      className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                       onClick={() => { setDownloadMenuOpen(false); downloadAllAsZip(); }}
                     >
-                      <span className="text-[14px] text-[#292524]">Sans tamponnage</span>
+                      <span className="text-[14px] text-foreground">Sans tamponnage</span>
                     </button>
                   </div>
                 </div>
@@ -2853,7 +2853,7 @@ export default function App() {
             {dossierStatut !== 'fermé' && (
               <button
                 onClick={copyBordereau}
-                className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-[#292524] rounded-md hover:bg-[#44403c] shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
+                className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
               >
                 <Copy className="w-4 h-4" strokeWidth={1.5} />
                 Copier bordereau
@@ -2899,14 +2899,14 @@ export default function App() {
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(e) => { e.preventDefault(); setIsDragging(false); acceptDroppedFiles(e.dataTransfer.files); }}
-                  className={`mb-4 flex items-center justify-center gap-4 h-16 border border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? 'border-[#d6d3d1] bg-[#f5f5f4]' : 'border-[#d6d3d1] hover:border-[#a8a29e]'}`}
+                  className={`mb-4 flex items-center justify-center gap-4 h-16 border border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? 'border-border-strong bg-background-subtle' : 'border-border-strong hover:border-foreground-muted'}`}
                   style={{ background: isDragging ? '#f5f5f4' : 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}
                 >
-                  <Upload className="w-5 h-5 text-[#78716c]" strokeWidth={1.5} />
+                  <Upload className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />
                   <span className="text-sm">
-                    <span className="text-[#78716c]">Déposez ou </span>
-                    <span className="font-medium text-[#1e3a8a]">cliquez</span>
-                    <span className="text-[#78716c]"> pour ajouter de nouvelles pièces</span>
+                    <span className="text-foreground-secondary">Déposez ou </span>
+                    <span className="font-medium text-link">cliquez</span>
+                    <span className="text-foreground-secondary"> pour ajouter de nouvelles pièces</span>
                   </span>
                 </div>
               </>
@@ -2915,25 +2915,25 @@ export default function App() {
 
           {/* Reorder hint banner */}
           {showReorderHint && piecesSortMode === 'chrono' && (
-            <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-[#f8f7f5] border border-[#e7e5e3] rounded-lg">
-              <Hand className="w-4 h-4 text-[#78716c] shrink-0" strokeWidth={1.5} />
-              <span className="text-sm text-[#44403c]">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
+            <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
+              <Hand className="w-4 h-4 text-foreground-secondary shrink-0" strokeWidth={1.5} />
+              <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
               <button
                 onClick={() => { setPiecesSortMode('manuel'); setShowReorderHint(false); }}
-                className="ml-auto px-3 py-1.5 text-sm font-medium text-white bg-[#292524] rounded-md hover:bg-[#44403c] transition-colors shrink-0"
+                className="ml-auto px-3 py-1.5 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
               >
                 Désactiver Chrono
               </button>
-              <button onClick={() => setShowReorderHint(false)} className="text-[#a8a29e] hover:text-[#78716c] transition-colors shrink-0">
+              <button onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
                 <X className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
           )}
 
           {/* Table */}
-          <div className="border border-[#e7e5e3] rounded-md overflow-hidden">
+          <div className="border border-border rounded-md overflow-hidden">
             {/* Column headers */}
-            <div className="flex items-center bg-white border-b border-[#e7e5e3]">
+            <div className="flex items-center bg-white border-b border-border">
               <div className="w-[38px] h-10 shrink-0" />
               <div className="w-[50px] shrink-0 px-3 py-3 text-center" style={colHeaderStyle}>N°</div>
               <div className="flex-1 min-w-0 px-3 py-3" style={colHeaderStyle}>Nom du document</div>
@@ -2990,7 +2990,7 @@ export default function App() {
                       }
                       setPiecesDragState({ dragging: null, over: null });
                     }}
-                    className={`flex items-center h-14 bg-white border-b border-[#e7e5e3] last:border-b-0 hover:bg-[#fafaf9] cursor-pointer group ${isDragging ? 'opacity-20 bg-[#f4f4f5]' : ''}`}
+                    className={`flex items-center h-14 bg-white border-b border-border last:border-b-0 hover:bg-background cursor-pointer group ${isDragging ? 'opacity-20 bg-[#f4f4f5]' : ''}`}
                     onClick={() => setEditPanel({ type: 'piece-detail', data: { ...piece, index: displayIndex, usages } })}
                   >
                     {/* Grip */}
@@ -2998,11 +2998,11 @@ export default function App() {
                       className={`w-[38px] shrink-0 flex items-center justify-center pl-3 ${piecesSortMode === 'manuel' ? 'cursor-grab' : 'cursor-not-allowed'}`}
                       onClick={(e) => { e.stopPropagation(); if (piecesSortMode !== 'manuel') setShowReorderHint(true); }}
                     >
-                      <GripVertical className={`w-3.5 h-3.5 transition-opacity ${piecesSortMode === 'manuel' ? 'text-[#d6d3d1] opacity-100' : 'text-[#d6d3d1] opacity-0 group-hover:opacity-40'}`} strokeWidth={1.5} />
+                      <GripVertical className={`w-3.5 h-3.5 transition-opacity ${piecesSortMode === 'manuel' ? 'text-border-strong opacity-100' : 'text-border-strong opacity-0 group-hover:opacity-40'}`} strokeWidth={1.5} />
                     </div>
                     {/* Number badge */}
                     <div className="w-[50px] shrink-0 flex items-center justify-center pl-4 pr-3">
-                      <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-[#eeece6] text-[#78716c] text-xs font-semibold rounded-md">
+                      <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-cream text-foreground-secondary text-xs font-semibold rounded-md">
                         {displayIndex}
                       </span>
                     </div>
@@ -3012,30 +3012,30 @@ export default function App() {
                     </div>
                     {/* Type badge */}
                     <div className="w-[174px] shrink-0 px-3">
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md ${PIECE_TYPE_COLORS[piece.type] || 'bg-[#eeece6] text-[#44403c]'}`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md ${PIECE_TYPE_COLORS[piece.type] || 'bg-cream text-foreground-tertiary'}`}>
                         {piece.type}
                         <ChevronDown className="w-3 h-3" strokeWidth={1.5} />
                       </span>
                     </div>
                     {/* Date */}
                     <div className="w-[120px] shrink-0 px-3">
-                      <span className="text-sm text-[#292524]">{piece.date || '—'}</span>
+                      <span className="text-sm text-foreground">{piece.date || '—'}</span>
                     </div>
                     {/* Postes liés */}
                     <div className="w-[224px] shrink-0 px-3">
                       {usages.length > 0 ? (
                         <div className="flex flex-wrap gap-1 overflow-hidden">
                           {usages.map(u => (
-                            <span key={u} className="px-2 py-0.5 text-xs font-medium text-[#44403c] bg-[#eeece6] rounded-md">{u}</span>
+                            <span key={u} className="px-2 py-0.5 text-xs font-medium text-foreground-tertiary bg-cream rounded-md">{u}</span>
                           ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-[#a8a29e]">—</span>
+                        <span className="text-xs text-foreground-muted">—</span>
                       )}
                     </div>
                     {/* Options */}
                     <div className="w-[44px] shrink-0 flex items-center justify-end pr-4">
-                      <MoreVertical className="w-4 h-4 text-[#78716c] opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
+                      <MoreVertical className="w-4 h-4 text-foreground-secondary opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
                     </div>
                   </div>
                 </React.Fragment>
@@ -3044,14 +3044,14 @@ export default function App() {
             {/* Floating ghost card */}
             {piecesDragState.dragging && piecesDragState.ghostX && (
               <div
-                className="fixed z-50 pointer-events-none bg-[#292524] border border-[#44403c] rounded-lg shadow-lg px-3 py-2 flex items-center gap-2"
+                className="fixed z-50 pointer-events-none bg-foreground border border-foreground-tertiary rounded-lg shadow-lg px-3 py-2 flex items-center gap-2"
                 style={{ left: piecesDragState.ghostX + 12, top: piecesDragState.ghostY - 16, minWidth: 200 }}
               >
-                <GripVertical className="w-3 h-3 text-[#78716c]" strokeWidth={1.5} />
-                <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-[#44403c] text-[#d6d3d1] text-xs font-semibold rounded-md">{piecesDragState.num || '?'}</span>
+                <GripVertical className="w-3 h-3 text-foreground-secondary" strokeWidth={1.5} />
+                <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-foreground-tertiary text-border-strong text-xs font-semibold rounded-md">{piecesDragState.num || '?'}</span>
                 <span className="text-sm font-medium text-white truncate max-w-[250px]">{piecesDragState.name}</span>
                 {piecesDragState.type && (
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded-md bg-[#44403c] text-[#d6d3d1]`}>{piecesDragState.type}</span>
+                  <span className={`px-2 py-0.5 text-xs font-medium rounded-md bg-foreground-tertiary text-border-strong`}>{piecesDragState.type}</span>
                 )}
               </div>
             )}
@@ -4687,9 +4687,9 @@ export default function App() {
           <button
             onClick={() => { if (jp.jpState.drawerDecisionId) jp.closeDrawer(); backToList(); }}
             title="Retour à la liste des dossiers"
-            className="w-8 h-8 flex items-center justify-center bg-[#eeece6] rounded-[6px] hover:bg-[#e7e5e3] transition-colors flex-shrink-0"
+            className="w-8 h-8 flex items-center justify-center bg-cream rounded-[6px] hover:bg-border transition-colors flex-shrink-0"
           >
-            <Home className="w-4 h-4 text-[#44403c]" strokeWidth={1.75} />
+            <Home className="w-4 h-4 text-foreground-tertiary" strokeWidth={1.75} />
           </button>
           <span className="truncate" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: '16px', fontWeight: 500, color: '#292524', letterSpacing: '-0.3px' }}>
             {victimeData.prenom} {victimeData.nom}
@@ -4777,23 +4777,23 @@ export default function App() {
               <MoreVertical className="w-5 h-5 text-stone-500" strokeWidth={1.5} />
             </button>
             {dossierMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ minWidth: 220, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+              <div className="absolute top-full right-0 mt-1 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
                 <div className="p-1">
                   {isClosed ? (
                     <button
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                       onClick={() => { setDossierMenuOpen(false); setReopenConfirmOpen(true); }}
                     >
-                      <RefreshCw className="w-3.5 h-3.5 text-[#78716c]" strokeWidth={1.5} />
-                      <span className="text-[14px] text-[#292524]">Reprendre le dossier</span>
+                      <RefreshCw className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.5} />
+                      <span className="text-[14px] text-foreground">Reprendre le dossier</span>
                     </button>
                   ) : (
                     <button
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-[#fef2f2] transition-colors"
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-danger-subtle transition-colors"
                       onClick={() => { setDossierMenuOpen(false); setCloseConfirmOpen(true); }}
                     >
-                      <AlertTriangle className="w-3.5 h-3.5 text-[#991b1b]" strokeWidth={1.5} />
-                      <span className="text-[14px] text-[#991b1b]">Marquer comme terminé</span>
+                      <AlertTriangle className="w-3.5 h-3.5 text-danger" strokeWidth={1.5} />
+                      <span className="text-[14px] text-danger">Marquer comme terminé</span>
                     </button>
                   )}
                 </div>
@@ -4805,7 +4805,7 @@ export default function App() {
               next to PLATO MASTER (see renderChatSidebar). */}
           {!isClosed && !chatSidebarOpen && (
             <>
-              <div className="w-px h-5 bg-[#e7e5e3]" />
+              <div className="w-px h-5 bg-border" />
               <button
                 onClick={() => setChatSidebarOpen(true)}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all hover:shadow-md"
@@ -5031,7 +5031,7 @@ export default function App() {
       <>
         {/* Draggable resize handle */}
         <div
-          className="w-[6px] flex-shrink-0 cursor-col-resize group relative border-l border-r border-[#e7e5e3]"
+          className="w-[6px] flex-shrink-0 cursor-col-resize group relative border-l border-r border-border"
           style={{ backgroundColor: '#F8F7F5' }}
           onMouseDown={handleChatResizeStart}
         >
@@ -5293,16 +5293,16 @@ export default function App() {
                     {/* Action icons */}
                     <div className="flex items-center gap-2.5">
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <Copy className="w-3.5 h-3.5 text-[#78716c]" />
+                        <Copy className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <ThumbsUp className="w-3.5 h-3.5 text-[#78716c]" />
+                        <ThumbsUp className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <ThumbsDown className="w-3.5 h-3.5 text-[#78716c]" />
+                        <ThumbsDown className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <RotateCcw className="w-3.5 h-3.5 text-[#78716c]" />
+                        <RotateCcw className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                     </div>
                   </div>
@@ -5364,16 +5364,16 @@ export default function App() {
                     {/* Action icons */}
                     <div className="flex items-center gap-2.5">
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <Copy className="w-3.5 h-3.5 text-[#78716c]" />
+                        <Copy className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <ThumbsUp className="w-3.5 h-3.5 text-[#78716c]" />
+                        <ThumbsUp className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <ThumbsDown className="w-3.5 h-3.5 text-[#78716c]" />
+                        <ThumbsDown className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                       <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
-                        <RotateCcw className="w-3.5 h-3.5 text-[#78716c]" />
+                        <RotateCcw className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                     </div>
                   </div>
@@ -5479,15 +5479,15 @@ export default function App() {
             >
               {/* CONTEXT bar - only when a zone is selected in the acte */}
               {currentLevel.type === 'acte' && selectedActeZone && (
-                <div className="border-b border-[#e7e5e3] flex flex-wrap gap-y-[7px] items-start p-[6px] w-full">
+                <div className="border-b border-border flex flex-wrap gap-y-[7px] items-start p-[6px] w-full">
                   <div
                     className={`rounded-[6px] px-2 py-1.5 flex items-center gap-1.5 max-w-[320px] overflow-hidden transition-colors ${
                       selectedActeZone
                         ? 'bg-[#dbeafe] border border-[#93c5fd]'
-                        : 'border border-[#e7e5e3]'
+                        : 'border border-border'
                     }`}
                   >
-                    <Focus className={`w-3 h-3 flex-shrink-0 ${selectedActeZone ? 'text-[#3b82f6]' : 'text-[#78716c]'}`} />
+                    <Focus className={`w-3 h-3 flex-shrink-0 ${selectedActeZone ? 'text-[#3b82f6]' : 'text-foreground-secondary'}`} />
                     <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: selectedActeZone ? '#1d4ed8' : '#78716c', textTransform: 'uppercase' }}>
                       {selectedActeZone ? `ACTE · ${selectedActeZone}` : `ACTE · ${currentLevel.title}`}
                     </span>
@@ -5519,7 +5519,7 @@ export default function App() {
                       pointerEvents: 'none',
                     }}
                   >
-                    <CircleArrowDown className="w-5 h-5 text-[#292524]" />
+                    <CircleArrowDown className="w-5 h-5 text-foreground" />
                     <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#292524' }}>
                       Déposez vos fichiers ici
                     </span>
@@ -5532,7 +5532,7 @@ export default function App() {
                 <div className="flex flex-wrap gap-2 pt-3 px-3">
                   {stagedDocs.map((doc, di) => (
                     <span key={di} className="inline-flex items-center gap-1 px-2 py-1 rounded-[6px] text-[12px] font-medium" style={{ backgroundColor: '#eeece6', color: '#44403c' }}>
-                      <Paperclip className="w-3 h-3 text-[#78716c]" />
+                      <Paperclip className="w-3 h-3 text-foreground-secondary" />
                       <span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[140px]">{doc.name}</span>
                       <button onClick={() => setStagedDocs(prev => prev.filter((_, i) => i !== di))} className="ml-0.5 hover:text-red-500 transition-colors">
                         <X className="w-3 h-3" />
@@ -5652,7 +5652,7 @@ export default function App() {
                           <input
                             ref={userAskCustomRef}
                             type="text"
-                            className="flex-1 bg-transparent text-[14px] text-[#292524] focus:outline-none"
+                            className="flex-1 bg-transparent text-[14px] text-foreground focus:outline-none"
                             placeholder="Votre réponse..."
                             value={customText}
                             onChange={(e) => setUserAskState(s => ({ ...s, customText: e.target.value }))}
@@ -5675,7 +5675,7 @@ export default function App() {
                           style={{ opacity: currentIdx === 0 ? 0.3 : 1 }}
                           onClick={() => { if (currentIdx > 0) setUserAskState(s => ({ ...s, currentIdx: currentIdx - 1, selectedProposal: null, customText: '' })); }}
                         >
-                          <ChevronLeft className="w-3 h-3 text-[#292524]" strokeWidth={2} />
+                          <ChevronLeft className="w-3 h-3 text-foreground" strokeWidth={2} />
                         </button>
                         <div className="flex items-center gap-1 px-1">
                           {questions.map((_, di) => (
@@ -5696,7 +5696,7 @@ export default function App() {
                           style={{ opacity: currentIdx >= total - 1 ? 0.3 : 1 }}
                           onClick={() => { if (currentIdx < total - 1) setUserAskState(s => ({ ...s, currentIdx: currentIdx + 1, selectedProposal: null, customText: '' })); }}
                         >
-                          <ChevronRight className="w-3 h-3 text-[#292524]" strokeWidth={2} />
+                          <ChevronRight className="w-3 h-3 text-foreground" strokeWidth={2} />
                         </button>
                       </div>
 
@@ -5704,7 +5704,7 @@ export default function App() {
                       <div className="flex items-center gap-[7px]">
                         <button
                           onClick={skipQuestion}
-                          className="flex items-center justify-center transition-colors hover:bg-[#e7e5e3]"
+                          className="flex items-center justify-center transition-colors hover:bg-border"
                           style={{ height: 32, paddingLeft: 12, paddingRight: 12, borderRadius: 8, backgroundColor: '#eeece6', fontSize: 14, fontWeight: 500, color: '#44403c' }}
                         >
                           Passer
@@ -5747,7 +5747,7 @@ export default function App() {
                       <div className="mt-2.5">
                         <button
                           onClick={() => setAskUpgradeOpen(true)}
-                          className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors"
+                          className="inline-flex items-center gap-1.5 h-8 px-3 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors"
                         >
                           <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
                           Demander une mise à niveau
@@ -5830,7 +5830,7 @@ export default function App() {
                   };
 
                   return (
-                    <div className="absolute bottom-full left-0 mb-1 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                    <div className="absolute bottom-full left-0 mb-1 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
                       <div className="overflow-y-auto p-1" style={{ maxHeight: 260 }}>
                         {sections.map((section) => {
                           const isTpl = section.label === 'Modèles';
@@ -5839,7 +5839,7 @@ export default function App() {
                           return (
                             <React.Fragment key={`sec-${section.label}`}>
                               <div className="flex items-center gap-1.5 px-2 py-1">
-                                <SectionIcon className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
+                                <SectionIcon className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
                                 <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{section.label}</span>
                               </div>
                               {section.docs.map((doc) => {
@@ -5847,13 +5847,13 @@ export default function App() {
                                 return (
                                   <button
                                     key={`${doc.source}-${doc.id}`}
-                                    className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${idx === mentionIdx ? 'bg-[#fafaf9]' : 'hover:bg-[#fafaf9]'}`}
+                                    className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${idx === mentionIdx ? 'bg-background' : 'hover:bg-background'}`}
                                     style={{ paddingLeft: 20 }}
                                     onMouseDown={(e) => { e.preventDefault(); selectDoc(doc); }}
                                     onMouseEnter={() => setMentionIdx(idx)}
                                   >
-                                    <RowIcon className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
-                                    <span className="truncate text-[13px] text-[#292524]">{doc.name}</span>
+                                    <RowIcon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
+                                    <span className="truncate text-[13px] text-foreground">{doc.name}</span>
                                   </button>
                                 );
                               })}
@@ -5880,14 +5880,14 @@ export default function App() {
                     style={{ opacity: chatLocked ? 0.4 : 1 }}
                     onClick={() => { if (!chatLocked) setAttachMenuOpen(attachMenuOpen ? false : 'main'); }}
                   >
-                    <Paperclip className="w-4 h-4 text-[#78716c]" />
+                    <Paperclip className="w-4 h-4 text-foreground-secondary" />
                   </button>
 
                   {/* Attach popover menu */}
                   {attachMenuOpen === 'main' && (
-                    <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ width: 260, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                    <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 260, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
                       {/* Import button */}
-                      <div className="border-b border-[#e7e5e3] px-4 py-[11px]">
+                      <div className="border-b border-border px-4 py-[11px]">
                         <button
                           className="flex items-center gap-2 transition-colors"
                           onClick={() => {
@@ -5903,25 +5903,25 @@ export default function App() {
                             input.click();
                           }}
                         >
-                          <Plus className="w-4 h-4 text-[#1e3a8a]" strokeWidth={1.5} />
-                          <span className="text-[14px] font-medium text-[#1e3a8a]">Importer un document</span>
+                          <Plus className="w-4 h-4 text-link" strokeWidth={1.5} />
+                          <span className="text-[14px] font-medium text-link">Importer un document</span>
                         </button>
                       </div>
                       {/* Browse options */}
                       <div className="p-1">
                         <button
-                          className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                          className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                           onClick={() => { setAttachMenuOpen('pieces'); setAttachSearch(''); setAttachExpanded(new Set(bordereauCategories.map(c => c.id))); setAttachSelected(new Set()); }}
                         >
-                          <span className="text-[14px] text-[#292524]">Pièces du dossier</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-[#d6d3d1]" />
+                          <span className="text-[14px] text-foreground">Pièces du dossier</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-border-strong" />
                         </button>
                         <button
-                          className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                          className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                           onClick={() => { setAttachMenuOpen('templates'); setAttachSearch(''); }}
                         >
-                          <span className="text-[14px] text-[#292524]">Modèles d'actes</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-[#d6d3d1]" />
+                          <span className="text-[14px] text-foreground">Modèles d'actes</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-border-strong" />
                         </button>
                       </div>
                     </div>
@@ -5975,32 +5975,32 @@ export default function App() {
                     };
 
                     return (
-                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden flex flex-col" style={{ width: 320, maxHeight: 420, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden flex flex-col" style={{ width: 320, maxHeight: 420, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
                         {/* Navigation header */}
-                        <div className="flex items-center gap-2 bg-[#f8f7f5] px-2.5 py-2 border-b border-[#e7e5e3] flex-shrink-0">
+                        <div className="flex items-center gap-2 bg-background-canvas px-2.5 py-2 border-b border-border flex-shrink-0">
                           <button onClick={() => { setAttachMenuOpen('main'); setAttachSearch(''); }} className="opacity-50 hover:opacity-100 transition-opacity">
-                            <ChevronRight className="w-4 h-4 text-[#78716c] rotate-180" />
+                            <ChevronRight className="w-4 h-4 text-foreground-secondary rotate-180" />
                           </button>
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
                             Pièces du dossier
                           </span>
                         </div>
                         {/* Search */}
-                        <div className="flex items-center gap-2 p-3 border-b border-[#e7e5e3] flex-shrink-0">
-                          <Search className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                        <div className="flex items-center gap-2 p-3 border-b border-border flex-shrink-0">
+                          <Search className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                           <input
                             type="text"
                             value={attachSearch}
                             onChange={(e) => setAttachSearch(e.target.value)}
                             placeholder="Rechercher une pièce ou un dossier..."
-                            className="flex-1 bg-transparent text-[14px] text-[#292524] placeholder-[#78716c] placeholder:opacity-70 focus:outline-none"
+                            className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-secondary placeholder:opacity-70 focus:outline-none"
                             autoFocus
                           />
                         </div>
                         {/* Tree */}
                         <div className="overflow-y-auto p-1 flex-1" style={{ minHeight: 80 }}>
                           {treeRows.length === 0 ? (
-                            <div className="px-2 py-6 text-center text-[12px] text-[#a8a29e]">Aucune pièce trouvée</div>
+                            <div className="px-2 py-6 text-center text-[12px] text-foreground-muted">Aucune pièce trouvée</div>
                           ) : treeRows.map((row, ri) => {
                             if (row.kind === 'sansCategorieHeader') {
                               return (
@@ -6015,15 +6015,15 @@ export default function App() {
                                 <button
                                   key={`cat-${row.category.id}`}
                                   onClick={() => toggleExpand(row.category.id)}
-                                  className="w-full flex items-center gap-1.5 py-1.5 pr-2 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                                  className="w-full flex items-center gap-1.5 py-1.5 pr-2 text-left rounded-[6px] hover:bg-background transition-colors"
                                   style={{ paddingLeft: 8 + row.depth * INDENT }}
                                 >
                                   <span style={{ width: 14, flexShrink: 0, display: 'inline-flex', justifyContent: 'center', color: '#a8a29e' }}>
                                     {row.hasChildren && <Chevron className="w-3.5 h-3.5" strokeWidth={2} />}
                                   </span>
-                                  <Folder className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
-                                  <span className="truncate text-[13px] font-medium text-[#292524]">{row.category.name}</span>
-                                  {row.directPieceCount > 0 && <span className="ml-auto text-[10px] text-[#a8a29e] flex-shrink-0">{row.directPieceCount}</span>}
+                                  <Folder className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
+                                  <span className="truncate text-[13px] font-medium text-foreground">{row.category.name}</span>
+                                  {row.directPieceCount > 0 && <span className="ml-auto text-[10px] text-foreground-muted flex-shrink-0">{row.directPieceCount}</span>}
                                 </button>
                               );
                             }
@@ -6036,7 +6036,7 @@ export default function App() {
                                 key={`p-${p.id}-${ri}`}
                                 disabled={staged}
                                 onClick={() => toggleSelect(p.id)}
-                                className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${staged ? 'opacity-50' : 'hover:bg-[#fafaf9]'}`}
+                                className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${staged ? 'opacity-50' : 'hover:bg-background'}`}
                                 style={{ paddingLeft: 8 + (row.depth * INDENT) }}
                               >
                                 <span style={{
@@ -6047,13 +6047,13 @@ export default function App() {
                                 }}>
                                   {selected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
                                 </span>
-                                <span className="truncate text-[13px] text-[#292524]">{p.intitule || p.nom}</span>
+                                <span className="truncate text-[13px] text-foreground">{p.intitule || p.nom}</span>
                               </button>
                             );
                           })}
                         </div>
                         {/* Footer */}
-                        <div className="flex items-center justify-between px-3 py-2 border-t border-[#e7e5e3] bg-[#fafaf9] flex-shrink-0">
+                        <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-background flex-shrink-0">
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#78716c' }}>
                             {attachSelected.size === 0 ? 'Sélectionnez' : `${attachSelected.size} sélectionnée${attachSelected.size > 1 ? 's' : ''}`}
                           </span>
@@ -6076,38 +6076,38 @@ export default function App() {
                     const q = attachSearch.toLowerCase();
                     const filteredTemplates = q ? templatesLibrary.filter(t => t.label.toLowerCase().includes(q) || t.fileName.toLowerCase().includes(q) || (t.actType && t.actType.toLowerCase().includes(q))) : templatesLibrary;
                     return (
-                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ width: 300, maxHeight: 400, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 300, maxHeight: 400, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
                         {/* Navigation header */}
-                        <div className="flex items-center gap-2 bg-[#f8f7f5] px-2.5 py-2 border-b border-[#e7e5e3]">
+                        <div className="flex items-center gap-2 bg-background-canvas px-2.5 py-2 border-b border-border">
                           <button onClick={() => { setAttachMenuOpen('main'); setAttachSearch(''); }} className="opacity-50 hover:opacity-100 transition-opacity">
-                            <ChevronRight className="w-4 h-4 text-[#78716c] rotate-180" />
+                            <ChevronRight className="w-4 h-4 text-foreground-secondary rotate-180" />
                           </button>
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
                             Modèles d'actes
                           </span>
                         </div>
                         {/* Search */}
-                        <button className="w-full flex items-center gap-2 p-3 border-b border-[#e7e5e3] text-left">
-                          <Search className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                        <button className="w-full flex items-center gap-2 p-3 border-b border-border text-left">
+                          <Search className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                           <input
                             type="text"
                             value={attachSearch}
                             onChange={(e) => setAttachSearch(e.target.value)}
                             placeholder="Rechercher un élément..."
-                            className="flex-1 bg-transparent text-[14px] text-[#292524] placeholder-[#78716c] placeholder:opacity-70 focus:outline-none"
+                            className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-secondary placeholder:opacity-70 focus:outline-none"
                             autoFocus
                           />
                         </button>
                         <div className="overflow-y-auto p-1" style={{ maxHeight: 300 }}>
                           <div className="p-1">
                             {filteredTemplates.length === 0 ? (
-                              <div className="px-2 py-4 text-center text-[12px] text-[#a8a29e]">{templatesLibrary.length === 0 ? 'Aucun modèle disponible' : 'Aucun modèle trouvé'}</div>
+                              <div className="px-2 py-4 text-center text-[12px] text-foreground-muted">{templatesLibrary.length === 0 ? 'Aucun modèle disponible' : 'Aucun modèle trouvé'}</div>
                             ) : filteredTemplates.map(tpl => {
                               const alreadyStaged = stagedDocs.some(d => d.id === tpl.id && d.source === 'template');
                               return (
                                 <button
                                   key={tpl.id}
-                                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] transition-colors ${alreadyStaged ? 'opacity-40' : 'hover:bg-[#fafaf9]'}`}
+                                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] transition-colors ${alreadyStaged ? 'opacity-40' : 'hover:bg-background'}`}
                                   disabled={alreadyStaged}
                                   onClick={() => {
                                     setStagedDocs(prev => [...prev, { id: tpl.id, name: tpl.label, source: 'template' }]);
@@ -6115,9 +6115,9 @@ export default function App() {
                                     setAttachSearch('');
                                   }}
                                 >
-                                  <FileText className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
-                                  <span className="truncate text-[13px] text-[#292524]">{tpl.fileName}</span>
-                                  {!alreadyStaged && tpl.actType && <span className="ml-auto text-[10px] text-[#a8a29e] flex-shrink-0">{tpl.actType}</span>}
+                                  <FileText className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
+                                  <span className="truncate text-[13px] text-foreground">{tpl.fileName}</span>
+                                  {!alreadyStaged && tpl.actType && <span className="ml-auto text-[10px] text-foreground-muted flex-shrink-0">{tpl.actType}</span>}
                                   {alreadyStaged && <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 ml-auto" />}
                                 </button>
                               );
@@ -6135,7 +6135,7 @@ export default function App() {
                       style={{ opacity: chatLocked ? 0.4 : 1 }}
                       onClick={() => { if (!chatLocked) setSuggestionsOpen(o => !o); }}
                     >
-                      <Lightbulb className="w-4 h-4 text-[#78716c]" />
+                      <Lightbulb className="w-4 h-4 text-foreground-secondary" />
                     </button>
                     {suggestionsOpen && (() => {
                       const CHAT_SUGGESTIONS = [
@@ -6147,8 +6147,8 @@ export default function App() {
                         { icon: Landmark, text: 'Chercher une JP' },
                       ];
                       return (
-                        <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                          <div className="bg-[#f8f7f5] px-2.5 py-2 border-b border-[#e7e5e3]">
+                        <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                          <div className="bg-background-canvas px-2.5 py-2 border-b border-border">
                             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '1px' }}>
                               Suggestions
                             </span>
@@ -6159,15 +6159,15 @@ export default function App() {
                               return (
                                 <button
                                   key={s.text}
-                                  className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] transition-colors"
+                                  className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                                   onClick={() => {
                                     setChatInputValue(s.text);
                                     setSuggestionsOpen(false);
                                     setTimeout(() => chatTextareaRef.current?.focus(), 0);
                                   }}
                                 >
-                                  <Icon className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
-                                  <span className="text-[13px] text-[#292524]">{s.text}</span>
+                                  <Icon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
+                                  <span className="text-[13px] text-foreground">{s.text}</span>
                                 </button>
                               );
                             })}
@@ -6220,19 +6220,19 @@ export default function App() {
     // Poste level: back arrow + badge + title + CTA
     if (currentLevel.type === 'poste' && !currentLevel.subSection) {
       return (
-        <div className="border-b border-[#e7e5e3] bg-white flex-shrink-0">
+        <div className="border-b border-border bg-white flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors">
-                <ChevronRight className="w-4 h-4 rotate-180 text-[#a8a29e]" strokeWidth={1.5} />
+                <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
               </button>
-              <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-[#e7e5e3] text-[#292524] rounded-[6px]">
+              <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-border text-foreground rounded-[6px]">
                 {currentLevel.title}
               </span>
-              <span className="text-[14px] font-medium text-[#292524]">{currentLevel.fullTitle || currentLevel.title}</span>
+              <span className="text-[14px] font-medium text-foreground">{currentLevel.fullTitle || currentLevel.title}</span>
             </div>
             {dossierStatut !== 'fermé' && (
-              <button onClick={() => setShowExportModal(true)} className="h-8 flex items-center gap-2 px-4 text-[14px] font-medium text-white bg-[#292524] rounded-lg hover:bg-[#44403c] transition-colors" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+              <button onClick={() => setShowExportModal(true)} className="h-8 flex items-center gap-2 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                 Copier chiffrage
               </button>
             )}
@@ -6245,20 +6245,20 @@ export default function App() {
     if (currentLevel.type === 'poste-iv') {
       const ivPosteTotal = getIvPosteMontant(currentLevel.id);
       return (
-        <div className="border-b border-[#e7e5e3] bg-white flex-shrink-0">
+        <div className="border-b border-border bg-white flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors">
-                <ChevronRight className="w-4 h-4 rotate-180 text-[#a8a29e]" strokeWidth={1.5} />
+                <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
               </button>
-              <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-[#e7e5e3] text-[#292524] rounded-[6px]">
+              <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-border text-foreground rounded-[6px]">
                 {currentLevel.title}
               </span>
-              <span className="text-[14px] font-medium text-[#292524]">{currentLevel.fullTitle || currentLevel.title}</span>
-              <span className="inline-flex items-center px-2 py-0.5 text-caption bg-[#eeece6] text-[#78716c] rounded-full">Victimes indirectes</span>
+              <span className="text-[14px] font-medium text-foreground">{currentLevel.fullTitle || currentLevel.title}</span>
+              <span className="inline-flex items-center px-2 py-0.5 text-caption bg-cream text-foreground-secondary rounded-full">Victimes indirectes</span>
             </div>
             <div className="flex items-center gap-3">
-              <span style={serifAmountStyle} className="text-[#292524]">{fmt(ivPosteTotal)}</span>
+              <span style={serifAmountStyle} className="text-foreground">{fmt(ivPosteTotal)}</span>
             </div>
           </div>
         </div>
@@ -6292,22 +6292,22 @@ export default function App() {
         });
       };
       return (
-        <div className="border-b border-[#e7e5e3] bg-white flex-shrink-0">
+        <div className="border-b border-border bg-white flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button onClick={backToActesList} className="p-1 hover:bg-stone-100 rounded transition-colors flex-shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180 text-[#a8a29e]" strokeWidth={1.5} />
+                <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
               </button>
-              <span className="text-[14px] font-medium text-[#292524] truncate">{currentLevel.fullTitle || currentLevel.title}</span>
+              <span className="text-[14px] font-medium text-foreground truncate">{currentLevel.fullTitle || currentLevel.title}</span>
               {acte?.templateName && (
-                <span className="text-[12px] text-[#a8a29e] truncate flex-shrink-0">{acte.templateName}</span>
+                <span className="text-[12px] text-foreground-muted truncate flex-shrink-0">{acte.templateName}</span>
               )}
               {acte?.lastUpdated && (
-                <span className="text-[12px] text-[#a8a29e] flex-shrink-0">{acte.lastUpdated}</span>
+                <span className="text-[12px] text-foreground-muted flex-shrink-0">{acte.lastUpdated}</span>
               )}
               {redaction.redactionState.canvasStreaming && (
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#b9703f] animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
                   <span style={{ fontSize: 11, color: '#b9703f', fontWeight: 500 }}>Rédaction...</span>
                 </div>
               )}
@@ -6334,7 +6334,7 @@ export default function App() {
             )}
             <div className="flex items-center gap-1 flex-shrink-0">
               <button
-                className="inline-flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-[#e7e5e3]"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-border"
                 style={{ backgroundColor: '#eeece6', color: '#44403c' }}
                 title="Copier"
                 aria-label="Copier"
@@ -6366,15 +6366,15 @@ export default function App() {
     // Cascade view sub-header
     if (currentLevel.type === 'cascade') {
       return (
-        <div className="border-b border-[#e7e5e3] bg-white flex-shrink-0">
+        <div className="border-b border-border bg-white flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
             <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors">
-              <ChevronRight className="w-4 h-4 rotate-180 text-[#a8a29e]" strokeWidth={1.5} />
+              <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
             </button>
             <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold rounded-[6px]" style={{ backgroundColor: '#eeece6', color: '#44403c', border: 'none' }}>
               CASCADE
             </span>
-            <span className="text-[14px] font-medium text-[#292524]">{currentLevel.fullTitle || 'Cascade d\'imputation'}</span>
+            <span className="text-[14px] font-medium text-foreground">{currentLevel.fullTitle || 'Cascade d\'imputation'}</span>
           </div>
         </div>
       );
@@ -6384,7 +6384,7 @@ export default function App() {
     if (currentLevel.subSection) {
       const subLabels = { 'revenus-ref': 'Revenus de référence', 'revenus-percus': 'Revenus perçus sur la période', 'ij': 'Indemnités journalières' };
       return (
-        <div className="border-b border-[#e7e5e3] bg-white flex-shrink-0">
+        <div className="border-b border-border bg-white flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
             <button onClick={() => {
               setNavStack(prev => {
@@ -6393,12 +6393,12 @@ export default function App() {
                 return [...newStack];
               });
             }} className="p-1 hover:bg-stone-100 rounded transition-colors">
-              <ChevronRight className="w-4 h-4 rotate-180 text-[#a8a29e]" strokeWidth={1.5} />
+              <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
             </button>
-            <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-[#e7e5e3] text-[#292524] rounded-[6px]">
+            <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-border text-foreground rounded-[6px]">
               {currentLevel.title}
             </span>
-            <span className="text-[14px] font-medium text-[#292524]">{subLabels[currentLevel.subSection] || currentLevel.subSection}</span>
+            <span className="text-[14px] font-medium text-foreground">{subLabels[currentLevel.subSection] || currentLevel.subSection}</span>
           </div>
         </div>
       );
@@ -6491,12 +6491,12 @@ export default function App() {
         return (
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-[7px]">
             <span className="w-4 h-4 flex items-center justify-center flex-shrink-0 opacity-0">
-              <span className="w-4 h-4 rounded border border-[#e7e5e3] bg-white" />
+              <span className="w-4 h-4 rounded border border-border bg-white" />
             </span>
             <span className="w-[22px] h-[22px] flex items-center justify-center flex-shrink-0">
-              <span className="w-4 h-4 border-[1.5px] border-[#78716c] border-t-transparent rounded-full animate-spin" />
+              <span className="w-4 h-4 border-[1.5px] border-foreground-secondary border-t-transparent rounded-full animate-spin" />
             </span>
-            <span className="text-sm italic text-[#292524] opacity-40 truncate">{doc.originalName}</span>
+            <span className="text-sm italic text-foreground opacity-40 truncate">{doc.originalName}</span>
           </div>
         );
       }
@@ -6505,23 +6505,23 @@ export default function App() {
         <div
           onClick={() => toggleSelect(doc.id)}
           className={`flex items-center justify-between px-3 py-2.5 rounded-[7px] group transition-colors cursor-pointer ${
-            isSelected ? 'bg-[#eeece6] border border-[#d6d3d1]' : 'hover:bg-[#f8f7f5]'
+            isSelected ? 'bg-cream border border-border-strong' : 'hover:bg-background-canvas'
           }`}
         >
           <div className="flex items-center gap-3 min-w-0">
             {/* Checkbox */}
             <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-colors shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] ${
-              isSelected ? 'bg-[#292524]' : 'bg-white border border-[#e7e5e3]'
+              isSelected ? 'bg-foreground' : 'bg-white border border-border'
             }`}>
               {isSelected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
             </div>
             {/* Doc number badge */}
-            <span className="w-[22px] h-[22px] flex items-center justify-center flex-shrink-0 bg-[#eeece6] rounded-md text-xs font-semibold text-[#78716c]">{index + 1}</span>
+            <span className="w-[22px] h-[22px] flex items-center justify-center flex-shrink-0 bg-cream rounded-md text-xs font-semibold text-foreground-secondary">{index + 1}</span>
             {/* Doc name */}
-            <span className={`text-sm truncate ${isSelected ? 'font-medium text-[#292524]' : 'text-[#292524]'}`}>{doc.cleanName || doc.originalName}</span>
+            <span className={`text-sm truncate ${isSelected ? 'font-medium text-foreground' : 'text-foreground'}`}>{doc.cleanName || doc.originalName}</span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium leading-4 rounded-md whitespace-nowrap ${PIECE_TYPE_COLORS[doc.type] || 'bg-[#dfe8f5] text-[#1e3a8a]'}`}>
+            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium leading-4 rounded-md whitespace-nowrap ${PIECE_TYPE_COLORS[doc.type] || 'bg-info-subtle text-link'}`}>
               {doc.type}
             </span>
           </div>
@@ -6547,17 +6547,17 @@ export default function App() {
         onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setPickerDragging(true); }}
         onDragLeave={(e) => { e.preventDefault(); if (!e.currentTarget.contains(e.relatedTarget)) setPickerDragging(false); }}
         onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setPickerDragging(false); handlePickerAddFiles(e.dataTransfer.files); }}
-        className={`rounded-lg border border-dashed overflow-hidden transition-colors flex-1 flex flex-col ${pickerDragging ? 'border-[#a8a29e] border-2' : 'border-[#d6d3d1]'}`}
+        className={`rounded-lg border border-dashed overflow-hidden transition-colors flex-1 flex flex-col ${pickerDragging ? 'border-foreground-muted border-2' : 'border-border-strong'}`}
       >
         {pickerDragging ? (
           <div className="flex items-center justify-center p-4 h-full">
             <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 rounded-lg h-full" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 57%, #eeece6 100%)' }}>
-              <div className="w-14 h-14 rounded-full bg-[#eeece6] border border-[#d6d3d1] flex items-center justify-center shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]">
-                <ArrowDownCircle className="w-6 h-6 text-[#292524]" />
+              <div className="w-14 h-14 rounded-full bg-cream border border-border-strong flex items-center justify-center shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]">
+                <ArrowDownCircle className="w-6 h-6 text-foreground" />
               </div>
               <div className="flex flex-col items-center gap-2 text-center max-w-[576px]">
-                <h3 className="text-xl font-medium text-[#292524] tracking-[-0.6px] leading-7">Déposez vos documents ici !</h3>
-                <p className="text-sm text-[#78716c] leading-5">Les documents seront analysés automatiquement pour créer les lignes correspondantes</p>
+                <h3 className="text-xl font-medium text-foreground tracking-[-0.6px] leading-7">Déposez vos documents ici !</h3>
+                <p className="text-sm text-foreground-secondary leading-5">Les documents seront analysés automatiquement pour créer les lignes correspondantes</p>
               </div>
             </div>
           </div>
@@ -6565,28 +6565,28 @@ export default function App() {
           /* ===== Doc-available state (start/doc-available variant) ===== */
           <div className="flex flex-col items-center justify-center p-8 gap-8">
             <div className="flex flex-col items-center gap-2 text-center max-w-[576px] w-full">
-              <h3 className="text-xl font-medium text-[#292524] tracking-[-0.6px] leading-7">
+              <h3 className="text-xl font-medium text-foreground tracking-[-0.6px] leading-7">
                 Commencer à calculer ce poste à partir de documents
               </h3>
-              <p className="text-sm text-[#78716c] leading-5">{description}</p>
+              <p className="text-sm text-foreground-secondary leading-5">{description}</p>
             </div>
 
             <div className="flex flex-col gap-4 items-start w-[500px] max-w-full">
               {/* Search + upload */}
               <div className="flex items-center gap-3 w-full">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#78716c]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-secondary" />
                   <input
                     type="text"
                     placeholder="Rechercher..."
                     value={pickerOpen === posteType ? pickerSearch : ''}
                     onChange={(e) => { setPickerSearch(e.target.value); if (pickerOpen !== posteType) setPickerOpen(posteType); }}
-                    className="w-full pl-9 pr-3 py-2 h-10 border border-[#e7e5e3] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-200 shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]"
+                    className="w-full pl-9 pr-3 py-2 h-10 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-200 shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]"
                   />
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); document.getElementById(`picker-file-${posteType}`).click(); }}
-                  className="flex items-center gap-2 px-4 py-2 h-10 bg-[#eeece6] rounded-lg text-sm font-medium text-[#44403c] hover:bg-[#e7e5e3] transition-colors whitespace-nowrap"
+                  className="flex items-center gap-2 px-4 py-2 h-10 bg-cream rounded-lg text-sm font-medium text-foreground-tertiary hover:bg-border transition-colors whitespace-nowrap"
                 >
                   <Upload className="w-4 h-4" /> Ajouter des docs
                 </button>
@@ -6596,7 +6596,7 @@ export default function App() {
               {/* Suggested label */}
               {suggested.length > 0 && (
                 <div className="px-1.5">
-                  <span className="text-xs font-medium text-[#78716c]">Documents suggérés pour ce poste</span>
+                  <span className="text-xs font-medium text-foreground-secondary">Documents suggérés pour ce poste</span>
                 </div>
               )}
 
@@ -6606,7 +6606,7 @@ export default function App() {
               </div>
 
               {filteredDocs.length === 0 && pickerSearch && (
-                <p className="text-sm text-[#78716c] text-center py-4 w-full">Aucun document trouvé</p>
+                <p className="text-sm text-foreground-secondary text-center py-4 w-full">Aucun document trouvé</p>
               )}
             </div>
 
@@ -6616,12 +6616,12 @@ export default function App() {
                 onClick={() => handleAddMultipleFromPieces(pickerSelected, posteType)}
                 disabled={!hasSelection}
                 className={`flex items-center justify-center gap-2 w-full h-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] ${
-                  hasSelection ? 'bg-[#292524] text-white hover:bg-[#44403c]' : 'bg-[#eeece6] text-[#a8a29e] cursor-not-allowed'
+                  hasSelection ? 'bg-foreground text-white hover:bg-foreground-tertiary' : 'bg-cream text-foreground-muted cursor-not-allowed'
                 }`}
               >
                 Commencer à calculer{hasSelection ? ` (${pickerSelected.length} pièce${pickerSelected.length > 1 ? 's' : ''})` : ''}
               </button>
-              <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-[#78716c] hover:text-[#44403c] transition-colors">
+              <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-foreground-secondary hover:text-foreground-tertiary transition-colors">
                 <Edit3 className="w-4 h-4" /> Commencer manuellement
               </button>
             </div>
@@ -6630,36 +6630,36 @@ export default function App() {
           /* ===== Empty state (tables-empty/default variant) ===== */
           <div className="flex items-center justify-center p-1.5">
             <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 py-6 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}>
-              <Upload className="w-5 h-5 text-[#78716c]" />
+              <Upload className="w-5 h-5 text-foreground-secondary" />
 
               <div className="flex flex-col items-center gap-1 text-center max-w-[512px] w-full">
-                <p className="text-sm font-medium text-[#44403c] leading-5">
+                <p className="text-sm font-medium text-foreground-tertiary leading-5">
                   Déposez ou{' '}
                   <button
                     onClick={(e) => { e.stopPropagation(); document.getElementById(`picker-file-${posteType}-empty`).click(); }}
-                    className="underline text-[#1e3a8a] font-medium cursor-pointer"
+                    className="underline text-link font-medium cursor-pointer"
                   >parcourez</button>
                   {' '}pour ajouter les justificatifs de {posteLabels[posteType] || '...'}
                 </p>
-                <p className="text-sm text-[#78716c] leading-5">{description}</p>
+                <p className="text-sm text-foreground-secondary leading-5">{description}</p>
               </div>
               <input type="file" id={`picker-file-${posteType}-empty`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
 
               {/* Expected doc type badges */}
               <div className="flex flex-wrap justify-center gap-3">
                 {expectedDocs.map(doc => (
-                  <span key={doc} className="inline-flex items-center px-2 py-1 bg-[#eeece6] text-[#44403c] text-xs font-medium leading-4 rounded-md whitespace-nowrap">{doc}</span>
+                  <span key={doc} className="inline-flex items-center px-2 py-1 bg-cream text-foreground-tertiary text-xs font-medium leading-4 rounded-md whitespace-nowrap">{doc}</span>
                 ))}
               </div>
 
               {/* OU divider + manual link */}
               <div className="flex flex-col items-center gap-3">
                 <div className="flex items-center justify-center gap-3">
-                  <div className="h-px w-20 bg-[#d6d3d1]" />
-                  <span className="text-xs font-medium text-[#78716c]">OU</span>
-                  <div className="h-px w-20 bg-[#d6d3d1]" />
+                  <div className="h-px w-20 bg-border-strong" />
+                  <span className="text-xs font-medium text-foreground-secondary">OU</span>
+                  <div className="h-px w-20 bg-border-strong" />
                 </div>
-                <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-[#1e3a8a] hover:text-[#1e3a8a]/80 transition-colors">
+                <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-link hover:text-link/80 transition-colors">
                   <Edit3 className="w-4 h-4" /> {manualLabels[posteType] || 'Ajouter manuellement'}
                 </button>
               </div>
@@ -6682,7 +6682,7 @@ export default function App() {
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4">
           <div className="px-6 py-4 border-b flex items-center justify-between">
             <h3 className="text-heading-md">Ajouter une dépense</h3>
-            <button onClick={() => setShowAddModal(null)} className="p-1 hover:bg-[#F8F7F5] rounded"><X className="w-5 h-5" /></button>
+            <button onClick={() => setShowAddModal(null)} className="p-1 hover:bg-background-canvas rounded"><X className="w-5 h-5" /></button>
           </div>
           
           {/* Tabs */}
@@ -6693,7 +6693,7 @@ export default function App() {
               { id: 'manual', label: 'Saisie manuelle', icon: Edit3 }
             ].map(tab => (
               <button key={tab.id} onClick={() => setAddModalTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-body-medium ${addModalTab === tab.id ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-[#78716c] hover:text-gray-700'}`}>
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-body-medium ${addModalTab === tab.id ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-foreground-secondary hover:text-gray-700'}`}>
                 <tab.icon className="w-4 h-4" />{tab.label}
               </button>
             ))}
@@ -6709,8 +6709,8 @@ export default function App() {
                   onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleUploadFiles(e.dataTransfer.files, showAddModal); }}
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
                 >
-                  <Upload className={`w-10 h-10 mx-auto mb-3 ${isDragging ? 'text-blue-500' : 'text-[#a8a29e]'}`} />
-                  <p className="text-[#78716c] mb-3">Glissez vos documents ici</p>
+                  <Upload className={`w-10 h-10 mx-auto mb-3 ${isDragging ? 'text-blue-500' : 'text-foreground-muted'}`} />
+                  <p className="text-foreground-secondary mb-3">Glissez vos documents ici</p>
                   <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => e.target.files && handleUploadFiles(e.target.files, showAddModal)} className="hidden" id="upload-input" />
                   <label htmlFor="upload-input" className="px-4 py-2 bg-blue-600 text-white text-body rounded-lg cursor-pointer hover:bg-blue-700">Parcourir</label>
                 </div>
@@ -6725,19 +6725,19 @@ export default function App() {
             {addModalTab === 'pieces' && (
               <div>
                 <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a8a29e]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
                   <input type="text" value={searchPieces} onChange={(e) => setSearchPieces(e.target.value)} placeholder="Rechercher une pièce..." className="w-full pl-10 pr-4 py-2 border rounded-lg" />
                 </div>
                 <div className="max-h-64 overflow-y-auto space-y-2">
                   {filteredPieces.length === 0 ? (
-                    <p className="text-center text-[#78716c] py-4">Aucune pièce disponible</p>
+                    <p className="text-center text-foreground-secondary py-4">Aucune pièce disponible</p>
                   ) : filteredPieces.map(p => (
                     <button key={p.id} onClick={() => handleAddFromPiece(p, showAddModal)}
-                      className="w-full flex items-center gap-3 p-3 border rounded-lg hover:border-blue-400 hover:bg-[#eef3fa] text-left">
-                      <FileText className="w-8 h-8 text-[#a8a29e]" />
+                      className="w-full flex items-center gap-3 p-3 border rounded-lg hover:border-blue-400 hover:bg-info-bg text-left">
+                      <FileText className="w-8 h-8 text-foreground-muted" />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">{p.nom}</div>
-                        <div className="text-caption text-[#78716c]">{p.type} • {p.date}</div>
+                        <div className="text-caption text-foreground-secondary">{p.type} • {p.date}</div>
                       </div>
                       <Plus className="w-5 h-5 text-blue-600" />
                     </button>
@@ -6749,8 +6749,8 @@ export default function App() {
             {/* Saisie manuelle */}
             {addModalTab === 'manual' && (
               <div className="text-center py-6">
-                <FileQuestion className="w-12 h-12 mx-auto mb-3 text-[#a8a29e]" />
-                <p className="text-[#78716c] mb-4">Créer une ligne sans document associé</p>
+                <FileQuestion className="w-12 h-12 mx-auto mb-3 text-foreground-muted" />
+                <p className="text-foreground-secondary mb-4">Créer une ligne sans document associé</p>
                 <button onClick={() => handleAddManual(showAddModal)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                   Créer une ligne manuelle
                 </button>
@@ -6766,21 +6766,21 @@ export default function App() {
   // Helper pour les styles de formulaire
   const FormSection = ({ title, children, noBorder }) => (
     <div className={`${noBorder ? '' : 'pb-6 mb-6 border-b border-zinc-100'}`}>
-      {title && <h4 className="text-caption-medium font-semibold text-[#a8a29e] uppercase tracking-wider mb-4">{title}</h4>}
+      {title && <h4 className="text-caption-medium font-semibold text-foreground-muted uppercase tracking-wider mb-4">{title}</h4>}
       {children}
     </div>
   );
   
   const FormField = ({ label, children, hint, className = '' }) => (
     <div className={className}>
-      {label && <label className="block text-body-medium text-[#44403c] mb-2">{label}</label>}
+      {label && <label className="block text-body-medium text-foreground-tertiary mb-2">{label}</label>}
       {children}
-      {hint && <p className="mt-1.5 text-caption text-[#a8a29e]">{hint}</p>}
+      {hint && <p className="mt-1.5 text-caption text-foreground-muted">{hint}</p>}
     </div>
   );
   
-  const inputClass = "w-full px-3.5 py-2.5 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-zinc-400 transition-colors";
-  const selectClass = "w-full px-3.5 py-2.5 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-zinc-400 transition-colors appearance-none";
+  const inputClass = "w-full px-3.5 py-2.5 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-zinc-400 transition-colors";
+  const selectClass = "w-full px-3.5 py-2.5 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-zinc-400 transition-colors appearance-none";
 
   const renderEditPanel = () => {
     if (!editPanel) return null;
@@ -6791,7 +6791,7 @@ export default function App() {
       <>
         {/* Draggable resize handle */}
         <div
-          className="w-[6px] flex-shrink-0 cursor-col-resize group relative border-l border-r border-[#e7e5e3]"
+          className="w-[6px] flex-shrink-0 cursor-col-resize group relative border-l border-r border-border"
           style={{ backgroundColor: '#F8F7F5' }}
           onMouseDown={handleChatResizeStart}
         >
@@ -6802,7 +6802,7 @@ export default function App() {
           <div className="px-4 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#e7e5e3' }}>
             <div className="flex items-center gap-2 min-w-0">
               {isPieceDetail && <span className="px-2 py-0.5 bg-zinc-800 text-white text-caption-medium rounded flex-shrink-0">P{data.index}</span>}
-              <h3 className="text-body-medium text-[#292524] truncate">{isPieceDetail ? (data.intitule || data.nom) : (editPanel.title || 'Édition')}</h3>
+              <h3 className="text-body-medium text-foreground truncate">{isPieceDetail ? (data.intitule || data.nom) : (editPanel.title || 'Édition')}</h3>
               {data?.diffType && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-caption-medium rounded-full flex-shrink-0" style={{
                   background: data.diffType === 'add' ? '#dcfce7' : data.diffType === 'edit' ? '#fff7ed' : '#fef2f2',
@@ -6812,8 +6812,8 @@ export default function App() {
                 </span>
               )}
             </div>
-            <button onClick={() => { setEditPanel(null); setShowPreview(false); }} className="p-1.5 hover:bg-[#eeece6] rounded-lg transition-colors flex-shrink-0">
-              <X className="w-4 h-4 text-[#a8a29e]" />
+            <button onClick={() => { setEditPanel(null); setShowPreview(false); }} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
+              <X className="w-4 h-4 text-foreground-muted" />
             </button>
           </div>
 
@@ -6869,7 +6869,7 @@ export default function App() {
                       {/* Libellé dépense */}
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label className="text-body-medium text-[#292524]">Libellé dépense</label>
+                          <label className="text-body-medium text-foreground">Libellé dépense</label>
                           {(data.diffType === 'add' || hasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <input
@@ -6877,7 +6877,7 @@ export default function App() {
                           defaultValue={data.label || ''}
                           id="edit-label"
                           placeholder="Nom de la dépense"
-                          className={`w-full px-3 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.label)}`}
+                          className={`w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.label)}`}
                           style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
                         />
                         {hasDiff('label') && <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.label}</p>}
@@ -6885,28 +6885,28 @@ export default function App() {
 
                       {/* Pièces justificatives */}
                       <div>
-                        <label className="text-caption text-[#78716c] mb-1.5 block">Ajouter des pièces justificatives</label>
+                        <label className="text-caption text-foreground-secondary mb-1.5 block">Ajouter des pièces justificatives</label>
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div className="relative mb-2">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                             <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                              className="w-full pl-9 pr-7 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white placeholder:text-[#a8a29e] focus:outline-none focus:ring-1 focus:ring-[#a8a29e]" />
-                            {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-[#a8a29e]" /></button>}
+                              className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
+                            {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
                           </div>
                         )}
                         {searchPiecesPanel && (
                           <div className="max-h-32 overflow-y-auto space-y-1 mb-2">
                             {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                               <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#f5f5f4] transition-colors">
-                                <span className="w-6 h-6 bg-[#eeece6] text-[#44403c] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-white border border-border rounded-lg hover:bg-background-subtle transition-colors">
+                                <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                 <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
-                                <span className="text-caption text-[#a8a29e]">{piece.type}</span>
+                                <span className="text-caption text-foreground-muted">{piece.type}</span>
                               </button>
                             ))}
                           </div>
                         )}
-                        <div className="border border-dashed border-[#d6d3d1] rounded-lg p-3 flex items-center justify-center gap-2 text-body text-[#78716c] hover:bg-[#f5f5f4] cursor-pointer transition-colors"
+                        <div className="border border-dashed border-border-strong rounded-lg p-3 flex items-center justify-center gap-2 text-body text-foreground-secondary hover:bg-background-subtle cursor-pointer transition-colors"
                           onClick={() => document.getElementById('panel-piece-upload').click()}>
                           <Upload className="w-4 h-4" />
                           <span>Déposez ou <span className="text-[#E8713A] font-medium">cliquez</span> pour ajouter un justificatif</span>
@@ -6918,13 +6918,13 @@ export default function App() {
                             {editingPieceIds.map(pid => {
                               const piece = getPiece(pid);
                               return piece ? (
-                                <div key={pid} className="flex items-center gap-3 px-3 h-12 group hover:bg-[#f5f5f4] transition-colors">
-                                  <span className="w-6 h-6 bg-[#eeece6] text-[#44403c] text-counter font-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
-                                  <span className="text-body text-[#292524] truncate flex-1">{piece.intitule || piece.nom}</span>
-                                  <span className="text-caption text-[#a8a29e] flex-shrink-0">{piece.type}</span>
+                                <div key={pid} className="flex items-center gap-3 px-3 h-12 group hover:bg-background-subtle transition-colors">
+                                  <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter font-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                                  <span className="text-body text-foreground truncate flex-1">{piece.intitule || piece.nom}</span>
+                                  <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                   <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                    <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-[#78716c] hover:text-[#292524]"><Eye className="w-4 h-4" /></button>
-                                    <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-[#78716c] hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                    <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
+                                    <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                                   </div>
                                 </div>
                               ) : null;
@@ -6936,7 +6936,7 @@ export default function App() {
                       {/* Date de la dépense */}
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label id="dsa-ponctuelle-label" className="text-body-medium text-[#292524]">
+                          <label id="dsa-ponctuelle-label" className="text-body-medium text-foreground">
                             {data.isPeriodique ? 'Date de début' : 'Date de la dépense'}
                           </label>
                           {(data.diffType === 'add' || hasDiff('date')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
@@ -6945,29 +6945,29 @@ export default function App() {
                           <input type="text" defaultValue={data.date || ''} id="edit-date"
                             placeholder="JJ/MM/AAAA" maxLength={10}
                             onChange={(e) => { e.target.value = formatDateInput(e.target.value); }}
-                            className={`w-full px-3 py-2 pr-9 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.date)}`}
+                            className={`w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.date)}`}
                             style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
                           />
                           <input type="date" id="edit-date-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date')} />
-                          <button type="button" onClick={() => openDatePicker('edit-date')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-[#f5f5f4] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                          <button type="button" onClick={() => openDatePicker('edit-date')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                         {hasDiff('date') && <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.date}</p>}
                         {/* Champs période (masqués si ponctuelle) */}
                         <div id="dsa-periode-fields" style={{ display: data.isPeriodique ? 'block' : 'none' }}>
                           <div className="mt-3 space-y-3">
                             <div>
-                              <label className="text-caption text-[#78716c] mb-1.5 block">Date de fin</label>
+                              <label className="text-caption text-foreground-secondary mb-1.5 block">Date de fin</label>
                               <div className="relative">
                                 <input type="text" defaultValue={data.dateFin || ''} id="edit-date-fin"
                                   placeholder="JJ/MM/AAAA" maxLength={10}
                                   onChange={(e) => { e.target.value = formatDateInput(e.target.value); }}
-                                  className="w-full px-3 py-2 pr-9 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#a8a29e]"
+                                  className="w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-foreground-muted"
                                 />
                                 <input type="date" id="edit-date-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date-fin')} />
-                                <button type="button" onClick={() => openDatePicker('edit-date-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-[#f5f5f4] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                                <button type="button" onClick={() => openDatePicker('edit-date-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                               </div>
                             </div>
-                            <div className="text-caption text-[#78716c] italic">
+                            <div className="text-caption text-foreground-secondary italic">
                               Durée : {calcDaysBetween(data.date, data.dateFin) || '—'} jours
                             </div>
                           </div>
@@ -6977,18 +6977,18 @@ export default function App() {
                       {/* Montant dépense */}
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label className="text-body-medium text-[#292524]">Montant dépense</label>
+                          <label className="text-body-medium text-foreground">Montant dépense</label>
                           {(data.diffType === 'add' || hasDiff('montant')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" style={{ fontSize: 14 }}>€</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
                           <input
                             type="number"
                             step="0.01"
                             defaultValue={data.montant ?? ''}
                             id="edit-montant"
                             placeholder="0"
-                            className={`w-full pl-8 pr-3 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.montant)}`}
+                            className={`w-full pl-8 pr-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.montant)}`}
                             style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
                           />
                         </div>
@@ -6998,18 +6998,18 @@ export default function App() {
                       {/* Reste à charge */}
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label className="text-body-medium text-[#292524]">Reste à charge</label>
+                          <label className="text-body-medium text-foreground">Reste à charge</label>
                           {(data.diffType === 'add' || hasDiff('dejaRembourse')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" style={{ fontSize: 14 }}>€</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
                           <input
                             type="number"
                             step="0.01"
                             defaultValue={data.dejaRembourse || 0}
                             id="edit-rembourse"
                             placeholder="0"
-                            className="w-full pl-8 pr-3 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#a8a29e]"
+                            className="w-full pl-8 pr-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-foreground-muted"
                           />
                         </div>
                       </div>
@@ -7031,17 +7031,17 @@ export default function App() {
                     {/* Left: Preview */}
                     <div className="w-1/2 bg-gray-900 rounded-lg flex items-center justify-center p-6">
                       <div className="bg-white rounded-lg shadow-xl w-full max-w-[280px] aspect-[3/4] p-6 flex flex-col">
-                        <div className="text-caption text-[#a8a29e] mb-3 uppercase tracking-wide">{data.type}</div>
+                        <div className="text-caption text-foreground-muted mb-3 uppercase tracking-wide">{data.type}</div>
                         <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
                         <div className="h-3 bg-gray-200 rounded w-1/2 mb-6"></div>
                         <div className="flex-1 space-y-2">
-                          <div className="h-2 bg-[#F8F7F5] rounded w-full"></div>
-                          <div className="h-2 bg-[#F8F7F5] rounded w-5/6"></div>
-                          <div className="h-2 bg-[#F8F7F5] rounded w-4/6"></div>
-                          <div className="h-2 bg-[#F8F7F5] rounded w-full"></div>
-                          <div className="h-2 bg-[#F8F7F5] rounded w-3/4"></div>
+                          <div className="h-2 bg-background-canvas rounded w-full"></div>
+                          <div className="h-2 bg-background-canvas rounded w-5/6"></div>
+                          <div className="h-2 bg-background-canvas rounded w-4/6"></div>
+                          <div className="h-2 bg-background-canvas rounded w-full"></div>
+                          <div className="h-2 bg-background-canvas rounded w-3/4"></div>
                         </div>
-                        <div className="mt-4 pt-4 border-t text-caption text-[#a8a29e]">
+                        <div className="mt-4 pt-4 border-t text-caption text-foreground-muted">
                           {data.date}
                         </div>
                       </div>
@@ -7062,7 +7062,7 @@ export default function App() {
 
                       <div>
                         <label className="text-body-medium text-gray-700">Nom du fichier original</label>
-                        <div className="mt-1 px-3 py-2 bg-[#F8F7F5] rounded-lg text-body text-[#78716c] truncate">
+                        <div className="mt-1 px-3 py-2 bg-background-canvas rounded-lg text-body text-foreground-secondary truncate">
                           {data.nomOriginal || data.nom}
                         </div>
                       </div>
@@ -7116,7 +7116,7 @@ export default function App() {
                             )}
                           </div>
                         ) : (
-                          <div className="p-3 bg-[#F8F7F5] rounded-lg text-body text-[#78716c] text-center">
+                          <div className="p-3 bg-background-canvas rounded-lg text-body text-foreground-secondary text-center">
                             Cette pièce n'est utilisée dans aucun poste
                           </div>
                         )}
@@ -7151,7 +7151,7 @@ export default function App() {
                           <div className="relative">
                             <input type="text" id="victime-naissance" defaultValue={victimeData.dateNaissance} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                             <input type="date" id="victime-naissance-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'victime-naissance')} />
-                            <button type="button" onClick={() => openDatePicker('victime-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                            <button type="button" onClick={() => openDatePicker('victime-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                       </div>
@@ -7162,7 +7162,7 @@ export default function App() {
                         <div className="relative">
                           <input type="text" id="victime-deces" defaultValue={victimeData.dateDeces || ''} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                           <input type="date" id="victime-deces-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'victime-deces')} />
-                          <button type="button" onClick={() => openDatePicker('victime-deces')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                          <button type="button" onClick={() => openDatePicker('victime-deces')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                       </FormField>
                     </FormSection>
@@ -7191,21 +7191,21 @@ export default function App() {
                           <div className="relative">
                             <input type="text" id="fait-date-accident" defaultValue={faitGenerateur.dateAccident} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                             <input type="date" id="fait-date-accident-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-accident')} />
-                            <button type="button" onClick={() => openDatePicker('fait-date-accident')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                            <button type="button" onClick={() => openDatePicker('fait-date-accident')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                         <FormField label="Date première constatation">
                           <div className="relative">
                             <input type="text" id="fait-date-constat" defaultValue={faitGenerateur.datePremiereConstatation} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                             <input type="date" id="fait-date-constat-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-constat')} />
-                            <button type="button" onClick={() => openDatePicker('fait-date-constat')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                            <button type="button" onClick={() => openDatePicker('fait-date-constat')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                         <FormField label="Date de consolidation">
                           <div className="relative">
                             <input type="text" id="fait-date-conso" defaultValue={faitGenerateur.dateConsolidation} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                             <input type="date" id="fait-date-conso-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-conso')} />
-                            <button type="button" onClick={() => openDatePicker('fait-date-conso')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                            <button type="button" onClick={() => openDatePicker('fait-date-conso')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                       </div>
@@ -7246,7 +7246,7 @@ export default function App() {
                 {editPanel.type === 'victime-indirecte' && (
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Identité</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Identité</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-body-medium text-gray-700">Nom</label>
@@ -7260,7 +7260,7 @@ export default function App() {
                     </div>
                     
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">État civil</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">État civil</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-body-medium text-gray-700">Sexe</label>
@@ -7274,14 +7274,14 @@ export default function App() {
                           <div className="relative mt-1">
                             <input type="text" id="vi-naissance" defaultValue={data?.dateNaissance || ''} className="w-full px-3 py-2 pr-9 border rounded-lg" placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                             <input type="date" id="vi-naissance-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'vi-naissance')} />
-                            <button type="button" onClick={() => openDatePicker('vi-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                            <button type="button" onClick={() => openDatePicker('vi-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </div>
                       </div>
                     </div>
                     
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Lien avec la victime</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Lien avec la victime</h4>
                       <div>
                         <label className="text-body-medium text-gray-700">Type de lien</label>
                         <select id="vi-lien" defaultValue={data?.lien || 'Conjoint'} className="mt-1 w-full px-3 py-2 border rounded-lg">
@@ -7311,17 +7311,17 @@ export default function App() {
                   <div className="space-y-6">
                     {data?.hasIntitule && (
                       <div>
-                        <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Intitulé du préjudice</h4>
+                        <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Intitulé du préjudice</h4>
                         <input type="text" id="iv-ligne-intitule" defaultValue={data?.intitule || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Décrivez le préjudice exceptionnel" />
                       </div>
                     )}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Montant</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant</h4>
                       <div>
                         <label className="text-body-medium text-gray-700">Montant demandé</label>
                         <div className="relative mt-1">
                           <input type="number" id="iv-ligne-montant" defaultValue={data?.montant || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                         </div>
                       </div>
                     </div>
@@ -7332,14 +7332,14 @@ export default function App() {
                 {editPanel.type === 'iv-ligne-b' && (
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Description</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Description</h4>
                       <input type="text" id="iv-ligne-intitule" defaultValue={data?.intitule || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Déplacements hôpital, hébergement..." />
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Montant</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant</h4>
                       <div className="relative">
                         <input type="number" id="iv-ligne-montant" defaultValue={data?.montant || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                       </div>
                     </div>
                   </div>
@@ -7349,18 +7349,18 @@ export default function App() {
                 {editPanel.type === 'iv-ligne-c' && (
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Description</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Description</h4>
                       <input type="text" id="iv-ligne-label" defaultValue={data?.label || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Cercueil, cérémonie, monument..." />
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Montant total</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant total</h4>
                       <div className="relative">
                         <input type="number" id="iv-ligne-total-amount" defaultValue={data?.totalAmount || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Attributions par victime</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Attributions par victime</h4>
                       <div className="space-y-2">
                         {victimesIndirectes.map(vi => {
                           const existing = (data?.attributions || []).find(a => a.viId === vi.id);
@@ -7369,10 +7369,10 @@ export default function App() {
                               <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#f5f5f4' }}>
                                 <span style={{ fontSize: 10, fontWeight: 600, color: '#78716c' }}>{`${(vi.prenom || '')[0] || ''}${(vi.nom || '')[0] || ''}`.toUpperCase()}</span>
                               </div>
-                              <span className="flex-1 text-body text-[#44403c] truncate">{vi.prenom} {vi.nom}</span>
+                              <span className="flex-1 text-body text-foreground-tertiary truncate">{vi.prenom} {vi.nom}</span>
                               <div className="relative w-[100px]">
                                 <input type="number" data-vi-attr={vi.id} defaultValue={existing?.amount || ''} className="w-full px-3 py-1.5 border rounded-lg pr-6 text-right text-body" placeholder="0" step="any" min="0" />
-                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[#a8a29e] text-caption">€</span>
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground-muted text-caption">€</span>
                               </div>
                             </div>
                           );
@@ -7386,36 +7386,36 @@ export default function App() {
                 {editPanel.type === 'iv-ligne-d' && (
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Part individuelle</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Part individuelle</h4>
                       <div className="relative">
                         <input type="number" id="iv-ligne-part" defaultValue={data?.partIndividuelle || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="1" min="0" max="100" />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">%</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">%</span>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Durée d'indemnisation</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Durée d'indemnisation</h4>
                       <input type="text" id="iv-ligne-duree" defaultValue={data?.dureeIndemnisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Viager, jusqu'à 25 ans..." />
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Mode</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Mode</h4>
                       <select id="iv-ligne-mode" defaultValue={data?.mode || 'capitalisation'} className="w-full px-3 py-2 border rounded-lg bg-white">
                         <option value="capitalisation">Capital</option>
                         <option value="rente">Rente annuelle</option>
                       </select>
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Années échues</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Années échues</h4>
                       <input type="number" id="iv-ligne-annees" defaultValue={data?.anneesEchues ?? 0} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="1" min="0" />
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Coefficient de capitalisation</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Coefficient de capitalisation</h4>
                       <input type="number" id="iv-ligne-coeff" defaultValue={data?.coeffCapitalisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="0.1" min="0" />
                       <p className="mt-2" style={{ fontSize: 11, color: '#78716c' }}>
                         Réf : Gazette du Palais 2022, table A, taux 1,2 % - Cass. 2e civ. 14 nov. 2019 n°18-22.969
                       </p>
                     </div>
                     {data?.perteAnnuelle > 0 && (data?.partIndividuelle > 0 || data?.coeffCapitalisation > 0) && (
-                      <div className="p-3 bg-[#fafaf9] rounded-lg border border-[#e7e5e3] space-y-1">
+                      <div className="p-3 bg-background rounded-lg border border-border space-y-1">
                         <div style={{ fontSize: 11, fontWeight: 600, color: '#44403c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Formule</div>
                         <div style={{ fontSize: 12, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>
                           Perte VI = {fmt(data.perteAnnuelle)} × {data.partIndividuelle || 0}% = {fmt(data.perteAnnuelle * ((data.partIndividuelle || 0) / 100))}
@@ -7434,27 +7434,27 @@ export default function App() {
                 {editPanel.type === 'iv-ligne-d-tp' && (
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Type de déduction</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Type de déduction</h4>
                       <select id="iv-tp-type" defaultValue={data?.type || 'pension-reversion'} className="w-full px-3 py-2 border rounded-lg bg-white">
                         {PRP_TP_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Libellé</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Libellé</h4>
                       <input type="text" id="iv-tp-label" defaultValue={data?.label || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Pension de réversion" />
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Organisme</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Organisme</h4>
                       <input type="text" id="iv-tp-organisme" defaultValue={data?.organisme || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="CNAV, AGIRC-ARRCO, CAF..." />
                     </div>
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Montant annuel</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant annuel</h4>
                       <div className="relative">
                         <input type="number" id="iv-tp-montant" defaultValue={data?.montantAnnuel || ''} className="w-full px-3 py-2 border rounded-lg pr-12" placeholder="0" step="100" min="0" />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€/an</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€/an</span>
                       </div>
                     </div>
-                    <div className="p-3 bg-[#fafaf9] rounded-lg border border-[#e7e5e3]">
+                    <div className="p-3 bg-background rounded-lg border border-border">
                       <span style={{ fontSize: 11, color: '#78716c' }}>
                         Imputation poste par poste - Cass. 2e civ. 16 mai 2013. La déduction s'applique à la perte indemnisable de cette VI.
                       </span>
@@ -7487,7 +7487,7 @@ export default function App() {
                         <div className="relative">
                           <input type="text" id="dossier-date-ouverture" defaultValue={dossierDateOuverture} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                           <input type="date" id="dossier-date-ouverture-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dossier-date-ouverture')} />
-                          <button type="button" onClick={() => openDatePicker('dossier-date-ouverture')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                          <button type="button" onClick={() => openDatePicker('dossier-date-ouverture')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                       </FormField>
                     </FormSection>
@@ -7513,48 +7513,48 @@ export default function App() {
                 
                 {/* Panel PGPA - Revenu de référence */}
                 {editPanel.type === 'pgpa-revenu' && (() => {
-                  const pgpaRevInputCls = "w-full px-3 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const pgpaRevInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
                   const pgpaRevInputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
                   return (
                   <div className="space-y-6">
 
                     {/* Section Pièces justificatives */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Pièces justificatives</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Pièces justificatives</h4>
                       {editingPieceIds.length > 0 && (
                         <div className="space-y-2 mb-3">
                           {editingPieceIds.map(pid => {
                             const piece = getPiece(pid);
                             return piece ? (
-                              <div key={pid} className="flex items-center gap-3 p-2.5 bg-[#F8F7F5] rounded-lg border group">
-                                <span className="w-8 h-8 bg-blue-100 text-[#1e3a8a] text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                              <div key={pid} className="flex items-center gap-3 p-2.5 bg-background-canvas rounded-lg border group">
+                                <span className="w-8 h-8 bg-blue-100 text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
-                                  <p className="text-caption text-[#78716c]">{piece.type}</p>
+                                  <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-[#a8a29e] hover:text-blue-600 hover:bg-[#eef3fa] rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-[#a8a29e] hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-blue-600 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-[#F8F7F5]/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
-                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} />
+                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                               <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-[#e7e5e3] rounded-md bg-white placeholder:text-[#a8a29e] focus:outline-none focus:ring-1 focus:ring-zinc-300" />
-                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#a8a29e]" /></button>}
+                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-zinc-300" />
+                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                                 <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-[#eef3fa] hover:border-blue-300 transition-colors">
-                                  <span className="w-6 h-6 bg-blue-100 text-[#1e3a8a] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-info-bg hover:border-blue-300 transition-colors">
+                                  <span className="w-6 h-6 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
-                                  <span className="text-caption text-[#a8a29e]">{piece.type}</span>
+                                  <span className="text-caption text-foreground-muted">{piece.type}</span>
                                   <Plus className="w-4 h-4 text-blue-600" />
                                 </button>
                               ))}
@@ -7564,7 +7564,7 @@ export default function App() {
                         <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                         <button onClick={() => document.getElementById('panel-piece-upload').click()}
-                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-[#78716c] bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#fafaf9] hover:border-zinc-300 transition-colors">
+                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-white border border-border rounded-lg hover:bg-background hover:border-zinc-300 transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
                         </button>
@@ -7573,11 +7573,11 @@ export default function App() {
 
                     {/* Section Informations */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Informations</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Informations</h4>
                       <div className="space-y-4">
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Type</label>
+                            <label className="text-body-medium text-foreground">Type</label>
                           </div>
                           <select id="pgpa-revenu-type" defaultValue={data.type || 'revenu'} className={pgpaRevInputCls} style={pgpaRevInputShadow}>
                             <option value="revenu">Revenu professionnel</option>
@@ -7587,7 +7587,7 @@ export default function App() {
 
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Intitulé</label>
+                            <label className="text-body-medium text-foreground">Intitulé</label>
                           </div>
                           <input id="pgpa-revenu-label" type="text" defaultValue={data.label || ''} placeholder="Ex: Salaire net imposable" className={pgpaRevInputCls} style={pgpaRevInputShadow} />
                         </div>
@@ -7595,13 +7595,13 @@ export default function App() {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Année</label>
+                              <label className="text-body-medium text-foreground">Année</label>
                             </div>
                             <input id="pgpa-revenu-annee" type="text" defaultValue={data.annee || ''} placeholder="2022" className={pgpaRevInputCls} style={pgpaRevInputShadow} />
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Unité de temps</label>
+                              <label className="text-body-medium text-foreground">Unité de temps</label>
                             </div>
                             <select id="pgpa-revenu-unite" defaultValue={data.unite || 'annuel'} className={pgpaRevInputCls} style={pgpaRevInputShadow}>
                               <option value="annuel">Annuel</option>
@@ -7613,7 +7613,7 @@ export default function App() {
 
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Commentaire</label>
+                            <label className="text-body-medium text-foreground">Commentaire</label>
                           </div>
                           <textarea id="pgpa-revenu-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${pgpaRevInputCls} resize-none`} style={pgpaRevInputShadow} />
                         </div>
@@ -7622,36 +7622,36 @@ export default function App() {
 
                     {/* Section Montants */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Montants</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montants</h4>
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Revenu net payé</label>
+                              <label className="text-body-medium text-foreground">Revenu net payé</label>
                             </div>
                             <div className="relative">
-                              <input id="pgpa-revenu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${pgpaRevInputCls} pr-8 bg-[#F8F7F5] text-[#78716c] cursor-default`} style={pgpaRevInputShadow} />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                              <input id="pgpa-revenu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${pgpaRevInputCls} pr-8 bg-background-canvas text-foreground-secondary cursor-default`} style={pgpaRevInputShadow} />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Montant revalorisé</label>
+                              <label className="text-body-medium text-foreground">Montant revalorisé</label>
                             </div>
                             <div className="relative">
-                              <input id="pgpa-revenu-revalorise" type="number" step="0.01" defaultValue={data.revalorise || ''} className={`${pgpaRevInputCls} pr-8 bg-[#F8F7F5] font-medium`} style={pgpaRevInputShadow} readOnly />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                              <input id="pgpa-revenu-revalorise" type="number" step="0.01" defaultValue={data.revalorise || ''} className={`${pgpaRevInputCls} pr-8 bg-background-canvas font-medium`} style={pgpaRevInputShadow} readOnly />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Calculé automatiquement selon le barème</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3 bg-[#F8F7F5] rounded-lg border">
+                        <div className="flex items-center justify-between p-3 bg-background-canvas rounded-lg border">
                           <div className="flex items-center gap-3">
                             <input type="checkbox" id="pgpa-revenu-revalo-checkbox" defaultChecked={data.aRevaloriser !== false} className="rounded text-blue-600" />
-                            <label htmlFor="pgpa-revenu-revalo-checkbox" className="text-body-medium text-[#292524]">Appliquer la revalorisation</label>
+                            <label htmlFor="pgpa-revenu-revalo-checkbox" className="text-body-medium text-foreground">Appliquer la revalorisation</label>
                           </div>
-                          <div className="text-body text-[#78716c]">
+                          <div className="text-body text-foreground-secondary">
                             {pgpaData.revenuRef.revalorisation === 'ipc-annuel' ? 'IPC annuel' : pgpaData.revenuRef.revalorisation === 'smic-horaire' ? 'SMIC horaire' : 'Aucune'} · Quotient : <span className="font-medium">1.04</span>
                           </div>
                         </div>
@@ -7668,7 +7668,7 @@ export default function App() {
                   const prcDiffBorder = data.diffType === 'add' ? '#bbf7d0' : data.diffType === 'edit' ? '#fed7aa' : '#fecaca';
                   const prcOv = data.oldValues || {};
                   const prcHasDiff = (key) => data.diffType === 'edit' && prcOv[key] != null;
-                  const prcInputCls = "w-full px-3 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const prcInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
                   const prcInputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
                   const prcDescP = (text) => <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
                   return (
@@ -7682,41 +7682,41 @@ export default function App() {
 
                     {/* Section Pièces justificatives */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Pièces justificatives</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Pièces justificatives</h4>
                       {editingPieceIds.length > 0 && (
                         <div className="space-y-2 mb-3">
                           {editingPieceIds.map(pid => {
                             const piece = getPiece(pid);
                             return piece ? (
-                              <div key={pid} className="flex items-center gap-3 p-2.5 bg-[#F8F7F5] rounded-lg border group">
-                                <span className="w-8 h-8 bg-blue-100 text-[#1e3a8a] text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                              <div key={pid} className="flex items-center gap-3 p-2.5 bg-background-canvas rounded-lg border group">
+                                <span className="w-8 h-8 bg-blue-100 text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
-                                  <p className="text-caption text-[#78716c]">{piece.type}</p>
+                                  <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-[#a8a29e] hover:text-blue-600 hover:bg-[#eef3fa] rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-[#a8a29e] hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-blue-600 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-[#F8F7F5]/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
-                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} />
+                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                               <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-[#e7e5e3] rounded-md bg-white placeholder:text-[#a8a29e] focus:outline-none focus:ring-1 focus:ring-zinc-300" />
-                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#a8a29e]" /></button>}
+                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-zinc-300" />
+                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                                 <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-[#eef3fa] hover:border-blue-300 transition-colors">
-                                  <span className="w-6 h-6 bg-blue-100 text-[#1e3a8a] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-info-bg hover:border-blue-300 transition-colors">
+                                  <span className="w-6 h-6 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
-                                  <span className="text-caption text-[#a8a29e]">{piece.type}</span>
+                                  <span className="text-caption text-foreground-muted">{piece.type}</span>
                                   <Plus className="w-4 h-4 text-blue-600" />
                                 </button>
                               ))}
@@ -7726,7 +7726,7 @@ export default function App() {
                         <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                         <button onClick={() => document.getElementById('panel-piece-upload').click()}
-                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-[#78716c] bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#fafaf9] hover:border-zinc-300 transition-colors">
+                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-white border border-border rounded-lg hover:bg-background hover:border-zinc-300 transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
                         </button>
@@ -7735,11 +7735,11 @@ export default function App() {
 
                     {/* Section Informations */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Informations</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Informations</h4>
                       <div className="space-y-4">
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Intitulé</label>
+                            <label className="text-body-medium text-foreground">Intitulé</label>
                             {(data.diffType === 'add' || prcHasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
                           <input id="pgpa-percu-label" type="text" defaultValue={data.label || ''} placeholder="Ex: Maintien de salaire partiel" className={prcInputCls} style={prcInputShadow} />
@@ -7748,7 +7748,7 @@ export default function App() {
 
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Organisme / Tiers</label>
+                            <label className="text-body-medium text-foreground">Organisme / Tiers</label>
                             {(data.diffType === 'add' || prcHasDiff('tiers')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
                           <input id="pgpa-percu-tiers" type="text" defaultValue={data.tiers || ''} placeholder="Ex: Employeur, Prévoyance..." className={prcInputCls} style={prcInputShadow} />
@@ -7757,7 +7757,7 @@ export default function App() {
 
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Commentaire</label>
+                            <label className="text-body-medium text-foreground">Commentaire</label>
                           </div>
                           <textarea id="pgpa-percu-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${prcInputCls} resize-none`} style={prcInputShadow} />
                         </div>
@@ -7766,37 +7766,37 @@ export default function App() {
 
                     {/* Section Période */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Période</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Période</h4>
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Date de début</label>
+                              <label className="text-body-medium text-foreground">Date de début</label>
                               {(data.diffType === 'add' || prcHasDiff('periodeDebut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
                               <input id="pgpa-percu-debut" type="text" defaultValue={data.periodeDebut || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${prcInputCls} pr-9`} style={prcInputShadow} />
                               <input type="date" id="pgpa-percu-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-percu-debut')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-percu-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                              <button type="button" onClick={() => openDatePicker('pgpa-percu-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {prcHasDiff('periodeDebut') && prcDescP(prcOv.periodeDebut)}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Date de fin</label>
+                              <label className="text-body-medium text-foreground">Date de fin</label>
                               {(data.diffType === 'add' || prcHasDiff('periodeFin')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
                               <input id="pgpa-percu-fin" type="text" defaultValue={data.periodeFin || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${prcInputCls} pr-9`} style={prcInputShadow} />
                               <input type="date" id="pgpa-percu-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-percu-fin')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-percu-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                              <button type="button" onClick={() => openDatePicker('pgpa-percu-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {prcHasDiff('periodeFin') && prcDescP(prcOv.periodeFin)}
                           </div>
                         </div>
 
                         <div className="p-3 bg-blue-50 rounded-lg flex items-center justify-between">
-                          <span className="text-body text-[#1e3a8a]">Durée calculée</span>
+                          <span className="text-body text-link">Durée calculée</span>
                           <span className="font-semibold text-blue-900">{data.dureeJours || '—'} jours</span>
                         </div>
                       </div>
@@ -7804,23 +7804,23 @@ export default function App() {
 
                     {/* Section Montants */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Montants</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montants</h4>
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Revenu perçu net</label>
+                              <label className="text-body-medium text-foreground">Revenu perçu net</label>
                               {(data.diffType === 'add' || prcHasDiff('montant')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-percu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${prcInputCls} pr-8 bg-[#F8F7F5] text-[#78716c] cursor-default`} style={prcInputShadow} />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                              <input id="pgpa-percu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${prcInputCls} pr-8 bg-background-canvas text-foreground-secondary cursor-default`} style={prcInputShadow} />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             {prcHasDiff('montant') && prcDescP(`${prcOv.montant} €`)}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Unité de temps</label>
+                              <label className="text-body-medium text-foreground">Unité de temps</label>
                               {(data.diffType === 'add' || prcHasDiff('unite')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <select id="pgpa-percu-unite" defaultValue={data.unite || 'total'} className={prcInputCls} style={prcInputShadow}>
@@ -7832,10 +7832,10 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3 bg-[#F8F7F5] rounded-lg border">
+                        <div className="flex items-center justify-between p-3 bg-background-canvas rounded-lg border">
                           <div className="flex items-center gap-3">
                             <input type="checkbox" id="pgpa-percu-no-revalo" defaultChecked={data.noRevalo || false} className="rounded text-blue-600" />
-                            <label htmlFor="pgpa-percu-no-revalo" className="text-body-medium text-[#292524]">Montant à ne pas revaloriser</label>
+                            <label htmlFor="pgpa-percu-no-revalo" className="text-body-medium text-foreground">Montant à ne pas revaloriser</label>
                           </div>
                         </div>
 
@@ -7859,7 +7859,7 @@ export default function App() {
                   const ijDiffBorder = data.diffType === 'add' ? '#bbf7d0' : data.diffType === 'edit' ? '#fed7aa' : '#fecaca';
                   const ijOv = data.oldValues || {};
                   const ijHasDiff = (key) => data.diffType === 'edit' && ijOv[key] != null;
-                  const ijInputCls = "w-full px-3 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const ijInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
                   const ijInputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
                   const ijDescP = (text) => <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
                   return (
@@ -7873,41 +7873,41 @@ export default function App() {
 
                     {/* Section Pièces justificatives */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Pièces justificatives</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Pièces justificatives</h4>
                       {editingPieceIds.length > 0 && (
                         <div className="space-y-2 mb-3">
                           {editingPieceIds.map(pid => {
                             const piece = getPiece(pid);
                             return piece ? (
-                              <div key={pid} className="flex items-center gap-3 p-2.5 bg-[#F8F7F5] rounded-lg border group">
-                                <span className="w-8 h-8 bg-blue-100 text-[#1e3a8a] text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                              <div key={pid} className="flex items-center gap-3 p-2.5 bg-background-canvas rounded-lg border group">
+                                <span className="w-8 h-8 bg-blue-100 text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
-                                  <p className="text-caption text-[#78716c]">{piece.type}</p>
+                                  <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-[#a8a29e] hover:text-blue-600 hover:bg-[#eef3fa] rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-[#a8a29e] hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-blue-600 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-[#F8F7F5]/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
-                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} />
+                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                               <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-[#e7e5e3] rounded-md bg-white placeholder:text-[#a8a29e] focus:outline-none focus:ring-1 focus:ring-zinc-300" />
-                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#a8a29e]" /></button>}
+                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-zinc-300" />
+                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                                 <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-[#eef3fa] hover:border-blue-300 transition-colors">
-                                  <span className="w-6 h-6 bg-blue-100 text-[#1e3a8a] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-info-bg hover:border-blue-300 transition-colors">
+                                  <span className="w-6 h-6 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
-                                  <span className="text-caption text-[#a8a29e]">{piece.type}</span>
+                                  <span className="text-caption text-foreground-muted">{piece.type}</span>
                                   <Plus className="w-4 h-4 text-blue-600" />
                                 </button>
                               ))}
@@ -7917,7 +7917,7 @@ export default function App() {
                         <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                         <button onClick={() => document.getElementById('panel-piece-upload').click()}
-                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-[#78716c] bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#fafaf9] hover:border-zinc-300 transition-colors">
+                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-white border border-border rounded-lg hover:bg-background hover:border-zinc-300 transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
                         </button>
@@ -7926,11 +7926,11 @@ export default function App() {
 
                     {/* Section Tiers payeur */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Tiers payeur</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Tiers payeur</h4>
                       <div className="space-y-4">
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Organisme</label>
+                            <label className="text-body-medium text-foreground">Organisme</label>
                             {(data.diffType === 'add' || ijHasDiff('tiers')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
                           <select id="pgpa-ij-tiers" defaultValue={data.tiers || ''} className={ijInputCls} style={ijInputShadow}>
@@ -7945,7 +7945,7 @@ export default function App() {
 
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Libellé / Description</label>
+                            <label className="text-body-medium text-foreground">Libellé / Description</label>
                             {(data.diffType === 'add' || ijHasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
                           <input id="pgpa-ij-label" type="text" defaultValue={data.label || ''} placeholder="Ex: IJ Sécurité sociale" className={ijInputCls} style={ijInputShadow} />
@@ -7954,7 +7954,7 @@ export default function App() {
 
                         <div>
                           <div className="flex items-center gap-1.5 mb-1.5">
-                            <label className="text-body-medium text-[#292524]">Commentaire</label>
+                            <label className="text-body-medium text-foreground">Commentaire</label>
                           </div>
                           <textarea id="pgpa-ij-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${ijInputCls} resize-none`} style={ijInputShadow} />
                         </div>
@@ -7963,37 +7963,37 @@ export default function App() {
 
                     {/* Section Période d'arrêt */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Période d'arrêt de travail</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Période d'arrêt de travail</h4>
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Date de début</label>
+                              <label className="text-body-medium text-foreground">Date de début</label>
                               {(data.diffType === 'add' || ijHasDiff('periodeDebut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
                               <input id="pgpa-ij-debut" type="text" defaultValue={data.periodeDebut || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${ijInputCls} pr-9`} style={ijInputShadow} />
                               <input type="date" id="pgpa-ij-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-ij-debut')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-ij-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                              <button type="button" onClick={() => openDatePicker('pgpa-ij-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {ijHasDiff('periodeDebut') && ijDescP(ijOv.periodeDebut)}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Date de fin</label>
+                              <label className="text-body-medium text-foreground">Date de fin</label>
                               {(data.diffType === 'add' || ijHasDiff('periodeFin')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
                               <input id="pgpa-ij-fin" type="text" defaultValue={data.periodeFin || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${ijInputCls} pr-9`} style={ijInputShadow} />
                               <input type="date" id="pgpa-ij-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-ij-fin')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-ij-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                              <button type="button" onClick={() => openDatePicker('pgpa-ij-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {ijHasDiff('periodeFin') && ijDescP(ijOv.periodeFin)}
                           </div>
                         </div>
 
                         <div className="p-3 bg-blue-50 rounded-lg flex items-center justify-between">
-                          <span className="text-body text-[#1e3a8a]">Durée calculée</span>
+                          <span className="text-body text-link">Durée calculée</span>
                           <span className="font-semibold text-blue-900">{data.jours || '—'} jours</span>
                         </div>
                       </div>
@@ -8001,28 +8001,28 @@ export default function App() {
 
                     {/* Section Montants */}
                     <div>
-                      <h4 className="text-body-medium font-semibold text-[#292524] mb-3 pb-2 border-b">Montants</h4>
+                      <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montants</h4>
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">Indemnité brute perçue</label>
+                              <label className="text-body-medium text-foreground">Indemnité brute perçue</label>
                               {(data.diffType === 'add' || ijHasDiff('montantBrut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
                               <input id="pgpa-ij-brut" type="number" step="0.01" defaultValue={data.montantBrut || ''} placeholder="0.00" className={`${ijInputCls} pr-8`} style={ijInputShadow} />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             {ijHasDiff('montantBrut') && ijDescP(`${ijOv.montantBrut} €`)}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
-                              <label className="text-body-medium text-[#292524]">CSG-CRDS</label>
+                              <label className="text-body-medium text-foreground">CSG-CRDS</label>
                               {(data.diffType === 'add' || ijHasDiff('csgCrds')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
                               <input id="pgpa-ij-csg" type="number" step="0.01" defaultValue={data.csgCrds || ''} placeholder="0.00" className={`${ijInputCls} pr-8`} style={ijInputShadow} />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             {ijHasDiff('csgCrds') && ijDescP(`${ijOv.csgCrds} €`)}
                           </div>
@@ -8057,7 +8057,7 @@ export default function App() {
                   const dftOv = data.oldValues || {};
                   const dftHasDiff = (key) => data.diffType === 'edit' && dftOv[key] != null;
                   const inputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
-                  const inputCls = "w-full px-3 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const inputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
                   const descP = (text) => <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
                   return (
                   <div className="space-y-5" style={data.diffType === 'delete' ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
@@ -8071,7 +8071,7 @@ export default function App() {
                     {/* Libellé dépense */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-body-medium text-[#292524]">Libellé dépense</label>
+                        <label className="text-body-medium text-foreground">Libellé dépense</label>
                         {(data.diffType === 'add' || dftHasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                       </div>
                       <input type="text" id="dft-label" defaultValue={data.label || ''} placeholder="Nom de la période"
@@ -8081,28 +8081,28 @@ export default function App() {
 
                     {/* Pièces justificatives */}
                     <div>
-                      <label className="text-caption text-[#78716c] mb-1.5 block">Ajouter des pièces justificatives</label>
+                      <label className="text-caption text-foreground-secondary mb-1.5 block">Ajouter des pièces justificatives</label>
                       {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                         <div className="relative mb-2">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} />
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                           <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                            className="w-full pl-9 pr-7 py-2 text-body border border-[#e7e5e3] rounded-lg bg-white placeholder:text-[#a8a29e] focus:outline-none focus:ring-1 focus:ring-[#a8a29e]" />
-                          {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-[#a8a29e]" /></button>}
+                            className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
+                          {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
                         </div>
                       )}
                       {searchPiecesPanel && (
                         <div className="max-h-32 overflow-y-auto space-y-1 mb-2">
                           {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                             <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#f5f5f4] transition-colors">
-                              <span className="w-6 h-6 bg-[#eeece6] text-[#44403c] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-white border border-border rounded-lg hover:bg-background-subtle transition-colors">
+                              <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                               <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
-                              <span className="text-caption text-[#a8a29e]">{piece.type}</span>
+                              <span className="text-caption text-foreground-muted">{piece.type}</span>
                             </button>
                           ))}
                         </div>
                       )}
-                      <div className="border border-dashed border-[#d6d3d1] rounded-lg p-3 flex items-center justify-center gap-2 text-body text-[#78716c] hover:bg-[#f5f5f4] cursor-pointer transition-colors"
+                      <div className="border border-dashed border-border-strong rounded-lg p-3 flex items-center justify-center gap-2 text-body text-foreground-secondary hover:bg-background-subtle cursor-pointer transition-colors"
                         onClick={() => document.getElementById('panel-piece-upload').click()}>
                         <Upload className="w-4 h-4" />
                         <span>Déposez ou <span className="text-[#E8713A] font-medium">cliquez</span> pour ajouter un justificatif</span>
@@ -8114,13 +8114,13 @@ export default function App() {
                           {editingPieceIds.map(pid => {
                             const piece = getPiece(pid);
                             return piece ? (
-                              <div key={pid} className="flex items-center gap-3 px-3 h-12 group hover:bg-[#f5f5f4] transition-colors">
-                                <span className="w-6 h-6 bg-[#eeece6] text-[#44403c] text-counter font-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
-                                <span className="text-body text-[#292524] truncate flex-1">{piece.intitule || piece.nom}</span>
-                                <span className="text-caption text-[#a8a29e] flex-shrink-0">{piece.type}</span>
+                              <div key={pid} className="flex items-center gap-3 px-3 h-12 group hover:bg-background-subtle transition-colors">
+                                <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter font-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                                <span className="text-body text-foreground truncate flex-1">{piece.intitule || piece.nom}</span>
+                                <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                  <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-[#78716c] hover:text-[#292524]"><Eye className="w-4 h-4" /></button>
-                                  <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-[#78716c] hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                  <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
+                                  <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                                 </div>
                               </div>
                             ) : null;
@@ -8133,30 +8133,30 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label className="text-body-medium text-[#292524]">Date de début</label>
+                          <label className="text-body-medium text-foreground">Date de début</label>
                           {(data.diffType === 'add' || dftHasDiff('debut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
                           <input type="text" id="dft-debut" defaultValue={data.debut} className={`${inputCls} pr-9`} style={inputShadow} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                           <input type="date" id="dft-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dft-debut')} />
-                          <button type="button" onClick={() => openDatePicker('dft-debut')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-[#f5f5f4] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                          <button type="button" onClick={() => openDatePicker('dft-debut')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                         {dftHasDiff('debut') && descP(dftOv.debut)}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label className="text-body-medium text-[#292524]">Date de fin</label>
+                          <label className="text-body-medium text-foreground">Date de fin</label>
                           {(data.diffType === 'add' || dftHasDiff('fin')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
                           <input type="text" id="dft-fin" defaultValue={data.fin} className={`${inputCls} pr-9`} style={inputShadow} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                           <input type="date" id="dft-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dft-fin')} />
-                          <button type="button" onClick={() => openDatePicker('dft-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-[#f5f5f4] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                          <button type="button" onClick={() => openDatePicker('dft-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                         {dftHasDiff('fin') && descP(dftOv.fin)}
                       </div>
                     </div>
-                    <div className="text-caption text-[#78716c] italic -mt-3">
+                    <div className="text-caption text-foreground-secondary italic -mt-3">
                       Durée : {data.jours || '—'} jours
                     </div>
 
@@ -8164,11 +8164,11 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label className="text-body-medium text-[#292524]">Base journalière</label>
+                          <label className="text-body-medium text-foreground">Base journalière</label>
                           {(data.diffType === 'add' || dftHasDiff('base')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">€</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                           <input type="number" id="dft-base" defaultValue={chiffrageParams.baseJournaliereDFT || 33}
                             className={`${inputCls} pl-8`} style={inputShadow} />
                         </div>
@@ -8176,13 +8176,13 @@ export default function App() {
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <label className="text-body-medium text-[#292524]">% de DFT</label>
+                          <label className="text-body-medium text-foreground">% de DFT</label>
                           {(data.diffType === 'add' || dftHasDiff('taux')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
                           <input type="number" id="dft-taux" defaultValue={data.taux || 100} min={0} max={100}
                             className={`${inputCls} pr-8`} style={inputShadow} />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8a29e] text-body">%</span>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">%</span>
                         </div>
                         {dftHasDiff('taux') && descP(`${dftOv.taux}%`)}
                       </div>
@@ -8197,66 +8197,66 @@ export default function App() {
 
               {/* Charge Details - Figma style */}
               {editPanel.type === 'dsa-ligne' && (
-                <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
+                <div className="border-t border-border bg-background">
                   <div className="px-5 py-4 space-y-1.5">
                     <div className="flex justify-between text-body">
-                      <span className="text-[#44403c]">Montant dépense</span>
-                      <span className="tabular-nums text-[#292524] font-medium">{fmt(data.montant || 0)}</span>
+                      <span className="text-foreground-tertiary">Montant dépense</span>
+                      <span className="tabular-nums text-foreground font-medium">{fmt(data.montant || 0)}</span>
                     </div>
                     <div className="flex justify-between text-body">
-                      <span className="text-[#44403c]">Reste à charge</span>
-                      <span className="tabular-nums text-[#292524] font-medium">{fmt((data.montant || 0) - (data.dejaRembourse || 0))}</span>
+                      <span className="text-foreground-tertiary">Reste à charge</span>
+                      <span className="tabular-nums text-foreground font-medium">{fmt((data.montant || 0) - (data.dejaRembourse || 0))}</span>
                     </div>
                     {data.aRevalo && (
                       <div className="flex justify-between text-body">
                         <div className="flex items-center gap-1.5">
                           <svg className="w-3.5 h-3.5 text-[#E8713A]" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                          <span className="text-[#44403c]">Revalorisation</span>
-                          <span className="text-caption text-[#a8a29e]">IPC Annuel · 1,08</span>
+                          <span className="text-foreground-tertiary">Revalorisation</span>
+                          <span className="text-caption text-foreground-muted">IPC Annuel · 1,08</span>
                         </div>
-                        <span className="tabular-nums text-[#292524] font-medium">{fmt(((data.montant || 0) - (data.dejaRembourse || 0)) * 0.08)}</span>
+                        <span className="tabular-nums text-foreground font-medium">{fmt(((data.montant || 0) - (data.dejaRembourse || 0)) * 0.08)}</span>
                       </div>
                     )}
                   </div>
-                  <div className="mx-5 border-t border-[#e7e5e3]" />
+                  <div className="mx-5 border-t border-border" />
                   <div className="px-5 py-3 flex justify-between items-center">
-                    <span className="text-body-medium text-[#292524]">Total indemnisable</span>
-                    <span className="text-lg font-bold text-[#292524] tabular-nums">{fmt(data.montant || 0)}</span>
+                    <span className="text-body-medium text-foreground">Total indemnisable</span>
+                    <span className="text-lg font-bold text-foreground tabular-nums">{fmt(data.montant || 0)}</span>
                   </div>
                 </div>
               )}
               {editPanel.type === 'pgpa-revenu' && (
-                <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
+                <div className="border-t border-border bg-background">
                   <div className="px-5 py-3 flex justify-between items-center">
-                    <span className="text-body-medium text-[#292524]">Revenu de référence</span>
-                    <span className="text-lg font-bold text-[#292524] tabular-nums">{fmt(data.montant || 0)}</span>
+                    <span className="text-body-medium text-foreground">Revenu de référence</span>
+                    <span className="text-lg font-bold text-foreground tabular-nums">{fmt(data.montant || 0)}</span>
                   </div>
                 </div>
               )}
               {editPanel.type === 'pgpa-revenu-percu' && (
-                <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
+                <div className="border-t border-border bg-background">
                   <div className="px-5 py-3 flex justify-between items-center">
-                    <span className="text-body-medium text-[#292524]">Revenu net perçu</span>
-                    <span className="text-lg font-bold text-[#292524] tabular-nums">{fmt(data.montant || 0)}</span>
+                    <span className="text-body-medium text-foreground">Revenu net perçu</span>
+                    <span className="text-lg font-bold text-foreground tabular-nums">{fmt(data.montant || 0)}</span>
                   </div>
                 </div>
               )}
               {editPanel.type === 'pgpa-ij' && (
-                <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
+                <div className="border-t border-border bg-background">
                   <div className="px-5 py-3 flex justify-between items-center">
-                    <span className="text-body-medium text-[#292524]">Total IJ net</span>
-                    <span className="text-lg font-bold text-[#292524] tabular-nums">{fmt(data.montant || 0)}</span>
+                    <span className="text-body-medium text-foreground">Total IJ net</span>
+                    <span className="text-lg font-bold text-foreground tabular-nums">{fmt(data.montant || 0)}</span>
                   </div>
                 </div>
               )}
               {editPanel.type === 'dft-ligne' && (
-                <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
+                <div className="border-t border-border bg-background">
                   <div className="px-5 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <span className="text-body-medium text-[#292524]">Total indemnisable</span>
-                      <span className="text-caption px-1.5 py-0.5 bg-[#eeece6] text-[#78716c] rounded">{data.jours || 0}j</span>
+                      <span className="text-body-medium text-foreground">Total indemnisable</span>
+                      <span className="text-caption px-1.5 py-0.5 bg-cream text-foreground-secondary rounded">{data.jours || 0}j</span>
                     </div>
-                    <span className="text-lg font-bold text-[#292524] tabular-nums">{fmt(data.montant || 0)}</span>
+                    <span className="text-lg font-bold text-foreground tabular-nums">{fmt(data.montant || 0)}</span>
                   </div>
                 </div>
               )}
@@ -8264,7 +8264,7 @@ export default function App() {
               {/* Footer actions */}
               {editPanel.type === 'dsa-ligne' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} className="px-4 py-2 text-[#c45555] border border-[#fecaca] bg-white hover:bg-[#fef2f2] rounded-lg text-body-medium transition-colors">
+                  <button onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <button onClick={() => {
@@ -8284,7 +8284,7 @@ export default function App() {
                         tiers: document.getElementById('edit-tiers')?.value || '',
                         dejaRembourse: parseFloat(document.getElementById('edit-rembourse')?.value) || 0
                       });
-                    }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {editPanel.type === 'piece-detail' && (
@@ -8315,7 +8315,7 @@ export default function App() {
                         }))
                       }));
                       setEditPanel(null);
-                    }} className="px-4 py-2 text-[#c45555] border border-[#fecaca] bg-white hover:bg-[#fef2f2] rounded-lg text-body-medium transition-colors">
+                    }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                       Supprimer
                     </button>
                     <button onClick={() => {
@@ -8327,13 +8327,13 @@ export default function App() {
                       };
                       setPieces(prev => prev.map(p => p.id === data.id ? updatedPiece : p));
                       setEditPanel(null);
-                    }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                   </div>
                 </div>
               )}
               {(editPanel.type === 'victime' || editPanel.type === 'fait-generateur') && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     if (editPanel.type === 'victime') {
                       setVictimeData({
@@ -8353,16 +8353,16 @@ export default function App() {
                       });
                     }
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {editPanel.type === 'dossier-expertise' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     setCommentaireExpertise(document.getElementById('proc-commentaire')?.value || '');
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {editPanel.type === 'victime-indirecte' && (
@@ -8394,7 +8394,7 @@ export default function App() {
                   )}
                   {!data && <div />}
                   <div className="flex gap-2">
-                    <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                     <button onClick={() => {
                       const newVi = {
                         id: data?.id || `vi-${Date.now()}`,
@@ -8421,14 +8421,14 @@ export default function App() {
                         setVictimesIndirectes(prev => [...prev, newVi]);
                       }
                       setEditPanel(null);
-                    }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                   </div>
                 </div>
               )}
               {/* IV ligne save - Type A */}
               {editPanel.type === 'iv-ligne-a' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     const montant = parseFloat(document.getElementById('iv-ligne-montant')?.value) || 0;
                     const intitule = document.getElementById('iv-ligne-intitule')?.value || '';
@@ -8443,13 +8443,13 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {/* IV ligne save - Type B */}
               {editPanel.type === 'iv-ligne-b' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     const montant = parseFloat(document.getElementById('iv-ligne-montant')?.value) || 0;
                     const intitule = document.getElementById('iv-ligne-intitule')?.value || '';
@@ -8464,13 +8464,13 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {/* IV ligne save - Type C */}
               {editPanel.type === 'iv-ligne-c' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     const totalAmount = parseFloat(document.getElementById('iv-ligne-total-amount')?.value) || 0;
                     const label = document.getElementById('iv-ligne-label')?.value || '';
@@ -8490,13 +8490,13 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {/* IV ligne save - Type D */}
               {editPanel.type === 'iv-ligne-d' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     const partIndividuelle = parseFloat(document.getElementById('iv-ligne-part')?.value) || 0;
                     const dureeIndemnisation = document.getElementById('iv-ligne-duree')?.value || '';
@@ -8515,13 +8515,13 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {/* IV ligne TP save - Type D (déduction TP per VI) */}
               {editPanel.type === 'iv-ligne-d-tp' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     const type = document.getElementById('iv-tp-type')?.value || 'pension-reversion';
                     const label = document.getElementById('iv-tp-label')?.value || '';
@@ -8544,13 +8544,13 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {/* Panel nouvelle-procedure supprimé */}
               {editPanel.type === 'dossier-edit' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                   <button onClick={() => {
                     setDossierRef(document.getElementById('dossier-ref')?.value || dossierRef);
                     setDossierIntitule(document.getElementById('dossier-intitule')?.value || dossierIntitule);
@@ -8559,7 +8559,7 @@ export default function App() {
                     setDossierAvocat(document.getElementById('dossier-avocat')?.value || dossierAvocat);
                     setDossierNotes(document.getElementById('dossier-notes')?.value || '');
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                 </div>
               )}
               {/* ========== PANELS PGPA ========== */}
@@ -8577,11 +8577,11 @@ export default function App() {
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-[#fecaca] bg-white hover:bg-[#fef2f2] rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                     <button onClick={() => {
                       const updatedLigne = {
                         ...data,
@@ -8604,7 +8604,7 @@ export default function App() {
                       }));
                       setEditPanel(null);
                       setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                   </div>
                 </div>
               )}
@@ -8619,11 +8619,11 @@ export default function App() {
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-[#fecaca] bg-white hover:bg-[#fef2f2] rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                     <button onClick={() => {
                       const debutVal = document.getElementById('pgpa-percu-debut')?.value || data.periodeDebut;
                       const finVal = document.getElementById('pgpa-percu-fin')?.value || data.periodeFin;
@@ -8647,7 +8647,7 @@ export default function App() {
                       }));
                       setEditPanel(null);
                       setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                   </div>
                 </div>
               )}
@@ -8662,11 +8662,11 @@ export default function App() {
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-[#fecaca] bg-white hover:bg-[#fef2f2] rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                     <button onClick={() => {
                       const montantBrut = parseFloat(document.getElementById('pgpa-ij-brut')?.value) || 0;
                       const csgCrds = parseFloat(document.getElementById('pgpa-ij-csg')?.value) || 0;
@@ -8692,7 +8692,7 @@ export default function App() {
                       }));
                       setEditPanel(null);
                       setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                   </div>
                 </div>
               )}
@@ -8703,11 +8703,11 @@ export default function App() {
                   <button onClick={() => {
                     setDftLignes(prev => prev.filter(l => l.id !== data.id));
                     setEditPanel(null); setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-[#fecaca] bg-white hover:bg-[#fef2f2] rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-[#44403c] hover:bg-[#f5f5f4] rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
                     <button onClick={() => {
                       const debutVal = document.getElementById('dft-debut')?.value || data.debut;
                       const finVal = document.getElementById('dft-fin')?.value || data.fin;
@@ -8727,7 +8727,7 @@ export default function App() {
                       };
                       setDftLignes(prev => prev.map(l => l.id === data.id ? updatedLigne : l));
                       setEditPanel(null); setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-[#292524] text-white rounded-lg hover:bg-[#44403c] text-body-medium transition-colors">Enregistrer</button>
+                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
                   </div>
                 </div>
               )}
@@ -8772,15 +8772,15 @@ export default function App() {
               </span>
             )}
           </span>
-          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-[#e7e5e3] rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
-            <div className="text-counter text-[#a8a29e] uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
+          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+            <div className="text-counter text-foreground-muted uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
             <div className="space-y-1">
               {ligne.pieceIds?.map(pid => {
                 const piece = getPiece(pid);
                 return (
                   <div key={pid} className="flex items-center gap-2 text-caption">
-                    <span className="w-5 h-5 bg-blue-100 text-[#1e3a8a] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
-                    <span className="truncate text-[#44403c]">{piece?.intitule || piece?.nom || 'Document'}</span>
+                    <span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                    <span className="truncate text-foreground-tertiary">{piece?.intitule || piece?.nom || 'Document'}</span>
                   </div>
                 );
               })}
@@ -8791,25 +8791,25 @@ export default function App() {
     };
 
     return (
-      <div key={ligne.id} className="relative flex items-center p-3 hover:bg-[#fafaf9] group transition-colors">
+      <div key={ligne.id} className="relative flex items-center p-3 hover:bg-background group transition-colors">
         {diffColor && <div className="absolute inset-0 pointer-events-none rounded-[inherit]" style={{ boxShadow: `inset 2px 0 0 0 ${diffColor}` }} />}
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <DiffIndicator />
           <PieceIndicator />
           <div className="min-w-0">
-            <div className="text-body-medium text-[#292524] truncate">{ligne.label || 'Sans libellé'}</div>
-            <div className="text-caption text-[#a8a29e]">{ligne.date || '—'} • {ligne.type || '—'}</div>
+            <div className="text-body-medium text-foreground truncate">{ligne.label || 'Sans libellé'}</div>
+            <div className="text-caption text-foreground-muted">{ligne.date || '—'} • {ligne.type || '—'}</div>
           </div>
         </div>
 
         {/* Montant - PRIORITAIRE */}
-        <span className="text-body-medium font-semibold text-[#292524] tabular-nums min-w-[90px] text-right flex-shrink-0">
+        <span className="text-body-medium font-semibold text-foreground tabular-nums min-w-[90px] text-right flex-shrink-0">
           {ligne.montant != null ? fmt(ligne.montant) : '— €'}
         </span>
 
         {/* Actions en overlay au hover - minimaliste */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => handleRejectLigne(ligne.id)} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] transition-colors" title="Supprimer">
+          <button onClick={() => handleRejectLigne(ligne.id)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -8841,15 +8841,15 @@ export default function App() {
               </span>
             )}
           </span>
-          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-[#e7e5e3] rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
-            <div className="text-counter text-[#a8a29e] uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
+          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+            <div className="text-counter text-foreground-muted uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
             <div className="space-y-1">
               {ligne.pieceIds?.map(pid => {
                 const piece = getPiece(pid);
                 return (
                   <div key={pid} className="flex items-center gap-2 text-caption">
-                    <span className="w-5 h-5 bg-blue-100 text-[#1e3a8a] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
-                    <span className="truncate text-[#44403c]">{piece?.intitule || piece?.nom || 'Document'}</span>
+                    <span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                    <span className="truncate text-foreground-tertiary">{piece?.intitule || piece?.nom || 'Document'}</span>
                   </div>
                 );
               })}
@@ -8869,26 +8869,26 @@ export default function App() {
     };
 
     return (
-      <div key={ligne.id} className="relative flex items-center p-3 hover:bg-[#fafaf9] group transition-colors">
+      <div key={ligne.id} className="relative flex items-center p-3 hover:bg-background group transition-colors">
         {diffColor && <div className="absolute inset-0 pointer-events-none rounded-[inherit]" style={{ boxShadow: `inset 2px 0 0 0 ${diffColor}` }} />}
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <DiffIndicator />
           <PieceIndicator />
           <div className="min-w-0">
-            <div className="text-body-medium text-[#292524] truncate">{ligne.label || 'Sans libellé'}</div>
-            <div className="text-caption text-[#a8a29e]">{getSecondaryText() || '—'}</div>
+            <div className="text-body-medium text-foreground truncate">{ligne.label || 'Sans libellé'}</div>
+            <div className="text-caption text-foreground-muted">{getSecondaryText() || '—'}</div>
           </div>
         </div>
 
         {/* Montant - PRIORITAIRE */}
-        <span className="text-body-medium font-semibold text-[#292524] tabular-nums min-w-[90px] text-right flex-shrink-0">
+        <span className="text-body-medium font-semibold text-foreground tabular-nums min-w-[90px] text-right flex-shrink-0">
           {fmt(ligne.montant || ligne.revalorise || 0)}
         </span>
 
         {/* Actions en overlay au hover - minimaliste */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {onDelete && (
-            <button onClick={() => onDelete(ligne)} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] transition-colors" title="Supprimer">
+            <button onClick={() => onDelete(ligne)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -8925,14 +8925,14 @@ export default function App() {
 
   /** Subtotal line with dashed border above - visually closes a section */
   const tpSubtotal = (label, amount) => (
-    <div className="border-t border-dashed border-[#d6d3d1] mt-1 pt-1 flex items-center justify-between">
+    <div className="border-t border-dashed border-border-strong mt-1 pt-1 flex items-center justify-between">
       <span style={{ fontSize: 13, fontWeight: 500, color: '#44403c' }}>{label}</span>
       <span style={{ ...receiptAmountStyle, fontWeight: 500, color: '#292524' }}>{fmt(amount)}</span>
     </div>
   );
 
   /** Solid section divider - separates damage calc from TP deductions */
-  const tpDivider = () => <div className="mt-3 pt-3 border-t border-[#e7e5e3]" />;
+  const tpDivider = () => <div className="mt-3 pt-3 border-t border-border" />;
 
   /** TP imputation line: "Imputation {sigle}" with minus amount + explanatory sub-label */
   const tpDeduction = (sigle, amount, subLabel) => (
@@ -8984,15 +8984,15 @@ export default function App() {
     return (
       <div className={cardBlockClass}>
         {/* Title bar */}
-        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#e7e5e3]">
+        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
           <span className="inline-flex items-center justify-center w-7 h-7 bg-[#f5f0e8] rounded-md">
-            <FileText className="w-4 h-4 text-[#78716c]" />
+            <FileText className="w-4 h-4 text-foreground-secondary" />
           </span>
           <span className="text-body-medium" style={{ color: '#292524' }}>Créances tiers payeurs</span>
         </div>
 
         {/* Column headers */}
-        <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+        <div className="flex items-center h-10 border-b border-border bg-white">
           <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
           <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
           <div className="w-[140px] flex-shrink-0 px-3" style={colHeaderStyle}>Tiers payeur</div>
@@ -9011,18 +9011,18 @@ export default function App() {
             return (
               <React.Fragment key={line.ligneId}>
                 <div
-                  className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                  className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white cursor-pointer hover:bg-background transition-colors"
                   onClick={() => toggleCard(expandKey)}
                 >
                   <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                     <span className="inline-flex items-center justify-center w-7 h-7 bg-[#f5f0e8] rounded-md relative">
-                      <FileText className="w-4 h-4 text-[#78716c]" />
-                      <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#78716c] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{subCount}</span>
+                      <FileText className="w-4 h-4 text-foreground-secondary" />
+                      <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-foreground-secondary text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{subCount}</span>
                     </span>
                   </div>
                   <div className="flex-1 min-w-0 px-3 flex items-center gap-1.5">
                     <span className="text-body-medium truncate" style={{ color: '#292524' }}>{line.libelle}</span>
-                    <ChevronRight className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`} />
+                    <ChevronRight className={`w-3.5 h-3.5 text-foreground-muted transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`} />
                   </div>
                   <div className="w-[140px] flex-shrink-0 px-3">
                     <span className="text-body" style={{ color: '#78716c' }}>{line.sigle}</span>
@@ -9032,7 +9032,7 @@ export default function App() {
                   </div>
                 </div>
                 {isExpanded && line.subLignes.map(sub => (
-                  <div key={sub.id} className="flex items-center h-[44px] border-b border-[#e7e5e3] bg-[#fafaf9]">
+                  <div key={sub.id} className="flex items-center h-[44px] border-b border-border bg-background">
                     <div className="w-[52px] flex-shrink-0 pl-3" />
                     <div className="flex-1 min-w-0 px-3 pl-8">
                       <span className="text-caption" style={{ color: '#78716c' }}>{sub.libelle}</span>
@@ -9049,9 +9049,9 @@ export default function App() {
 
           // Standard line
           return (
-            <div key={line.ligneId} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white hover:bg-[#fafaf9] transition-colors">
+            <div key={line.ligneId} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white hover:bg-background transition-colors">
               <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
-                <span className="inline-flex items-center justify-center w-7 h-7 bg-[#f5f0e8] text-[#78716c] rounded-md">
+                <span className="inline-flex items-center justify-center w-7 h-7 bg-[#f5f0e8] text-foreground-secondary rounded-md">
                   <FileText className="w-3.5 h-3.5" />
                 </span>
               </div>
@@ -9071,7 +9071,7 @@ export default function App() {
         })}
 
         {/* Footer total */}
-        <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
+        <div className="border-t border-border bg-background">
           <div className="flex items-center h-10">
             <div className="w-[52px] flex-shrink-0 pl-3" />
             <div className="flex-1 min-w-0 px-3">
@@ -9118,7 +9118,7 @@ export default function App() {
                 <span style={receiptRowStyle} className="flex items-center gap-1.5">
                   {tp?.sigle || tp?.nom}
                   <span
-                    className="inline-flex items-center h-[16px] px-1 rounded cursor-pointer hover:bg-[#d6d3d1]/40"
+                    className="inline-flex items-center h-[16px] px-1 rounded cursor-pointer hover:bg-border-strong/40"
                     style={{ fontSize: 10, fontWeight: 500, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.02em' }}
                     onClick={() => {
                       if (imp.source === 'cascade' && tpScenario.cascade) {
@@ -9159,14 +9159,14 @@ export default function App() {
       <div className={totalBlockClass}>
         <button onClick={() => showExpand && setTotalExpanded(prev => ({...prev, [posteId]: !prev[posteId]}))} className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-[#d6d3d1] rounded-[6px] flex items-center justify-center">
-              <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+            <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
+              <FileText className="w-3.5 h-3.5 text-foreground-secondary" />
             </div>
-            <span className="text-[14px] font-medium text-[#292524]">{label}</span>
+            <span className="text-[14px] font-medium text-foreground">{label}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span style={serifAmountStyle} className="text-[#292524]">{fmt(amount)}</span>
-            {showExpand && <ChevronRight className={`w-4 h-4 text-[#78716c] transition-transform ${isOpen ? 'rotate-90' : ''}`} />}
+            <span style={serifAmountStyle} className="text-foreground">{fmt(amount)}</span>
+            {showExpand && <ChevronRight className={`w-4 h-4 text-foreground-secondary transition-transform ${isOpen ? 'rotate-90' : ''}`} />}
           </div>
         </button>
         {isOpen && (
@@ -9185,7 +9185,7 @@ export default function App() {
     if (!cascade) {
       return (
         <div className="flex-1 flex items-center justify-center py-20">
-          <p className="text-body text-[#a8a29e]">Aucune cascade d'imputation pour ce scénario.</p>
+          <p className="text-body text-foreground-muted">Aucune cascade d'imputation pour ce scénario.</p>
         </div>
       );
     }
@@ -9211,7 +9211,7 @@ export default function App() {
 
           {/* Capitalisation */}
           <div className={cardBlockClass}>
-            <div className="px-5 py-3 bg-[#fafaf9] border-b border-[#f0efed]">
+            <div className="px-5 py-3 bg-background border-b border-border-subtle">
               <span style={{ ...sectionHeaderStyle }}>Capitalisation</span>
             </div>
             <div className="px-5 py-4 space-y-2">
@@ -9219,7 +9219,7 @@ export default function App() {
                 <span>{cascade.renteAnnuelle.toLocaleString('fr-FR')} €/an</span>
                 <span style={{ color: '#a8a29e' }}>×</span>
                 <span>{cascade.coefficient}</span>
-                <span className="inline-flex items-center h-5 px-1.5 rounded border border-[#e7e5e3]" style={{ fontSize: 10, fontWeight: 500, color: '#78716c' }}>
+                <span className="inline-flex items-center h-5 px-1.5 rounded border border-border" style={{ fontSize: 10, fontWeight: 500, color: '#78716c' }}>
                   {cascade.bareme}
                 </span>
                 <span style={{ color: '#a8a29e' }}>=</span>
@@ -9227,7 +9227,7 @@ export default function App() {
               </div>
               {/* Temporal breakdown */}
               {cascade.arreragesEchus != null && (
-                <div className="pt-2 border-t border-[#f0efed] space-y-1">
+                <div className="pt-2 border-t border-border-subtle space-y-1">
                   <div className="flex items-center justify-between">
                     <span style={{ fontSize: 12, color: '#78716c' }}>Arrérages échus</span>
                     <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmtTP(cascade.arreragesEchus)}</span>
@@ -9236,7 +9236,7 @@ export default function App() {
                     <span style={{ fontSize: 12, color: '#78716c' }}>À échoir (capitalisé)</span>
                     <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmtTP(cascade.arreragesAEchoir)}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-[#f0efed]">
+                  <div className="flex items-center justify-between pt-1 border-t border-border-subtle">
                     <span style={{ fontSize: 12, fontWeight: 500, color: '#292524' }}>Total créance</span>
                     <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 600, color: '#292524' }}>{fmtTP(cascade.capitalise)}</span>
                   </div>
@@ -9247,13 +9247,13 @@ export default function App() {
 
           {/* Ordre d'imputation */}
           <div className={cardBlockClass}>
-            <div className="px-5 py-3 bg-[#fafaf9] border-b border-[#f0efed] flex items-center justify-between">
+            <div className="px-5 py-3 bg-background border-b border-border-subtle flex items-center justify-between">
               <span style={{ ...sectionHeaderStyle }}>Ordre d'imputation</span>
               <span style={{ fontSize: 11, color: '#a8a29e' }}>{cascade.etapes.map(e => e.label).join(' \u2192 ')}</span>
             </div>
 
             {/* Waterfall steps */}
-            <div className="divide-y divide-[#f0efed]">
+            <div className="divide-y divide-border-subtle">
               {cascade.etapes.map((etape, i) => {
                 const isEpuise = etape.statut === 'épuisé';
                 const pct = etape.prejudice > 0 ? Math.round(etape.absorbe / etape.prejudice * 100) : 0;
@@ -9302,7 +9302,7 @@ export default function App() {
                       </div>
                     )}
                     {/* Progress bar */}
-                    <div className="mt-2 h-1.5 rounded-full bg-[#f0efed] overflow-hidden">
+                    <div className="mt-2 h-1.5 rounded-full bg-border-subtle overflow-hidden">
                       <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: isEpuise ? '#a8a29e' : '#d6d3d1' }} />
                     </div>
                   </div>
@@ -9311,7 +9311,7 @@ export default function App() {
             </div>
 
             {/* Total */}
-            <div className="px-5 py-4 bg-[#fafaf9] border-t border-[#e7e5e3] flex items-center justify-between">
+            <div className="px-5 py-4 bg-background border-t border-border flex items-center justify-between">
               <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>Total absorbé</span>
               <div className="flex items-center gap-2">
                 <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 600, color: '#292524' }}>
@@ -9518,7 +9518,7 @@ export default function App() {
                 key={key}
                 data-entity-id={key}
               >
-                <div className="text-caption-medium text-[#78716c] mb-1 flex items-center gap-1">
+                <div className="text-caption-medium text-foreground-secondary mb-1 flex items-center gap-1">
                   {label}
                   {pendingDiff && (
                     <span className="inline-block w-1.5 h-1.5" style={{ background: diffColor, transform: 'rotate(45deg)' }} />
@@ -9528,7 +9528,7 @@ export default function App() {
                       <span className="inline-block w-1.5 h-1.5 cursor-help" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20 pointer-events-none">
                         <div className="bg-zinc-800 text-white rounded-lg px-3 py-2 shadow-lg w-[220px]">
-                          <p className="text-caption text-[#a8a29e] mb-1">Extrait depuis</p>
+                          <p className="text-caption text-foreground-muted mb-1">Extrait depuis</p>
                           <div className="flex items-center gap-2">
                             <FileText className="w-3.5 h-3.5 text-[#86efac] flex-shrink-0" />
                             <span className="text-caption-medium text-white truncate">{rapportName}</span>
@@ -9564,12 +9564,12 @@ export default function App() {
                     <div style={{ fontSize: 12, lineHeight: '16px', color: '#9CA3AF', opacity: 0.5, textDecoration: 'line-through' }}>
                       {rejectedDiff.after}
                     </div>
-                    <div className="text-body text-[#292524]">
-                      {rejectedDiff.before || value || <span className="italic text-[#d6d3d1]">Non renseigné</span>}
+                    <div className="text-body text-foreground">
+                      {rejectedDiff.before || value || <span className="italic text-border-strong">Non renseigné</span>}
                     </div>
                   </div>
                 ) : (
-                  <div className={`text-body ${hasValue || isActive ? 'text-[#292524]' : 'text-[#d6d3d1]'} ${isLongText ? 'leading-relaxed' : ''}`}>
+                  <div className={`text-body ${hasValue || isActive ? 'text-foreground' : 'text-border-strong'} ${isLongText ? 'leading-relaxed' : ''}`}>
                     {isActive ? (
                       <span>{streamingText}<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: '#4a9168' }}></span></span>
                     ) : hasValue ? (
@@ -9597,12 +9597,12 @@ export default function App() {
               )}
 
               {/* Section: Victime */}
-              <div className="bg-white rounded-[5px] border border-[#e7e5e3] shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-[#e7e5e3] bg-white">
-                  <User className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
-                  <span className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider" style={colHeaderStyle}>Victime</span>
+              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+                  <User className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
+                  <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Victime</span>
                 </div>
-                <div className="flex border-b border-[#e7e5e3]">
+                <div className="flex border-b border-border">
                   <div className="flex-1 px-5 py-4 space-y-1">
                     {renderField('nom', 'Nom', victimeData.nom)}
                   </div>
@@ -9610,14 +9610,14 @@ export default function App() {
                     {renderField('prenom', 'Prénom', victimeData.prenom)}
                   </div>
                 </div>
-                <div className="flex border-b border-[#e7e5e3]">
+                <div className="flex border-b border-border">
                   <div className="flex-1 px-5 py-4 space-y-1">
                     {renderField('sexe', 'Sexe', victimeData.sexe)}
                   </div>
                   <div className="flex-1 px-5 py-4 space-y-1">
                     {renderField('dateNaissance', 'Date de naissance',
                       victimeData.dateNaissance
-                        ? <span className="flex items-center gap-2">{victimeData.dateNaissance}{calcAge(victimeData.dateNaissance) && <><span className="w-1 h-1 rounded-full bg-[#d9d9d9]"></span><span className="text-body text-[#78716c]">{calcAge(victimeData.dateNaissance)} ans</span></>}</span>
+                        ? <span className="flex items-center gap-2">{victimeData.dateNaissance}{calcAge(victimeData.dateNaissance) && <><span className="w-1 h-1 rounded-full bg-[#d9d9d9]"></span><span className="text-body text-foreground-secondary">{calcAge(victimeData.dateNaissance)} ans</span></>}</span>
                         : null
                     )}
                   </div>
@@ -9625,12 +9625,12 @@ export default function App() {
               </div>
 
               {/* Section: Fait générateur */}
-              <div className="bg-white rounded-[5px] border border-[#e7e5e3] shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-[#e7e5e3] bg-white">
-                  <AlertTriangle className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
-                  <span className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider" style={colHeaderStyle}>Fait générateur</span>
+              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+                  <AlertTriangle className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
+                  <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Fait générateur</span>
                 </div>
-                <div className="flex border-b border-[#e7e5e3]">
+                <div className="flex border-b border-border">
                   <div className="flex-1 px-5 py-4 space-y-1">
                     {renderField('typeFait', 'Type', faitGenerateur.type)}
                   </div>
@@ -9638,7 +9638,7 @@ export default function App() {
                     {renderField('dateAccident', 'Date du fait générateur', faitGenerateur.dateAccident)}
                   </div>
                 </div>
-                <div className="flex border-b border-[#e7e5e3]">
+                <div className="flex border-b border-border">
                   <div className="flex-1 px-5 py-4 space-y-1">
                     {renderField('premiereConstatation', 'Date du fait générateur', faitGenerateur.datePremiereConstatation || faitGenerateur.dateAccident)}
                   </div>
@@ -9651,7 +9651,7 @@ export default function App() {
                 </div>
 
                 {/* Sub-block: Fraction indemnisable */}
-                <div className="border-t border-[#e7e5e3] px-5 py-3">
+                <div className="border-t border-border px-5 py-3">
                   <span style={{ fontSize: 13, color: '#78716c' }}>Fraction indemnisable</span>
                   <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: tauxFinal < 100 ? '#b9703f' : '#292524', marginTop: 4 }}>
                     {tauxFinal} %
@@ -9661,10 +9661,10 @@ export default function App() {
 
               {/* Section: Tiers payeurs (dossier-level) */}
               {hasTP && (
-                <div className="bg-white rounded-[5px] border border-[#e7e5e3] shadow-sm overflow-hidden">
-                  <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-[#e7e5e3] bg-white">
-                    <Receipt className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
-                    <span className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider" style={colHeaderStyle}>Tiers payeurs</span>
+                <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+                    <Receipt className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
+                    <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Tiers payeurs</span>
                   </div>
 
                   {/* CreanceTP per TP entity - show postes impactés */}
@@ -9686,13 +9686,13 @@ export default function App() {
                     const allPostesFlat = POSTES_TAXONOMY.flatMap(s => s.categories.flatMap(c => c.postes));
 
                     return (
-                      <div key={tp.id} className="border-b border-[#f0efed] last:border-b-0">
+                      <div key={tp.id} className="border-b border-border-subtle last:border-b-0">
                         <div
-                          className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                          className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-background transition-colors"
                           onClick={() => toggleCard(`registre-tp-${tp.id}`)}
                         >
                           <div className="flex items-center gap-2">
-                            {expanded ? <ChevronDown className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} /> : <ChevronRight className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} />}
+                            {expanded ? <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} /> : <ChevronRight className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />}
                             <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{tp.sigle}</span>
                             <span style={{ fontSize: 11, color: '#a8a29e', fontFamily: "'Inter', sans-serif" }}>{tp.nom}</span>
                           </div>
@@ -9707,7 +9707,7 @@ export default function App() {
                               return (
                                 <div
                                   key={ps.posteId}
-                                  className="flex items-center justify-between py-1.5 px-2 -mx-2 rounded cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                                  className="flex items-center justify-between py-1.5 px-2 -mx-2 rounded cursor-pointer hover:bg-background transition-colors"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     navigateTo({ type: 'poste', id: ps.posteId, title: acronym, fullTitle: label });
@@ -9719,14 +9719,14 @@ export default function App() {
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: '#44403c' }}>{fmt(ps.total)}</span>
-                                    <ChevronRight className="w-3 h-3 text-[#d6d3d1]" />
+                                    <ChevronRight className="w-3 h-3 text-border-strong" />
                                   </div>
                                 </div>
                               );
                             })}
                             {creances.some(c => c.regle === 'CASCADE_CAPITALISEE' || c.regle === 'CASCADE') && tpScenario.cascade && (
                               <button
-                                className="mt-1 text-[11px] text-[#1e3a8a] hover:underline transition-colors"
+                                className="mt-1 text-[11px] text-link hover:underline transition-colors"
                                 onClick={(e) => { e.stopPropagation(); navigateTo({ type: 'cascade', id: 'cascade-from-registre', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' }); }}
                               >{'\u2197'} Voir la cascade complète</button>
                             )}
@@ -9739,10 +9739,10 @@ export default function App() {
               )}
 
               {/* Section: Faits et procédure */}
-              <div className="bg-white rounded-[5px] border border-[#e7e5e3] shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-[#e7e5e3] bg-white">
-                  <Activity className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
-                  <span className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider" style={colHeaderStyle}>Faits et procédure</span>
+              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+                  <Activity className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
+                  <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Faits et procédure</span>
                 </div>
                 <div className="px-5 py-4 min-h-[92px]">
                   {renderField('commentaire', 'Commentaire d\'expertise', commentaireExpertise, true)}
@@ -9750,38 +9750,38 @@ export default function App() {
               </div>
 
               {/* Section: Victimes indirectes */}
-              <div className="bg-white rounded-[5px] border border-[#e7e5e3] shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between gap-2.5 px-3 py-3.5 border-b border-[#e7e5e3] bg-white">
+              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between gap-2.5 px-3 py-3.5 border-b border-border bg-white">
                   <div className="flex items-center gap-2.5">
-                    <svg className="w-4 h-4 text-[#78716c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <svg className="w-4 h-4 text-foreground-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                     </svg>
-                    <span className="text-[11px] font-medium text-[#78716c] uppercase tracking-wider" style={colHeaderStyle}>Victimes indirectes</span>
+                    <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Victimes indirectes</span>
                   </div>
                   {dossierStatut !== 'fermé' && (
                     <button
                       onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Nouvelle victime indirecte', data: null })}
-                      className="flex items-center gap-1 px-2 py-1 text-caption text-[#78716c] hover:bg-[#eeece6] rounded transition-colors"
+                      className="flex items-center gap-1 px-2 py-1 text-caption text-foreground-secondary hover:bg-cream rounded transition-colors"
                     >
                       <Plus className="w-3 h-3" strokeWidth={1.5} />Ajouter
                     </button>
                   )}
                 </div>
                 {victimesIndirectes.length > 0 ? (
-                  <div className="divide-y divide-[#e7e5e3]">
+                  <div className="divide-y divide-border">
                     {victimesIndirectes.map(vi => (
-                      <div key={vi.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-[#fafaf9] group transition-colors">
+                      <div key={vi.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-background group transition-colors">
                         <div className="flex items-center gap-2.5">
                           {viAvatar(vi, 32)}
                           <div>
-                            <div className="text-body text-[#44403c]">{vi.prenom} {vi.nom}</div>
-                            <div className="text-caption text-[#a8a29e]">{vi.lien} {vi.dateNaissance ? `• ${calcAge(vi.dateNaissance)} ans` : ''}</div>
+                            <div className="text-body text-foreground-tertiary">{vi.prenom} {vi.nom}</div>
+                            <div className="text-caption text-foreground-muted">{vi.lien} {vi.dateNaissance ? `• ${calcAge(vi.dateNaissance)} ans` : ''}</div>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                           <button
                             onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Modifier victime indirecte', data: vi })}
-                            className="p-1 text-[#d6d3d1] hover:text-[#78716c] rounded transition-colors"
+                            className="p-1 text-border-strong hover:text-foreground-secondary rounded transition-colors"
                           >
                             <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
@@ -9806,7 +9806,7 @@ export default function App() {
                                 return next;
                               });
                             }}
-                            className="p-1 text-[#d6d3d1] hover:text-red-500 rounded transition-colors"
+                            className="p-1 text-border-strong hover:text-red-500 rounded transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
@@ -9816,7 +9816,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="px-5 py-6 text-center">
-                    <div className="text-body text-[#a8a29e]">Aucune victime indirecte</div>
+                    <div className="text-body text-foreground-muted">Aucune victime indirecte</div>
                   </div>
                 )}
               </div>
@@ -9851,38 +9851,38 @@ export default function App() {
             {/* Colonne gauche */}
             <div className="col-span-2 space-y-4">
               {/* Infos Victime */}
-              <div className="bg-white rounded-lg border border-[#e7e5e3]/60 shadow-sm">
+              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
                 <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#a8a29e]">
+                  <div className="flex items-center gap-2 text-foreground-muted">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                     </svg>
                     <span className="text-body-medium">Informations victime</span>
                   </div>
-                  <button onClick={() => setEditPanel({ type: 'victime', title: 'Informations victime' })} className="p-1 text-[#d6d3d1] hover:text-[#78716c] hover:bg-[#eeece6] rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
+                  <button onClick={() => setEditPanel({ type: 'victime', title: 'Informations victime' })} className="p-1 text-border-strong hover:text-foreground-secondary hover:bg-cream rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
                 </div>
                 <div className="p-4">
                   <div className="grid grid-cols-2 gap-x-8 gap-y-3">
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Nom</div>
-                      <div className="text-body text-[#44403c]">{victimeData.nom}</div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Nom</div>
+                      <div className="text-body text-foreground-tertiary">{victimeData.nom}</div>
                     </div>
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Prénom</div>
-                      <div className="text-body text-[#44403c]">{victimeData.prenom}</div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Prénom</div>
+                      <div className="text-body text-foreground-tertiary">{victimeData.prenom}</div>
                     </div>
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Sexe</div>
-                      <div className="text-body text-[#44403c]">{victimeData.sexe}</div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Sexe</div>
+                      <div className="text-body text-foreground-tertiary">{victimeData.sexe}</div>
                     </div>
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Date de naissance</div>
-                      <div className="text-body text-[#44403c]">{victimeData.dateNaissance} <span className="text-[#a8a29e]">({calcAge(victimeData.dateNaissance)} ans)</span></div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Date de naissance</div>
+                      <div className="text-body text-foreground-tertiary">{victimeData.dateNaissance} <span className="text-foreground-muted">({calcAge(victimeData.dateNaissance)} ans)</span></div>
                     </div>
                     {victimeData.dateDeces && (
                       <div>
-                        <div className="text-caption text-[#a8a29e] mb-0.5">Date de décès</div>
-                        <div className="text-body text-[#44403c]">{victimeData.dateDeces} <span className="text-[#a8a29e]">({calcAge(victimeData.dateNaissance, victimeData.dateDeces)} ans)</span></div>
+                        <div className="text-caption text-foreground-muted mb-0.5">Date de décès</div>
+                        <div className="text-body text-foreground-tertiary">{victimeData.dateDeces} <span className="text-foreground-muted">({calcAge(victimeData.dateNaissance, victimeData.dateDeces)} ans)</span></div>
                       </div>
                     )}
                   </div>
@@ -9890,38 +9890,38 @@ export default function App() {
               </div>
 
               {/* Infos Accident */}
-              <div className="bg-white rounded-lg border border-[#e7e5e3]/60 shadow-sm">
+              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
                 <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#a8a29e]">
+                  <div className="flex items-center gap-2 text-foreground-muted">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                     </svg>
                     <span className="text-body-medium">Fait générateur</span>
                   </div>
-                  <button onClick={() => setEditPanel({ type: 'fait-generateur', title: 'Fait générateur' })} className="p-1 text-[#d6d3d1] hover:text-[#78716c] hover:bg-[#eeece6] rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
+                  <button onClick={() => setEditPanel({ type: 'fait-generateur', title: 'Fait générateur' })} className="p-1 text-border-strong hover:text-foreground-secondary hover:bg-cream rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
                 </div>
                 <div className="p-4">
                   <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-4">
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Type</div>
-                      <div className="text-body text-[#44403c]">{faitGenerateur.type}</div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Type</div>
+                      <div className="text-body text-foreground-tertiary">{faitGenerateur.type}</div>
                     </div>
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Date de l'accident</div>
-                      <div className="text-body text-[#44403c]">{faitGenerateur.dateAccident}</div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Date de l'accident</div>
+                      <div className="text-body text-foreground-tertiary">{faitGenerateur.dateAccident}</div>
                     </div>
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Première constatation</div>
-                      <div className="text-body text-[#44403c]">{faitGenerateur.datePremiereConstatation}</div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Première constatation</div>
+                      <div className="text-body text-foreground-tertiary">{faitGenerateur.datePremiereConstatation}</div>
                     </div>
                     <div>
-                      <div className="text-caption text-[#a8a29e] mb-0.5">Consolidation</div>
-                      <div className="text-body text-[#44403c]">{faitGenerateur.dateConsolidation}</div>
+                      <div className="text-caption text-foreground-muted mb-0.5">Consolidation</div>
+                      <div className="text-body text-foreground-tertiary">{faitGenerateur.dateConsolidation}</div>
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <div className="text-caption text-[#a8a29e]">Résumé des faits</div>
+                      <div className="text-caption text-foreground-muted">Résumé des faits</div>
                       {!faitGenerateur.resume && (
                         <button
                           onClick={() => fireCanvasPrompt('Complète les informations du dossier', { scenarioKey: 'canvas-dossier-info' })}
@@ -9932,27 +9932,27 @@ export default function App() {
                         </button>
                       )}
                     </div>
-                    <div className="text-body text-[#78716c] leading-relaxed">
-                      {faitGenerateur.resume || <span className="text-[#d6d3d1] italic">Aucun résumé renseigné.</span>}
+                    <div className="text-body text-foreground-secondary leading-relaxed">
+                      {faitGenerateur.resume || <span className="text-border-strong italic">Aucun résumé renseigné.</span>}
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Commentaire d'expertise */}
-              <div className="bg-white rounded-lg border border-[#e7e5e3]/60 shadow-sm">
+              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
                 <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#a8a29e]">
+                  <div className="flex items-center gap-2 text-foreground-muted">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                     </svg>
                     <span className="text-body-medium">Commentaire d'expertise</span>
                   </div>
-                  <button onClick={() => setEditPanel({ type: 'dossier-expertise', title: "Commentaire d'expertise" })} className="p-1 text-[#d6d3d1] hover:text-[#78716c] hover:bg-[#eeece6] rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
+                  <button onClick={() => setEditPanel({ type: 'dossier-expertise', title: "Commentaire d'expertise" })} className="p-1 text-border-strong hover:text-foreground-secondary hover:bg-cream rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
                 </div>
                 <div className="p-4">
-                  <div className="text-body text-[#78716c] leading-relaxed">
-                    {commentaireExpertise || <span className="text-[#d6d3d1] italic">Aucun commentaire d'expertise renseigné.</span>}
+                  <div className="text-body text-foreground-secondary leading-relaxed">
+                    {commentaireExpertise || <span className="text-border-strong italic">Aucun commentaire d'expertise renseigné.</span>}
                   </div>
                   {!commentaireExpertise && (
                     <button
@@ -9971,9 +9971,9 @@ export default function App() {
               </div>
 
               {/* Victimes indirectes */}
-              <div className="bg-white rounded-lg border border-[#e7e5e3]/60 shadow-sm">
+              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
                 <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#a8a29e]">
+                  <div className="flex items-center gap-2 text-foreground-muted">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                     </svg>
@@ -9982,27 +9982,27 @@ export default function App() {
                   {dossierStatut !== 'fermé' && (
                     <button
                       onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Nouvelle victime indirecte', data: null })}
-                      className="flex items-center gap-1 px-2 py-1 text-caption text-[#78716c] hover:bg-[#eeece6] rounded transition-colors"
+                      className="flex items-center gap-1 px-2 py-1 text-caption text-foreground-secondary hover:bg-cream rounded transition-colors"
                     >
                       <Plus className="w-3 h-3" strokeWidth={1.5} />Ajouter
                     </button>
                   )}
                 </div>
                 {victimesIndirectes.length > 0 ? (
-                  <div className="divide-y divide-[#e7e5e3]">
+                  <div className="divide-y divide-border">
                     {victimesIndirectes.map(vi => (
-                      <div key={vi.id} className="flex items-center justify-between p-3 hover:bg-[#fafaf9] group transition-colors">
+                      <div key={vi.id} className="flex items-center justify-between p-3 hover:bg-background group transition-colors">
                         <div className="flex items-center gap-2.5">
                           {viAvatar(vi, 32)}
                           <div>
-                            <div className="text-body text-[#44403c]">{vi.prenom} {vi.nom}</div>
-                            <div className="text-caption text-[#a8a29e]">{vi.lien} • {calcAge(vi.dateNaissance)} ans</div>
+                            <div className="text-body text-foreground-tertiary">{vi.prenom} {vi.nom}</div>
+                            <div className="text-caption text-foreground-muted">{vi.lien} • {calcAge(vi.dateNaissance)} ans</div>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                           <button
                             onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Modifier victime indirecte', data: vi })}
-                            className="p-1 text-[#d6d3d1] hover:text-[#78716c] rounded transition-colors"
+                            className="p-1 text-border-strong hover:text-foreground-secondary rounded transition-colors"
                           >
                             <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
@@ -10027,7 +10027,7 @@ export default function App() {
                                 return next;
                               });
                             }}
-                            className="p-1 text-[#d6d3d1] hover:text-red-500 rounded transition-colors"
+                            className="p-1 text-border-strong hover:text-red-500 rounded transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
@@ -10037,7 +10037,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="p-4 text-center">
-                    <div className="text-body text-[#a8a29e]">Aucune victime indirecte</div>
+                    <div className="text-body text-foreground-muted">Aucune victime indirecte</div>
                   </div>
                 )}
               </div>
@@ -10045,15 +10045,15 @@ export default function App() {
 
             {/* Colonne droite - Encart Chiffrage (sticky) */}
             <div className="col-span-1 sticky top-0">
-              <div className="bg-white rounded-lg border border-[#e7e5e3]/60 shadow-sm">
+              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
                 <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#a8a29e]">
+                  <div className="flex items-center gap-2 text-foreground-muted">
                     <Calculator className="w-4 h-4" strokeWidth={1.5} />
                     <span className="text-body-medium">Chiffrage</span>
                   </div>
                   <button
                     onClick={() => setActiveTab('Chiffrage')}
-                    className="flex items-center gap-1 text-caption text-[#a8a29e] hover:text-[#78716c] transition-colors"
+                    className="flex items-center gap-1 text-caption text-foreground-muted hover:text-foreground-secondary transition-colors"
                   >
                     Voir le détail
                     <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
@@ -10061,8 +10061,8 @@ export default function App() {
                 </div>
                 <div className="p-5">
                   <div className="text-center">
-                    <div className="text-[36px] font-semibold text-[#292524] tabular-nums leading-none">{fmt(totalChiffrage)}</div>
-                    <div className="text-body text-[#a8a29e] mt-1.5">{allPostes.filter(p => !p.disabled).length} postes de préjudice chiffrés</div>
+                    <div className="text-[36px] font-semibold text-foreground tabular-nums leading-none">{fmt(totalChiffrage)}</div>
+                    <div className="text-body text-foreground-muted mt-1.5">{allPostes.filter(p => !p.disabled).length} postes de préjudice chiffrés</div>
                     <button
                       onClick={() => setActiveTab('Chiffrage')}
                       className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 text-white text-body-medium rounded-lg hover:bg-zinc-700 transition-colors"
@@ -10093,18 +10093,18 @@ export default function App() {
           ];
           const currentPhaseIndex = extractionPhases.findIndex(p => p.key === extractionState.phase);
           return (
-            <div className="border border-[#e7e5e3] rounded-xl p-4 mb-6 animate-fade-up" style={{ backgroundColor: '#f8f7f5' }}>
+            <div className="border border-border rounded-xl p-4 mb-6 animate-fade-up" style={{ backgroundColor: '#f8f7f5' }}>
               <div className="flex items-center gap-4">
                 <div className="relative w-10 h-10 flex-shrink-0">
                   <div className="absolute inset-0 rounded-full animate-spin-slow" style={{ background: 'conic-gradient(from 0deg, #71717a, #a1a1aa, #71717a, transparent 70%)' }} />
-                  <div className="absolute inset-[2px] rounded-full bg-[#f8f7f5] flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-[#78716c] animate-pulse" />
+                  <div className="absolute inset-[2px] rounded-full bg-background-canvas flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-foreground-secondary animate-pulse" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-body-medium text-[#292524]">{extractionPhases[currentPhaseIndex]?.label || 'Analyse'} en cours...</span>
-                    <span className="text-caption text-[#a8a29e]">{extractionState.progress}%</span>
+                    <span className="text-body-medium text-foreground">{extractionPhases[currentPhaseIndex]?.label || 'Analyse'} en cours...</span>
+                    <span className="text-caption text-foreground-muted">{extractionState.progress}%</span>
                   </div>
                   <div className="flex items-center gap-1">
                     {extractionPhases.map((phase, i) => {
@@ -10113,8 +10113,8 @@ export default function App() {
                       const isDone = i < currentPhaseIndex;
                       return (
                         <div key={phase.key} className="flex items-center">
-                          <div className={`w-6 h-6 rounded flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-zinc-200' : isActive ? 'bg-zinc-200 scale-110' : 'bg-[#eeece6]'}`}>
-                            {isDone ? <Check className="w-3 h-3 text-[#78716c]" /> : <Icon className={`w-3 h-3 transition-colors duration-300 ${isActive ? 'text-[#44403c]' : 'text-[#a8a29e]'}`} />}
+                          <div className={`w-6 h-6 rounded flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-zinc-200' : isActive ? 'bg-zinc-200 scale-110' : 'bg-cream'}`}>
+                            {isDone ? <Check className="w-3 h-3 text-foreground-secondary" /> : <Icon className={`w-3 h-3 transition-colors duration-300 ${isActive ? 'text-foreground-tertiary' : 'text-foreground-muted'}`} />}
                           </div>
                           {i < extractionPhases.length - 1 && <div className={`w-2 h-0.5 mx-0.5 transition-colors duration-500 ${isDone ? 'bg-zinc-400' : 'bg-zinc-200'}`} />}
                         </div>
@@ -10122,8 +10122,8 @@ export default function App() {
                     })}
                   </div>
                 </div>
-                <div className="w-24 h-1.5 bg-[#eeece6] rounded-full overflow-hidden flex-shrink-0">
-                  <div className="h-full bg-[#a8a29e] rounded-full transition-all duration-700 ease-out" style={{ width: `${extractionState.progress}%` }} />
+                <div className="w-24 h-1.5 bg-cream rounded-full overflow-hidden flex-shrink-0">
+                  <div className="h-full bg-foreground-muted rounded-full transition-all duration-700 ease-out" style={{ width: `${extractionState.progress}%` }} />
                 </div>
               </div>
             </div>
@@ -10172,18 +10172,18 @@ export default function App() {
         // Reusable subtotal/total card component
         // rows: [{ label, amount, muted?, negative? }], totalRow: { label, amount }
         const renderTotalCard = (rows, totalRow) => (
-          <div className="border border-[#e7e5e3] rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+          <div className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
             {rows.map((row, i) => (
-              <div key={i} className={`flex items-center justify-between h-9 px-4 bg-white ${i > 0 ? 'border-t border-[#e7e5e3]' : ''}`}>
+              <div key={i} className={`flex items-center justify-between h-9 px-4 bg-white ${i > 0 ? 'border-t border-border' : ''}`}>
                 <span style={{ fontSize: 13, fontWeight: 400, color: row.muted ? '#a8a29e' : '#78716c' }}>{row.label}</span>
                 <span style={{ fontSize: 14, fontWeight: row.muted ? 400 : 500, color: row.muted ? '#a8a29e' : '#292524' }}>
                   {row.muted && row.amount === 0 ? '—' : `${row.negative ? '- ' : ''}${fmt(row.amount)}`}
                 </span>
               </div>
             ))}
-            <div className="flex items-center justify-between h-11 px-4 border-t border-[#e7e5e3]" style={{ backgroundColor: '#eeece6' }}>
+            <div className="flex items-center justify-between h-11 px-4 border-t border-border" style={{ backgroundColor: '#eeece6' }}>
               <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{totalRow.label}</span>
-              <span style={serifAmountStyle} className="text-[#292524]">{fmt(totalRow.amount)}</span>
+              <span style={serifAmountStyle} className="text-foreground">{fmt(totalRow.amount)}</span>
             </div>
           </div>
         );
@@ -10201,7 +10201,7 @@ export default function App() {
                 ...(totalIv > 0 ? [{ label: 'VI', amount: totalIv }] : []),
                 { label: 'TP', amount: totalTiers, muted: totalTiers === 0 },
               ].map((item, i) => (
-                <div key={i} className="h-8 px-2.5 flex items-center gap-1.5 border border-[#e7e5e3] rounded-lg whitespace-nowrap cursor-default">
+                <div key={i} className="h-8 px-2.5 flex items-center gap-1.5 border border-border rounded-lg whitespace-nowrap cursor-default">
                   <span style={{ fontSize: 11, fontWeight: 400, color: item.muted ? '#a8a29e' : '#78716c', letterSpacing: 0.1, lineHeight: '16px' }}>{item.label}</span>
                   <span style={{ fontSize: 13, fontWeight: 500, color: item.muted ? '#a8a29e' : '#292524', lineHeight: '18px' }}>
                     {item.muted && item.amount === 0 ? '—' : `${item.negative ? '− ' : ''}${fmt(item.amount)}`}
@@ -10209,7 +10209,7 @@ export default function App() {
                 </div>
               ))}
               {/* Total pill - cream bg, prominent */}
-              <div className="h-8 px-2.5 flex items-center gap-1.5 border border-[#e7e5e3] rounded-lg whitespace-nowrap cursor-default" style={{ backgroundColor: '#eeece6' }}>
+              <div className="h-8 px-2.5 flex items-center gap-1.5 border border-border rounded-lg whitespace-nowrap cursor-default" style={{ backgroundColor: '#eeece6' }}>
                 <span style={{ fontSize: 11, fontWeight: 500, color: '#292524', letterSpacing: 0.1, lineHeight: '16px' }}>Indemnisation totale</span>
                 <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{fmt(totalIndem)}</span>
               </div>
@@ -10217,10 +10217,10 @@ export default function App() {
               {dossierStatut !== 'fermé' && (
                 <>
                   <button
-                    className="h-9 px-3 flex items-center gap-2 border border-[#d6d3d1] rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors"
+                    className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors"
                     style={{ fontSize: 14, fontWeight: 500, color: '#44403c' }}
                   >
-                    <Download className="w-3.5 h-3.5 text-[#78716c]" />
+                    <Download className="w-3.5 h-3.5 text-foreground-secondary" />
                     Exporter
                   </button>
                   <button
@@ -10253,9 +10253,9 @@ export default function App() {
                   </div>
                   <div className="space-y-4">
                     {vdCategories.map((cat) => (
-                      <div key={cat.id} className="border border-[#e7e5e3] rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                      <div key={cat.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                         {/* RowCalculation Header/Direct - category label + column headers */}
-                        <div className="h-10 px-4 flex items-center border-b border-[#e7e5e3]" style={{ backgroundColor: '#f8f7f5' }}>
+                        <div className="h-10 px-4 flex items-center border-b border-border" style={{ backgroundColor: '#f8f7f5' }}>
                           <div className="flex-1">
                             <span style={colHeaderStyle}>{cat.title}</span>
                           </div>
@@ -10276,7 +10276,7 @@ export default function App() {
                               key={p.id}
                               data-entity-id={p.id}
                               onClick={() => navigateTo(p)}
-                              className={`w-full flex items-center h-14 bg-white hover:bg-[#fafaf9] transition-colors group ${!isLast ? 'border-b border-[#e7e5e3]' : ''}`}
+                              className={`w-full flex items-center h-14 bg-white hover:bg-background transition-colors group ${!isLast ? 'border-b border-border' : ''}`}
                             >
                               {/* Acronym cell */}
                               <div className="w-16 px-4 flex items-center">
@@ -10304,7 +10304,7 @@ export default function App() {
                               </div>
                               {/* Actions cell */}
                               <div className="w-11 flex items-center justify-center flex-shrink-0 pl-3 pr-4">
-                                <MoreVertical className="w-4 h-4 text-[#a8a29e] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <MoreVertical className="w-4 h-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                               </div>
                             </button>
                           );
@@ -10321,13 +10321,13 @@ export default function App() {
                   <div className="flex items-center justify-between px-1.5">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#eeece6' }}>
-                        <svg className="w-4 h-4 text-[#78716c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <svg className="w-4 h-4 text-foreground-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                         </svg>
                       </div>
                       <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', lineHeight: '1' }}>Victime indirectes</span>
                       {victimesIndirectes.length > 0 && (
-                        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full border border-[#e7e5e3]" style={{ fontSize: 12, fontWeight: 500, color: '#292524' }}>
+                        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full border border-border" style={{ fontSize: 12, fontWeight: 500, color: '#292524' }}>
                           {victimesIndirectes.length}
                         </span>
                       )}
@@ -10362,9 +10362,9 @@ export default function App() {
                       {ivViewMode === 'poste' && (
                         <div className="space-y-4">
                           {ivCategories.map(cat => (
-                            <div key={cat.id} className="border border-[#e7e5e3] rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                            <div key={cat.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                               {/* RowCalculation Header/Direct - category label + column headers */}
-                              <div className="h-10 px-4 flex items-center border-b border-[#e7e5e3]" style={{ backgroundColor: '#f8f7f5' }}>
+                              <div className="h-10 px-4 flex items-center border-b border-border" style={{ backgroundColor: '#f8f7f5' }}>
                                 <span style={colHeaderStyle}>{cat.title}</span>
                               </div>
                               {cat.postes.map((p, pIdx) => {
@@ -10374,14 +10374,14 @@ export default function App() {
                                   <div key={p.id}>
                                     <div
                                       data-entity-id={p.id}
-                                      className={`w-full flex items-center h-14 bg-white hover:bg-[#fafaf9] transition-colors group ${!isLast && !isExpanded ? 'border-b border-[#e7e5e3]' : ''}`}
+                                      className={`w-full flex items-center h-14 bg-white hover:bg-background transition-colors group ${!isLast && !isExpanded ? 'border-b border-border' : ''}`}
                                     >
                                       {/* Chevron cell */}
                                       <button
                                         onClick={(e) => { e.stopPropagation(); setIvOverviewExpanded(prev => ({ ...prev, [p.id]: !prev[p.id] })); }}
-                                        className="pl-4 pr-3 h-14 flex items-center justify-center hover:bg-[#f5f5f4] transition-colors rounded-l-xl"
+                                        className="pl-4 pr-3 h-14 flex items-center justify-center hover:bg-background-subtle transition-colors rounded-l-xl"
                                       >
-                                        <ChevronRight className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform ${isExpanded ? 'rotate-90' : ''}`} strokeWidth={2} />
+                                        <ChevronRight className={`w-3.5 h-3.5 text-foreground-muted transition-transform ${isExpanded ? 'rotate-90' : ''}`} strokeWidth={2} />
                                       </button>
                                       <button
                                         onClick={() => navigateTo({ ...p, type: 'poste-iv' })}
@@ -10404,11 +10404,11 @@ export default function App() {
                                       </button>
                                       {/* Actions cell */}
                                       <div className="w-11 flex items-center justify-center flex-shrink-0 pl-3 pr-4">
-                                        <MoreVertical className="w-4 h-4 text-[#a8a29e] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <MoreVertical className="w-4 h-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                                       </div>
                                     </div>
                                     {isExpanded && (
-                                      <div className={`bg-[#f8f7f5] ${!isLast ? 'border-b border-[#e7e5e3]' : ''}`}>
+                                      <div className={`bg-background-canvas ${!isLast ? 'border-b border-border' : ''}`}>
                                         {victimesIndirectes.map((vi, viIdx) => {
                                           const viLigne = (ivPosteData[p.id]?.lignes || []).find(l => l.victimeId === vi.id);
                                           const viMontant = viLigne?.montant || 0;
@@ -10417,7 +10417,7 @@ export default function App() {
                                             <button
                                               key={vi.id}
                                               onClick={() => navigateTo({ ...p, type: 'poste-iv' })}
-                                              className={`w-full flex items-center h-14 hover:bg-[#f5f5f4]/80 transition-colors ${!isLastVi ? 'border-b border-[#e7e5e3]' : ''}`}
+                                              className={`w-full flex items-center h-14 hover:bg-background-subtle/80 transition-colors ${!isLastVi ? 'border-b border-border' : ''}`}
                                             >
                                               {/* Indent spacers to match RowCalculation Subline */}
                                               <div className="w-[42px] flex-shrink-0" />
@@ -10434,7 +10434,7 @@ export default function App() {
                                                 )}
                                               </div>
                                               <div className="w-11 flex items-center justify-center flex-shrink-0">
-                                                <MoreVertical className="w-4 h-4 text-[#a8a29e] opacity-0 group-hover:opacity-100" />
+                                                <MoreVertical className="w-4 h-4 text-foreground-muted opacity-0 group-hover:opacity-100" />
                                               </div>
                                             </button>
                                           );
@@ -10455,8 +10455,8 @@ export default function App() {
                           {victimesIndirectes.map(vi => {
                             const viTotal = getIvVictimeTotal(vi.id);
                             return (
-                              <div key={vi.id} className="border border-[#e7e5e3] rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-                                <div className="px-4 py-3 flex items-center justify-between border-b border-[#e7e5e3]" style={{ backgroundColor: '#f8f7f5' }}>
+                              <div key={vi.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                                <div className="px-4 py-3 flex items-center justify-between border-b border-border" style={{ backgroundColor: '#f8f7f5' }}>
                                   <div className="flex items-center gap-3">
                                     {viAvatar(vi, 32)}
                                     <div className="flex items-center gap-3">
@@ -10464,7 +10464,7 @@ export default function App() {
                                       <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px' }}>{vi.lien} {vi.dateNaissance ? `\u2022 ${calcAge(vi.dateNaissance)} ans` : ''}</span>
                                     </div>
                                   </div>
-                                  <span style={serifAmountStyle} className="text-[#292524]">{fmt(viTotal)}</span>
+                                  <span style={serifAmountStyle} className="text-foreground">{fmt(viTotal)}</span>
                                 </div>
                                 {ivDossierPostes.map((pid, pIdx) => {
                                   const taxo = allTaxoPostes.find(t => t.id === pid);
@@ -10476,7 +10476,7 @@ export default function App() {
                                     <button
                                       key={pid}
                                       onClick={() => navigateTo({ id: pid, type: 'poste-iv', title: taxo.acronym || pid.toUpperCase(), fullTitle: taxo.label })}
-                                      className={`w-full flex items-center h-14 bg-white hover:bg-[#fafaf9] transition-colors group ${!isLast ? 'border-b border-[#e7e5e3]' : ''}`}
+                                      className={`w-full flex items-center h-14 bg-white hover:bg-background transition-colors group ${!isLast ? 'border-b border-border' : ''}`}
                                     >
                                       {/* Acronym cell */}
                                       <div className="w-16 pl-4 flex items-center">
@@ -10494,7 +10494,7 @@ export default function App() {
                                       </div>
                                       {/* Actions cell */}
                                       <div className="w-11 flex items-center justify-center flex-shrink-0 pl-3 pr-4">
-                                        <MoreVertical className="w-4 h-4 text-[#a8a29e] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <MoreVertical className="w-4 h-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                                       </div>
                                     </button>
                                   );
@@ -10506,8 +10506,8 @@ export default function App() {
                       )}
                     </>
                   ) : (
-                    <div className="border border-dashed border-[#e7e5e3] rounded-xl p-6 text-center">
-                      <span className="text-body text-[#a8a29e]">{victimesIndirectes.length > 0 ? 'Aucun poste ajouté' : 'Aucune victime indirecte déclarée'}</span>
+                    <div className="border border-dashed border-border rounded-xl p-6 text-center">
+                      <span className="text-body text-foreground-muted">{victimesIndirectes.length > 0 ? 'Aucun poste ajouté' : 'Aucune victime indirecte déclarée'}</span>
                     </div>
                   )}
                 </div>
@@ -10517,7 +10517,7 @@ export default function App() {
 
             {/* Global total - the final answer */}
             {(totalVd > 0 || totalIv > 0) && (
-              <div className="border-t-2 border-[#d6d3d1] pt-6">
+              <div className="border-t-2 border-border-strong pt-6">
                 <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#292524', boxShadow: '0px 2px 8px 0px rgba(26,26,26,0.12)' }}>
                   {/* Breakdown rows */}
                   <div className="px-5 pt-4 pb-2 space-y-1">
@@ -10545,7 +10545,7 @@ export default function App() {
                     )}
                   </div>
                   {/* Total row */}
-                  <div className="flex items-center justify-between px-5 py-4 border-t border-[#44403c]">
+                  <div className="flex items-center justify-between px-5 py-4 border-t border-foreground-tertiary">
                     <span style={{ fontSize: 14, fontWeight: 500, color: '#fafaf9', letterSpacing: '0.01em' }}>Indemnisation totale</span>
                     <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 22, letterSpacing: '-0.5px', fontWeight: 400, color: '#fafaf9' }}>{fmt(totalIndem)}</span>
                   </div>
@@ -10562,13 +10562,13 @@ export default function App() {
                   <div className="flex items-center gap-1 px-4 pt-3 pb-2 border-b border-stone-100">
                     <button
                       onClick={() => setPosteSearchVictimeFilter(null)}
-                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === null ? 'bg-[#292524] text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === null ? 'bg-foreground text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
                     >
                       Victime directe
                     </button>
                     <button
                       onClick={() => setPosteSearchVictimeFilter('iv')}
-                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === 'iv' ? 'bg-[#292524] text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === 'iv' ? 'bg-foreground text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
                     >
                       Victimes indirectes
                     </button>
@@ -10669,39 +10669,39 @@ export default function App() {
                 <div className="relative w-full max-w-md bg-white shadow-xl flex flex-col">
                   <div className="flex items-center justify-between px-5 py-3 border-b">
                     <h2 className="text-body-medium font-semibold">Paramètres du chiffrage</h2>
-                    <button onClick={() => setShowChiffrageParams(false)} className="p-1 hover:bg-[#F8F7F5] rounded"><X className="w-4 h-4" /></button>
+                    <button onClick={() => setShowChiffrageParams(false)} className="p-1 hover:bg-background-canvas rounded"><X className="w-4 h-4" /></button>
                   </div>
                   <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     <div>
                       <div className="flex items-center gap-2 mb-4">
-                        <h3 className="font-semibold text-[#292524]">Fraction indemnisable des préjudices</h3>
-                        <button className="text-[#a8a29e] hover:text-[#78716c]"><HelpCircle className="w-4 h-4" /></button>
+                        <h3 className="font-semibold text-foreground">Fraction indemnisable des préjudices</h3>
+                        <button className="text-foreground-muted hover:text-foreground-secondary"><HelpCircle className="w-4 h-4" /></button>
                       </div>
                       <div className="space-y-3">
                         <input type="range" min="0" max="100" value={chiffrageParams.fractionIndemnisable}
                           onChange={(e) => setChiffrageParams(prev => ({ ...prev, fractionIndemnisable: parseInt(e.target.value) }))} className="w-full" />
-                        <div className="flex items-center justify-between text-caption text-[#78716c]">
+                        <div className="flex items-center justify-between text-caption text-foreground-secondary">
                           <span>0</span><span>1/4</span><span>1/3</span><span>1/2</span><span>2/3</span><span>3/4</span><span>1</span>
                         </div>
                         <div className="flex justify-end"><div className="px-3 py-1.5 border rounded-lg text-body-medium">{chiffrageParams.fractionIndemnisable} %</div></div>
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-[#292524] mb-4">Tiers payeurs</h3>
+                      <h3 className="font-semibold text-foreground mb-4">Tiers payeurs</h3>
                       <div className="space-y-2">
                         {chiffrageParams.tiersPayeurs.map((tiers, idx) => (
                           <div key={idx} className="flex items-center gap-2">
-                            <label className="text-caption text-[#78716c] w-12">Nom *</label>
+                            <label className="text-caption text-foreground-secondary w-12">Nom *</label>
                             <input type="text" value={tiers} onChange={(e) => { const newTiers = [...chiffrageParams.tiersPayeurs]; newTiers[idx] = e.target.value; setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="flex-1 px-3 py-2 border rounded-lg text-body" />
-                            <button onClick={() => { const newTiers = chiffrageParams.tiersPayeurs.filter((_, i) => i !== idx); setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="p-2 text-[#a8a29e] hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                            <button onClick={() => { const newTiers = chiffrageParams.tiersPayeurs.filter((_, i) => i !== idx); setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="p-2 text-foreground-muted hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         ))}
-                        <button onClick={() => setChiffrageParams(prev => ({ ...prev, tiersPayeurs: [...prev.tiersPayeurs, ''] }))} className="text-body text-blue-600 hover:text-[#1e3a8a] font-medium">+ Ajouter un tiers payeur</button>
+                        <button onClick={() => setChiffrageParams(prev => ({ ...prev, tiersPayeurs: [...prev.tiersPayeurs, ''] }))} className="text-body text-blue-600 hover:text-link font-medium">+ Ajouter un tiers payeur</button>
                       </div>
                     </div>
                   </div>
                   <div className="px-5 py-3 border-t flex justify-end gap-2">
-                    <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body text-[#78716c] hover:bg-[#F8F7F5] rounded-lg">Fermer</button>
+                    <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body text-foreground-secondary hover:bg-background-canvas rounded-lg">Fermer</button>
                     <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Enregistrer</button>
                   </div>
                 </div>
@@ -10810,7 +10810,7 @@ export default function App() {
           <div className="flex-1 overflow-y-auto" style={{ backgroundColor: '#F8F7F5' }}>
             {/* Header band (Figma 36770:53805) - flush, side-to-side, on the cream canvas */}
             <div
-              className="border-b border-[#e7e5e3] flex items-center gap-3"
+              className="border-b border-border flex items-center gap-3"
               style={{ padding: '13px 16px' }}
             >
               <h2 className="flex-1 min-w-0" style={{
@@ -10893,15 +10893,15 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
 
           {/* Param chips block */}
           <div className={cardBlockClass}>
             <div className="flex items-center gap-3 px-4 h-[52px]">
-              <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+              <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
               </div>
               {renderParamPill({
                 paramKey: 'revaloriser',
@@ -10912,15 +10912,15 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'revaloriser' && (
-              <div className="px-4 py-3 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                 <div className="flex items-center gap-3">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-[#d6d3d1] peer-checked:bg-[#292524] rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
-                  <div className="w-px h-4 bg-[#e7e5e3]" />
-                  <span className="text-xs font-medium text-[#78716c]">Indice</span>
-                  <select className="text-xs font-medium text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-2.5 py-1.5">
+                  <div className="w-px h-4 bg-border" />
+                  <span className="text-xs font-medium text-foreground-secondary">Indice</span>
+                  <select className="text-xs font-medium text-foreground bg-white border border-border rounded-lg px-2.5 py-1.5">
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
@@ -10932,12 +10932,12 @@ export default function App() {
           {/* Card Block: Dépenses de santé */}
           <div className={cardBlockClass}>
             {/* Title Row */}
-            <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3]">
+            <div className="flex items-center justify-between h-12 px-4 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                  <Receipt className="w-3.5 h-3.5 text-[#78716c]" />
+                <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                  <Receipt className="w-3.5 h-3.5 text-foreground-secondary" />
                 </div>
-                <span className="text-[14px] font-medium text-[#292524]">Dépenses de santé actuelles</span>
+                <span className="text-[14px] font-medium text-foreground">Dépenses de santé actuelles</span>
               </div>
             </div>
             {/* Header - dashed drop zone + buttons */}
@@ -10945,42 +10945,42 @@ export default function App() {
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleUploadFiles(e.dataTransfer.files, 'dsa'); }}
-              className="flex items-center gap-4 p-4 border-b border-[#e7e5e3] bg-white"
+              className="flex items-center gap-4 p-4 border-b border-border bg-white"
             >
-              <div className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 h-9 border border-dashed rounded-lg transition-colors ${isDragging ? 'border-[#a8a29e] bg-[#f5f5f4]' : 'border-[#d6d3d1]'}`}>
+              <div className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 h-9 border border-dashed rounded-lg transition-colors ${isDragging ? 'border-foreground-muted bg-background-subtle' : 'border-border-strong'}`}>
                 {isDragging ? (
-                  <><ArrowDown className="w-4 h-4 text-[#78716c] flex-shrink-0" /><span className="text-body text-[#44403c]">Déposez vos documents ici</span></>
+                  <><ArrowDown className="w-4 h-4 text-foreground-secondary flex-shrink-0" /><span className="text-body text-foreground-tertiary">Déposez vos documents ici</span></>
                 ) : (
-                  <><Upload className="w-4 h-4 text-[#78716c] flex-shrink-0" /><span className="text-body text-[#78716c]">Déposez ou <span className="text-body-medium text-[#1e3a8a] cursor-pointer" onClick={() => document.getElementById('dsa-header-upload')?.click()}>cliquez</span> pour ajouter un justificatif</span></>
+                  <><Upload className="w-4 h-4 text-foreground-secondary flex-shrink-0" /><span className="text-body text-foreground-secondary">Déposez ou <span className="text-body-medium text-link cursor-pointer" onClick={() => document.getElementById('dsa-header-upload')?.click()}>cliquez</span> pour ajouter un justificatif</span></>
                 )}
                 <input type="file" id="dsa-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dsa'); e.target.value = ''; } }} />
               </div>
               {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                <button onClick={() => setPickerOpen('dsa')} className="flex items-center gap-2 px-4 h-9 bg-[#eeece6] text-[#44403c] text-body-medium rounded-lg hover:bg-[#e7e5e3] transition-colors flex-shrink-0">
+                <button onClick={() => setPickerOpen('dsa')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
                   Extraire depuis un doc. existant
                   <ChevronDown className="w-4 h-4" />
                 </button>
               )}
-              <button onClick={() => handleAddManual('dsa')} className="flex items-center gap-2 text-body-medium text-[#1e3a8a] flex-shrink-0 whitespace-nowrap">
+              <button onClick={() => handleAddManual('dsa')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
                 <Plus className="w-4 h-4" /> Ajouter une dépense
               </button>
             </div>
 
             {/* Extraction progress row */}
             {posteExtracting && posteExtracting.posteType === 'dsa' && (
-              <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#e7e5e3]" style={{ background: 'linear-gradient(to right, #f8f7f5, white 15%)' }}>
+              <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: 'linear-gradient(to right, #f8f7f5, white 15%)' }}>
                 <div className="flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 text-[#292524] animate-spin" />
+                  <Loader2 className="w-5 h-5 text-foreground animate-spin" />
                   <div className="flex items-baseline gap-2">
-                    <span className="text-body-medium text-[#292524]">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
-                    <span className="text-caption text-[#78716c]">Extraction en cours…</span>
+                    <span className="text-body-medium text-foreground">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
+                    <span className="text-caption text-foreground-secondary">Extraction en cours…</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-[70px] h-1 bg-[#eeece6] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#292524] rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
+                  <div className="w-[70px] h-1 bg-cream rounded-full overflow-hidden">
+                    <div className="h-full bg-foreground rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
                   </div>
-                  <span className="text-counter text-[#78716c]">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
+                  <span className="text-counter text-foreground-secondary">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
                 </div>
               </div>
             )}
@@ -10988,7 +10988,7 @@ export default function App() {
             {/* Header table */}
             {allLignes.length > 0 && (
               <>
-                <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+                <div className="flex items-center h-10 border-b border-border bg-white">
                   <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                   <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                   <div className="flex-1 min-w-0 px-3 text-right" style={colHeaderStyle}>Date</div>
@@ -11004,28 +11004,28 @@ export default function App() {
                     <div
                       key={l.id}
                       onClick={() => openDsaEditPanel(l)}
-                      className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                      className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
                     >
                       {/* Doc indicator */}
                       <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                         {pieceCount > 0 ? (
                           <div className="relative group/piece">
-                            <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative">
-                              <FileText className="w-4 h-4 text-[#2563eb]" />
-                              <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#1e3a8a] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>
+                            <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
+                              <FileText className="w-4 h-4 text-info" />
+                              <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>
                             </span>
-                            <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-[#e7e5e3] rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
-                              <div className="text-counter text-[#78716c] uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
+                            <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+                              <div className="text-counter text-foreground-secondary uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
                               <div className="space-y-1">
                                 {l.pieceIds?.map(pid => {
                                   const piece = getPiece(pid);
-                                  return <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-blue-100 text-[#1e3a8a] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-[#292524]">{piece?.intitule || piece?.nom || 'Document'}</span></div>;
+                                  return <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-foreground">{piece?.intitule || piece?.nom || 'Document'}</span></div>;
                                 })}
                               </div>
                             </div>
                           </div>
                         ) : (
-                          <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]">
+                          <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border">
                             <FileText className="w-3.5 h-3.5" />
                           </span>
                         )}
@@ -11070,7 +11070,7 @@ export default function App() {
 
             {/* Table footer total */}
             {allLignes.length > 0 && (
-              <div className="border-t border-[#e7e5e3] bg-[#fafaf9]">
+              <div className="border-t border-border bg-background">
                 <div className="flex items-center h-10">
                   <div className="w-[52px] flex-shrink-0 pl-3" />
                   <div className="flex-1 min-w-0 px-3">
@@ -11120,7 +11120,7 @@ export default function App() {
           </div>{/* end CALCUL section */}
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -11144,18 +11144,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes.dsa || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, dsa: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -11184,15 +11184,15 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
 
           {/* Param chips card block */}
           <div className={cardBlockClass}>
             <div className="flex items-center gap-3 px-4 h-[52px]">
-              <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+              <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
               </div>
               {renderParamPill({
                 paramKey: 'revaloriser-pgpa',
@@ -11203,15 +11203,15 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'revaloriser-pgpa' && (
-              <div className="px-4 py-3 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                 <div className="flex items-center gap-3">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-[#d6d3d1] peer-checked:bg-[#292524] rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
-                  <div className="w-px h-4 bg-[#e7e5e3]" />
-                  <span className="text-xs font-medium text-[#78716c]">Indice</span>
-                  <select className="text-xs font-medium text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-2.5 py-1.5">
+                  <div className="w-px h-4 bg-border" />
+                  <span className="text-xs font-medium text-foreground-secondary">Indice</span>
+                  <select className="text-xs font-medium text-foreground bg-white border border-border rounded-lg px-2.5 py-1.5">
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                     <option>SMIC Horaire</option>
@@ -11223,19 +11223,19 @@ export default function App() {
 
           {/* Card: Revenu de référence */}
           <div className={cardBlockClass}>
-            <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard('pgpa-revenu-ref')}>
+            <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard('pgpa-revenu-ref')}>
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                  <Calculator className="w-3.5 h-3.5 text-[#78716c]" />
+                <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                  <Calculator className="w-3.5 h-3.5 text-foreground-secondary" />
                 </div>
-                <span className="text-[14px] font-medium text-[#292524]">Revenu de référence</span>
+                <span className="text-[14px] font-medium text-foreground">Revenu de référence</span>
               </div>
-              {isIvCardExpanded('pgpa-revenu-ref') ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+              {isIvCardExpanded('pgpa-revenu-ref') ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
             </div>
             {isIvCardExpanded('pgpa-revenu-ref') && <>
             {/* Column headers */}
             {allRevenuRefLignes.length > 0 && (
-              <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+              <div className="flex items-center h-10 border-b border-border bg-white">
                 <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                 <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                 <div className="w-[160px] px-3 flex-shrink-0" style={colHeaderStyle}>Période</div>
@@ -11247,33 +11247,33 @@ export default function App() {
               const pieceCount = l.pieceIds?.length || 0;
               return (
                 <div key={l.id} onClick={() => { setEditingPieceIds(l.pieceIds || []); setSearchPiecesPanel(''); setEditPanel({ type: 'pgpa-revenu', title: 'Éditer le revenu', data: l }); }}
-                  className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                  className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
                   >
                   <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                     {pieceCount > 0 ? (
-                      <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative">
-                        <FileText className="w-4 h-4 text-[#2563eb]" />
-                        {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#2563eb] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
+                      <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
+                        <FileText className="w-4 h-4 text-info" />
+                        {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-info text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]"><FileText className="w-3.5 h-3.5" /></span>
+                      <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border"><FileText className="w-3.5 h-3.5" /></span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0 px-3">
-                    <span className="text-body-medium truncate block text-[#292524]">{l.label || l.annee || 'Sans libellé'}</span>
+                    <span className="text-body-medium truncate block text-foreground">{l.label || l.annee || 'Sans libellé'}</span>
                   </div>
                   <div className="w-[160px] px-3 flex-shrink-0">
-                    <span className="text-body text-[#78716c]">{l.periodeDebut ? `${l.periodeDebut} → ${l.periodeFin}` : l.annee || '—'}</span>
+                    <span className="text-body text-foreground-secondary">{l.periodeDebut ? `${l.periodeDebut} → ${l.periodeFin}` : l.annee || '—'}</span>
                   </div>
                   <div className="w-[200px] px-3 text-right flex-shrink-0">
-                    <span className="text-body-medium font-semibold tabular-nums text-[#292524]">{fmt(l.revalorise || l.montant || 0)}</span>
+                    <span className="text-body-medium font-semibold tabular-nums text-foreground">{fmt(l.revalorise || l.montant || 0)}</span>
                   </div>
                 </div>
               );
             })}
             {/* Table footer total */}
             {allRevenuRefLignes.length > 0 && (
-              <div className="flex items-center h-10 border-t border-[#e7e5e3] bg-[#fafaf9]">
+              <div className="flex items-center h-10 border-t border-border bg-background">
                 <div className="w-[52px] flex-shrink-0 pl-3" />
                 <div className="flex-1 min-w-0 px-3">
                   <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total</span>
@@ -11284,8 +11284,8 @@ export default function App() {
                 </div>
               </div>
             )}
-            <div className="flex items-center justify-center h-[44px] border-t border-[#e7e5e3] bg-white">
-              <button onClick={() => handleAddManual('pgpa-revenu-ref')} className="flex items-center gap-2 text-body-medium text-[#1e3a8a]">
+            <div className="flex items-center justify-center h-[44px] border-t border-border bg-white">
+              <button onClick={() => handleAddManual('pgpa-revenu-ref')} className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une ligne
               </button>
             </div>
@@ -11294,14 +11294,14 @@ export default function App() {
 
           {/* Card: Revenus perçus */}
           <div className={cardBlockClass}>
-            <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard('pgpa-revenus-percus')}>
+            <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard('pgpa-revenus-percus')}>
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                  <Receipt className="w-3.5 h-3.5 text-[#78716c]" />
+                <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                  <Receipt className="w-3.5 h-3.5 text-foreground-secondary" />
                 </div>
-                <span className="text-[14px] font-medium text-[#292524]">Revenus perçus</span>
+                <span className="text-[14px] font-medium text-foreground">Revenus perçus</span>
               </div>
-              {isIvCardExpanded('pgpa-revenus-percus') ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+              {isIvCardExpanded('pgpa-revenus-percus') ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
             </div>
             {isIvCardExpanded('pgpa-revenus-percus') && <>
             {/* Column headers */}
@@ -11326,7 +11326,7 @@ export default function App() {
               return (
                 <>
                   {mergedRevenusPercus.length > 0 && (
-                    <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+                    <div className="flex items-center h-10 border-b border-border bg-white">
                       <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                       <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                       {hasBadges && <div className="w-[120px] px-3 flex-shrink-0" style={colHeaderStyle}>Tiers payeur</div>}
@@ -11339,19 +11339,19 @@ export default function App() {
                     const badge = pgpaBadges[l.id];
                     return (
                       <div key={l.id} onClick={() => { if (!l._isIJ) { setEditingPieceIds(l.pieceIds || []); setSearchPiecesPanel(''); setEditPanel({ type: 'pgpa-revenu-percu', title: 'Éditer le revenu perçu', data: l }); } }}
-                        className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                        className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                         <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                           {pieceCount > 0 ? (
-                            <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative">
-                              <FileText className="w-4 h-4 text-[#2563eb]" />
-                              {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#2563eb] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
+                            <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
+                              <FileText className="w-4 h-4 text-info" />
+                              {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-info text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]"><FileText className="w-3.5 h-3.5" /></span>
+                            <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border"><FileText className="w-3.5 h-3.5" /></span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0 px-3">
-                          <span className="text-body-medium truncate block text-[#292524]">{l.label || 'Sans libellé'}</span>
+                          <span className="text-body-medium truncate block text-foreground">{l.label || 'Sans libellé'}</span>
                         </div>
                         {hasBadges && (
                           <div className="w-[120px] px-3 flex-shrink-0">
@@ -11363,16 +11363,16 @@ export default function App() {
                           </div>
                         )}
                         <div className="w-[160px] px-3 flex-shrink-0">
-                          <span className="text-body text-[#78716c]">{l.periodeDebut} {'\u2192'} {l.periodeFin}</span>
+                          <span className="text-body text-foreground-secondary">{l.periodeDebut} {'\u2192'} {l.periodeFin}</span>
                         </div>
                         <div className="w-[200px] px-3 text-right flex-shrink-0">
-                          <span className="text-body-medium text-[#292524] font-semibold tabular-nums">{fmt(l.montant)}</span>
+                          <span className="text-body-medium text-foreground font-semibold tabular-nums">{fmt(l.montant)}</span>
                         </div>
                       </div>
                     );
                   })}
                   {mergedRevenusPercus.length > 0 && (
-                    <div className="flex items-center h-10 border-t border-[#e7e5e3] bg-[#fafaf9]">
+                    <div className="flex items-center h-10 border-t border-border bg-background">
                       <div className="w-[52px] flex-shrink-0 pl-3" />
                       <div className="flex-1 min-w-0 px-3">
                         <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total</span>
@@ -11387,8 +11387,8 @@ export default function App() {
                 </>
               );
             })()}
-            <div className="flex items-center justify-center h-[44px] border-t border-[#e7e5e3] bg-white">
-              <button onClick={() => handleAddManual('pgpa-revenu-percu')} className="flex items-center gap-2 text-body-medium text-[#1e3a8a]">
+            <div className="flex items-center justify-center h-[44px] border-t border-border bg-white">
+              <button onClick={() => handleAddManual('pgpa-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une ligne
               </button>
             </div>
@@ -11397,18 +11397,18 @@ export default function App() {
 
           {/* Card: Perte de chance */}
           <div className={cardBlockClass}>
-            <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard('pgpa-perte-chance')}>
+            <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard('pgpa-perte-chance')}>
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                  <Activity className="w-3.5 h-3.5 text-[#78716c]" />
+                <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                  <Activity className="w-3.5 h-3.5 text-foreground-secondary" />
                 </div>
-                <span className="text-[14px] font-medium text-[#292524]">Perte de chance</span>
+                <span className="text-[14px] font-medium text-foreground">Perte de chance</span>
               </div>
-              {isIvCardExpanded('pgpa-perte-chance') ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+              {isIvCardExpanded('pgpa-perte-chance') ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
             </div>
             {isIvCardExpanded('pgpa-perte-chance') && <>
             {/* Column headers */}
-            <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+            <div className="flex items-center h-10 border-b border-border bg-white">
               <div className="w-12 flex-shrink-0"></div>
               <div className="w-[52px] text-center flex-shrink-0" style={colHeaderStyle}>Doc</div>
               <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
@@ -11418,7 +11418,7 @@ export default function App() {
             </div>
             {/* Add row */}
             <div className="flex items-center justify-center h-[45px] bg-white">
-              <button className="flex items-center gap-2 text-body-medium text-[#1e3a8a]">
+              <button className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une perte de chance
               </button>
             </div>
@@ -11432,7 +11432,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -11456,18 +11456,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes.pgpa || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, pgpa: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -11485,15 +11485,15 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
 
           {/* Param chips card block */}
           <div className={cardBlockClass}>
             <div className="flex items-center gap-3 px-4 h-[52px]">
-              <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+              <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
               </div>
               {renderParamPill({
                 paramKey: 'capitaliser-pgpf',
@@ -11504,13 +11504,13 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'capitaliser-pgpf' && (
-              <div className="px-4 py-3 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                 <div className="flex items-center gap-3 flex-wrap">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-[#d6d3d1] peer-checked:bg-[#292524] rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
-                  <div className="w-px h-4 bg-[#d6d3d1]" />
+                  <div className="w-px h-4 bg-border-strong" />
                   {renderBaremePopoverSelect({
                     popoverId: 'pgpf',
                     value: chiffrageParams.baremeCapitalisation,
@@ -11519,15 +11519,15 @@ export default function App() {
                     label: 'Barème',
                     variant: 'horizontal',
                   })}
-                  <div className="w-px h-4 bg-[#d6d3d1]" />
-                  <span className="text-sm font-medium text-[#78716c]">Fin arrérage</span>
-                  <select className="text-sm text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                  <div className="w-px h-4 bg-border-strong" />
+                  <span className="text-sm font-medium text-foreground-secondary">Fin arrérage</span>
+                  <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
-                  <div className="w-px h-4 bg-[#d6d3d1]" />
-                  <span className="text-sm font-medium text-[#78716c]">Départ retraite</span>
-                  <input type="text" defaultValue="XX ans" className="text-sm text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-1.5 w-[70px]" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }} />
+                  <div className="w-px h-4 bg-border-strong" />
+                  <span className="text-sm font-medium text-foreground-secondary">Départ retraite</span>
+                  <input type="text" defaultValue="XX ans" className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5 w-[70px]" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }} />
                 </div>
               </div>
             )}
@@ -11542,34 +11542,34 @@ export default function App() {
             <div className={cardBlockClass}>
               <div className="flex items-center justify-between h-12 px-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                    <Calculator className="w-3.5 h-3.5 text-[#78716c]" />
+                  <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                    <Calculator className="w-3.5 h-3.5 text-foreground-secondary" />
                   </div>
-                  <span className="text-[14px] font-medium text-[#292524]">Revenu de référence</span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-[#eef3fa] text-[#1e3a8a] border border-[#aabcd5]">⊕ Sync. PGPA</span>
+                  <span className="text-[14px] font-medium text-foreground">Revenu de référence</span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-info-bg text-link border border-[#aabcd5]">⊕ Sync. PGPA</span>
                 </div>
-                <span className="text-[14px] font-medium text-[#292524] tabular-nums">{fmt(Math.round(periodeCL.revenuRef.total / 12))}<span className="text-[12px] text-[#78716c] font-normal ml-1">/ mois</span></span>
+                <span className="text-[14px] font-medium text-foreground tabular-nums">{fmt(Math.round(periodeCL.revenuRef.total / 12))}<span className="text-[12px] text-foreground-secondary font-normal ml-1">/ mois</span></span>
               </div>
             </div>
 
             {/* Card: Revenus perçus */}
             <div className={cardBlockClass}>
-              <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard('pgpf-revenus-percus')}>
+              <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard('pgpf-revenus-percus')}>
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                    <Receipt className="w-3.5 h-3.5 text-[#78716c]" />
+                  <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                    <Receipt className="w-3.5 h-3.5 text-foreground-secondary" />
                   </div>
-                  <span className="text-[14px] font-medium text-[#292524]">Revenus perçus</span>
+                  <span className="text-[14px] font-medium text-foreground">Revenus perçus</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-medium text-[#292524] tabular-nums">{fmt(periodeCL.revenusPercus.reduce((s, l) => s + l.montant, 0))}</span>
-                  {isIvCardExpanded('pgpf-revenus-percus') ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+                  <span className="text-[14px] font-medium text-foreground tabular-nums">{fmt(periodeCL.revenusPercus.reduce((s, l) => s + l.montant, 0))}</span>
+                  {isIvCardExpanded('pgpf-revenus-percus') ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                 </div>
               </div>
               {isIvCardExpanded('pgpf-revenus-percus') && <>
               {/* Column headers */}
               {periodeCL.revenusPercus.length > 0 && (
-                <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+                <div className="flex items-center h-10 border-b border-border bg-white">
                   <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                   <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                   <div className="w-[160px] px-3 flex-shrink-0" style={colHeaderStyle}>Période</div>
@@ -11580,32 +11580,32 @@ export default function App() {
               {periodeCL.revenusPercus.map(l => {
                 const pieceCount = l.pieceIds?.length || 0;
                 return (
-                  <div key={l.id} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                  <div key={l.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                     <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                       {pieceCount > 0 ? (
-                        <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative">
-                          <FileText className="w-4 h-4 text-[#2563eb]" />
-                          {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#2563eb] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
+                        <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
+                          <FileText className="w-4 h-4 text-info" />
+                          {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-info text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]"><FileText className="w-3.5 h-3.5" /></span>
+                        <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border"><FileText className="w-3.5 h-3.5" /></span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0 px-3">
-                      <span className="text-body-medium truncate block text-[#292524]">{l.label || 'Sans libellé'}</span>
+                      <span className="text-body-medium truncate block text-foreground">{l.label || 'Sans libellé'}</span>
                     </div>
                     <div className="w-[160px] px-3 flex-shrink-0">
-                      <span className="text-body text-[#78716c]">{l.periode || '—'}</span>
+                      <span className="text-body text-foreground-secondary">{l.periode || '—'}</span>
                     </div>
                     <div className="w-[200px] px-3 text-right flex-shrink-0">
-                      <span className="text-body-medium text-[#292524] font-semibold tabular-nums">{fmt(l.montant)}</span>
+                      <span className="text-body-medium text-foreground font-semibold tabular-nums">{fmt(l.montant)}</span>
                     </div>
                   </div>
                 );
               })}
               {/* Table footer total */}
               {periodeCL.revenusPercus.length > 0 && (
-                <div className="flex items-center h-10 border-t border-[#e7e5e3] bg-[#fafaf9]">
+                <div className="flex items-center h-10 border-t border-border bg-background">
                   <div className="w-[52px] flex-shrink-0 pl-3" />
                   <div className="flex-1 min-w-0 px-3">
                     <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total</span>
@@ -11616,8 +11616,8 @@ export default function App() {
                   </div>
                 </div>
               )}
-              <div className="flex items-center justify-center h-[44px] border-t border-[#e7e5e3] bg-white">
-                <button onClick={() => handleAddManual('pgpf-revenu-percu')} className="flex items-center gap-2 text-body-medium text-[#1e3a8a]">
+              <div className="flex items-center justify-center h-[44px] border-t border-border bg-white">
+                <button onClick={() => handleAddManual('pgpf-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
                   <Plus className="w-4 h-4" /> Ajouter une ligne
                 </button>
               </div>
@@ -11626,20 +11626,20 @@ export default function App() {
 
             {/* Card: Perte de chance */}
             <div className={cardBlockClass}>
-              <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard('pgpf-perte-chance')}>
+              <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard('pgpf-perte-chance')}>
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                    <Activity className="w-3.5 h-3.5 text-[#78716c]" />
+                  <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                    <Activity className="w-3.5 h-3.5 text-foreground-secondary" />
                   </div>
-                  <span className="text-[14px] font-medium text-[#292524]">Perte de chance</span>
+                  <span className="text-[14px] font-medium text-foreground">Perte de chance</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-medium text-[#292524] tabular-nums">{fmt(pgpfData.perteDeChance || 0)}</span>
-                  {isIvCardExpanded('pgpf-perte-chance') ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+                  <span className="text-[14px] font-medium text-foreground tabular-nums">{fmt(pgpfData.perteDeChance || 0)}</span>
+                  {isIvCardExpanded('pgpf-perte-chance') ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                 </div>
               </div>
               {isIvCardExpanded('pgpf-perte-chance') && <>
-              <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+              <div className="flex items-center h-10 border-b border-border bg-white">
                 <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                 <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                 <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant espéré</div>
@@ -11647,7 +11647,7 @@ export default function App() {
                 <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant proraté</div>
               </div>
               <div className="flex items-center justify-center h-[45px] bg-white">
-                <button className="flex items-center gap-2 text-body-medium text-[#1e3a8a]">
+                <button className="flex items-center gap-2 text-body-medium text-link">
                   <Plus className="w-4 h-4" /> Ajouter une perte de chance
                 </button>
               </div>
@@ -11663,7 +11663,7 @@ export default function App() {
           {hasTP && tpScenario.cascade && (
             <div className="px-4 py-2">
               <button
-                className="text-[12px] text-[#1e3a8a] hover:underline transition-colors flex items-center gap-1"
+                className="text-[12px] text-link hover:underline transition-colors flex items-center gap-1"
                 onClick={() => navigateTo({ type: 'cascade', id: 'cascade-from-pgpf', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' })}
               >
                 {'\u2197'} Voir la cascade complète de la rente CPAM
@@ -11686,12 +11686,12 @@ export default function App() {
             <div className={cardBlockClass}>
               <div className="flex items-center justify-between h-12 px-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                    <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+                  <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                    <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
                   </div>
-                  <span className="text-[14px] font-medium text-[#292524]">Arrérage à échoir</span>
+                  <span className="text-[14px] font-medium text-foreground">Arrérage à échoir</span>
                 </div>
-                <span className="text-[14px] font-medium text-[#292524] tabular-nums">{fmt(periodeAL.params.perteGainAnnuelle)}<span className="text-[12px] text-[#78716c] font-normal ml-1">/ an</span></span>
+                <span className="text-[14px] font-medium text-foreground tabular-nums">{fmt(periodeAL.params.perteGainAnnuelle)}<span className="text-[12px] text-foreground-secondary font-normal ml-1">/ an</span></span>
               </div>
             </div>
             </>
@@ -11748,7 +11748,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -11772,18 +11772,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes.pgpf || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, pgpf: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -11797,15 +11797,15 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
 
           {/* Param chips card block */}
           <div className={cardBlockClass}>
             <div className="flex items-center gap-3 px-4 h-[52px]">
-              <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+              <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
               </div>
               {renderParamPill({
                 paramKey: 'base-journaliere-dft',
@@ -11816,11 +11816,11 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'base-journaliere-dft' && (
-              <div className="px-4 py-3 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                 <input
                   type="number"
                   defaultValue={chiffrageParams.baseJournaliereDFT || 33}
-                  className="text-sm text-[#292524] text-right bg-white border border-[#e7e5e3] rounded-lg px-3 py-1.5 w-[69px]"
+                  className="text-sm text-foreground text-right bg-white border border-border rounded-lg px-3 py-1.5 w-[69px]"
                   style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}
                   onChange={(e) => setChiffrageParams(prev => ({ ...prev, baseJournaliereDFT: parseFloat(e.target.value) || 0 }))}
                 />
@@ -11831,12 +11831,12 @@ export default function App() {
           {/* Card Block: DFT */}
             <div className={cardBlockClass}>
               {/* Title Row */}
-              <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3]">
+              <div className="flex items-center justify-between h-12 px-4 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                    <Calendar className="w-3.5 h-3.5 text-[#78716c]" />
+                  <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                    <Calendar className="w-3.5 h-3.5 text-foreground-secondary" />
                   </div>
-                  <span className="text-[14px] font-medium text-[#292524]">Déficit fonctionnel temporaire</span>
+                  <span className="text-[14px] font-medium text-foreground">Déficit fonctionnel temporaire</span>
                 </div>
               </div>
               {/* Header - dashed drop zone + buttons */}
@@ -11844,49 +11844,49 @@ export default function App() {
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleUploadFiles(e.dataTransfer.files, 'dft'); }}
-                className="flex items-center gap-4 p-4 border-b border-[#e7e5e3] bg-white"
+                className="flex items-center gap-4 p-4 border-b border-border bg-white"
               >
-                <div className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 h-9 border border-dashed rounded-lg transition-colors ${isDragging ? 'border-[#a8a29e] bg-[#f5f5f4]' : 'border-[#d6d3d1]'}`}>
+                <div className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 h-9 border border-dashed rounded-lg transition-colors ${isDragging ? 'border-foreground-muted bg-background-subtle' : 'border-border-strong'}`}>
                   {isDragging ? (
-                    <><ArrowDown className="w-4 h-4 text-[#78716c] flex-shrink-0" /><span className="text-body text-[#44403c]">Déposez vos documents ici</span></>
+                    <><ArrowDown className="w-4 h-4 text-foreground-secondary flex-shrink-0" /><span className="text-body text-foreground-tertiary">Déposez vos documents ici</span></>
                   ) : (
-                    <><Upload className="w-4 h-4 text-[#78716c] flex-shrink-0" /><span className="text-body text-[#78716c]">Déposez ou <span className="text-body-medium text-[#1e3a8a] cursor-pointer" onClick={() => document.getElementById('dft-header-upload')?.click()}>cliquez</span> pour ajouter un justificatif</span></>
+                    <><Upload className="w-4 h-4 text-foreground-secondary flex-shrink-0" /><span className="text-body text-foreground-secondary">Déposez ou <span className="text-body-medium text-link cursor-pointer" onClick={() => document.getElementById('dft-header-upload')?.click()}>cliquez</span> pour ajouter un justificatif</span></>
                   )}
                   <input type="file" id="dft-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dft'); e.target.value = ''; } }} />
                 </div>
                 {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                  <button onClick={() => setPickerOpen('dft')} className="flex items-center gap-2 px-4 h-9 bg-[#eeece6] text-[#44403c] text-body-medium rounded-lg hover:bg-[#e7e5e3] transition-colors flex-shrink-0">
+                  <button onClick={() => setPickerOpen('dft')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
                     Extraire depuis un doc. existant
                     <ChevronDown className="w-4 h-4" />
                   </button>
                 )}
-                <button onClick={() => handleAddManual('dft')} className="flex items-center gap-2 text-body-medium text-[#1e3a8a] flex-shrink-0 whitespace-nowrap">
+                <button onClick={() => handleAddManual('dft')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
                   <Plus className="w-4 h-4" /> Ajouter une période
                 </button>
               </div>
 
               {/* Extraction progress row */}
               {posteExtracting && posteExtracting.posteType === 'dft' && (
-                <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#e7e5e3]" style={{ background: 'linear-gradient(to right, #f8f7f5, white 15%)' }}>
+                <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: 'linear-gradient(to right, #f8f7f5, white 15%)' }}>
                   <div className="flex items-center gap-3">
-                    <Loader2 className="w-5 h-5 text-[#292524] animate-spin" />
+                    <Loader2 className="w-5 h-5 text-foreground animate-spin" />
                     <div className="flex items-baseline gap-2">
-                      <span className="text-body-medium text-[#292524]">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
-                      <span className="text-caption text-[#78716c]">Extraction en cours…</span>
+                      <span className="text-body-medium text-foreground">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
+                      <span className="text-caption text-foreground-secondary">Extraction en cours…</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <div className="w-[70px] h-1 bg-[#eeece6] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#292524] rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
+                    <div className="w-[70px] h-1 bg-cream rounded-full overflow-hidden">
+                      <div className="h-full bg-foreground rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
                     </div>
-                    <span className="text-counter text-[#78716c]">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
+                    <span className="text-counter text-foreground-secondary">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
                   </div>
                 </div>
               )}
 
               {/* Column headers */}
               {dftLignes.length > 0 && (
-                <div className="flex items-center h-10 border-b border-[#e7e5e3] bg-white">
+                <div className="flex items-center h-10 border-b border-border bg-white">
                   <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                   <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Période & jours</div>
                   <div className="w-20 px-3 text-center flex-shrink-0" style={colHeaderStyle}>Taux</div>
@@ -11899,25 +11899,25 @@ export default function App() {
                 const pieceCount = l.pieceIds?.length || 0;
                 return (
                   <div key={l.id} onClick={() => { setEditingPieceIds(l.pieceIds || []); setSearchPiecesPanel(''); setEditPanel({ type: 'dft-ligne', title: 'Éditer la dépense', data: l }); }}
-                    className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                    className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
                     >
                     {/* Doc indicator */}
                     <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                       {pieceCount > 0 ? (
                         <div className="relative group/piece">
-                          <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative">
-                            <FileText className="w-4 h-4 text-[#2563eb]" />
-                            <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#2563eb] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>
+                          <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
+                            <FileText className="w-4 h-4 text-info" />
+                            <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-info text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>
                           </span>
-                          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-[#e7e5e3] rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
-                            <div className="text-counter text-[#78716c] uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''}</div>
+                          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+                            <div className="text-counter text-foreground-secondary uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''}</div>
                             <div className="space-y-1">
-                              {l.pieceIds?.map(pid => <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-blue-100 text-[#1e3a8a] text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-[#292524]">Rapport d'expertise</span></div>)}
+                              {l.pieceIds?.map(pid => <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-foreground">Rapport d'expertise</span></div>)}
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]">
+                        <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border">
                           <FileText className="w-3.5 h-3.5" />
                         </span>
                       )}
@@ -11925,19 +11925,19 @@ export default function App() {
 
                     {/* Période & jours */}
                     <div className="flex-1 min-w-0 px-3">
-                      <span className="text-body-medium block text-[#292524]">{l.label || 'Sans libellé'}</span>
-                      <span className="text-caption text-[#78716c]">{l.debut} → {l.fin} · {l.jours}j</span>
+                      <span className="text-body-medium block text-foreground">{l.label || 'Sans libellé'}</span>
+                      <span className="text-caption text-foreground-secondary">{l.debut} → {l.fin} · {l.jours}j</span>
                     </div>
 
                     {/* Taux */}
                     <div className="w-20 px-3 text-center flex-shrink-0">
-                      <span className={`text-caption-medium px-2 py-0.5 rounded-full ${l.taux === 100 ? 'bg-[#eeece6] text-[#44403c]' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>{l.taux || 100}%</span>
+                      <span className={`text-caption-medium px-2 py-0.5 rounded-full ${l.taux === 100 ? 'bg-cream text-foreground-tertiary' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>{l.taux || 100}%</span>
                     </div>
 
                     {/* Montant */}
                     <div className="w-[200px] px-3 text-right flex-shrink-0">
                       {l.montant != null ? (
-                        <span className="text-body-medium font-semibold tabular-nums text-[#292524]">{fmt(l.montant)}</span>
+                        <span className="text-body-medium font-semibold tabular-nums text-foreground">{fmt(l.montant)}</span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#f9ecd6] rounded-md text-caption-medium text-[#855b31]">
                           <AlertCircle className="w-3 h-3" /> Compléter
@@ -11951,7 +11951,7 @@ export default function App() {
 
               {/* Table footer total */}
               {dftLignes.length > 0 && (
-                <div className="flex items-center h-10 border-t border-[#e7e5e3] bg-[#fafaf9]">
+                <div className="flex items-center h-10 border-t border-border bg-background">
                   <div className="w-12 flex-shrink-0" />
                   <div className="w-[52px] flex-shrink-0" />
                   <div className="flex-1 min-w-0 px-3">
@@ -11975,7 +11975,7 @@ export default function App() {
           </div>{/* end CALCUL section */}
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -11999,18 +11999,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes.dft || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, dft: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -12029,14 +12029,14 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Param chips card block */}
                 <div className={cardBlockClass}>
                   <div className="flex items-center gap-3 px-4 h-[52px]">
-                    <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                      <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+                    <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                      <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
                     </div>
                     {renderParamPill({
                       paramKey: 'revaloriser-se',
@@ -12046,15 +12046,15 @@ export default function App() {
                     })}
                   </div>
                   {activeParamChip === 'revaloriser-se' && (
-                    <div className="px-4 py-3 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-[#d6d3d1] peer-checked:bg-[#292524] rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
-                        <div className="w-px h-4 bg-[#e7e5e3]" />
-                        <span className="text-sm font-medium text-[#78716c]">Indice</span>
-                        <select className="text-sm text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                        <div className="w-px h-4 bg-border" />
+                        <span className="text-sm font-medium text-foreground-secondary">Indice</span>
+                        <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12076,7 +12076,7 @@ export default function App() {
                         })}
                       </div>
                       <div>
-                        <label className="block text-[14px] font-medium text-[#78716c] mb-2">Cotation</label>
+                        <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Cotation</label>
                         <div className="flex gap-1">
                           {cotations.map(c => (
                             <button
@@ -12084,8 +12084,8 @@ export default function App() {
                               onClick={() => setFormPosteData(prev => ({ ...prev, se: { ...prev.se, cotation: c } }))}
                               className={`flex-1 h-10 text-[14px] font-medium rounded-lg border transition-colors ${
                                 seData.cotation === c
-                                  ? 'bg-[#292524] text-white border-[#292524]'
-                                  : 'bg-white text-[#292524] border-[#e7e5e3] hover:bg-[#fafaf9]'
+                                  ? 'bg-foreground text-white border-foreground'
+                                  : 'bg-white text-foreground border-border hover:bg-background'
                               }`}
                             >
                               {c}
@@ -12101,10 +12101,10 @@ export default function App() {
                 <div style={sectionHeaderStyle} className="mt-2">PIÈCES JUSTIFICATIVES</div>
                 <div className={cardBlockClass}>
                   <div
-                    className="flex items-center justify-center h-[72px] border border-dashed border-[#d6d3d1] m-4 rounded-lg cursor-pointer hover:border-[#a8a29e] transition-colors"
+                    className="flex items-center justify-center h-[72px] border border-dashed border-border-strong m-4 rounded-lg cursor-pointer hover:border-foreground-muted transition-colors"
                     onClick={() => document.getElementById('se-upload')?.click()}
                   >
-                    <span className="text-[14px] text-[#78716c]">Déposez ou <span className="text-[#1e3a8a] font-medium">cliquez</span> pour ajouter un justificatif</span>
+                    <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
                     <input type="file" id="se-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
@@ -12117,7 +12117,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -12141,18 +12141,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes.se || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, se: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -12168,14 +12168,14 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Param chips card block */}
                 <div className={cardBlockClass}>
                   <div className="flex items-center gap-3 px-4 h-[52px]">
-                    <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                      <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+                    <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                      <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
                     </div>
                     {renderParamPill({
                       paramKey: 'revaloriser-pep',
@@ -12185,15 +12185,15 @@ export default function App() {
                     })}
                   </div>
                   {activeParamChip === 'revaloriser-pep' && (
-                    <div className="px-4 py-3 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-[#d6d3d1] peer-checked:bg-[#292524] rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
-                        <div className="w-px h-4 bg-[#e7e5e3]" />
-                        <span className="text-sm font-medium text-[#78716c]">Indice</span>
-                        <select className="text-sm text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                        <div className="w-px h-4 bg-border" />
+                        <span className="text-sm font-medium text-foreground-secondary">Indice</span>
+                        <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12215,7 +12215,7 @@ export default function App() {
                         })}
                       </div>
                       <div>
-                        <label className="block text-[14px] font-medium text-[#78716c] mb-2">Cotation</label>
+                        <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Cotation</label>
                         <div className="flex gap-1">
                           {cotations.map(c => (
                             <button
@@ -12223,8 +12223,8 @@ export default function App() {
                               onClick={() => setFormPosteData(prev => ({ ...prev, pep: { ...prev.pep, cotation: c } }))}
                               className={`flex-1 h-10 text-[14px] font-medium rounded-lg border transition-colors ${
                                 pepData.cotation === c
-                                  ? 'bg-[#292524] text-white border-[#292524]'
-                                  : 'bg-white text-[#292524] border-[#e7e5e3] hover:bg-[#fafaf9]'
+                                  ? 'bg-foreground text-white border-foreground'
+                                  : 'bg-white text-foreground border-border hover:bg-background'
                               }`}
                             >
                               {c}
@@ -12240,10 +12240,10 @@ export default function App() {
                 <div style={sectionHeaderStyle} className="mt-2">PIÈCES JUSTIFICATIVES</div>
                 <div className={cardBlockClass}>
                   <div
-                    className="flex items-center justify-center h-[72px] border border-dashed border-[#d6d3d1] m-4 rounded-lg cursor-pointer hover:border-[#a8a29e] transition-colors"
+                    className="flex items-center justify-center h-[72px] border border-dashed border-border-strong m-4 rounded-lg cursor-pointer hover:border-foreground-muted transition-colors"
                     onClick={() => document.getElementById('pep-upload')?.click()}
                   >
-                    <span className="text-[14px] text-[#78716c]">Déposez ou <span className="text-[#1e3a8a] font-medium">cliquez</span> pour ajouter un justificatif</span>
+                    <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
                     <input type="file" id="pep-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
@@ -12256,7 +12256,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -12280,18 +12280,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes.pep || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, pep: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -12307,14 +12307,14 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Param chips card block */}
                 <div className={cardBlockClass}>
                   <div className="flex items-center gap-3 px-4 h-[52px]">
-                    <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                      <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+                    <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                      <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
                     </div>
                     {renderParamPill({
                       paramKey: 'revaloriser-dfp',
@@ -12324,15 +12324,15 @@ export default function App() {
                     })}
                   </div>
                   {activeParamChip === 'revaloriser-dfp' && (
-                    <div className="px-4 py-3 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-[#d6d3d1] peer-checked:bg-[#292524] rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
-                        <div className="w-px h-4 bg-[#e7e5e3]" />
-                        <span className="text-sm font-medium text-[#78716c]">Indice</span>
-                        <select className="text-sm text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                        <div className="w-px h-4 bg-border" />
+                        <span className="text-sm font-medium text-foreground-secondary">Indice</span>
+                        <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12356,45 +12356,45 @@ export default function App() {
                     {/* Âge + Taux - 2 columns */}
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-[14px] font-medium text-[#78716c] mb-2">Âge à la consolidation</label>
+                        <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Âge à la consolidation</label>
                         <input
                           type="number"
                           value={dfpData.age}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, age: parseInt(e.target.value) || 0 } }))}
-                          className="w-full h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                          className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                           placeholder="Âge"
                         />
                         <div className="mt-2 space-y-1.5">
                           {['inferieure', 'superieure'].map(t => (
                             <label key={t} className="flex items-center gap-2 cursor-pointer">
-                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${dfpData.trancheAge === t ? 'border-[#292524]' : 'border-[#d6d3d1]'}`}>
-                                {dfpData.trancheAge === t && <div className="w-2 h-2 rounded-full bg-[#292524]" />}
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${dfpData.trancheAge === t ? 'border-foreground' : 'border-border-strong'}`}>
+                                {dfpData.trancheAge === t && <div className="w-2 h-2 rounded-full bg-foreground" />}
                               </div>
-                              <span className="text-xs text-[#292524]">Tranche {t === 'inferieure' ? 'inférieure' : 'supérieure'} {dfpData.age > 0 && (t === 'inferieure' ? `${Math.floor(dfpData.age / 10) * 10}-${Math.floor(dfpData.age / 10) * 10 + 9}` : `${Math.floor(dfpData.age / 10) * 10 + 1}-${Math.floor(dfpData.age / 10) * 10 + 10}`)}</span>
+                              <span className="text-xs text-foreground">Tranche {t === 'inferieure' ? 'inférieure' : 'supérieure'} {dfpData.age > 0 && (t === 'inferieure' ? `${Math.floor(dfpData.age / 10) * 10}-${Math.floor(dfpData.age / 10) * 10 + 9}` : `${Math.floor(dfpData.age / 10) * 10 + 1}-${Math.floor(dfpData.age / 10) * 10 + 10}`)}</span>
                               <input type="radio" name="tranche-age" checked={dfpData.trancheAge === t} onChange={() => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, trancheAge: t } }))} className="sr-only" />
                             </label>
                           ))}
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[14px] font-medium text-[#78716c] mb-2">Taux DFP</label>
+                        <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Taux DFP</label>
                         <div className="relative">
                           <input
                             type="number"
                             value={dfpData.taux}
                             onChange={(e) => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, taux: parseFloat(e.target.value) || 0 } }))}
-                            className="w-full h-10 px-3 pr-8 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                            className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                             placeholder="Taux"
                           />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-[#78716c]">%</span>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-foreground-secondary">%</span>
                         </div>
                         <div className="mt-2 space-y-1.5">
                           {['inferieure', 'superieure'].map(t => (
                             <label key={t} className="flex items-center gap-2 cursor-pointer">
-                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${dfpData.trancheTaux === t ? 'border-[#292524]' : 'border-[#d6d3d1]'}`}>
-                                {dfpData.trancheTaux === t && <div className="w-2 h-2 rounded-full bg-[#292524]" />}
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${dfpData.trancheTaux === t ? 'border-foreground' : 'border-border-strong'}`}>
+                                {dfpData.trancheTaux === t && <div className="w-2 h-2 rounded-full bg-foreground" />}
                               </div>
-                              <span className="text-xs text-[#292524]">Tranche {t === 'inferieure' ? 'inférieure' : 'supérieure'} {dfpData.taux > 0 && (t === 'inferieure' ? `${Math.floor(dfpData.taux / 5) * 5}-${Math.floor(dfpData.taux / 5) * 5 + 5}%` : `${Math.floor(dfpData.taux / 5) * 5 + 1}-${Math.floor(dfpData.taux / 5) * 5 + 5}%`)}</span>
+                              <span className="text-xs text-foreground">Tranche {t === 'inferieure' ? 'inférieure' : 'supérieure'} {dfpData.taux > 0 && (t === 'inferieure' ? `${Math.floor(dfpData.taux / 5) * 5}-${Math.floor(dfpData.taux / 5) * 5 + 5}%` : `${Math.floor(dfpData.taux / 5) * 5 + 1}-${Math.floor(dfpData.taux / 5) * 5 + 5}%`)}</span>
                               <input type="radio" name="tranche-taux" checked={dfpData.trancheTaux === t} onChange={() => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, trancheTaux: t } }))} className="sr-only" />
                             </label>
                           ))}
@@ -12408,10 +12408,10 @@ export default function App() {
                 <div style={sectionHeaderStyle} className="mt-2">PIÈCES JUSTIFICATIVES</div>
                 <div className={cardBlockClass}>
                   <div
-                    className="flex items-center justify-center h-[72px] border border-dashed border-[#d6d3d1] m-4 rounded-lg cursor-pointer hover:border-[#a8a29e] transition-colors"
+                    className="flex items-center justify-center h-[72px] border border-dashed border-border-strong m-4 rounded-lg cursor-pointer hover:border-foreground-muted transition-colors"
                     onClick={() => document.getElementById('dfp-upload')?.click()}
                   >
-                    <span className="text-[14px] text-[#78716c]">Déposez ou <span className="text-[#1e3a8a] font-medium">cliquez</span> pour ajouter un justificatif</span>
+                    <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
                     <input type="file" id="dfp-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
@@ -12424,7 +12424,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -12448,18 +12448,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes.dfp || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, dfp: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -12475,12 +12475,12 @@ export default function App() {
 
       return (
         <div>
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
 
           <div className={cardBlockClass}>
-            <div className="px-5 py-3 bg-[#fafaf9] border-b border-[#f0efed]">
+            <div className="px-5 py-3 bg-background border-b border-border-subtle">
               <span style={sectionHeaderStyle}>Incidence professionnelle</span>
             </div>
             <div className="px-5 py-4">
@@ -12510,21 +12510,21 @@ export default function App() {
 
       return (
         <div>
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
 
           {/* Expense table */}
           <div className={cardBlockClass}>
-            <div className="px-5 py-3 bg-[#fafaf9] border-b border-[#f0efed] flex items-center justify-between">
+            <div className="px-5 py-3 bg-background border-b border-border-subtle flex items-center justify-between">
               <span style={sectionHeaderStyle}>Frais divers actuels</span>
             </div>
             <div className="overflow-x-auto">
               <div style={{ minWidth: 600 }}>
                 {/* Column headers */}
-                <div className="flex items-center border-b border-[#f0efed]">
+                <div className="flex items-center border-b border-border-subtle">
                   <div className="w-[40px] shrink-0 px-3 py-2 text-center" style={{ ...colHeaderStyle, fontSize: 10 }}>
-                    <FileText className="w-3.5 h-3.5 text-[#d6d3d1] mx-auto" />
+                    <FileText className="w-3.5 h-3.5 text-border-strong mx-auto" />
                   </div>
                   <div className="flex-1 min-w-0 px-3 py-2" style={{ ...colHeaderStyle, fontSize: 10 }}>Libellé</div>
                   <div className="w-[100px] shrink-0 px-3 py-2" style={{ ...colHeaderStyle, fontSize: 10 }}>Type</div>
@@ -12533,7 +12533,7 @@ export default function App() {
                 </div>
                 {/* Rows */}
                 {fdaLignes.map((l) => (
-                  <div key={l.id} className="flex items-center border-b border-[#f5f5f4] hover:bg-[#fafaf9]">
+                  <div key={l.id} className="flex items-center border-b border-background-subtle hover:bg-background">
                     <div className="w-[40px] shrink-0 px-3 py-2.5 text-center">
                       <span style={{ fontSize: 10, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace" }}>{l.pieceIds?.length || 0}</span>
                     </div>
@@ -12553,7 +12553,7 @@ export default function App() {
                   </div>
                 ))}
                 {/* Footer total */}
-                <div className="flex items-center bg-[#fafaf9] border-t border-[#e7e5e3]">
+                <div className="flex items-center bg-background border-t border-border">
                   <div className="w-[40px] shrink-0" />
                   <div className="flex-1 min-w-0 px-3 py-2.5">
                     <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>Total frais divers</span>
@@ -12589,21 +12589,21 @@ export default function App() {
 
       return (
         <div>
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
 
           {/* Expense table */}
           <div className={cardBlockClass}>
-            <div className="px-5 py-3 bg-[#fafaf9] border-b border-[#f0efed] flex items-center justify-between">
+            <div className="px-5 py-3 bg-background border-b border-border-subtle flex items-center justify-between">
               <span style={sectionHeaderStyle}>Dépenses de santé futures</span>
             </div>
             <div className="overflow-x-auto">
               <div style={{ minWidth: 600 }}>
                 {/* Column headers */}
-                <div className="flex items-center border-b border-[#f0efed]">
+                <div className="flex items-center border-b border-border-subtle">
                   <div className="w-[40px] shrink-0 px-3 py-2 text-center" style={{ ...colHeaderStyle, fontSize: 10 }}>
-                    <FileText className="w-3.5 h-3.5 text-[#d6d3d1] mx-auto" />
+                    <FileText className="w-3.5 h-3.5 text-border-strong mx-auto" />
                   </div>
                   <div className="flex-1 min-w-0 px-3 py-2" style={{ ...colHeaderStyle, fontSize: 10 }}>Libellé</div>
                   <div className="w-[100px] shrink-0 px-3 py-2" style={{ ...colHeaderStyle, fontSize: 10 }}>Périodicité</div>
@@ -12612,7 +12612,7 @@ export default function App() {
                 </div>
                 {/* Rows */}
                 {dsfLignes.map((l) => (
-                  <div key={l.id} className="flex items-center border-b border-[#f5f5f4] hover:bg-[#fafaf9]">
+                  <div key={l.id} className="flex items-center border-b border-background-subtle hover:bg-background">
                     <div className="w-[40px] shrink-0 px-3 py-2.5 text-center">
                       <span style={{ fontSize: 10, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace" }}>{l.pieceIds?.length || 0}</span>
                     </div>
@@ -12636,7 +12636,7 @@ export default function App() {
                   </div>
                 ))}
                 {/* Footer total */}
-                <div className="flex items-center bg-[#fafaf9] border-t border-[#e7e5e3]">
+                <div className="flex items-center bg-background border-t border-border">
                   <div className="w-[40px] shrink-0" />
                   <div className="flex-1 min-w-0 px-3 py-2.5">
                     <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>Total dépenses futures</span>
@@ -12695,7 +12695,7 @@ export default function App() {
       return (
         <div>
           {/* Per-victim / expense table */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
 
               {/* ===== TYPE A: one row per VI ===== */}
@@ -12707,8 +12707,8 @@ export default function App() {
                   {/* Param chips block */}
                   <div className={cardBlockClass + ' mb-4'}>
                     <div className="flex items-center gap-3 px-4 h-[52px]">
-                      <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                        <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+                      <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                        <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
                       </div>
                       <button
                         onClick={() => setActiveParamChip(activeParamChip === baremeParamKey ? null : baremeParamKey)}
@@ -12725,12 +12725,12 @@ export default function App() {
                       </button>
                     </div>
                     {activeParamChip === baremeParamKey && (
-                      <div className="px-4 py-2.5 border-t border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+                      <div className="px-4 py-2.5 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
                         <div className="flex items-center gap-3">
                           <div className="flex gap-1 items-baseline flex-shrink-0">
-                            <span className="text-sm font-medium text-[#78716c]">Barême</span>
+                            <span className="text-sm font-medium text-foreground-secondary">Barême</span>
                             {selectedBareme && (
-                              <button onClick={() => setBaremeViewerOpen(selectedBareme.id)} className="text-xs font-medium text-[#1e3a8a]">Voir</button>
+                              <button onClick={() => setBaremeViewerOpen(selectedBareme.id)} className="text-xs font-medium text-link">Voir</button>
                             )}
                           </div>
                           <div className="relative" style={{ width: 240 }}>
@@ -12750,7 +12750,7 @@ export default function App() {
 
                   <div className={cardBlockClass}>
                     {/* Column headers - RowPostIV Header */}
-                    <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                       <div className={hasIntitule ? 'w-[240px] px-3' : 'flex-1 px-3'}>
                         <span style={colHeaderStyle}>Nom victime indirecte</span>
                       </div>
@@ -12772,7 +12772,7 @@ export default function App() {
                       return (
                         <div
                           key={vi.id}
-                          className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                          className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
                           onClick={() => setEditPanel({
                             type: 'iv-ligne-a',
                             title: `${vi.prenom} ${vi.nom} - ${ivTaxo?.label || ivPosteId}`,
@@ -12798,14 +12798,14 @@ export default function App() {
                             )}
                           </div>
                           <div className="w-11 flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreVertical className="w-4 h-4 text-[#a8a29e]" />
+                            <MoreVertical className="w-4 h-4 text-foreground-muted" />
                           </div>
                         </div>
                       );
                     })}
 
                     {victimesIndirectes.length === 0 && (
-                      <div className="p-6 text-center"><span className="text-body text-[#a8a29e]">Aucune dépense enregistrée</span></div>
+                      <div className="p-6 text-center"><span className="text-body text-foreground-muted">Aucune dépense enregistrée</span></div>
                     )}
                   </div>
 
@@ -12826,7 +12826,7 @@ export default function App() {
                 return (
                   <div className={cardBlockClass}>
                     {/* Column headers - RowPostIV Header */}
-                    <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                       <div className="w-[52px] px-3"><span style={colHeaderStyle}></span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Nom victime indirecte</span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Libellé</span></div>
@@ -12840,7 +12840,7 @@ export default function App() {
                       return (
                       <div
                         key={row.ligne.id || idx}
-                        className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                        className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
                         onClick={() => setEditPanel({
                           type: 'iv-ligne-b',
                           title: `${row.vi.prenom} ${row.vi.nom} - Dépense`,
@@ -12850,12 +12850,12 @@ export default function App() {
                         {/* Doc holder cell */}
                         <div className="w-[52px] flex items-center justify-center flex-shrink-0 px-3">
                           {pieceCount > 0 ? (
-                            <span className="inline-flex items-center justify-center w-[26px] h-[26px] bg-[#DFE8F5] rounded-md relative">
-                              <FileText className="w-4 h-4 text-[#2563eb]" />
-                              <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#1e3a8a] text-white font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5" style={{ fontSize: 10 }}>{pieceCount}</span>
+                            <span className="inline-flex items-center justify-center w-[26px] h-[26px] bg-info-subtle rounded-md relative">
+                              <FileText className="w-4 h-4 text-info" />
+                              <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5" style={{ fontSize: 10 }}>{pieceCount}</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center justify-center w-[26px] h-[26px] bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]">
+                            <span className="inline-flex items-center justify-center w-[26px] h-[26px] bg-background-canvas text-border-strong rounded-md border border-dashed border-border">
                               <FileText className="w-3.5 h-3.5" />
                             </span>
                           )}
@@ -12882,20 +12882,20 @@ export default function App() {
                         </div>
                         {/* Actions */}
                         <div className="w-11 flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreVertical className="w-4 h-4 text-[#a8a29e]" />
+                          <MoreVertical className="w-4 h-4 text-foreground-muted" />
                         </div>
                       </div>
                       );
                     })}
 
                     {flatRows.length === 0 && (
-                      <div className="p-6 text-center"><span className="text-body text-[#a8a29e]">Aucune dépense enregistrée</span></div>
+                      <div className="p-6 text-center"><span className="text-body text-foreground-muted">Aucune dépense enregistrée</span></div>
                     )}
 
                     {/* Add expense */}
                     <button
                       onClick={() => addIvLigne(null)}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-[#1e3a8a] hover:bg-[#fafaf9] transition-colors border-t border-[#e7e5e3]"
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border"
                     >
                       <Plus className="w-4 h-4" />
                       Ajouter une dépense
@@ -12928,7 +12928,7 @@ export default function App() {
                   <>
                     <div className={cardBlockClass}>
                       {/* Column headers */}
-                      <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                      <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                         <div className="w-[52px] pl-3"><span style={colHeaderStyle}>Pj</span></div>
                         <div className="w-[200px] px-3"><span style={colHeaderStyle}>Victime</span></div>
                         <div className="flex-1 px-3"><span style={colHeaderStyle}>Dépense</span></div>
@@ -12941,17 +12941,17 @@ export default function App() {
                         return (
                         <div
                           key={`${row.vi.id}-${row.ligne.id}`}
-                          className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                          className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
                           onClick={() => openExpensePanel(row.ligne)}
                         >
                           <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                             {pieceCount > 0 ? (
-                              <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative">
-                                <FileText className="w-4 h-4 text-[#2563eb]" />
-                                {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#1e3a8a] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
+                              <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
+                                <FileText className="w-4 h-4 text-info" />
+                                {pieceCount > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>}
                               </span>
                             ) : (
-                              <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]">
+                              <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border">
                                 <FileText className="w-3.5 h-3.5" />
                               </span>
                             )}
@@ -12973,13 +12973,13 @@ export default function App() {
                       })}
 
                       {flatRows.length === 0 && (
-                        <div className="p-6 text-center"><span className="text-body text-[#a8a29e]">Aucune dépense enregistrée</span></div>
+                        <div className="p-6 text-center"><span className="text-body text-foreground-muted">Aucune dépense enregistrée</span></div>
                       )}
 
                       {/* Add expense */}
                       <button
                         onClick={() => addIvLigne(null)}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-[#1e3a8a] hover:bg-[#fafaf9] transition-colors border-t border-[#e7e5e3]"
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border"
                       >
                         <Plus className="w-4 h-4" />
                         Ajouter une dépense
@@ -13061,24 +13061,24 @@ export default function App() {
 
                 const renderRevenuTable = (title, lignes, type, mensuel) => (
                   <div className={cardBlockClass + ' mb-3'}>
-                    <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-rev-${type}`)}>
+                    <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-rev-${type}`)}>
                       <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                          <Wallet className="w-3.5 h-3.5 text-[#78716c]" />
+                        <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                          <Wallet className="w-3.5 h-3.5 text-foreground-secondary" />
                         </div>
-                        <span className="text-[14px] font-medium text-[#292524]">{title}</span>
+                        <span className="text-[14px] font-medium text-foreground">{title}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {mensuel > 0 ? (
-                          <span style={serifAmountStyle} className="text-[#292524]">{fmt(Math.round(mensuel))}<span className="text-[14px] text-[#78716c] ml-1">/ mois</span></span>
+                          <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(mensuel))}<span className="text-[14px] text-foreground-secondary ml-1">/ mois</span></span>
                         ) : (
-                          <span style={serifAmountStyle} className="text-[#a8a29e]">—</span>
+                          <span style={serifAmountStyle} className="text-foreground-muted">—</span>
                         )}
-                        {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+                        {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                       </div>
                     </div>
                     {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) && (<>
-                      <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                      <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                         <div className="w-[52px] pl-3" />
                         <div className="flex-1 px-3"><span style={colHeaderStyle}>Source</span></div>
                         <div className="w-[110px] px-3"><span style={colHeaderStyle}>Période</span></div>
@@ -13086,15 +13086,15 @@ export default function App() {
                         <div className="w-[40px]" />
                       </div>
                       {lignes.map((ligne) => (
-                        <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group hover:bg-[#fafaf9] transition-colors">
+                        <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group hover:bg-background transition-colors">
                           <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                             {ligne.pieceIds?.length > 0 ? (
-                              <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md">
-                                <FileText className="w-4 h-4 text-[#2563eb]" />
+                              <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md">
+                                <FileText className="w-4 h-4 text-info" />
                               </span>
                             ) : (
-                              <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] rounded-md border border-dashed border-[#e7e5e3]">
-                                <FileText className="w-3.5 h-3.5 text-[#d6d3d1]" />
+                              <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas rounded-md border border-dashed border-border">
+                                <FileText className="w-3.5 h-3.5 text-border-strong" />
                               </span>
                             )}
                           </div>
@@ -13103,21 +13103,21 @@ export default function App() {
                           <div className="w-[130px] px-3 text-right"><span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel || 0)}</span></div>
                           <div className="w-[40px] flex items-center justify-center">
                             <button onClick={() => deleteRevenuRow(type, ligne.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded transition-all">
-                              <Trash2 className="w-3.5 h-3.5 text-[#a8a29e] hover:text-red-500" />
+                              <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-red-500" />
                             </button>
                           </div>
                         </div>
                       ))}
                       {lignes.length === 0 && (
-                        <div className="p-6 text-center"><span className="text-body text-[#a8a29e]">Aucun revenu renseigné</span></div>
+                        <div className="p-6 text-center"><span className="text-body text-foreground-muted">Aucun revenu renseigné</span></div>
                       )}
                       {lignes.length > 0 && (
-                        <div className="flex items-center justify-between h-10 px-4 border-t border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                        <div className="flex items-center justify-between h-10 px-4 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
                           <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>Moyenne mensuelle</span>
                           <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(mensuel)}</span>
                         </div>
                       )}
-                      <button onClick={() => addRevenuRow(type)} className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-[#1e3a8a] hover:bg-[#fafaf9] transition-colors border-t border-[#e7e5e3]">
+                      <button onClick={() => addRevenuRow(type)} className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border">
                         <Plus className="w-4 h-4" />Ajouter un revenu
                       </button>
                     </>)}
@@ -13157,7 +13157,7 @@ export default function App() {
                               }
                             }));
                           }}
-                          className="text-caption px-2.5 py-1.5 border border-[#e7e5e3] rounded-lg bg-white text-[#292524] focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                          className="text-caption px-2.5 py-1.5 border border-border rounded-lg bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
                         >
                           {Object.entries(PRP_SCENARIO_MASKS).map(([key, m]) => (
                             <option key={key} value={key}>{m.label}</option>
@@ -13168,20 +13168,20 @@ export default function App() {
 
                     {/* ════════ Card 1 - Revenu de référence (foyer) ════════ */}
                     <div className={cardBlockClass + ' mb-4'}>
-                      <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-revenu`)}>
+                      <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-revenu`)}>
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                            <Wallet className="w-3.5 h-3.5 text-[#78716c]" />
+                          <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                            <Wallet className="w-3.5 h-3.5 text-foreground-secondary" />
                           </div>
-                          <span className="text-[14px] font-medium text-[#292524]">Revenu de référence</span>
+                          <span className="text-[14px] font-medium text-foreground">Revenu de référence</span>
                         </div>
                         <div className="flex items-center gap-2">
                           {revenuTotal > 0 ? (
-                            <span style={serifAmountStyle} className="text-[#292524]">{fmt(Math.round(revenuTotal))}<span className="text-[14px] text-[#78716c] ml-1">/ an</span></span>
+                            <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(revenuTotal))}<span className="text-[14px] text-foreground-secondary ml-1">/ an</span></span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-[#a8a29e]">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
                           )}
-                          {isIvCardExpanded(`iv-${ivPosteId}-d-revenu`) ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+                          {isIvCardExpanded(`iv-${ivPosteId}-d-revenu`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                         </div>
                       </div>
                       {isIvCardExpanded(`iv-${ivPosteId}-d-revenu`) && (
@@ -13192,17 +13192,17 @@ export default function App() {
                             <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(Math.round(revenuRefMoyen))} / mois</span>
                           </div>
                           {refLignes.map((ligne) => (
-                            <div key={ligne.id} className="flex items-center h-10 px-4 border-b border-[#e7e5e3] last:border-b-0 group hover:bg-[#fafaf9]">
-                              <FileText className={`w-3.5 h-3.5 mr-2 ${ligne.pieceIds?.length > 0 ? 'text-[#2563eb]' : 'text-[#d6d3d1]'}`} />
+                            <div key={ligne.id} className="flex items-center h-10 px-4 border-b border-border last:border-b-0 group hover:bg-background">
+                              <FileText className={`w-3.5 h-3.5 mr-2 ${ligne.pieceIds?.length > 0 ? 'text-info' : 'text-border-strong'}`} />
                               <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? '#292524' : '#a8a29e' }}>{ligne.source || '—'}</span>
                               <span className="w-[80px] text-right" style={{ fontSize: 13, color: '#78716c' }}>{ligne.periode || '—'}</span>
                               <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel || 0)}</span>
                               <button onClick={() => deleteRevenuRow('ref', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded">
-                                <Trash2 className="w-3.5 h-3.5 text-[#a8a29e] hover:text-red-500" />
+                                <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-red-500" />
                               </button>
                             </div>
                           ))}
-                          <button onClick={() => addRevenuRow('ref')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-[#1e3a8a] hover:bg-[#fafaf9] border-b border-[#e7e5e3]">
+                          <button onClick={() => addRevenuRow('ref')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-link hover:bg-background border-b border-border">
                             <Plus className="w-3.5 h-3.5" />Ajouter un revenu défunt
                           </button>
 
@@ -13213,17 +13213,17 @@ export default function App() {
                               <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(Math.round(revenuConjointMensuel))} / mois</span>
                             </div>
                             {conjLignes.map((ligne) => (
-                              <div key={ligne.id} className="flex items-center h-10 px-4 border-b border-[#e7e5e3] last:border-b-0 group hover:bg-[#fafaf9]">
-                                <FileText className={`w-3.5 h-3.5 mr-2 ${ligne.pieceIds?.length > 0 ? 'text-[#2563eb]' : 'text-[#d6d3d1]'}`} />
+                              <div key={ligne.id} className="flex items-center h-10 px-4 border-b border-border last:border-b-0 group hover:bg-background">
+                                <FileText className={`w-3.5 h-3.5 mr-2 ${ligne.pieceIds?.length > 0 ? 'text-info' : 'text-border-strong'}`} />
                                 <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? '#292524' : '#a8a29e' }}>{ligne.source || '—'}</span>
                                 <span className="w-[80px] text-right" style={{ fontSize: 13, color: '#78716c' }}>{ligne.periode || '—'}</span>
                                 <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel || 0)}</span>
                                 <button onClick={() => deleteRevenuRow('conjoint', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded">
-                                  <Trash2 className="w-3.5 h-3.5 text-[#a8a29e] hover:text-red-500" />
+                                  <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-red-500" />
                                 </button>
                               </div>
                             ))}
-                            <button onClick={() => addRevenuRow('conjoint')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-[#1e3a8a] hover:bg-[#fafaf9]">
+                            <button onClick={() => addRevenuRow('conjoint')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-link hover:bg-background">
                               <Plus className="w-3.5 h-3.5" />Ajouter un revenu conjoint
                             </button>
                           </>)}
@@ -13233,20 +13233,20 @@ export default function App() {
 
                     {/* ════════ Card 2 - Calcul de la perte (foyer) ════════ */}
                     <div className={cardBlockClass + ' mb-4'}>
-                      <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-calcul`)}>
+                      <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-calcul`)}>
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                            <Calculator className="w-3.5 h-3.5 text-[#78716c]" />
+                          <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                            <Calculator className="w-3.5 h-3.5 text-foreground-secondary" />
                           </div>
-                          <span className="text-[14px] font-medium text-[#292524]">Perte annuelle nette</span>
+                          <span className="text-[14px] font-medium text-foreground">Perte annuelle nette</span>
                         </div>
                         <div className="flex items-center gap-2">
                           {perteAnnuelle > 0 ? (
-                            <span style={serifAmountStyle} className="text-[#292524]">{fmt(Math.round(perteAnnuelle))}<span className="text-[14px] text-[#78716c] ml-1">/ an</span></span>
+                            <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(perteAnnuelle))}<span className="text-[14px] text-foreground-secondary ml-1">/ an</span></span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-[#a8a29e]">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
                           )}
-                          {isIvCardExpanded(`iv-${ivPosteId}-d-calcul`) ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+                          {isIvCardExpanded(`iv-${ivPosteId}-d-calcul`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                         </div>
                       </div>
                       {isIvCardExpanded(`iv-${ivPosteId}-d-calcul`) && (
@@ -13257,7 +13257,7 @@ export default function App() {
                               <select
                                 value={shared.autoConsommationMethod || 'libre'}
                                 onChange={(e) => updateShared({ autoConsommationMethod: e.target.value })}
-                                className="text-caption px-2 py-1 border border-[#e7e5e3] rounded-md bg-white text-[#292524]"
+                                className="text-caption px-2 py-1 border border-border rounded-md bg-white text-foreground"
                               >
                                 {Object.entries(AUTO_CONSO_SCALES).map(([key, s]) => (
                                   <option key={key} value={key}>{s.label}</option>
@@ -13273,13 +13273,13 @@ export default function App() {
                                   max="100"
                                   value={shared.partAutoConsommationLibre ?? shared.partAutoConsommation ?? 25}
                                   onChange={(e) => updateShared({ partAutoConsommationLibre: parseFloat(e.target.value) || 0 })}
-                                  className="w-20 text-right px-2 py-1 border border-[#e7e5e3] rounded-md text-[14px]"
+                                  className="w-20 text-right px-2 py-1 border border-border rounded-md text-[14px]"
                                 />
                               </div>
                             ) : (
-                              <div className="text-[11px] text-[#78716c] italic">{AUTO_CONSO_SCALES[shared.autoConsommationMethod]?.description}</div>
+                              <div className="text-[11px] text-foreground-secondary italic">{AUTO_CONSO_SCALES[shared.autoConsommationMethod]?.description}</div>
                             )}
-                            <div className="pt-2 mt-1 border-t border-[#e7e5e3] flex items-center justify-between">
+                            <div className="pt-2 mt-1 border-t border-border flex items-center justify-between">
                               <span style={{ fontSize: 12, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>{fmt(revenuAnnuelRef)} × (1 − {partAutoConso}%)</span>
                               <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>{fmt(Math.round(perteAnnuelle))}</span>
                             </div>
@@ -13303,20 +13303,20 @@ export default function App() {
 
                     {/* ════════ Card 3 - Cascade par bénéficiaire (Répartition + TP + Échu + À échoir) ════════ */}
                     <div className={cardBlockClass + ' mb-4'}>
-                      <div className="flex items-center justify-between h-12 px-4 border-b border-[#e7e5e3] cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-cascade`)}>
+                      <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-cascade`)}>
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center">
-                            <Hand className="w-3.5 h-3.5 text-[#78716c]" />
+                          <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
+                            <Hand className="w-3.5 h-3.5 text-foreground-secondary" />
                           </div>
-                          <span className="text-[14px] font-medium text-[#292524]">Bénéficiaires</span>
+                          <span className="text-[14px] font-medium text-foreground">Bénéficiaires</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-caption text-[#78716c]">{viData.length} {viData.length > 1 ? 'personnes' : 'personne'}</span>
-                          {isIvCardExpanded(`iv-${ivPosteId}-d-cascade`) ? <ChevronDown className="w-4 h-4 text-[#78716c]" /> : <ChevronRight className="w-4 h-4 text-[#78716c]" />}
+                          <span className="text-caption text-foreground-secondary">{viData.length} {viData.length > 1 ? 'personnes' : 'personne'}</span>
+                          {isIvCardExpanded(`iv-${ivPosteId}-d-cascade`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                         </div>
                       </div>
                       {isIvCardExpanded(`iv-${ivPosteId}-d-cascade`) && (<>
-                        <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                        <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                           <div className="flex-1 px-3"><span style={colHeaderStyle}>Bénéficiaire</span></div>
                           <div className="w-[60px] px-2 text-right"><span style={colHeaderStyle}>Part</span></div>
                           <div className="w-[100px] px-2 text-right"><span style={colHeaderStyle}>Perte/an</span></div>
@@ -13331,7 +13331,7 @@ export default function App() {
                           return (
                             <div key={vi.id}>
                               <div
-                                className="relative flex items-center h-[52px] border-b border-[#e7e5e3] bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors"
+                                className="relative flex items-center h-[52px] border-b border-border bg-white group cursor-pointer hover:bg-background transition-colors"
                                 onClick={() => setEditPanel({ type: 'iv-ligne-d', title: `${vi.prenom} ${vi.nom}`, data: { victimeId: vi.id, posteId: ivPosteId, partIndividuelle: ligne.partIndividuelle || 0, dureeIndemnisation: ligne.dureeIndemnisation || '', anneesEchues: ligne.anneesEchues || 0, mode: amounts.mode, coeffCapitalisation: amounts.coeff, perteAnnuelle } })}
                               >
                                 <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
@@ -13344,7 +13344,7 @@ export default function App() {
                                 <div className="w-[100px] px-2 text-right">
                                   <button
                                     onClick={(e) => { e.stopPropagation(); toggleCard(`iv-${ivPosteId}-d-tp-${vi.id}`); }}
-                                    className={`inline-flex items-center gap-1 ${amounts.totalTPAnnuel > 0 ? 'text-[#292524]' : 'text-[#a8a29e]'} hover:bg-[#eeece6] rounded px-1.5 py-0.5`}
+                                    className={`inline-flex items-center gap-1 ${amounts.totalTPAnnuel > 0 ? 'text-foreground' : 'text-foreground-muted'} hover:bg-cream rounded px-1.5 py-0.5`}
                                   >
                                     <span style={{ fontSize: 13 }}>{amounts.totalTPAnnuel > 0 ? `−${fmt(Math.round(amounts.totalTPAnnuel))}` : '—'}</span>
                                     <ChevronRight className={`w-3 h-3 transition-transform ${tpExpanded ? 'rotate-90' : ''}`} />
@@ -13368,13 +13368,13 @@ export default function App() {
                               </div>
                               {/* Expandable TP sub-rows */}
                               {tpExpanded && (
-                                <div className="border-b border-[#e7e5e3] bg-[#fafaf9]">
+                                <div className="border-b border-border bg-background">
                                   {tpDeductions.length === 0 ? (
                                     <div className="px-12 py-2"><span style={{ fontSize: 12, color: '#a8a29e' }}>Aucune déduction TP</span></div>
                                   ) : tpDeductions.map((tp) => (
                                     <div
                                       key={tp.id}
-                                      className="flex items-center h-9 pl-12 pr-3 hover:bg-[#f5f5f4] cursor-pointer group/tp"
+                                      className="flex items-center h-9 pl-12 pr-3 hover:bg-background-subtle cursor-pointer group/tp"
                                       onClick={() => setEditPanel({ type: 'iv-ligne-d-tp', title: tp.label, data: { victimeId: vi.id, posteId: ivPosteId, ...tp } })}
                                     >
                                       <span className="flex-1 truncate" style={{ fontSize: 12, color: '#44403c' }}>{tp.label}</span>
@@ -13384,11 +13384,11 @@ export default function App() {
                                         onClick={(e) => { e.stopPropagation(); deleteTPDeduction(vi.id, tp.id); }}
                                         className="ml-2 opacity-0 group-hover/tp:opacity-100 p-1 hover:bg-red-50 rounded"
                                       >
-                                        <Trash2 className="w-3 h-3 text-[#a8a29e] hover:text-red-500" />
+                                        <Trash2 className="w-3 h-3 text-foreground-muted hover:text-red-500" />
                                       </button>
                                     </div>
                                   ))}
-                                  <button onClick={() => addTPDeduction(vi.id)} className="w-full flex items-center gap-2 pl-12 pr-3 py-2 text-caption text-[#1e3a8a] hover:bg-[#f5f5f4]">
+                                  <button onClick={() => addTPDeduction(vi.id)} className="w-full flex items-center gap-2 pl-12 pr-3 py-2 text-caption text-link hover:bg-background-subtle">
                                     <Plus className="w-3 h-3" />Ajouter une déduction
                                   </button>
                                 </div>
@@ -13397,7 +13397,7 @@ export default function App() {
                           );
                         })}
                         {/* Footer */}
-                        <div className="flex items-center h-10 border-t border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                        <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
                           <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>Total</span></div>
                           <div className="w-[60px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>{sumParts}%</span></div>
                           <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>{fmt(Math.round(perteAnnuelle))}</span></div>
@@ -13421,29 +13421,29 @@ export default function App() {
                     <div className={totalBlockClass}>
                       <button onClick={() => toggleCard(`iv-${ivPosteId}-d-recap`)} className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-[#d6d3d1] rounded-[6px] flex items-center justify-center">
-                            <User className="w-3.5 h-3.5 text-[#78716c]" />
+                          <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
+                            <User className="w-3.5 h-3.5 text-foreground-secondary" />
                           </div>
-                          <span className="text-[14px] font-medium text-[#292524]">Total à indemniser</span>
+                          <span className="text-[14px] font-medium text-foreground">Total à indemniser</span>
                         </div>
                         <div className="flex items-center gap-3">
                           {hasMixedMode ? (
                             <div className="text-right">
-                              {totalDistribue > 0 && <div style={serifAmountStyle} className="text-[#292524]">{fmt(Math.round(totalDistribue))}</div>}
+                              {totalDistribue > 0 && <div style={serifAmountStyle} className="text-foreground">{fmt(Math.round(totalDistribue))}</div>}
                               {totalRenteAnnuelle > 0 && <div style={{ fontSize: 12, color: '#92400e' }}>+ {fmt(Math.round(totalRenteAnnuelle))} / an</div>}
                             </div>
                           ) : totalDistribue > 0 ? (
-                            <span style={serifAmountStyle} className="text-[#292524]">{fmt(Math.round(totalDistribue))}</span>
+                            <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(totalDistribue))}</span>
                           ) : totalRenteAnnuelle > 0 ? (
                             <span style={serifAmountStyle} className="text-[#92400e]">{fmt(Math.round(totalRenteAnnuelle))} / an</span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-[#a8a29e]">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
                           )}
-                          <ChevronRight className={`w-4 h-4 text-[#78716c] transition-transform ${isIvCardExpanded(`iv-${ivPosteId}-d-recap`) ? 'rotate-90' : ''}`} />
+                          <ChevronRight className={`w-4 h-4 text-foreground-secondary transition-transform ${isIvCardExpanded(`iv-${ivPosteId}-d-recap`) ? 'rotate-90' : ''}`} />
                         </div>
                       </button>
                       {isIvCardExpanded(`iv-${ivPosteId}-d-recap`) && (<>
-                        <div className="border-t border-[#d6d3d1] mt-3 mb-3" />
+                        <div className="border-t border-border-strong mt-3 mb-3" />
                         <div className="space-y-2">
                           {viData.map(({ vi, amounts }) => (
                             <div key={vi.id} className="flex justify-between items-center">
@@ -13460,7 +13460,7 @@ export default function App() {
                             </div>
                           ))}
                           {hasMixedMode && (<>
-                            <div className="border-t border-[#d6d3d1] mt-3 pt-3 flex justify-between items-center">
+                            <div className="border-t border-border-strong mt-3 pt-3 flex justify-between items-center">
                               <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>Total capital</span>
                               <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>{fmt(Math.round(totalDistribue))}</span>
                             </div>
@@ -13494,12 +13494,12 @@ export default function App() {
               <div className={totalBlockClass}>
                 <button onClick={() => setTotalExpanded(prev => ({...prev, [ivPosteId]: !prev[ivPosteId]}))} className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-[#d6d3d1] rounded-[6px] flex items-center justify-center">
-                      <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                    <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
+                      <FileText className="w-3.5 h-3.5 text-foreground-secondary" />
                     </div>
-                    <span className="text-[14px] font-medium text-[#292524]">Total à indemniser</span>
+                    <span className="text-[14px] font-medium text-foreground">Total à indemniser</span>
                   </div>
-                  <ChevronRight className={`w-4 h-4 text-[#78716c] transition-transform ${totalExpanded[ivPosteId] ? 'rotate-90' : ''}`} />
+                  <ChevronRight className={`w-4 h-4 text-foreground-secondary transition-transform ${totalExpanded[ivPosteId] ? 'rotate-90' : ''}`} />
                 </button>
                 {totalExpanded[ivPosteId] && (
                   <>
@@ -13518,15 +13518,15 @@ export default function App() {
                         ) : null;
                       })}
                     </div>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#d6d3d1] group/total">
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-strong group/total">
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 bg-[#d6d3d1] rounded-[5px] flex items-center justify-center">
-                          <FileText className="w-3 h-3 text-[#78716c]" />
+                        <div className="w-5 h-5 bg-border-strong rounded-[5px] flex items-center justify-center">
+                          <FileText className="w-3 h-3 text-foreground-secondary" />
                         </div>
-                        <span className="text-[13px] font-medium text-[#292524]">Total à indemniser</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-[#d6d3d1] opacity-0 group-hover/total:opacity-100 transition-opacity" />
+                        <span className="text-[13px] font-medium text-foreground">Total à indemniser</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-border-strong opacity-0 group-hover/total:opacity-100 transition-opacity" />
                       </div>
-                      <span style={serifAmountStyle} className="text-[#292524]">{fmt(ivTotal)}</span>
+                      <span style={serifAmountStyle} className="text-foreground">{fmt(ivTotal)}</span>
                     </div>
                   </>
                 )}
@@ -13535,18 +13535,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes[ivPosteId] || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, [ivPosteId]: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments juridiques..."
               />
             </div>
@@ -13564,36 +13564,36 @@ export default function App() {
         <div>
 
           {/* CALCUL Section */}
-          <div className="border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Form Block */}
                 <div className={cardBlockClass}>
                   <div className="p-5 space-y-4">
                     <div>
-                      <label className="block text-[14px] font-medium text-[#78716c] mb-2">Indemnisation</label>
+                      <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Indemnisation</label>
                       <div className="relative">
                         <input
                           type="number"
                           value={data.montant || ''}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, [posteId]: { ...(prev[posteId] || {}), montant: parseFloat(e.target.value) || 0 } }))}
-                          className="w-full h-10 px-3 pr-8 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                          className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                           placeholder="Montant en €"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-[#78716c]">€</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-foreground-secondary">€</span>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[14px] font-medium text-[#78716c] mb-2">Part tiers payeur</label>
+                      <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Part tiers payeur</label>
                       <div className="relative">
                         <input
                           type="number"
                           value={data.tiersPayeur || ''}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, [posteId]: { ...(prev[posteId] || {}), tiersPayeur: parseFloat(e.target.value) || 0 } }))}
-                          className="w-full h-10 px-3 pr-8 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                          className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                           placeholder="Montant en €"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-[#78716c]">€</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-foreground-secondary">€</span>
                       </div>
                     </div>
                   </div>
@@ -13603,10 +13603,10 @@ export default function App() {
                 <div style={sectionHeaderStyle} className="mt-2">PIÈCES JUSTIFICATIVES</div>
                 <div className={cardBlockClass}>
                   <div
-                    className="flex items-center justify-center h-[72px] border border-dashed border-[#d6d3d1] m-4 rounded-lg cursor-pointer hover:border-[#a8a29e] transition-colors"
+                    className="flex items-center justify-center h-[72px] border border-dashed border-border-strong m-4 rounded-lg cursor-pointer hover:border-foreground-muted transition-colors"
                     onClick={() => document.getElementById(`${posteId}-upload`)?.click()}
                   >
-                    <span className="text-[14px] text-[#78716c]">Déposez ou <span className="text-[#1e3a8a] font-medium">cliquez</span> pour ajouter un justificatif</span>
+                    <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
                     <input type="file" id={`${posteId}-upload`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
@@ -13615,12 +13615,12 @@ export default function App() {
                 <div className={totalBlockClass}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-[#d6d3d1] rounded-[6px] flex items-center justify-center">
-                        <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                      <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
+                        <FileText className="w-3.5 h-3.5 text-foreground-secondary" />
                       </div>
-                      <span className="text-[14px] font-medium text-[#292524]">Total à indemniser</span>
+                      <span className="text-[14px] font-medium text-foreground">Total à indemniser</span>
                     </div>
-                    <span style={serifAmountStyle} className="text-[#292524]">{fmt(data.montant - (data.tiersPayeur || 0))}</span>
+                    <span style={serifAmountStyle} className="text-foreground">{fmt(data.montant - (data.tiersPayeur || 0))}</span>
                   </div>
                 </div>
               </div>
@@ -13628,7 +13628,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -13652,18 +13652,18 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-[#e7e5e3]" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-[#e7e5e3] rounded-[4px] overflow-hidden">
-              <div className="flex items-center gap-1 px-3 py-2 border-b border-[#e7e5e3]">
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-[#f5f5f4] text-[#78716c] underline text-sm">U</button>
+            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+              <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
               <textarea
                 value={posteNotes[posteId] || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, [posteId]: e.target.value}))}
-                className="w-full p-4 text-[14px] text-[#292524] leading-[27px] resize-none min-h-[120px] focus:outline-none"
+                className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
                 placeholder="Ajoutez vos notes et arguments..."
               />
             </div>
@@ -13753,29 +13753,29 @@ export default function App() {
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowExportModal(false)}>
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between px-6 py-4 border-b">
-            <h2 className="text-heading-sm text-[#292524]">{titre}</h2>
-            <button onClick={() => setShowExportModal(false)} className="p-1.5 hover:bg-[#eeece6] rounded-lg transition-colors">
-              <X className="w-4 h-4 text-[#a8a29e]" />
+            <h2 className="text-heading-sm text-foreground">{titre}</h2>
+            <button onClick={() => setShowExportModal(false)} className="p-1.5 hover:bg-cream rounded-lg transition-colors">
+              <X className="w-4 h-4 text-foreground-muted" />
             </button>
           </div>
           <div className="p-4 space-y-2">
             {options.map((opt, i) => (
-              <div key={i} className="group relative flex items-start gap-4 p-4 rounded-xl hover:bg-[#fafaf9] transition-colors cursor-default">
-                <div className="w-10 h-10 rounded-lg bg-[#eeece6] flex items-center justify-center flex-shrink-0 group-hover:bg-zinc-200 transition-colors">
-                  <opt.icon className="w-5 h-5 text-[#78716c]" strokeWidth={1.5} />
+              <div key={i} className="group relative flex items-start gap-4 p-4 rounded-xl hover:bg-background transition-colors cursor-default">
+                <div className="w-10 h-10 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 group-hover:bg-zinc-200 transition-colors">
+                  <opt.icon className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-body-medium text-[#292524]">{opt.label}</p>
-                  <p className="text-caption text-[#78716c] mt-0.5 leading-relaxed">{opt.desc}</p>
+                  <p className="text-body-medium text-foreground">{opt.label}</p>
+                  <p className="text-caption text-foreground-secondary mt-0.5 leading-relaxed">{opt.desc}</p>
                 </div>
-                <span className="absolute left-4 right-4 -bottom-1 translate-y-full p-2.5 bg-[#292524] text-white text-caption rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-30 pointer-events-none">
+                <span className="absolute left-4 right-4 -bottom-1 translate-y-full p-2.5 bg-foreground text-white text-caption rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-30 pointer-events-none">
                   {opt.tooltip}
                 </span>
               </div>
             ))}
           </div>
-          <div className="px-6 py-4 border-t bg-[#F8F7F5] rounded-b-xl">
-            <p className="text-caption text-[#a8a29e] text-center">Ces options sont présentées à titre informatif pour recueillir vos retours.</p>
+          <div className="px-6 py-4 border-t bg-background-canvas rounded-b-xl">
+            <p className="text-caption text-foreground-muted text-center">Ces options sont présentées à titre informatif pour recueillir vos retours.</p>
           </div>
         </div>
       </div>
@@ -13796,10 +13796,10 @@ export default function App() {
       onAction={handleCloseDossier}
     >
       <ul className="space-y-2">
-        <li className="text-body text-[#44403c] leading-relaxed">
+        <li className="text-body text-foreground-tertiary leading-relaxed">
           Le dossier passe en lecture seule&nbsp;: plus aucune modification possible (chiffrage, pièces, rédactions).
         </li>
-        <li className="text-body text-[#44403c] leading-relaxed">
+        <li className="text-body text-foreground-tertiary leading-relaxed">
           Vous pourrez le reprendre à tout moment&nbsp;: vos dossiers sont illimités.
         </li>
       </ul>
@@ -13845,7 +13845,7 @@ export default function App() {
         {/* When read-only, show the licence state and route to billing on click. */}
         {cannotReopen && (
           <div
-            className="rounded-lg border border-[#e7e5e3] bg-white overflow-hidden mt-1"
+            className="rounded-lg border border-border bg-white overflow-hidden mt-1"
             onClickCapture={() => setReopenConfirmOpen(false)}
           >
             {renderDossierIndicator()}
@@ -14943,15 +14943,15 @@ export default function App() {
     if (!newPiece || !existingPiece) return null;
     const close = () => setDoublonCompare(null);
     const renderCol = (piece, label) => (
-      <div className="flex-1 flex flex-col min-w-0 bg-[#F8F7F5]">
-        <div className="px-4 py-3 border-b border-[#e7e5e3] flex-shrink-0">
-          <div className="text-[10px] uppercase tracking-[0.08em] font-medium text-[#a8a29e]">{label}</div>
-          <div className="text-[13px] font-medium text-[#292524] truncate mt-0.5">{piece.cleanName || piece.originalName || '—'}</div>
-          <div className="text-[11px] text-[#a8a29e] mt-0.5">{piece.pages || '?'} page{(piece.pages || 0) > 1 ? 's' : ''}</div>
+      <div className="flex-1 flex flex-col min-w-0 bg-background-canvas">
+        <div className="px-4 py-3 border-b border-border flex-shrink-0">
+          <div className="text-[10px] uppercase tracking-[0.08em] font-medium text-foreground-muted">{label}</div>
+          <div className="text-[13px] font-medium text-foreground truncate mt-0.5">{piece.cleanName || piece.originalName || '—'}</div>
+          <div className="text-[11px] text-foreground-muted mt-0.5">{piece.pages || '?'} page{(piece.pages || 0) > 1 ? 's' : ''}</div>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col items-center gap-4">
           {Array.from({ length: Math.min(piece.pages || 1, 6) }).map((_, i) => (
-            <div key={i} className="w-full max-w-[300px] bg-white rounded-lg border border-[#e7e5e3] shadow-sm p-5 flex flex-col gap-2" style={{ minHeight: 190 }}>
+            <div key={i} className="w-full max-w-[300px] bg-white rounded-lg border border-border shadow-sm p-5 flex flex-col gap-2" style={{ minHeight: 190 }}>
               {Array.from({ length: 9 }).map((_, j) => (
                 <div key={j} className="h-[5px] rounded-full" style={{ width: `${45 + ((i * 7 + j * 13) % 50)}%`, background: j % 7 === 6 ? 'transparent' : '#f1f0ee' }} />
               ))}
@@ -14971,32 +14971,32 @@ export default function App() {
           onClick={(e) => e.stopPropagation()}
           style={{ animation: 'fadeIn 0.2s ease-out' }}
         >
-          <div className="px-5 py-3 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0">
+          <div className="px-5 py-3 border-b border-border flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
               <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0" style={{ background: '#fdf4e7', color: '#b45309' }}>
                 <Copy className="w-3.5 h-3.5" strokeWidth={1.75} />
               </span>
-              <span className="text-[14px] font-medium text-[#44403c]">Doublon possible - comparer les documents</span>
+              <span className="text-[14px] font-medium text-foreground-tertiary">Doublon possible - comparer les documents</span>
             </div>
-            <button onClick={close} className="p-1.5 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
+            <button onClick={close} className="p-1.5 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
           <div className="flex-1 flex min-h-0">
             {renderCol(newPiece, 'Nouveau fichier')}
-            <div className="w-px bg-[#e7e5e3] flex-shrink-0" />
+            <div className="w-px bg-border flex-shrink-0" />
             {renderCol(existingPiece, 'Déjà dans le dossier')}
           </div>
-          <div className="px-5 py-3 border-t border-[#e7e5e3] flex items-center justify-end gap-2 flex-shrink-0">
+          <div className="px-5 py-3 border-t border-border flex items-center justify-end gap-2 flex-shrink-0">
             <button
               onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-[#44403c] bg-white border border-[#d6d3d1] hover:bg-[#f8f7f5] transition-colors"
+              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-white border border-border-strong hover:bg-background-canvas transition-colors"
             >
               Garder les deux
             </button>
             <button
               onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-[#44403c] bg-white border border-[#d6d3d1] hover:bg-[#f8f7f5] transition-colors"
+              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-white border border-border-strong hover:bg-background-canvas transition-colors"
             >
               Ignorer le nouveau
             </button>
@@ -15143,21 +15143,21 @@ export default function App() {
         {!piecesTabDragOver && (
         <div className="flex-1 flex flex-col min-w-0">
           {/* Sub-header bar - edge-to-edge */}
-          <div className="flex items-center gap-2 px-4 py-3.5 border-b border-[#e7e5e3]">
-            <Search className="w-4 h-4 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
+          <div className="flex items-center gap-2 px-4 py-3.5 border-b border-border">
+            <Search className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Rechercher une pièce..."
               value={piecesFilter.search}
               onChange={e => setPiecesFilter(prev => ({ ...prev, search: e.target.value }))}
-              className="flex-1 bg-transparent text-[14px] text-[#292524] placeholder-[#a8a29e] focus:outline-none"
+              className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
             />
             {piecesFilter.search && (
               <button
                 onClick={() => setPiecesFilter(prev => ({ ...prev, search: '' }))}
-                className="p-0.5 hover:bg-[#eeece6] rounded transition-colors"
+                className="p-0.5 hover:bg-cream rounded transition-colors"
               >
-                <X className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.5} />
+                <X className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
               </button>
             )}
           </div>
@@ -15167,16 +15167,16 @@ export default function App() {
 
             {/* Reorder hint banner */}
             {showReorderHint && !manualReorder && (
-              <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-[#f8f7f5] border border-[#e7e5e3] rounded-lg">
-                <Hand className="w-4 h-4 text-[#78716c] shrink-0" strokeWidth={1.5} />
-                <span className="text-sm text-[#44403c]">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
+              <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
+                <Hand className="w-4 h-4 text-foreground-secondary shrink-0" strokeWidth={1.5} />
+                <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
                 <button
                   onClick={() => { setManualReorder(true); setShowReorderHint(false); }}
-                  className="ml-auto px-3 py-1.5 text-sm font-medium text-white bg-[#292524] rounded-md hover:bg-[#44403c] transition-colors shrink-0"
+                  className="ml-auto px-3 py-1.5 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
                 >
                   Désactiver Chrono
                 </button>
-                <button onClick={() => setShowReorderHint(false)} className="text-[#a8a29e] hover:text-[#78716c] transition-colors shrink-0">
+                <button onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
                   <X className="w-4 h-4" strokeWidth={1.5} />
                 </button>
               </div>
@@ -15253,21 +15253,21 @@ export default function App() {
           {/* Custom drag ghost card */}
           {reorderDrag && (
             <div
-              className="fixed z-50 pointer-events-none bg-[#292524] border border-[#44403c] rounded-lg shadow-lg px-3 py-2 flex items-center gap-2"
+              className="fixed z-50 pointer-events-none bg-foreground border border-foreground-tertiary rounded-lg shadow-lg px-3 py-2 flex items-center gap-2"
               style={{ left: reorderDrag.ghostX + 12, top: reorderDrag.ghostY - 16, minWidth: 200 }}
             >
-              <GripVertical className="w-3 h-3 text-[#78716c]" strokeWidth={1.5} />
-              <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-[#44403c] text-[#d6d3d1] text-xs font-semibold rounded-md">{reorderDrag.num || '?'}</span>
+              <GripVertical className="w-3 h-3 text-foreground-secondary" strokeWidth={1.5} />
+              <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-foreground-tertiary text-border-strong text-xs font-semibold rounded-md">{reorderDrag.num || '?'}</span>
               <span className="text-sm font-medium text-white truncate max-w-[250px]">{reorderDrag.name}</span>
               {reorderDrag.type && (
-                <span className={`px-2 py-0.5 text-xs font-medium rounded-md bg-[#44403c] text-[#d6d3d1]`}>{reorderDrag.type}</span>
+                <span className={`px-2 py-0.5 text-xs font-medium rounded-md bg-foreground-tertiary text-border-strong`}>{reorderDrag.type}</span>
               )}
             </div>
           )}
 
           {/* Track B hint - no rapport */}
           {allDone && !dropFirstHasRapport && !rapportBannerDismissed && (
-            <div className="mt-3 px-4 py-3 text-sm text-[#78716c] flex items-center gap-2">
+            <div className="mt-3 px-4 py-3 text-sm text-foreground-secondary flex items-center gap-2">
               <span>💡</span>
               <span>Astuce : ajoutez un rapport d'expertise pour remplir automatiquement les informations du dossier.</span>
             </div>
@@ -15414,19 +15414,19 @@ export default function App() {
     // Shared download dropdown, reused by both footer layouts (the full-width
     // Télécharger on whole docs and the inline one on split/other docs).
     const downloadMenu = pieceDownloadMenu ? (
-      <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-white border border-[#e7e5e3] rounded-lg shadow-lg py-1 z-20">
+      <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-white border border-border rounded-lg shadow-lg py-1 z-20">
         <button
           onClick={() => { setPieceDownloadMenu(false); flashToast('Téléchargement du document original…'); }}
-          className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
+          className="w-full text-left px-3 py-1.5 text-body text-foreground-tertiary hover:bg-background transition-colors flex items-center gap-2"
         >
-          <FileText className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Document original
+          <FileText className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} /> Document original
         </button>
         {bordereau && (
           <button
             onClick={() => { setPieceDownloadMenu(false); flashToast(`Téléchargement avec tampon « pièce n° ${ctx.number} »…`); }}
-            className="w-full text-left px-3 py-1.5 text-body text-[#44403c] hover:bg-[#fafaf9] transition-colors flex items-center gap-2"
+            className="w-full text-left px-3 py-1.5 text-body text-foreground-tertiary hover:bg-background transition-colors flex items-center gap-2"
           >
-            <Stamp className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} /> Avec tampon de pièce
+            <Stamp className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} /> Avec tampon de pièce
           </button>
         )}
       </div>
@@ -15437,14 +15437,14 @@ export default function App() {
       {/* Dimmed backdrop - covers the canvas left of the chat (respects --chat-offset
           so the chat + its resize divider stay clear); click to close. */}
       <div onClick={onClosePanel} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
-      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
+      <div className="fixed top-0 h-screen bg-white border-l border-border z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Common header: file icon + title (left), nav + close (right) */}
-        <div className="px-4 py-3.5 border-b border-[#e7e5e3] flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+        <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-[#eeece6] text-[#44403c] flex-shrink-0">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-cream text-foreground-tertiary flex-shrink-0">
               <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />
             </span>
-            <span className="text-body-medium text-[#1c1917] truncate">{piece.cleanName}</span>
+            <span className="text-body-medium text-foreground-strong truncate">{piece.cleanName}</span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex items-center gap-1">
@@ -15452,22 +15452,22 @@ export default function App() {
                 onClick={() => navPrev && navPrev()}
                 disabled={!navPrev}
                 aria-label="Pièce précédente"
-                className={`p-1 rounded-md transition-colors ${navPrev ? 'text-[#78716c] hover:text-[#292524] hover:bg-[#eeece6]' : 'text-zinc-200 cursor-not-allowed'}`}
+                className={`p-1 rounded-md transition-colors ${navPrev ? 'text-foreground-secondary hover:text-foreground hover:bg-cream' : 'text-zinc-200 cursor-not-allowed'}`}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-caption text-[#a8a29e] min-w-[34px] text-center tabular-nums">{navPos} / {navTotal}</span>
+              <span className="text-caption text-foreground-muted min-w-[34px] text-center tabular-nums">{navPos} / {navTotal}</span>
               <button
                 onClick={() => navNext && navNext()}
                 disabled={!navNext}
                 aria-label="Pièce suivante"
-                className={`p-1 rounded-md transition-colors ${navNext ? 'text-[#78716c] hover:text-[#292524] hover:bg-[#eeece6]' : 'text-zinc-200 cursor-not-allowed'}`}
+                className={`p-1 rounded-md transition-colors ${navNext ? 'text-foreground-secondary hover:text-foreground hover:bg-cream' : 'text-zinc-200 cursor-not-allowed'}`}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
-            <span className="w-px h-4 bg-[#e7e5e3]" />
-            <button onClick={onClosePanel} aria-label="Fermer" className="p-1 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-md transition-colors">
+            <span className="w-px h-4 bg-border" />
+            <button onClick={onClosePanel} aria-label="Fermer" className="p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -15477,19 +15477,19 @@ export default function App() {
         <div className="flex flex-1 min-h-0">
         {/* Left: document aperçu - a skeleton paper render. Multi-page docs get
             a stacked-pages effect behind the front page. */}
-        <div className="w-[420px] flex flex-col border-r border-zinc-100 bg-[#F8F7F5]">
+        <div className="w-[420px] flex flex-col border-r border-zinc-100 bg-background-canvas">
           <div className="flex-1 overflow-y-auto p-7 flex items-start justify-center">
             <div className="relative w-full max-w-[300px]">
               {totalPages > 1 && (
                 <>
                   <div className="absolute inset-0 translate-x-[7px] translate-y-[7px] bg-white rounded-xl border border-[#ece9e4]" />
-                  <div className="absolute inset-0 translate-x-[3px] translate-y-[3px] bg-white rounded-xl border border-[#e7e5e3]" />
+                  <div className="absolute inset-0 translate-x-[3px] translate-y-[3px] bg-white rounded-xl border border-border" />
                 </>
               )}
               <div className="relative">
                 <DocPreviewSkeleton title={piece.cleanName} date={dateLabel} />
               </div>
-              <p className="mt-3 text-center text-caption text-[#a8a29e]">
+              <p className="mt-3 text-center text-caption text-foreground-muted">
                 {totalPages} page{totalPages > 1 ? 's' : ''}{piece.pageRange ? ` · p. ${piece.pageRange}` : ''}
               </p>
             </div>
@@ -15528,16 +15528,16 @@ export default function App() {
                     callout (Figma 2584-25234); otherwise → the plain « Nom
                     original » line. Then the AI summary. */}
                 {(isSplit || isFusion) ? (
-                  <div className="rounded-lg border border-[#e7e5e3] bg-[#f8f7f5] p-3">
+                  <div className="rounded-lg border border-border bg-background-canvas p-3">
                     <div className="flex items-start gap-2.5">
-                      <div className="w-7 h-7 rounded-md bg-white border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
+                      <div className="w-7 h-7 rounded-md bg-white border border-border flex items-center justify-center flex-shrink-0">
                         {isFusion
-                          ? <Layers className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={1.75} />
-                          : <Scissors className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={1.75} />}
+                          ? <Layers className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
+                          : <Scissors className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />}
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                        <span className="text-[14px] leading-5 font-medium text-[#292524]">{isFusion ? 'Document fusionné' : 'Document découpé'}</span>
-                        <span className="text-[12px] leading-4 tracking-[0.12px] text-[#78716c] truncate" title={provPile?.originalName || piece.nomOriginal || ''}>
+                        <span className="text-[14px] leading-5 font-medium text-foreground">{isFusion ? 'Document fusionné' : 'Document découpé'}</span>
+                        <span className="text-[12px] leading-4 tracking-[0.12px] text-foreground-secondary truncate" title={provPile?.originalName || piece.nomOriginal || ''}>
                           {isFusion
                             ? `${fusionSources.length} document${fusionSources.length > 1 ? 's' : ''}`
                             : (provPile?.originalName || piece.nomOriginal || piece.originalName || `Partie ${splitPart} sur ${splitTotal}`)}
@@ -15545,13 +15545,13 @@ export default function App() {
                         {isFusion && fusionSources.length > 0 && (
                           <div className="mt-1 flex flex-col gap-1">
                             {fusionSources.slice(0, 3).map((s, i) => (
-                              <div key={i} className="flex items-center gap-1.5 text-[12px] text-[#78716c] min-w-0">
-                                <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+                              <div key={i} className="flex items-center gap-1.5 text-[12px] text-foreground-secondary min-w-0">
+                                <FileText className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
                                 <span className="truncate">{s}</span>
                               </div>
                             ))}
                             {fusionSources.length > 3 && (
-                              <span className="text-[12px] text-[#a8a29e]">+{fusionSources.length - 3} autre{fusionSources.length - 3 > 1 ? 's' : ''}</span>
+                              <span className="text-[12px] text-foreground-muted">+{fusionSources.length - 3} autre{fusionSources.length - 3 > 1 ? 's' : ''}</span>
                             )}
                           </div>
                         )}
@@ -15569,13 +15569,13 @@ export default function App() {
                     </div>
                   </div>
                 ) : (piece.originalName || piece.sourceFile) ? (
-                  <p className="px-0.5 text-[12px] leading-4 text-[#78716c] truncate" title={piece.originalName || piece.sourceFile}>
+                  <p className="px-0.5 text-[12px] leading-4 text-foreground-secondary truncate" title={piece.originalName || piece.sourceFile}>
                     <span className="font-medium">Nom original</span> - {piece.originalName || piece.sourceFile}
                   </p>
                 ) : null}
                 {piece.summary && (
                   <p
-                    className="px-0.5 text-[12px] leading-5 text-[#78716c]"
+                    className="px-0.5 text-[12px] leading-5 text-foreground-secondary"
                     style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
                     title={piece.summary}
                   >
@@ -15586,8 +15586,8 @@ export default function App() {
 
               {/* Date du document - editable, with calendar adornment */}
               <Input label="Date du document" aiGenerated>
-                <div className="flex items-center gap-2 h-9 px-3 bg-white border border-[#e7e5e3] rounded-lg shadow-xs transition-colors focus-within:border-stone-400 focus-within:ring-1 focus-within:ring-stone-200">
-                  <Calendar className="w-4 h-4 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+                <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs transition-colors focus-within:border-stone-400 focus-within:ring-1 focus-within:ring-stone-200">
+                  <Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
                   <input
                     key={`date-${bordereau ? `b-${ctx.entryIdx}` : piece.id}`}
                     type="text"
@@ -15595,7 +15595,7 @@ export default function App() {
                     placeholder="jj/mm/aaaa"
                     onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }}
                     onBlur={e => commitDate(e.target.value)}
-                    className="flex-1 min-w-0 bg-transparent outline-none text-[14px] leading-5 text-[#292524] placeholder:text-[#a8a29e]"
+                    className="flex-1 min-w-0 bg-transparent outline-none text-[14px] leading-5 text-foreground placeholder:text-foreground-muted"
                   />
                 </div>
               </Input>
@@ -15604,7 +15604,7 @@ export default function App() {
             {/* ── Numérotation de la pièce (bordereau only) ────────────── */}
             {bordereau && (
               <>
-                <div className="h-px bg-[#e7e5e3]" />
+                <div className="h-px bg-border" />
                 <div className="px-5 flex flex-col gap-5">
                   <FieldGroupLabel>Numérotation de la pièce</FieldGroupLabel>
                   <div className="flex gap-5">
@@ -15638,29 +15638,29 @@ export default function App() {
               Supprimer + Télécharger le document. Clicking « Découper » expands
               this footer in place (taller) to hold the naming-instructions config. */}
           {splitConfigOpen ? (
-            <div className="px-5 py-4 border-t border-[#e7e5e3] bg-white flex-shrink-0 flex flex-col gap-3" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+            <div className="px-5 py-4 border-t border-border bg-white flex-shrink-0 flex flex-col gap-3" style={{ animation: 'fadeIn 0.15s ease-out' }}>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[13px] font-medium text-[#292524]">Instructions de nommage <span className="font-normal text-[#a8a29e]">(optionnel)</span></label>
+                <label className="text-[13px] font-medium text-foreground">Instructions de nommage <span className="font-normal text-foreground-muted">(optionnel)</span></label>
                 <textarea
                   autoFocus
                   value={panelSplitConfig.prompt}
                   onChange={e => setPanelSplitConfig(c => ({ ...c, prompt: e.target.value }))}
                   placeholder="ex. Nomme chaque pièce par sa nature, son auteur et sa date"
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                  className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
                   style={{ minHeight: 64, maxHeight: 120, resize: 'vertical', fontFamily: 'inherit' }}
                 />
-                <p className="text-xs text-[#78716c]">Laissez vide pour laisser l'IA nommer les pièces automatiquement.</p>
+                <p className="text-xs text-foreground-secondary">Laissez vide pour laisser l'IA nommer les pièces automatiquement.</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setPanelSplitConfig(null)}
-                  className="flex-shrink-0 h-9 px-4 rounded-lg bg-white border border-[#e7e5e3] text-[#44403c] hover:bg-[#f8f7f5] transition-colors text-sm font-medium"
+                  className="flex-shrink-0 h-9 px-4 rounded-lg bg-white border border-border text-foreground-tertiary hover:bg-background-canvas transition-colors text-sm font-medium"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={() => startPosterioriSplit(piece.id, panelSplitConfig.prompt)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#1c1917] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                  className="flex-1 h-9 px-4 rounded-lg bg-foreground text-white hover:bg-foreground-strong transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Scissors className="w-4 h-4" strokeWidth={1.75} />
                   Lancer le découpage
@@ -15668,12 +15668,12 @@ export default function App() {
               </div>
             </div>
           ) : (
-          <div className="px-5 py-4 border-t border-[#e7e5e3] bg-white flex-shrink-0 flex flex-col gap-2.5">
+          <div className="px-5 py-4 border-t border-border bg-white flex-shrink-0 flex flex-col gap-2.5">
             {canOfferSplit && (
               <div className="relative">
                 <button
                   onClick={() => setPieceDownloadMenu(o => !o)}
-                  className="w-full h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#44403c] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                  className="w-full h-9 px-4 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Download className="w-4 h-4" strokeWidth={1.75} />
                   Télécharger
@@ -15684,7 +15684,7 @@ export default function App() {
             )}
             <div className="flex items-center gap-3">
               <button
-                className="flex-shrink-0 h-9 px-4 rounded-lg bg-[#fee2e2] text-[#7f1d1d] hover:bg-[#fecaca] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                className="flex-shrink-0 h-9 px-4 rounded-lg bg-[#fee2e2] text-[#7f1d1d] hover:bg-danger-border transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 onClick={() => {
                   if (bordereau) {
                     ctx.onRemove();
@@ -15708,7 +15708,7 @@ export default function App() {
               {canOfferSplit ? (
                 <button
                   onClick={() => openPanelSplitConfig(piece.id)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-white border border-[#e7e5e3] text-[#292524] hover:bg-[#f8f7f5] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                  className="flex-1 h-9 px-4 rounded-lg bg-white border border-border text-foreground hover:bg-background-canvas transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Scissors className="w-4 h-4" strokeWidth={1.75} />
                   Découper
@@ -15717,7 +15717,7 @@ export default function App() {
                 <div className="relative flex-1">
                   <button
                     onClick={() => setPieceDownloadMenu(o => !o)}
-                    className="w-full h-9 px-4 rounded-lg bg-[#292524] text-white hover:bg-[#44403c] transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                    className="w-full h-9 px-4 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                   >
                     <Download className="w-4 h-4" strokeWidth={1.75} />
                     Télécharger le document
@@ -16033,8 +16033,8 @@ export default function App() {
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1000px] h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
-            <h2 className="text-display-sm text-[#292524]" style={{ fontFamily: 'Georgia, serif' }}>{isAdd ? 'Ajouter des pièces' : 'Nouveau dossier'}</h2>
-            <button onClick={() => setDropModal(null)} className="p-1 text-[#a8a29e] hover:text-[#78716c] hover:bg-[#eeece6] rounded-lg transition-colors">
+            <h2 className="text-display-sm text-foreground" style={{ fontFamily: 'Georgia, serif' }}>{isAdd ? 'Ajouter des pièces' : 'Nouveau dossier'}</h2>
+            <button onClick={() => setDropModal(null)} className="p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-lg transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -16044,13 +16044,13 @@ export default function App() {
             {/* Matter reference - creation only (add-files targets the open dossier) */}
             {!isAdd && (
               <div className="mb-4 flex-shrink-0">
-                <label className="block text-sm font-medium text-[#292524] mb-1.5">Référence du dossier</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Référence du dossier</label>
                 <input
                   type="text"
                   value={reference}
                   onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
                   placeholder="Dossier Leblanc..."
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                  className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
                 />
               </div>
             )}
@@ -16069,7 +16069,7 @@ export default function App() {
                   {/* Default/hover state - start context */}
                   <div className="dropzone-default-content flex flex-col items-center justify-center rounded-lg flex-1 min-h-0" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 0%, #f8f7f5 100%)' }}>
                     <div className="pt-8 pb-8 px-8 flex flex-col items-center gap-8 w-full max-w-[576px] mx-auto">
-                      <div className="bg-[#eeece6] border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
+                      <div className="bg-cream border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
                         <Upload className="w-6 h-6 text-stone-500" />
                       </div>
                       <div className="text-center space-y-2">
@@ -16089,7 +16089,7 @@ export default function App() {
                   {/* Drop state */}
                   <div className="dropzone-drop-content hidden flex-col items-center rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 0%, #eeece6 100%)' }}>
                     <div className="pt-8 pb-8 px-8 flex flex-col items-center gap-8 w-full max-w-[576px] mx-auto">
-                      <div className="bg-[#eeece6] border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
+                      <div className="bg-cream border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
                         <ArrowDown className="w-6 h-6 text-stone-600" />
                       </div>
                       <div className="text-center space-y-2">
@@ -16104,12 +16104,12 @@ export default function App() {
                   {/* Default/hover - panel context */}
                   <div className="dropzone-default-content flex items-center justify-center gap-2.5 py-4 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}>
                     <Upload className="w-5 h-5 text-stone-400" />
-                    <p className="text-body text-stone-500">Déposez ou <span className="font-medium text-[#1e3a8a]">cliquez</span> pour ajouter un justificatif</p>
+                    <p className="text-body text-stone-500">Déposez ou <span className="font-medium text-link">cliquez</span> pour ajouter un justificatif</p>
                   </div>
                   {/* Drop state */}
                   <div className="dropzone-drop-content hidden flex items-center justify-center gap-2.5 py-4 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #eeece6 100%)' }}>
                     <ArrowDown className="w-5 h-5 text-stone-600" />
-                    <p className="text-body-medium text-[#292524]">Déposez vos fichiers ici</p>
+                    <p className="text-body-medium text-foreground">Déposez vos fichiers ici</p>
                   </div>
                 </>
               )}
@@ -16122,22 +16122,22 @@ export default function App() {
                 {/* List toolbar - anchored as a header above the rows: title on
                     the left, search + « Tout découper » master grouped on the
                     right (divider between), so nothing floats. */}
-                <div className="flex items-center justify-between gap-4 mb-3 pb-2.5 border-b border-[#e7e5e3] flex-shrink-0">
-                  <p className="text-sm font-medium text-[#44403c] whitespace-nowrap">{files.length} document{files.length > 1 ? 's' : ''} ajouté{files.length > 1 ? 's' : ''}</p>
+                <div className="flex items-center justify-between gap-4 mb-3 pb-2.5 border-b border-border flex-shrink-0">
+                  <p className="text-sm font-medium text-foreground-tertiary whitespace-nowrap">{files.length} document{files.length > 1 ? 's' : ''} ajouté{files.length > 1 ? 's' : ''}</p>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {files.length > 1 && (
                       <>
                         <div className="relative" style={{ width: 220 }}>
-                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a8a29e] pointer-events-none" strokeWidth={1.75} />
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted pointer-events-none" strokeWidth={1.75} />
                           <input
                             type="text"
                             value={dropModal.docSearch || ''}
                             onChange={(e) => setDropModal(prev => ({ ...prev, docSearch: e.target.value }))}
                             placeholder="Rechercher un document..."
-                            className="w-full h-8 pl-8 pr-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors"
+                            className="w-full h-8 pl-8 pr-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors"
                           />
                         </div>
-                        <span className="w-px h-5 bg-[#e7e5e3] flex-shrink-0" />
+                        <span className="w-px h-5 bg-border flex-shrink-0" />
                       </>
                     )}
                     <div className="flex items-center gap-1.5">
@@ -16146,7 +16146,7 @@ export default function App() {
                         icon={Info}
                         align="right"
                         label="À propos du découpage"
-                        iconClassName="w-[18px] h-[18px] text-[#a8a29e] hover:text-[#78716c] transition-colors flex-shrink-0"
+                        iconClassName="w-[18px] h-[18px] text-foreground-muted hover:text-foreground-secondary transition-colors flex-shrink-0"
                       >
                         Active ou désactive le découpage pour tous les documents à la fois. Réglez-le ensuite document par document dans la liste.
                       </InfoTip>
@@ -16155,28 +16155,28 @@ export default function App() {
                 </div>
                 <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto">
                   {visibleFiles.length === 0 ? (
-                    <div className="flex items-center justify-center py-8 text-center text-sm text-[#a8a29e]">Aucun document ne correspond à votre recherche.</div>
+                    <div className="flex items-center justify-center py-8 text-center text-sm text-foreground-muted">Aucun document ne correspond à votre recherche.</div>
                   ) : visibleFiles.map((f, idx) => {
                     const isUploading = f.status === 'uploading';
                     return (
-                      <div key={f.id} className={`flex items-center justify-between px-3 py-2.5 rounded-lg group transition-all ${isUploading ? '' : 'hover:bg-[#f8f7f5]'}`}>
+                      <div key={f.id} className={`flex items-center justify-between px-3 py-2.5 rounded-lg group transition-all ${isUploading ? '' : 'hover:bg-background-canvas'}`}>
                         <div className="flex items-center gap-3 min-w-0">
                           {/* Icon: spinner while loading, paperclip when ready */}
                           <div className="flex items-center justify-center w-[22px] h-[22px] flex-shrink-0">
                             {isUploading ? (
-                              <Loader2 className="w-4 h-4 text-[#78716c] animate-spin" />
+                              <Loader2 className="w-4 h-4 text-foreground-secondary animate-spin" />
                             ) : (
                               <>
-                                <Paperclip className="w-4 h-4 text-[#78716c] group-hover:hidden" />
+                                <Paperclip className="w-4 h-4 text-foreground-secondary group-hover:hidden" />
                                 <Trash2
-                                  className="w-4 h-4 text-[#78716c] hover:text-red-500 hidden group-hover:block cursor-pointer"
+                                  className="w-4 h-4 text-foreground-secondary hover:text-red-500 hidden group-hover:block cursor-pointer"
                                   onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}
                                 />
                               </>
                             )}
                           </div>
                           {/* Filename */}
-                          <span className={`text-sm truncate ${isUploading ? 'italic opacity-40 text-[#292524]' : 'text-[#292524]'}`}>{f.name}</span>
+                          <span className={`text-sm truncate ${isUploading ? 'italic opacity-40 text-foreground' : 'text-foreground'}`}>{f.name}</span>
                         </div>
                         {/* Right side - per-document split choice (segmented) */}
                         {!isUploading && (
@@ -16210,16 +16210,16 @@ export default function App() {
                 transition: 'max-height 300ms cubic-bezier(0.4,0,0.2,1), opacity 220ms ease, transform 280ms cubic-bezier(0.4,0,0.2,1)',
               }}
             >
-              <div className="mt-4 rounded-xl bg-[#f8f7f5] p-4 flex flex-col gap-3">
-                <span className="text-sm font-medium text-[#292524]">Préférences de nommage des pièces découpées</span>
+              <div className="mt-4 rounded-xl bg-background-canvas p-4 flex flex-col gap-3">
+                <span className="text-sm font-medium text-foreground">Préférences de nommage des pièces découpées</span>
                 <textarea
                   value={renamePattern}
                   onChange={(e) => setDropModal(prev => ({ ...prev, renamePattern: e.target.value }))}
                   placeholder="ex. Nature de la pièce - Auteur - Date"
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:border-[#78716c] transition-colors shadow-sm"
+                  className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
                   style={{ minHeight: 72, maxHeight: 140, resize: 'vertical', fontFamily: 'inherit' }}
                 />
-                <p className="text-xs text-[#78716c] leading-relaxed">Les pièces issues d'un découpage doivent être renommées. Plato applique la consigne ci-dessus par défaut - modifiez-la si besoin, ou renommez chaque pièce individuellement après l'import.</p>
+                <p className="text-xs text-foreground-secondary leading-relaxed">Les pièces issues d'un découpage doivent être renommées. Plato applique la consigne ci-dessus par défaut - modifiez-la si besoin, ou renommez chaque pièce individuellement après l'import.</p>
               </div>
             </div>
 
@@ -16230,7 +16230,7 @@ export default function App() {
             {(hasFiles || isAdd) ? (
               <button
                 onClick={() => setDropModal(null)}
-                className="h-10 px-4 text-sm font-medium text-[#44403c] bg-white border border-[#e7e5e3] rounded-lg hover:bg-[#f8f7f5] transition-colors shadow-sm"
+                className="h-10 px-4 text-sm font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background-canvas transition-colors shadow-sm"
               >
                 Annuler
               </button>
@@ -16240,7 +16240,7 @@ export default function App() {
                   setDropModal(null);
                   setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } });
                 }}
-                className="inline-flex items-center gap-2 text-sm font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity"
+                className="inline-flex items-center gap-2 text-sm font-medium text-link hover:opacity-80 transition-opacity"
               >
                 <Pencil className="w-4 h-4" strokeWidth={1.75} />
                 Créer manuellement
@@ -16249,9 +16249,9 @@ export default function App() {
             <button
               onClick={isAdd ? confirmAddPieces : handleDropFirstCreate}
               disabled={!hasFiles}
-              className={`h-10 px-6 text-sm font-medium text-white bg-[#292524] rounded-lg transition-opacity shadow-sm ${
+              className={`h-10 px-6 text-sm font-medium text-white bg-foreground rounded-lg transition-opacity shadow-sm ${
                 hasFiles
-                  ? 'hover:bg-[#1c1917]'
+                  ? 'hover:bg-foreground-strong'
                   : 'opacity-50 cursor-not-allowed'
               }`}
             >
@@ -16283,48 +16283,48 @@ export default function App() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
             {/* Header */}
             <div className="px-6 py-5 border-b border-zinc-100">
-              <h2 className="text-lg font-semibold text-[#292524]">Nouveau dossier</h2>
+              <h2 className="text-lg font-semibold text-foreground">Nouveau dossier</h2>
             </div>
 
             {/* Body */}
             <div className="px-6 py-5 space-y-6">
               {/* Section Identité */}
               <div>
-                <h3 className="text-body-medium font-semibold text-[#44403c] mb-3">Identité de la victime</h3>
+                <h3 className="text-body-medium font-semibold text-foreground-tertiary mb-3">Identité de la victime</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Nom *</label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Nom *</label>
                     <input
                       type="text"
                       value={formData.nom}
                       onChange={(e) => updateFormData('nom', e.target.value)}
                       placeholder="Nom de famille"
-                      className="w-full px-3 py-2.5 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Prénom *</label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Prénom *</label>
                     <input
                       type="text"
                       value={formData.prenom}
                       onChange={(e) => updateFormData('prenom', e.target.value)}
                       placeholder="Prénom"
-                      className="w-full px-3 py-2.5 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Sexe</label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Sexe</label>
                     <select
                       value={formData.sexe}
                       onChange={(e) => updateFormData('sexe', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                     >
                       <option value="Homme">Homme</option>
                       <option value="Femme">Femme</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Date de naissance *</label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de naissance *</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -16332,15 +16332,15 @@ export default function App() {
                         value={formData.dateNaissance}
                         onChange={(e) => updateFormData('dateNaissance', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateNaissance', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
-                    {computedAge !== null && <div className="text-caption text-[#a8a29e] mt-1">{computedAge} ans</div>}
+                    {computedAge !== null && <div className="text-caption text-foreground-muted mt-1">{computedAge} ans</div>}
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Date de décès</label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de décès</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -16348,10 +16348,10 @@ export default function App() {
                         value={formData.dateDeces}
                         onChange={(e) => updateFormData('dateDeces', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateDeces', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                 </div>
@@ -16359,14 +16359,14 @@ export default function App() {
 
               {/* Section Contexte */}
               <div>
-                <h3 className="text-body-medium font-semibold text-[#44403c] mb-3">Contexte</h3>
+                <h3 className="text-body-medium font-semibold text-foreground-tertiary mb-3">Contexte</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Type de fait générateur</label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Type de fait générateur</label>
                     <select
                       value={formData.typeFait}
                       onChange={(e) => updateFormData('typeFait', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                     >
                       {typesFaitGenerateur.map(t => (
                         <option key={t} value={t}>{t}</option>
@@ -16374,7 +16374,7 @@ export default function App() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Date de l'accident *</label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de l'accident *</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -16382,14 +16382,14 @@ export default function App() {
                         value={formData.dateAccident}
                         onChange={(e) => updateFormData('dateAccident', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateAccident', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Date de consolidation <span className="text-[#d6d3d1] font-normal">(facultatif)</span></label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de consolidation <span className="text-border-strong font-normal">(facultatif)</span></label>
                     <div className="relative">
                       <input
                         type="text"
@@ -16397,14 +16397,14 @@ export default function App() {
                         value={formData.dateConsolidation}
                         onChange={(e) => updateFormData('dateConsolidation', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateConsolidation', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-caption-medium text-[#78716c] mb-1.5">Date de liquidation <span className="text-[#d6d3d1] font-normal">(facultatif)</span></label>
+                    <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de liquidation <span className="text-border-strong font-normal">(facultatif)</span></label>
                     <div className="relative">
                       <input
                         type="text"
@@ -16412,10 +16412,10 @@ export default function App() {
                         value={formData.dateLiquidation}
                         onChange={(e) => updateFormData('dateLiquidation', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-[#e7e5e3] rounded-lg text-body text-[#44403c] focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateLiquidation', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-[#eeece6] rounded"><Calendar className="w-4 h-4 text-[#a8a29e]" /></button>
+                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                 </div>
@@ -16426,14 +16426,14 @@ export default function App() {
             <div className="px-6 py-4 border-t border-zinc-100 flex justify-end gap-3">
               <button
                 onClick={() => setCreationWizard(null)}
-                className="px-4 py-2.5 text-body text-[#78716c] hover:text-[#44403c] hover:bg-[#eeece6] rounded-lg transition-colors"
+                className="px-4 py-2.5 text-body text-foreground-secondary hover:text-foreground-tertiary hover:bg-cream rounded-lg transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={() => handleCreateDossier(formData, 'dossier')}
                 disabled={!canSubmitInfos}
-                className="px-5 py-2.5 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Créer le dossier
               </button>
@@ -16453,28 +16453,28 @@ export default function App() {
     <>
       <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
       <div
-        className="absolute z-50 bg-white border border-[#e7e5e3] shadow-lg overflow-hidden"
+        className="absolute z-50 bg-white border border-border shadow-lg overflow-hidden"
         style={placement === 'right'
           ? { left: 'calc(100% + 8px)', bottom: 0, borderRadius: 10, width: 240 }
           : { left: 8, right: 8, bottom: 'calc(100% + 6px)', borderRadius: 10 }
         }
       >
-        <div className="px-3 py-2.5 border-b border-[#e7e5e3]">
-          <div className="text-[12px] text-[#78716c] truncate">{currentUser?.email || ''}</div>
+        <div className="px-3 py-2.5 border-b border-border">
+          <div className="text-[12px] text-foreground-secondary truncate">{currentUser?.email || ''}</div>
         </div>
         <button
           onClick={() => { setSettingsSection('general'); setCurrentPage('settings'); setUserMenuOpen(false); }}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#292524] hover:bg-[#fafaf9] transition-colors text-left"
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
         >
-          <Settings className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+          <Settings className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
           Paramètres
         </button>
-        <div className="border-t border-[#e7e5e3]" />
+        <div className="border-t border-border" />
         <button
           onClick={() => { setUserMenuOpen(false); setToastMessage('Déconnecté.'); setTimeout(() => setToastMessage(null), 2000); }}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#292524] hover:bg-[#fafaf9] transition-colors text-left"
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
         >
-          <LogOut className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+          <LogOut className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
           Se déconnecter
         </button>
       </div>
@@ -16494,7 +16494,7 @@ export default function App() {
     ];
     return (
       <div
-        className="bg-white border-r border-[#e7e5e3] flex flex-col flex-shrink-0 overflow-hidden"
+        className="bg-white border-r border-border flex flex-col flex-shrink-0 overflow-hidden"
         style={{
           width: collapsed ? 48 : 244,
           transition: 'width 250ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -16502,7 +16502,7 @@ export default function App() {
       >
         {/* Header - logo (always) + wordmark (expanded only) */}
         <div
-          className={`h-12 border-b border-[#e7e5e3] flex items-center flex-shrink-0 ${collapsed ? 'justify-center' : 'pl-3 pr-4 gap-2'}`}
+          className={`h-12 border-b border-border flex items-center flex-shrink-0 ${collapsed ? 'justify-center' : 'pl-3 pr-4 gap-2'}`}
         >
           <img src="/logo-plato.png" alt="Plato" className="w-6 h-6 flex-shrink-0" />
           {!collapsed && (
@@ -16524,8 +16524,8 @@ export default function App() {
                     collapsed ? 'w-8 justify-center px-0' : 'gap-2 w-full px-2'
                   } ${
                     item.active
-                      ? 'bg-[#eeece6] text-[#292524] font-medium'
-                      : 'text-[#78716c] hover:bg-[#fafaf9] hover:text-[#292524]'
+                      ? 'bg-cream text-foreground font-medium'
+                      : 'text-foreground-secondary hover:bg-background hover:text-foreground'
                   }`}
                   style={{ borderRadius: 8, fontSize: '14px' }}
                 >
@@ -16539,7 +16539,7 @@ export default function App() {
                   {btn}
                   <span
                     role="tooltip"
-                    className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-[#292524] px-2 py-1 text-[12px] font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
+                    className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[12px] font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
                   >
                     {item.label}
                   </span>
@@ -16560,20 +16560,20 @@ export default function App() {
 
         {/* Workspace dossier indicator - hidden when collapsed */}
         {!collapsed && (
-          <div className="border-t border-[#e7e5e3] flex-shrink-0">
+          <div className="border-t border-border flex-shrink-0">
             {renderDossierIndicator()}
           </div>
         )}
 
         {/* Avatar footer - full pill expanded, single-tap initials when collapsed */}
-        <div className={`border-t border-[#e7e5e3] flex-shrink-0 ${collapsed ? 'p-2 flex justify-center' : 'p-2'}`}>
+        <div className={`border-t border-border flex-shrink-0 ${collapsed ? 'p-2 flex justify-center' : 'p-2'}`}>
           <div className="relative group">
             <button
               onClick={() => setUserMenuOpen(o => !o)}
               className={
                 collapsed
                   ? 'flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity'
-                  : 'w-full flex items-center gap-3 p-2 hover:bg-[#fafaf9] transition-colors text-left group'
+                  : 'w-full flex items-center gap-3 p-2 hover:bg-background transition-colors text-left group'
               }
               style={collapsed ? undefined : { borderRadius: 6 }}
             >
@@ -16581,17 +16581,17 @@ export default function App() {
                 <>
                   {userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 32)}
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-medium text-[#292524] truncate leading-5">{currentUser?.name || 'Mon compte'}</div>
-                    <div className="text-[12px] text-[#a8a29e] truncate leading-4">{orgName}</div>
+                    <div className="text-[14px] font-medium text-foreground truncate leading-5">{currentUser?.name || 'Mon compte'}</div>
+                    <div className="text-[12px] text-foreground-muted truncate leading-4">{orgName}</div>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-[#a8a29e] group-hover:text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
+                  <ChevronDown className="w-4 h-4 text-foreground-muted group-hover:text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
                 </>
               )}
             </button>
             {collapsed && !userMenuOpen && (
               <span
                 role="tooltip"
-                className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-[#292524] px-2 py-1 text-[12px] font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
+                className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[12px] font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
               >
                 Mon compte
               </span>
@@ -16775,7 +16775,7 @@ export default function App() {
     return (
       <button
         onClick={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
-        className="block w-full text-left overflow-hidden transition-colors hover:bg-[#fafaf9]"
+        className="block w-full text-left overflow-hidden transition-colors hover:bg-background"
         style={{ backgroundColor: 'transparent', fontFamily: "'Inter', system-ui, sans-serif" }}
       >
         {renderWeeklyQuotaCard({
@@ -16811,7 +16811,7 @@ export default function App() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create' })}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Nouveau dossier
@@ -16821,7 +16821,7 @@ export default function App() {
         </div>
 
         {/* Tabs */}
-        <div className="px-8 border-b border-[#e7e5e3]">
+        <div className="px-8 border-b border-border">
           <div className="flex gap-1 -ml-4">
             {[
               { key: 'en-cours', label: 'Dossiers en cours', count: enCoursCount },
@@ -16836,7 +16836,7 @@ export default function App() {
                 >
                   <span className="flex items-center gap-2">
                     {tab.label}
-                    <span className={`tabular-nums text-caption-medium px-1.5 py-0.5 rounded ${isActive ? 'bg-[#eeece6] text-[#44403c]' : 'bg-transparent text-[#a8a29e]'}`}>{tab.count}</span>
+                    <span className={`tabular-nums text-caption-medium px-1.5 py-0.5 rounded ${isActive ? 'bg-cream text-foreground-tertiary' : 'bg-transparent text-foreground-muted'}`}>{tab.count}</span>
                   </span>
                   {isActive && <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-stone-800 rounded-full" />}
                 </button>
@@ -16849,20 +16849,20 @@ export default function App() {
         <div className="flex-1 overflow-y-auto px-8 py-6">
           {filteredDossiers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-12 h-12 rounded-xl bg-[#eeece6] flex items-center justify-center mb-3">
-                <Folder className="w-5 h-5 text-[#a8a29e]" strokeWidth={1.5} />
+              <div className="w-12 h-12 rounded-xl bg-cream flex items-center justify-center mb-3">
+                <Folder className="w-5 h-5 text-foreground-muted" strokeWidth={1.5} />
               </div>
-              <p className="text-body-medium text-[#292524] mb-1">
+              <p className="text-body-medium text-foreground mb-1">
                 {dossierListTab === 'termines' ? 'Aucun dossier terminé' : 'Aucun dossier en cours'}
               </p>
-              <p className="text-body text-[#78716c]">
+              <p className="text-body text-foreground-secondary">
                 {dossierListTab === 'termines'
                   ? 'Les dossiers terminés apparaîtront ici.'
                   : 'Créez un nouveau dossier pour commencer.'}
               </p>
             </div>
           ) : (
-          <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden">
+          <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-zinc-100">
@@ -16874,25 +16874,25 @@ export default function App() {
                   <th className="px-5 py-3 w-10"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e7e5e3]">
+              <tbody className="divide-y divide-border">
                 {filteredDossiers.map(dossier => {
                   const isClosed = dossier.statut === 'fermé';
                   return (
                   <tr
                     key={dossier.id}
                     onClick={() => openDossier(dossier)}
-                    className="bg-white hover:bg-[#fafaf9] cursor-pointer transition-colors group"
+                    className="bg-white hover:bg-background cursor-pointer transition-colors group"
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#eeece6] flex items-center justify-center flex-shrink-0">
-                          <Folder className="w-4 h-4 text-[#a8a29e]" />
+                        <div className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center flex-shrink-0">
+                          <Folder className="w-4 h-4 text-foreground-muted" />
                         </div>
-                        <span className="text-body-medium text-[#292524]">{dossier.reference}</span>
+                        <span className="text-body-medium text-foreground">{dossier.reference}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-body text-[#78716c]">{dossier.typeFait}</td>
-                    <td className="px-5 py-4 text-body text-[#78716c] tabular-nums">{dossier.date}</td>
+                    <td className="px-5 py-4 text-body text-foreground-secondary">{dossier.typeFait}</td>
+                    <td className="px-5 py-4 text-body text-foreground-secondary tabular-nums">{dossier.date}</td>
                     <td className="px-5 py-4">
                       <span className={`badge badge-sm ${isClosed ? 'badge-warning' : 'badge-success'}`}>
                         {isClosed ? 'Terminé' : 'En cours'}
@@ -16901,15 +16901,15 @@ export default function App() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         {userAvatar(0, 'Admin', 20)}
-                        <span className="text-body text-[#292524]">{dossier.lastEditBy}</span>
-                        <span className="text-body text-[#a8a29e]">·</span>
-                        <span className="text-body text-[#78716c]">{dossier.lastEditDate}</span>
+                        <span className="text-body text-foreground">{dossier.lastEditBy}</span>
+                        <span className="text-body text-foreground-muted">·</span>
+                        <span className="text-body text-foreground-secondary">{dossier.lastEditDate}</span>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <button
                         onClick={(e) => { e.stopPropagation(); }}
-                        className="p-1.5 rounded-lg text-[#d6d3d1] hover:text-[#78716c] hover:bg-[#eeece6] opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-1.5 rounded-lg text-border-strong hover:text-foreground-secondary hover:bg-cream opacity-0 group-hover:opacity-100 transition-all"
                       >
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
@@ -17005,14 +17005,14 @@ export default function App() {
     const renderBtns = (id) => (
       <span className="absolute right-[-20px] top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/diff:opacity-100 transition-opacity z-10">
         <button onClick={() => accept(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-        <button onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#fef2f2] hover:border-[#cf9d9d] transition-colors" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+        <button onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
       </span>
     );
 
     const docIcon = (r) => {
-      if (r.diffType === 'delete') return <span className="inline-flex items-center justify-center w-7 h-7 bg-white rounded-md border border-dashed border-[#a8a29e]" style={{ opacity: 0.4 }}><FileText className="w-3.5 h-3.5 text-[#a8a29e]" /></span>;
-      if (!r.diffType) return <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] text-[#d6d3d1] rounded-md border border-dashed border-[#e7e5e3]"><FileText className="w-3.5 h-3.5" /></span>;
-      return <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative"><FileText className="w-4 h-4 text-[#2563eb]" /><span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#1e3a8a] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">1</span></span>;
+      if (r.diffType === 'delete') return <span className="inline-flex items-center justify-center w-7 h-7 bg-white rounded-md border border-dashed border-foreground-muted" style={{ opacity: 0.4 }}><FileText className="w-3.5 h-3.5 text-foreground-muted" /></span>;
+      if (!r.diffType) return <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border"><FileText className="w-3.5 h-3.5" /></span>;
+      return <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative"><FileText className="w-4 h-4 text-info" /><span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">1</span></span>;
     };
 
     const resteCell = (r, muted) => {
@@ -17028,15 +17028,15 @@ export default function App() {
       );
     };
 
-    const resolvedDocIcon = <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative"><FileText className="w-4 h-4 text-[#2563eb]" /><span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#1e3a8a] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">1</span></span>;
+    const resolvedDocIcon = <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative"><FileText className="w-4 h-4 text-info" /><span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">1</span></span>;
 
     return (
       <div>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-caption text-[#78716c]">{pending.length} pending · {rows.filter(r => r.status === 'accepted').length} accepted · {rows.filter(r => r.status === 'rejected').length} rejected</span>
-          <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-[#1e3a8a] hover:text-[#1e40af]"><RotateCcw className="w-3 h-3" /> Reset</button>
+          <span className="text-caption text-foreground-secondary">{pending.length} pending · {rows.filter(r => r.status === 'accepted').length} accepted · {rows.filter(r => r.status === 'rejected').length} rejected</span>
+          <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-[#1e40af]"><RotateCcw className="w-3 h-3" /> Reset</button>
         </div>
-        <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-visible">
+        <div className="border border-border rounded-lg bg-white overflow-visible">
           <div className="flex items-center" style={{ borderBottom: '1px solid #e7e5e3', background: '#fafaf9', padding: '8px 0' }}>
             <div className="w-[52px] flex-shrink-0" style={{ ...thStyle, paddingLeft: 14 }}>Doc</div>
             <div className="flex-1 min-w-0" style={thStyle}>Libellé</div>
@@ -17071,11 +17071,11 @@ export default function App() {
                   {resolved ? newVal(showLabel) : isPending && isDel ? delVal(r.label) : isPending && r.oldLabel ? <>{oldVal(r.oldLabel)}{newVal(r.label)}</> : newVal(r.label)}
                 </div>
                 <div className="flex-1 min-w-0 px-2">
-                  {resolved ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px] bg-[#eeece6] text-[#44403c]">{showTaux}</span>
+                  {resolved ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px] bg-cream text-foreground-tertiary">{showTaux}</span>
                     : isPending && r.badgeEdit ? <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span className="text-caption-medium px-2 py-0.5 rounded-[6px] line-through" style={{ background: '#eeece6', color: '#a8a29e' }}>{r.oldTaux}</span><span className="text-caption-medium px-2 py-0.5 rounded-[6px]" style={{ background: '#cce6d9', color: '#064e3b' }}>{r.taux}</span></div>
                     : isPending && isDel ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px] line-through" style={{ background: '#f5f5f4', color: '#a8a29e' }}>{r.taux}</span>
                     : r.tauxSuccess ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px]" style={{ background: '#cce6d9', color: '#064e3b' }}>{r.taux}</span>
-                    : <span className="text-caption-medium px-2 py-0.5 rounded-[6px] bg-[#eeece6] text-[#44403c]">{r.taux}</span>}
+                    : <span className="text-caption-medium px-2 py-0.5 rounded-[6px] bg-cream text-foreground-tertiary">{r.taux}</span>}
                 </div>
                 <div className="flex-1 min-w-0 px-2">
                   {resolved ? <span style={{ fontSize: 14, color: '#78716c' }}>{showDate}</span> : isPending && isDel ? delVal(r.date) : isPending && r.oldDate ? <>{oldVal(r.oldDate)}{newVal(r.date, { fontWeight: 500 })}</> : <span style={{ fontSize: 14, color: '#78716c' }}>{r.date}</span>}
@@ -17087,7 +17087,7 @@ export default function App() {
                   {resolved ? resteCell({ resteBase: showResteBase, reste: showReste }, false) : isPending && r.oldReste ? <>{resteCell({ resteBase: r.oldResteBase, reste: r.oldReste }, true)}{resteCell(r, false)}</> : resteCell(r, isPending && isDel)}
                 </div>
                 <div className="flex-1 min-w-0 px-2 text-right">
-                  {r.diffType ? diffTag(r.diffType) : <span className="text-counter text-[#a8a29e]">—</span>}
+                  {r.diffType ? diffTag(r.diffType) : <span className="text-counter text-foreground-muted">—</span>}
                 </div>
                 {isPending && r.diffType && renderBtns(r.id)}
               </div>
@@ -17120,7 +17120,7 @@ export default function App() {
           const resType = allResolved ? (rejectedCnt === 0 ? 'all-approved' : approvedCnt === 0 ? 'all-rejected' : 'mixed') : null;
           return (
             <div key={card.id}>
-              <div className="rounded-lg border border-[#e7e5e3] bg-white overflow-hidden transition-all duration-300" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.03)', opacity: allResolved ? 0.85 : 1 }}>
+              <div className="rounded-lg border border-border bg-white overflow-hidden transition-all duration-300" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.03)', opacity: allResolved ? 0.85 : 1 }}>
                 <div className="flex items-stretch cursor-pointer select-none group/header">
                   <div className="w-10 flex items-center justify-center flex-shrink-0" style={{ background: allResolved ? (resType === 'all-approved' ? '#ecfdf5' : resType === 'all-rejected' ? '#fef2f2' : '#f5f5f4') : '#f5f5f4' }}><card.Icon className="w-3.5 h-3.5" style={{ color: allResolved ? (resType === 'all-approved' ? ROW_DIFF_COLORS.add : resType === 'all-rejected' ? ROW_DIFF_COLORS.delete : '#78716c') : '#78716c' }} /></div>
                   <div className="flex items-center gap-3 flex-1 min-w-0" style={{ padding: '12px 14px 12px 12px' }}>
@@ -17138,7 +17138,7 @@ export default function App() {
                         </div>
                       ) : null}
                     </div>
-                    {cardDiffs.length > 0 && <button className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 hover:bg-[#e7e5e3]" onClick={() => setExpanded(prev => ({ ...prev, [card.id]: !prev[card.id] }))}><ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" style={{ color: '#78716c', transform: isExp ? 'rotate(0deg)' : 'rotate(-90deg)' }} /></button>}
+                    {cardDiffs.length > 0 && <button className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 hover:bg-border" onClick={() => setExpanded(prev => ({ ...prev, [card.id]: !prev[card.id] }))}><ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" style={{ color: '#78716c', transform: isExp ? 'rotate(0deg)' : 'rotate(-90deg)' }} /></button>}
                   </div>
                 </div>
                 {isExp && (
@@ -17146,7 +17146,7 @@ export default function App() {
                     {cardDiffs.map((diff, di) => {
                       const dotColor = ROW_DIFF_COLORS[diff.type] || ROW_DIFF_COLORS.edit;
                       return (
-                        <div key={diff.id} className={`group/diff cursor-pointer transition-colors ${diff.approved ? 'diff-row-accepted' : diff.rejected ? 'diff-row-rejected' : 'hover:bg-[#fafaf9]'}`} style={{ padding: '8px 14px', fontSize: 12, borderBottom: di < cardDiffs.length - 1 ? '1px solid #f0efed' : 'none' }}>
+                        <div key={diff.id} className={`group/diff cursor-pointer transition-colors ${diff.approved ? 'diff-row-accepted' : diff.rejected ? 'diff-row-rejected' : 'hover:bg-background'}`} style={{ padding: '8px 14px', fontSize: 12, borderBottom: di < cardDiffs.length - 1 ? '1px solid #f0efed' : 'none' }}>
                           <div className="flex items-center gap-2">
                             {diff.approved ? <Check className="w-2.5 h-2.5 flex-shrink-0" style={{ color: ROW_DIFF_COLORS.add }} strokeWidth={3} />
                               : diff.rejected ? (diff.type === 'delete' ? <RotateCcw className="w-2.5 h-2.5 flex-shrink-0" style={{ color: '#a8a29e' }} strokeWidth={2.5} /> : <X className="w-2.5 h-2.5 flex-shrink-0" style={{ color: ROW_DIFF_COLORS.delete }} strokeWidth={3} />)
@@ -17155,7 +17155,7 @@ export default function App() {
                             {!diff.approved && !diff.rejected && (
                               <span className="flex items-center gap-1.5 opacity-0 group-hover/diff:opacity-100 transition-opacity flex-shrink-0">
                                 <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-[#ecfdf5] hover:border-[#a5c9b7]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, approved: true } : d))}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-[#fef2f2] hover:border-[#cf9d9d]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-danger-subtle hover:border-[#cf9d9d]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
                               </span>
                             )}
                           </div>
@@ -17193,16 +17193,16 @@ export default function App() {
                 )}
                 {cardDiffs.length > 0 && !allResolved && (
                   <div style={{ borderTop: '1px solid #f0efed' }} className="flex items-center">
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-[#fafaf9]" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, approved: true } : d))}><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter</button>
+                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, approved: true } : d))}><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter</button>
                     <div style={{ width: 1, height: 16, background: '#e7e5e3' }} />
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-[#fafaf9]" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, rejected: true } : d))}><RotateCcw className="w-3 h-3" /> Tout annuler</button>
+                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, rejected: true } : d))}><RotateCcw className="w-3 h-3" /> Tout annuler</button>
                   </div>
                 )}
               </div>
             </div>
           );
         })}
-        <button onClick={reset} className="inline-flex items-center gap-1.5 self-start px-3 py-1.5 rounded-md border border-[#e7e5e3] hover:bg-[#fafaf9] transition-colors" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}><RotateCcw className="w-3 h-3" /> Reset</button>
+        <button onClick={reset} className="inline-flex items-center gap-1.5 self-start px-3 py-1.5 rounded-md border border-border hover:bg-background transition-colors" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}><RotateCcw className="w-3 h-3" /> Reset</button>
       </div>
     );
   };
@@ -17224,8 +17224,8 @@ export default function App() {
     return (
       <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
-        <div className="w-[220px] flex-shrink-0 border-r border-[#e7e5e3] bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button onClick={() => setCurrentPage('list')} className="flex items-center gap-2 text-body-medium text-[#78716c] hover:text-[#292524] mb-6 transition-colors">
+        <div className="w-[220px] flex-shrink-0 border-r border-border bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
+          <button onClick={() => setCurrentPage('list')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 10 }}>
@@ -17234,7 +17234,7 @@ export default function App() {
           <nav className="flex flex-col gap-1 mb-6">
             <button
               onClick={() => navigate('/ui-kit')}
-              className={`text-left text-body px-2 py-1.5 rounded transition-colors ${!componentsSection ? 'bg-[#f5f5f4] text-[#292524] font-medium' : 'text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9]'}`}
+              className={`text-left text-body px-2 py-1.5 rounded transition-colors ${!componentsSection ? 'bg-background-subtle text-foreground font-medium' : 'text-foreground-secondary hover:text-foreground hover:bg-background'}`}
             >
               Tous les composants
             </button>
@@ -17258,7 +17258,7 @@ export default function App() {
               <button
                 key={slug}
                 onClick={() => navigate(`/ui-kit/${slug}`)}
-                className={`text-left text-body px-2 py-1.5 rounded transition-colors ${componentsSection === slug ? 'bg-[#f5f5f4] text-[#292524] font-medium' : 'text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9]'}`}
+                className={`text-left text-body px-2 py-1.5 rounded transition-colors ${componentsSection === slug ? 'bg-background-subtle text-foreground font-medium' : 'text-foreground-secondary hover:text-foreground hover:bg-background'}`}
               >
                 {label}
               </button>
@@ -17268,19 +17268,19 @@ export default function App() {
             Pages
           </div>
           <nav className="flex flex-col gap-1">
-            <button onClick={() => navigate('/ui-kit/diff-engine')} className="w-full text-left text-body-medium text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+            <button onClick={() => navigate('/ui-kit/diff-engine')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <FileText className="w-3.5 h-3.5" /> Diff Engine
             </button>
-            <button onClick={() => navigate('/ui-kit/iv-structures')} className="w-full text-left text-body-medium text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+            <button onClick={() => navigate('/ui-kit/iv-structures')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Table2 className="w-3.5 h-3.5" /> IV Table Structures
             </button>
-            <button onClick={() => navigate('/ui-kit/prompt-suggestions')} className="w-full text-left text-body-medium text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+            <button onClick={() => navigate('/ui-kit/prompt-suggestions')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Lightbulb className="w-3.5 h-3.5" /> Prompt Suggestions
             </button>
-            <button onClick={() => navigate('/ui-kit/reasoning-demo')} className="w-full text-left text-body-medium text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+            <button onClick={() => navigate('/ui-kit/reasoning-demo')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Brain className="w-3.5 h-3.5" /> Reasoning Demo
             </button>
-            <button onClick={() => navigate('/ui-kit/sommaire-acte')} className="w-full text-left text-body-medium text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+            <button onClick={() => navigate('/ui-kit/sommaire-acte')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <AlignLeft className="w-3.5 h-3.5" /> Sommaire d'acte
             </button>
           </nav>
@@ -17332,7 +17332,7 @@ export default function App() {
                   { type: 'edit', color: ROW_DIFF_COLORS.edit, label: 'Modification' },
                   { type: 'delete', color: ROW_DIFF_COLORS.delete, label: 'Suppression' },
                 ].map(d => (
-                  <div key={d.type} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#e7e5e3] bg-white">
+                  <div key={d.type} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-white">
                     <div className="w-1.5 h-1.5" style={{ background: d.color, transform: 'rotate(45deg)' }} />
                     <span style={{ fontSize: 12, color: '#44403c' }}>{d.label}</span>
                     <code style={{ fontSize: 11, color: '#a8a29e', fontFamily: 'DM Mono, monospace' }}>{d.color}</code>
@@ -17343,7 +17343,7 @@ export default function App() {
               {subTitle('Cell types in diff context')}
               {(() => {
                 const cellLabel = (text) => <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>{text}</div>;
-                const cellCard = (children, opts = {}) => <div className="border border-[#e7e5e3] rounded-lg bg-white p-3" style={opts.deleted ? { opacity: 0.55 } : undefined}>{children}</div>;
+                const cellCard = (children, opts = {}) => <div className="border border-border rounded-lg bg-white p-3" style={opts.deleted ? { opacity: 0.55 } : undefined}>{children}</div>;
                 return (
               <div style={{ maxWidth: 680 }}>
                 {/* TEXT - label never changes, only default + deleted */}
@@ -17402,7 +17402,7 @@ export default function App() {
                 <div className="grid grid-cols-3 gap-3 mb-5">
                   {cellCard(<>
                     {cellLabel('Default')}
-                    <span className="text-caption-medium px-2 py-0.5 rounded-full bg-[#eeece6] text-[#44403c]">100%</span>
+                    <span className="text-caption-medium px-2 py-0.5 rounded-full bg-cream text-foreground-tertiary">100%</span>
                   </>)}
                   {cellCard(<>
                     {cellLabel('Modified')}
@@ -17445,7 +17445,7 @@ export default function App() {
                     <div className="flex items-center gap-1.5">
                       <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
                       <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                      <CircleArrowUp className="w-3.5 h-3.5 text-[#1e3a8a]" />
+                      <CircleArrowUp className="w-3.5 h-3.5 text-link" />
                       <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
                     </div>
                   </>)}
@@ -17455,13 +17455,13 @@ export default function App() {
                       <div className="flex items-center gap-1.5">
                         <span style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>29 800 €</span>
                         <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3 h-3 text-[#a8a29e]" />
+                        <CircleArrowUp className="w-3 h-3 text-foreground-muted" />
                         <span style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>31 886 €</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>31 200 €</span>
                         <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3.5 h-3.5 text-[#1e3a8a]" />
+                        <CircleArrowUp className="w-3.5 h-3.5 text-link" />
                         <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 384 €</span>
                       </div>
                     </div>
@@ -17475,7 +17475,7 @@ export default function App() {
                       <div className="flex items-center gap-1.5">
                         <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
                         <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3.5 h-3.5 text-[#1e3a8a]" />
+                        <CircleArrowUp className="w-3.5 h-3.5 text-link" />
                         <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
                       </div>
                     </div>
@@ -17488,13 +17488,13 @@ export default function App() {
                       <div className="flex items-center gap-1.5">
                         <span style={{ fontSize: 11, color: '#a8a29e', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
                         <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3 h-3 text-[#a8a29e]" />
+                        <CircleArrowUp className="w-3 h-3 text-foreground-muted" />
                         <span style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>33 048 €</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
                         <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3.5 h-3.5 text-[#1e3a8a]" />
+                        <CircleArrowUp className="w-3.5 h-3.5 text-link" />
                         <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
                       </div>
                     </div>
@@ -17504,7 +17504,7 @@ export default function App() {
                     <div className="flex items-center gap-1.5">
                       <span style={{ fontSize: 13, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
                       <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                      <CircleArrowUp className="w-3.5 h-3.5 text-[#a8a29e]" />
+                      <CircleArrowUp className="w-3.5 h-3.5 text-foreground-muted" />
                       <span style={{ fontSize: 14, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
                     </div>
                   </>, { deleted: true })}
@@ -17520,22 +17520,22 @@ export default function App() {
               })()}
 
               {subTitle('Field-level streaming indicator')}
-              <div className="border border-[#e7e5e3] rounded-lg bg-white p-4" style={{ maxWidth: 320 }}>
+              <div className="border border-border rounded-lg bg-white p-4" style={{ maxWidth: 320 }}>
                 <div className="animate-field-glow">
-                  <div className="text-caption-medium text-[#78716c] mb-1 flex items-center gap-1">
+                  <div className="text-caption-medium text-foreground-secondary mb-1 flex items-center gap-1">
                     Nom
                     <span className="inline-block w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
                   </div>
-                  <div className="text-body text-[#292524]">
+                  <div className="text-body text-foreground">
                     Martin<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: '#4a9168' }}></span>
                   </div>
                 </div>
                 <div className="mt-3">
-                  <div className="text-caption-medium text-[#78716c] mb-1 flex items-center gap-1">
+                  <div className="text-caption-medium text-foreground-secondary mb-1 flex items-center gap-1">
                     Prénom
                     <span className="inline-block w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
                   </div>
-                  <div className="text-body text-[#292524]">Sophie</div>
+                  <div className="text-body text-foreground">Sophie</div>
                 </div>
               </div>
             </div>
@@ -17586,10 +17586,10 @@ export default function App() {
 
               {subTitle('In-context - settings row with mixed states')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Simulates a real settings row: icon + stacked pills, some default, some with pending diffs.</p>
-              <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden" style={{ maxWidth: 880, marginBottom: 24, boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
+              <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 880, marginBottom: 24, boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
                 <div className="flex items-center gap-3 px-4 h-[52px] flex-wrap">
-                  <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                    <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+                  <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                    <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
                   </div>
                   {/* Default enabled */}
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.info.bg, borderColor: PILL_SCHEMES.info.border, color: PILL_SCHEMES.info.text }}>
@@ -17634,7 +17634,7 @@ export default function App() {
                 ].map((zone, zi) => (
                   <div key={zi}>
                     <div style={{ fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>{zone.label}</div>
-                    <div className="rounded-lg border border-[#e7e5e3] bg-white overflow-hidden" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.03)' }}>
+                    <div className="rounded-lg border border-border bg-white overflow-hidden" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.03)' }}>
                       <div className="flex items-stretch">
                         <div className="w-10 flex items-center justify-center flex-shrink-0" style={{ background: '#f5f5f4' }}>
                           <zone.Icon className="w-3.5 h-3.5" style={{ color: '#78716c' }} />
@@ -17653,11 +17653,11 @@ export default function App() {
                       </div>
                       {/* Footer - always visible */}
                       <div style={{ borderTop: '1px solid #f0efed' }} className="flex items-center">
-                        <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-[#fafaf9]" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
+                        <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
                           <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter
                         </button>
                         <div style={{ width: 1, height: 14, background: '#e7e5e3' }} />
-                        <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-[#fafaf9]" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }}>
+                        <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }}>
                           <RotateCcw className="w-3 h-3" /> Tout annuler
                         </button>
                       </div>
@@ -17678,7 +17678,7 @@ export default function App() {
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Composant de raisonnement de l'agent. Streaming → auto-collapse → expand inspection.</p>
 
               {subTitle('Step type → user label mapping')}
-              <div className="flex flex-col gap-0 mb-4 border border-[#e7e5e3] rounded-lg bg-white overflow-hidden" style={{ maxWidth: 520 }}>
+              <div className="flex flex-col gap-0 mb-4 border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 520 }}>
                 {[
                   ['read_documents',  'Analyse de X documents'],
                   ['read_rapport',    "Lecture du rapport d'expertise"],
@@ -17728,7 +17728,7 @@ export default function App() {
               )}
 
               {subTitle('Streaming (active)')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="streaming"
                   steps={[
@@ -17741,7 +17741,7 @@ export default function App() {
               </div>
 
               {subTitle('Collapsed (done - with CRUD counters)')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Complétion du poste DSA depuis 3 factures"
@@ -17759,7 +17759,7 @@ export default function App() {
               </div>
 
               {subTitle('Collapsed (read-only - no counters)')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Analyse du rapport d'expertise"
@@ -17773,7 +17773,7 @@ export default function App() {
               </div>
 
               {subTitle('Expanded (inspection mode)')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Complétion du poste DSA depuis 3 factures"
@@ -17791,7 +17791,7 @@ export default function App() {
               </div>
 
               {subTitle('Partial error')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Extraction des factures DSA"
@@ -17808,7 +17808,7 @@ export default function App() {
               </div>
 
               {subTitle('Total error')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Analyse du rapport d'expertise"
@@ -17822,7 +17822,7 @@ export default function App() {
               </div>
 
               {subTitle('Sub-agent')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Extraction et complétion DSA"
@@ -17842,7 +17842,7 @@ export default function App() {
               </div>
 
               {subTitle('Backend tool mapping (real Plato Supervisor names)')}
-              <div style={{ maxWidth: 420 }} className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Analyse du poste DFT - 2 problèmes détectés"
@@ -17868,7 +17868,7 @@ export default function App() {
               {sectionTitle('Chat Messages')}
 
               {subTitle('Chat blocked indicator')}
-              <div style={{ maxWidth: 380 }} className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden">
+              <div style={{ maxWidth: 380 }} className="border border-border rounded-lg bg-white overflow-hidden">
                 <div className="flex items-center gap-2 px-3 py-1.5" style={{ borderBottom: '1px solid #e7e5e3' }}>
                   <ThinkingDots />
                   <span style={{ fontSize: 11, color: '#a8a29e' }}>Plato analyse vos documents...</span>
@@ -18014,7 +18014,7 @@ export default function App() {
                     <button
                       key={id}
                       onClick={() => jp.openDrawer(id, ['jp-atpt-01', 'jp-dfp-01', 'jp-se-03'])}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-[#e7e5e3] bg-white hover:bg-[#fafaf9] transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-white hover:bg-background transition-colors"
                       style={{ fontSize: 13, color: '#44403c' }}
                     >
                       <Landmark className="w-3.5 h-3.5" style={{ color: '#b9703f' }} />
@@ -18031,7 +18031,7 @@ export default function App() {
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Champs du panel d'édition avec contexte diff agent. Utilise l'anatomie shadcn Field : label → input (shadow-xs) → description. Le sparkle ✦ signale les champs touchés par l'agent, la description affiche l'ancienne valeur.</p>
 
               {(() => {
-                const inputBase = "w-full px-3 py-2 bg-white border border-[#e7e5e3] rounded-lg text-[14px] leading-5 text-[#292524] placeholder:text-[#78716c] focus:outline-none focus:border-[#292524] focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                const inputBase = "w-full px-3 py-2 bg-white border border-border rounded-lg text-[14px] leading-5 text-foreground placeholder:text-foreground-secondary focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
                 const shadowXs = '0 1px 2px rgba(26,26,26,0.05)';
                 const labelStyle = { fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' };
                 const descStyle = { fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px', marginTop: 6 };
@@ -18062,7 +18062,7 @@ export default function App() {
                   if (saved) {
                     return (
                       <div style={{ maxWidth: 380 }}>
-                        <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5">
+                        <div className="border border-border rounded-lg bg-white p-5 space-y-5">
                           <div className="flex items-center gap-2 p-3 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                             <Check className="w-4 h-4" style={{ color: ROW_DIFF_COLORS.add }} strokeWidth={2.5} />
                             <span className="text-body-medium" style={{ color: ROW_DIFF_COLORS.add }}>Enregistré - diffs effacés</span>
@@ -18070,7 +18070,7 @@ export default function App() {
                           <Field label="Libellé dépense"><input type="text" readOnly value={label} className={inputBase} style={{ boxShadow: shadowXs, background: '#fafaf9' }} /></Field>
                           <Field label="Montant"><input type="text" readOnly value={`€ ${montant}`} className={inputBase} style={{ boxShadow: shadowXs, background: '#fafaf9' }} /></Field>
                         </div>
-                        <button onClick={reset} className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[#e7e5e3] hover:bg-[#fafaf9] transition-colors" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
+                        <button onClick={reset} className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border hover:bg-background transition-colors" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
                           <RotateCcw className="w-3 h-3" /> Reset
                         </button>
                       </div>
@@ -18081,7 +18081,7 @@ export default function App() {
                     <div style={{ maxWidth: 380 }}>
                       {/* ---- Edit diff ---- */}
                       <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Edit - agent modified fields</div>
-                      <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5">
+                      <div className="border border-border rounded-lg bg-white p-5 space-y-5">
                         <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#fff7ed', border: '1px solid #fed7aa' }}>
                           <div className="w-1.5 h-1.5" style={{ background: ROW_DIFF_COLORS.edit, transform: 'rotate(45deg)' }} />
                           <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.edit }}>Ligne modifiée par l'agent</span>
@@ -18095,7 +18095,7 @@ export default function App() {
                         {/* Agent-touched field - sparkle + old value in description */}
                         <Field label="Montant" diffColor={ROW_DIFF_COLORS.edit} description="Ancien : 960,00 €">
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" style={{ fontSize: 14 }}>€</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
                             <input type="text" value={montant} onChange={e => setMontant(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs, paddingLeft: 28 }} />
                           </div>
                         </Field>
@@ -18108,7 +18108,7 @@ export default function App() {
                         {/* Agent-touched + revalo */}
                         <Field label="Base journalière" diffColor={ROW_DIFF_COLORS.edit}>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" style={{ fontSize: 14 }}>€</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
                             <input type="text" value={base} onChange={e => setBase(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs, paddingLeft: 28 }} />
                           </div>
                           {/* Revalo row - matches Figma ↳ Revalo pattern */}
@@ -18131,13 +18131,13 @@ export default function App() {
 
                         <div className="flex items-center gap-3 pt-2">
                           <button onClick={() => setSaved(true)} className="flex-1 px-4 py-2 rounded-lg text-body-medium text-white transition-colors" style={{ backgroundColor: '#292524' }}>Enregistrer</button>
-                          <button onClick={reset} className="px-4 py-2 rounded-lg text-body-medium text-[#44403c] hover:bg-[#f5f5f4] transition-colors">Annuler</button>
+                          <button onClick={reset} className="px-4 py-2 rounded-lg text-body-medium text-foreground-tertiary hover:bg-background-subtle transition-colors">Annuler</button>
                         </div>
                       </div>
 
                       {/* ---- Add ---- */}
                       <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Add - all fields are new</div>
-                      <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5">
+                      <div className="border border-border rounded-lg bg-white p-5 space-y-5">
                         <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                           <div className="w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
                           <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.add }}>Ligne ajoutée par l'agent</span>
@@ -18147,7 +18147,7 @@ export default function App() {
                         </Field>
                         <Field label="Montant" diffColor={ROW_DIFF_COLORS.add}>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" style={{ fontSize: 14 }}>€</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
                             <input type="text" defaultValue="4 500,00" className={inputBase} style={{ boxShadow: shadowXs, paddingLeft: 28 }} />
                           </div>
                         </Field>
@@ -18158,7 +18158,7 @@ export default function App() {
 
                       {/* ---- Delete ---- */}
                       <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Delete - read-only</div>
-                      <div className="border border-[#e7e5e3] rounded-lg bg-white p-5 space-y-5" style={{ opacity: 0.6 }}>
+                      <div className="border border-border rounded-lg bg-white p-5 space-y-5" style={{ opacity: 0.6 }}>
                         <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
                           <div className="w-1.5 h-1.5" style={{ background: ROW_DIFF_COLORS.delete, transform: 'rotate(45deg)' }} />
                           <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.delete }}>Ligne supprimée par l'agent</span>
@@ -18170,7 +18170,7 @@ export default function App() {
                           <div className={inputBase} style={{ boxShadow: shadowXs, color: '#a8a29e', background: '#fafaf9', textDecoration: 'line-through' }}>55,00 €</div>
                         </Field>
                         <div className="flex items-center gap-3 pt-2">
-                          <button className="flex-1 px-4 py-2 rounded-lg text-body-medium text-[#c45555] border border-[#fecaca] hover:bg-[#fef2f2] transition-colors">Confirmer la suppression</button>
+                          <button className="flex-1 px-4 py-2 rounded-lg text-body-medium text-[#c45555] border border-danger-border hover:bg-danger-subtle transition-colors">Confirmer la suppression</button>
                         </div>
                       </div>
                     </div>
@@ -18187,18 +18187,18 @@ export default function App() {
               <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Indicateurs visuels lors du remplissage automatique des champs par l'agent.</p>
 
               {subTitle('States: streaming → revealed → default')}
-              <div className="border border-[#e7e5e3] rounded-lg bg-white p-4 space-y-4" style={{ maxWidth: 320 }}>
+              <div className="border border-border rounded-lg bg-white p-4 space-y-4" style={{ maxWidth: 320 }}>
                 <div className="animate-field-glow">
-                  <div className="text-caption-medium text-[#78716c] mb-1">En cours de saisie</div>
-                  <div className="text-body text-[#292524]">Mar<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: '#4a9168' }}></span></div>
+                  <div className="text-caption-medium text-foreground-secondary mb-1">En cours de saisie</div>
+                  <div className="text-body text-foreground">Mar<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: '#4a9168' }}></span></div>
                 </div>
                 <div className="pl-3" style={{ borderLeft: '2px solid rgba(22, 163, 74, 0.35)' }}>
-                  <div className="text-caption-medium text-[#78716c] mb-1 flex items-center gap-1">Rempli par l'agent <span className="inline-block w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} /></div>
-                  <div className="text-body text-[#292524]">Martin</div>
+                  <div className="text-caption-medium text-foreground-secondary mb-1 flex items-center gap-1">Rempli par l'agent <span className="inline-block w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} /></div>
+                  <div className="text-body text-foreground">Martin</div>
                 </div>
                 <div>
-                  <div className="text-caption-medium text-[#78716c] mb-1">Champ normal</div>
-                  <div className="text-body text-[#292524]">Dupont</div>
+                  <div className="text-caption-medium text-foreground-secondary mb-1">Champ normal</div>
+                  <div className="text-body text-foreground">Dupont</div>
                 </div>
               </div>
             </div>
@@ -18220,7 +18220,7 @@ export default function App() {
 
               {subTitle('Diff chips (subtitle)')}
               {row(<>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#e7e5e3] bg-white">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-white">
                   <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.add, fontWeight: 500 }}><Plus className="w-2.5 h-2.5" strokeWidth={2.5} />3</span>
                   <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.edit, fontWeight: 500 }}><Pencil className="w-2.5 h-2.5" strokeWidth={2.5} />2</span>
                   <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.delete, fontWeight: 500 }}><Trash2 className="w-2.5 h-2.5" strokeWidth={2.5} />1</span>
@@ -18229,7 +18229,7 @@ export default function App() {
 
               {subTitle('DFT taux pills')}
               {row(<>
-                <span className="text-caption-medium px-2 py-0.5 rounded-full bg-[#eeece6] text-[#44403c]">100%</span>
+                <span className="text-caption-medium px-2 py-0.5 rounded-full bg-cream text-foreground-tertiary">100%</span>
                 <span className="text-caption-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">50%</span>
                 <span className="text-caption-medium px-2 py-0.5 rounded-full bg-red-50 text-red-400 border border-red-200" style={{ textDecoration: 'line-through' }}>25%</span>
               </>)}
@@ -18242,18 +18242,18 @@ export default function App() {
               {subTitle('Primary actions')}
               {row(<>
                 <button className="px-4 py-2 rounded-lg text-body-medium text-white" style={{ backgroundColor: '#b9703f' }}>Action principale</button>
-                <button className="px-4 py-2 rounded-lg text-body-medium text-[#292524] border border-[#e7e5e3] bg-white hover:bg-[#fafaf9]">Secondaire</button>
+                <button className="px-4 py-2 rounded-lg text-body-medium text-foreground border border-border bg-white hover:bg-background">Secondaire</button>
                 <button className="px-2 py-1 rounded flex items-center gap-1" style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.edit, background: 'rgba(234,121,73,0.06)' }}>Voir <ChevronRight className="w-3 h-3" /></button>
               </>)}
 
               {subTitle('Approve / Reject')}
               {row(<>
-                <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded hover:bg-[#fafaf9] border border-[#e7e5e3]" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
+                <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded hover:bg-background border border-border" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
                   <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter
                 </button>
                 <span className="flex items-center gap-0.5">
-                  <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-[#fafaf9] border border-[#e7e5e3]"><Check className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={2.5} /></button>
-                  <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-[#fafaf9] border border-[#e7e5e3]"><X className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={2.5} /></button>
+                  <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-background border border-border"><Check className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={2.5} /></button>
+                  <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-background border border-border"><X className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={2.5} /></button>
                 </span>
               </>)}
 
@@ -18329,7 +18329,7 @@ export default function App() {
               </div>
 
               {subTitle('API')}
-              <div className="border border-[#e7e5e3] rounded-md overflow-hidden mb-8" style={{ maxWidth: 760 }}>
+              <div className="border border-border rounded-md overflow-hidden mb-8" style={{ maxWidth: 760 }}>
                 <div className="flex" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
                   {['Prop', 'Type', 'Default', 'Description'].map((h, i) => (
                     <div
@@ -18428,7 +18428,7 @@ export default function App() {
 
 
               {subTitle('BaremeListItem - Row variants')}
-              <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden mb-4" style={{ maxWidth: 500 }}>
+              <div className="bg-white rounded-lg border border-border/60 overflow-hidden mb-4" style={{ maxWidth: 500 }}>
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-zinc-100">
@@ -18436,17 +18436,17 @@ export default function App() {
                       <th className="px-4 py-2.5 text-left" style={colHeaderStyle}>Statut</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#e7e5e3]">
+                  <tbody className="divide-y divide-border">
                     {[
                       { label: 'GDP 2025 Prospective 0,50%', status: 'active' },
                       { label: "Cour d'appel 2024", status: 'active' },
                       { label: 'Barème Cabinet Martin', status: 'processing' },
                     ].map((item, i) => (
-                      <tr key={i} className={`bg-white ${item.status === 'active' ? 'hover:bg-[#fafaf9] cursor-pointer' : 'opacity-75'}`}>
+                      <tr key={i} className={`bg-white ${item.status === 'active' ? 'hover:bg-background cursor-pointer' : 'opacity-75'}`}>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-md bg-[#eeece6] flex items-center justify-center"><Scale className="w-3.5 h-3.5 text-[#a8a29e]" /></div>
-                            <span className="text-body-medium text-[#292524]">{item.label}</span>
+                            <div className="w-7 h-7 rounded-md bg-cream flex items-center justify-center"><Scale className="w-3.5 h-3.5 text-foreground-muted" /></div>
+                            <span className="text-body-medium text-foreground">{item.label}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
@@ -18463,7 +18463,7 @@ export default function App() {
 
               {subTitle('BaremeSelect - Vertical (label above)')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Popover dropdown with search + "Ajouter le vôtre" at the bottom. Live component below.</p>
-              <div className="bg-white rounded-lg border border-[#e7e5e3] p-5 mb-4" style={{ maxWidth: 420 }}>
+              <div className="bg-white rounded-lg border border-border p-5 mb-4" style={{ maxWidth: 420 }}>
                 {renderBaremePopoverSelect({
                   popoverId: 'uikit-vertical',
                   value: 'gdp_2025_prospective',
@@ -18475,7 +18475,7 @@ export default function App() {
 
               {subTitle('BaremeSelect - Horizontal (inline label)')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Same popover, inline layout. Used in param chip bars (PGPF).</p>
-              <div className="bg-white rounded-lg border border-[#e7e5e3] p-5 mb-4" style={{ maxWidth: 560 }}>
+              <div className="bg-white rounded-lg border border-border p-5 mb-4" style={{ maxWidth: 560 }}>
                 <div className="flex items-center gap-3">
                   {renderBaremePopoverSelect({
                     popoverId: 'uikit-horizontal',
@@ -18485,9 +18485,9 @@ export default function App() {
                     label: 'Barème',
                     variant: 'horizontal',
                   })}
-                  <div className="w-px h-4 bg-[#d6d3d1]" />
-                  <span className="text-sm font-medium text-[#78716c] flex-shrink-0">Fin arrérage</span>
-                  <select className="text-sm text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                  <div className="w-px h-4 bg-border-strong" />
+                  <span className="text-sm font-medium text-foreground-secondary flex-shrink-0">Fin arrérage</span>
+                  <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
@@ -18496,21 +18496,21 @@ export default function App() {
 
               {subTitle('BaremeTableViewer - Sidepanel preview')}
               <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Opens as a right-side panel (same pattern as document preview). Table is rendered inside.</p>
-              <div className="bg-white rounded-lg border-l-2 border border-[#e7e5e3] overflow-hidden mb-4 shadow-lg" style={{ maxWidth: 600 }}>
-                <div className="px-4 py-3 border-b border-[#e7e5e3] flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-md bg-[#eeece6] flex items-center justify-center"><Scale className="w-3.5 h-3.5 text-[#a8a29e]" /></div>
-                  <span className="text-body-medium text-[#44403c]">ONIAM 2025</span>
+              <div className="bg-white rounded-lg border-l-2 border border-border overflow-hidden mb-4 shadow-lg" style={{ maxWidth: 600 }}>
+                <div className="px-4 py-3 border-b border-border flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-md bg-cream flex items-center justify-center"><Scale className="w-3.5 h-3.5 text-foreground-muted" /></div>
+                  <span className="text-body-medium text-foreground-tertiary">ONIAM 2025</span>
                   <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#065f46' }}>Actif</span>
                   <div className="flex-1" />
-                  <div className="p-1 text-[#a8a29e]"><X className="w-3.5 h-3.5" /></div>
+                  <div className="p-1 text-foreground-muted"><X className="w-3.5 h-3.5" /></div>
                 </div>
                 <div className="overflow-auto">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr>
-                        <th className="px-3 py-2 text-left border border-[#e7e5e3]" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase' }}>Durée</th>
+                        <th className="px-3 py-2 text-left border border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase' }}>Durée</th>
                         {['25 ans', '62 ans', '67 ans'].map((c, i) => (
-                          <th key={i} className="px-3 py-2 text-right border border-[#e7e5e3]" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', whiteSpace: 'nowrap' }}>{c}</th>
+                          <th key={i} className="px-3 py-2 text-right border border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', whiteSpace: 'nowrap' }}>{c}</th>
                         ))}
                       </tr>
                     </thead>
@@ -18521,10 +18521,10 @@ export default function App() {
                         { h: '30', v: ['26.231', '26.231', '26.231'] },
                         { h: 'Viager', v: ['41.543', '16.891', '13.010'] },
                       ].map((r, ri) => (
-                        <tr key={ri} className="hover:bg-[#fafaf9]">
-                          <td className="px-3 py-2 border border-[#e7e5e3]" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#44403c' }}>{r.h}</td>
+                        <tr key={ri} className="hover:bg-background">
+                          <td className="px-3 py-2 border border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#44403c' }}>{r.h}</td>
                           {r.v.map((val, ci) => (
-                            <td key={ci} className={`px-3 py-2 text-right border border-[#e7e5e3]`} style={{
+                            <td key={ci} className={`px-3 py-2 text-right border border-border`} style={{
                               fontFamily: "'DM Mono', 'IBM Plex Mono', monospace", fontSize: 12, color: '#292524',
                               background: ri === 2 && ci === 0 ? '#eff6ff' : 'white',
                               ...(ri === 2 && ci === 0 ? { boxShadow: 'inset 0 0 0 2px #3b82f6', borderRadius: 2 } : {})
@@ -18535,36 +18535,36 @@ export default function App() {
                     </tbody>
                   </table>
                 </div>
-                <div className="px-4 py-2 border-t border-[#e7e5e3]" style={{ background: '#fafaf9' }}>
-                  <span className="text-xs text-[#a8a29e]">↑ Cellule en surbrillance = valeur retenue pour le dossier</span>
+                <div className="px-4 py-2 border-t border-border" style={{ background: '#fafaf9' }}>
+                  <span className="text-xs text-foreground-muted">↑ Cellule en surbrillance = valeur retenue pour le dossier</span>
                 </div>
               </div>
 
               {subTitle('BaremeUploadForm - States')}
               {row(<>
                 {/* Empty form preview */}
-                <div className="bg-white rounded-lg border border-[#e7e5e3] p-5" style={{ width: 260 }}>
-                  <div className="text-body-medium text-[#292524] mb-3">Formulaire vide</div>
+                <div className="bg-white rounded-lg border border-border p-5" style={{ width: 260 }}>
+                  <div className="text-body-medium text-foreground mb-3">Formulaire vide</div>
                   <div className="space-y-2.5">
-                    <div className="h-9 bg-[#f5f5f4] rounded-lg border border-[#e7e5e3]" />
-                    <div className="h-9 bg-[#f5f5f4] rounded-lg border border-[#e7e5e3]" />
-                    <div className="h-20 bg-[#f5f5f4] rounded-lg border-2 border-dashed border-[#d6d3d1] flex items-center justify-center">
-                      <FileUp className="w-4 h-4 text-[#a8a29e]" />
+                    <div className="h-9 bg-background-subtle rounded-lg border border-border" />
+                    <div className="h-9 bg-background-subtle rounded-lg border border-border" />
+                    <div className="h-20 bg-background-subtle rounded-lg border-2 border-dashed border-border-strong flex items-center justify-center">
+                      <FileUp className="w-4 h-4 text-foreground-muted" />
                     </div>
                     <div className="flex justify-end gap-2 pt-1">
-                      <div className="px-3 py-1.5 text-xs text-[#78716c] rounded">Annuler</div>
-                      <div className="px-3 py-1.5 text-xs text-white bg-[#e7e5e3] rounded">Soumettre</div>
+                      <div className="px-3 py-1.5 text-xs text-foreground-secondary rounded">Annuler</div>
+                      <div className="px-3 py-1.5 text-xs text-white bg-border rounded">Soumettre</div>
                     </div>
                   </div>
                 </div>
                 {/* Post-submit confirmation preview */}
-                <div className="bg-white rounded-lg border border-[#e7e5e3] p-5 text-center" style={{ width: 260 }}>
-                  <div className="text-body-medium text-[#292524] mb-3">Confirmation</div>
+                <div className="bg-white rounded-lg border border-border p-5 text-center" style={{ width: 260 }}>
+                  <div className="text-body-medium text-foreground mb-3">Confirmation</div>
                   <div className="w-10 h-10 rounded-full bg-[#dcfce7] flex items-center justify-center mx-auto mb-3">
                     <CheckCircle2 className="w-5 h-5 text-[#16a34a]" />
                   </div>
-                  <p className="text-body-medium text-[#292524] mb-1">Demande prise en compte</p>
-                  <p className="text-xs text-[#78716c]">Activation sous 48h</p>
+                  <p className="text-body-medium text-foreground mb-1">Demande prise en compte</p>
+                  <p className="text-xs text-foreground-secondary">Activation sous 48h</p>
                 </div>
               </>)}
             </div>
@@ -18596,28 +18596,28 @@ export default function App() {
               >{v === 'before' ? 'Before (no feedback)' : 'After (diff system)'}</button>
             ))}
           </div>
-          <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden" style={{ maxWidth: 700 }}>
+          <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 700 }}>
             {view === 'before' ? (
               /* Before: flat row, no indication of what changed - the user sees final values but has zero visibility */
               <div className="flex items-center h-[56px] px-4 gap-4">
-                <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md"><FileText className="w-4 h-4 text-[#2563eb]" /></span>
-                <span className="text-body-medium text-[#292524] flex-1">Hospitalisation jour</span>
-                <span className="text-body text-[#78716c]">15/02/2026</span>
-                <span className="text-body-medium text-[#44403c]">500 €</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md"><FileText className="w-4 h-4 text-info" /></span>
+                <span className="text-body-medium text-foreground flex-1">Hospitalisation jour</span>
+                <span className="text-body text-foreground-secondary">15/02/2026</span>
+                <span className="text-body-medium text-foreground-tertiary">500 €</span>
               </div>
             ) : (
               /* After: diff-aware row with before/after values, colored strip, accept/reject */
               <div className="group/diff relative flex items-center h-[56px] px-4 gap-4">
                 <div className="absolute left-0 top-0 bottom-0 w-1 pointer-events-none" style={{ background: ROW_DIFF_COLORS.edit }} />
-                <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md"><FileText className="w-4 h-4 text-[#2563eb]" /></span>
-                <span className="text-body-medium text-[#292524] flex-1">Hospitalisation jour</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md"><FileText className="w-4 h-4 text-info" /></span>
+                <span className="text-body-medium text-foreground flex-1">Hospitalisation jour</span>
                 <div className="text-right">
                   <div style={{ fontSize: 12, lineHeight: '16px', color: '#a8a29e', textDecoration: 'line-through' }}>15/01/2026</div>
-                  <div className="text-body-medium text-[#292524]">15/02/2026</div>
+                  <div className="text-body-medium text-foreground">15/02/2026</div>
                 </div>
                 <div className="text-right">
                   <div style={{ fontSize: 12, lineHeight: '16px', color: '#a8a29e', textDecoration: 'line-through' }}>350 €</div>
-                  <div className="text-body-medium text-[#44403c]">500 €</div>
+                  <div className="text-body-medium text-foreground-tertiary">500 €</div>
                 </div>
                 <span className="flex items-center gap-1 opacity-0 group-hover/diff:opacity-100 transition-opacity">
                   <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
@@ -18632,10 +18632,10 @@ export default function App() {
 
     /* ── S3: Visual System specimens ── */
     const TypoSpecimen = ({ label, size, weight, color, decoration, value }) => (
-      <div className="px-4 py-3 rounded-lg border border-[#e7e5e3] bg-white" style={{ minWidth: 160 }}>
-        <div className="text-counter text-[#a8a29e] mb-2 uppercase">{label}</div>
+      <div className="px-4 py-3 rounded-lg border border-border bg-white" style={{ minWidth: 160 }}>
+        <div className="text-counter text-foreground-muted mb-2 uppercase">{label}</div>
         <span style={{ fontSize: size, fontWeight: weight, color, textDecoration: decoration }}>{value}</span>
-        <div className="text-counter text-[#d6d3d1] mt-2">{size}px · {weight === 500 ? 'Medium' : 'Regular'} · {color}</div>
+        <div className="text-counter text-border-strong mt-2">{size}px · {weight === 500 ? 'Medium' : 'Regular'} · {color}</div>
       </div>
     );
 
@@ -18648,7 +18648,7 @@ export default function App() {
           {diffColor && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
           <label style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>{label}</label>
         </div>
-        <input type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-[#292524]" style={{ borderColor: diffColor ? diffColor : '#e7e5e3', background: diffColor ? `${diffColor}08` : 'white' }} />
+        <input type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-foreground" style={{ borderColor: diffColor ? diffColor : '#e7e5e3', background: diffColor ? `${diffColor}08` : 'white' }} />
         {oldValue && <div style={{ fontSize: 11, color: '#a8a29e', marginTop: 2 }}>Ancien : {oldValue}</div>}
       </div>
     );
@@ -18733,7 +18733,7 @@ export default function App() {
                 <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'accepted' } : pp))}>
                   <Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} />
                 </span>
-                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#fef2f2] hover:border-[#cf9d9d] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'rejected' } : pp))}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'rejected' } : pp))}>
                   <X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} />
                 </span>
               </span>
@@ -18745,14 +18745,14 @@ export default function App() {
       return (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-caption text-[#78716c]">{peels.filter(p => p.status === 'pending').length} pending · {peels.filter(p => p.status === 'accepted').length} accepted · {peels.filter(p => p.status === 'rejected').length} rejected</span>
-            <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-[#1e3a8a] hover:text-[#1e40af]"><RotateCcw className="w-3 h-3" /> Reset</button>
+            <span className="text-caption text-foreground-secondary">{peels.filter(p => p.status === 'pending').length} pending · {peels.filter(p => p.status === 'accepted').length} accepted · {peels.filter(p => p.status === 'rejected').length} rejected</span>
+            <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-[#1e40af]"><RotateCcw className="w-3 h-3" /> Reset</button>
           </div>
           {/* In-context: settings row with mixed pill states */}
-          <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden mb-4" style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
+          <div className="border border-border rounded-lg bg-white overflow-hidden mb-4" style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
             <div className="flex items-center gap-3 px-4 py-3 flex-wrap">
-              <div className="w-6 h-6 bg-[#eeece6] rounded-[6px] flex items-center justify-center flex-shrink-0">
-                <Settings className="w-3.5 h-3.5 text-[#78716c]" />
+              <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
+                <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
               </div>
               {peels.map(p => renderPill(p))}
             </div>
@@ -18775,34 +18775,34 @@ export default function App() {
               </div>
             ))}
           </div>
-          <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-visible" style={{ maxWidth: 600 }}>
+          <div className="border border-border rounded-lg bg-white overflow-visible" style={{ maxWidth: 600 }}>
             <div className={`relative flex items-center h-[56px] px-4 gap-4 transition-colors ${step === 'rejected' ? 'diff-row-rejected' : ''}`}>
               {step === 'pending' && <div className="absolute left-0 top-0 bottom-0 w-1 pointer-events-none" style={{ background: ROW_DIFF_COLORS.edit }} />}
-              <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md"><FileText className="w-4 h-4 text-[#2563eb]" /></span>
-              <span className="text-body-medium text-[#292524] flex-1">Kinésithérapie</span>
+              <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md"><FileText className="w-4 h-4 text-info" /></span>
+              <span className="text-body-medium text-foreground flex-1">Kinésithérapie</span>
               {step === 'pending' ? (
                 <div className="text-right">
                   <div style={{ fontSize: 12, lineHeight: '16px', color: '#a8a29e', textDecoration: 'line-through' }}>960 €</div>
-                  <div className="text-body-medium text-[#44403c]">1 280 €</div>
+                  <div className="text-body-medium text-foreground-tertiary">1 280 €</div>
                 </div>
               ) : step === 'rejected' ? (
                 <div className="text-right">
-                  <span className="text-body-medium text-[#292524]">960 €</span>
+                  <span className="text-body-medium text-foreground">960 €</span>
                 </div>
               ) : (
-                <span className="text-body-medium text-[#44403c]">960 €</span>
+                <span className="text-body-medium text-foreground-tertiary">960 €</span>
               )}
               {step === 'pending' && (
                 <span className="flex items-center gap-1">
                   <button className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-                  <button onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#fef2f2]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                  <button onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
                 </span>
               )}
             </div>
           </div>
           <div className="flex items-center gap-2 mt-4">
-            {step === 'rejected' && <button onClick={() => setStep('clean')} className="px-3 py-1.5 rounded-md text-caption-medium bg-[#292524] text-white">Dismiss → Clean state</button>}
-            <button onClick={reset} className="px-3 py-1.5 rounded-md text-caption-medium border border-[#e7e5e3] text-[#78716c] hover:bg-[#fafaf9]"><RotateCcw className="w-3 h-3 inline mr-1" />Reset</button>
+            {step === 'rejected' && <button onClick={() => setStep('clean')} className="px-3 py-1.5 rounded-md text-caption-medium bg-foreground text-white">Dismiss → Clean state</button>}
+            <button onClick={reset} className="px-3 py-1.5 rounded-md text-caption-medium border border-border text-foreground-secondary hover:bg-background"><RotateCcw className="w-3 h-3 inline mr-1" />Reset</button>
           </div>
         </div>
       );
@@ -18811,14 +18811,14 @@ export default function App() {
 
     /* ── Surface recap table ── */
     const SurfaceRecap = () => (
-      <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden" style={{ maxWidth: 700 }}>
+      <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 700 }}>
         {[
           { surface: 'Canvas (table)', sees: true, canAccept: true, canEdit: false },
           { surface: 'Chat (artifact card)', sees: true, canAccept: true, canEdit: false },
           { surface: 'Panel', sees: false, canAccept: false, canEdit: true },
         ].map((row, i) => (
           <div key={i} className="flex items-center" style={{ borderBottom: i < 2 ? '1px solid #f0efed' : 'none', padding: '10px 16px' }}>
-            <span className="text-body-medium text-[#292524]" style={{ width: 200 }}>{row.surface}</span>
+            <span className="text-body-medium text-foreground" style={{ width: 200 }}>{row.surface}</span>
             <span className="flex-1 text-body" style={{ color: row.sees ? ROW_DIFF_COLORS.add : '#a8a29e' }}>{row.sees ? '✓ Sees diff' : '✗ Banner only'}</span>
             <span className="flex-1 text-body" style={{ color: row.canAccept ? ROW_DIFF_COLORS.add : '#a8a29e' }}>{row.canAccept ? '✓ Accept/Reject' : '✗ Save = implicit accept'}</span>
             <span className="flex-1 text-body" style={{ color: row.canEdit ? ROW_DIFF_COLORS.add : '#a8a29e' }}>{row.canEdit ? '✓ Full edit' : '✗ Read-only'}</span>
@@ -18830,11 +18830,11 @@ export default function App() {
     return (
       <div className="h-screen flex flex-col" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
-        <div className="flex items-center h-12 px-6 border-b border-[#e7e5e3] bg-white flex-shrink-0">
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-[#78716c] hover:text-[#292524] transition-colors">
+        <div className="flex items-center h-12 px-6 border-b border-border bg-white flex-shrink-0">
+          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Back to UI Kit
           </button>
-          <div className="ml-4 pl-4 border-l border-[#e7e5e3]">
+          <div className="ml-4 pl-4 border-l border-border">
             <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>Diff Engine</span>
           </div>
         </div>
@@ -18864,14 +18864,14 @@ export default function App() {
                   { n: '2', title: 'Validate', desc: 'Accept or reject at different levels of granularity' },
                   { n: '3', title: 'Stay transparent', desc: 'Only agent actions are tracked - manual edits by the lawyer don\'t go through the diff system' },
                 ].map(item => (
-                  <div key={item.n} className="flex items-start gap-3 p-4 rounded-lg border border-[#e7e5e3] bg-white">
-                    <span className="w-6 h-6 rounded-full bg-[#292524] text-white text-caption-medium flex items-center justify-center flex-shrink-0">{item.n}</span>
-                    <div><span className="text-body-medium text-[#292524]">{item.title}.</span> <span className="text-body text-[#57534e]">{item.desc}</span></div>
+                  <div key={item.n} className="flex items-start gap-3 p-4 rounded-lg border border-border bg-white">
+                    <span className="w-6 h-6 rounded-full bg-foreground text-white text-caption-medium flex items-center justify-center flex-shrink-0">{item.n}</span>
+                    <div><span className="text-body-medium text-foreground">{item.title}.</span> <span className="text-body text-foreground-quaternary">{item.desc}</span></div>
                   </div>
                 ))}
               </div>
               {quote('The diff is a trust mechanism for agent actions, not a generic change tracker. What the agent does needs to be reviewed. What the lawyer does manually is intentional.')}
-              <div className="text-caption-medium text-[#78716c] mb-3 mt-6 uppercase" style={{ letterSpacing: '0.05em' }}>Diff surfaces</div>
+              <div className="text-caption-medium text-foreground-secondary mb-3 mt-6 uppercase" style={{ letterSpacing: '0.05em' }}>Diff surfaces</div>
               <SurfaceRecap />
             </div>
 
@@ -18886,8 +18886,8 @@ export default function App() {
                 <TypoSpecimen label="Added value" size={14} weight={500} color="#292524" decoration="none" value="4 500 €" />
                 <TypoSpecimen label="Deleted value" size={14} weight={400} color="#a8a29e" decoration="line-through" value="55 €" />
               </div>
-              <div className="text-caption-medium text-[#78716c] mb-3 uppercase" style={{ letterSpacing: '0.05em' }}>Row-level color system</div>
-              <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden" style={{ maxWidth: 400 }}>
+              <div className="text-caption-medium text-foreground-secondary mb-3 uppercase" style={{ letterSpacing: '0.05em' }}>Row-level color system</div>
+              <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 400 }}>
                 {[
                   { type: 'add', label: 'Ajout', color: ROW_DIFF_COLORS.add },
                   { type: 'edit', label: 'Modif.', color: ROW_DIFF_COLORS.edit },
@@ -18896,7 +18896,7 @@ export default function App() {
                 ].map((r, i) => (
                   <div key={i} className="relative flex items-center h-10 px-4" style={{ borderBottom: i < 3 ? '1px solid #f0efed' : 'none' }}>
                     {r.color && <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: r.color }} />}
-                    <span className="text-body text-[#292524] flex-1">{r.type ? r.label : '—'}</span>
+                    <span className="text-body text-foreground flex-1">{r.type ? r.label : '—'}</span>
                     {r.color && <span className="text-counter px-1.5 py-0.5 rounded" style={{ background: r.color + '18', color: r.color, fontWeight: 600 }}>{r.label.toUpperCase()}</span>}
                   </div>
                 ))}
@@ -18943,7 +18943,7 @@ export default function App() {
               {sandboxLabel()}
               <div className="flex gap-4 flex-wrap">
                 <div style={{ flex: 1, minWidth: 300 }}>
-                  <div className="text-caption-medium text-[#a8a29e] mb-2 uppercase">All approved</div>
+                  <div className="text-caption-medium text-foreground-muted mb-2 uppercase">All approved</div>
                   <SharedInteractiveCards
                     initialDiffs={[
                       { id: 'ba-1', entityLabel: 'Hospitalisation CHU', type: 'add', fields: [{ label: 'Montant', after: '4 500 €' }], approved: true },
@@ -18953,7 +18953,7 @@ export default function App() {
                   />
                 </div>
                 <div style={{ flex: 1, minWidth: 300 }}>
-                  <div className="text-caption-medium text-[#a8a29e] mb-2 uppercase">All rejected</div>
+                  <div className="text-caption-medium text-foreground-muted mb-2 uppercase">All rejected</div>
                   <SharedInteractiveCards
                     initialDiffs={[
                       { id: 'br-1', entityLabel: 'Hospitalisation CHU', type: 'add', fields: [{ label: 'Montant', after: '4 500 €' }], rejected: true },
@@ -18963,7 +18963,7 @@ export default function App() {
                   />
                 </div>
                 <div style={{ flex: 1, minWidth: 300 }}>
-                  <div className="text-caption-medium text-[#a8a29e] mb-2 uppercase">Mixed</div>
+                  <div className="text-caption-medium text-foreground-muted mb-2 uppercase">Mixed</div>
                   <SharedInteractiveCards
                     initialDiffs={[
                       { id: 'bm-1', entityLabel: 'Hospitalisation CHU', type: 'add', fields: [{ label: 'Montant', after: '4 500 €' }], approved: true },
@@ -18987,8 +18987,8 @@ export default function App() {
                   'No per-field accept/reject inside the panel',
                   'No read-only panel state for deleted lines',
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-body text-[#78716c]">
-                    <X className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={2} />
+                  <div key={i} className="flex items-center gap-2 text-body text-foreground-secondary">
+                    <X className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={2} />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -19001,14 +19001,14 @@ export default function App() {
               {prose('The panel is NOT part of the diff system. It always shows the latest version. A subtle banner indicates "Modified by assistant" when a diff is pending. Edit + save = implicit accept. Deleted lines cannot be opened in the panel.')}
               {sandboxLabel()}
               <div className="flex gap-6 flex-wrap">
-                <div className="rounded-lg border border-[#e7e5e3] bg-white p-5" style={{ width: 280 }}>
-                  <div className="text-caption-medium text-[#a8a29e] mb-3 uppercase">Normal</div>
+                <div className="rounded-lg border border-border bg-white p-5" style={{ width: 280 }}>
+                  <div className="text-caption-medium text-foreground-muted mb-3 uppercase">Normal</div>
                   <PanelField label="Libellé" value="Hospitalisation jour" />
                   <PanelField label="Date" value="15/02/2026" />
                   <PanelField label="Montant" value="500 €" />
                 </div>
-                <div className="rounded-lg border border-[#e7e5e3] bg-white p-5" style={{ width: 280 }}>
-                  <div className="text-caption-medium text-[#a8a29e] mb-3 uppercase">Pending diff</div>
+                <div className="rounded-lg border border-border bg-white p-5" style={{ width: 280 }}>
+                  <div className="text-caption-medium text-foreground-muted mb-3 uppercase">Pending diff</div>
                   <div className="rounded-lg p-3 mb-4 flex items-center gap-2" style={{ background: `${ROW_DIFF_COLORS.edit}10`, border: `1px solid ${ROW_DIFF_COLORS.edit}30` }}>
                     <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ROW_DIFF_COLORS.edit, transform: 'rotate(45deg)' }} />
                     <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.edit }}>Modifié par l'assistant</span>
@@ -19017,13 +19017,13 @@ export default function App() {
                   <PanelField label="Montant" value="1 280 €" diffColor={ROW_DIFF_COLORS.edit} oldValue="960 €" />
                   <PanelField label="Date" value="05/06/2022" diffColor={ROW_DIFF_COLORS.edit} oldValue="04/06/2022" />
                 </div>
-                <div className="rounded-lg border border-[#e7e5e3] bg-white p-5 flex flex-col items-center justify-center" style={{ width: 280, minHeight: 240 }}>
-                  <div className="text-caption-medium text-[#a8a29e] mb-3 uppercase">Deleted line</div>
-                  <div className="w-10 h-10 rounded-full bg-[#fef2f2] flex items-center justify-center mb-3">
+                <div className="rounded-lg border border-border bg-white p-5 flex flex-col items-center justify-center" style={{ width: 280, minHeight: 240 }}>
+                  <div className="text-caption-medium text-foreground-muted mb-3 uppercase">Deleted line</div>
+                  <div className="w-10 h-10 rounded-full bg-danger-subtle flex items-center justify-center mb-3">
                     <Trash2 className="w-4 h-4" style={{ color: ROW_DIFF_COLORS.delete }} />
                   </div>
-                  <span className="text-body text-[#78716c] text-center">Cette ligne a été supprimée par l'agent.</span>
-                  <span className="text-caption text-[#a8a29e] mt-1">Restaurez ou confirmez depuis le tableau.</span>
+                  <span className="text-body text-foreground-secondary text-center">Cette ligne a été supprimée par l'agent.</span>
+                  <span className="text-caption text-foreground-muted mt-1">Restaurez ou confirmez depuis le tableau.</span>
                 </div>
               </div>
             </div>
@@ -19046,27 +19046,27 @@ export default function App() {
       <button
         data-bareme-popover={popoverId}
         onClick={() => { setBaremePopover(isOpen ? null : popoverId); setBaremePopoverSearch(''); }}
-        className={`flex items-center justify-between bg-white border border-[#e7e5e3] transition-colors hover:border-[#d6d3d1] ${
+        className={`flex items-center justify-between bg-white border border-border transition-colors hover:border-border-strong ${
           variant === 'horizontal' ? 'text-sm px-3 py-2' : 'w-full px-3 py-2 text-[14px]'
-        } text-[#292524]`}
+        } text-foreground`}
         style={{ borderRadius: 8, boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}
       >
-        <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${selectedBareme ? 'text-[#292524]' : 'text-[#78716c]'}`}>{selectedBareme ? selectedBareme.label : 'Sélectionner…'}</span>
-        <ChevronDown className="w-4 h-4 text-[#78716c] ml-2 flex-shrink-0" />
+        <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${selectedBareme ? 'text-foreground' : 'text-foreground-secondary'}`}>{selectedBareme ? selectedBareme.label : 'Sélectionner…'}</span>
+        <ChevronDown className="w-4 h-4 text-foreground-secondary ml-2 flex-shrink-0" />
       </button>
     );
 
     const popoverContent = isOpen && (
-      <div data-bareme-popover={popoverId} className="absolute z-40 mt-1 bg-white border border-[#e7e5e3] overflow-hidden" style={{ borderRadius: 8, width: variant === 'horizontal' ? 287 : '100%', animation: 'fadeIn 0.1s ease-out', boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+      <div data-bareme-popover={popoverId} className="absolute z-40 mt-1 bg-white border border-border overflow-hidden" style={{ borderRadius: 8, width: variant === 'horizontal' ? 287 : '100%', animation: 'fadeIn 0.1s ease-out', boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
         {/* Command Search */}
-        <button className="w-full flex items-center gap-0 px-3 py-3 border-b border-[#e7e5e3] cursor-text" onClick={() => {}}>
-          <div className="pr-2 flex-shrink-0"><Search className="w-4 h-4 text-[#78716c]" /></div>
+        <button className="w-full flex items-center gap-0 px-3 py-3 border-b border-border cursor-text" onClick={() => {}}>
+          <div className="pr-2 flex-shrink-0"><Search className="w-4 h-4 text-foreground-secondary" /></div>
           <input
             type="text"
             value={baremePopoverSearch}
             onChange={(e) => setBaremePopoverSearch(e.target.value)}
             placeholder="Rechercher.."
-            className="w-full bg-transparent text-sm text-[#292524] placeholder:text-[#78716c] outline-none"
+            className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground-secondary outline-none"
             autoFocus
           />
         </button>
@@ -19078,27 +19078,27 @@ export default function App() {
                 key={b.id}
                 onClick={() => { onChange(b.id); setBaremePopover(null); setBaremePopoverSearch(''); }}
                 className={`w-full text-left px-2 py-1.5 text-sm transition-colors flex items-center justify-between gap-2 ${
-                  b.id === value ? 'font-medium text-[#292524]' : 'text-[#78716c] hover:bg-[#f8f7f5]'
+                  b.id === value ? 'font-medium text-foreground' : 'text-foreground-secondary hover:bg-background-canvas'
                 }`}
                 style={{ borderRadius: 6, background: b.id === value ? '#f8f7f5' : undefined }}
               >
                 {b.label}
-                {b.id === value && <Check className="w-4 h-4 text-[#292524] flex-shrink-0" />}
+                {b.id === value && <Check className="w-4 h-4 text-foreground flex-shrink-0" />}
               </button>
             )) : (
-              <div className="px-2 py-4 text-center text-sm text-[#78716c]">Aucun résultat</div>
+              <div className="px-2 py-4 text-center text-sm text-foreground-secondary">Aucun résultat</div>
             )}
           </div>
         </div>
         {/* Ajouter footer */}
-        <div className="border-t border-[#e7e5e3] px-3 py-3">
+        <div className="border-t border-border px-3 py-3">
           <button
             onClick={() => { setBaremePopover(null); setBaremePopoverSearch(''); setBaremeUploadFormOpen(true); setBaremeUploadData({ nom: '', type: filterType || 'bareme', notes: '', fileName: '' }); }}
             className="w-full text-left text-xs flex items-center gap-1.5"
           >
-            <CirclePlus className="w-4 h-4 text-[#78716c] flex-shrink-0" style={{ opacity: 0.5 }} />
-            <span className="text-[#78716c]" style={{ letterSpacing: '0.12px' }}>Barême introuvable ?</span>
-            <span className="font-medium text-[#1e3a8a]">Ajouter le vôtre</span>
+            <CirclePlus className="w-4 h-4 text-foreground-secondary flex-shrink-0" style={{ opacity: 0.5 }} />
+            <span className="text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>Barême introuvable ?</span>
+            <span className="font-medium text-link">Ajouter le vôtre</span>
           </button>
         </div>
       </div>
@@ -19109,9 +19109,9 @@ export default function App() {
         <div className="relative">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 flex-shrink-0">
-              <span className="text-sm font-medium text-[#78716c]">{label}</span>
+              <span className="text-sm font-medium text-foreground-secondary">{label}</span>
               {value && (
-                <button onClick={() => setBaremeViewerOpen(value)} className="text-xs font-normal text-[#1e3a8a] hover:underline transition-colors">
+                <button onClick={() => setBaremeViewerOpen(value)} className="text-xs font-normal text-link hover:underline transition-colors">
                   Voir
                 </button>
               )}
@@ -19125,10 +19125,10 @@ export default function App() {
 
     return (
       <div className="relative">
-        <label className="block text-[14px] font-medium text-[#292524] mb-1.5">{label}</label>
+        <label className="block text-[14px] font-medium text-foreground mb-1.5">{label}</label>
         {triggerBtn}
         {value && (
-          <button onClick={() => setBaremeViewerOpen(value)} className="mt-1.5 text-xs font-medium text-[#1e3a8a] hover:underline transition-colors">
+          <button onClick={() => setBaremeViewerOpen(value)} className="mt-1.5 text-xs font-medium text-link hover:underline transition-colors">
             Voir le barême
           </button>
         )}
@@ -19146,12 +19146,12 @@ export default function App() {
       {/* Dimmed backdrop - covers the canvas left of the chat (respects --chat-offset);
           click to close. */}
       <div onClick={() => setBaremeViewerOpen(null)} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
-      <div className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
+      <div className="fixed top-0 h-screen bg-white border-l border-border z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Header - matches doc preview pattern */}
-        <div className="px-4 border-b border-[#e7e5e3] flex items-center justify-between flex-shrink-0 bg-white" style={{ paddingTop: 14, paddingBottom: 14 }}>
+        <div className="px-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-white" style={{ paddingTop: 14, paddingBottom: 14 }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-[22px] h-[22px] rounded-[6px] bg-[#eeece6] flex items-center justify-center flex-shrink-0">
-              <Scale className="w-3 h-3 text-[#78716c]" />
+            <div className="w-[22px] h-[22px] rounded-[6px] bg-cream flex items-center justify-center flex-shrink-0">
+              <Scale className="w-3 h-3 text-foreground-secondary" />
             </div>
             <span className="text-[14px] font-medium text-black truncate">{bareme.label}</span>
             {bareme.status === 'active' ? (
@@ -19160,7 +19160,7 @@ export default function App() {
               <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[6px] flex-shrink-0" style={{ background: '#fef3c7', color: '#92400e' }}>En traitement</span>
             )}
           </div>
-          <button onClick={() => setBaremeViewerOpen(null)} className="w-4 h-4 flex items-center justify-center flex-shrink-0 ml-3 text-[#78716c] hover:text-[#292524] transition-colors">
+          <button onClick={() => setBaremeViewerOpen(null)} className="w-4 h-4 flex items-center justify-center flex-shrink-0 ml-3 text-foreground-secondary hover:text-foreground transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -19172,11 +19172,11 @@ export default function App() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="sticky top-0 left-0 z-20 px-3 py-2.5 text-left border-b border-r border-[#e7e5e3]" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: 80 }}>
+                      <th className="sticky top-0 left-0 z-20 px-3 py-2.5 text-left border-b border-r border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: 80 }}>
                         Durée
                       </th>
                       {bareme.tableData.columns.map((col, i) => (
-                        <th key={i} className="sticky top-0 z-10 px-3 py-2.5 text-right border-b border-r border-[#e7e5e3] last:border-r-0" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', whiteSpace: 'nowrap', minWidth: 72 }}>
+                        <th key={i} className="sticky top-0 z-10 px-3 py-2.5 text-right border-b border-r border-border last:border-r-0" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', whiteSpace: 'nowrap', minWidth: 72 }}>
                           {col}
                         </th>
                       ))}
@@ -19184,12 +19184,12 @@ export default function App() {
                   </thead>
                   <tbody>
                     {bareme.tableData.rows.map((row, ri) => (
-                      <tr key={ri} className="hover:bg-[#fafaf9] transition-colors">
-                        <td className="sticky left-0 z-10 px-3 py-2 border-b border-r border-[#e7e5e3]" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#44403c' }}>
+                      <tr key={ri} className="hover:bg-background transition-colors">
+                        <td className="sticky left-0 z-10 px-3 py-2 border-b border-r border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#44403c' }}>
                           {row.header}
                         </td>
                         {row.values.map((val, ci) => (
-                          <td key={ci} className="px-3 py-2 text-right border-b border-r border-[#e7e5e3] last:border-r-0" style={{ fontFamily: "'DM Mono', 'IBM Plex Mono', monospace", fontSize: 12, color: '#292524', background: 'white' }}>
+                          <td key={ci} className="px-3 py-2 text-right border-b border-r border-border last:border-r-0" style={{ fontFamily: "'DM Mono', 'IBM Plex Mono', monospace", fontSize: 12, color: '#292524', background: 'white' }}>
                             {typeof val === 'number' ? val.toFixed(3) : val}
                           </td>
                         ))}
@@ -19202,9 +19202,9 @@ export default function App() {
         ) : (
           <div className="flex-1 flex items-center justify-center" style={{ backgroundColor: '#f8f7f5' }}>
             <div className="text-center">
-              <Loader2 className="w-8 h-8 text-[#d6d3d1] mx-auto mb-3 animate-spin" />
-              <p className="text-body text-[#78716c]">Ce barème est en cours de modélisation.</p>
-              <p className="text-caption text-[#a8a29e] mt-1">Il sera disponible sous 48h.</p>
+              <Loader2 className="w-8 h-8 text-border-strong mx-auto mb-3 animate-spin" />
+              <p className="text-body text-foreground-secondary">Ce barème est en cours de modélisation.</p>
+              <p className="text-caption text-foreground-muted mt-1">Il sera disponible sous 48h.</p>
             </div>
           </div>
         )}
@@ -19220,10 +19220,10 @@ export default function App() {
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }}>
         <div className="bg-white rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#e7e5e3]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: '#18181b' }}>Ajouter un barème</h2>
-            <button onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors">
-              <X className="w-4 h-4 text-[#78716c]" />
+            <button onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
+              <X className="w-4 h-4 text-foreground-secondary" />
             </button>
           </div>
 
@@ -19231,23 +19231,23 @@ export default function App() {
             <div className="px-6 py-5 space-y-4">
               {/* Nom */}
               <div>
-                <label className="block text-[14px] font-medium text-[#78716c] mb-2">Nom du barème <span className="text-red-400">*</span></label>
+                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du barème <span className="text-red-400">*</span></label>
                 <input
                   type="text"
                   value={baremeUploadData.nom}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, nom: e.target.value }))}
                   placeholder="Ex: GDP 2026, Mornet révisé…"
-                  className="w-full h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                  className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                 />
               </div>
 
               {/* Type */}
               <div>
-                <label className="block text-[14px] font-medium text-[#78716c] mb-2">Type</label>
+                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type</label>
                 <select
                   value={baremeUploadData.type}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, type: e.target.value }))}
-                  className="w-full h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                  className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                 >
                   <option value="bareme">Barème</option>
                   <option value="referentiel">Référentiel</option>
@@ -19256,9 +19256,9 @@ export default function App() {
 
               {/* File upload zone */}
               <div>
-                <label className="block text-[14px] font-medium text-[#78716c] mb-2">Document de référence <span className="text-red-400">*</span></label>
+                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Document de référence <span className="text-red-400">*</span></label>
                 <div
-                  className="border-2 border-dashed border-[#d6d3d1] rounded-lg p-6 text-center hover:border-[#a8a29e] transition-colors cursor-pointer"
+                  className="border-2 border-dashed border-border-strong rounded-lg p-6 text-center hover:border-foreground-muted transition-colors cursor-pointer"
                   onClick={() => {
                     const input = document.createElement('input');
                     input.type = 'file';
@@ -19273,17 +19273,17 @@ export default function App() {
                 >
                   {baremeUploadData.fileName ? (
                     <div className="flex items-center justify-center gap-2">
-                      <FileText className="w-5 h-5 text-[#292524]" />
-                      <span className="text-body-medium text-[#292524]">{baremeUploadData.fileName}</span>
-                      <button onClick={(e) => { e.stopPropagation(); setBaremeUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-[#eeece6]">
-                        <X className="w-3 h-3 text-[#78716c]" />
+                      <FileText className="w-5 h-5 text-foreground" />
+                      <span className="text-body-medium text-foreground">{baremeUploadData.fileName}</span>
+                      <button onClick={(e) => { e.stopPropagation(); setBaremeUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-cream">
+                        <X className="w-3 h-3 text-foreground-secondary" />
                       </button>
                     </div>
                   ) : (
                     <>
-                      <FileUp className="w-6 h-6 text-[#a8a29e] mx-auto mb-2" />
-                      <p className="text-body text-[#78716c]">Glissez votre fichier ici ou <span className="text-[#292524] font-medium underline">parcourir</span></p>
-                      <p className="text-caption text-[#a8a29e] mt-1">PDF, Excel, image</p>
+                      <FileUp className="w-6 h-6 text-foreground-muted mx-auto mb-2" />
+                      <p className="text-body text-foreground-secondary">Glissez votre fichier ici ou <span className="text-foreground font-medium underline">parcourir</span></p>
+                      <p className="text-caption text-foreground-muted mt-1">PDF, Excel, image</p>
                     </>
                   )}
                 </div>
@@ -19291,13 +19291,13 @@ export default function App() {
 
               {/* Notes */}
               <div>
-                <label className="block text-[14px] font-medium text-[#78716c] mb-2">Notes</label>
+                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
                 <textarea
                   value={baremeUploadData.notes}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Précisions sur le barème, source, contexte d'utilisation…"
                   rows={3}
-                  className="w-full px-3 py-2.5 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] resize-none"
+                  className="w-full px-3 py-2.5 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
                 />
               </div>
 
@@ -19305,7 +19305,7 @@ export default function App() {
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }}
-                  className="px-4 py-2.5 text-body-medium text-[#78716c] rounded-lg hover:bg-[#eeece6] transition-colors"
+                  className="px-4 py-2.5 text-body-medium text-foreground-secondary rounded-lg hover:bg-cream transition-colors"
                 >
                   Annuler
                 </button>
@@ -19331,8 +19331,8 @@ export default function App() {
                   disabled={!baremeUploadData.nom || !baremeUploadData.fileName}
                   className={`px-5 py-2.5 text-body-medium rounded-lg transition-colors ${
                     baremeUploadData.nom && baremeUploadData.fileName
-                      ? 'bg-[#292524] text-white hover:bg-[#44403c]'
-                      : 'bg-[#e7e5e3] text-[#a8a29e] cursor-not-allowed'
+                      ? 'bg-foreground text-white hover:bg-foreground-tertiary'
+                      : 'bg-border text-foreground-muted cursor-not-allowed'
                   }`}
                 >
                   Soumettre
@@ -19351,10 +19351,10 @@ export default function App() {
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }}>
         <div className="bg-white rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#e7e5e3]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: '#18181b' }}>Nouvel acte</h2>
-            <button onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors">
-              <X className="w-4 h-4 text-[#78716c]" />
+            <button onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
+              <X className="w-4 h-4 text-foreground-secondary" />
             </button>
           </div>
 
@@ -19362,22 +19362,22 @@ export default function App() {
           <div className="px-6 py-5 space-y-4">
             {/* Template picker (optional) */}
             <div>
-              <label className="block text-[14px] font-medium text-[#44403c] mb-1">Sélectionnez un modèle de référence</label>
-              <p className="text-[12px] text-[#a8a29e] mb-3">Votre modèle structure la rédaction : ton, vocabulaire, style.</p>
+              <label className="block text-[14px] font-medium text-foreground-tertiary mb-1">Sélectionnez un modèle de référence</label>
+              <p className="text-[12px] text-foreground-muted mb-3">Votre modèle structure la rédaction : ton, vocabulaire, style.</p>
 
               {newActeForm.templateId ? (
                 // Selected template card
                 (() => {
                   const selected = templatesLibrary.find(t => t.id === newActeForm.templateId);
                   return selected ? (
-                    <div className="flex items-center gap-2.5 p-2.5 border border-[#e7e5e3] rounded-lg bg-white">
+                    <div className="flex items-center gap-2.5 p-2.5 border border-border rounded-lg bg-white">
                       <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: '#dfe8f5' }}>
                         <FileText className="w-4 h-4 text-[#4a72b0]" strokeWidth={1.5} />
                       </div>
-                      <span className="flex-1 min-w-0 text-[13px] text-[#292524] truncate">{selected.label}</span>
+                      <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">{selected.label}</span>
                       <button
                         onClick={() => setNewActeForm(prev => ({ ...prev, templateId: '', templateSearch: '' }))}
-                        className="w-6 h-6 rounded flex items-center justify-center text-[#a8a29e] hover:text-[#78716c] hover:bg-[#f5f5f4] transition-colors shrink-0"
+                        className="w-6 h-6 rounded flex items-center justify-center text-foreground-muted hover:text-foreground-secondary hover:bg-background-subtle transition-colors shrink-0"
                       >
                         <X className="w-3.5 h-3.5" strokeWidth={2} />
                       </button>
@@ -19388,13 +19388,13 @@ export default function App() {
                 // Search input + dropdown
                 <div className="relative">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a8a29e]" strokeWidth={1.5} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" strokeWidth={1.5} />
                     <input
                       type="text"
                       value={newActeForm.templateSearch}
                       onChange={(e) => setNewActeForm(prev => ({ ...prev, templateSearch: e.target.value }))}
                       placeholder="Recherchez un modèle..."
-                      className="w-full h-10 pl-9 pr-3 text-[13px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] placeholder:text-[#a8a29e]"
+                      className="w-full h-10 pl-9 pr-3 text-[13px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground placeholder:text-foreground-muted"
                     />
                   </div>
                   {/* Results dropdown */}
@@ -19403,27 +19403,27 @@ export default function App() {
                       t.label.toLowerCase().includes((newActeForm.templateSearch || '').toLowerCase())
                     );
                     return (
-                      <div className="mt-1 border border-[#e7e5e3] rounded-lg bg-white overflow-hidden max-h-[180px] overflow-y-auto">
+                      <div className="mt-1 border border-border rounded-lg bg-white overflow-hidden max-h-[180px] overflow-y-auto">
                         {filtered.length > 0 ? filtered.map(tpl => (
                           <button
                             key={tpl.id}
                             onClick={() => setNewActeForm(prev => ({ ...prev, templateId: tpl.id, templateSearch: '' }))}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-[#fafaf9] transition-colors"
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-background transition-colors"
                           >
                             <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: '#dfe8f5' }}>
                               <FileText className="w-3.5 h-3.5 text-[#4a72b0]" strokeWidth={1.5} />
                             </div>
-                            <span className="text-[13px] text-[#292524] truncate">{tpl.label}</span>
+                            <span className="text-[13px] text-foreground truncate">{tpl.label}</span>
                           </button>
                         )) : (
-                          <div className="px-3 py-3 text-[12px] text-[#a8a29e] text-center">Aucun modèle trouvé</div>
+                          <div className="px-3 py-3 text-[12px] text-foreground-muted text-center">Aucun modèle trouvé</div>
                         )}
                         <button
                           onClick={() => { setNewActeModalOpen(false); setSettingsSection('templates'); setCurrentPage('settings'); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-left border-t border-[#e7e5e3] hover:bg-[#fafaf9] transition-colors"
+                          className="w-full flex items-center gap-2 px-3 py-2 text-left border-t border-border hover:bg-background transition-colors"
                         >
-                          <Plus className="w-3.5 h-3.5 text-[#78716c]" strokeWidth={2} />
-                          <span className="text-[12px] text-[#78716c]">Ajouter un nouveau modèle</span>
+                          <Plus className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={2} />
+                          <span className="text-[12px] text-foreground-secondary">Ajouter un nouveau modèle</span>
                         </button>
                       </div>
                     );
@@ -19434,13 +19434,13 @@ export default function App() {
 
             {/* Instructions */}
             <div>
-              <label className="block text-[14px] font-medium text-[#78716c] mb-2">Instructions</label>
+              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Instructions</label>
               <textarea
                 value={newActeForm.instructions}
                 onChange={(e) => setNewActeForm(prev => ({ ...prev, instructions: e.target.value }))}
                 placeholder="Décrivez l'acte à rédiger : type, parties, objet, tribunal…"
                 rows={5}
-                className="w-full px-3 py-2.5 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] resize-none"
+                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
               />
             </div>
 
@@ -19448,7 +19448,7 @@ export default function App() {
             <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }}
-                className="px-4 py-2.5 text-body-medium text-[#78716c] rounded-lg hover:bg-[#eeece6] transition-colors"
+                className="px-4 py-2.5 text-body-medium text-foreground-secondary rounded-lg hover:bg-cream transition-colors"
               >
                 Annuler
               </button>
@@ -19484,8 +19484,8 @@ export default function App() {
                 disabled={!newActeForm.instructions.trim()}
                 className={`px-5 py-2.5 text-body-medium rounded-lg transition-colors ${
                   newActeForm.instructions.trim()
-                    ? 'bg-[#292524] text-white hover:bg-[#44403c]'
-                    : 'bg-[#e7e5e3] text-[#a8a29e] cursor-not-allowed'
+                    ? 'bg-foreground text-white hover:bg-foreground-tertiary'
+                    : 'bg-border text-foreground-muted cursor-not-allowed'
                 }`}
               >
                 Lancer la rédaction
@@ -19514,10 +19514,10 @@ export default function App() {
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }}>
         <div className="bg-white rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#e7e5e3]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: '#18181b' }}>Ajouter un modèle</h2>
-            <button onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#eeece6] transition-colors">
-              <X className="w-4 h-4 text-[#78716c]" />
+            <button onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
+              <X className="w-4 h-4 text-foreground-secondary" />
             </button>
           </div>
 
@@ -19525,23 +19525,23 @@ export default function App() {
           <div className="px-6 py-5 space-y-4">
             {/* Nom */}
             <div>
-              <label className="block text-[14px] font-medium text-[#78716c] mb-2">Nom du modèle <span className="text-red-400">*</span></label>
+              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du modèle <span className="text-red-400">*</span></label>
               <input
                 type="text"
                 value={templateUploadData.nom}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, nom: e.target.value }))}
                 placeholder="Ex: Assignation en référé-expertise type"
-                className="w-full h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
               />
             </div>
 
             {/* Type d'acte */}
             <div>
-              <label className="block text-[14px] font-medium text-[#78716c] mb-2">Type d'acte</label>
+              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type d'acte</label>
               <select
                 value={templateUploadData.actType}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, actType: e.target.value }))}
-                className="w-full h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
               >
                 {actTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -19549,9 +19549,9 @@ export default function App() {
 
             {/* File upload zone */}
             <div>
-              <label className="block text-[14px] font-medium text-[#78716c] mb-2">Document <span className="text-red-400">*</span></label>
+              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Document <span className="text-red-400">*</span></label>
               <div
-                className="border-2 border-dashed border-[#d6d3d1] rounded-lg p-6 text-center hover:border-[#a8a29e] transition-colors cursor-pointer"
+                className="border-2 border-dashed border-border-strong rounded-lg p-6 text-center hover:border-foreground-muted transition-colors cursor-pointer"
                 onClick={() => {
                   const input = document.createElement('input');
                   input.type = 'file';
@@ -19566,17 +19566,17 @@ export default function App() {
               >
                 {templateUploadData.fileName ? (
                   <div className="flex items-center justify-center gap-2">
-                    <FileText className="w-5 h-5 text-[#292524]" />
-                    <span className="text-body-medium text-[#292524]">{templateUploadData.fileName}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setTemplateUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-[#eeece6]">
-                      <X className="w-3 h-3 text-[#78716c]" />
+                    <FileText className="w-5 h-5 text-foreground" />
+                    <span className="text-body-medium text-foreground">{templateUploadData.fileName}</span>
+                    <button onClick={(e) => { e.stopPropagation(); setTemplateUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-cream">
+                      <X className="w-3 h-3 text-foreground-secondary" />
                     </button>
                   </div>
                 ) : (
                   <>
-                    <FileUp className="w-6 h-6 text-[#a8a29e] mx-auto mb-2" />
-                    <p className="text-body text-[#78716c]">Glissez votre fichier ici ou <span className="text-[#292524] font-medium underline">parcourir</span></p>
-                    <p className="text-caption text-[#a8a29e] mt-1">Word, PDF, ODT</p>
+                    <FileUp className="w-6 h-6 text-foreground-muted mx-auto mb-2" />
+                    <p className="text-body text-foreground-secondary">Glissez votre fichier ici ou <span className="text-foreground font-medium underline">parcourir</span></p>
+                    <p className="text-caption text-foreground-muted mt-1">Word, PDF, ODT</p>
                   </>
                 )}
               </div>
@@ -19584,13 +19584,13 @@ export default function App() {
 
             {/* Notes */}
             <div>
-              <label className="block text-[14px] font-medium text-[#78716c] mb-2">Notes</label>
+              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
               <textarea
                 value={templateUploadData.notes}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Précisions sur le modèle, contexte d'utilisation…"
                 rows={3}
-                className="w-full px-3 py-2.5 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] resize-none"
+                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
               />
             </div>
 
@@ -19598,7 +19598,7 @@ export default function App() {
             <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }}
-                className="px-4 py-2.5 text-body-medium text-[#78716c] rounded-lg hover:bg-[#eeece6] transition-colors"
+                className="px-4 py-2.5 text-body-medium text-foreground-secondary rounded-lg hover:bg-cream transition-colors"
               >
                 Annuler
               </button>
@@ -19623,8 +19623,8 @@ export default function App() {
                 disabled={!templateUploadData.nom || !templateUploadData.fileName}
                 className={`px-5 py-2.5 text-body-medium rounded-lg transition-colors ${
                   templateUploadData.nom && templateUploadData.fileName
-                    ? 'bg-[#292524] text-white hover:bg-[#44403c]'
-                    : 'bg-[#e7e5e3] text-[#a8a29e] cursor-not-allowed'
+                    ? 'bg-foreground text-white hover:bg-foreground-tertiary'
+                    : 'bg-border text-foreground-muted cursor-not-allowed'
                 }`}
               >
                 Ajouter
@@ -19723,7 +19723,7 @@ export default function App() {
         onClick={close}
       >
         <div
-          className="bg-white border border-[#e7e5e3] overflow-hidden"
+          className="bg-white border border-border overflow-hidden"
           style={{
             width: 512,
             borderRadius: 12,
@@ -19757,7 +19757,7 @@ export default function App() {
               </label>
               <div
                 onClick={() => document.getElementById('invite-email-input')?.focus()}
-                className="bg-white border border-[#e7e5e3] flex flex-wrap items-center gap-1 px-3 py-2 cursor-text focus-within:ring-1 focus-within:ring-[#292524] focus-within:border-[#292524]"
+                className="bg-white border border-border flex flex-wrap items-center gap-1 px-3 py-2 cursor-text focus-within:ring-1 focus-within:ring-foreground focus-within:border-foreground"
                 style={{
                   borderRadius: 8,
                   boxShadow: '0 1px 2px 0 rgba(26,26,26,0.05)',
@@ -19772,7 +19772,7 @@ export default function App() {
                     <span>{em}</span>
                     <button
                       onClick={(e) => { e.stopPropagation(); removeChip(em); }}
-                      className="ml-1 w-4 h-4 flex items-center justify-center rounded text-[#78716c] hover:text-[#292524] hover:bg-white transition-colors"
+                      className="ml-1 w-4 h-4 flex items-center justify-center rounded text-foreground-secondary hover:text-foreground hover:bg-white transition-colors"
                       aria-label={`Retirer ${em}`}
                     >
                       <X className="w-3 h-3" strokeWidth={2} />
@@ -19788,11 +19788,11 @@ export default function App() {
                   onPaste={handlePaste}
                   placeholder={inviteEmails.length === 0 ? 'prenom.nom@cabinet.com' : ''}
                   autoFocus
-                  className="flex-1 min-w-[160px] text-body text-[#292524] placeholder-[#a8a29e] bg-transparent focus:outline-none"
+                  className="flex-1 min-w-[160px] text-body text-foreground placeholder-foreground-muted bg-transparent focus:outline-none"
                   style={{ height: 20 }}
                 />
               </div>
-              <p className="text-caption text-[#78716c]" style={{ letterSpacing: '0.12px' }}>
+              <p className="text-caption text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>
                 Séparez par une virgule, un espace ou Entrée.
               </p>
             </div>
@@ -19830,7 +19830,7 @@ export default function App() {
                   );
                 })}
               </div>
-              <p className="text-caption text-[#78716c]" style={{ letterSpacing: '0.12px' }}>
+              <p className="text-caption text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>
                 {inviteRole === 'Admin'
                   ? 'Accès complet : facturation, membres, référentiels.'
                   : 'Peut créer et éditer des dossiers.'}
@@ -19845,14 +19845,14 @@ export default function App() {
               <div className="flex flex-col gap-1.5">
                 <button
                   onClick={() => setInvitePlan(null)}
-                  className={`w-full flex items-center justify-between gap-3 px-3 h-10 rounded-lg border text-left transition-colors ${invitePlan === null ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                  className={`w-full flex items-center justify-between gap-3 px-3 h-10 rounded-lg border text-left transition-colors ${invitePlan === null ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
                 >
                   <span className="flex items-center gap-2 min-w-0">
-                    <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                    <span className="text-[14px] text-[#292524]">Lecture seule</span>
-                    <span className="text-[12px] text-[#a8a29e]">gratuit</span>
+                    <Eye className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-[14px] text-foreground">Lecture seule</span>
+                    <span className="text-[12px] text-foreground-muted">gratuit</span>
                   </span>
-                  {invitePlan === null && <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />}
+                  {invitePlan === null && <Check className="w-4 h-4 text-foreground flex-shrink-0" strokeWidth={2} />}
                 </button>
                 {PRICING_PLANS.map((p) => {
                   const isCurrent = invitePlan === p.id;
@@ -19861,15 +19861,15 @@ export default function App() {
                     <button
                       key={p.id}
                       onClick={() => setInvitePlan(p.id)}
-                      className={`w-full flex items-center justify-between gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${isCurrent ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                      className={`w-full flex items-center justify-between gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${isCurrent ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
                     >
                       <span className="flex items-center gap-2 min-w-0">
-                        <PG className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-[14px] text-[#292524]">Plan {p.name}</span>
-                        <span className="text-[12px] text-[#a8a29e] tabular-nums">{p.monthly} €/mois</span>
+                        <PG className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-[14px] text-foreground">Plan {p.name}</span>
+                        <span className="text-[12px] text-foreground-muted tabular-nums">{p.monthly} €/mois</span>
                       </span>
                       {isCurrent ? (
-                        <Check className="w-4 h-4 text-[#292524] flex-shrink-0" strokeWidth={2} />
+                        <Check className="w-4 h-4 text-foreground flex-shrink-0" strokeWidth={2} />
                       ) : (
                         <span className="text-[11px] font-medium text-[#855b31] tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
                       )}
@@ -19877,7 +19877,7 @@ export default function App() {
                   );
                 })}
               </div>
-              <p className="text-caption text-[#78716c]" style={{ letterSpacing: '0.12px' }}>
+              <p className="text-caption text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>
                 {invitePlan === null
                   ? 'Sans licence, l\'accès reste en lecture seule.'
                   : 'La licence s\'active dès que le confrère rejoint le cabinet.'}
@@ -19901,7 +19901,7 @@ export default function App() {
             <button
               onClick={submit}
               disabled={!canSubmit}
-              className="inline-flex items-center justify-center gap-2 h-9 px-4 py-2 bg-[#292524] hover:bg-[#44403c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-2 h-9 px-4 py-2 bg-foreground hover:bg-foreground-tertiary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 borderRadius: 8,
                 color: 'white',
@@ -19930,7 +19930,7 @@ export default function App() {
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#292524', letterSpacing: '0.1em' }}>
             {monoLabel}
           </span>
-          <span className="flex-1 h-px bg-[#292524]/20" />
+          <span className="flex-1 h-px bg-foreground/20" />
         </div>
       )}
       <div className="flex items-end justify-between gap-4">
@@ -19938,7 +19938,7 @@ export default function App() {
           <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '36px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.02em', lineHeight: 1.1, textWrap: 'balance' }}>
             {title}
           </h1>
-          {subtitle && <p className="text-[14px] text-[#78716c] mt-3 leading-relaxed">{subtitle}</p>}
+          {subtitle && <p className="text-[14px] text-foreground-secondary mt-3 leading-relaxed">{subtitle}</p>}
         </div>
         {action}
       </div>
@@ -19954,7 +19954,7 @@ export default function App() {
     const lastName = accountEdits.lastName ?? defLast;
     const email = accountEdits.email ?? (currentUser?.email || '');
     const dirty = accountEdits.firstName !== undefined || accountEdits.lastName !== undefined || accountEdits.email !== undefined;
-    const inputClass = "h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]";
+    const inputClass = "h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground";
     const saveAccount = () => {
       const fullName = `${firstName} ${lastName}`.trim();
       const initials = ((firstName.trim()[0] || '') + (lastName.trim()[0] || '')).toUpperCase() || (fullName[0] || '?').toUpperCase();
@@ -19973,27 +19973,27 @@ export default function App() {
             <button
               onClick={saveAccount}
               disabled={!dirty}
-              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-[#292524] hover:bg-[#44403c]' : 'bg-[#d6d3d1] cursor-not-allowed'}`}
+              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
             >
               Enregistrer
             </button>
           )}
 
           {/* Account info card - mono header + label/input rows */}
-          <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]">
+          <div className="bg-white rounded-lg border border-border/60 overflow-hidden divide-y divide-border">
             <div className="px-5 py-3">
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
-              <label className="text-body-medium text-[#44403c]">Prénom</label>
+              <label className="text-body-medium text-foreground-tertiary">Prénom</label>
               <input type="text" value={firstName} onChange={(e) => setAccountEdits(s => ({ ...s, firstName: e.target.value }))} className={inputClass} />
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
-              <label className="text-body-medium text-[#44403c]">Nom</label>
+              <label className="text-body-medium text-foreground-tertiary">Nom</label>
               <input type="text" value={lastName} onChange={(e) => setAccountEdits(s => ({ ...s, lastName: e.target.value }))} className={inputClass} />
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
-              <label className="text-body-medium text-[#44403c]">Email</label>
+              <label className="text-body-medium text-foreground-tertiary">Email</label>
               <input type="email" value={email} onChange={(e) => setAccountEdits(s => ({ ...s, email: e.target.value }))} className={inputClass} />
             </div>
           </div>
@@ -20023,25 +20023,25 @@ export default function App() {
             <button
               onClick={saveOrg}
               disabled={!dirty}
-              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-[#292524] hover:bg-[#44403c]' : 'bg-[#d6d3d1] cursor-not-allowed'}`}
+              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
             >
               Enregistrer
             </button>
           )}
 
           {/* Account info card - mono header + label/input row */}
-          <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]">
+          <div className="bg-white rounded-lg border border-border/60 overflow-hidden divide-y divide-border">
             <div className="px-5 py-3">
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
-              <label className="text-body-medium text-[#44403c]">Nom de l'organisation</label>
+              <label className="text-body-medium text-foreground-tertiary">Nom de l'organisation</label>
               <input
                 type="text"
                 value={val}
                 onChange={(e) => setOrgNameDraft(e.target.value)}
                 placeholder="Nom du cabinet"
-                className="h-10 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                className="h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
               />
             </div>
           </div>
@@ -20074,7 +20074,7 @@ export default function App() {
           setTimeout(() => setToastMessage(null), 3500);
         }}
       >
-        <div className="mt-1 rounded-lg border border-[#e7e5e3] bg-[#fafaf9] px-4 py-3">
+        <div className="mt-1 rounded-lg border border-border bg-background px-4 py-3">
           <div className="text-[11px] uppercase mb-2" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e', letterSpacing: '0.04em' }}>
             Destinataire{admins.length > 1 ? 's' : ''}
           </div>
@@ -20084,14 +20084,14 @@ export default function App() {
                 <div key={a.id} className="flex items-center gap-2.5">
                   {userAvatar(workspaceMembers.findIndex(x => x.id === a.id), a.role, 24)}
                   <div className="min-w-0">
-                    <div className="text-[13px] text-[#292524] font-medium leading-tight">{a.name}</div>
-                    <div className="text-[12px] text-[#78716c] truncate">{a.email}</div>
+                    <div className="text-[13px] text-foreground font-medium leading-tight">{a.name}</div>
+                    <div className="text-[12px] text-foreground-secondary truncate">{a.email}</div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <span className="text-[13px] text-[#78716c]">Votre administrateur</span>
+            <span className="text-[13px] text-foreground-secondary">Votre administrateur</span>
           )}
         </div>
       </AlertDialog>
@@ -20129,7 +20129,7 @@ export default function App() {
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] flex flex-col" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="px-6 pt-6 pb-4">
-            <h2 className="text-display-sm text-[#292524]" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif" }}>
+            <h2 className="text-display-sm text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif" }}>
               Choisir une licence pour {member.name}
             </h2>
           </div>
@@ -20143,19 +20143,19 @@ export default function App() {
                   <button
                     key={id || 'free'}
                     onClick={() => setPlanPickerChoice(id)}
-                    className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${active ? 'border-[#292524] bg-[#fafaf9]' : 'border-[#e7e5e3] hover:bg-[#fafaf9]'}`}
+                    className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${active ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
                   >
                     <span className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0" style={{ borderColor: active ? '#292524' : '#d6d3d1' }}>
                       {active && <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#292524' }} />}
                     </span>
-                    <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                    <span className="text-[14px] text-[#292524] font-medium">{name}</span>
-                    <span className="text-[12px] text-[#a8a29e] tabular-nums">{price}</span>
+                    <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-[14px] text-foreground font-medium">{name}</span>
+                    <span className="text-[12px] text-foreground-muted tabular-nums">{price}</span>
                   </button>
                 );
               })}
             </div>
-            <button type="button" className="self-start text-[13px] font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity mt-1">
+            <button type="button" className="self-start text-[13px] font-medium text-link hover:opacity-80 transition-opacity mt-1">
               En savoir plus sur les plans
             </button>
           </div>
@@ -20176,13 +20176,13 @@ export default function App() {
           )}
           {/* Footer */}
           <div className="px-6 py-4 flex items-center justify-end gap-2">
-            <button onClick={close} className="h-9 px-4 text-sm font-medium text-[#44403c] bg-[#eeece6] rounded-lg hover:bg-[#e7e5e3] transition-colors">
+            <button onClick={close} className="h-9 px-4 text-sm font-medium text-foreground-tertiary bg-cream rounded-lg hover:bg-border transition-colors">
               Annuler
             </button>
             <button
               onClick={confirmPlanPicker}
               disabled={unchanged}
-              className={`h-9 px-4 text-sm font-medium text-white rounded-lg transition-colors ${unchanged ? 'bg-[#d6d3d1] cursor-not-allowed' : 'bg-[#292524] hover:bg-[#1c1917]'}`}
+              className={`h-9 px-4 text-sm font-medium text-white rounded-lg transition-colors ${unchanged ? 'bg-border-strong cursor-not-allowed' : 'bg-foreground hover:bg-foreground-strong'}`}
             >
               Confirmer
             </button>
@@ -20196,10 +20196,10 @@ export default function App() {
   // Shared licence-dispatch table - the SAME component in Collaborateurs and Plan & facturation.
   // Rows are clickable (admin) → renderMemberProfilePanel (role / plan / delete).
   const renderMemberTable = () => (
-    <div className="rounded-md border border-[#e7e5e3] overflow-hidden">
+    <div className="rounded-md border border-border overflow-hidden">
       <table className="w-full">
         <thead>
-          <tr className="bg-white border-b border-[#e7e5e3]">
+          <tr className="bg-white border-b border-border">
             <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Nom</th>
             <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Rôle</th>
             <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Plan</th>
@@ -20213,20 +20213,20 @@ export default function App() {
               <tr
                 key={m.id}
                 onClick={isAdmin ? () => setProfileMemberId(m.id) : undefined}
-                className={`bg-white transition-colors ${isLast ? '' : 'border-b border-[#e7e5e3]'} group ${isAdmin ? 'hover:bg-[#fafaf9] cursor-pointer' : ''}`}
+                className={`bg-white transition-colors ${isLast ? '' : 'border-b border-border'} group ${isAdmin ? 'hover:bg-background cursor-pointer' : ''}`}
               >
                 <td className="px-3 py-3">
                   <div className="flex items-center gap-3">
                     {userAvatar(idx, m.role, 32)}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-body-medium text-[#292524]">{m.name}</span>
+                        <span className="text-body-medium text-foreground">{m.name}</span>
                         {m.id === currentUserId && <span className="badge badge-sm badge-outline">Vous</span>}
                         {m.pending && (
                           <span className="badge badge-sm badge-warning">Invité</span>
                         )}
                       </div>
-                      <div className="text-caption text-[#78716c]">{m.email}</div>
+                      <div className="text-caption text-foreground-secondary">{m.email}</div>
                     </div>
                   </div>
                 </td>
@@ -20245,7 +20245,7 @@ export default function App() {
                 <td className="pl-3 pr-4 py-3 align-middle">
                   {isAdmin && (
                     <div className="flex justify-end">
-                      <ChevronRight className="w-4 h-4 text-[#d6d3d1] group-hover:text-[#78716c] transition-colors" strokeWidth={2} />
+                      <ChevronRight className="w-4 h-4 text-border-strong group-hover:text-foreground-secondary transition-colors" strokeWidth={2} />
                     </div>
                   )}
                 </td>
@@ -20304,7 +20304,7 @@ export default function App() {
         {/* Backdrop */}
         <div onClick={close} className="fixed inset-0 z-40" style={{ background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
         {/* Right-side drawer */}
-        <div className="fixed top-0 right-0 h-screen bg-white border-l border-[#e7e5e3] z-40 flex flex-col overflow-hidden" style={{ width: 460, maxWidth: '100vw', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
+        <div className="fixed top-0 right-0 h-screen bg-white border-l border-border z-40 flex flex-col overflow-hidden" style={{ width: 460, maxWidth: '100vw', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
           {/* Header - avatar + name + close */}
           <div className="px-6 pt-6 pb-5 flex items-center gap-3.5 relative flex-shrink-0">
             {userAvatar(idx, m.role, 40)}
@@ -20313,8 +20313,8 @@ export default function App() {
               {isSelf && <span className="badge badge-sm badge-outline">Vous</span>}
               {m.pending && <span className="badge badge-sm badge-warning">Invité</span>}
             </div>
-            <button onClick={close} className="absolute top-5 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-[#f5f5f4] hover:bg-[#eeece6] transition-colors">
-              <X className="w-4 h-4 text-[#78716c]" />
+            <button onClick={close} className="absolute top-5 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-background-subtle hover:bg-cream transition-colors">
+              <X className="w-4 h-4 text-foreground-secondary" />
             </button>
           </div>
 
@@ -20322,7 +20322,7 @@ export default function App() {
           <div className="flex-1 overflow-y-auto">
             {/* Pending invite - awaiting the collaborator finishing setup */}
             {m.pending && (
-              <div className="px-6 py-4 border-t border-[#e7e5e3]" style={{ background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
+              <div className="px-6 py-4 border-t border-border" style={{ background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
                 <div className="flex items-start gap-2.5">
                   <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#bd6c1a' }} strokeWidth={1.75} />
                   <div className="min-w-0 flex-1">
@@ -20331,30 +20331,30 @@ export default function App() {
                       {firstName} n'a pas encore finalisé son inscription sur la plateforme.
                     </p>
                     <div className="mt-2.5 flex items-center gap-2.5 text-[13px] font-medium">
-                      <button onClick={resendInvite} className="text-[#1e3a8a] hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
+                      <button onClick={resendInvite} className="text-link hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
                       <span className="text-[#e7c9a6]">·</span>
-                      <button onClick={markActive} className="text-[#78716c] hover:text-[#44403c] transition-colors">Marquer comme actif (démo)</button>
+                      <button onClick={markActive} className="text-foreground-secondary hover:text-foreground-tertiary transition-colors">Marquer comme actif (démo)</button>
                     </div>
                   </div>
                 </div>
               </div>
             )}
             {/* Licence - plan + weekly quota; "Modifier" opens the picker */}
-            <div className="px-6 py-5 border-t border-[#e7e5e3]">
+            <div className="px-6 py-5 border-t border-border">
               <div className="flex items-center justify-between">
                 <span style={cardLabel}>Licence</span>
-                <button onClick={() => openPlanPicker(m)} className="text-[13px] font-medium text-[#1e3a8a] hover:opacity-80 transition-opacity">Modifier</button>
+                <button onClick={() => openPlanPicker(m)} className="text-[13px] font-medium text-link hover:opacity-80 transition-opacity">Modifier</button>
               </div>
               <div className="mt-3 flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-[#fafaf9] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
-                  <Glyph className="w-4 h-4 text-[#78716c]" strokeWidth={1.5} />
+                <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
+                  <Glyph className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                 </div>
-                <span className="text-[14px] text-[#292524] font-medium">{plan ? `Plan ${plan.name}` : 'Lecture seule'}</span>
+                <span className="text-[14px] text-foreground font-medium">{plan ? `Plan ${plan.name}` : 'Lecture seule'}</span>
               </div>
               {plan ? (
                 <>
                   <div className="mt-4 flex items-baseline justify-between gap-3">
-                    <span className="text-[13px] text-[#44403c]">Quota hebdomadaire</span>
+                    <span className="text-[13px] text-foreground-tertiary">Quota hebdomadaire</span>
                     <span className="text-[13px] tabular-nums font-medium" style={{ color: tone.warn ? '#855b31' : '#292524' }}>{quotaPct}% utilisé</span>
                   </div>
                   <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ backgroundColor: tone.warn ? tone.fill : tone.track }}>
@@ -20362,12 +20362,12 @@ export default function App() {
                   </div>
                 </>
               ) : (
-                <p className="text-[13px] text-[#78716c] mt-3">Sans licence, l'accès est en lecture seule - aucun quota IA.</p>
+                <p className="text-[13px] text-foreground-secondary mt-3">Sans licence, l'accès est en lecture seule - aucun quota IA.</p>
               )}
             </div>
 
             {/* Rôle - direct segmented toggle (same control as the invite modal) */}
-            <div className="px-6 py-5 border-t border-[#e7e5e3]">
+            <div className="px-6 py-5 border-t border-border">
               <span style={cardLabel}>Rôle</span>
               <div className="mt-3 flex items-center gap-2">
                 {[
@@ -20396,20 +20396,20 @@ export default function App() {
                   );
                 })}
               </div>
-              {isSelf && <p className="text-[12px] text-[#78716c] mt-2.5">Vous ne pouvez pas modifier votre propre rôle.</p>}
+              {isSelf && <p className="text-[12px] text-foreground-secondary mt-2.5">Vous ne pouvez pas modifier votre propre rôle.</p>}
             </div>
 
             {/* Détail - membership info */}
-            <div className="px-6 py-5 border-t border-[#e7e5e3]">
+            <div className="px-6 py-5 border-t border-border">
               <span style={cardLabel}>Détail</span>
               <div className="mt-3 space-y-2.5">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[13px] text-[#78716c]">Membre depuis</span>
-                  <span className="text-[13px] text-[#292524] font-medium">{m.joinedDate || '—'}</span>
+                  <span className="text-[13px] text-foreground-secondary">Membre depuis</span>
+                  <span className="text-[13px] text-foreground font-medium">{m.joinedDate || '—'}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 min-w-0">
-                  <span className="text-[13px] text-[#78716c] flex-shrink-0">E-mail</span>
-                  <span className="text-[13px] text-[#292524] font-medium truncate">{m.email}</span>
+                  <span className="text-[13px] text-foreground-secondary flex-shrink-0">E-mail</span>
+                  <span className="text-[13px] text-foreground font-medium truncate">{m.email}</span>
                 </div>
               </div>
             </div>
@@ -20417,8 +20417,8 @@ export default function App() {
 
           {/* Footer - cancel invite (pending) or remove (active); others only */}
           {!isSelf && (
-            <div className="px-6 py-4 border-t border-[#e7e5e3] flex items-center justify-end flex-shrink-0">
-              <button onClick={m.pending ? cancelInvite : removeMember} className="h-9 px-4 rounded-lg text-[13px] font-medium text-[#b91c1c] bg-[#fef2f2] hover:bg-[#fee2e2] transition-colors">
+            <div className="px-6 py-4 border-t border-border flex items-center justify-end flex-shrink-0">
+              <button onClick={m.pending ? cancelInvite : removeMember} className="h-9 px-4 rounded-lg text-[13px] font-medium text-[#b91c1c] bg-danger-subtle hover:bg-[#fee2e2] transition-colors">
                 {m.pending ? "Annuler l'invitation" : 'Supprimer'}
               </button>
             </div>
@@ -20438,7 +20438,7 @@ export default function App() {
             isAdmin && (
               <button
                 onClick={() => setInviteModalOpen(true)}
-                className="flex items-center gap-2 h-9 px-4 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+                className="flex items-center gap-2 h-9 px-4 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
                 style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
               >
                 <Plus className="w-4 h-4" />
@@ -20449,20 +20449,20 @@ export default function App() {
 
           {/* Licence recap - active licences per plan (one per collaborator), admin only */}
           {isAdmin && (
-            <div className="mb-5 rounded-md border border-[#e7e5e3] bg-white overflow-hidden">
-              <div className="grid grid-cols-3 divide-x divide-[#e7e5e3]">
+            <div className="mb-5 rounded-md border border-border bg-white overflow-hidden">
+              <div className="grid grid-cols-3 divide-x divide-border">
                 {PRICING_PLANS.map((p) => {
                   const count = licencesAssigned[p.id] || 0;
                   const Glyph = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
                   return (
                     <div key={p.id} className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <Glyph className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                        <Glyph className="w-3.5 h-3.5 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
                         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Plan {p.name}</span>
                       </div>
                       <div className="mt-1.5 flex items-baseline gap-1.5">
                         <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: '#18181b', lineHeight: 1 }}>{count}</span>
-                        <span className="text-[13px] text-[#78716c]">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
+                        <span className="text-[13px] text-foreground-secondary">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
                       </div>
                     </div>
                   );
@@ -20490,7 +20490,7 @@ export default function App() {
                   setToastMessage('Mémoire enregistrée.');
                   setTimeout(() => setToastMessage(null), 3000);
                 }}
-                className="flex items-center gap-2 h-9 px-4 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+                className="flex items-center gap-2 h-9 px-4 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
                 style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
               >
                 <Check className="w-4 h-4" strokeWidth={2} />
@@ -20610,7 +20610,7 @@ export default function App() {
             <button
               onClick={close}
               aria-label="Fermer"
-              className="absolute flex items-center justify-center hover:bg-[#fafaf9] transition-colors"
+              className="absolute flex items-center justify-center hover:bg-background transition-colors"
               style={{
                 top: 12, right: 12,
                 width: 32, height: 32,
@@ -20708,7 +20708,7 @@ export default function App() {
                     onChange={(e) => setParrainageForm(f => ({ ...f, email: e.target.value }))}
                     onKeyDown={(e) => { if (e.key === 'Enter' && emailValid) sendByEmail(); }}
                     placeholder="E-mail du confrère..."
-                    className="flex-1 min-w-0 placeholder:text-[#78716c]"
+                    className="flex-1 min-w-0 placeholder:text-foreground-secondary"
                     style={{
                       height: 40,
                       padding: '8px 12px',
@@ -20724,7 +20724,7 @@ export default function App() {
                   <button
                     onClick={sendByEmail}
                     disabled={!emailValid}
-                    className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#44403c]"
+                    className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-foreground-tertiary"
                     style={{
                       gap: 8,
                       height: 40,
@@ -20781,11 +20781,11 @@ export default function App() {
     // Weekly quota exhausted (demo: quota 100%). Members ask their admin for an
     // upgrade; admins self-upgrade. Reuses the existing ask/self-upgrade modals.
     const outOfQuota = myQuotaPct >= 100 && billingState !== 'none' && !!myPlan;
-    const pillCls = (on) => `px-2 py-0.5 rounded-md transition-colors ${on ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`;
+    const pillCls = (on) => `px-2 py-0.5 rounded-md transition-colors ${on ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
     const sectionLabel = (text) => (
       <div className="flex items-baseline gap-3 mb-4">
         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{text}</span>
-        <span className="flex-1 h-px bg-[#e7e5e3]" />
+        <span className="flex-1 h-px bg-border" />
       </div>
     );
     return (
@@ -20795,7 +20795,7 @@ export default function App() {
             {renderSettingsHeader(
               'Mon usage',
               'Votre plan et votre consommation hebdomadaire.',
-              <div className="flex flex-col items-end gap-1.5 text-[10px] text-[#a8a29e]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+              <div className="flex flex-col items-end gap-1.5 text-[10px] text-foreground-muted" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
                 <div className="flex items-center gap-1">
                   <span className="uppercase tracking-wider mr-1">Démo</span>
                   {[{ id: 'active', label: 'actif' }, { id: 'trial', label: 'essai 5j' }, { id: 'trial-end', label: 'essai 1j' }, { id: 'none', label: 'Ø licence' }].map(s => (
@@ -20813,8 +20813,8 @@ export default function App() {
               <div className="pt-2">
                 {sectionLabel('VOTRE PLAN')}
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#eeece6] border border-[#e7e5e3] flex items-center justify-center flex-shrink-0">
-                    {(() => { const G = myPlan ? ({ PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen }[myPlan.id] || ChessPawn) : Eye; return <G className="w-5 h-5 text-[#78716c]" strokeWidth={1.5} />; })()}
+                  <div className="w-9 h-9 rounded-lg bg-cream border border-border flex items-center justify-center flex-shrink-0">
+                    {(() => { const G = myPlan ? ({ PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen }[myPlan.id] || ChessPawn) : Eye; return <G className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />; })()}
                   </div>
                   <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }}>
                     {myPlan ? `Plan ${myPlan.name}` : 'Lecture seule'}
@@ -20832,7 +20832,7 @@ export default function App() {
                     </p>
                     <button
                       onClick={() => setAskUpgradeOpen(true)}
-                      className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+                      className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
                     >
                       <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
                       Demander une mise à niveau
@@ -20844,23 +20844,23 @@ export default function App() {
               <div className="pt-6">
                 <div className="flex items-baseline gap-3 mb-2">
                   <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE PLAN' : 'VOTRE ACCÈS'}</span>
-                  <span className="flex-1 h-px bg-[#e7e5e3]" />
+                  <span className="flex-1 h-px bg-border" />
                 </div>
-                {myPlan && <p className="text-[12px] text-[#78716c] mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
-                <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden divide-y divide-[#e7e5e3]/60">
+                {myPlan && <p className="text-[12px] text-foreground-secondary mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
+                <div className="bg-white rounded-lg border border-border/60 overflow-hidden divide-y divide-border/60">
                   {myPlan ? PLAN_FEATURES.map((f, i) => {
                     const Icon = f.icon;
                     return (
                       <div key={i} className="flex items-center gap-3 px-5 py-3.5">
-                        <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-[13px] text-[#292524] font-medium">{f.label}</span>
-                        {f.hint && <span className="text-[12px] text-[#a8a29e]">({f.hint})</span>}
+                        <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-[13px] text-foreground font-medium">{f.label}</span>
+                        {f.hint && <span className="text-[12px] text-foreground-muted">({f.hint})</span>}
                       </div>
                     );
                   }) : (
                     <div className="flex items-center gap-3 px-5 py-3.5">
-                      <Eye className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                      <span className="text-[13px] text-[#292524] font-medium">Accès aux dossiers en lecture seule</span>
+                      <Eye className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
+                      <span className="text-[13px] text-foreground font-medium">Accès aux dossiers en lecture seule</span>
                     </div>
                   )}
                 </div>
@@ -20889,7 +20889,7 @@ export default function App() {
               'Le forfait du cabinet, la répartition des licences et la facturation.',
               <button
                 onClick={() => { setToastMessage('Redirection vers l’espace facturation Stripe…'); setTimeout(() => setToastMessage(null), 3000); }}
-                className="inline-flex items-center gap-2 h-9 px-4 bg-[#eeece6] text-[#44403c] text-[14px] font-medium rounded-lg hover:bg-[#e7e5e3] transition-colors flex-shrink-0"
+                className="inline-flex items-center gap-2 h-9 px-4 bg-cream text-foreground-tertiary text-[14px] font-medium rounded-lg hover:bg-border transition-colors flex-shrink-0"
               >
                 Accéder à l'espace facturation
                 <ArrowRight className="w-4 h-4" strokeWidth={2} />
@@ -20898,16 +20898,16 @@ export default function App() {
             <div className="space-y-5">
               {/* Forfait - per-tier licence breakdown + account total */}
               <div>
-                <div className="bg-white rounded-lg border border-[#e7e5e3] overflow-hidden">
+                <div className="bg-white rounded-lg border border-border overflow-hidden">
                   <div className="flex items-stretch">
                     {PRICING_PLANS.map((p, i) => {
                       const count = licencesAssigned[p.id] || 0;
                       const Glyph = tierGlyph[p.id] || ChessPawn;
                       return (
-                        <div key={p.id} className={`flex-1 min-w-0 px-4 py-4 ${i < PRICING_PLANS.length - 1 ? 'border-r border-[#e7e5e3]' : ''}`}>
+                        <div key={p.id} className={`flex-1 min-w-0 px-4 py-4 ${i < PRICING_PLANS.length - 1 ? 'border-r border-border' : ''}`}>
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0">
-                              <Glyph className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
+                              <Glyph className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
                               <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }} className="truncate">
                                 Plan {p.name}
                               </span>
@@ -20917,21 +20917,21 @@ export default function App() {
                             </span>
                           </div>
                           <p className="mt-1.5 text-[14px] leading-5">
-                            <span className="text-[#292524] font-medium">{p.monthly} € </span>
-                            <span className="text-[#78716c]">HT / mois / licence</span>
+                            <span className="text-foreground font-medium">{p.monthly} € </span>
+                            <span className="text-foreground-secondary">HT / mois / licence</span>
                           </p>
-                          <div className="h-px bg-[#e7e5e3] my-2.5" />
+                          <div className="h-px bg-border my-2.5" />
                           <div className="flex items-baseline gap-1.5">
                             <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 500, color: '#292524', letterSpacing: '-0.02em' }} className="tabular-nums">
                               {count}
                             </span>
-                            <span className="text-[14px] text-[#78716c]">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
+                            <span className="text-[14px] text-foreground-secondary">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="flex items-center justify-between px-5 py-3.5 bg-[#fafaf9] border-t border-[#e7e5e3]">
+                  <div className="flex items-center justify-between px-5 py-3.5 bg-background border-t border-border">
                     <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase">
                       Total du compte
                     </span>
@@ -20939,11 +20939,11 @@ export default function App() {
                       <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '30px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.02em' }} className="tabular-nums">
                         {accountMonthlyTotal.toLocaleString('fr-FR')} €
                       </span>
-                      <span className="text-[13px] text-[#78716c] ml-2">HT / mois</span>
+                      <span className="text-[13px] text-foreground-secondary ml-2">HT / mois</span>
                     </p>
                   </div>
                 </div>
-                <p className="text-[12px] text-[#78716c] leading-4 mt-2.5">
+                <p className="text-[12px] text-foreground-secondary leading-4 mt-2.5">
                   Sans engagement, facturation mensuelle. Une licence s'obtient en invitant un collaborateur ; sans licence, accès lecture seule gratuit.
                 </p>
               </div>
@@ -20954,15 +20954,15 @@ export default function App() {
                   <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase whitespace-nowrap">
                     Inclus dans chaque licence
                   </span>
-                  <span className="flex-1 h-px bg-[#e7e5e3]" />
+                  <span className="flex-1 h-px bg-border" />
                 </div>
-                <div className="bg-white rounded-lg border border-[#e7e5e3] overflow-hidden divide-y divide-[#e7e5e3]">
+                <div className="bg-white rounded-lg border border-border overflow-hidden divide-y divide-border">
                   {LICENCE_INCLUDED_FEATURES.map((f, i) => {
                     const Icon = f.icon;
                     return (
                       <div key={i} className="flex items-center gap-4 px-5 py-3.5">
-                        <Icon className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-[14px] text-[#292524] font-medium">{f.label}</span>
+                        <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-[14px] text-foreground font-medium">{f.label}</span>
                       </div>
                     );
                   })}
@@ -21031,25 +21031,25 @@ export default function App() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-lg border border-[#e7e5e3]/60 mb-6">
+        <div className="bg-white rounded-lg border border-border/60 mb-6">
               <div className="flex items-center gap-2 px-3 py-2.5">
-                <Search className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />
+                <Search className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" />
                 <input
                   type="text"
                   value={cabinetJPSearch}
                   onChange={(e) => setCabinetJPSearch(e.target.value)}
                   placeholder="Rechercher par n° de pourvoi…"
-                  className="flex-1 bg-transparent text-[14px] text-[#292524] placeholder-[#a8a29e] focus:outline-none"
+                  className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
                 />
                 {cabinetJPSearch && (
-                  <button onClick={() => setCabinetJPSearch('')} className="p-1 rounded hover:bg-[#fafaf9] transition-colors">
-                    <X className="w-3.5 h-3.5 text-[#a8a29e]" />
+                  <button onClick={() => setCabinetJPSearch('')} className="p-1 rounded hover:bg-background transition-colors">
+                    <X className="w-3.5 h-3.5 text-foreground-muted" />
                   </button>
                 )}
               </div>
 
               {q && matches.length === 0 && (
-                <div className="border-t border-[#f0efed] flex items-center justify-between gap-3" style={{ padding: '12px 16px' }}>
+                <div className="border-t border-border-subtle flex items-center justify-between gap-3" style={{ padding: '12px 16px' }}>
                   <div className="min-w-0">
                     <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px', margin: 0 }}>
                       Aucune correspondance dans la base Plato JP
@@ -21078,7 +21078,7 @@ export default function App() {
               )}
 
               {q && matches.length > 0 && (
-                <div className="border-t border-[#f0efed]">
+                <div className="border-t border-border-subtle">
                   {matches.map((d) => {
                     const already = isAlreadySaved(d.id);
                     const action = already ? (
@@ -21127,10 +21127,10 @@ export default function App() {
 
               {/* JP Introuvable CTA - visible when results exist, to invite manual add */}
               {q && matches.length > 0 && (
-                <div className="border-t border-[#f0efed]">
+                <div className="border-t border-border-subtle">
                   <button
                     onClick={openManualAdd}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-[#fafaf9]"
+                    className="w-full flex items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-background"
                   >
                     <Plus className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#a8a29e' }} />
                     <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: '#44403c', lineHeight: '20px' }}>
@@ -21143,15 +21143,15 @@ export default function App() {
             </div>
 
             {savedCabinet.length === 0 ? (
-              <div className="bg-white rounded-lg border border-dashed border-[#e7e5e3] py-10 px-6 text-center">
-                <Landmark className="w-6 h-6 text-[#d6d3d1] mx-auto mb-2" />
-                <p className="text-[13px] text-[#78716c] mb-1">Aucune jurisprudence enregistrée</p>
-                <p className="text-[12px] text-[#a8a29e] max-w-md mx-auto">
+              <div className="bg-white rounded-lg border border-dashed border-border py-10 px-6 text-center">
+                <Landmark className="w-6 h-6 text-border-strong mx-auto mb-2" />
+                <p className="text-[13px] text-foreground-secondary mb-1">Aucune jurisprudence enregistrée</p>
+                <p className="text-[12px] text-foreground-muted max-w-md mx-auto">
                   Recherchez une décision par numéro ci-dessus, ou ajoutez-en une manuellement.
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden">
+              <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
                 {savedCabinet.map((d) => {
                   const isCustom = d._status === 'ficheCabinet';
                   const handleRemove = () => {
@@ -21200,13 +21200,13 @@ export default function App() {
             "Les barèmes utilisés par l'agent pour calculer les indemnisations.",
             <button
               onClick={() => { setBaremeUploadFormOpen(true); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               Ajouter un barème
             </button>
           )}
-          <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden">
+          <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-100">
@@ -21215,19 +21215,19 @@ export default function App() {
                 <th className="px-5 py-3 w-10"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#e7e5e3]">
+            <tbody className="divide-y divide-border">
               {baremesLibrary.map(bareme => (
                 <tr
                   key={bareme.id}
                   onClick={() => bareme.status === 'active' && setBaremeViewerOpen(bareme.id)}
-                  className={`bg-white transition-colors group ${bareme.status === 'active' ? 'hover:bg-[#fafaf9] cursor-pointer' : 'opacity-75'}`}
+                  className={`bg-white transition-colors group ${bareme.status === 'active' ? 'hover:bg-background cursor-pointer' : 'opacity-75'}`}
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[#eeece6] flex items-center justify-center flex-shrink-0">
-                        <Scale className="w-4 h-4 text-[#a8a29e]" />
+                      <div className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center flex-shrink-0">
+                        <Scale className="w-4 h-4 text-foreground-muted" />
                       </div>
-                      <span className="text-body-medium text-[#292524]">{bareme.label}</span>
+                      <span className="text-body-medium text-foreground">{bareme.label}</span>
                     </div>
                   </td>
                   <td className="px-5 py-4">
@@ -21241,7 +21241,7 @@ export default function App() {
                     {bareme.status === 'active' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); setBaremeViewerOpen(bareme.id); }}
-                        className="p-1.5 rounded-lg text-[#d6d3d1] hover:text-[#78716c] hover:bg-[#eeece6] opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-1.5 rounded-lg text-border-strong hover:text-foreground-secondary hover:bg-cream opacity-0 group-hover:opacity-100 transition-all"
                         title="Voir le barème"
                       >
                         <Table2 className="w-4 h-4" />
@@ -21267,13 +21267,13 @@ export default function App() {
             "Vos modèles de référence pour la rédaction d'actes. L'agent peut s'en inspirer lors de la rédaction.",
             <button
               onClick={() => { setTemplateUploadFormOpen(true); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#292524] text-white text-[13px] font-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               Ajouter un modèle
             </button>
           )}
-          <div className="bg-white rounded-lg border border-[#e7e5e3]/60 overflow-hidden">
+          <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-zinc-100">
@@ -21282,18 +21282,18 @@ export default function App() {
                   <th className="px-5 py-3 w-10"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e7e5e3]">
+              <tbody className="divide-y divide-border">
                 {templatesLibrary.map(tpl => (
-                  <tr key={tpl.id} className="bg-white hover:bg-[#fafaf9] transition-colors group">
+                  <tr key={tpl.id} className="bg-white hover:bg-background transition-colors group">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#eeece6] flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-4 h-4 text-[#a8a29e]" strokeWidth={1.5} />
+                        <div className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-4 h-4 text-foreground-muted" strokeWidth={1.5} />
                         </div>
-                        <span className="text-body-medium text-[#292524]">{tpl.fileName}</span>
+                        <span className="text-body-medium text-foreground">{tpl.fileName}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-body text-[#78716c] tabular-nums">{tpl.addedDate}</td>
+                    <td className="px-5 py-4 text-body text-foreground-secondary tabular-nums">{tpl.addedDate}</td>
                     <td className="px-5 py-4">
                       <button
                         onClick={() => {
@@ -21301,7 +21301,7 @@ export default function App() {
                           setToastMessage('Modèle supprimé.');
                           setTimeout(() => setToastMessage(null), 3000);
                         }}
-                        className="p-1.5 rounded-lg text-[#d6d3d1] hover:text-red-400 hover:bg-[#eeece6] opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-1.5 rounded-lg text-border-strong hover:text-red-400 hover:bg-cream opacity-0 group-hover:opacity-100 transition-all"
                         title="Supprimer"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -21313,9 +21313,9 @@ export default function App() {
             </table>
             {templatesLibrary.length === 0 && (
               <div className="py-16 text-center">
-                <ClipboardList className="w-8 h-8 text-[#d6d3d1] mx-auto mb-3" />
-                <p className="text-[14px] text-[#78716c] mb-1">Aucun modèle d'acte</p>
-                <p className="text-[12px] text-[#a8a29e]">Ajoutez vos modèles pour que l'agent puisse s'en inspirer lors de la rédaction.</p>
+                <ClipboardList className="w-8 h-8 text-border-strong mx-auto mb-3" />
+                <p className="text-[14px] text-foreground-secondary mb-1">Aucun modèle d'acte</p>
+                <p className="text-[12px] text-foreground-muted">Ajoutez vos modèles pour que l'agent puisse s'en inspirer lors de la rédaction.</p>
               </div>
             )}
           </div>
@@ -21462,8 +21462,8 @@ export default function App() {
     // Each row: label + "Optionnel" helper on the left, control on the right, single line.
     const fieldRowClass = "flex items-center gap-3 px-5 py-4";
     const fieldLabelGroupClass = "flex flex-1 items-center gap-2 min-w-0";
-    const fieldLabelClass = "text-body-medium text-[#292524] whitespace-nowrap";
-    const fieldHelperClass = "text-[12px] text-[#78716c] tracking-[0.01em]";
+    const fieldLabelClass = "text-body-medium text-foreground whitespace-nowrap";
+    const fieldHelperClass = "text-[12px] text-foreground-secondary tracking-[0.01em]";
     const fieldControlClass = "flex-1 min-w-0";
 
     return (
@@ -21478,7 +21478,7 @@ export default function App() {
                   setToastMessage('Tampon enregistré.');
                   setTimeout(() => setToastMessage(null), 3000);
                 }}
-                className="flex items-center gap-2 h-9 px-4 bg-[#292524] text-white text-body-medium rounded-lg hover:bg-[#44403c] transition-colors flex-shrink-0"
+                className="flex items-center gap-2 h-9 px-4 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
                 style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
               >
                 <Plus className="w-4 h-4" strokeWidth={2} />
@@ -21488,7 +21488,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_326px] gap-6 items-start">
               {/* ─── Form card ─── */}
-              <div className="bg-white rounded-md border border-[#e7e5e3] overflow-hidden divide-y divide-[#e7e5e3] shadow-sm">
+              <div className="bg-white rounded-md border border-border overflow-hidden divide-y divide-border shadow-sm">
                 {/* Ligne 1 */}
                 <div className={fieldRowClass}>
                   <div className={fieldLabelGroupClass}>
@@ -21502,7 +21502,7 @@ export default function App() {
                       value={tamponLine1}
                       onChange={(e) => setTamponLine1(e.target.value)}
                       placeholder="Maître Chessika"
-                      className="w-full h-9 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                      className="w-full h-9 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                       style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
                     />
                   </div>
@@ -21521,7 +21521,7 @@ export default function App() {
                       value={tamponLine2}
                       onChange={(e) => setTamponLine2(e.target.value)}
                       placeholder="Avocat à la cour"
-                      className="w-full h-9 px-3 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524]"
+                      className="w-full h-9 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                       style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
                     />
                   </div>
@@ -21534,7 +21534,7 @@ export default function App() {
                   </div>
                   <div className={fieldControlClass}>
                     <div
-                      className="inline-flex rounded-lg overflow-hidden border border-[#e7e5e3]"
+                      className="inline-flex rounded-lg overflow-hidden border border-border"
                       role="radiogroup"
                       aria-label="Tampon sur la 1ère page uniquement"
                       style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
@@ -21550,7 +21550,7 @@ export default function App() {
                             role="radio"
                             aria-checked={active}
                             onClick={() => setTamponFirstPageOnly(opt.val)}
-                            className={`px-3 h-9 text-[13px] transition-colors ${i > 0 ? 'border-l border-[#e7e5e3]' : ''} ${active ? 'bg-[#292524] text-white font-medium' : 'bg-[#f8f7f5] text-[#78716c] hover:text-[#292524]'}`}
+                            className={`px-3 h-9 text-[13px] transition-colors ${i > 0 ? 'border-l border-border' : ''} ${active ? 'bg-foreground text-white font-medium' : 'bg-background-canvas text-foreground-secondary hover:text-foreground'}`}
                           >
                             {opt.label}
                           </button>
@@ -21571,7 +21571,7 @@ export default function App() {
                         id="tampon-position"
                         value={tamponPosition}
                         onChange={(e) => setTamponPosition(e.target.value)}
-                        className="appearance-none w-full h-9 pl-3 pr-9 text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#292524] cursor-pointer"
+                        className="appearance-none w-full h-9 pl-3 pr-9 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground cursor-pointer"
                         style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
                       >
                         {POSITIONS.map(opt => (
@@ -21579,7 +21579,7 @@ export default function App() {
                         ))}
                       </select>
                       <ChevronDown
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#78716c] pointer-events-none"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-secondary pointer-events-none"
                         strokeWidth={2}
                       />
                     </div>
@@ -21589,11 +21589,11 @@ export default function App() {
 
               {/* ─── Preview card ─── */}
               <div
-                className="bg-white rounded-md border border-[#e7e5e3] overflow-hidden lg:sticky lg:top-10"
+                className="bg-white rounded-md border border-border overflow-hidden lg:sticky lg:top-10"
                 style={{ boxShadow: '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)' }}
               >
-                <div className="px-4 py-3 border-b border-[#e7e5e3] flex items-center gap-3">
-                  <Eye className="w-4 h-4 text-[#78716c]" strokeWidth={2} />
+                <div className="px-4 py-3 border-b border-border flex items-center gap-3">
+                  <Eye className="w-4 h-4 text-foreground-secondary" strokeWidth={2} />
                   <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Aperçu
                   </span>
@@ -21601,8 +21601,8 @@ export default function App() {
                 <div className="px-6 py-10 flex flex-col items-center justify-center bg-white">
                   {renderTamponStamp({ size: 200, sample: 60 })}
                 </div>
-                <div className="px-4 py-4 border-t border-[#e7e5e3] flex items-center justify-center">
-                  <p className="text-[12px] text-[#78716c] text-center leading-snug max-w-[286px]">
+                <div className="px-4 py-4 border-t border-border flex items-center justify-center">
+                  <p className="text-[12px] text-foreground-secondary text-center leading-snug max-w-[286px]">
                     La pièce n° s'incrémente automatiquement à chaque document tamponné.
                   </p>
                 </div>
@@ -21643,21 +21643,21 @@ export default function App() {
         {renderCollapsedRail()}
 
         {/* Settings sub-rail */}
-        <div className="w-[244px] bg-white border-r border-[#e7e5e3] flex flex-col flex-shrink-0">
+        <div className="w-[244px] bg-white border-r border-border flex flex-col flex-shrink-0">
           {/* Header with gradient + back chevron + serif title */}
           <button
             onClick={() => setCurrentPage('list')}
-            className="h-12 px-3 border-b border-[#e7e5e3] flex items-center gap-2 hover:bg-[#fafaf9] transition-colors group"
+            className="h-12 px-3 border-b border-border flex items-center gap-2 hover:bg-background transition-colors group"
             style={{ background: 'linear-gradient(to left, transparent 40.865%, #f8f7f5 100%)' }}
           >
-            <ChevronLeft className="w-4 h-4 text-[#78716c] group-hover:text-[#292524]" strokeWidth={2} />
+            <ChevronLeft className="w-4 h-4 text-foreground-secondary group-hover:text-foreground" strokeWidth={2} />
             <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', lineHeight: '20px' }}>
               Paramètres
             </span>
           </button>
 
           {/* Demo view toggle - admin / membre (preview every settings page) */}
-          <div className="px-3 py-2.5 border-b border-[#e7e5e3]">
+          <div className="px-3 py-2.5 border-b border-border">
             <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
               Démo · vue
             </div>
@@ -21666,7 +21666,7 @@ export default function App() {
                 <button
                   key={s.id}
                   onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
-                  className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-[#292524] text-white' : 'bg-[#eeece6] text-[#78716c] hover:bg-[#e7e5e3]'}`}
+                  className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
                 >
                   {s.label}
                 </button>
@@ -21677,7 +21677,7 @@ export default function App() {
           {/* Section groups */}
           <div className="flex-1 overflow-y-auto">
             {SECTION_GROUPS.map((group, gIdx) => (
-              <div key={group.label} className={`px-2 py-2.5 ${gIdx < SECTION_GROUPS.length - 1 ? 'border-b border-[#e7e5e3]' : ''}`}>
+              <div key={group.label} className={`px-2 py-2.5 ${gIdx < SECTION_GROUPS.length - 1 ? 'border-b border-border' : ''}`}>
                 <div className="px-2 py-1.5">
                   <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', opacity: 0.7 }}>
                     {group.label}
@@ -21691,7 +21691,7 @@ export default function App() {
                       <button
                         key={item.id}
                         onClick={() => setSettingsSection(item.id)}
-                        className={`h-8 w-full flex items-center gap-2 px-2 transition-colors text-left ${active ? 'bg-[#eeece6] text-[#292524] font-medium' : 'text-[#78716c] hover:bg-[#fafaf9] hover:text-[#292524]'}`}
+                        className={`h-8 w-full flex items-center gap-2 px-2 transition-colors text-left ${active ? 'bg-cream text-foreground font-medium' : 'text-foreground-secondary hover:bg-background hover:text-foreground'}`}
                         style={{ borderRadius: 8, fontSize: '14px' }}
                       >
                         <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={active ? 2 : 1.5} />
@@ -21797,13 +21797,13 @@ export default function App() {
     const docBadge = (pieceIds) => (
       <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
         {pieceIds?.length > 0 ? (
-          <span className="inline-flex items-center justify-center w-7 h-7 bg-[#DFE8F5] rounded-md relative">
-            <FileText className="w-4 h-4 text-[#2563eb]" />
-            {pieceIds.length > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-[#1e3a8a] text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceIds.length}</span>}
+          <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
+            <FileText className="w-4 h-4 text-info" />
+            {pieceIds.length > 1 && <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceIds.length}</span>}
           </span>
         ) : (
-          <span className="inline-flex items-center justify-center w-7 h-7 bg-[#F8F7F5] rounded-md border border-dashed border-[#e7e5e3]">
-            <FileText className="w-3.5 h-3.5 text-[#d6d3d1]" />
+          <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas rounded-md border border-dashed border-border">
+            <FileText className="w-3.5 h-3.5 text-border-strong" />
           </span>
         )}
       </div>
@@ -21816,14 +21816,14 @@ export default function App() {
     return (
       <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
-        <div className="w-[220px] flex-shrink-0 border-r border-[#e7e5e3] bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-[#78716c] hover:text-[#292524] mb-6 transition-colors">
+        <div className="w-[220px] flex-shrink-0 border-r border-border bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
+          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#292524', marginBottom: 16 }}>IV Table Structures</div>
           <nav className="flex flex-col gap-1">
             {['Vue d\'ensemble', 'Type A - Simple', 'Type B - Groupé', 'Type C - Frais partagés', 'Type D - Foyer (PRP)', 'Scénarios PRP', 'Adaptation IA'].map(s => (
-              <a key={s} href={`#iv-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">{s}</a>
+              <a key={s} href={`#iv-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">{s}</a>
             ))}
           </nav>
         </div>
@@ -21839,7 +21839,7 @@ export default function App() {
               <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Vue d'ensemble</h2>
               {prose('Les postes de victimes indirectes utilisent 4 structures de table, chacune adaptée à un type de données. La structure est définie par IV_POSTE_CONFIG et détermine le rendu, les colonnes, et les interactions.')}
               <div className={cardBlockClass + ' mb-6'} style={{ maxWidth: 680 }}>
-                <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                   <div className="flex-1 px-3"><span style={colHeaderStyle}>Type</span></div>
                   <div className="w-[200px] px-3"><span style={colHeaderStyle}>Structure</span></div>
                   <div className="w-[160px] px-3"><span style={colHeaderStyle}>Postes</span></div>
@@ -21850,7 +21850,7 @@ export default function App() {
                   { type: 'C - Frais partagés', desc: 'Dépenses communes, réparties', codes: ['fo'] },
                   { type: 'D - Foyer (PRP)', desc: 'Revenu → perte → répartition', codes: ['prp'] },
                 ].map((row, idx) => (
-                  <div key={idx} className="flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white">
+                  <div key={idx} className="flex items-center h-[52px] border-b border-border last:border-b-0 bg-white">
                     <div className="flex-1 px-3"><span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{row.type}</span></div>
                     <div className="w-[200px] px-3"><span style={{ fontSize: 13, color: '#44403c' }}>{row.desc}</span></div>
                     <div className="w-[160px] px-3 flex gap-1">{row.codes.map(c => <span key={c}>{codeInline(c)}</span>)}</div>
@@ -21867,7 +21867,7 @@ export default function App() {
 
               <div className={cardBlockClass} style={{ maxWidth: 680 }}>
                 {/* Column headers */}
-                <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                   <div className="flex-1 px-3"><span style={colHeaderStyle}>Victime</span></div>
                   <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Montant</span></div>
                   <div className="w-10" />
@@ -21877,7 +21877,7 @@ export default function App() {
                   const ligne = demoTypeA.find(l => l.victimeId === vi.id);
                   const montant = ligne?.montant || 0;
                   return (
-                    <div key={vi.id} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                    <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                       <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
                         {viAvatar(vi, 28)}
                         <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
@@ -21906,13 +21906,13 @@ export default function App() {
                 });
                 return (
                   <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                    <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                       <div className="w-[200px] px-3"><span style={colHeaderStyle}>Victime</span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Dépense</span></div>
                       <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Montant</span></div>
                     </div>
                     {demoFlatB.map((row) => (
-                      <div key={row.ligne.id} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                      <div key={row.ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                         <div className="w-[200px] px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(row.vi, 28)}
                           <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{row.vi.prenom} {row.vi.nom}</span>
@@ -21948,13 +21948,13 @@ export default function App() {
                 });
                 return (
                   <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                    <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                       <div className="w-[200px] px-3"><span style={colHeaderStyle}>Victime</span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Dépense</span></div>
                       <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Montant</span></div>
                     </div>
                     {demoFlatRows.map((row) => (
-                      <div key={`${row.vi.id}-${row.ligne.id}`} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                      <div key={`${row.vi.id}-${row.ligne.id}`} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                         <div className="w-[200px] px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(row.vi, 28)}
                           <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{row.vi.prenom} {row.vi.nom}</span>
@@ -21981,18 +21981,18 @@ export default function App() {
               {/* Table 1 - Revenu de référence */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <Calculator className="w-4 h-4 text-[#78716c]" />
+                  <Calculator className="w-4 h-4 text-foreground-secondary" />
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 1 - Revenu de référence</span>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                  <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                     <div className="w-[52px] pl-3" />
                     <div className="flex-1 px-3"><span style={colHeaderStyle}>Source</span></div>
                     <div className="w-[110px] px-3"><span style={colHeaderStyle}>Période</span></div>
                     <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Net mensuel</span></div>
                   </div>
                   {demoRevenuRefLignes.map((ligne) => (
-                    <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                    <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                       {docBadge(ligne.pieceIds)}
                       <div className="flex-1 px-3">
                         <span className="truncate block" style={{ fontSize: 14, color: '#292524' }}>{ligne.source}</span>
@@ -22006,7 +22006,7 @@ export default function App() {
                     </div>
                   ))}
                   {/* Footer */}
-                  <div className="flex items-center justify-between h-10 px-4 border-t border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center justify-between h-10 px-4 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
                     <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>Moyenne mensuelle</span>
                     <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(demoRevenuRefMoyen)}</span>
                   </div>
@@ -22016,7 +22016,7 @@ export default function App() {
               {/* Table 2 - Calcul de la perte */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <Calculator className="w-4 h-4 text-[#78716c]" />
+                  <Calculator className="w-4 h-4 text-foreground-secondary" />
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 2 - Calcul de la perte</span>
                   {badge('DÉCÉDÉ', 'amber')}
                 </div>
@@ -22030,7 +22030,7 @@ export default function App() {
                       <span style={{ fontSize: 13, color: '#78716c' }}>Revenu annuel du conjoint survivant</span>
                       <span style={{ fontSize: 14, color: '#292524' }}>{fmt(24000)}</span>
                     </div>
-                    <div className="flex items-center justify-between py-1 border-t border-[#e7e5e3]">
+                    <div className="flex items-center justify-between py-1 border-t border-border">
                       <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>Revenu total du foyer</span>
                       <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(72000)}</span>
                     </div>
@@ -22042,7 +22042,7 @@ export default function App() {
                       <span style={{ fontSize: 13, color: '#78716c' }}>Part d'auto-consommation</span>
                       <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>25 %</span>
                     </div>
-                    <div className="pt-3 mt-2 border-t border-[#e7e5e3] space-y-2">
+                    <div className="pt-3 mt-2 border-t border-border space-y-2">
                       <div className="flex items-center justify-between">
                         <span style={{ fontSize: 13, color: '#78716c' }}>Perte annuelle brute</span>
                         <span style={{ fontSize: 14, color: '#292524' }}>{fmt(48000)}</span>
@@ -22059,11 +22059,11 @@ export default function App() {
               {/* Table 3a - Échu */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <Clock className="w-4 h-4 text-[#78716c]" />
+                  <Clock className="w-4 h-4 text-foreground-secondary" />
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3a - Échu</span>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                  <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                     <div className="flex-1 px-3"><span style={colHeaderStyle}>Victime</span></div>
                     <div className="w-[70px] px-2 text-right"><span style={colHeaderStyle}>Part</span></div>
                     <div className="w-[100px] px-2 text-right"><span style={colHeaderStyle}>Perte/an</span></div>
@@ -22075,7 +22075,7 @@ export default function App() {
                     if (!ligne) return null;
                     const amounts = demoComputeLine(ligne);
                     return (
-                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                         <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(vi, 24)}
                           <span className="truncate" style={{ fontSize: 13, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
@@ -22087,7 +22087,7 @@ export default function App() {
                       </div>
                     );
                   })}
-                  <div className="flex items-center h-10 border-t border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
                     <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>Total échu</span></div>
                     <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>100%</span></div>
                     <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>{fmt(demoPerteAnnuelle)}</span></div>
@@ -22100,12 +22100,12 @@ export default function App() {
               {/* Table 3b - À échoir */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-4 h-4 text-[#78716c]" />
+                  <TrendingUp className="w-4 h-4 text-foreground-secondary" />
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3b - À échoir</span>
                   <div className="flex items-center gap-2 ml-2">{badge('CAPITAL', 'green')} {badge('RENTE', 'amber')}</div>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 740 }}>
-                  <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                     <div className="flex-1 px-3"><span style={colHeaderStyle}>Victime</span></div>
                     <div className="w-[70px] px-2 text-right"><span style={colHeaderStyle}>Part</span></div>
                     <div className="w-[100px] px-2 text-right"><span style={colHeaderStyle}>Perte/an</span></div>
@@ -22119,7 +22119,7 @@ export default function App() {
                     if (!ligne) return null;
                     const amounts = demoComputeLine(ligne);
                     return (
-                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white group cursor-pointer hover:bg-[#fafaf9] transition-colors">
+                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
                         <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(vi, 24)}
                           <span className="truncate" style={{ fontSize: 13, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
@@ -22147,7 +22147,7 @@ export default function App() {
                       </div>
                     );
                   })}
-                  <div className="flex items-center h-10 border-t border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
                     <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>Total à échoir</span></div>
                     <div className="w-[70px] px-2" />
                     <div className="w-[100px] px-2" />
@@ -22162,7 +22162,7 @@ export default function App() {
               {/* Table 3c - Total par bénéficiaire (beige total block) */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <User className="w-4 h-4 text-[#78716c]" />
+                  <User className="w-4 h-4 text-foreground-secondary" />
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3c - Total par bénéficiaire</span>
                 </div>
                 {(() => {
@@ -22171,17 +22171,17 @@ export default function App() {
                     <div className={totalBlockClass} style={{ maxWidth: 680 }}>
                       <div className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-[#d6d3d1] rounded-[6px] flex items-center justify-center">
-                            <User className="w-3.5 h-3.5 text-[#78716c]" />
+                          <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
+                            <User className="w-3.5 h-3.5 text-foreground-secondary" />
                           </div>
-                          <span className="text-[14px] font-medium text-[#292524]">Total par bénéficiaire</span>
+                          <span className="text-[14px] font-medium text-foreground">Total par bénéficiaire</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span style={serifAmountStyle} className="text-[#292524]">{fmt(demoTotalDistribue)}</span>
-                          <ChevronRight className="w-4 h-4 text-[#78716c] rotate-90" />
+                          <span style={serifAmountStyle} className="text-foreground">{fmt(demoTotalDistribue)}</span>
+                          <ChevronRight className="w-4 h-4 text-foreground-secondary rotate-90" />
                         </div>
                       </div>
-                      <div className="border-t border-[#d6d3d1] mt-3 mb-3" />
+                      <div className="border-t border-border-strong mt-3 mb-3" />
                       <div className="space-y-2">
                         {demoVis.map(vi => {
                           const ligne = demoPrpLignes.find(l => l.victimeId === vi.id);
@@ -22222,7 +22222,7 @@ export default function App() {
                   { key: 'blesse-capital', label: 'Blessé + capital', desc: 'VD vivante, revenu actuel 1 000 €/mois. Pas d\'auto-consommation. Même perte nette.', color: 'blue' },
                   { key: 'blesse-rente', label: 'Blessé + rente', desc: 'Blessé, tous en rente. Mode calcul simplifié (pas d\'auto-conso).', color: 'blue' },
                 ].map(s => (
-                  <div key={s.key} className="border border-[#e7e5e3] rounded-lg p-4 bg-white">
+                  <div key={s.key} className="border border-border rounded-lg p-4 bg-white">
                     <div className="flex items-center gap-2 mb-2">
                       {badge(s.label, s.color)}
                     </div>
@@ -22233,7 +22233,7 @@ export default function App() {
               </div>
 
               <div className={cardBlockClass + ' mb-6'} style={{ maxWidth: 680 }}>
-                <div className="flex items-center h-10 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
                   <div className="flex-1 px-3"><span style={colHeaderStyle}>Scénario</span></div>
                   <div className="w-[100px] px-3"><span style={colHeaderStyle}>Auto-conso</span></div>
                   <div className="w-[100px] px-3"><span style={colHeaderStyle}>Rev. actuel</span></div>
@@ -22245,7 +22245,7 @@ export default function App() {
                   { s: 'Blessé + capital', ac: '—', ra: '1 000 €/mois', ae: 'perte × part × coeff' },
                   { s: 'Blessé + rente', ac: '—', ra: '1 000 €/mois', ae: 'badge RENTE /an' },
                 ].map((row, idx) => (
-                  <div key={idx} className="flex items-center h-[52px] border-b border-[#e7e5e3] last:border-b-0 bg-white">
+                  <div key={idx} className="flex items-center h-[52px] border-b border-border last:border-b-0 bg-white">
                     <div className="flex-1 px-3"><span style={{ fontSize: 13, color: '#292524' }}>{row.s}</span></div>
                     <div className="w-[100px] px-3"><span style={{ fontSize: 13, color: '#78716c' }}>{row.ac}</span></div>
                     <div className="w-[100px] px-3"><span style={{ fontSize: 13, color: '#78716c' }}>{row.ra}</span></div>
@@ -22270,9 +22270,9 @@ export default function App() {
                   { query: '« Combien d\'échu pour toute la famille ? »', action: 'Naviguer vers PRP → table 3a → lire footer total échu', mode: 'prp' },
                   { query: '« Compare les indemnités des enfants »', action: 'Naviguer vers PRP → table 3c (recap) → Lucas vs Emma côte à côte', mode: 'prp' },
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-4 items-start border border-[#e7e5e3] rounded-lg p-3.5 bg-white">
+                  <div key={i} className="flex gap-4 items-start border border-border rounded-lg p-3.5 bg-white">
                     <div className="flex-shrink-0 mt-0.5">
-                      <Brain className="w-4 h-4 text-[#78716c]" />
+                      <Brain className="w-4 h-4 text-foreground-secondary" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div style={{ fontSize: 13, fontWeight: 500, color: '#292524', marginBottom: 4 }}>{item.query}</div>
@@ -22374,7 +22374,7 @@ export default function App() {
           <span style={{ fontSize: 12, color: '#78716c' }}>Condition&nbsp;: {condition}</span>
         </div>
         <div
-          className="border border-[#e7e5e3] rounded-lg overflow-hidden flex flex-col"
+          className="border border-border rounded-lg overflow-hidden flex flex-col"
           style={{ width: 360, height: 540, backgroundColor: '#F8F7F5' }}
         >
           <div className="px-4 h-12 border-b flex items-center gap-2.5 flex-shrink-0 bg-white" style={{ borderColor: '#e7e5e3' }}>
@@ -22429,7 +22429,7 @@ export default function App() {
           <span style={{ fontSize: 12, color: '#78716c' }}>Condition&nbsp;: {condition}</span>
         </div>
         <div
-          className="border border-[#e7e5e3] rounded-lg overflow-hidden flex flex-col bg-white"
+          className="border border-border rounded-lg overflow-hidden flex flex-col bg-white"
           style={{ width: 640, height: 420 }}
         >
           <div className="px-5 h-12 border-b flex items-center gap-3 flex-shrink-0" style={{ borderColor: '#e7e5e3', backgroundColor: '#fafaf9' }}>
@@ -22489,11 +22489,11 @@ export default function App() {
             <div className="flex items-center justify-between px-3 py-3">
               <div className="flex items-center gap-0.5">
                 <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors">
-                  <Paperclip className="w-4 h-4 text-[#78716c]" />
+                  <Paperclip className="w-4 h-4 text-foreground-secondary" />
                 </button>
                 <div className="relative">
                   <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-stone-100 transition-colors">
-                    <Lightbulb className="w-4 h-4 text-[#78716c]" />
+                    <Lightbulb className="w-4 h-4 text-foreground-secondary" />
                   </button>
                   {/* Suggestions popover - same SuggestionsMenu DS component */}
                   <div className="absolute bottom-10 left-0 z-50">
@@ -22502,7 +22502,7 @@ export default function App() {
                 </div>
               </div>
               <button className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: '#eeece6', opacity: 0.5 }}>
-                <ArrowUp className="w-4 h-4 text-[#78716c]" />
+                <ArrowUp className="w-4 h-4 text-foreground-secondary" />
               </button>
             </div>
           </div>
@@ -22514,7 +22514,7 @@ export default function App() {
     const TriggerFlow = ({ trigger, message }) => (
       <div className="flex items-center gap-6" style={{ width: '100%', justifyContent: 'center' }}>
         <div className="flex-shrink-0">{trigger}</div>
-        <ArrowRight className="w-6 h-6 text-[#a8a29e] flex-shrink-0" strokeWidth={1.5} />
+        <ArrowRight className="w-6 h-6 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
         <div className="flex flex-col items-end flex-shrink-0" style={{ width: 220 }}>
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
             User message envoyé
@@ -22562,9 +22562,9 @@ export default function App() {
 
     // B.2 - Add poste modal mock (the trigger surface)
     const triggerAddPosteModal = (
-      <div className="bg-white rounded-[8px] border border-[#e7e5e3] overflow-hidden" style={{ width: 260, boxShadow: '0px 4px 12px -4px rgba(26,26,26,0.12)' }}>
-        <div className="px-4 py-3 border-b border-[#e7e5e3]">
-          <span className="text-[13px] font-medium text-[#292524]">Ajouter un poste</span>
+      <div className="bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 260, boxShadow: '0px 4px 12px -4px rgba(26,26,26,0.12)' }}>
+        <div className="px-4 py-3 border-b border-border">
+          <span className="text-[13px] font-medium text-foreground">Ajouter un poste</span>
         </div>
         <div className="p-2 flex flex-col gap-1">
           {[
@@ -22580,13 +22580,13 @@ export default function App() {
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: p.selected ? '#E8713A' : '#78716c', fontWeight: 500, width: 36 }}>
                 {p.acr}
               </span>
-              <span className="text-[12px] text-[#292524] flex-1 truncate">{p.label}</span>
+              <span className="text-[12px] text-foreground flex-1 truncate">{p.label}</span>
               {p.selected && <Check className="w-3.5 h-3.5 text-[#E8713A]" strokeWidth={2} />}
             </div>
           ))}
         </div>
-        <div className="px-3 py-2 border-t border-[#e7e5e3] flex justify-end">
-          <button className="bg-[#292524] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
+        <div className="px-3 py-2 border-t border-border flex justify-end">
+          <button className="bg-foreground text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
         </div>
       </div>
     );
@@ -22594,28 +22594,28 @@ export default function App() {
     return (
       <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
-        <div className="w-[220px] flex-shrink-0 border-r border-[#e7e5e3] bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-[#78716c] hover:text-[#292524] mb-6 transition-colors">
+        <div className="w-[220px] flex-shrink-0 border-r border-border bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
+          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#292524', marginBottom: 16 }}>Prompt Suggestions</div>
           <nav className="flex flex-col gap-1 mb-4">
-            <a href="#ps-scope" className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">Scope</a>
-            <a href="#ps-tldr" className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">TL;DR</a>
+            <a href="#ps-scope" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">Scope</a>
+            <a href="#ps-tldr" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">TL;DR</a>
           </nav>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>A. Chat empty state</div>
           <nav className="flex flex-col gap-1 mb-4">
-            <a href="#ps-chat" className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">3 chips</a>
+            <a href="#ps-chat" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">3 chips</a>
           </nav>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>B. Triggers canvas</div>
           <nav className="flex flex-col gap-1 mb-4">
-            <a href="#ps-canvas-chiffrage" className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">B.1 - Chiffrage vide</a>
-            <a href="#ps-canvas-add-poste" className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">B.2 - Ajout poste</a>
-            <a href="#ps-canvas-actes" className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">B.3 - Actes vide</a>
+            <a href="#ps-canvas-chiffrage" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">B.1 - Chiffrage vide</a>
+            <a href="#ps-canvas-add-poste" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">B.2 - Ajout poste</a>
+            <a href="#ps-canvas-actes" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">B.3 - Actes vide</a>
           </nav>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>C. Ampoule</div>
           <nav className="flex flex-col gap-1">
-            <a href="#ps-lightbulb" className="text-body text-[#78716c] hover:text-[#292524] hover:bg-[#fafaf9] px-2 py-1.5 rounded transition-colors">Suggestions menu</a>
+            <a href="#ps-lightbulb" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">Suggestions menu</a>
           </nav>
         </div>
 
@@ -22647,7 +22647,7 @@ export default function App() {
                 rows={[
                   [<><strong>Chat empty state</strong> <span style={{ color: '#78716c' }}>(manuel ou after drop)</span></>, 'Chat vide, agent muet', <><strong>3 chips</strong> → <em>envoient</em> un prompt</>],
                   [<><strong>Triggers canvas</strong></>, 'Empty states locaux : chiffrage, actes, JP, ajout poste', <><em>Envoient</em> un prompt</>],
-                  [<><strong>Ampoule</strong> <Lightbulb className="inline w-3.5 h-3.5 align-middle text-[#78716c]" strokeWidth={1.75} /></>, "Permanent dans l'input", <><em>Pré-remplissent</em> l'input (éditable)</>],
+                  [<><strong>Ampoule</strong> <Lightbulb className="inline w-3.5 h-3.5 align-middle text-foreground-secondary" strokeWidth={1.75} /></>, "Permanent dans l'input", <><em>Pré-remplissent</em> l'input (éditable)</>],
                 ]}
               />
             </section>
@@ -22706,20 +22706,20 @@ export default function App() {
             {/* ================ C. AMPOULE ================ */}
             <section id="ps-lightbulb" className="mb-16">
               <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3', display: 'flex', alignItems: 'center', gap: 8 }}>
-                C. Ampoule <Lightbulb className="w-5 h-5 text-[#78716c]" strokeWidth={1.75} />
+                C. Ampoule <Lightbulb className="w-5 h-5 text-foreground-secondary" strokeWidth={1.75} />
               </h2>
               <p style={specPara}>
-                Clic → menu au-dessus de l'input. Clic item → <strong>inséré</strong> dans l'input (pas envoyé), focus textarea. Permanent dans l'input, à côté du <Paperclip className="inline w-3.5 h-3.5 align-middle text-[#78716c]" strokeWidth={1.75} />.
+                Clic → menu au-dessus de l'input. Clic item → <strong>inséré</strong> dans l'input (pas envoyé), focus textarea. Permanent dans l'input, à côté du <Paperclip className="inline w-3.5 h-3.5 align-middle text-foreground-secondary" strokeWidth={1.75} />.
               </p>
               <LightbulbSpecimen />
               <SpecTable
                 head={['Icône', 'Prompt']}
                 colWidths={[80, undefined]}
                 rows={[
-                  [<Sparkles className="w-4 h-4 text-[#a8a29e]" strokeWidth={1.5} />,   "Complète les informations du dossier à partir du rapport d'expertise"],
-                  [<Calculator className="w-4 h-4 text-[#a8a29e]" strokeWidth={1.5} />, 'Chiffre les préjudices de ce dossier'],
-                  [<HelpCircle className="w-4 h-4 text-[#a8a29e]" strokeWidth={1.5} />, 'Quels sont les préjudices à chiffrer ?'],
-                  [<Pencil className="w-4 h-4 text-[#a8a29e]" strokeWidth={1.5} />,     'Rédige une demande amiable de provision'],
+                  [<Sparkles className="w-4 h-4 text-foreground-muted" strokeWidth={1.5} />,   "Complète les informations du dossier à partir du rapport d'expertise"],
+                  [<Calculator className="w-4 h-4 text-foreground-muted" strokeWidth={1.5} />, 'Chiffre les préjudices de ce dossier'],
+                  [<HelpCircle className="w-4 h-4 text-foreground-muted" strokeWidth={1.5} />, 'Quels sont les préjudices à chiffrer ?'],
+                  [<Pencil className="w-4 h-4 text-foreground-muted" strokeWidth={1.5} />,     'Rédige une demande amiable de provision'],
                 ]}
               />
               <Quote>
@@ -22856,16 +22856,16 @@ export default function App() {
     };
 
     return (
-      <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden">
+      <div className="border border-border rounded-lg bg-white overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#e7e5e3]" style={{ backgroundColor: '#fafaf9' }}>
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-5 h-5 rounded text-xs font-semibold" style={{ backgroundColor: '#292524', color: 'white' }}>{id}</span>
             <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{scenario.title}</span>
           </div>
           <div className="flex items-center gap-2">
             {/* Speed control */}
-            <div className="flex items-center gap-1 border border-[#e7e5e3] rounded overflow-hidden">
+            <div className="flex items-center gap-1 border border-border rounded overflow-hidden">
               {[1, 2, 4].map(s => (
                 <button
                   key={s}
@@ -22882,7 +22882,7 @@ export default function App() {
                 Play
               </button>
             ) : (
-              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-[#e7e5e3]" style={{ color: '#78716c' }}>
+              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: '#78716c' }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
@@ -22926,7 +22926,7 @@ export default function App() {
   const FinishedInspectableCard = ({ summary, counters, steps }) => {
     const [expanded, setExpanded] = React.useState(false);
     return (
-      <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden">
+      <div className="border border-border rounded-lg bg-white overflow-hidden">
         <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning finished inspectable</span>
         </div>
@@ -22989,7 +22989,7 @@ export default function App() {
     React.useEffect(() => () => timeoutsRef.current.forEach(t => clearTimeout(t)), []);
 
     return (
-      <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden">
+      <div className="border border-border rounded-lg bg-white overflow-hidden">
         <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
           <div className="flex items-center gap-1.5">
@@ -22998,7 +22998,7 @@ export default function App() {
                 Play
               </button>
             ) : (
-              <button onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-[#e7e5e3]" style={{ color: '#78716c' }}>
+              <button onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-border" style={{ color: '#78716c' }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
@@ -23037,14 +23037,14 @@ export default function App() {
     const sH2 = { fontSize: 15, fontWeight: 600, color: '#292524', marginBottom: 6, marginTop: 32 };
     const sP = { fontSize: 13, color: '#78716c', lineHeight: '20px', marginBottom: 16 };
     const sCode = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#78716c', backgroundColor: '#f5f5f4', padding: '1px 5px', borderRadius: 3 };
-    const sCard = "border border-[#e7e5e3] rounded-lg bg-white p-4";
+    const sCard = "border border-border rounded-lg bg-white p-4";
     const sLabel = { fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 };
 
     return (
       <div className="h-screen flex flex-col" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
-        <div className="flex items-center gap-3 px-6 h-12 border-b border-[#e7e5e3] flex-shrink-0 bg-white">
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-[#78716c] hover:text-[#292524] transition-colors" style={{ fontSize: 13 }}>
+        <div className="flex items-center gap-3 px-6 h-12 border-b border-border flex-shrink-0 bg-white">
+          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors" style={{ fontSize: 13 }}>
             <ChevronRight className="w-4 h-4 rotate-180" /> UI Kit
           </button>
           <span style={{ color: '#d6d3d1' }}>/</span>
@@ -23112,7 +23112,7 @@ export default function App() {
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* V1 Processing */}
-              <div className="border border-[#e7e5e3] rounded-lg bg-white overflow-hidden">
+              <div className="border border-border rounded-lg bg-white overflow-hidden">
                 <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
                   <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning (processing)</span>
                 </div>
@@ -23148,7 +23148,7 @@ export default function App() {
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* Left: Icon type table */}
-              <div className="flex flex-col gap-0 border border-[#e7e5e3] rounded-lg bg-white overflow-hidden">
+              <div className="flex flex-col gap-0 border border-border rounded-lg bg-white overflow-hidden">
                 <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
                   <span style={{ ...sLabel, marginBottom: 0, width: 16 }}></span>
                   <span style={{ ...sLabel, marginBottom: 0, width: 110 }}>Type</span>
@@ -23191,7 +23191,7 @@ export default function App() {
               {/* Right: States + backend mapping */}
               <div className="flex flex-col gap-4">
                 {/* Hover states */}
-                <div className="border border-[#e7e5e3] rounded-lg bg-white p-3">
+                <div className="border border-border rounded-lg bg-white p-3">
                   <p style={sLabel}>Item states</p>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
@@ -23225,7 +23225,7 @@ export default function App() {
                 </div>
 
                 {/* Backend tool mapping */}
-                <div className="flex flex-col gap-0 border border-[#e7e5e3] rounded-lg bg-white overflow-hidden">
+                <div className="flex flex-col gap-0 border border-border rounded-lg bg-white overflow-hidden">
                   <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
                     <span style={{ ...sLabel, marginBottom: 0, flex: 1 }}>Backend tool</span>
                     <span style={{ ...sLabel, marginBottom: 0, width: 80 }}>Map to</span>
@@ -23254,7 +23254,7 @@ export default function App() {
             <h2 style={sH2}>CrudBadges (feature level badges)</h2>
             <p style={sP}>Le caractère de chaque étape CRUD est rapidement identifiable par un badge → indicateur. Couleur + diamant = indique le type dans le header collapsed. Indicateur = <span style={sCode}>ajout/modif./suppr.</span> → label mono apparaît dans la ligne d'étape CRUD. Counter → diamant + nombre dans le header collapsed.</p>
 
-            <div className="flex items-center gap-6 mb-6 p-4 border border-[#e7e5e3] rounded-lg bg-white" style={{ maxWidth: 480 }}>
+            <div className="flex items-center gap-6 mb-6 p-4 border border-border rounded-lg bg-white" style={{ maxWidth: 480 }}>
               <div>
                 <p style={{ ...sLabel, marginBottom: 6 }}>Pills</p>
                 <div className="flex items-center gap-2">
@@ -23832,10 +23832,10 @@ export default function App() {
             <div className="px-5 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#e7e5e3' }}>
               <div className="flex items-center gap-2.5 min-w-0">
                 {chatPreviewPiece.index > 0 && <span className="px-2 py-0.5 bg-zinc-800 text-white text-[11px] font-medium rounded flex-shrink-0">P{chatPreviewPiece.index}</span>}
-                <span className="text-[14px] font-medium text-[#292524] truncate">{chatPreviewPiece.intitule || chatPreviewPiece.nom}</span>
+                <span className="text-[14px] font-medium text-foreground truncate">{chatPreviewPiece.intitule || chatPreviewPiece.nom}</span>
               </div>
-              <button onClick={() => setChatPreviewPiece(null)} className="p-1.5 hover:bg-[#eeece6] rounded-lg transition-colors flex-shrink-0">
-                <X className="w-4 h-4 text-[#a8a29e]" />
+              <button onClick={() => setChatPreviewPiece(null)} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
+                <X className="w-4 h-4 text-foreground-muted" />
               </button>
             </div>
             {/* Content */}
@@ -23843,46 +23843,46 @@ export default function App() {
               {/* Document preview */}
               <div className="bg-[#1a1a1a] flex items-center justify-center p-8" style={{ minHeight: 320 }}>
                 <div className="bg-white rounded-lg w-full max-w-[240px] aspect-[3/4] p-6 flex flex-col" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
-                  <div className="text-[10px] text-[#a8a29e] mb-2 uppercase tracking-wide">{chatPreviewPiece.type || 'Document'}</div>
+                  <div className="text-[10px] text-foreground-muted mb-2 uppercase tracking-wide">{chatPreviewPiece.type || 'Document'}</div>
                   <div className="h-2.5 bg-gray-200 rounded w-3/4 mb-1.5"></div>
                   <div className="h-2.5 bg-gray-200 rounded w-1/2 mb-5"></div>
                   <div className="flex-1 space-y-1.5">
-                    <div className="h-1.5 bg-[#f5f5f4] rounded w-full"></div>
-                    <div className="h-1.5 bg-[#f5f5f4] rounded w-5/6"></div>
-                    <div className="h-1.5 bg-[#f5f5f4] rounded w-4/6"></div>
-                    <div className="h-1.5 bg-[#f5f5f4] rounded w-full"></div>
-                    <div className="h-1.5 bg-[#f5f5f4] rounded w-3/4"></div>
+                    <div className="h-1.5 bg-background-subtle rounded w-full"></div>
+                    <div className="h-1.5 bg-background-subtle rounded w-5/6"></div>
+                    <div className="h-1.5 bg-background-subtle rounded w-4/6"></div>
+                    <div className="h-1.5 bg-background-subtle rounded w-full"></div>
+                    <div className="h-1.5 bg-background-subtle rounded w-3/4"></div>
                   </div>
                   <div className="mt-3 pt-3 border-t flex items-center justify-between">
-                    <span className="text-[10px] text-[#a8a29e]">Aperçu du document</span>
-                    <span className="text-[10px] text-[#a8a29e]">PDF · 2 pages</span>
+                    <span className="text-[10px] text-foreground-muted">Aperçu du document</span>
+                    <span className="text-[10px] text-foreground-muted">PDF · 2 pages</span>
                   </div>
                 </div>
               </div>
               {/* Detail fields */}
               <div className="p-5 space-y-5">
                 <div>
-                  <label className="text-[13px] font-medium text-[#292524] mb-1.5 block">Nom du document</label>
-                  <div className="px-3 py-2.5 bg-[#F8F7F5] rounded-lg text-[14px] text-[#292524] border border-[#e7e5e3]">
+                  <label className="text-[13px] font-medium text-foreground mb-1.5 block">Nom du document</label>
+                  <div className="px-3 py-2.5 bg-background-canvas rounded-lg text-[14px] text-foreground border border-border">
                     {chatPreviewPiece.intitule || chatPreviewPiece.nom}
                   </div>
                   {chatPreviewPiece.nomOriginal && (
-                    <p className="mt-1.5 text-[12px] text-[#a8a29e]">{chatPreviewPiece.nomOriginal}</p>
+                    <p className="mt-1.5 text-[12px] text-foreground-muted">{chatPreviewPiece.nomOriginal}</p>
                   )}
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-[#f0ede8]">
-                  <span className="text-[13px] text-[#78716c]">Type</span>
+                  <span className="text-[13px] text-foreground-secondary">Type</span>
                   <span className="px-2.5 py-1 rounded-md text-[12px] font-medium" style={{ backgroundColor: '#fff0e1', color: '#c2590a' }}>
                     {chatPreviewPiece.type || 'Document'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-[#f0ede8]">
-                  <span className="text-[13px] text-[#78716c]">Date</span>
-                  <span className="text-[13px] text-[#292524]">{chatPreviewPiece.date || '—'}</span>
+                  <span className="text-[13px] text-foreground-secondary">Date</span>
+                  <span className="text-[13px] text-foreground">{chatPreviewPiece.date || '—'}</span>
                 </div>
                 {chatPreviewPiece.usages && chatPreviewPiece.usages.length > 0 && (
                   <div className="flex items-center justify-between py-3 border-b border-[#f0ede8]">
-                    <span className="text-[13px] text-[#78716c]">Postes liés</span>
+                    <span className="text-[13px] text-foreground-secondary">Postes liés</span>
                     <div className="flex gap-1.5">
                       {chatPreviewPiece.usages.map((u, i) => (
                         <span key={i} className="px-2 py-0.5 bg-zinc-800 text-white text-[11px] font-medium rounded">{u}</span>

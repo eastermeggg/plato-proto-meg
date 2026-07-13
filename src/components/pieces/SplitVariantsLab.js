@@ -124,7 +124,7 @@ export default function SplitVariantsLab() {
     <div>
       {/* Switcher */}
       <div className="flex items-center gap-4 mb-2">
-        <div className="inline-flex rounded-lg border border-[#e7e5e3] bg-[#fafaf9] p-1">
+        <div className="inline-flex rounded-lg border border-border bg-background p-1">
           {VARIANTS.map(v => (
             <button
               key={v.key}
@@ -145,7 +145,7 @@ export default function SplitVariantsLab() {
 
       <div
         key={variant}
-        className="rounded-xl border border-[#e7e5e3] bg-white p-6"
+        className="rounded-xl border border-border bg-white p-6"
         style={{ animation: 'lab-row-in 240ms ease-out' }}
       >
         {variant === 'A' && <VariantALiasse />}
@@ -243,22 +243,22 @@ function PaperEdgeRow({ count, totalLabel, onExplode }) {
         />
       ))}
       <div
-        className="relative flex items-center gap-3 px-4 py-3 bg-white border border-[#e7e5e3] rounded-lg"
+        className="relative flex items-center gap-3 px-4 py-3 bg-white border border-border rounded-lg"
         style={{ zIndex: 1, boxShadow: hover ? '0 4px 12px rgba(0,0,0,0.07)' : '0 1px 2px rgba(0,0,0,0.04)', transition: 'box-shadow 200ms' }}
       >
         <span className="inline-flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0" style={{ background: ACCENT_BG, color: ACCENT }}>
           <Layers className="w-4 h-4" strokeWidth={1.75} />
         </span>
         <div className="flex-1 min-w-0">
-          <div className="text-[14px] text-[#292524]">
+          <div className="text-[14px] text-foreground">
             <span className="font-medium">Factures médicales</span>
-            <span className="text-[#78716c]"> ({count}) · {totalLabel}</span>
+            <span className="text-foreground-secondary"> ({count}) · {totalLabel}</span>
           </div>
-          <div className="text-[11px] text-[#a8a29e] mt-0.5">issues de factures_medicales_2023.pdf</div>
+          <div className="text-[11px] text-foreground-muted mt-0.5">issues de factures_medicales_2023.pdf</div>
         </div>
         <button
           onClick={onExplode}
-          className="text-[12px] px-3 py-1.5 rounded-md border border-[#d6d3d1] text-[#44403c] hover:bg-[#f8f7f5] transition-colors"
+          className="text-[12px] px-3 py-1.5 rounded-md border border-border-strong text-foreground-tertiary hover:bg-background-canvas transition-colors"
         >
           Éclater en {count} pièces
         </button>
@@ -276,11 +276,11 @@ function VariantALiasse() {
   return (
     <div style={{ maxWidth: 720 }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] uppercase tracking-wide text-[#a8a29e] font-medium">Zone « À vérifier »</span>
+        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Zone « À vérifier »</span>
         {phase !== 'review' && (
           <button
             onClick={() => { setPhase('review'); setHoverSide(null); }}
-            className="inline-flex items-center gap-1.5 text-[12px] text-[#78716c] hover:text-[#292524] transition-colors"
+            className="inline-flex items-center gap-1.5 text-[12px] text-foreground-secondary hover:text-foreground transition-colors"
           >
             <RotateCcw className="w-3 h-3" strokeWidth={1.75} />
             Rejouer la décision
@@ -293,11 +293,11 @@ function VariantALiasse() {
         <div className="rounded-xl border bg-white p-5 flex items-center gap-5" style={{ borderColor: '#ece8db', background: '#faf8f3' }}>
           <MiniStack fan={hoverSide === 'explode' ? 1 : 0} banded={hoverSide === 'keep'} />
           <div className="flex-1 min-w-0">
-            <div className="text-[14px] text-[#292524]">
+            <div className="text-[14px] text-foreground">
               <span className="font-medium">Factures médicales</span>
-              <span className="text-[#78716c]"> · {count} documents détectés · {total} · janv. → oct. 2023</span>
+              <span className="text-foreground-secondary"> · {count} documents détectés · {total} · janv. → oct. 2023</span>
             </div>
-            <div className="text-[12px] text-[#a8a29e] mt-0.5 mb-3">factures_medicales_2023.pdf</div>
+            <div className="text-[12px] text-foreground-muted mt-0.5 mb-3">factures_medicales_2023.pdf</div>
             <div className="flex items-center gap-2">
               <button
                 onMouseEnter={() => setHoverSide('keep')}
@@ -318,7 +318,7 @@ function VariantALiasse() {
                 Éclater en {count} pièces
               </button>
             </div>
-            <div className="text-[11px] text-[#a8a29e] mt-2" style={{ minHeight: 14 }}>
+            <div className="text-[11px] text-foreground-muted mt-2" style={{ minHeight: 14 }}>
               {hoverSide === 'keep' && 'La pile reste un seul objet — la sangle se pose.'}
               {hoverSide === 'explode' && 'L\'éventail s\'ouvre — chaque document devient une pièce.'}
             </div>
@@ -337,7 +337,7 @@ function VariantALiasse() {
         <div>
           {/* group bandeau */}
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-t-lg border border-b-0 border-[#e7e5e3] bg-[#fafaf9] text-[11px] text-[#78716c]"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-t-lg border border-b-0 border-border bg-background text-[11px] text-foreground-secondary"
             style={{ animation: 'lab-row-in 200ms ease-out' }}
           >
             <Layers className="w-3 h-3" strokeWidth={1.75} />
@@ -346,20 +346,20 @@ function VariantALiasse() {
             </span>
             <button
               onClick={() => setPhase('grouped')}
-              className="ml-auto underline underline-offset-2 text-[#292524] hover:text-[#a08355] font-medium transition-colors"
+              className="ml-auto underline underline-offset-2 text-foreground hover:text-[#a08355] font-medium transition-colors"
             >
               Regrouper en une pièce
             </button>
           </div>
-          <div className="border border-[#e7e5e3] rounded-b-lg overflow-hidden">
+          <div className="border border-border rounded-b-lg overflow-hidden">
             {DEMO_SEGMENTS.map((seg, i) => (
               <div
                 key={seg.id}
                 className="flex items-center gap-3 px-4 py-2 bg-white border-b border-[#f5f4f1] last:border-b-0"
                 style={{ animation: `lab-row-in 320ms cubic-bezier(0.2, 0.9, 0.3, 1) ${i * 45}ms both` }}
               >
-                <span className="text-[11px] tabular-nums text-[#a8a29e] w-6">{i + 1}</span>
-                <span className="text-[13px] text-[#292524] flex-1 truncate">{segLabel(seg)}</span>
+                <span className="text-[11px] tabular-nums text-foreground-muted w-6">{i + 1}</span>
+                <span className="text-[13px] text-foreground flex-1 truncate">{segLabel(seg)}</span>
                 {seg.anomaly && <AlertCircle className="w-3.5 h-3.5" style={{ color: AMBER }} strokeWidth={1.75} title={seg.anomaly} />}
               </div>
             ))}
@@ -448,8 +448,8 @@ function VariantBMassicot() {
   return (
     <div style={{ maxWidth: 880 }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] uppercase tracking-wide text-[#a8a29e] font-medium">Carte « À vérifier » — dépliée en établi de coupe</span>
-        <button onClick={reset} className="inline-flex items-center gap-1.5 text-[12px] text-[#78716c] hover:text-[#292524] transition-colors">
+        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Carte « À vérifier » — dépliée en établi de coupe</span>
+        <button onClick={reset} className="inline-flex items-center gap-1.5 text-[12px] text-foreground-secondary hover:text-foreground transition-colors">
           <RotateCcw className="w-3 h-3" strokeWidth={1.75} />
           Réinitialiser
         </button>
@@ -461,13 +461,13 @@ function VariantBMassicot() {
           <span className="inline-flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0" style={{ background: ACCENT_BG, color: ACCENT }}>
             <Scissors className="w-4 h-4" strokeWidth={1.75} />
           </span>
-          <div className="flex-1 text-[14px] text-[#292524]">
+          <div className="flex-1 text-[14px] text-foreground">
             <span className="font-medium">Factures médicales</span>
-            <span className="text-[#78716c]"> · factures_medicales_2023.pdf</span>
+            <span className="text-foreground-secondary"> · factures_medicales_2023.pdf</span>
           </div>
-          <div className="text-[13px] tabular-nums text-[#292524] flex items-baseline gap-1">
+          <div className="text-[13px] tabular-nums text-foreground flex items-baseline gap-1">
             <RollingNumber value={segments.length} style={{ fontWeight: 600 }} />
-            <span className="text-[#78716c]">documents ·</span>
+            <span className="text-foreground-secondary">documents ·</span>
             <span className="font-medium">{formatEUR(total)}</span>
           </div>
         </div>
@@ -523,15 +523,15 @@ function VariantBMassicot() {
             ))}
           </div>
           <div className="flex items-center justify-between mt-1">
-            <span className="text-[10px] text-[#a8a29e]">p. 1</span>
-            <span className="text-[10px] text-[#a8a29e]">{segments.length - 1} coupes · p. {totalPages}</span>
+            <span className="text-[10px] text-foreground-muted">p. 1</span>
+            <span className="text-[10px] text-foreground-muted">{segments.length - 1} coupes · p. {totalPages}</span>
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex items-center gap-2 px-4 py-3 border-t border-[#ece8db] bg-white">
-          <span className="text-[11px] text-[#a8a29e] mr-auto">Survolez entre deux pages pour couper · survolez une coupe pour recoller</span>
-          <button className="h-8 px-3 text-[12px] font-medium rounded-md border border-[#d6d3d1] bg-[#fafaf9] text-[#292524] hover:bg-[#f5f4f1] transition-colors">
+          <span className="text-[11px] text-foreground-muted mr-auto">Survolez entre deux pages pour couper · survolez une coupe pour recoller</span>
+          <button className="h-8 px-3 text-[12px] font-medium rounded-md border border-border-strong bg-background text-foreground hover:bg-[#f5f4f1] transition-colors">
             Garder en une pièce
           </button>
           <button className="h-8 px-3 text-[12px] font-medium rounded-md text-white transition-colors" style={{ background: '#292524' }}>
@@ -564,10 +564,10 @@ function PageThumb({ pg }) {
         {pg.first ? (
           <>
             <div className="text-[7px] uppercase tracking-wide truncate" style={{ color: ACCENT }}>{pg.seg.emetteur}</div>
-            <div className="text-[8px] text-[#78716c] truncate">{formatDate(pg.seg.date)}</div>
+            <div className="text-[8px] text-foreground-secondary truncate">{formatDate(pg.seg.date)}</div>
           </>
         ) : (
-          <div className="text-[7px] text-[#a8a29e]">(suite)</div>
+          <div className="text-[7px] text-foreground-muted">(suite)</div>
         )}
       </div>
       <div className="flex-1 px-2 py-1.5 space-y-1">
@@ -770,8 +770,8 @@ function VariantCCurseur() {
   return (
     <div style={{ maxWidth: 720 }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] uppercase tracking-wide text-[#a8a29e] font-medium">Le grain de la pile — un seul contrôle, partout</span>
-        <span className="text-[12px] tabular-nums text-[#78716c]">
+        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Le grain de la pile — un seul contrôle, partout</span>
+        <span className="text-[12px] tabular-nums text-foreground-secondary">
           <RollingNumber value={pieceCount} style={{ fontWeight: 600, color: '#292524' }} /> pièce{pieceCount > 1 ? 's' : ''} · {total}
         </span>
       </div>
@@ -782,9 +782,9 @@ function VariantCCurseur() {
           <span className="inline-flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0" style={{ background: ACCENT_BG, color: ACCENT }}>
             <Layers className="w-4 h-4" strokeWidth={1.75} />
           </span>
-          <div className="text-[14px] text-[#292524]">
+          <div className="text-[14px] text-foreground">
             <span className="font-medium">Factures médicales</span>
-            <span className="text-[#78716c]"> · factures_medicales_2023.pdf</span>
+            <span className="text-foreground-secondary"> · factures_medicales_2023.pdf</span>
           </div>
         </div>
 
@@ -848,19 +848,19 @@ function VariantCCurseur() {
             ))}
           </div>
         </div>
-        <div className="text-[11px] text-[#a8a29e] mt-2 px-2">La position du curseur est l'état — revenir en arrière, c'est annuler. Aucune confirmation nécessaire.</div>
+        <div className="text-[11px] text-foreground-muted mt-2 px-2">La position du curseur est l'état — revenir en arrière, c'est annuler. Aucune confirmation nécessaire.</div>
       </div>
 
       {/* Live preview — morphs with the grain */}
-      <div key={grain} className="border border-[#e7e5e3] rounded-lg overflow-hidden">
+      <div key={grain} className="border border-border rounded-lg overflow-hidden">
         {grain === 'one' && (
           <div className="flex items-center gap-3 px-4 py-3 bg-white" style={{ animation: 'lab-row-up 260ms cubic-bezier(0.2, 0.9, 0.3, 1)' }}>
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-md" style={{ background: ACCENT_BG, color: ACCENT }}>
               <Layers className="w-4 h-4" strokeWidth={1.75} />
             </span>
-            <div className="text-[14px] text-[#292524]">
+            <div className="text-[14px] text-foreground">
               <span className="font-medium">Factures médicales</span>
-              <span className="text-[#78716c]"> (12) · {total} · janv. → oct. 2023</span>
+              <span className="text-foreground-secondary"> (12) · {total} · janv. → oct. 2023</span>
             </div>
           </div>
         )}
@@ -873,11 +873,11 @@ function VariantCCurseur() {
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-md" style={{ background: ACCENT_BG, color: ACCENT }}>
               <Layers className="w-3.5 h-3.5" strokeWidth={1.75} />
             </span>
-            <div className="text-[13px] text-[#292524] flex-1">
+            <div className="text-[13px] text-foreground flex-1">
               <span className="font-medium">Factures — {g.emetteur}</span>
-              <span className="text-[#78716c]"> ({g.segs.length}) · {formatEUR(sumCents(g.segs))}</span>
+              <span className="text-foreground-secondary"> ({g.segs.length}) · {formatEUR(sumCents(g.segs))}</span>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-[#a8a29e]" strokeWidth={1.75} />
+            <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} />
           </div>
         ))}
         {grain === 'document' && DEMO_SEGMENTS.map((seg, i) => (
@@ -886,8 +886,8 @@ function VariantCCurseur() {
             className="flex items-center gap-3 px-4 py-2 bg-white border-b border-[#f5f4f1] last:border-b-0"
             style={{ animation: `lab-row-up 300ms cubic-bezier(0.2, 0.9, 0.3, 1) ${i * 30}ms both` }}
           >
-            <span className="text-[11px] tabular-nums text-[#a8a29e] w-6">{i + 1}</span>
-            <span className="text-[13px] text-[#292524] flex-1 truncate">{segLabel(seg)}</span>
+            <span className="text-[11px] tabular-nums text-foreground-muted w-6">{i + 1}</span>
+            <span className="text-[13px] text-foreground flex-1 truncate">{segLabel(seg)}</span>
             {seg.anomaly && <AlertCircle className="w-3.5 h-3.5" style={{ color: AMBER }} strokeWidth={1.75} title={seg.anomaly} />}
           </div>
         ))}

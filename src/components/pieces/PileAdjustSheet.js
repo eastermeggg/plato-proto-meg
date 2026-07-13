@@ -254,24 +254,24 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
       style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
     />
     <div
-      className="fixed top-0 h-screen bg-white border-l border-[#e7e5e3] z-30 flex flex-col"
+      className="fixed top-0 h-screen bg-white border-l border-border z-30 flex flex-col"
       style={{ width: '1040px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}
     >
       {/* Header - harmonized with the document preview panel. Title + actions
           depend on the mode; the document pane below is shared across modes. */}
-      <div className="px-4 py-3.5 border-b border-[#e7e5e3] flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+      <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {mode === 'adjust' && initialMode === 'view' && (
             <button
               type="button"
               onClick={() => setMode('view')}
               title="Retour à l'aperçu du document"
-              className="p-1 -ml-1 flex-shrink-0 text-[#a8a29e] hover:text-[#44403c] hover:bg-[#f5f5f4] rounded-md transition-colors"
+              className="p-1 -ml-1 flex-shrink-0 text-foreground-muted hover:text-foreground-tertiary hover:bg-background-subtle rounded-md transition-colors"
             >
               <ChevronLeft className="w-4 h-4" strokeWidth={2} />
             </button>
           )}
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 bg-[#eeece6] text-[#292524]">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 bg-cream text-foreground">
             {mode === 'adjust'
               ? <Scissors className="w-3.5 h-3.5" strokeWidth={1.75} />
               : <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />}
@@ -293,7 +293,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
               <span className="w-px h-[15px] bg-[#d9d9d9] mx-1" />
             </>
           )}
-          <button onClick={closePanel} className="p-1 text-[#78716c] hover:text-[#292524] hover:bg-[#f5f5f4] rounded-md transition-colors" aria-label="Fermer" title="Fermer sans enregistrer">
+          <button onClick={closePanel} className="p-1 text-foreground-secondary hover:text-foreground hover:bg-background-subtle rounded-md transition-colors" aria-label="Fermer" title="Fermer sans enregistrer">
             <X className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
@@ -302,7 +302,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
       <div className="flex-1 flex min-h-0">
         {/* Left - document reading flow. Shared across view/adjust; only the
             cut/heal junctions appear in adjust mode, so the pages never move. */}
-        <div className="flex-1 min-w-0 relative bg-[#f8f7f5]">
+        <div className="flex-1 min-w-0 relative bg-background-canvas">
           {/* Scrollable preview */}
           <div ref={previewScrollRef} className="absolute inset-0 overflow-y-auto px-10 pt-10 pb-10 flex flex-col items-center">
             {segments.map((seg, idx) => {
@@ -341,12 +341,12 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
 
         {/* Right - controls. Adjust: découpage sommaire + prompt. View: the
             active part's document metadata. */}
-        <div className="w-[440px] flex flex-col bg-white flex-shrink-0 border-l border-[#e7e5e3]">
+        <div className="w-[440px] flex flex-col bg-white flex-shrink-0 border-l border-border">
           {mode === 'adjust' ? (
             <>
               <div className="px-5 py-4 flex items-center justify-between flex-shrink-0">
-                <span className="text-[11px] uppercase text-[#78716c]" style={{ fontFamily: MONO }}>Découpage</span>
-                <span className="text-[11px] uppercase text-[#292524] tabular-nums" style={{ fontFamily: MONO }}>
+                <span className="text-[11px] uppercase text-foreground-secondary" style={{ fontFamily: MONO }}>Découpage</span>
+                <span className="text-[11px] uppercase text-foreground tabular-nums" style={{ fontFamily: MONO }}>
                   {segments.length} pièce{segments.length > 1 ? 's' : ''}
                 </span>
               </div>
@@ -356,7 +356,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                     type="button"
                     onClick={mergeAll}
                     title="Recoller toutes les parties en un seul document"
-                    className="w-full inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-[#44403c] bg-[#eeece6] hover:bg-[#e7e5e3] transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-foreground-tertiary bg-cream hover:bg-border transition-colors"
                     style={{ fontFamily: SANS }}
                   >
                     <FoldHorizontal className="w-4 h-4" strokeWidth={1.75} />
@@ -430,25 +430,25 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                 {/* Nom du document */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1">
-                    <label htmlFor="pile-segment-name" className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Nom du document</label>
+                    <label htmlFor="pile-segment-name" className="text-[14px] leading-[20px] font-medium text-foreground" style={{ fontFamily: SANS }}>Nom du document</label>
                     <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
                   </div>
                   <input
                     id="pile-segment-name"
                     value={active ? (active._customName || active.label) : ''}
                     onChange={(e) => setSegmentName(safe, e.target.value)}
-                    className="w-full text-[14px] text-[#292524] bg-white border border-[#e7e5e3] rounded-lg px-3 py-2.5 hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
+                    className="w-full text-[14px] text-foreground bg-white border border-border rounded-lg px-3 py-2.5 hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
                     style={{ fontFamily: SANS, boxShadow: SHADOW_XS }}
                   />
 
                   {/* Document découpé - provenance callout (« the splitted box ») */}
-                  <div className="flex items-start gap-2.5 p-3 rounded-lg border border-[#e7e5e3] bg-[#f8f7f5]">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-md border border-[#e7e5e3] bg-white flex-shrink-0">
-                      <Scissors className="w-3.5 h-3.5 text-[#44403c]" strokeWidth={1.75} />
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg border border-border bg-background-canvas">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-md border border-border bg-white flex-shrink-0">
+                      <Scissors className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
                     </span>
                     <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                      <span className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Document découpé</span>
-                      <span className="text-[12px] leading-[16px] text-[#78716c] truncate" style={{ fontFamily: SANS }} title={pile.originalName}>
+                      <span className="text-[14px] leading-[20px] font-medium text-foreground" style={{ fontFamily: SANS }}>Document découpé</span>
+                      <span className="text-[12px] leading-[16px] text-foreground-secondary truncate" style={{ fontFamily: SANS }} title={pile.originalName}>
                         Nom original · {pile.originalName}
                       </span>
                     </div>
@@ -467,12 +467,12 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                 {/* Date du document */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1">
-                    <span className="text-[14px] leading-[20px] font-medium text-[#292524]" style={{ fontFamily: SANS }}>Date du document</span>
+                    <span className="text-[14px] leading-[20px] font-medium text-foreground" style={{ fontFamily: SANS }}>Date du document</span>
                     <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
                   </div>
-                  <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-[#e7e5e3] bg-white" style={{ boxShadow: SHADOW_XS }}>
-                    <Calendar className="w-4 h-4 text-[#78716c] flex-shrink-0" strokeWidth={1.75} />
-                    <span className="text-[14px] text-[#292524] tabular-nums" style={{ fontFamily: SANS }}>
+                  <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-white" style={{ boxShadow: SHADOW_XS }}>
+                    <Calendar className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
+                    <span className="text-[14px] text-foreground tabular-nums" style={{ fontFamily: SANS }}>
                       {active ? formatDateShort(active.date) : '—'}
                     </span>
                   </div>
@@ -480,19 +480,19 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
 
                 {/* Classement */}
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[12px] text-[#a8a29e]" style={{ fontFamily: SANS }}>Type</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-medium bg-[#f5f5f4] text-[#78716c]">{pile.aggregate.typeForClassification}</span>
+                  <span className="text-[12px] text-foreground-muted" style={{ fontFamily: SANS }}>Type</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-medium bg-background-subtle text-foreground-secondary">{pile.aggregate.typeForClassification}</span>
                 </div>
               </div>
 
               <div className="flex-1" />
 
               {/* Footer */}
-              <div className="border-t border-[#e7e5e3] px-5 py-4 flex-shrink-0">
+              <div className="border-t border-border px-5 py-4 flex-shrink-0">
                 <button
                   onClick={() => deleteSegment(safe)}
                   disabled={segments.length <= 1}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-[#7f1d1d] bg-[#fee2e2] hover:bg-[#fecaca] disabled:opacity-40 disabled:hover:bg-[#fee2e2] transition-colors"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-[#7f1d1d] bg-[#fee2e2] hover:bg-danger-border disabled:opacity-40 disabled:hover:bg-[#fee2e2] transition-colors"
                   style={{ fontFamily: SANS }}
                 >
                   <Trash2 className="w-4 h-4" strokeWidth={1.75} />
@@ -549,8 +549,8 @@ function SplitPromptSection({ defaultPrompt }) {
   };
 
   return (
-    <div className="flex-shrink-0 border-t border-[#e7e5e3] flex flex-col gap-4 px-5 py-4">
-      <span className="text-[11px] uppercase text-[#78716c]" style={{ fontFamily: MONO }}>
+    <div className="flex-shrink-0 border-t border-border flex flex-col gap-4 px-5 py-4">
+      <span className="text-[11px] uppercase text-foreground-secondary" style={{ fontFamily: MONO }}>
         Consignes de découpage
       </span>
       <textarea
@@ -558,7 +558,7 @@ function SplitPromptSection({ defaultPrompt }) {
         onChange={(e) => setText(e.target.value)}
         disabled={applying}
         placeholder="Décrivez comment découper ce document…"
-        className="w-full rounded-md bg-white border border-[#e7e5e3] focus:outline-none focus:border-[#a8a29e] transition-colors"
+        className="w-full rounded-md bg-white border border-border focus:outline-none focus:border-foreground-muted transition-colors"
         style={{
           fontFamily: SANS,
           fontSize: 14,
@@ -578,7 +578,7 @@ function SplitPromptSection({ defaultPrompt }) {
           type="button"
           onClick={() => setText(base)}
           disabled={!dirty || applying}
-          className="inline-flex items-center gap-2 h-8 px-3 rounded-lg text-[14px] font-medium text-[#292524] hover:bg-[#f8f7f5] disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-default transition-colors"
+          className="inline-flex items-center gap-2 h-8 px-3 rounded-lg text-[14px] font-medium text-foreground hover:bg-background-canvas disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-default transition-colors"
           title="Restaurer la consigne du cabinet"
           style={{ fontFamily: SANS }}
         >
@@ -589,12 +589,12 @@ function SplitPromptSection({ defaultPrompt }) {
           type="button"
           onClick={apply}
           disabled={applying}
-          className="inline-flex items-center gap-2 h-8 px-3 text-[14px] font-medium text-[#44403c] bg-[#eeece6] rounded-lg hover:bg-[#e7e5e3] disabled:opacity-60 transition-colors"
+          className="inline-flex items-center gap-2 h-8 px-3 text-[14px] font-medium text-foreground-tertiary bg-cream rounded-lg hover:bg-border disabled:opacity-60 transition-colors"
           style={{ fontFamily: SANS }}
         >
           {applying ? (
             <>
-              <span className="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-[#a8a29e]/40 border-t-[#78716c] animate-spin" />
+              <span className="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-foreground-muted/40 border-t-foreground-secondary animate-spin" />
               Analyse…
             </>
           ) : appliedFlash ? (
@@ -641,7 +641,7 @@ function SommaireRenameInput({ initial, onCommit, onCancel }) {
         if (e.key === 'Enter') { e.preventDefault(); onCommit(draft); }
         else if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
       }}
-      className="w-full text-[14px] leading-[20px] font-medium text-[#1c1917] bg-white rounded px-1.5 py-0.5 -ml-1.5 outline-none ring-2 ring-[#1c1917]/15"
+      className="w-full text-[14px] leading-[20px] font-medium text-foreground-strong bg-white rounded px-1.5 py-0.5 -ml-1.5 outline-none ring-2 ring-foreground-strong/15"
       style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
     />
   );
@@ -658,7 +658,7 @@ function MockPage({ pageNum, relIdx, segment, docNumber, first, last }) {
 
   return (
     <div
-      className="bg-white rounded-xl border border-[#e7e5e3] flex flex-col transition-shadow duration-200"
+      className="bg-white rounded-xl border border-border flex flex-col transition-shadow duration-200"
       style={{
         width: 520,
         minHeight: 680,
@@ -669,18 +669,18 @@ function MockPage({ pageNum, relIdx, segment, docNumber, first, last }) {
         {first ? (
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <div className="text-[12px] uppercase tracking-[0.12em] text-[#a8a29e] font-medium truncate">{segment.emetteur || '—'}</div>
-              <div className="text-[18px] leading-[28px] text-[#1c1917] font-semibold mt-1 tracking-[-0.01em] truncate">{docTitle(segment)}</div>
-              <div className="text-[14px] leading-[20px] text-[#78716c] mt-0.5 tabular-nums">
+              <div className="text-[12px] uppercase tracking-[0.12em] text-foreground-muted font-medium truncate">{segment.emetteur || '—'}</div>
+              <div className="text-[18px] leading-[28px] text-foreground-strong font-semibold mt-1 tracking-[-0.01em] truncate">{docTitle(segment)}</div>
+              <div className="text-[14px] leading-[20px] text-foreground-secondary mt-0.5 tabular-nums">
                 {formatDateShort(segment.date)}
               </div>
             </div>
-            <span className="flex-shrink-0 inline-flex items-center justify-center min-w-[26px] h-[26px] px-1.5 rounded-lg bg-[#f5f5f4] text-[12px] font-semibold text-[#78716c] tabular-nums">
+            <span className="flex-shrink-0 inline-flex items-center justify-center min-w-[26px] h-[26px] px-1.5 rounded-lg bg-background-subtle text-[12px] font-semibold text-foreground-secondary tabular-nums">
               {docNumber}
             </span>
           </div>
         ) : (
-          <div className="text-[11px] uppercase tracking-[0.08em] text-[#d6d3d1] font-medium">Suite</div>
+          <div className="text-[11px] uppercase tracking-[0.08em] text-border-strong font-medium">Suite</div>
         )}
       </div>
 

@@ -61,7 +61,7 @@ export default function SaveDestinationPopover({
   return (
     <div
       ref={ref}
-      className={`${className} w-[300px] bg-white border border-[#e7e5e3] rounded-lg shadow-lg overflow-hidden`}
+      className={`${className} w-[300px] bg-white border border-border rounded-lg shadow-lg overflow-hidden`}
       style={{ zIndex: 50 }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -80,7 +80,7 @@ export default function SaveDestinationPopover({
       {onToggleWorkspace && (
         <button
           onClick={onToggleWorkspace}
-          className="w-full text-left px-3 py-2 text-[13px] text-[#292524] hover:bg-[#fafaf9] transition-colors flex items-center gap-2.5"
+          className="w-full text-left px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors flex items-center gap-2.5"
         >
           <Checkbox checked={workspacePinned} />
           <Building2 className="w-4 h-4 flex-shrink-0" strokeWidth={1.5}
@@ -93,7 +93,7 @@ export default function SaveDestinationPopover({
       {onToggleMatter && (
         <button
           onClick={onToggleMatter}
-          className="w-full text-left px-3 py-2 text-[13px] text-[#292524] hover:bg-[#fafaf9] transition-colors flex items-center gap-2.5"
+          className="w-full text-left px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors flex items-center gap-2.5"
         >
           <Checkbox checked={matterPinned} />
           <Folder className="w-4 h-4 flex-shrink-0" strokeWidth={1.5}
@@ -111,12 +111,12 @@ export default function SaveDestinationPopover({
               <button
                 key={p.id}
                 onClick={() => onTogglePoste(p.id)}
-                className="w-full text-left px-3 py-2 hover:bg-[#fafaf9] transition-colors flex items-center gap-2.5"
+                className="w-full text-left px-3 py-2 hover:bg-background transition-colors flex items-center gap-2.5"
               >
                 <Checkbox checked={isChecked} />
                 <span className="badge badge-sm badge-secondary flex-shrink-0">{p.acronym}</span>
                 <span
-                  className="text-body-medium text-[#292524] truncate min-w-0"
+                  className="text-body-medium text-foreground truncate min-w-0"
                   title={p.label}
                 >
                   {p.label}
@@ -127,7 +127,7 @@ export default function SaveDestinationPopover({
         </div>
       )}
       {onTogglePoste && posteOptions.length === 0 && (
-        <div className="px-3 pb-3 text-[13px] text-[#a8a29e]">Pas de poste sur ce dossier</div>
+        <div className="px-3 pb-3 text-[13px] text-foreground-muted">Pas de poste sur ce dossier</div>
       )}
     </div>
   );

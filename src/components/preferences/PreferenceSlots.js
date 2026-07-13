@@ -61,12 +61,12 @@ function PreferenceSlot({ id, value, onChange, extra }) {
 
   return (
     <div
-      className="bg-white rounded-lg border border-[#e7e5e3] p-5 flex flex-col gap-4"
+      className="bg-white rounded-lg border border-border p-5 flex flex-col gap-4"
       style={{ boxShadow: '0 2px 4px -2px rgba(26,26,26,0.05), 0 4px 6px -1px rgba(26,26,26,0.05)' }}
     >
       <div className="flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-md border border-[#e7e5e3] flex items-center justify-center flex-shrink-0"
+          className="w-10 h-10 rounded-md border border-border flex items-center justify-center flex-shrink-0"
           style={{
             background: `linear-gradient(180deg, ${meta.gradientFrom} 0%, #ffffff 100%)`,
             boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
@@ -100,7 +100,7 @@ function PreferenceSlot({ id, value, onChange, extra }) {
           type="button"
           onClick={() => onChange(defaultValue)}
           disabled={!isDirty}
-          className="flex-shrink-0 inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-[#292524] hover:bg-[#f8f7f5] disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-default transition-colors"
+          className="flex-shrink-0 inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-foreground hover:bg-background-canvas disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-default transition-colors"
           title="Restaurer le prompt par défaut"
           style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
         >
@@ -113,7 +113,7 @@ function PreferenceSlot({ id, value, onChange, extra }) {
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-md bg-[#f8f7f5] border border-[#e7e5e3] focus:outline-none focus:border-[#a8a29e] transition-colors placeholder:text-[#a8a29e]"
+        className="w-full rounded-md bg-background-canvas border border-border focus:outline-none focus:border-foreground-muted transition-colors placeholder:text-foreground-muted"
         style={{
           fontFamily: "'Inter', system-ui, sans-serif",
           fontSize: 14,

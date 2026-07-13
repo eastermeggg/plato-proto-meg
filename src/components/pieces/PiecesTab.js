@@ -83,7 +83,7 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
             {onGenerateBordereau && (
               <button
                 onClick={onGenerateBordereau}
-                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-[#44403c] bg-[#eeece6] rounded-md hover:bg-[#e7e5e3] transition-colors flex-shrink-0"
+                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-foreground-tertiary bg-cream rounded-md hover:bg-border transition-colors flex-shrink-0"
               >
                 <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
                 Nouveau bordereau
@@ -92,7 +92,7 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
             {onQuickGenerateBordereau && (
               <button
                 onClick={onQuickGenerateBordereau}
-                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-white bg-[#292524] rounded-md hover:bg-[#44403c] shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
+                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
               >
                 <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
                 Générer un bordereau

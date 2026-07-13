@@ -148,9 +148,9 @@ export const ThinkingDots = ({ className = '', size = 'sm' }) => {
   const d = size === 'icon' ? 'w-1.5 h-1.5' : 'w-1 h-1';
   return (
     <span className={`flex items-center justify-center gap-0.5 flex-shrink-0 ${size === 'icon' ? 'w-4 h-4' : ''} ${className}`}>
-      <span className={`${d} rounded-full bg-[#a8a29e] animate-thinking-dot-1`} />
-      <span className={`${d} rounded-full bg-[#a8a29e] animate-thinking-dot-2`} />
-      <span className={`${d} rounded-full bg-[#a8a29e] animate-thinking-dot-3`} />
+      <span className={`${d} rounded-full bg-foreground-muted animate-thinking-dot-1`} />
+      <span className={`${d} rounded-full bg-foreground-muted animate-thinking-dot-2`} />
+      <span className={`${d} rounded-full bg-foreground-muted animate-thinking-dot-3`} />
     </span>
   );
 };

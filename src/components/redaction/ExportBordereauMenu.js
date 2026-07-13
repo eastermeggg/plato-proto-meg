@@ -60,12 +60,12 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
 
       {open && (
         <div
-          className="absolute right-0 top-10 z-50 bg-white rounded-[10px] border border-[#e7e5e3] overflow-hidden"
+          className="absolute right-0 top-10 z-50 bg-white rounded-[10px] border border-border overflow-hidden"
           style={{ width: 300, boxShadow: '0px 4px 8px -2px rgba(26,26,26,0.06), 0px 8px 24px -4px rgba(26,26,26,0.08)' }}
         >
           {/* What gets exported — always the full bundle, never one alone. */}
           <div className="px-3 pt-3 pb-2.5 flex items-start gap-2">
-            <FileText className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-[#78716c]" strokeWidth={1.75} />
+            <FileText className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-foreground-secondary" strokeWidth={1.75} />
             <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, lineHeight: '16px', color: '#44403c' }}>
               <span style={{ fontWeight: 600, color: '#292524' }}>Acte + bordereau + pièces</span><br />
               Téléchargés ensemble dans un seul document.
@@ -89,10 +89,10 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
           </div>
 
           {/* Confirm */}
-          <div className="p-2 border-t border-[#e7e5e3] bg-[#fafaf9]">
+          <div className="p-2 border-t border-border bg-background">
             <button
               onClick={confirm}
-              className="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-[8px] text-[13px] font-medium text-white bg-[#292524] hover:bg-[#44403c] transition-colors"
+              className="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-[8px] text-[13px] font-medium text-white bg-foreground hover:bg-foreground-tertiary transition-colors"
               style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)' }}
             >
               <Download className="w-3.5 h-3.5" strokeWidth={1.75} />
@@ -114,7 +114,7 @@ function TamponnageToggle({ on, disabled, onToggle }) {
       onClick={onToggle}
       disabled={disabled}
       className={`w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] transition-colors ${
-        disabled ? 'cursor-not-allowed' : 'hover:bg-[#fafaf9]'
+        disabled ? 'cursor-not-allowed' : 'hover:bg-background'
       }`}
       title={disabled ? "Le tamponnage s'applique aux pièces — sélectionnez Bordereau seul ou Tout." : undefined}
     >

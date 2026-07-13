@@ -47,8 +47,8 @@ export default function SplitReviewCard({ pile, rule, onApply, onUndo, onDismiss
     <CardShell>
       <CardIcon bg="#f5f5f4" color="#44403c"><Scissors className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
       <div className="flex-1 min-w-0 text-[13px] leading-[18px] truncate" title={`${originalName} · ${aggregate.count} pièces détectées`}>
-        <span className="font-medium text-[#1c1917]">{originalName}</span>
-        <span className="text-[#78716c] tabular-nums"> · {aggregate.count} pièces détectées</span>
+        <span className="font-medium text-foreground-strong">{originalName}</span>
+        <span className="text-foreground-secondary tabular-nums"> · {aggregate.count} pièces détectées</span>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <button onClick={() => onApply('bundle')} className={btnLight}>Garder en 1 pièce</button>
