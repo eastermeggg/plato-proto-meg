@@ -3,7 +3,7 @@ import {
   Search, X, ChevronDown, ChevronRight, SlidersHorizontal, Landmark,
   Bookmark, BookmarkCheck,
 } from 'lucide-react';
-import DECISIONS, { getDecisionsByIds, getPrimaryAmount, formatDateLong } from '../../data/mockDecisions';
+import DECISIONS, { getPrimaryAmount, formatDateLong } from '../../data/mockDecisions';
 import SaveDestinationPopover from './SaveDestinationPopover';
 
 const ALL_JURISDICTIONS = [...new Set(DECISIONS.map(d => d.jurisdiction))].sort();
@@ -197,7 +197,6 @@ export default function JPSearchView({
 }) {
   const [query, setQuery] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(true);
-  const [savedCollapsed, setSavedCollapsed] = useState(false);
   const [viewMode, setViewMode] = useState('search'); // 'search' | 'cabinet'
   const [filters, setFilters] = useState({
     jurisdictions: [],
@@ -212,7 +211,6 @@ export default function JPSearchView({
     pinnedJP.forEach(p => { m[p.decisionId] = p; });
     return m;
   }, [pinnedJP]);
-  const savedDecisions = useMemo(() => getDecisionsByIds(pinnedJP.map(p => p.decisionId)), [pinnedJP]);
   // Filter + search
   const results = useMemo(() => {
     let filtered = [...DECISIONS];

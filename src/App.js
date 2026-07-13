@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, BookOpen, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, ArrowDown, ArrowRight, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, BookOpen, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import { JPPill, DecisionDrawer, JPRow, JPListingChat, JPListingPosteDetail, JPMemoryRow, JPAddStepper, SlashCommandPalette, FicheCabinetModal, JPRationaleModal } from './components/jp';
 import useDemoCommands from './hooks/useDemoCommands';
 import mockDecisionsAll, { getDecisionById } from './data/mockDecisions';
@@ -1144,29 +1142,6 @@ const DIAMOND_COLORS = { add: '#059669', edit: '#bd6c1a', delete: '#991b1b' };
  * ========================================================================= */
 const ROW_DIFF_COLORS = { add: '#059669', edit: '#bd6c1a', delete: '#991b1b' };
 
-const ZONE_LABELS = { infos_dossier: 'Info dossier', postes: 'Postes', pieces: 'Pièces' };
-const posteIconMap = {
-  dsa: 'HeartPulse',       // Dépenses de santé → health
-  pgpa: 'Wallet',          // Pertes de gains → income/wallet
-  dft: 'Activity',         // Déficit fonctionnel temporaire → body function
-  fda: 'Receipt',          // Frais divers → expenses
-  dsf: 'HeartPulse',       // Dépenses de santé futures → health
-  pgpf: 'Wallet',          // Pertes de gains futurs → income
-  dfp: 'Brain',            // Déficit fonctionnel permanent → permanent impairment
-  ipp: 'Scale',            // Incidence professionnelle → balance/justice
-};
-
-const PIECE_TYPE_COLORS = {
-  'Expertise': 'bg-info-subtle text-link',
-  'Décision': 'bg-[#ede9fe] text-[#5b21b6]',
-  'Revenus': 'bg-[#dcfce7] text-[#166534]',
-  'Factures': 'bg-[#f9ecd6] text-[#855b31]',
-  'Médical': 'bg-[#dbeafe] text-[#1e40af]',
-  'Correspondance': 'bg-cream text-foreground-tertiary',
-  'Administratif': 'bg-[#f1f5f9] text-[#475569]',
-};
-
-const PIECE_TYPE_OPTIONS = ['Expertise', 'Factures', 'Revenus', 'Décision', 'Médical', 'Correspondance', 'Administratif'];
 
 // Uppercase mono group header for the document panel's field groups
 // (Figma: caption/header-cols - IBM Plex Mono Medium 11px, muted).
@@ -1373,7 +1348,6 @@ export default function App() {
   // or by assigning a plan to a member. There is no standalone "buy seats" pool,
   // hence no purchased-vs-assigned counter (X/X licences).
   const [askUpgradeOpen, setAskUpgradeOpen] = useState(false); // member requests an upgrade from their admin
-  const [dossierIndicatorHover, setDossierIndicatorHover] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [workspaceMembers, setWorkspaceMembers] = useState([
     { id: 'u-1', name: 'Meghan Régior',  email: 'meghan@hexa.com',           role: 'Admin',  joinedDate: '12 janv. 2026', dossiersCreated: 7, plan: 'MAX', initials: 'MR', color: 'from-violet-400 to-indigo-500' },
@@ -1421,25 +1395,15 @@ export default function App() {
   const [orgName, setOrgName] = useState('Cabinet Hexa'); // cabinet / organisation display name (editable by admin in org settings)
   const [orgNameDraft, setOrgNameDraft] = useState(null); // in-progress org-name edit (null = not editing)
   const [accountEdits, setAccountEdits] = useState({}); // in-progress edits to the current user's name + email (Général settings)
-  const [preferenceDocs, setPreferenceDocs] = useState([]);
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
   const preferenceMasterPrompt = PREFERENCE_SLOT_IDS
     .map(id => `— ${PREFERENCE_SLOT_LABELS[id]}\n${preferenceSlots[id] || ''}`)
     .join('\n\n');
-  const [savedJurisprudences, setSavedJurisprudences] = useState([]);
-  const [preferenceDragOver, setPreferenceDragOver] = useState(false);
-  const [preferenceWriteRequested, setPreferenceWriteRequested] = useState(false);
-  const [preferenceExtracting, setPreferenceExtracting] = useState(false);
-  const [preferenceExtractStep, setPreferenceExtractStep] = useState(0);
-  const [preferenceEnrichingSection, setPreferenceEnrichingSection] = useState(null); // section id being enriched
-  const [preferenceTargetSection, setPreferenceTargetSection] = useState(null); // for routing file input
-  const [preferenceLearnFromChats, setPreferenceLearnFromChats] = useState(false);
   const [ficheCabinetModalRef, setFicheCabinetModalRef] = useState(null); // { ref, customJP } | null
   const [cabinetJPSearch, setCabinetJPSearch] = useState('');
   // Decision queued for the "ask why" modal when adding to cabinet from search results
   const [pendingCabinetDecision, setPendingCabinetDecision] = useState(null);
-  const preferenceFileInputRef = useRef(null);
 
   // ========== LISTE DES DOSSIERS ==========
   const [dossiers, setDossiers] = useState([]);
@@ -1451,7 +1415,6 @@ export default function App() {
 
   const [navStack, setNavStack] = useState([]);
   const [, setExpandedCategories] = useState(['patrimoniaux-temp', 'extra-patrimoniaux-temp', 'patrimoniaux-perm']);
-  const [expandedSections, setExpandedSections] = useState(['pgpf-cl', 'pgpf-al']);
   const [editPanel, setEditPanel] = useState(null);
   const [editingPieceIds, setEditingPieceIds] = useState([]); // Pour tracker les pieceIds pendant l'édition d'une ligne
   const [showAddModal, setShowAddModal] = useState(null); // null | 'dsa' | 'pgpa' | etc.
@@ -1459,14 +1422,9 @@ export default function App() {
   const [showPreview, setShowPreview] = useState(false);
   const [chatPreviewPiece, setChatPreviewPiece] = useState(null); // overlay preview in chat
   const [isDragging, setIsDragging] = useState(false);
-  const [pickerDragging, setPickerDragging] = useState(false);
-  const [processing, setProcessing] = useState([]);
+  const [, setProcessing] = useState([]);
   const [searchPieces, setSearchPieces] = useState('');
-  const [searchPostes, setSearchPostes] = useState('');
   const [searchPiecesPanel, setSearchPiecesPanel] = useState('');
-  const [expandedTaxoCategories, setExpandedTaxoCategories] = useState([
-    'vd-pat-temp', 'vd-expat-temp', 'vd-pat-perm', 'vd-expat-perm', 'vd-hors-conso', 'vd-annexes', 'vi-pat', 'vi-expat'
-  ]);
   const [showChiffrageParams, setShowChiffrageParams] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(null); // null | 'resume' | 'expertise'
@@ -1503,22 +1461,16 @@ export default function App() {
   const [docSplitDraft, setDocSplitDraft] = useState(null); // { pieceId, pile, prompt } - cut modal (PileAdjustSheet); saving updates the source card's _pSplit
   const [doublonCompare, setDoublonCompare] = useState(null); // null | { newId, existingId } - side-by-side doublon comparison
   const [fusionModal, setFusionModal] = useState(null); // null | { sources, defaultName } - merge several documents into one pièce
-  const [pileHighlight, setPileHighlight] = useState(null); // pileId - amber-flashed after a recent bascule
   const [infoDossierStreaming, setInfoDossierStreaming] = useState(null); // null | { active, fieldsRevealed: [], streamingField: null, streamingText: '' }
   const [pieceOverviewPanel, setPieceOverviewPanel] = useState(null); // null | pieceId
   const [bordereauPiecePanel, setBordereauPiecePanel] = useState(null); // null | { acteId, entryIdx }
   const [pieceDownloadMenu, setPieceDownloadMenu] = useState(false); // doc preview "Télécharger" dropdown
   const [piecesFilter, setPiecesFilter] = useState({ types: [], search: '' });
-  const [piecesTypeMenuOpen, setPiecesTypeMenuOpen] = useState(false);
   const [, setShowAddPiecesZone] = useState(false);
   const [piecesTabDragOver, setPiecesTabDragOver] = useState(false);
-  const [reorderDrag, setReorderDrag] = useState(null); // { pieceId, ghostX, ghostY }
-  const [reorderDropIdx, setReorderDropIdx] = useState(null);
+  const [reorderDrag] = useState(null); // { pieceId, ghostX, ghostY }
+  const [, setPileHighlight] = useState(null); // pileId - amber-flashed after a recent bascule
   const [manualReorder, setManualReorder] = useState(true);
-  const [piecesSortMode, setPiecesSortMode] = useState('manuel'); // 'chrono' | 'manuel'
-  const [piecesManualOrder, setPiecesManualOrder] = useState(null);
-  const [piecesDragState, setPiecesDragState] = useState({ dragging: null, over: null });
-  const [piecesMoreMenu, setPiecesMoreMenu] = useState(false);
   const [showReorderHint, setShowReorderHint] = useState(false);
   const [rapportBannerDismissed, setRapportBannerDismissed] = useState(false);
   const [chatSidebarOpen, setChatSidebarOpen] = useState(true);
@@ -1528,7 +1480,6 @@ export default function App() {
   const [posteSearchOpen, setPosteSearchOpen] = useState(false);
   const [posteSearchQuery, setPosteSearchQuery] = useState('');
   const [posteSearchVictimeFilter, setPosteSearchVictimeFilter] = useState(null); // null = VD, or victimeId for IV
-  const [editingPieceField, setEditingPieceField] = useState(null); // null | { pieceId, field }
   const [pieceContextMenu, setPieceContextMenu] = useState(null); // null | pieceId
   useEffect(() => {
     if (!pieceContextMenu) return;
@@ -1542,13 +1493,11 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState(null); // null | string
   const [activeDiffs, setActiveDiffs] = useState([]); // Array of diff events pushed by mock actions
   // Rejected diffs stay visible (strikethrough + muted) for review
-  const [pickerOpen, setPickerOpen] = useState(null); // null | 'dft' | 'dsa' | 'pgpa-revenu-ref' | 'pgpa-revenu-percu' | 'pgpa-ij'
-  const [pickerSelected, setPickerSelected] = useState([]); // array of piece IDs (multi-select)
-  const [pickerSearch, setPickerSearch] = useState('');
-  const [posteExtracting, setPosteExtracting] = useState(null); // null | { posteType, totalDocs, extractedCount, docIds: [] }
+  const [posteExtracting] = useState(null); // null | { posteType, totalDocs, extractedCount, docIds: [] }
   const processingTimeouts = useRef([]);
   const [activeParamChip, setActiveParamChip] = useState(null); // which param chip config is expanded
   const [enabledParams, setEnabledParams] = useState({ 'revaloriser': true, 'revaloriser-pgpa': true, 'capitaliser-pgpf': true, 'base-journaliere-dft': true, 'revaloriser-se': true, 'revaloriser-pep': true, 'revaloriser-dfp': true }); // toggle on/off per param
+  const [, setPickerOpen] = useState(null);
   const [totalExpanded, setTotalExpanded] = useState({}); // { [posteId]: boolean }
   const [dossierPostes, setDossierPostes] = useState(['dsa', 'fda', 'pgpa', 'dft', 'pgpf', 'dsf', 'se', 'dfp', 'pep']); // IDs of postes added to this dossier
   const [ivDossierPostes, setIvDossierPostes] = useState(['pai', 'pafv', 'pepe', 'fdp', 'fo', 'prp']); // IDs of IV postes enabled in this dossier
@@ -1724,8 +1673,6 @@ export default function App() {
   const typesFaitGenerateur = ['Accident de la route', 'Accident du travail', 'Accident médical', 'Agression', 'Accident domestique', 'Autre'];
 
   // ========== PARAMETER PILL ==========
-  const getParamDiff = (paramKey) => null; // diff states removed
-
   const renderParamPill = ({ paramKey, label, values, enabled, onClick }) => {
     const scheme = enabled ? PILL_SCHEMES.info : PILL_SCHEMES.neutral;
 
@@ -1770,7 +1717,6 @@ export default function App() {
   const [baremesLibrary, setBaremesLibrary] = useState([...DEFAULT_BAREMES]);
   const [baremeViewerOpen, setBaremeViewerOpen] = useState(null); // baremeId or null
   const [baremeUploadFormOpen, setBaremeUploadFormOpen] = useState(false);
-  const [baremeUploadConfirmed, setBaremeUploadConfirmed] = useState(false);
   const [baremeUploadData, setBaremeUploadData] = useState({ nom: '', type: 'bareme', notes: '', fileName: '' });
   const [baremePopover, setBaremePopover] = useState(null); // null | string (popover id like 'se', 'pep', 'dfp', 'pgpf')
   const [baremePopoverSearch, setBaremePopoverSearch] = useState('');
@@ -2220,20 +2166,6 @@ export default function App() {
           ...MOCK_DIFF_STORE['extraction-info-dossier'],
           ...posteDiffKeys.flatMap(key => MOCK_DIFF_STORE[key] || []),
         ]);
-
-        // Build one artifact card per detected poste
-        const posteCards = detectedPostes.map(acronym => {
-          const posteId = acronym.toLowerCase();
-          const taxo = POSTES_TAXONOMY.flatMap(s => s.categories.flatMap(c => c.postes)).find(p => p.id === posteId);
-          return {
-            id: `poste-${posteId}`,
-            icon: 'Calculator',
-            zone: 'postes',
-            actionIds: [`extraction-poste-${posteId}`],
-            navigateTo: 'chiffrage',
-            posteLabel: taxo ? `${acronym} - ${taxo.label}` : acronym,
-          };
-        });
 
         return [
           ...updated,
@@ -2693,379 +2625,12 @@ export default function App() {
   };
   const getPiece = (pieceId) => pieces.find(p => p.id === pieceId);
 
-  const getFilteredTaxonomy = () => {
-    const search = searchPostes.trim().toLowerCase();
-    if (!search) return POSTES_TAXONOMY;
-    return POSTES_TAXONOMY.map(section => ({
-      ...section,
-      categories: section.categories.map(cat => ({
-        ...cat,
-        postes: cat.postes.filter(p =>
-          p.label.toLowerCase().includes(search) ||
-          (p.acronym && p.acronym.toLowerCase().includes(search))
-        )
-      })).filter(cat => cat.postes.length > 0)
-    })).filter(section => section.categories.length > 0);
-  };
-
   // ========== PIECES HELPERS ==========
-  const getTypeColor = (type) => {
-    const colors = {
-      'Facture': 'bg-blue-100 text-link',
-      'Bulletin': 'bg-green-100 text-green-700',
-      'Attestation': 'bg-purple-100 text-purple-700',
-      'Expertise': 'bg-amber-100 text-amber-700',
-      'Imagerie': 'bg-pink-100 text-pink-700',
-      'Ordonnance': 'bg-cyan-100 text-cyan-700'
-    };
-    return colors[type] || 'bg-background-canvas text-gray-700';
-  };
-
-  const getPieceUsage = (pieceId) => {
-    const usages = [];
-    if (dsaLignes.some(l => l.pieceIds?.includes(pieceId))) usages.push('DSA');
-    if (pgpaData.revenuRef.lignes.some(l => l.pieceIds?.includes(pieceId))) usages.push('PGPA');
-    if (pgpaData.revenusPercus.some(l => l.pieceIds?.includes(pieceId))) usages.push('PGPA');
-    if (pgpaData.ijPercues.some(l => l.pieceIds?.includes(pieceId))) usages.push('PGPA');
-    if (dftLignes.some(l => l.pieceIds?.includes(pieceId))) usages.push('DFT');
-    return [...new Set(usages)];
-  };
-
-  const sortPiecesByDate = (piecesArray) => {
-    return [...piecesArray].sort((a, b) => {
-      const parseDate = (d) => { const [day, month, year] = d.split('/'); return new Date(year, month - 1, day); };
-      return parseDate(a.date) - parseDate(b.date);
-    });
-  };
-
-  const getOrderedPieces = () => {
-    if (piecesSortMode === 'chrono') return sortPiecesByDate(pieces);
-    if (piecesManualOrder) {
-      // Include any new pieces not yet in manual order
-      const ordered = piecesManualOrder.map(id => pieces.find(p => p.id === id)).filter(Boolean);
-      const missing = pieces.filter(p => !piecesManualOrder.includes(p.id));
-      return [...ordered, ...missing];
-    }
-    return pieces;
-  };
-
-  const initManualOrder = () => {
-    setPiecesManualOrder(pieces.map(p => p.id));
-  };
-
-  const copyBordereau = async () => {
-    const ordered = getOrderedPieces();
-    const text = ordered.map((p, i) => {
-      const label = p.intitule || p.nom.replace(/\.[^/.]+$/, '');
-      return `${i + 1}. ${label} [${p.date}]`;
-    }).join('\n');
-    await navigator.clipboard.writeText(text);
-    setToastMessage('Bordereau copié dans le presse-papiers');
-    setTimeout(() => setToastMessage(null), 2500);
-  };
-
-  const downloadAllAsZip = async () => {
-    const ordered = getOrderedPieces();
-    const zip = new JSZip();
-    ordered.forEach((piece, i) => {
-      const prefix = String(i + 1).padStart(2, '0');
-      const filename = `${prefix} - ${piece.nom}`;
-      zip.file(filename, `[Placeholder] ${piece.intitule}\nDate: ${piece.date}\nType: ${piece.type}`);
-    });
-    const blob = await zip.generateAsync({ type: 'blob' });
-    saveAs(blob, 'bordereau-pieces.zip');
-  };
-
-  // ========== PIECES LIST COMPONENT ==========
-  const renderPiecesList = (piecesArray, showUploadZone = true) => {
-    const sortedPieces = getOrderedPieces();
-
-    return (
-      <div className="flex flex-col -mx-4 -mt-4">
-        {/* Sub-header bar - full width, edge-to-edge */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-          {/* Doc count */}
-          <span className="text-sm font-medium text-black">{pieces.length} pièce{pieces.length !== 1 ? 's' : ''}</span>
-
-          <div className="flex items-center gap-[9px]">
-            {/* Sort by date toggle */}
-            <button
-              onClick={() => {
-                if (piecesSortMode === 'chrono') {
-                  setPiecesSortMode('manuel');
-                } else {
-                  if (!piecesManualOrder) initManualOrder();
-                  setPiecesSortMode('chrono');
-                }
-              }}
-              className={`flex items-center gap-2.5 h-[32px] px-3 text-[11px] font-medium uppercase tracking-wide rounded-[7px] transition-all ${
-                piecesSortMode === 'chrono'
-                  ? 'bg-info-subtle border border-[#aabcd5] text-link shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)]'
-                  : 'bg-cream text-foreground-secondary hover:text-foreground-tertiary border border-transparent'
-              }`}
-              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-            >
-              Trier par : date
-              {piecesSortMode === 'chrono' ? (
-                <X className="w-4 h-4" strokeWidth={1.5} />
-              ) : (
-                <ArrowUp className="w-4 h-4" strokeWidth={1.5} />
-              )}
-            </button>
-            {/* Divider */}
-            <div className="w-px h-5 bg-[#d9d9d9]" />
-            <div className="relative" ref={downloadMenuRef}>
-              <button
-                onClick={() => setDownloadMenuOpen(o => !o)}
-                className={`flex items-center gap-2 h-8 px-3 rounded-[6px] transition-colors ${downloadMenuOpen ? 'bg-border text-foreground-tertiary' : 'bg-cream text-foreground-tertiary hover:bg-border'}`}
-              >
-                <Download className="w-4 h-4" strokeWidth={1.5} />
-                <span className="text-sm font-medium">Télécharger</span>
-              </button>
-
-              {downloadMenuOpen && (
-                <div
-                  className="absolute right-0 top-10 z-50 bg-white rounded-[8px] border border-border overflow-hidden"
-                  style={{ width: 260, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}
-                >
-                  <div className="px-3 pt-2.5 pb-1.5">
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Télécharger le bordereau...
-                    </span>
-                  </div>
-                  <div className="p-1">
-                    <button
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
-                      onClick={() => { setDownloadMenuOpen(false); downloadAllAsZip(); }}
-                    >
-                      <span className="text-[14px] text-foreground">Avec tamponnage</span>
-                    </button>
-                    <button
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
-                      onClick={() => { setDownloadMenuOpen(false); downloadAllAsZip(); }}
-                    >
-                      <span className="text-[14px] text-foreground">Sans tamponnage</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            {dossierStatut !== 'fermé' && (
-              <button
-                onClick={copyBordereau}
-                className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
-              >
-                <Copy className="w-4 h-4" strokeWidth={1.5} />
-                Copier bordereau
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Content container with padding */}
-        <div className="p-4">
-          {/* Drop zone */}
-          {showUploadZone && (() => {
-            const acceptDroppedFiles = (files) => {
-              Array.from(files).forEach(file => {
-                const newPiece = {
-                  id: `p-${Date.now()}-${Math.random()}`,
-                  nom: file.name,
-                  nomOriginal: file.name,
-                  intitule: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
-                  date: new Date().toLocaleDateString('fr-FR'),
-                  type: file.name.toLowerCase().includes('facture') ? 'Facture'
-                    : file.name.toLowerCase().includes('bulletin') ? 'Bulletin'
-                    : file.name.toLowerCase().includes('ordo') ? 'Ordonnance'
-                    : file.name.toLowerCase().includes('irm') || file.name.toLowerCase().includes('radio') ? 'Imagerie'
-                    : 'Document',
-                  used: false
-                };
-                setPieces(prev => [...prev, newPiece]);
-              });
-            };
-            return (
-              <>
-                <input
-                  id="legacy-pieces-input"
-                  type="file"
-                  multiple
-                  accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-                  className="hidden"
-                  onChange={e => { acceptDroppedFiles(e.target.files); e.target.value = ''; }}
-                />
-                <div
-                  onClick={() => document.getElementById('legacy-pieces-input')?.click()}
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={(e) => { e.preventDefault(); setIsDragging(false); acceptDroppedFiles(e.dataTransfer.files); }}
-                  className={`mb-4 flex items-center justify-center gap-4 h-16 border border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? 'border-border-strong bg-background-subtle' : 'border-border-strong hover:border-foreground-muted'}`}
-                  style={{ background: isDragging ? '#f5f5f4' : 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}
-                >
-                  <Upload className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />
-                  <span className="text-sm">
-                    <span className="text-foreground-secondary">Déposez ou </span>
-                    <span className="font-medium text-link">cliquez</span>
-                    <span className="text-foreground-secondary"> pour ajouter de nouvelles pièces</span>
-                  </span>
-                </div>
-              </>
-            );
-          })()}
-
-          {/* Reorder hint banner */}
-          {showReorderHint && piecesSortMode === 'chrono' && (
-            <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
-              <Hand className="w-4 h-4 text-foreground-secondary shrink-0" strokeWidth={1.5} />
-              <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
-              <button
-                onClick={() => { setPiecesSortMode('manuel'); setShowReorderHint(false); }}
-                className="ml-auto px-3 py-1.5 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
-              >
-                Désactiver Chrono
-              </button>
-              <button onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
-                <X className="w-4 h-4" strokeWidth={1.5} />
-              </button>
-            </div>
-          )}
-
-          {/* Table */}
-          <div className="border border-border rounded-md overflow-hidden">
-            {/* Column headers */}
-            <div className="flex items-center bg-white border-b border-border">
-              <div className="w-[38px] h-10 shrink-0" />
-              <div className="w-[50px] shrink-0 px-3 py-3 text-center" style={colHeaderStyle}>N°</div>
-              <div className="flex-1 min-w-0 px-3 py-3" style={colHeaderStyle}>Nom du document</div>
-              <div className="w-[174px] shrink-0 px-3 py-3" style={colHeaderStyle}>Type</div>
-              <div className="w-[120px] shrink-0 px-3 py-3" style={colHeaderStyle}>Date</div>
-              <div className="w-[224px] shrink-0 px-3 py-3" style={colHeaderStyle}>Postes liés</div>
-              <div className="w-[44px] shrink-0" />
-            </div>
-
-            {/* Rows */}
-            {sortedPieces.map((piece, idx) => {
-              const displayIndex = idx + 1;
-              const usages = getPieceUsage(piece.id);
-              const isDragging = piecesDragState.dragging === piece.id;
-              const label = piece.intitule || piece.nom.replace(/\.[^/.]+$/, '');
-              return (
-                <React.Fragment key={piece.id}>
-                  {/* Drop indicator line */}
-                  {piecesDragState.over === piece.id && piecesDragState.dragging !== piece.id && (
-                    <div className="h-0.5 bg-[#f59e0b] rounded-full mx-2" />
-                  )}
-                  <div
-                    draggable={piecesSortMode === 'manuel'}
-                    onDragStart={(e) => {
-                      if (piecesSortMode !== 'manuel') { e.preventDefault(); return; }
-                      const img = new window.Image();
-                      img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-                      e.dataTransfer.setDragImage(img, 0, 0);
-                      e.dataTransfer.effectAllowed = 'move';
-                      setPiecesDragState({ dragging: piece.id, over: null, ghostX: e.clientX, ghostY: e.clientY, name: label, type: piece.type, num: displayIndex });
-                    }}
-                    onDrag={(e) => {
-                      if (e.clientX === 0 && e.clientY === 0) return;
-                      setPiecesDragState(prev => prev ? { ...prev, ghostX: e.clientX, ghostY: e.clientY } : prev);
-                    }}
-                    onDragOver={(e) => {
-                      if (piecesSortMode !== 'manuel') return;
-                      e.preventDefault();
-                      e.dataTransfer.dropEffect = 'move';
-                      if (piecesDragState.over !== piece.id) {
-                        setPiecesDragState(prev => ({ ...prev, over: piece.id }));
-                      }
-                    }}
-                    onDragEnd={() => {
-                      if (piecesDragState.dragging && piecesDragState.over && piecesDragState.dragging !== piecesDragState.over) {
-                        setPiecesManualOrder(prev => {
-                          const arr = [...prev];
-                          const fromIdx = arr.indexOf(piecesDragState.dragging);
-                          const toIdx = arr.indexOf(piecesDragState.over);
-                          arr.splice(fromIdx, 1);
-                          arr.splice(toIdx, 0, piecesDragState.dragging);
-                          return arr;
-                        });
-                      }
-                      setPiecesDragState({ dragging: null, over: null });
-                    }}
-                    className={`flex items-center h-14 bg-white border-b border-border last:border-b-0 hover:bg-background cursor-pointer group ${isDragging ? 'opacity-20 bg-[#f4f4f5]' : ''}`}
-                    onClick={() => setEditPanel({ type: 'piece-detail', data: { ...piece, index: displayIndex, usages } })}
-                  >
-                    {/* Grip */}
-                    <div
-                      className={`w-[38px] shrink-0 flex items-center justify-center pl-3 ${piecesSortMode === 'manuel' ? 'cursor-grab' : 'cursor-not-allowed'}`}
-                      onClick={(e) => { e.stopPropagation(); if (piecesSortMode !== 'manuel') setShowReorderHint(true); }}
-                    >
-                      <GripVertical className={`w-3.5 h-3.5 transition-opacity ${piecesSortMode === 'manuel' ? 'text-border-strong opacity-100' : 'text-border-strong opacity-0 group-hover:opacity-40'}`} strokeWidth={1.5} />
-                    </div>
-                    {/* Number badge */}
-                    <div className="w-[50px] shrink-0 flex items-center justify-center pl-4 pr-3">
-                      <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-cream text-foreground-secondary text-xs font-semibold rounded-md">
-                        {displayIndex}
-                      </span>
-                    </div>
-                    {/* Document name */}
-                    <div className="flex-1 min-w-0 px-3">
-                      <span className="text-sm font-medium text-black truncate block">{label}</span>
-                    </div>
-                    {/* Type badge */}
-                    <div className="w-[174px] shrink-0 px-3">
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md ${PIECE_TYPE_COLORS[piece.type] || 'bg-cream text-foreground-tertiary'}`}>
-                        {piece.type}
-                        <ChevronDown className="w-3 h-3" strokeWidth={1.5} />
-                      </span>
-                    </div>
-                    {/* Date */}
-                    <div className="w-[120px] shrink-0 px-3">
-                      <span className="text-sm text-foreground">{piece.date || '—'}</span>
-                    </div>
-                    {/* Postes liés */}
-                    <div className="w-[224px] shrink-0 px-3">
-                      {usages.length > 0 ? (
-                        <div className="flex flex-wrap gap-1 overflow-hidden">
-                          {usages.map(u => (
-                            <span key={u} className="px-2 py-0.5 text-xs font-medium text-foreground-tertiary bg-cream rounded-md">{u}</span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-foreground-muted">—</span>
-                      )}
-                    </div>
-                    {/* Options */}
-                    <div className="w-[44px] shrink-0 flex items-center justify-end pr-4">
-                      <MoreVertical className="w-4 h-4 text-foreground-secondary opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
-                    </div>
-                  </div>
-                </React.Fragment>
-              );
-            })}
-            {/* Floating ghost card */}
-            {piecesDragState.dragging && piecesDragState.ghostX && (
-              <div
-                className="fixed z-50 pointer-events-none bg-foreground border border-foreground-tertiary rounded-lg shadow-lg px-3 py-2 flex items-center gap-2"
-                style={{ left: piecesDragState.ghostX + 12, top: piecesDragState.ghostY - 16, minWidth: 200 }}
-              >
-                <GripVertical className="w-3 h-3 text-foreground-secondary" strokeWidth={1.5} />
-                <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-foreground-tertiary text-border-strong text-xs font-semibold rounded-md">{piecesDragState.num || '?'}</span>
-                <span className="text-sm font-medium text-white truncate max-w-[250px]">{piecesDragState.name}</span>
-                {piecesDragState.type && (
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded-md bg-foreground-tertiary text-border-strong`}>{piecesDragState.type}</span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const tabsConfig = { dossier: ['Dossier', 'Chiffrage', 'Pièces', 'Actes', 'Jurisprudence'], poste: [] };
   // Display label → internal tab key. "Jurisprudence" keeps its short 'jp' key so
   // existing currentLevel.activeTab === 'jp' checks throughout the file stay valid.
   const tabLabelToKey = (label) => (label === 'Jurisprudence' ? 'jp' : label.toLowerCase());
-  const currentTabs = currentLevel ? (tabsConfig[currentLevel.type] || []) : [];
   const _getSiblings = () => currentLevel?.type === 'poste' ? allPostes.filter(p => p.id !== currentLevel.id && !p.disabled) : []; // eslint-disable-line no-unused-vars
 
   // ========== NAVIGATION ==========
@@ -3085,123 +2650,8 @@ export default function App() {
     });
   };
   const _toggleCategory = (id) => setExpandedCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]); // eslint-disable-line no-unused-vars
-  const toggleSection = (id) => setExpandedSections(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
-
-  // ========== NAVIGATION ANCHORS ==========
-  const handleNavigateToZone = (zone, tabName) => {
-    // Pop back to dossier level if inside a poste, then switch tab
-    setNavStack(prev => {
-      const base = prev.length > 1 ? [prev[0]] : [...prev];
-      return base.map((n, ni) => ni === base.length - 1 ? { ...n, activeTab: tabName } : n);
-    });
-    setTimeout(() => {
-      const zoneEl = document.querySelector(`[data-zone-id="${zone}"]`);
-      if (zoneEl) {
-        zoneEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        zoneEl.classList.add('is-zone-highlighted');
-        setTimeout(() => zoneEl.classList.remove('is-zone-highlighted'), 3000);
-      }
-    }, 150);
-  };
-
-  const handleNavigateToEntity = (entityId, zone, tabName) => {
-    // For postes zone: navigate inside the poste page
-    if (zone === 'postes') {
-      const poste = allPostes.find(p => p.id === entityId);
-      if (poste) {
-        // Ensure we're at dossier level first, then drill in
-        setNavStack(prev => {
-          const base = prev.length > 1 ? [prev[0]] : [...prev];
-          const updated = base.map((n, ni) => ni === base.length - 1 ? { ...n, activeTab: 'chiffrage' } : n);
-          return [...updated, { ...poste, type: 'poste', activeTab: tabsConfig.poste?.[0]?.toLowerCase() }];
-        });
-        return;
-      }
-    }
-
-    // Pop back to dossier level if inside a poste, then switch tab and scroll
-    setNavStack(prev => {
-      const base = prev.length > 1 ? [prev[0]] : [...prev];
-      return base.map((n, ni) => ni === base.length - 1 ? { ...n, activeTab: tabName } : n);
-    });
-    setTimeout(() => {
-      const el = document.querySelector(`[data-entity-id="${entityId}"]`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.classList.add('is-highlighted');
-        setTimeout(() => el.classList.remove('is-highlighted'), 3000);
-      } else {
-        // Entity not found by ID - fall back to zone-level navigation
-        const zoneEl = zone && document.querySelector(`[data-zone-id="${zone}"]`);
-        if (zoneEl) {
-          zoneEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          zoneEl.classList.add('is-zone-highlighted');
-          setTimeout(() => zoneEl.classList.remove('is-zone-highlighted'), 3000);
-        }
-      }
-    }, 150);
-  };
 
   // ========== DOCUMENT DETECTION HELPERS ==========
-  const detectDocumentType = (fileName) => {
-    const ln = fileName.toLowerCase();
-
-    // Détection explicite par mots-clés
-    if (ln.includes('rapport') || ln.includes('expertise') || ln.includes('medical') || ln.includes('expert')) {
-      return { type: 'rapport', suggestedName: 'Rapport d\'expertise médicale', confidence: 96 };
-    }
-    if (ln.includes('facture') || ln.includes('fact_') || ln.includes('invoice') || ln.includes('note_honoraires')) {
-      return { type: 'facture', suggestedName: 'Facture médicale', confidence: 94 };
-    }
-    if (ln.includes('ordonnance') || ln.includes('prescription') || ln.includes('ordo')) {
-      return { type: 'ordonnance', suggestedName: 'Ordonnance médicale', confidence: 92 };
-    }
-    if (ln.includes('bulletin') || ln.includes('salaire') || ln.includes('paie') || ln.includes('fiche_paie')) {
-      return { type: 'bulletin', suggestedName: 'Bulletin de salaire', confidence: 95 };
-    }
-    if (ln.includes('arret') || ln.includes('travail') || ln.includes('itt') || ln.includes('certificat')) {
-      return { type: 'arret', suggestedName: 'Arrêt de travail', confidence: 91 };
-    }
-    if (ln.includes('radio') || ln.includes('irm') || ln.includes('scanner') || ln.includes('imagerie')) {
-      return { type: 'imagerie', suggestedName: 'Imagerie médicale', confidence: 89 };
-    }
-    if (ln.includes('kine') || ln.includes('kiné') || ln.includes('reeducation') || ln.includes('seance')) {
-      return { type: 'reeducation', suggestedName: 'Facture kinésithérapie', confidence: 90 };
-    }
-
-    // Détection "intelligente" basée sur patterns de nommage courants
-    // Simule une vraie IA qui infère le type même sans mots-clés explicites
-    const ext = ln.split('.').pop();
-    const nameWithoutExt = ln.replace(/\.[^/.]+$/, '');
-
-    // Si le nom contient des dates ou numéros, probablement une facture
-    if (/\d{2}[_-]\d{2}[_-]\d{4}/.test(nameWithoutExt) || /\d{6,}/.test(nameWithoutExt)) {
-      return { type: 'facture', suggestedName: 'Facture (détectée par pattern)', confidence: 78 };
-    }
-
-    // Si PDF et nom court/générique, supposer rapport d'expertise (document principal)
-    if (ext === 'pdf' && nameWithoutExt.length < 20) {
-      return { type: 'rapport', suggestedName: 'Rapport d\'expertise (inféré)', confidence: 72 };
-    }
-
-    // Si image, probablement imagerie médicale
-    if (['jpg', 'jpeg', 'png', 'dicom'].includes(ext)) {
-      return { type: 'imagerie', suggestedName: 'Imagerie médicale (image)', confidence: 85 };
-    }
-
-    // Fallback intelligent : assigner un type basé sur position dans upload
-    // Premier fichier = rapport, suivants = factures
-    const fallbackTypes = ['rapport', 'facture', 'bulletin', 'ordonnance', 'facture'];
-    const fallbackNames = ['Rapport d\'expertise', 'Facture médicale', 'Bulletin de salaire', 'Ordonnance', 'Facture complémentaire'];
-    const hashIndex = Math.abs(fileName.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % fallbackTypes.length;
-
-    return {
-      type: fallbackTypes[hashIndex],
-      suggestedName: fallbackNames[hashIndex] + ' (auto-détecté)',
-      confidence: 65 + Math.floor(Math.random() * 15)
-    };
-  };
-
   const _handleStartExtraction = async () => { // eslint-disable-line no-unused-vars
     const _formData = {}; // eslint-disable-line no-unused-vars
     const uploadedFiles = [];
@@ -3699,69 +3149,8 @@ export default function App() {
   };
 
   // ========== EXTRACTION DEPUIS EMPTY STATE ==========
-  const [extractionState, setExtractionState] = useState(null); // { phase, progress }
+  const [extractionState] = useState(null); // { phase, progress }
 
-  const handleDocumentUploadForExtraction = async (files) => {
-    const fileList = Array.from(files);
-    if (fileList.length === 0) return;
-
-    // Démarrer l'extraction avec UI de progression
-    setExtractionState({ phase: 'upload', progress: 0 });
-
-    // Simuler l'upload
-    await new Promise(r => setTimeout(r, 800));
-    setExtractionState({ phase: 'analyse', progress: 20 });
-
-    // Simuler l'OCR
-    await new Promise(r => setTimeout(r, 1200));
-    setExtractionState({ phase: 'ocr', progress: 40 });
-
-    // Simuler l'extraction
-    await new Promise(r => setTimeout(r, 1500));
-    setExtractionState({ phase: 'extraction', progress: 60 });
-
-    // Simuler la génération des postes
-    await new Promise(r => setTimeout(r, 1200));
-    setExtractionState({ phase: 'postes', progress: 80 });
-
-    // Générer les données extraites
-    const extractedData = simulateRapportExtraction(fileList[0].name);
-    const timestamp = Date.now();
-
-    // Ajouter les pièces uploadées (rapport)
-    const uploadedPieceIds = [];
-    fileList.forEach(file => {
-      const detected = detectDocumentType(file.name);
-      const newPieceId = `p-${timestamp}-${Math.random()}`;
-      uploadedPieceIds.push(newPieceId);
-      setPieces(prev => [...prev, {
-        id: newPieceId,
-        nom: detected.suggestedName,
-        intitule: detected.suggestedName,
-        originalName: file.name,
-        date: new Date().toLocaleDateString('fr-FR'),
-        type: detected.type === 'rapport' ? 'Expertise' : 'Document',
-        confidence: detected.confidence,
-        used: true
-      }]);
-    });
-
-    // Ajouter les périodes DFT avec pièce rapport
-    if (extractedData?.dftPeriods?.length > 0) {
-      setDftLignes(prev => [
-        ...extractedData.dftPeriods.map(p => ({ ...p, pieceIds: [uploadedPieceIds[0]] })),
-        ...prev
-      ]);
-    }
-
-    // Finaliser
-    await new Promise(r => setTimeout(r, 500));
-    setExtractionState({ phase: 'done', progress: 100 });
-
-    // Reset après 1s
-    await new Promise(r => setTimeout(r, 1000));
-    setExtractionState(null);
-  };
 
   // ========== DSA HANDLERS ==========
   const simulateExtraction = (fileName) => {
@@ -4460,66 +3849,6 @@ export default function App() {
   };
 
   // ========== DOCUMENT PICKER HELPERS ==========
-  const getRelevantPiecesForPoste = (posteId) => {
-    if (!posteId) return { suggested: [], others: [] };
-    const acronym = posteId.toUpperCase().replace(/-.*/, ''); // 'dft' → 'DFT', 'pgpa-revenu-ref' → 'PGPA'
-    const allDocs = dropFirstPieces.filter(p => p.status === 'done' || p.status === 'processing');
-    const suggested = allDocs.filter(p => p.postesLies?.includes(acronym));
-    const others = allDocs.filter(p => !p.postesLies?.includes(acronym));
-    return { suggested, others };
-  };
-
-  const handleAddMultipleFromPieces = (selectedIds, posteType) => {
-    setPickerOpen(null);
-    setPickerSelected([]);
-    setPickerSearch('');
-
-    // Build compatible piece objects
-    const piecesToExtract = selectedIds.map(pieceId => {
-      const dfPiece = dropFirstPieces.find(p => p.id === pieceId);
-      if (dfPiece) {
-        const compatPiece = {
-          id: dfPiece.id,
-          nom: dfPiece.cleanName || dfPiece.originalName,
-          nomOriginal: dfPiece.originalName,
-          intitule: dfPiece.cleanName,
-          date: dfPiece.date,
-          type: dfPiece.type,
-          used: false
-        };
-        setPieces(prev => {
-          if (prev.find(p => p.id === dfPiece.id)) return prev;
-          return [...prev, compatPiece];
-        });
-        return compatPiece;
-      }
-      return pieces.find(p => p.id === pieceId);
-    }).filter(Boolean);
-
-    if (piecesToExtract.length === 0) return;
-
-    // Start extraction progress
-    setPosteExtracting({ posteType, totalDocs: piecesToExtract.length, extractedCount: 0, docIds: selectedIds });
-
-    // Add lines one by one with staggered delays
-    piecesToExtract.forEach((piece, index) => {
-      const delay = 1200 + index * (1500 + Math.random() * 1500);
-      setTimeout(() => {
-        handleAddFromPiece(piece, posteType);
-        setPosteExtracting(prev => {
-          if (!prev) return null;
-          const newCount = prev.extractedCount + 1;
-          if (newCount >= prev.totalDocs) {
-            // Done - clear after a short delay
-            setTimeout(() => setPosteExtracting(null), 1500);
-            return { ...prev, extractedCount: newCount };
-          }
-          return { ...prev, extractedCount: newCount };
-        });
-      }, delay);
-    });
-  };
-
   const handleAddManual = (posteType) => {
     setShowAddModal(null);
     if (posteType === 'dsa') {
@@ -4567,93 +3896,6 @@ export default function App() {
   const _handleValidateLigne = (ligneId) => setDsaLignes(prev => prev.map(l => l.id === ligneId ? { ...l, status: 'validated' } : l)); // eslint-disable-line no-unused-vars
   const handleRejectLigne = (ligneId) => setDsaLignes(prev => prev.filter(l => l.id !== ligneId));
 
-  // Approve a diff: accept the change and clear diffType so the row becomes "normal"
-  // For deletions: approving means removing the row (the deletion is accepted)
-  const handleApproveDiff = (ligneId, zone) => {
-    const clearDiff = (list) => list.map(l => l.id === ligneId ? { ...l, diffType: undefined } : l);
-    const removeLigne = (list) => list.filter(l => l.id !== ligneId);
-    const findInList = (list) => list.find(l => l.id === ligneId);
-
-    if (zone === 'dsa' || (!zone && findInList(dsaLignes))) {
-      const ligne = dsaLignes.find(l => l.id === ligneId);
-      if (ligne?.diffType === 'delete') setDsaLignes(prev => removeLigne(prev));
-      else setDsaLignes(prev => clearDiff(prev));
-    } else if (zone === 'dft' || (!zone && findInList(dftLignes))) {
-      const ligne = dftLignes.find(l => l.id === ligneId);
-      if (ligne?.diffType === 'delete') setDftLignes(prev => removeLigne(prev));
-      else setDftLignes(prev => clearDiff(prev));
-    } else if (zone === 'pgpa') {
-      setPgpaData(prev => {
-        const inRef = prev.revenuRef.lignes.find(l => l.id === ligneId);
-        if (inRef) {
-          return inRef.diffType === 'delete'
-            ? { ...prev, revenuRef: { ...prev.revenuRef, lignes: prev.revenuRef.lignes.filter(l => l.id !== ligneId) } }
-            : { ...prev, revenuRef: { ...prev.revenuRef, lignes: prev.revenuRef.lignes.map(l => l.id === ligneId ? { ...l, diffType: undefined } : l) } };
-        }
-        const inPercus = prev.revenusPercus.find(l => l.id === ligneId);
-        if (inPercus) {
-          return inPercus.diffType === 'delete'
-            ? { ...prev, revenusPercus: prev.revenusPercus.filter(l => l.id !== ligneId) }
-            : { ...prev, revenusPercus: prev.revenusPercus.map(l => l.id === ligneId ? { ...l, diffType: undefined } : l) };
-        }
-        return prev;
-      });
-    } else if (zone === 'infos_dossier') {
-      // For infos_dossier, approving means keeping the agent's "after" value (already set in state)
-      // Just mark as approved in activeDiffs below
-    }
-    // Remove from activeDiffs - accepted changes become the new baseline
-    setActiveDiffs(prev => prev.filter(d => d.entityId !== ligneId));
-  };
-
-  // Reject a diff: revert the change - for additions remove the row, for edits/deletes clear diffType
-  const handleRejectDiff = (ligneId, zone) => {
-    const clearDiff = (list) => list.map(l => l.id === ligneId ? { ...l, diffType: undefined } : l);
-    const removeLigne = (list) => list.filter(l => l.id !== ligneId);
-    const findInList = (list) => list.find(l => l.id === ligneId);
-
-    if (zone === 'dsa' || (!zone && findInList(dsaLignes))) {
-      const ligne = dsaLignes.find(l => l.id === ligneId);
-      if (ligne?.diffType === 'add') setDsaLignes(prev => removeLigne(prev));
-      else setDsaLignes(prev => clearDiff(prev));
-    } else if (zone === 'dft' || (!zone && findInList(dftLignes))) {
-      const ligne = dftLignes.find(l => l.id === ligneId);
-      if (ligne?.diffType === 'add') setDftLignes(prev => removeLigne(prev));
-      else setDftLignes(prev => clearDiff(prev));
-    } else if (zone === 'pgpa') {
-      setPgpaData(prev => {
-        const inRef = prev.revenuRef.lignes.find(l => l.id === ligneId);
-        if (inRef) {
-          return inRef.diffType === 'add'
-            ? { ...prev, revenuRef: { ...prev.revenuRef, lignes: prev.revenuRef.lignes.filter(l => l.id !== ligneId) } }
-            : { ...prev, revenuRef: { ...prev.revenuRef, lignes: prev.revenuRef.lignes.map(l => l.id === ligneId ? { ...l, diffType: undefined } : l) } };
-        }
-        const inPercus = prev.revenusPercus.find(l => l.id === ligneId);
-        if (inPercus) {
-          return inPercus.diffType === 'add'
-            ? { ...prev, revenusPercus: prev.revenusPercus.filter(l => l.id !== ligneId) }
-            : { ...prev, revenusPercus: prev.revenusPercus.map(l => l.id === ligneId ? { ...l, diffType: undefined } : l) };
-        }
-        return prev;
-      });
-    } else if (zone === 'infos_dossier') {
-      // For infos_dossier, rejecting means reverting the field to its "before" value
-      const diff = activeDiffs.find(d => d.entityId === ligneId && d.zone === 'infos_dossier' && !d.approved && !d.rejected);
-      if (diff) {
-        // Determine which state setter to use based on the field key
-        const victimeFields = ['nom', 'prenom', 'sexe', 'dateNaissance'];
-        const faitFields = ['typeFait', 'dateAccident', 'premiereConstatation', 'dateConsolidation'];
-        if (victimeFields.includes(ligneId)) {
-          setVictimeData(prev => ({ ...prev, [ligneId]: diff.before ?? '' }));
-        } else if (faitFields.includes(ligneId)) {
-          const stateKey = ligneId === 'typeFait' ? 'type' : ligneId;
-          setFaitGenerateur(prev => ({ ...prev, [stateKey]: diff.before ?? '' }));
-        }
-      }
-    }
-    // Also mark as rejected in activeDiffs
-    setActiveDiffs(prev => prev.map(d => d.entityId === ligneId ? { ...d, rejected: true } : d));
-  };
   const handleSaveLigne = (ligneId, data) => {
     setDsaLignes(prev => prev.map(l => l.id === ligneId ? { ...l, ...data, pieceIds: editingPieceIds, status: 'validated' } : l));
     setEditPanel(null);
@@ -4862,14 +4104,13 @@ export default function App() {
 
   // Chat state
   const [chatInputValue, setChatInputValue] = useState('');
-  const [chatInputFocused, setChatInputFocused] = useState(false);
+  const [, setChatInputFocused] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   // Pending JP-rationale capture: when set, the next user-typed text message is
   // saved as the rationale on the matching attachment(s) instead of being sent
   // as a normal chat message. Cleared after capture or dismiss.
   // Shape: { decisionId, targets: [{ scope, scopeTargetId, lineItem }], scopeLabel }
   const [pendingRationale, setPendingRationale] = useState(null);
-  const [expandedArtifacts, setExpandedArtifacts] = useState({});
   const [stagedDocs, setStagedDocs] = useState([]);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const dragCounter = useRef(0);
@@ -6206,12 +5447,6 @@ export default function App() {
     return taxo ? { id: pid, acronym: taxo.acronym, label: taxo.label } : null;
   }).filter(Boolean);
 
-  // Cross-scope summary used by JPListing's scope badges (N matières)
-  const getJPAttachmentSummary = (decisionId) => {
-    const atts = jp.getAttachmentsForJP(decisionId);
-    const matterIds = new Set(atts.filter(a => a.scope === 'matter').map(a => a.scopeTargetId));
-    return { matterCount: matterIds.size };
-  };
 
   // ========== CONTENT SUB-HEADER ==========
   const renderContentSubHeader = () => {
@@ -6409,266 +5644,6 @@ export default function App() {
     return null;
   };
 
-  // ========== INLINE DOCUMENT PICKER (embedded in empty states) ==========
-  const renderInlineDocPicker = (posteType, { icon: Icon, title, description, expectedDocs }) => {
-    const { suggested, others } = getRelevantPiecesForPoste(posteType);
-    const allDocs = [...suggested, ...others];
-    const searchedDocs = pickerSearch && pickerOpen === posteType
-      ? allDocs.filter(d => (d.cleanName || d.originalName || '').toLowerCase().includes(pickerSearch.toLowerCase()))
-      : allDocs;
-    const selectedSet = new Set(pickerSelected);
-    const filteredDocs = [...searchedDocs].sort((a, b) => {
-      const aProcessing = a.status === 'processing' ? 0 : 1;
-      const bProcessing = b.status === 'processing' ? 0 : 1;
-      if (aProcessing !== bProcessing) return aProcessing - bProcessing;
-      const aSelected = selectedSet.has(a.id) ? 0 : 1;
-      const bSelected = selectedSet.has(b.id) ? 0 : 1;
-      return aSelected - bSelected;
-    });
-    const toggleSelect = (id) => {
-      setPickerSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-      if (pickerOpen !== posteType) setPickerOpen(posteType);
-    };
-
-    // Add files to pool + auto-select, process in background
-    const handlePickerAddFiles = (fileList) => {
-      const acronym = posteType.toUpperCase().replace(/-.*/, '');
-      const typesByPoste = {
-        DFT: ['Expertise', 'Médical', 'Médical'],
-        DSA: ['Factures', 'Factures', 'Médical'],
-        PGPA: ['Revenus', 'Revenus', 'Administratif'],
-      };
-      const cleanNames = {
-        Expertise: (n) => `Rapport d'expertise - ${n}`,
-        Médical: (n) => `Certificat médical - ${n}`,
-        Factures: (n) => `Facture - ${n}`,
-        Revenus: (n) => `Justificatif de revenus - ${n}`,
-        Administratif: (n) => `Document administratif - ${n}`,
-      };
-      const newIds = [];
-      for (const file of Array.from(fileList)) {
-        const newId = `df-upload-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-        newIds.push(newId);
-        const rawName = file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
-        setDropFirstPieces(prev => [...prev, {
-          id: newId,
-          originalName: file.name,
-          cleanName: rawName,
-          type: null,
-          date: new Date().toISOString().split('T')[0],
-          postesLies: [acronym],
-          status: 'processing',
-          pages: null,
-          splits: null,
-          summary: null,
-          extractedInfo: null,
-        }]);
-        // Simulate background categorization
-        const delay = 4000 + Math.random() * 3000;
-        setTimeout(() => {
-          const types = typesByPoste[acronym] || ['Document'];
-          const detectedType = types[Math.floor(Math.random() * types.length)];
-          const cleanFn = cleanNames[detectedType] || ((n) => n);
-          const pageCount = Math.floor(Math.random() * 20) + 1;
-          setDropFirstPieces(prev => prev.map(p => p.id === newId ? {
-            ...p,
-            status: 'done',
-            type: detectedType,
-            cleanName: cleanFn(rawName),
-            pages: pageCount,
-          } : p));
-        }, delay);
-      }
-      setPickerSelected(prev => [...prev, ...newIds]);
-      if (pickerOpen !== posteType) setPickerOpen(posteType);
-    };
-
-    const DocRow = ({ doc, index }) => {
-      const isSelected = pickerSelected.includes(doc.id);
-      const isProcessing = doc.status === 'processing';
-
-      if (isProcessing) {
-        return (
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-[7px]">
-            <span className="w-4 h-4 flex items-center justify-center flex-shrink-0 opacity-0">
-              <span className="w-4 h-4 rounded border border-border bg-white" />
-            </span>
-            <span className="w-[22px] h-[22px] flex items-center justify-center flex-shrink-0">
-              <span className="w-4 h-4 border-[1.5px] border-foreground-secondary border-t-transparent rounded-full animate-spin" />
-            </span>
-            <span className="text-sm italic text-foreground opacity-40 truncate">{doc.originalName}</span>
-          </div>
-        );
-      }
-
-      return (
-        <div
-          onClick={() => toggleSelect(doc.id)}
-          className={`flex items-center justify-between px-3 py-2.5 rounded-[7px] group transition-colors cursor-pointer ${
-            isSelected ? 'bg-cream border border-border-strong' : 'hover:bg-background-canvas'
-          }`}
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Checkbox */}
-            <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-colors shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] ${
-              isSelected ? 'bg-foreground' : 'bg-white border border-border'
-            }`}>
-              {isSelected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
-            </div>
-            {/* Doc number badge */}
-            <span className="w-[22px] h-[22px] flex items-center justify-center flex-shrink-0 bg-cream rounded-md text-xs font-semibold text-foreground-secondary">{index + 1}</span>
-            {/* Doc name */}
-            <span className={`text-sm truncate ${isSelected ? 'font-medium text-foreground' : 'text-foreground'}`}>{doc.cleanName || doc.originalName}</span>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium leading-4 rounded-md whitespace-nowrap ${PIECE_TYPE_COLORS[doc.type] || 'bg-info-subtle text-link'}`}>
-              {doc.type}
-            </span>
-          </div>
-        </div>
-      );
-    };
-
-    const hasSelection = pickerSelected.length > 0 && pickerOpen === posteType;
-
-    const posteLabels = {
-      dsa: 'dépenses de santé',
-      dft: 'déficits fonctionnels temporaires',
-      pgpa: 'préjudices',
-    };
-    const manualLabels = {
-      dsa: 'Ajouter une dépense manuellement',
-      dft: 'Ajouter une période manuellement',
-      pgpa: 'Ajouter un préjudice manuellement',
-    };
-
-    return (
-      <div
-        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setPickerDragging(true); }}
-        onDragLeave={(e) => { e.preventDefault(); if (!e.currentTarget.contains(e.relatedTarget)) setPickerDragging(false); }}
-        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setPickerDragging(false); handlePickerAddFiles(e.dataTransfer.files); }}
-        className={`rounded-lg border border-dashed overflow-hidden transition-colors flex-1 flex flex-col ${pickerDragging ? 'border-foreground-muted border-2' : 'border-border-strong'}`}
-      >
-        {pickerDragging ? (
-          <div className="flex items-center justify-center p-4 h-full">
-            <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 rounded-lg h-full" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 57%, #eeece6 100%)' }}>
-              <div className="w-14 h-14 rounded-full bg-cream border border-border-strong flex items-center justify-center shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]">
-                <ArrowDownCircle className="w-6 h-6 text-foreground" />
-              </div>
-              <div className="flex flex-col items-center gap-2 text-center max-w-[576px]">
-                <h3 className="text-xl font-medium text-foreground tracking-[-0.6px] leading-7">Déposez vos documents ici !</h3>
-                <p className="text-sm text-foreground-secondary leading-5">Les documents seront analysés automatiquement pour créer les lignes correspondantes</p>
-              </div>
-            </div>
-          </div>
-        ) : allDocs.length > 0 ? (
-          /* ===== Doc-available state (start/doc-available variant) ===== */
-          <div className="flex flex-col items-center justify-center p-8 gap-8">
-            <div className="flex flex-col items-center gap-2 text-center max-w-[576px] w-full">
-              <h3 className="text-xl font-medium text-foreground tracking-[-0.6px] leading-7">
-                Commencer à calculer ce poste à partir de documents
-              </h3>
-              <p className="text-sm text-foreground-secondary leading-5">{description}</p>
-            </div>
-
-            <div className="flex flex-col gap-4 items-start w-[500px] max-w-full">
-              {/* Search + upload */}
-              <div className="flex items-center gap-3 w-full">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-secondary" />
-                  <input
-                    type="text"
-                    placeholder="Rechercher..."
-                    value={pickerOpen === posteType ? pickerSearch : ''}
-                    onChange={(e) => { setPickerSearch(e.target.value); if (pickerOpen !== posteType) setPickerOpen(posteType); }}
-                    className="w-full pl-9 pr-3 py-2 h-10 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-200 shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]"
-                  />
-                </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); document.getElementById(`picker-file-${posteType}`).click(); }}
-                  className="flex items-center gap-2 px-4 py-2 h-10 bg-cream rounded-lg text-sm font-medium text-foreground-tertiary hover:bg-border transition-colors whitespace-nowrap"
-                >
-                  <Upload className="w-4 h-4" /> Ajouter des docs
-                </button>
-                <input type="file" id={`picker-file-${posteType}`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
-              </div>
-
-              {/* Suggested label */}
-              {suggested.length > 0 && (
-                <div className="px-1.5">
-                  <span className="text-xs font-medium text-foreground-secondary">Documents suggérés pour ce poste</span>
-                </div>
-              )}
-
-              {/* Doc list */}
-              <div className="flex flex-col gap-1 w-full max-h-[280px] overflow-y-auto px-1.5">
-                {filteredDocs.map((doc, i) => <DocRow key={doc.id} doc={doc} index={i} />)}
-              </div>
-
-              {filteredDocs.length === 0 && pickerSearch && (
-                <p className="text-sm text-foreground-secondary text-center py-4 w-full">Aucun document trouvé</p>
-              )}
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex flex-col items-center gap-3 w-[500px] max-w-full">
-              <button
-                onClick={() => handleAddMultipleFromPieces(pickerSelected, posteType)}
-                disabled={!hasSelection}
-                className={`flex items-center justify-center gap-2 w-full h-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] ${
-                  hasSelection ? 'bg-foreground text-white hover:bg-foreground-tertiary' : 'bg-cream text-foreground-muted cursor-not-allowed'
-                }`}
-              >
-                Commencer à calculer{hasSelection ? ` (${pickerSelected.length} pièce${pickerSelected.length > 1 ? 's' : ''})` : ''}
-              </button>
-              <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-foreground-secondary hover:text-foreground-tertiary transition-colors">
-                <Edit3 className="w-4 h-4" /> Commencer manuellement
-              </button>
-            </div>
-          </div>
-        ) : (
-          /* ===== Empty state (tables-empty/default variant) ===== */
-          <div className="flex items-center justify-center p-1.5">
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 py-6 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}>
-              <Upload className="w-5 h-5 text-foreground-secondary" />
-
-              <div className="flex flex-col items-center gap-1 text-center max-w-[512px] w-full">
-                <p className="text-sm font-medium text-foreground-tertiary leading-5">
-                  Déposez ou{' '}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); document.getElementById(`picker-file-${posteType}-empty`).click(); }}
-                    className="underline text-link font-medium cursor-pointer"
-                  >parcourez</button>
-                  {' '}pour ajouter les justificatifs de {posteLabels[posteType] || '...'}
-                </p>
-                <p className="text-sm text-foreground-secondary leading-5">{description}</p>
-              </div>
-              <input type="file" id={`picker-file-${posteType}-empty`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
-
-              {/* Expected doc type badges */}
-              <div className="flex flex-wrap justify-center gap-3">
-                {expectedDocs.map(doc => (
-                  <span key={doc} className="inline-flex items-center px-2 py-1 bg-cream text-foreground-tertiary text-xs font-medium leading-4 rounded-md whitespace-nowrap">{doc}</span>
-                ))}
-              </div>
-
-              {/* OU divider + manual link */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex items-center justify-center gap-3">
-                  <div className="h-px w-20 bg-border-strong" />
-                  <span className="text-xs font-medium text-foreground-secondary">OU</span>
-                  <div className="h-px w-20 bg-border-strong" />
-                </div>
-                <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-link hover:text-link/80 transition-colors">
-                  <Edit3 className="w-4 h-4" /> {manualLabels[posteType] || 'Ajouter manuellement'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // ========== ADD MODAL (DSA) ==========
   const renderAddModal = () => {
@@ -8737,14 +7712,6 @@ export default function App() {
     );
   };
 
-  // ========== HELPERS STATUT LIGNE ==========
-  // Détermine si une ligne est incomplète (champs requis manquants pour calculer le montant)
-  const isLigneIncomplete = (ligne) => {
-    // Champs requis pour DSA : label, date, montant
-    if (!ligne.label || !ligne.date || ligne.montant == null) return true;
-    return false;
-  };
-
   // Diff color for a line
   const getDiffColor = (ligne) => ligne.diffType ? ROW_DIFF_COLORS[ligne.diffType] : null;
 
@@ -8817,85 +7784,6 @@ export default function App() {
     );
   };
 
-  // ========== PGPA/PGPF LIGNE COMPONENT ==========
-  const renderPGLigne = (ligne, { onEdit, onDelete, showTiers = true, showPeriode = true, onValidate }) => {
-    const diffColor = getDiffColor(ligne);
-    const pieceCount = ligne.pieceIds?.length || 0;
-
-    // Diff indicator dot
-    const DiffIndicator = () => {
-      if (!diffColor) return null;
-      return <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />;
-    };
-
-    // Indicateur pièces avec tooltip
-    const PieceIndicator = () => {
-      if (pieceCount === 0) return null;
-      return (
-        <div className="relative group/piece">
-          <span className="inline-flex items-center justify-center w-7 h-7 bg-blue-50 text-blue-600 rounded border border-blue-100 relative">
-            <FileText className="w-3.5 h-3.5" />
-            {pieceCount > 1 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-blue-600 text-white text-counter font-bold rounded-full flex items-center justify-center">
-                {pieceCount}
-              </span>
-            )}
-          </span>
-          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
-            <div className="text-counter text-foreground-muted uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
-            <div className="space-y-1">
-              {ligne.pieceIds?.map(pid => {
-                const piece = getPiece(pid);
-                return (
-                  <div key={pid} className="flex items-center gap-2 text-caption">
-                    <span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
-                    <span className="truncate text-foreground-tertiary">{piece?.intitule || piece?.nom || 'Document'}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    // Description secondaire
-    const getSecondaryText = () => {
-      const parts = [];
-      if (showPeriode && ligne.periode) parts.push(ligne.periode);
-      if (showPeriode && ligne.annee) parts.push(ligne.annee);
-      if (showTiers && ligne.tiers) parts.push(ligne.tiers);
-      return parts.join(' • ');
-    };
-
-    return (
-      <div key={ligne.id} className="relative flex items-center p-3 hover:bg-background group transition-colors">
-        {diffColor && <div className="absolute inset-0 pointer-events-none rounded-[inherit]" style={{ boxShadow: `inset 2px 0 0 0 ${diffColor}` }} />}
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <DiffIndicator />
-          <PieceIndicator />
-          <div className="min-w-0">
-            <div className="text-body-medium text-foreground truncate">{ligne.label || 'Sans libellé'}</div>
-            <div className="text-caption text-foreground-muted">{getSecondaryText() || '—'}</div>
-          </div>
-        </div>
-
-        {/* Montant - PRIORITAIRE */}
-        <span className="text-body-medium font-semibold text-foreground tabular-nums min-w-[90px] text-right flex-shrink-0">
-          {fmt(ligne.montant || ligne.revalorise || 0)}
-        </span>
-
-        {/* Actions en overlay au hover - minimaliste */}
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {onDelete && (
-            <button onClick={() => onDelete(ligne)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  };
 
   // (wizard supprimé - aplati au niveau dossier)
   const renderSmartProcedureWizard = () => null;
@@ -8933,17 +7821,6 @@ export default function App() {
 
   /** Solid section divider - separates damage calc from TP deductions */
   const tpDivider = () => <div className="mt-3 pt-3 border-t border-border" />;
-
-  /** TP imputation line: "Imputation {sigle}" with minus amount + explanatory sub-label */
-  const tpDeduction = (sigle, amount, subLabel) => (
-    <div>
-      <div className="flex items-center justify-between">
-        <span style={{ fontSize: 13, fontWeight: 500, color: '#44403c' }}>Imputation {sigle}</span>
-        <span style={{ ...receiptAmountStyle, fontWeight: 500, color: '#292524' }}>{'\u2212'} {fmtTP(amount)}</span>
-      </div>
-      {subLabel && <span style={{ fontSize: 12, color: '#a8a29e' }}>{subLabel}</span>}
-    </div>
-  );
 
   /** Droit de préférence block - the core "traceability" display */
   const tpPreference = (dp) => {
@@ -9087,64 +7964,6 @@ export default function App() {
     );
   };
 
-  const renderPosteTPSection = (posteId) => {
-    if (!hasTP) return null;
-    const posteImputations = (tpScenario._imputations || []).filter(imp => imp.posteId === posteId);
-    if (posteImputations.length === 0) return null;
-
-    const dp = tpScenario.droitDePreference?.[posteId];
-    const grossDamage = getPosteMontant(posteId);
-    const dsaResteACharge = posteId === 'dsa' ? grossDamage - dsaLignes.reduce((s, l) => s + (l.dejaRembourse || 0), 0) : null;
-
-    return (
-      <div className="space-y-1.5 mt-3">
-        {posteId === 'dsa' ? (
-          <>
-            {tpLine('Total dépenses', grossDamage)}
-            {tpLine('Reste à charge', dsaResteACharge)}
-          </>
-        ) : (
-          tpLine('Préjudice total', grossDamage)
-        )}
-
-        {tpDivider()}
-        {posteImputations.map((imp, idx) => {
-          const tp = tpScenario.tiersPayeurs.find(t => t.id === imp.tiersPayeurId);
-          // Look up global creance total for this TP
-          const globalAmount = tpScenario._totalByTP?.[imp.tiersPayeurId];
-          return (
-            <React.Fragment key={imp.id}>
-              <div className="flex justify-between items-center">
-                <span style={receiptRowStyle} className="flex items-center gap-1.5">
-                  {tp?.sigle || tp?.nom}
-                  <span
-                    className="inline-flex items-center h-[16px] px-1 rounded cursor-pointer hover:bg-border-strong/40"
-                    style={{ fontSize: 10, fontWeight: 500, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.02em' }}
-                    onClick={() => {
-                      if (imp.source === 'cascade' && tpScenario.cascade) {
-                        navigateTo({ type: 'cascade', id: 'cascade-from-poste', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' });
-                      } else {
-                        setActiveTab('Dossier');
-                      }
-                    }}
-                  >
-                    {imp.source}
-                  </span>
-                  {globalAmount != null && (
-                    <span style={{ fontSize: 10, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace" }}>· {fmtTP(globalAmount)}</span>
-                  )}
-                </span>
-                <span style={receiptAmountStyle}>{fmt(imp.montantImpute)}</span>
-              </div>
-              {idx < posteImputations.length - 1 && tpDivider()}
-            </React.Fragment>
-          );
-        })}
-
-        {tpPreference(dp)}
-      </div>
-    );
-  };
 
   // ── Shared Total Block - receipt-style wrapper ──
   // Renders the expandable "Total à indemniser" block for any poste.
@@ -9189,9 +8008,6 @@ export default function App() {
         </div>
       );
     }
-
-    const totalPrejudice = cascade.etapes.reduce((s, e) => s + (e.prejudice || 0), 0);
-    const pctAbsorbe = totalPrejudice > 0 ? Math.round(cascade.totalAbsorbe / totalPrejudice * 100) : 0;
 
     return (
       <div className="flex-1 overflow-y-auto">
@@ -9504,7 +8320,6 @@ export default function App() {
 
             // Diff awareness: look up pending diff for this field
             const pendingDiff = activeDiffs.find(d => d.entityId === key && d.zone === 'infos_dossier' && !d.approved && !d.rejected);
-            const approvedDiff = activeDiffs.find(d => d.entityId === key && d.zone === 'infos_dossier' && d.approved);
             const rejectedDiff = activeDiffs.find(d => d.entityId === key && d.zone === 'infos_dossier' && d.rejected);
             const diffColor = pendingDiff ? ROW_DIFF_COLORS[pendingDiff.type === 'edit' ? 'edit' : pendingDiff.type === 'delete' ? 'delete' : 'add'] : null;
 
@@ -10169,24 +8984,6 @@ export default function App() {
         const tauxRatio = (tauxFinal || 100) / 100;
         const totalIndem = (totalVd + totalIv) * tauxRatio + totalTiers;
 
-        // Reusable subtotal/total card component
-        // rows: [{ label, amount, muted?, negative? }], totalRow: { label, amount }
-        const renderTotalCard = (rows, totalRow) => (
-          <div className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-            {rows.map((row, i) => (
-              <div key={i} className={`flex items-center justify-between h-9 px-4 bg-white ${i > 0 ? 'border-t border-border' : ''}`}>
-                <span style={{ fontSize: 13, fontWeight: 400, color: row.muted ? '#a8a29e' : '#78716c' }}>{row.label}</span>
-                <span style={{ fontSize: 14, fontWeight: row.muted ? 400 : 500, color: row.muted ? '#a8a29e' : '#292524' }}>
-                  {row.muted && row.amount === 0 ? '—' : `${row.negative ? '- ' : ''}${fmt(row.amount)}`}
-                </span>
-              </div>
-            ))}
-            <div className="flex items-center justify-between h-11 px-4 border-t border-border" style={{ backgroundColor: '#eeece6' }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{totalRow.label}</span>
-              <span style={serifAmountStyle} className="text-foreground">{fmt(totalRow.amount)}</span>
-            </div>
-          </div>
-        );
 
         return (
           <div className="space-y-6" data-zone-id="postes">
@@ -11173,7 +9970,6 @@ export default function App() {
       const revenusPercusTotal = pgpaRevPercusTotal;
       const ijPercuesTotal = pgpaIjTotal;
       const perteDeGains = Math.round(revenuRefMensuel * pgpaData.periode.mois) - revenusPercusTotal;
-      const pgpaDamageOverride = tpScenario.damageOverrides?.pgpa;
       const indemniteVictimePGPA = allPostes.find(p => p.id === 'pgpa')?.victimeAmount ?? (perteDeGains - ijPercuesTotal);
 
       // FLAT PGPA - all cards on one page (per Figma)
@@ -11480,7 +10276,6 @@ export default function App() {
     if (currentLevel.id === 'pgpf') {
       const periodeCL = pgpfData.periodes['pgpf-cl'];
       const periodeAL = pgpfData.periodes['pgpf-al'];
-      const tiersTotal = periodeAL ? periodeAL.tiersPayeurs.reduce((s, t) => s + t.montantCapitalise, 0) : 0;
 
       return (
         <div>
@@ -12684,13 +11479,6 @@ export default function App() {
         });
       };
 
-      // Helper: delete a ligne by id
-      const deleteIvLigne = (ligneId) => {
-        setIvPosteData(prev => {
-          const existing = prev[ivPosteId]?.lignes || [];
-          return { ...prev, [ivPosteId]: { ...prev[ivPosteId], lignes: existing.filter(l => l.id !== ligneId) } };
-        });
-      };
 
       return (
         <div>
@@ -12906,9 +11694,6 @@ export default function App() {
 
               {/* ===== TYPE C: flat list - one row per VI attribution ===== */}
               {config.type === 'C' && (() => {
-                const viInitials = (vi) => `${(vi.prenom || '')[0] || ''}${(vi.nom || '')[0] || ''}`.toUpperCase();
-                const grandTotal = ivLignes.reduce((s, l) => s + (l.totalAmount || 0), 0);
-
                 const openExpensePanel = (ligne) => setEditPanel({
                   type: 'iv-ligne-c',
                   title: ligne.label || 'Dépense',
@@ -12996,9 +11781,8 @@ export default function App() {
                 const refLignes = shared.revenuRefLignes || [];
                 const conjLignes = shared.revenuConjointLignes || [];
                 const foyer = computePrpFoyer(shared, victimesIndirectes);
-                const { isDecede, revenuRefMoyen, revenuConjointMensuel, revenuConjoint, revenuAnnuelRef, revenuTotal, partAutoConso, perteAnnuelle } = foyer;
+                const { isDecede, revenuRefMoyen, revenuConjointMensuel, revenuAnnuelRef, revenuTotal, partAutoConso, perteAnnuelle } = foyer;
                 const mask = PRP_SCENARIO_MASKS[prpUseCase] || PRP_SCENARIO_MASKS['decede-capital-echu'];
-                const showRepartition = victimesIndirectes.length > 1;
                 const sumParts = ivLignes.reduce((s, l) => s + (l.partIndividuelle || 0), 0);
                 const partsWarning = isDecede && sumParts > 0 && sumParts !== 100;
                 const autoConsoWarning = isDecede && (partAutoConso > 35 || partAutoConso < 15) && partAutoConso > 0;
@@ -13016,7 +11800,6 @@ export default function App() {
                 const totalRenteAnnuelle = viData.reduce((s, d) => s + d.amounts.renteAnnuelle, 0);
                 const totalTPAllVI = viData.reduce((s, d) => s + d.amounts.totalTPAnnuel, 0);
                 const hasMixedMode = viData.some(d => d.amounts.mode === 'capitalisation') && viData.some(d => d.amounts.mode === 'rente');
-                const hasRente = viData.some(d => d.amounts.mode === 'rente');
                 const showEchu = mask.hasEchu && ivLignes.some(l => (l.anneesEchues || 0) > 0);
 
                 // Conjoint missing pension de réversion warning
@@ -13059,70 +11842,6 @@ export default function App() {
                   updateLigne(victimeId, { deductionsTP: (ligne.deductionsTP || []).filter(t => t.id !== tpId) });
                 };
 
-                const renderRevenuTable = (title, lignes, type, mensuel) => (
-                  <div className={cardBlockClass + ' mb-3'}>
-                    <div className="flex items-center justify-between h-12 px-4 border-b border-border cursor-pointer" onClick={() => toggleCard(`iv-${ivPosteId}-d-rev-${type}`)}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center">
-                          <Wallet className="w-3.5 h-3.5 text-foreground-secondary" />
-                        </div>
-                        <span className="text-[14px] font-medium text-foreground">{title}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {mensuel > 0 ? (
-                          <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(mensuel))}<span className="text-[14px] text-foreground-secondary ml-1">/ mois</span></span>
-                        ) : (
-                          <span style={serifAmountStyle} className="text-foreground-muted">—</span>
-                        )}
-                        {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
-                      </div>
-                    </div>
-                    {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) && (<>
-                      <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
-                        <div className="w-[52px] pl-3" />
-                        <div className="flex-1 px-3"><span style={colHeaderStyle}>Source</span></div>
-                        <div className="w-[110px] px-3"><span style={colHeaderStyle}>Période</span></div>
-                        <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Net mensuel</span></div>
-                        <div className="w-[40px]" />
-                      </div>
-                      {lignes.map((ligne) => (
-                        <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group hover:bg-background transition-colors">
-                          <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
-                            {ligne.pieceIds?.length > 0 ? (
-                              <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md">
-                                <FileText className="w-4 h-4 text-info" />
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas rounded-md border border-dashed border-border">
-                                <FileText className="w-3.5 h-3.5 text-border-strong" />
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex-1 px-3"><span className="truncate block" style={{ fontSize: 14, color: ligne.source ? '#292524' : '#a8a29e' }}>{ligne.source || '—'}</span></div>
-                          <div className="w-[110px] px-3"><span style={{ fontSize: 14, color: ligne.periode ? '#292524' : '#a8a29e' }}>{ligne.periode || '—'}</span></div>
-                          <div className="w-[130px] px-3 text-right"><span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel || 0)}</span></div>
-                          <div className="w-[40px] flex items-center justify-center">
-                            <button onClick={() => deleteRevenuRow(type, ligne.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded transition-all">
-                              <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-red-500" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                      {lignes.length === 0 && (
-                        <div className="p-6 text-center"><span className="text-body text-foreground-muted">Aucun revenu renseigné</span></div>
-                      )}
-                      {lignes.length > 0 && (
-                        <div className="flex items-center justify-between h-10 px-4 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
-                          <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>Moyenne mensuelle</span>
-                          <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(mensuel)}</span>
-                        </div>
-                      )}
-                      <button onClick={() => addRevenuRow(type)} className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border">
-                        <Plus className="w-4 h-4" />Ajouter un revenu
-                      </button>
-                    </>)}
-                  </div>
-                );
 
                 return (
                   <>
@@ -14281,18 +13000,6 @@ export default function App() {
   };
 
   // ========== DROP FIRST - PIÈCES TAB ==========
-  const getProcessedPieces = () => dropFirstPieces.filter(p => p.status === 'done' && !p.horsBordereau);
-  const getHorsBordereauPieces = () => dropFirstPieces.filter(p => p.status === 'done' && p.horsBordereau);
-  const getPieceNumber = (piece) => {
-    if (piece.status !== 'done' || piece.horsBordereau) return null;
-    if (manualReorder) {
-      // After manual reorder, numbering follows array order of done items
-      const done = dropFirstPieces.filter(p => p.status === 'done' && !p.horsBordereau);
-      return done.findIndex(p => p.id === piece.id) + 1;
-    }
-    const done = getProcessedPieces().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-    return done.findIndex(p => p.id === piece.id) + 1;
-  };
   const applyPiecesSearchFilter = (items) => {
     let result = items;
     if (piecesFilter.types?.length > 0) result = result.filter(p => (piecesFilter.types || []).includes(p.type));
@@ -14321,54 +13028,6 @@ export default function App() {
       });
     }
     return applyPiecesSearchFilter(items);
-  };
-  const getFilteredHorsPieces = () => {
-    return applyPiecesSearchFilter(getHorsBordereauPieces());
-  };
-  const toggleHorsBordereau = (pieceId) => {
-    setDropFirstPieces(prev => {
-      const piece = prev.find(p => p.id === pieceId);
-      if (!piece) return prev;
-      if (piece.horsBordereau) {
-        // Re-include: move to end of done list
-        const without = prev.filter(p => p.id !== pieceId);
-        const lastDoneIdx = without.reduce((acc, p, i) => p.status === 'done' && !p.horsBordereau ? i : acc, -1);
-        const updated = { ...piece, horsBordereau: false };
-        const result = [...without];
-        result.splice(lastDoneIdx + 1, 0, updated);
-        return result;
-      } else {
-        // Exclude from bordereau
-        return prev.map(p => p.id === pieceId ? { ...p, horsBordereau: true } : p);
-      }
-    });
-    setPieceContextMenu(null);
-    setManualReorder(true);
-  };
-
-  const handleCopyBordereau = () => {
-    const done = manualReorder
-      ? dropFirstPieces.filter(p => p.status === 'done' && !p.horsBordereau)
-      : getProcessedPieces().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-    const text = done.map((p, i) => {
-      const dateStr = p.date ? `[${p.date.split('-').reverse().join('/')}]` : '';
-      return `${i + 1}. ${p.cleanName} ${dateStr}`;
-    }).join('\n');
-    navigator.clipboard.writeText(text).then(() => showToast('Bordereau copié dans le presse-papier'));
-  };
-
-  const downloadDropFirstAsZip = async () => {
-    const done = manualReorder
-      ? dropFirstPieces.filter(p => p.status === 'done' && !p.horsBordereau)
-      : getProcessedPieces().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-    const zip = new JSZip();
-    done.forEach((p, i) => {
-      const prefix = String(i + 1).padStart(2, '0');
-      const filename = `${prefix} - ${p.cleanName}.pdf`;
-      zip.file(filename, `[Placeholder] ${p.cleanName}\nDate: ${p.date}\nType: ${p.type}`);
-    });
-    const blob = await zip.generateAsync({ type: 'blob' });
-    saveAs(blob, 'bordereau-pieces.zip');
   };
 
   const askChatoAboutSelection = (items) => {
@@ -15028,10 +13687,8 @@ export default function App() {
   };
 
   const renderDropFirstPiecesTab = () => {
-    const totalItems = dropFirstPieces.length;
     const allDone = dropFirstProcessingDone;
     const filtered = getFilteredPieces();
-    const isFiltered = !!(piecesFilter.types?.length > 0 || piecesFilter.search);
     // Resolve the overview-panel target. A split (exploded) pile segment has
     // a synthetic id "pileId::segId" that is NOT a dropFirstPiece - rebuild a
     // piece-shaped object from the live pile segment so the panel can show it
@@ -15885,7 +14542,7 @@ export default function App() {
   const renderDropFirstModal = () => {
     if (!dropModal) return null;
 
-    const { files, rapportFileId, rapportDismissed, renamePattern, reference, splitDocsEnabled } = dropModal;
+    const { files, renamePattern, reference } = dropModal;
     const hasFiles = files.length > 0;
 
     const handleFileDrop = (e) => {
@@ -15898,38 +14555,6 @@ export default function App() {
     const handleFileSelect = (e) => {
       const selected = Array.from(e.target.files || []);
       addFilesToModal(selected);
-      e.target.value = '';
-    };
-
-    const handleRapportFileSelect = (e) => {
-      const selected = Array.from(e.target.files || []);
-      if (selected.length > 0) {
-        const file = selected[0];
-        const fileObj = {
-          id: `file-${Date.now()}-rapport`,
-          name: file.name,
-          fakeSize: (Math.random() * 4 + 0.5).toFixed(1) + ' Mo',
-          isRapport: true,
-          status: 'uploading',
-          guessedType: null,
-        };
-        setDropModal(prev => ({
-          ...prev,
-          files: [...prev.files, { ...fileObj, splitEnabled: !!prev.splitDocsEnabled }],
-          rapportFileId: fileObj.id,
-        }));
-        setTimeout(() => {
-          setDropModal(prev => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              files: prev.files.map(f =>
-                f.id === fileObj.id ? { ...f, status: 'ready', guessedType: 'Expertise' } : f
-              ),
-            };
-          });
-        }, 1000 + Math.random() * 500);
-      }
       e.target.value = '';
     };
 
@@ -15991,8 +14616,6 @@ export default function App() {
       });
     };
 
-    const rapportFile = rapportFileId ? files.find(f => f.id === rapportFileId) : null;
-    const showRapportCard = hasFiles && !rapportDismissed;
     // The global "Découper" switch reflects the rows: on only when every
     // document is set to split. With no files yet it shows the stored default.
     // Tri-state "Tout découper": checked (all split) / indeterminate (mixed) /
@@ -17213,13 +15836,6 @@ export default function App() {
     const sectionTitle = (title) => <h2 style={{ fontSize: 18, fontWeight: 600, color: '#292524', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>{title}</h2>;
     const subTitle = (title) => <h3 style={{ fontSize: 14, fontWeight: 600, color: '#78716c', marginBottom: 8, marginTop: 16, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</h3>;
     const row = (children) => <div className="flex items-start gap-4 flex-wrap mb-4">{children}</div>;
-
-    // Sample diffs for artifact card demo
-    const sampleDiffs = [
-      { actionId: 'demo', zone: 'postes', entityId: 'demo-1', entityLabel: 'Hospitalisation CHU', type: 'add', fields: [{ key: 'montant', label: 'Montant', after: '4 500 €' }, { key: 'date', label: 'Date', after: '05/06/2022' }], timestamp: 1 },
-      { actionId: 'demo', zone: 'postes', entityId: 'demo-2', entityLabel: 'Kinésithérapie', type: 'edit', fields: [{ key: 'montant', label: 'Montant', before: '960 €', after: '1 280 €' }], timestamp: 2 },
-      { actionId: 'demo', zone: 'postes', entityId: 'demo-3', entityLabel: 'Consultation doublon', type: 'delete', fields: [{ key: 'montant', label: 'Montant', before: '55 €' }], timestamp: 3 },
-    ];
 
     return (
       <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -21741,7 +20357,6 @@ export default function App() {
       { id: 'vi-2', nom: 'Dupont', prenom: 'Lucas', sexe: 'Homme', lien: 'Enfant' },
       { id: 'vi-3', nom: 'Dupont', prenom: 'Emma', sexe: 'Femme', lien: 'Enfant' },
     ];
-    const demoViInitials = (vi) => `${(vi.prenom || '')[0] || ''}${(vi.nom || '')[0] || ''}`.toUpperCase();
 
     // Type A data
     const demoTypeA = [
@@ -21767,7 +20382,6 @@ export default function App() {
     const demoViTotalsC = {};
     demoVis.forEach(vi => { demoViTotalsC[vi.id] = 0; });
     demoTypeC.forEach(l => (l.attributions || []).forEach(a => { demoViTotalsC[a.viId] = (demoViTotalsC[a.viId] || 0) + a.amount; }));
-    const demoGrandTotalC = demoTypeC.reduce((s, l) => s + (l.totalAmount || 0), 0);
 
     // Type D (PRP) data
     const demoRevenuRefLignes = [
@@ -21809,9 +20423,6 @@ export default function App() {
       </div>
     );
 
-    // Use existing expandedCards state for demo collapse - keys prefixed with 'uikit-'
-    const isDemoExpanded = (key) => expandedCards[`uikit-${key}`] !== false;
-    const toggleDemoExpanded = (key) => setExpandedCards(prev => ({ ...prev, [`uikit-${key}`]: prev[`uikit-${key}`] === false ? true : false }));
 
     return (
       <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>

@@ -4,7 +4,7 @@ import {
   Landmark, Calendar, Hash, FileText,
   Check, Edit3,
 } from 'lucide-react';
-import { getDecisionById, getPrimaryAmount, formatDateLong } from '../../data/mockDecisions';
+import { getDecisionById, formatDateLong } from '../../data/mockDecisions';
 import SaveDestinationPopover from './SaveDestinationPopover';
 
 const fmt = (v) => v.toLocaleString('fr-FR');
@@ -110,7 +110,6 @@ export default function DecisionDrawer({
   const med = decision?.donneesMedicales;
   const prejudices = decision?.prejudices;
   const victime = decision?.victimProfile;
-  const primaryAmount = decision ? getPrimaryAmount(decision) : null;
 
   // Highlight search matches
   const highlightText = (text) => {
