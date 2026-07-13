@@ -75,7 +75,7 @@ export default function EmptyState({ icon: Icon, title, description, primaryActi
             {secondaryAction && (
               <button
                 onClick={secondaryAction.onClick}
-                className="inline-flex items-center justify-center gap-2 font-medium transition-all hover:bg-[#fafaf9]"
+                className="inline-flex items-center justify-center gap-2 font-medium transition-all hover:bg-background"
                 style={{
                   height: 36,
                   paddingLeft: 16,

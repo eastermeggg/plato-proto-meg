@@ -27,7 +27,7 @@ export default function SuggestionsMenu({
 }) {
   return (
     <div
-      className={`bg-white border border-[#e7e5e3] rounded-[8px] overflow-hidden ${className}`}
+      className={`bg-white border border-border rounded-[8px] overflow-hidden ${className}`}
       style={{
         boxShadow:
           '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
@@ -65,15 +65,15 @@ export default function SuggestionsMenu({
                 type="button"
                 onClick={it.onClick}
                 disabled={isDisabled}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] hover:bg-[#fafaf9] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
               >
                 {Icon && (
                   <Icon
-                    className="w-4 h-4 text-[#44403c] flex-shrink-0"
+                    className="w-4 h-4 text-foreground-tertiary flex-shrink-0"
                     strokeWidth={1.5}
                   />
                 )}
-                <span className="flex-1 min-w-0 text-[14px] font-normal text-[#292524] leading-[20px] truncate">
+                <span className="flex-1 min-w-0 text-[14px] font-normal text-foreground leading-[20px] truncate">
                   {it.label}
                 </span>
               </button>

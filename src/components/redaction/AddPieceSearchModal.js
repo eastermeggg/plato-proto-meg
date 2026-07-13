@@ -148,7 +148,7 @@ export default function AddPieceSearchModal({
           </div>
           <button
             onClick={onClose}
-            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#78716c] hover:bg-[#fafaf9] hover:text-[#292524] transition-colors"
+            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-foreground-secondary hover:bg-background hover:text-foreground transition-colors"
             aria-label="Fermer"
           >
             <X className="w-4 h-4" strokeWidth={1.75} />
@@ -161,7 +161,7 @@ export default function AddPieceSearchModal({
             className="flex items-center gap-2 px-3 h-10 rounded-[8px]"
             style={{ border: '1px solid #e7e5e3', backgroundColor: '#fafaf9' }}
           >
-            <Search className="w-4 h-4 text-[#a8a29e]" strokeWidth={1.75} />
+            <Search className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />
             <input
               ref={inputRef}
               type="text"
@@ -181,7 +181,7 @@ export default function AddPieceSearchModal({
             {query && (
               <button
                 onClick={() => setQuery('')}
-                className="text-[12px] text-[#78716c] hover:text-[#292524] transition-colors"
+                className="text-[12px] text-foreground-secondary hover:text-foreground transition-colors"
                 style={{ fontFamily: "'IBM Plex Mono', monospace" }}
               >
                 Effacer
@@ -253,7 +253,7 @@ export default function AddPieceSearchModal({
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="inline-flex items-center px-3 h-9 rounded-[8px] text-[13px] font-medium text-[#44403c] hover:bg-[#f0efed] transition-colors"
+              className="inline-flex items-center px-3 h-9 rounded-[8px] text-[13px] font-medium text-foreground-tertiary hover:bg-border-subtle transition-colors"
             >
               Annuler
             </button>

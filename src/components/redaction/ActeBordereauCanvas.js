@@ -423,7 +423,7 @@ function EmptyState({ onGenerate, source }) {
         className="inline-flex items-center justify-center mb-4"
         style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: '#f5f4f0' }}
       >
-        <ListOrdered className="w-5 h-5 text-[#a8a29e]" strokeWidth={1.5} />
+        <ListOrdered className="w-5 h-5 text-foreground-muted" strokeWidth={1.5} />
       </div>
       <p style={{ fontFamily: font, fontSize: 15, fontWeight: 600, color: '#292524', margin: 0 }}>
         {title}
@@ -434,7 +434,7 @@ function EmptyState({ onGenerate, source }) {
       {onGenerate && (
         <button
           onClick={onGenerate}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-[8px] text-[14px] font-medium text-white bg-[#292524] hover:bg-[#44403c] transition-colors mt-5"
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-[8px] text-[14px] font-medium text-white bg-foreground hover:bg-foreground-tertiary transition-colors mt-5"
           style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)' }}
         >
           <Sparkles className="w-4 h-4" strokeWidth={1.75} />

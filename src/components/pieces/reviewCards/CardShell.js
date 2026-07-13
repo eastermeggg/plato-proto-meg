@@ -14,7 +14,7 @@ const SHELL_SHADOW_HOVER = '0 1px 2px rgba(28,25,23,0.05), 0 10px 22px -10px rgb
 // so the row of CTAs ends on a single clean right edge. Cards use
 // outline/secondary buttons only — no filled primary.
 export const btnBase = "inline-flex items-center justify-center gap-1.5 h-7 px-2.5 text-[13px] font-medium rounded-md whitespace-nowrap transition-colors";
-export const btnLight = `${btnBase} text-[#44403c] bg-white border border-[#d6d3d1] hover:bg-[#f8f7f5]`;
+export const btnLight = `${btnBase} text-foreground-tertiary bg-white border border-border-strong hover:bg-background-canvas`;
 
 // White rounded shell that lifts on hover. `fade` re-keys the inner fade-in
 // when a card swaps phases (e.g. choice → done).
@@ -46,8 +46,8 @@ export function CardIcon({ bg, color, children }) {
 export function CardLabel({ name, state }) {
   return (
     <div className="flex-1 min-w-0 text-[13px] leading-[18px] truncate" title={`${name} · ${state}`}>
-      <span className="font-medium text-[#1c1917]">{name}</span>
-      <span className="text-[#78716c]"> · {state}</span>
+      <span className="font-medium text-foreground-strong">{name}</span>
+      <span className="text-foreground-secondary"> · {state}</span>
     </div>
   );
 }

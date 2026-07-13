@@ -44,13 +44,13 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
   return (
     <div className="flex flex-col -mx-4 -mt-4">
       {/* Sub-header bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#e7e5e3]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
         <div />
         <div className="flex items-center gap-2">
           {onNewBordereau && (
             <button
               onClick={onNewBordereau}
-              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-[#44403c] bg-[#eeece6] rounded-md hover:bg-[#e7e5e3] transition-colors"
+              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-foreground-tertiary bg-cream rounded-md hover:bg-border transition-colors"
             >
               <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
               Nouveau bordereau
@@ -59,7 +59,7 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
           {onNewActe && (
             <button
               onClick={onNewActe}
-              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-[#292524] rounded-md hover:bg-[#44403c] shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
+              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
             >
               <Plus className="w-4 h-4" strokeWidth={1.5} />
               Nouvel acte
@@ -70,9 +70,9 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
 
       {/* Content */}
       <div className="p-4">
-        <div className="border border-[#e7e5e3] rounded-md overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           {/* Column headers */}
-          <div className="flex items-center bg-white border-b border-[#e7e5e3]">
+          <div className="flex items-center bg-white border-b border-border">
             <div className="w-[38px] h-10 shrink-0" />
             <div className="flex-1 min-w-0 px-3 py-3" style={colHeaderStyle}>Titre</div>
             <div className="w-[120px] shrink-0 px-3 py-3" style={colHeaderStyle}>Modifié</div>
@@ -86,14 +86,14 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
             return (
               <div
                 key={acte.id}
-                className="flex items-center h-14 bg-white border-b border-[#e7e5e3] last:border-b-0 cursor-pointer hover:bg-[#fafaf9] transition-colors group"
+                className="flex items-center h-14 bg-white border-b border-border last:border-b-0 cursor-pointer hover:bg-background transition-colors group"
                 onClick={() => onOpen?.(acte.id)}
               >
                 {/* Icon — FileText for actes, ListOrdered for bordereaux. The
                     icon alone signals doc vs bordereau; the paired relationship
                     surfaces inside the canvas via the Acte/Bordereau tabs. */}
                 <div className="w-[38px] shrink-0 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-[#a8a29e]" strokeWidth={1.5} />
+                  <Icon className="w-4 h-4 text-foreground-muted" strokeWidth={1.5} />
                 </div>
                 {/* Title */}
                 <div className="flex-1 min-w-0 px-3">
@@ -101,11 +101,11 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
                 </div>
                 {/* Date */}
                 <div className="w-[120px] shrink-0 px-3">
-                  <span className="text-sm text-[#292524]">{acte.lastUpdated || '—'}</span>
+                  <span className="text-sm text-foreground">{acte.lastUpdated || '—'}</span>
                 </div>
                 {/* Options */}
                 <div className="w-[44px] shrink-0 flex items-center justify-end pr-4">
-                  <MoreVertical className="w-4 h-4 text-[#78716c] opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
+                  <MoreVertical className="w-4 h-4 text-foreground-secondary opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
                 </div>
               </div>
             );

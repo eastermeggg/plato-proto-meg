@@ -39,7 +39,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
     <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-[#e7e5e3] flex flex-col"
+        className="bg-white border border-border flex flex-col"
         style={{
           width: 520,
           borderRadius: 12,
@@ -113,11 +113,11 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
 
           {/* OU divider */}
           <div className="flex items-center gap-3" style={{ marginTop: -4, marginBottom: -4 }}>
-            <span className="flex-1 h-px bg-[#e7e5e3]" />
+            <span className="flex-1 h-px bg-border" />
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.1em' }}>
               OU
             </span>
-            <span className="flex-1 h-px bg-[#e7e5e3]" />
+            <span className="flex-1 h-px bg-border" />
           </div>
 
           {/* Lien de la décision */}
@@ -133,14 +133,14 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
                 boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
               }}
             >
-              <LinkIcon className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />
+              <LinkIcon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" />
               <input
                 id="fiche-cabinet-url"
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://"
-                className="flex-1 bg-transparent text-[14px] text-[#292524] placeholder-[#a8a29e] focus:outline-none"
+                className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
                 style={{ fontFamily: "'Inter', system-ui, sans-serif", lineHeight: '20px' }}
               />
             </div>
@@ -160,7 +160,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
               onChange={(e) => setImpact(e.target.value)}
               rows={6}
               placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
-              className="w-full px-3 py-2 text-[14px] text-[#292524] bg-white placeholder-[#a8a29e] focus:outline-none focus:border-[#a8a29e] resize-y"
+              className="w-full px-3 py-2 text-[14px] text-foreground bg-white placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 lineHeight: '20px',

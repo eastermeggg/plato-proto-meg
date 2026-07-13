@@ -63,8 +63,8 @@ export default function SlashCommandPalette({ query, onSelect, onDismiss, scenar
       }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-[#f0efed]" style={{ backgroundColor: '#fafaf9' }}>
-        <SearchIcon className="w-3 h-3 text-[#a8a29e]" />
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border-subtle" style={{ backgroundColor: '#fafaf9' }}>
+        <SearchIcon className="w-3 h-3 text-foreground-muted" />
         <span style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: '#78716c' }}>
           COMMANDES
         </span>

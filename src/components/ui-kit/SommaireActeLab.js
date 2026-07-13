@@ -148,7 +148,7 @@ export default function SommaireActeLab() {
       <div style={{ maxWidth: 1180, margin: '0 auto', padding: '28px 48px 80px' }}>
         <button
           onClick={() => navigate('/ui-kit')}
-          className="flex items-center gap-1.5 text-[#78716c] hover:text-[#292524] transition-colors"
+          className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors"
           style={{ fontSize: 13, marginBottom: 18 }}
         >
           <ArrowLeft className="w-4 h-4" /> UI Kit
