@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  X, ChevronRight, ChevronDown, ExternalLink, Download, Bookmark, Search, Tag,
-  Landmark, Calendar, Hash, FileText, Heart, Scale, LinkIcon,
-  User, Check, FileUp, AlertTriangle, Edit3,
+  X, ChevronRight, ChevronDown, ExternalLink, Download, Bookmark, Search,
+  Landmark, Calendar, Hash, FileText,
+  Check, Edit3,
 } from 'lucide-react';
 import { getDecisionById, getPrimaryAmount, formatDateLong } from '../../data/mockDecisions';
 import SaveDestinationPopover from './SaveDestinationPopover';

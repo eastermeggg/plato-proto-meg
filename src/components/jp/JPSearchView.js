@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Search, X, ChevronDown, ChevronRight, SlidersHorizontal, Landmark,
-  Bookmark, BookmarkCheck, Plus, Trash2, Tag,
+  Bookmark, BookmarkCheck,
 } from 'lucide-react';
-import DECISIONS, { getDecisionsByIds, getPrimaryAmount, formatDateShort, formatDateLong } from '../../data/mockDecisions';
+import DECISIONS, { getDecisionsByIds, getPrimaryAmount, formatDateLong } from '../../data/mockDecisions';
 import SaveDestinationPopover from './SaveDestinationPopover';
 
 const ALL_JURISDICTIONS = [...new Set(DECISIONS.map(d => d.jurisdiction))].sort();
