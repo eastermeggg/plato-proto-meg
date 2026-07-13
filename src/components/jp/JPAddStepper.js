@@ -31,9 +31,9 @@ function CheckRow({ checked, onClick, icon: Icon, label, sublabel }) {
       >
         {checked && <Checkmark />}
       </div>
-      {Icon && <Icon className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />}
+      {Icon && <Icon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" />}
       <span className="font-medium">{label}</span>
-      {sublabel && <span className="text-[#a8a29e] ml-0.5 text-[12px]">{sublabel}</span>}
+      {sublabel && <span className="text-foreground-muted ml-0.5 text-[12px]">{sublabel}</span>}
     </button>
   );
 }
@@ -147,22 +147,22 @@ export default function JPAddStepper({
   return (
     <div className="w-full">
       <div
-        className="bg-white rounded-lg border border-[#e7e5e3] overflow-hidden"
+        className="bg-white rounded-lg border border-border overflow-hidden"
         style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#f0efed]" style={{ backgroundColor: '#fafaf9' }}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle" style={{ backgroundColor: '#fafaf9' }}>
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#b9703f', textTransform: 'uppercase' }}>
             {headerSubtitle}
           </span>
-          <button onClick={onClose} className="p-1 hover:bg-[#eeece6] rounded transition-colors">
-            <X className="w-3.5 h-3.5 text-[#a8a29e]" />
+          <button onClick={onClose} className="p-1 hover:bg-cream rounded transition-colors">
+            <X className="w-3.5 h-3.5 text-foreground-muted" />
           </button>
         </div>
 
         {/* Step indicators (hidden when only one step) */}
         {steps.length > 1 && (
-          <div className="flex items-center gap-0 px-4 py-2.5 border-b border-[#f0efed]">
+          <div className="flex items-center gap-0 px-4 py-2.5 border-b border-border-subtle">
             {steps.map((s, i) => {
               const StepIcon = s.icon;
               const isActive = step === s.num;
@@ -227,7 +227,7 @@ export default function JPAddStepper({
                     value={searchQuery}
                     onChange={(e) => { setSearchQuery(e.target.value); setSearchSelectedId(null); }}
                     placeholder="Juridiction, numéro, poste — ou référence libre…"
-                    className="w-full px-3 py-2 text-[14px] rounded-md border border-[#e7e5e3] bg-white text-[#292524] placeholder-[#a8a29e] focus:outline-none focus:border-[#aabcd5]"
+                    className="w-full px-3 py-2 text-[14px] rounded-md border border-border bg-white text-foreground placeholder-foreground-muted focus:outline-none focus:border-[#aabcd5]"
                   />
                   {searchQuery.trim() && searchResults.length === 0 && (
                     <p style={{ fontSize: 12, color: '#a8a29e', marginTop: 6 }}>
@@ -251,7 +251,7 @@ export default function JPAddStepper({
                           onMouseOut={(e) => { if (!isSel) e.currentTarget.style.backgroundColor = 'transparent'; }}
                         >
                           <div className="flex items-center gap-2 flex-wrap">
-                            <Landmark className="w-3 h-3 text-[#b9703f]" />
+                            <Landmark className="w-3 h-3 text-brand" />
                             <span className="text-[14px] font-medium" style={{ color: '#292524' }}>
                               {d.jurisdiction}{d.chambre ? ` · ${d.chambre}` : ''}
                             </span>
@@ -267,7 +267,7 @@ export default function JPAddStepper({
                       );
                     })}
                     {searchResults.length === 0 && (
-                      <p className="text-[12px] text-[#a8a29e] text-center py-3">Aucun résultat.</p>
+                      <p className="text-[12px] text-foreground-muted text-center py-3">Aucun résultat.</p>
                     )}
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export default function JPAddStepper({
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://www.legifrance.gouv.fr/juri/id/..."
-                    className="w-full px-3 py-2 text-[14px] rounded-md border border-[#e7e5e3] bg-white text-[#292524] placeholder-[#a8a29e] focus:outline-none focus:border-[#aabcd5]"
+                    className="w-full px-3 py-2 text-[14px] rounded-md border border-border bg-white text-foreground placeholder-foreground-muted focus:outline-none focus:border-[#aabcd5]"
                   />
                   <p style={{ fontSize: 12, color: '#a8a29e', marginTop: 6 }}>
                     Les métadonnées seront extraites automatiquement.
@@ -320,8 +320,8 @@ export default function JPAddStepper({
 
           {step === 1 && extracting && (
             <div className="flex flex-col items-center justify-center py-8">
-              <Loader2 className="w-5 h-5 text-[#b9703f] animate-spin" />
-              <span className="text-[14px] text-[#78716c] mt-3">Extraction des métadonnées…</span>
+              <Loader2 className="w-5 h-5 text-brand animate-spin" />
+              <span className="text-[14px] text-foreground-secondary mt-3">Extraction des métadonnées…</span>
             </div>
           )}
 
@@ -360,7 +360,7 @@ export default function JPAddStepper({
                             {isChecked && <Checkmark />}
                           </div>
                           <span className="badge badge-sm badge-secondary">{p.acronym}</span>
-                          <span className="text-[#78716c] truncate">{p.label}</span>
+                          <span className="text-foreground-secondary truncate">{p.label}</span>
                         </button>
                       );
                     })}
@@ -372,11 +372,11 @@ export default function JPAddStepper({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#f0efed]">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-border-subtle">
           <button
             onClick={() => step > 1 ? setStep(step - 1) : onClose?.()}
             disabled={extracting}
-            className="text-[14px] text-[#78716c] hover:text-[#292524] transition-colors disabled:opacity-50"
+            className="text-[14px] text-foreground-secondary hover:text-foreground transition-colors disabled:opacity-50"
           >
             {step > 1 ? '← Retour' : 'Annuler'}
           </button>

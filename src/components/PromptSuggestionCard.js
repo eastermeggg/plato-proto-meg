@@ -42,7 +42,7 @@ export default function PromptSuggestionCard({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`group/psc relative w-full max-w-[320px] flex items-center bg-white border border-[#e7e5e3] rounded-[4px] transition-shadow duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${pinHover ? '' : 'hover:shadow-[0px_4px_6px_0px_rgba(26,26,26,0.05),0px_10px_15px_0px_rgba(26,26,26,0.05)] disabled:hover:shadow-[0px_1px_4px_0px_rgba(26,26,26,0.05),0px_1px_2px_0px_rgba(26,26,26,0.05)]'} ${className}`}
+      className={`group/psc relative w-full max-w-[320px] flex items-center bg-white border border-border rounded-[4px] transition-shadow duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${pinHover ? '' : 'hover:shadow-[0px_4px_6px_0px_rgba(26,26,26,0.05),0px_10px_15px_0px_rgba(26,26,26,0.05)] disabled:hover:shadow-[0px_1px_4px_0px_rgba(26,26,26,0.05),0px_1px_2px_0px_rgba(26,26,26,0.05)]'} ${className}`}
       style={{
         paddingLeft: 9,
         paddingRight: 17,
@@ -52,20 +52,20 @@ export default function PromptSuggestionCard({
       }}
     >
       <span className="flex-1 min-w-0 flex items-center gap-3">
-        <span className={`flex items-center justify-center flex-shrink-0 w-9 h-9 rounded-[2px] transition-colors duration-200 ${pinHover ? 'bg-[#292524]' : 'bg-[#eeece6] group-hover/psc:bg-[#292524]'}`}>
+        <span className={`flex items-center justify-center flex-shrink-0 w-9 h-9 rounded-[2px] transition-colors duration-200 ${pinHover ? 'bg-foreground' : 'bg-cream group-hover/psc:bg-foreground'}`}>
           {Icon && (
             <Icon
-              className={`w-5 h-5 transition-colors duration-200 ${pinHover ? 'text-white' : 'text-[#78716c] group-hover/psc:text-white'}`}
+              className={`w-5 h-5 transition-colors duration-200 ${pinHover ? 'text-white' : 'text-foreground-secondary group-hover/psc:text-white'}`}
               strokeWidth={1.75}
             />
           )}
         </span>
-        <span className="flex-1 min-w-0 text-left text-[14px] font-medium text-[#292524] leading-[20px] truncate">
+        <span className="flex-1 min-w-0 text-left text-[14px] font-medium text-foreground leading-[20px] truncate">
           {label}
         </span>
       </span>
       <ArrowRight
-        className={`w-4 h-4 flex-shrink-0 text-[#78716c] transition-all duration-200 ${pinHover ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1 group-hover/psc:opacity-100 group-hover/psc:translate-x-0'}`}
+        className={`w-4 h-4 flex-shrink-0 text-foreground-secondary transition-all duration-200 ${pinHover ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1 group-hover/psc:opacity-100 group-hover/psc:translate-x-0'}`}
         strokeWidth={1.75}
       />
     </button>

@@ -86,7 +86,7 @@ export default function AlertDialog({
       aria-labelledby="alert-dialog-title"
     >
       <div
-        className="bg-white border border-[#e7e5e3] rounded-xl flex flex-col gap-4 p-6 w-full max-w-[512px] relative"
+        className="bg-white border border-border rounded-xl flex flex-col gap-4 p-6 w-full max-w-[512px] relative"
         style={{ boxShadow: '0px 4px 6px 0px rgba(26,26,26,0.05), 0px 10px 15px 0px rgba(26,26,26,0.05)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -162,7 +162,7 @@ export default function AlertDialog({
           <button
             onClick={onAction}
             disabled={actionDisabled}
-            className="h-9 px-4 rounded-lg flex items-center justify-center transition-colors disabled:bg-[#d6d3d1] disabled:cursor-not-allowed"
+            className="h-9 px-4 rounded-lg flex items-center justify-center transition-colors disabled:bg-border-strong disabled:cursor-not-allowed"
             style={{
               backgroundColor: actionDisabled ? undefined : v.actionBg,
               color: v.actionFg,
@@ -184,7 +184,7 @@ export default function AlertDialog({
             style={{ opacity: 0.7 }}
             aria-label="Fermer"
           >
-            <X className="w-4 h-4 text-[#292524]" strokeWidth={2} />
+            <X className="w-4 h-4 text-foreground" strokeWidth={2} />
           </button>
         )}
       </div>

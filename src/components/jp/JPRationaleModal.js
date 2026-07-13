@@ -41,7 +41,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
     <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-[#e7e5e3] flex flex-col"
+        className="bg-white border border-border flex flex-col"
         style={{
           width: 520,
           borderRadius: 12,
@@ -82,7 +82,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
               onChange={(e) => setRationale(e.target.value)}
               rows={6}
               placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
-              className="w-full px-3 py-2 text-[14px] text-[#292524] bg-white placeholder-[#a8a29e] focus:outline-none focus:border-[#a8a29e] resize-y"
+              className="w-full px-3 py-2 text-[14px] text-foreground bg-white placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 lineHeight: '24px',

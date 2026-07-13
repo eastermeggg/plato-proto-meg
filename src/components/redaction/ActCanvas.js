@@ -129,7 +129,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
       return (
         <div className="flex items-center justify-center py-20">
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#b9703f] animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
             <span style={{ fontSize: 13, color: '#a8a29e' }}>Rédaction en cours...</span>
           </div>
         </div>

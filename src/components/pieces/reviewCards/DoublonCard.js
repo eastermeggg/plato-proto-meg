@@ -31,15 +31,15 @@ export default function DoublonCard({ name, ofName, onKeepBoth, onIgnore, onView
     <CardShell>
       <CardIcon bg="#fdf4e7" color="#b45309"><Copy className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] leading-[16px] font-medium text-[#1c1917]">Doublon possible</div>
-        <div className="mt-1 flex items-center gap-1.5 text-[12px] leading-[16px] text-[#78716c] min-w-0">
+        <div className="text-[13px] leading-[16px] font-medium text-foreground-strong">Doublon possible</div>
+        <div className="mt-1 flex items-center gap-1.5 text-[12px] leading-[16px] text-foreground-secondary min-w-0">
           <span className="flex items-center gap-1 min-w-0 max-w-[46%]" title={name}>
-            <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+            <FileText className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
             <span className="truncate">{name}</span>
           </span>
-          <span className="text-[#d6d3d1] flex-shrink-0">≈</span>
+          <span className="text-border-strong flex-shrink-0">≈</span>
           <span className="flex items-center gap-1 min-w-0 max-w-[46%]" title={ofName}>
-            <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" strokeWidth={1.75} />
+            <FileText className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
             <span className="truncate">{ofName}</span>
           </span>
         </div>
