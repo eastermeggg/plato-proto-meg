@@ -1,23 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import {
-  FileText, SearchCode, XCircle,
+  SearchCode, XCircle,
   ChevronDown, ChevronRight, Plus, Pencil,
   ListChecks, Bot, Calculator,
   HeartPulse, AlignLeft, CheckCheck, Asterisk, SquareX,
 } from 'lucide-react';
+import { colors } from '../design-system/tokens';
 
 // ── Colors ───────────────────────────────────────────────────────────
-// Muted-foreground for everything except CRUD actions
+// Muted-foreground for everything except CRUD actions.
+// Single source of truth: colors.step in src/design-system/tokens.js.
 
-export const STEP_COLORS = {
-  default: { icon: '#a8a29e', bg: 'transparent', text: '#78716c' },
-  green:   { icon: '#059669', bg: '#cce6d9', text: '#064e3b' },
-  orange:  { icon: '#bd6c1a', bg: '#f9ecd6', text: '#855b31' },
-  red:     { icon: '#991b1b', bg: '#fef2f2', text: '#7f1d1d' },
-  muted: '#a8a29e',
-  primary: '#44403c',
-  secondary: '#78716c',
-};
+export const STEP_COLORS = colors.step;
 
 // ── Icons ────────────────────────────────────────────────────────────
 
