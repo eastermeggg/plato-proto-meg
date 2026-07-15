@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bookmark, ExternalLink } from 'lucide-react';
 import { formatDateShort, splitValue } from '../../data/mockDecisions';
+import { colors } from '../../design-system/tokens';
 
 // Inline JP reference. Two real contexts — chat and acte — expressed as
 // five variants:
@@ -36,11 +37,11 @@ import { formatDateShort, splitValue } from '../../data/mockDecisions';
 //
 // Chamber is hidden in Pill per spec (reserved for Card).
 
-const PILL_TEXT = { fontSize: 12, fontWeight: 500, color: '#44403c' };
-const PILL_MUTED = { fontSize: 12, fontWeight: 500, color: '#78716c' };
-const PILL_FAINT = { fontSize: 12, fontWeight: 500, color: '#a8a29e' };
-const PILL_ACCENT = { fontSize: 12, fontWeight: 500, color: '#b9703f' };
-const SEP_STYLE = { fontSize: 12, color: '#a8a29e' };
+const PILL_TEXT = { fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary };
+const PILL_MUTED = { fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundSecondary };
+const PILL_FAINT = { fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundMuted };
+const PILL_ACCENT = { fontSize: 12, fontWeight: 500, color: '#b9703f' }; // brand accent — no token in tokens.js yet
+const SEP_STYLE = { fontSize: 12, color: colors.semantic.foregroundMuted };
 
 export default function JPPill({
   decision,

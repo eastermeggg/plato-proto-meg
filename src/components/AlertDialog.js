@@ -1,14 +1,10 @@
 import React, { useEffect } from 'react';
 import { X, CircleAlert } from 'lucide-react';
+import { colors } from '../design-system/tokens';
 
-// Icon colors keyed by variant — applied directly to the bare 24px icon (no background container per Figma).
-const ICON_COLORS = {
-  default:     '#44403c',
-  destructive: '#7f1d1d', // colors/light/destructive-text
-  warning:     '#855b31', // colors/light/warning-text
-  success:     '#065f46',
-  info:        '#1e3a8a',
-};
+// Icon colors keyed by variant — applied directly to the bare 24px icon (no
+// background container per Figma). Single source of truth: colors.icon.
+const ICON_COLORS = colors.icon;
 
 // Action button colors. The secondary (cancel) button mirrors the action variant's tone:
 //  - destructive action → destructive-subtle cancel
