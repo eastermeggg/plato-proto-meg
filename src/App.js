@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
+import ParallelTasks, { ParallelTasksLine } from './components/ParallelTasks';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { JPPill, DecisionDrawer, JPRow, JPListingChat, JPListingPosteDetail, JPMemoryRow, JPAddStepper, SlashCommandPalette, JPSearchView, FicheCabinetModal, JPRationaleModal } from './components/jp';
@@ -23032,6 +23033,128 @@ export default function App() {
     );
   };
 
+  // ── Parallel tasks demo (staggered completion) ──────────────────────
+  const PARALLEL_DEMO_TASKS = [
+    {
+      id: 'factures', label: 'Extraction des factures', duration: 6000,
+      summary: '3 factures traitées sur le poste DSA',
+      steps: [
+        { type: 'read_documents', label: 'Analyse de 3 factures' },
+        { type: 'extract_data', label: 'Extraction facture CHU Bordeaux', children: ['4 500 € - CPAM 3 200 €'] },
+        { type: 'extract_data', label: 'Extraction facture clinique St-Jean', children: ['2 800 € - CPAM 1 900 €'] },
+        { type: 'add_row', label: '3 lignes DSA', poste: 'DSA', children: ['Consultation', 'IRM lombaire', 'Kinésithérapie'] },
+      ],
+    },
+    {
+      id: 'dft', label: 'Calcul du poste DFT', duration: 9500,
+      summary: 'Périodes DFT recalculées',
+      steps: [
+        { type: 'read_rapport', label: "Lecture du rapport d'expertise" },
+        { type: 'extract_data', label: 'Extraction des périodes DFT', children: ['3 périodes identifiées'] },
+        { type: 'calculate', label: 'Calcul du poste DFT' },
+        { type: 'update_row', label: 'Taux DFT période 2', poste: 'DFT', children: ['25% → 30%'] },
+      ],
+    },
+    {
+      id: 'doublons', label: 'Vérification des doublons', duration: 12500,
+      summary: '1 doublon détecté entre sources',
+      steps: [
+        { type: 'sub_agent', label: 'Agent de vérification croisée', children_steps: [
+          { type: 'verify_data', label: 'Comparaison CPAM / mutuelle' },
+          { type: 'verify_data', label: 'Contrôle des montants dupliqués' },
+        ] },
+        { type: 'delete_row', label: '1 ligne en doublon', poste: 'DFT' },
+      ],
+    },
+  ];
+
+  const ParallelTasksDemo = ({ variant = 'panel' }) => {
+    const [phase, setPhase] = React.useState('idle'); // idle | running | done
+    const [state, setState] = React.useState(PARALLEL_DEMO_TASKS.map(() => ({ revealed: 0, status: 'loading' })));
+    const [speed, setSpeed] = React.useState(1);
+    const timeouts = React.useRef([]);
+
+    const clearAll = () => { timeouts.current.forEach(clearTimeout); timeouts.current = []; };
+
+    const play = () => {
+      clearAll();
+      setPhase('running');
+      setState(PARALLEL_DEMO_TASKS.map(() => ({ revealed: 0, status: 'loading' })));
+      let maxEnd = 0;
+      PARALLEL_DEMO_TASKS.forEach((task, ti) => {
+        const n = task.steps.length;
+        const interval = task.duration / n;
+        for (let si = 0; si < n; si++) {
+          const t = setTimeout(() => {
+            setState(prev => prev.map((s, i) => i === ti ? { ...s, revealed: si + 1 } : s));
+          }, ((si + 1) * interval * 0.7) / speed);
+          timeouts.current.push(t);
+        }
+        const endT = (task.duration + 400) / speed;
+        maxEnd = Math.max(maxEnd, endT);
+        const done = setTimeout(() => {
+          setState(prev => prev.map((s, i) => i === ti ? { revealed: n, status: 'done' } : s));
+        }, endT);
+        timeouts.current.push(done);
+      });
+      const finish = setTimeout(() => setPhase('done'), maxEnd + 200);
+      timeouts.current.push(finish);
+    };
+
+    const reset = () => { clearAll(); setPhase('idle'); setState(PARALLEL_DEMO_TASKS.map(() => ({ revealed: 0, status: 'loading' }))); };
+
+    React.useEffect(() => () => clearAll(), []);
+
+    const liveTasks = PARALLEL_DEMO_TASKS.map((def, i) => {
+      const st = state[i];
+      const revealed = phase === 'idle' ? 0 : st.revealed;
+      const status = phase === 'idle' ? 'loading' : st.status;
+      const steps = def.steps.slice(0, revealed).map(s => ({ ...s, status: 'done' }));
+      if (status === 'loading' && steps.length) steps[steps.length - 1] = { ...steps[steps.length - 1], status: 'loading' };
+      return { ...def, status, steps };
+    });
+
+    return (
+      <div className="border border-border rounded-lg bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#292524' }}>
+            {variant === 'inline' ? 'UX A — expand dans le chat' : 'UX B — panneau latéral'}
+          </span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 border border-border rounded overflow-hidden">
+              {[1, 2, 4].map(s => (
+                <button key={s} onClick={() => setSpeed(s)} className="px-2 py-0.5 text-xs transition-colors"
+                  style={{ fontWeight: speed === s ? 600 : 400, color: speed === s ? '#292524' : '#a8a29e', backgroundColor: speed === s ? '#eeece6' : 'transparent' }}>
+                  {s}x
+                </button>
+              ))}
+            </div>
+            {phase === 'idle' ? (
+              <button onClick={play} className="px-3 py-1 rounded text-xs font-medium text-white transition-colors" style={{ backgroundColor: '#292524' }}>Play</button>
+            ) : (
+              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: '#78716c' }}>
+                <RotateCcw className="w-3 h-3 inline mr-1" />Reset
+              </button>
+            )}
+          </div>
+        </div>
+        {/* Mini chat frame so the line reads in context */}
+        <div className="p-4" style={{ minHeight: 80, backgroundColor: '#fcfbfa' }}>
+          {phase === 'idle' ? (
+            <p style={{ fontSize: 13, color: '#a8a29e', textAlign: 'center', padding: '16px 0' }}>
+              Cliquez Play, puis cliquez la ligne pour {variant === 'inline' ? "déplier les traces" : "ouvrir le panneau"}
+            </p>
+          ) : (
+            <div style={{ fontSize: 14, lineHeight: '20px', color: '#44403c' }}>
+              <p style={{ marginBottom: 8 }}>Je complète le dossier, plusieurs agents travaillent en parallèle :</p>
+              <ParallelTasks tasks={liveTasks} variant={variant} title="Complétion du dossier" />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderReasoningDemoPage = () => {
     const sH1 = { fontSize: 20, fontWeight: 700, color: '#292524', marginBottom: 6, marginTop: 48 };
     const sH2 = { fontSize: 15, fontWeight: 600, color: '#292524', marginBottom: 6, marginTop: 32 };
@@ -23415,6 +23538,56 @@ export default function App() {
                 expanded={true}
                 onToggle={() => {}}
               />
+            </div>
+
+            {/* ══════════════════════════════════════════════════════════════ */}
+            {/* PARALLEL TASKS                                               */}
+            {/* ══════════════════════════════════════════════════════════════ */}
+            <h1 style={sH1}>Tâches parallèles</h1>
+            <p style={{ ...sP, maxWidth: 700 }}>
+              Quand plusieurs sous-agents tournent en même temps, on ne montre pas N traces empilées. Chaque groupe se réduit à <b>une ligne inline</b> dans le chat&nbsp;: <span style={sCode}>gif + «&nbsp;{'{x}'} tâches simultanément en cours&nbsp;»</span>, puis un état terminé avec compteurs agrégés. Plusieurs lignes de ce type peuvent coexister dans la conversation. Cliquer une ligne la déplie — deux UX au choix (<span style={sCode}>variant="inline"</span> / <span style={sCode}>variant="panel"</span>).
+            </p>
+
+            {/* States — the line itself */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className={sCard}>
+                <p style={sLabel}>Ligne - en cours</p>
+                <ParallelTasksLine tasks={[
+                  { id: 1, label: 'Extraction des factures', status: 'loading', steps: [] },
+                  { id: 2, label: 'Calcul du poste DFT', status: 'loading', steps: [] },
+                  { id: 3, label: 'Vérification des doublons', status: 'done', steps: [] },
+                ]} />
+              </div>
+              <div className={sCard}>
+                <p style={sLabel}>Ligne - terminé</p>
+                <ParallelTasksLine tasks={[
+                  { id: 1, label: 'Extraction des factures', status: 'done', steps: [] },
+                  { id: 2, label: 'Calcul du poste DFT', status: 'done', steps: [] },
+                  { id: 3, label: 'Vérification des doublons', status: 'done', steps: [] },
+                ]} />
+              </div>
+            </div>
+
+            {/* Multiple lines coexisting in chat */}
+            <div className={sCard} style={{ marginBottom: 24, backgroundColor: '#fcfbfa' }}>
+              <p style={sLabel}>Plusieurs lignes dans le chat</p>
+              <div style={{ fontSize: 14, lineHeight: '20px', color: '#44403c' }}>
+                <p style={{ marginBottom: 6 }}>Analyse du dossier en cours :</p>
+                <div className="flex flex-col" style={{ gap: 2 }}>
+                  <ParallelTasksLine tasks={[{ status: 'loading', label: 'x', steps: [] }, { status: 'loading', label: 'y', steps: [] }]} />
+                  <ParallelTasksLine tasks={[{ status: 'loading', label: 'x', steps: [] }, { status: 'loading', label: 'y', steps: [] }, { status: 'loading', label: 'z', steps: [] }]} />
+                  <ParallelTasksLine tasks={[{ status: 'done', label: 'x', counters: { add: 2 }, steps: [] }, { status: 'done', label: 'y', counters: { update: 1 }, steps: [] }]} />
+                </div>
+              </div>
+            </div>
+
+            {/* Two interactive UX side by side */}
+            <p style={{ fontSize: 12, color: '#a8a29e', lineHeight: '18px', marginBottom: 12 }}>
+              Play&nbsp;: 3 sous-agents finissent à des moments différents, le compteur «&nbsp;en cours&nbsp;» décroît. Cliquez la ligne pour comparer les deux UX.
+            </p>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <ParallelTasksDemo variant="inline" />
+              <ParallelTasksDemo variant="panel" />
             </div>
 
             {/* ══════════════════════════════════════════════════════════════ */}

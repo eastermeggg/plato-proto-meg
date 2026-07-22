@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import {
   FileText, SearchCode, XCircle,
   ChevronDown, ChevronRight, Plus, Pencil,
@@ -18,6 +18,17 @@ export const STEP_COLORS = {
   primary: '#44403c',
   secondary: '#78716c',
 };
+
+// Controls the loading indicator used at the step/sub-agent (timeline) level.
+// 'gif' (default) = plato-thinking gif · 'dot' = calm pulsing dot.
+// ParallelTasks sets this to 'dot' so the gif is reserved for the card level.
+export const StepLoadingIndicatorContext = React.createContext('gif');
+
+const PulsingStepDot = () => (
+  <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+    <span className="animate-pulse" style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#a8a29e', display: 'block' }} />
+  </span>
+);
 
 // ── Icons ────────────────────────────────────────────────────────────
 
@@ -249,7 +260,8 @@ const ChildrenTree = ({ children, className = '' }) => (
 // ── Icon Slot — shared by StepRow and GroupRow ───────────────────────
 
 const IconSlot = ({ icon: Icon, color, isLoading, isExpandable, isExpanded }) => {
-  if (isLoading) return (
+  const loadingIndicator = useContext(StepLoadingIndicatorContext);
+  if (isLoading) return loadingIndicator === 'dot' ? <PulsingStepDot /> : (
     <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
       <img src="/plato-thinking.gif" alt="" className="w-3 h-3" style={{ objectFit: 'contain' }} />
     </span>
@@ -350,6 +362,7 @@ const GroupRow = ({ group }) => {
 // ── Sub-Agent Block ──────────────────────────────────────────────────
 
 const SubAgentBlock = ({ step, isStreaming }) => {
+  const loadingIndicator = useContext(StepLoadingIndicatorContext);
   const childSteps = (step.children_steps || []).map(normalizeStep);
   const isError = step.status === 'error';
   const isLoading = step.status === 'loading' || (isStreaming && step.status !== 'done' && step.status !== 'error');
@@ -358,7 +371,9 @@ const SubAgentBlock = ({ step, isStreaming }) => {
       <div className="flex items-start gap-2 p-1 rounded">
         <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
           {isLoading
-            ? <img src="/plato-thinking.gif" alt="" className="w-3 h-3" style={{ objectFit: 'contain' }} />
+            ? (loadingIndicator === 'dot'
+                ? <span className="animate-pulse" style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: STEP_COLORS.muted, display: 'block' }} />
+                : <img src="/plato-thinking.gif" alt="" className="w-3 h-3" style={{ objectFit: 'contain' }} />)
             : <Bot className="w-3.5 h-3.5" style={{ color: STEP_COLORS.default.icon }} />}
         </span>
         <span style={{ fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.12px', color: STEP_COLORS.primary }}>{step.label}</span>
@@ -432,6 +447,7 @@ const ReasoningStepper = ({
   done, // legacy
   expanded = false,
   onToggle,
+  loadingIndicator = 'gif',
 }) => {
   const status = statusProp || (done ? 'done' : 'streaming');
   const isStreaming = status === 'streaming';
@@ -454,19 +470,15 @@ const ReasoningStepper = ({
 
   const grouped = useMemo(() => groupSteps(normalizedSteps), [normalizedSteps]);
 
-  if (isStreaming) {
-    return (
-      <div className="flex flex-col gap-px w-full">
-        {normalizedSteps.map((step, si) =>
-          step.type === 'sub_agent'
-            ? <SubAgentBlock key={si} step={step} isStreaming />
-            : <StepRow key={si} step={step} isLast={si === normalizedSteps.length - 1} isStreaming />
-        )}
-      </div>
-    );
-  }
-
-  return (
+  const content = isStreaming ? (
+    <div className="flex flex-col gap-px w-full">
+      {normalizedSteps.map((step, si) =>
+        step.type === 'sub_agent'
+          ? <SubAgentBlock key={si} step={step} isStreaming />
+          : <StepRow key={si} step={step} isLast={si === normalizedSteps.length - 1} isStreaming />
+      )}
+    </div>
+  ) : (
     <div className="flex flex-col gap-px w-full">
       <CollapsedHeader summary={summary} counters={resolvedCounters} expanded={expanded} onToggle={onToggle} stepCount={normalizedSteps.length} />
       {expanded && grouped.length > 0 && (
@@ -479,6 +491,12 @@ const ReasoningStepper = ({
         </div>
       )}
     </div>
+  );
+
+  return (
+    <StepLoadingIndicatorContext.Provider value={loadingIndicator}>
+      {content}
+    </StepLoadingIndicatorContext.Provider>
   );
 };
 
