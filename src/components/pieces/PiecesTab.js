@@ -7,7 +7,7 @@ import FullCanvasDropZone from './FullCanvasDropZone';
 // GED container: search + folder tree. The drop zone is invisible — the
 // whole canvas accepts file drops via the container handlers.
 
-export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onAskChato, onGenerateBordereau, onQuickGenerateBordereau }) {
+export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onImportEmails, onAskChato, onGenerateBordereau, onQuickGenerateBordereau }) {
   const [query, setQuery] = useState('');
   const [dragOver, setDragOver] = useState(false);
 
@@ -108,6 +108,7 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
               setPieces={setPieces}
               setCategories={setCategories}
               onAddFiles={onAddFiles}
+              onImportEmails={onImportEmails}
               onAskChato={onAskChato}
               forceExpandAll={query.trim() !== ''}
             />

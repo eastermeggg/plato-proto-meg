@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, MessageSquarePlus, Plus, ChevronDown, FilePlus2, Combine, Scissors, Link2 } from 'lucide-react';
+import { Pencil, Download, Trash2, Move, FolderPlus, ArrowUp, ArrowDown, X, MessageSquarePlus, Plus, ChevronDown, FilePlus2, Combine, Scissors, Link2, Mail } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import { buildTreeViewRows } from '../../data/piecesModel';
 import CategoryHeader from './CategoryHeader';
@@ -23,6 +23,7 @@ export default function BordereauTable({
   setCategories,
   onOpenPiecePreview,
   onAddFiles,
+  onImportEmails,
   onAskChato,
   onFusePieces,
   onToggleDocSplit,
@@ -561,6 +562,7 @@ export default function BordereauTable({
         position={addMenu}
         items={[
           { icon: FilePlus2,  label: 'Nouveau fichier', onClick: () => onAddFiles?.() },
+          ...(onImportEmails ? [{ icon: Mail, label: 'Importer depuis Outlook', onClick: () => onImportEmails() }] : []),
           { icon: FolderPlus, label: 'Nouveau dossier', onClick: () => setCreateFolderOpen(true) },
         ]}
         onClose={() => setAddMenu(null)}

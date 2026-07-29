@@ -28,6 +28,11 @@ export const BORDEREAU_CATEGORIES = [
   { id: 'cat-revenus', name: 'Pertes de revenus', parentId: null, order: 4 },
   { id: 'cat-bulletins', name: 'Bulletins de salaire', parentId: 'cat-revenus', order: 0 },
   { id: 'cat-indemnites', name: 'Indemnités & attestations', parentId: 'cat-revenus', order: 1 },
+
+  // VI. Correspondance - home of the imported échanges (email bodies) ONLY.
+  // Documents (including PJ, even Correspondance-typed ones) classify by
+  // their own type into the folders above, never here.
+  { id: 'cat-correspondance', name: 'Correspondance', parentId: null, order: 5 },
 ];
 
 export const BORDEREAU_PIECES = [
@@ -128,4 +133,42 @@ export const BORDEREAU_PIECES = [
     categoryId: null, inclureDansBordereau: true, orderInCategory: 1 },
   { id: 'p-sc3', nom: 'Échanges assureur.pdf', nomOriginal: 'mails_axa.pdf', intitule: "Échanges de courriels avec l'assureur", date: '02/12/2024', type: 'Correspondance', used: false,
     categoryId: null, inclureDansBordereau: true, orderInCategory: 2 },
+];
+
+// ────────────────────────────────────────────────────────────────────────
+// DROIT SOCIAL (prud'hommes) — folders + pièces adapted to the matter type.
+// Used when the dossier's matterType === 'social'.
+
+export const BORDEREAU_CATEGORIES_SOCIAL = [
+  { id: 'soc-contrat', name: 'Contrat & rémunération', parentId: null, order: 0 },
+  { id: 'soc-temps', name: 'Temps de travail', parentId: null, order: 1 },
+  { id: 'soc-rupture', name: 'Rupture', parentId: null, order: 2 },
+  { id: 'soc-proc', name: 'Procédure', parentId: null, order: 3 },
+  // V. Correspondance - imported échanges (email bodies) land here.
+  { id: 'soc-correspondance', name: 'Correspondance', parentId: null, order: 4 },
+];
+
+export const BORDEREAU_PIECES_SOCIAL = [
+  // I. Contrat & rémunération
+  { id: 'sp-1', nom: 'Contrat de travail.pdf', nomOriginal: 'contrat_cdi_aubert.pdf', intitule: 'Contrat de travail (CDI)', date: '02/05/2020', type: 'Contrat', used: true,
+    description: 'Contrat à durée indéterminée, poste de cariste.', categoryId: 'soc-contrat', inclureDansBordereau: true, orderInCategory: 0 },
+  { id: 'sp-2', nom: 'Avenant n°1.pdf', nomOriginal: 'avenant_1.pdf', intitule: 'Avenant n°1 au contrat', date: '01/09/2021', type: 'Contrat', used: true,
+    description: 'Passage en horaires postés (équipes 2×8).', categoryId: 'soc-contrat', inclureDansBordereau: true, orderInCategory: 1 },
+  { id: 'sp-3', nom: 'Bulletins de salaire 2022-2023.pdf', nomOriginal: 'bulletins_paie.pdf', intitule: 'Bulletins de salaire (12 mois)', date: '30/06/2023', type: 'Bulletin', used: true,
+    description: 'Bulletins de paie des 12 derniers mois, base du salaire de référence.', categoryId: 'soc-contrat', inclureDansBordereau: true, orderInCategory: 2 },
+  // II. Temps de travail
+  { id: 'sp-4', nom: "Relevé d'heures.pdf", nomOriginal: 'releve_heures.pdf', intitule: "Relevé d'heures", date: '30/06/2023', type: 'Relevé', used: true,
+    description: 'Heures travaillées reconstituées sur la période.', categoryId: 'soc-temps', inclureDansBordereau: true, orderInCategory: 0 },
+  { id: 'sp-5', nom: "Relevés de badge d'accès.pdf", nomOriginal: 'badges_acces.csv', intitule: "Relevés de badge d'accès", date: '12/06/2023', type: 'Preuve', used: true,
+    description: "Heures d'entrée et de sortie issues du contrôle d'accès.", categoryId: 'soc-temps', inclureDansBordereau: true, orderInCategory: 1 },
+  { id: 'sp-6', nom: 'E-mails professionnels.pdf', nomOriginal: 'emails_pro.pdf', intitule: "E-mails (preuves d'horaires)", date: '03/05/2023', type: 'Preuve', used: true,
+    description: 'Courriels matinaux et tardifs attestant des dépassements horaires.', categoryId: 'soc-temps', inclureDansBordereau: true, orderInCategory: 2 },
+  // III. Rupture
+  { id: 'sp-7', nom: 'Convocation entretien préalable.pdf', nomOriginal: 'convocation_ep.pdf', intitule: 'Convocation à entretien préalable', date: '15/06/2023', type: 'Courrier', used: true,
+    description: "Convocation à l'entretien préalable au licenciement.", categoryId: 'soc-rupture', inclureDansBordereau: true, orderInCategory: 0 },
+  { id: 'sp-8', nom: 'Lettre de licenciement.pdf', nomOriginal: 'lettre_licenciement.pdf', intitule: 'Lettre de licenciement', date: '30/06/2023', type: 'Courrier', used: true,
+    description: 'Notification du licenciement et de ses motifs.', categoryId: 'soc-rupture', inclureDansBordereau: true, orderInCategory: 1 },
+  // IV. Procédure
+  { id: 'sp-9', nom: "Requête au conseil de prud'hommes.pdf", nomOriginal: 'requete_cph.pdf', intitule: 'Requête au CPH', date: '12/09/2023', type: 'Procédure', used: true,
+    description: 'Saisine du conseil de prud’hommes de Nanterre.', categoryId: 'soc-proc', inclureDansBordereau: true, orderInCategory: 0 },
 ];

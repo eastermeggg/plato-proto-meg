@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import ParallelTasks, { ParallelTasksLine } from './components/ParallelTasks';
+import ChatComposerNotice, { NOTICE_WRAP_BG } from './components/ChatComposerNotice';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { JPPill, DecisionDrawer, JPRow, JPListingChat, JPListingPosteDetail, JPMemoryRow, JPAddStepper, SlashCommandPalette, JPSearchView, FicheCabinetModal, JPRationaleModal } from './components/jp';
@@ -28,18 +29,32 @@ import TokensSection from './components/ui-kit/TokensSection';
 import ComponentsInventorySection from './components/ui-kit/ComponentsInventorySection';
 import ComponentDetailPage from './components/ui-kit/ComponentDetailPage';
 import SommaireActeLab from './components/ui-kit/SommaireActeLab';
+import ImportDossierLab from './components/ui-kit/ImportDossierLab';
+import PreviewDocLab from './components/ui-kit/PreviewDocLab';
+import OnboardingFlow from './components/OnboardingFlow';
+import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
+import WeeklyUsageCard from './components/billing/WeeklyUsageCard';
+import PlanFeatureList from './components/billing/PlanFeatureList';
+import LicenceSummaryCard from './components/billing/LicenceSummaryCard';
+import LicencePicker from './components/billing/LicencePicker';
 import { BASELINE_DSA_LIGNES, BASELINE_DFT_LIGNES, BASELINE_PGPA_DATA, BASELINE_PGPF_DATA, BASELINE_FORM_POSTE_DATA, BASELINE_FDA_LIGNES, BASELINE_DSF_DATA } from './data/baselineData';
 import { NATURE_CREANCE, NATURE_TO_POSTE, NATURE_LABELS } from './data/tpScenarios';
 import PiecesTab from './components/pieces/PiecesTab';
 import BordereauTable from './components/pieces/BordereauTable';
+import ImportEmailDialog from './components/pieces/ImportEmailDialog';
+import { OUTLOOK_THREADS, OUTLOOK_FOLDERS } from './data/emailSeed';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
-import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES } from './data/piecesSeed';
+import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES, BORDEREAU_PIECES_SOCIAL, BORDEREAU_CATEGORIES_SOCIAL } from './data/piecesSeed';
 import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows } from './data/piecesModel';
 import { getPileById } from './data/pilesSeed';
 import PileReviewBanner from './components/pieces/PileReviewBanner';
 import PileAdjustSheet from './components/pieces/PileAdjustSheet';
 import FusePiecesModal from './components/pieces/FusePiecesModal';
 import SplitVariantsLab from './components/pieces/SplitVariantsLab';
+import { ReleveEditor } from './components/social/ReleveHeuresLab';
+import CotisationsSection, { PrelevementPage, ResultatsBloc, LinePanel, CotRow, ValuePill, ROW_DIVIDER } from './components/social/CotisationsSection';
+import CotisationsLab from './components/ui-kit/CotisationsLab';
+import { COTISATIONS_PAGES, resolveCotLigne } from './data/cotisationsSocial';
 import {
   ChiffrageSlot,
   RedactionSlot,
@@ -53,57 +68,10 @@ import {
 
 const DEFAULT_PREFERENCE_SLOTS = { ...PREFERENCE_SLOT_DEFAULTS };
 
-// ───────────────────────────────────────────────────────────────────────────
 // Pricing model (Réflexion Vic) - per-user licences + weekly usage quota.
-// Replaces the legacy "prix au dossier / quota annuel" model: matters are now
-// unlimited, and each licensed user gets a weekly token-consumption budget shown
-// only as a 0–100 % gauge (never tokens, never euros). `quotaMult` (×1/×2/×6) is
-// the relative weekly headroom; the euro-equivalent budget is internal.
-// ───────────────────────────────────────────────────────────────────────────
-const PRICING_PLANS = [
-  // weeklyEuros = euro-equivalent of real AI usage the weekly quota covers (admin-facing
-  // pricing context only - lawyers only ever see the 0–100 % gauge).
-  { id: 'PRO',  name: 'Pro',   monthly: 150, quotaMult: 1, weeklyEuros: 40 },
-  { id: 'MAX',  name: 'Max',   monthly: 290, quotaMult: 2, weeklyEuros: 80 },
-  { id: 'MAX+', name: 'Max +', monthly: 590, quotaMult: 6, weeklyEuros: 160 },
-];
-const PLAN_BY_ID = Object.fromEntries(PRICING_PLANS.map((p) => [p.id, p]));
-
-// Weekly-usage gauge ramp - on-brand stone → amber → peach as the week fills.
-// No green/red: stays inside the stone+cream+peach palette. Mirrors the existing
-// warning palette (#bd6c1a fill / #855b31 text) at the top of the range.
-const quotaTone = (pct) => {
-  if (pct >= 90) return { fill: '#bd6c1a', text: '#855b31', track: '#f1e4d3', warn: true };
-  if (pct >= 70) return { fill: '#c98a3c', text: '#855b31', track: '#eeece6', warn: false };
-  return { fill: '#292524', text: '#78716c', track: '#eeece6', warn: false };
-};
-
-// Demo weekly-usage % for the current user, driven by the billing demo switcher.
-const QUOTA_FILL_PCT = { fresh: 16, mid: 63, full: 100 };
-
-// What every licence includes - shown on "Mon usage" and (historically) the plan page.
-const PLAN_FEATURES = [
-  { icon: Folder, label: 'Dossiers illimités' },
-  { icon: Users, label: 'Utilisateurs illimités' },
-  { icon: Sparkles, label: 'Agent IA - quota hebdomadaire selon le plan' },
-  { icon: Calculator, label: 'Chiffrages illimités' },
-  { icon: BookOpen, label: 'Accès à Plato Jurisprudence illimité' },
-  { icon: ClipboardList, label: 'Bordereau et découpe automatique des documents', hint: "jusqu'à 1 000p par PDF" },
-  { icon: ShieldCheck, label: 'Tamponnage automatique des pièces' },
-  { icon: Download, label: 'Export PDF et Word' },
-];
-
-// What each licence includes - shown on the cabinet "Plan et facturation" page.
-// Kept distinct from PLAN_FEATURES (the per-user "Mon usage" recap): here every
-// row is unlimited, framed at the licence level rather than the individual quota.
-const LICENCE_INCLUDED_FEATURES = [
-  { icon: Sparkles, label: 'Agent IA illimité' },
-  { icon: Calculator, label: 'Chiffrages illimités' },
-  { icon: Scale, label: 'Accès à Plato Jurisprudence illimité' },
-  { icon: FileSpreadsheet, label: 'Bordereau et découpe automatique des documents' },
-  { icon: Stamp, label: 'Tamponnage automatique des pièces' },
-  { icon: Download, label: 'Export PDF et Word' },
-];
+// PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES,
+// LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL and fmtEur now live in
+// ./data/pricing (single source of truth, shared with the onboarding flow).
 
 const POSTES_TAXONOMY = [
   {
@@ -394,9 +362,20 @@ function guessFileType(name) {
 // add flow) into processing items. Each file is matched to mock metadata of its
 // detected type (so it's classified by its name), one item per file, carrying
 // the per-document split choice. No random stack injection.
-function buildStagedProcessingItems(files, rapportFileId, idPrefix) {
+// Droit social drop pool — what the "extraction" reveals for a labour matter.
+// Each entry carries an explicit categoryId so it sorts into the social folders.
+const DROP_FIRST_DOCUMENT_POOL_SOCIAL = [
+  { id: 'dfs-1', originalName: 'contrat_cdi.pdf', cleanName: 'Contrat de travail (CDI)', type: 'Contrat', date: '2020-05-02', categoryId: 'soc-contrat', postesLies: [], summary: 'Contrat à durée indéterminée, poste de cariste, statut employée.', extractedInfo: { 'Type': 'CDI', 'Poste': 'Cariste', "Date d'embauche": '02/05/2020', 'Statut': 'Employée' }, pages: 6 },
+  { id: 'dfs-2', originalName: 'bulletins_paie.pdf', cleanName: 'Bulletins de salaire (12 mois)', type: 'Bulletin', date: '2023-06-30', categoryId: 'soc-contrat', postesLies: ['HS', 'IL'], summary: 'Bulletins de paie des 12 derniers mois, base du salaire de référence (moyenne 2 504 € brut).', extractedInfo: { 'Période': 'Juil. 2022 à juin 2023', 'Salaire brut moyen': '2 504 €', 'Convention': 'Transport routier' }, pages: 12 },
+  { id: 'dfs-3', originalName: 'releve_heures.pdf', cleanName: "Relevé d'heures", type: 'Relevé', date: '2023-06-30', categoryId: 'soc-temps', postesLies: ['HS', 'CP'], summary: 'Heures travaillées reconstituées : 430 h supplémentaires non rémunérées sur la période.', extractedInfo: { 'Heures supplémentaires': '430 h', 'Période': 'Janv. 2022 à juin 2023' }, pages: 9 },
+  { id: 'dfs-4', originalName: 'badges_acces.csv', cleanName: "Relevés de badge d'accès", type: 'Preuve', date: '2023-06-12', categoryId: 'soc-temps', postesLies: ['HS'], summary: "Heures d'entrée et de sortie issues du contrôle d'accès, étayant les dépassements.", extractedInfo: { 'Source': "Contrôle d'accès", 'Jours couverts': '312' }, pages: 4 },
+  { id: 'dfs-5', originalName: 'lettre_licenciement.pdf', cleanName: 'Lettre de licenciement', type: 'Courrier', date: '2023-06-30', categoryId: 'soc-rupture', postesLies: ['PRÉA', 'IL', 'DI'], summary: 'Notification du licenciement et de ses motifs (insuffisance professionnelle).', extractedInfo: { 'Motif': 'Insuffisance professionnelle', 'Date': '30/06/2023', 'Préavis': '2 mois' }, pages: 2 },
+  { id: 'dfs-6', originalName: 'requete_cph.pdf', cleanName: "Requête au conseil de prud'hommes", type: 'Procédure', date: '2023-09-12', categoryId: 'soc-proc', postesLies: [], summary: 'Saisine du conseil de prud’hommes de Nanterre.', extractedInfo: { 'Juridiction': 'CPH de Nanterre', 'Date de saisine': '12/09/2023' }, pages: 5 },
+];
+
+function buildStagedProcessingItems(files, rapportFileId, idPrefix, pool = DROP_FIRST_DOCUMENT_POOL) {
   const poolByType = {};
-  DROP_FIRST_DOCUMENT_POOL.forEach(e => { (poolByType[e.type] || (poolByType[e.type] = [])).push(e); });
+  pool.forEach(e => { (poolByType[e.type] || (poolByType[e.type] = [])).push(e); });
   const typeSeq = {};
   let seq = 0;
   const stamp = Date.now();
@@ -405,12 +384,16 @@ function buildStagedProcessingItems(files, rapportFileId, idPrefix) {
     const guessedType = isRapport ? 'Expertise' : (f.guessedType || guessFileType(f.name));
     const bucket = poolByType[guessedType];
     let poolEntry;
-    if (bucket && bucket.length) {
+    if (f.emailPool) {
+      // Email-imported item (thread body or attachment): its metadata comes
+      // from the échange itself, not the generic type pool.
+      poolEntry = f.emailPool;
+    } else if (bucket && bucket.length) {
       const n = typeSeq[guessedType] || 0;
       typeSeq[guessedType] = n + 1;
       poolEntry = bucket[n % bucket.length];
     } else {
-      poolEntry = DROP_FIRST_DOCUMENT_POOL[seq++ % DROP_FIRST_DOCUMENT_POOL.length];
+      poolEntry = pool[seq++ % pool.length];
     }
     return {
       id: `${idPrefix}-${stamp}-${i}`,
@@ -422,8 +405,74 @@ function buildStagedProcessingItems(files, rapportFileId, idPrefix) {
       fakeSize: f.fakeSize,
       isRapport,
       splitChoice: !!f.splitEnabled,
+      emailMeta: f.emailMeta || undefined,
     };
   });
+}
+
+// Turn Outlook threads (échanges) picked in the ImportEmailDialog into staged
+// file objects. Each thread yields one item for the thread body - the email
+// text itself is a pièce, typed Correspondance - plus one item per attachment,
+// classified by its own type. `emailPool` mirrors the DROP_FIRST_DOCUMENT_POOL
+// entry shape so buildStagedProcessingItems / startProcessingSimulation treat
+// these like any dropped file; `emailMeta` keeps the provenance for the rows.
+function buildEmailStagedFiles(threads, { includeAttachments = true } = {}) {
+  const stamp = Date.now();
+  const files = [];
+  threads.forEach((t, ti) => {
+    files.push({
+      id: `mail-${stamp}-${ti}-body`,
+      name: `${t.subject}.eml`,
+      fakeSize: (0.1 + Math.random() * 0.4).toFixed(1) + ' Mo',
+      status: 'ready',
+      guessedType: 'Correspondance',
+      splitEnabled: false,
+      emailPool: {
+        cleanName: t.body.cleanName,
+        type: 'Correspondance',
+        date: t.date,
+        postesLies: [],
+        summary: t.body.summary,
+        extractedInfo: t.body.extractedInfo || null,
+        pages: t.body.pages || 1,
+        splits: null,
+      },
+      emailMeta: {
+        kind: 'body',
+        label: `Courriel · De : ${t.from} · ${t.messages} message${t.messages > 1 ? 's' : ''}`,
+        subject: t.subject,
+        from: t.from,
+        threadId: t.id,
+        messages: t.messages,
+        // Original PJ names of the échange - the panel cross-links each one
+        // to its imported pièce (or flags it « non importée »).
+        attachmentNames: (t.attachments || []).map(a => a.name),
+      },
+    });
+    // Attachments are optional: an avocat who already dropped the documents
+    // from the Finder imports only the correspondence (no doublons).
+    if (!includeAttachments) return;
+    (t.attachments || []).forEach((att, ai) => {
+      files.push({
+        id: `mail-${stamp}-${ti}-att-${ai}`,
+        name: att.name,
+        fakeSize: (0.3 + Math.random() * 3).toFixed(1) + ' Mo',
+        status: 'ready',
+        guessedType: att.pool.type,
+        splitEnabled: false,
+        emailPool: { postesLies: [], extractedInfo: null, splits: null, ...att.pool },
+        emailMeta: {
+          kind: 'attachment',
+          label: `Pièce jointe · ${t.subject}`,
+          subject: t.subject,
+          from: t.from,
+          threadId: t.id,
+          attName: att.name,
+        },
+      });
+    });
+  });
+  return files;
 }
 
 // Tri-state "Tout découper" checkbox in the staging counter row: checked (all
@@ -1216,6 +1265,11 @@ if (window.location.search.includes('reset')) {
   window.location.replace(window.location.pathname);
 }
 
+// Captured once at load (before the router can strip the query) — « ?demo=social »
+// seeds + opens a droit-social matter straight on Chiffrage › Relevé d'heures.
+let DEMO_SOCIAL = false;
+try { DEMO_SOCIAL = new URLSearchParams(window.location.search).get('demo') === 'social'; } catch (e) {}
+
 // Small hover-triggered info tooltip - renders a peach-tinted popover above
 // the icon with a short explanation. Used in PlanCard footer rows to explain
 // what each metric means.
@@ -1282,7 +1336,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'trial-flow', 'preview-doc', 'cotisations'];
 const UI_KIT_SUBSECTION_SLUGS = [
   'tokens',
   'inventory',
@@ -1299,12 +1353,14 @@ const UI_KIT_SUBSECTION_SLUGS = [
   'bareme-components',
   'jp',
   'split-variants',
+  'film-social',
 ];
 
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
   if (clean === '/' || clean === '') return { page: 'list', section: null };
   if (clean === '/settings') return { page: 'settings', section: null };
+  if (clean === '/welcome') return { page: 'welcome', section: null };
   if (clean === '/dossier') return { page: 'dossier', section: null };
   if (clean === '/ui-kit') return { page: 'components', section: null };
   if (clean.startsWith('/ui-kit/c/')) {
@@ -1323,6 +1379,7 @@ function pathToPage(pathname) {
 function pageToPath(page) {
   if (page === 'list') return '/';
   if (page === 'settings') return '/settings';
+  if (page === 'welcome') return '/welcome';
   if (page === 'dossier') return '/dossier';
   if (page === 'components') return '/ui-kit';
   if (UI_KIT_DEDICATED_PAGES.includes(page)) return `/ui-kit/${page}`;
@@ -1356,7 +1413,7 @@ export default function App() {
   const [activeDossierId, setActiveDossierId] = useState(null);
 
   // ========== SETTINGS ==========
-  const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
+  const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'connecteurs' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
   // Parrainage - modal-only feature triggered from the sidebar promo card
   const [parrainageModalOpen, setParrainageModalOpen] = useState(false);
   const [parrainageForm, setParrainageForm] = useState({ prenom: '', nom: '', email: '' });
@@ -1367,13 +1424,17 @@ export default function App() {
   const [tamponPosition, setTamponPosition] = useState('bas-droite'); // 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite'
   // Billing demo model (Réflexion Vic). `billingState` = current user's lifecycle;
   // `quotaFill` = their weekly-gauge level; `demoPersona` flips who "me" is.
-  const [billingState, setBillingState] = useState('active'); // 'active' | 'trial' | 'trial-end' | 'none' (Ø licence → lecture seule)
+  const [billingState, setBillingState] = useState('active'); // 'trial' | 'active' | 'none' (Ø licence → lecture seule)
   const [quotaFill, setQuotaFill] = useState('mid');          // 'fresh' | 'mid' | 'full'
   const [demoPersona, setDemoPersona] = useState('admin');    // 'admin' (u-1) | 'member' (u-2)
   // A licence exists only when held by a collaborator - created at invite time
   // or by assigning a plan to a member. There is no standalone "buy seats" pool,
   // hence no purchased-vs-assigned counter (X/X licences).
   const [askUpgradeOpen, setAskUpgradeOpen] = useState(false); // member requests an upgrade from their admin
+  const [demoTrialDay, setDemoTrialDay] = useState(3); // demo: which day of the trial (1-7)
+  const [cancelTrialStep, setCancelTrialStep] = useState(null); // null | 'reason' | 'confirm'
+  const [cancelTrialReason, setCancelTrialReason] = useState(null);
+  const [cancelTrialConfirmText, setCancelTrialConfirmText] = useState('');
   const [dossierIndicatorHover, setDossierIndicatorHover] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [workspaceMembers, setWorkspaceMembers] = useState([
@@ -1391,10 +1452,31 @@ export default function App() {
     if (m.plan) acc[m.plan] = (acc[m.plan] || 0) + 1;
     return acc;
   }, {});
-  // Effective plan shown for the current user's own gauge: trial/active use their
-  // assignment (fallback Pro); 'none' = Ø licence (lecture seule).
+  // Effective plan: trial and active use their assignment (fallback Pro);
+  // none = Ø licence = lecture seule.
   const myPlan = billingState === 'none' ? null : (currentUser?.plan ? PLAN_BY_ID[currentUser.plan] : PLAN_BY_ID.PRO);
   const myQuotaPct = QUOTA_FILL_PCT[quotaFill] ?? 63;
+  // Free-trial clock (7 days). At signup the admin enters the card and picks
+  // the licences; the whole cabinet trials together and the subscription
+  // auto-converts at day 7. Three states only: trial, active, none.
+  // Cancelling during trial = account deletion (out of scope for the
+  // prototype - the button shows a toast). Demo pins the day.
+  const TRIAL_TOTAL_DAYS = 7;
+  const isTrialing = billingState === 'trial';
+  const trialDayNumber = isTrialing ? demoTrialDay : 0;
+  const trialDaysRemaining = isTrialing ? TRIAL_TOTAL_DAYS - trialDayNumber : 0;
+  const totalLicenceCount = Object.values(licencesAssigned).reduce((a, b) => a + b, 0);
+  const trialEndDateLabel = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + trialDaysRemaining);
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  })();
+  // Blue (calm, days 1-4) -> amber (urgency, days 5-7). The shift happens
+  // when more than half the trial is gone (<=3 days remaining).
+  const trialUrgent = isTrialing && trialDaysRemaining <= 3;
+  const trialTone = trialUrgent
+    ? { text: '#855b31', bg: '#f9ecd6', gradient: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)', bar: '#bd6c1a', barTrack: 'rgba(133,91,49,0.15)', border: 'rgba(238,185,126,0.5)' }
+    : { text: '#1e3a8a', bg: '#e0eaf6', gradient: 'linear-gradient(180deg, #e0eaf6 0%, #ffffff 100%)', bar: '#1e3a8a', barTrack: 'rgba(30,58,138,0.15)', border: '#d7e2f2' };
   // Account monthly total = every active licence × its price (one per collaborator).
   const accountMonthlyTotal = PRICING_PLANS.reduce((s, p) => s + (licencesAssigned[p.id] || 0) * p.monthly, 0);
   const applyAssignPlan = (memberId, planId) => {
@@ -1422,6 +1504,9 @@ export default function App() {
   const [orgName, setOrgName] = useState('Cabinet Hexa'); // cabinet / organisation display name (editable by admin in org settings)
   const [orgNameDraft, setOrgNameDraft] = useState(null); // in-progress org-name edit (null = not editing)
   const [accountEdits, setAccountEdits] = useState({}); // in-progress edits to the current user's name + email (Général settings)
+  // Email mailbox connection (Connecteurs settings). Backend is Nylas; the
+  // prototype only models the connect/disconnect UX. Per-user, read-only scope.
+  const [emailConnection, setEmailConnection] = useState({ status: 'connected', provider: 'outlook', account: 'cabinet@durand-avocats.fr' });
   const [preferenceDocs, setPreferenceDocs] = useState([]);
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
@@ -1484,7 +1569,13 @@ export default function App() {
     if (captureMode === 'addfiles') return { files: CAPTURE_SAMPLE_FILES, rapportFileId: null, rapportDismissed: true, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'add' };
     return null;
   }); // null | { files: [...], rapportFileId: null|string, rapportDismissed: false }
+  const [socialDetail, setSocialDetail] = useState(null); // droit social: null | 'salaire' | 'releve' — intrant detail sub-view inside the chiffrage
+  const [socialSalaireBasis, setSocialSalaireBasis] = useState('12'); // '12' | '3' — reference-salary basis
+  const [socialResultPanel, setSocialResultPanel] = useState(null); // bloc de résultats: ligne résolue auditée dans le panneau latéral
   const [dropFirstPieces, setDropFirstPieces] = useState([]); // array of { id, originalName, cleanName, type, date, postesLies, summary, extractedInfo, pages, status, sourceFile?, pageRange?, siblings?, poolRef }
+  // « Importer depuis Outlook » picker - null (closed) | 'dossier' (import
+  // straight into the open dossier) | 'staging' (feed the drop/SAS modal).
+  const [emailImportTarget, setEmailImportTarget] = useState(null);
   const [dropFirstHasRapport, setDropFirstHasRapport] = useState(false);
   const [dropFirstProcessingDone, setDropFirstProcessingDone] = useState(false);
   const [dropFirstActive, setDropFirstActive] = useState(false); // true → render new (drop-first) info dossier layout
@@ -1899,6 +1990,9 @@ export default function App() {
   // ========== PIECES (niveau dossier) ==========
   const [pieces, setPieces] = useState(BORDEREAU_PIECES);
   const [bordereauCategories, setBordereauCategories] = useState(BORDEREAU_CATEGORIES);
+  // Droit social: separate pièces + folders (adapted to the matter type), used when matterType === 'social'.
+  const [socialPieces, setSocialPieces] = useState(BORDEREAU_PIECES_SOCIAL);
+  const [socialCategories, setSocialCategories] = useState(BORDEREAU_CATEGORIES_SOCIAL);
 
   // ========== DSA ==========
   const [dsaLignes, setDsaLignes] = useState(BASELINE_DSA_LIGNES);
@@ -2093,6 +2187,7 @@ export default function App() {
   // Init: restore from localStorage on mount
   useEffect(() => {
     if (captureMode) { isInitialLoad.current = false; return; } // TEMP CAPTURE: skip restore so we stay on the captured screen
+    if (DEMO_SOCIAL) { isInitialLoad.current = false; return; } // « ?demo=social » — skip restore so the seeded demo matter isn't reverted
     // A bare /dossier URL (bookmark, stale link) carries no dossier ID - there's no
     // valid dossier to open, so it can only land on a stale/broken view. Always send
     // such direct loads home to "Mes dossiers" instead of restoring stale state.
@@ -2155,7 +2250,12 @@ export default function App() {
   useEffect(() => {
     if (infoDossierStreaming && !infoDossierStreaming.active && !chatPostesAnnounced.current) {
       chatPostesAnnounced.current = true;
-      const detectedPostes = DROP_FIRST_POSTES_DETECTES;
+      const isSocial = (dossiers.find(d => d.id === activeDossierId) || {}).matterType === 'social';
+      const detectedPostes = isSocial ? ['HS', 'CP', 'PRÉA', 'IL', 'DI'] : DROP_FIRST_POSTES_DETECTES;
+      const dossierFields = isSocial ? "Nom, prénom, poste occupé, date d'embauche, salaire de référence" : "Nom, prénom, date de naissance, profession, date de l'accident";
+      const postesNoun = isSocial ? 'postes (rappels et indemnités)' : 'postes de préjudice';
+      const readDocLabel = isSocial ? 'Lecture du contrat et des bulletins de salaire' : "Lecture du rapport d'expertise médicale";
+      const extractChildren = isSocial ? ['Identité', 'Poste occupé', 'Salaire de référence'] : ['Identité', 'Date de naissance', 'N° dossier'];
       const posteIds = detectedPostes.map(acronym => {
         const found = POSTES_TAXONOMY.flatMap(s => s.categories.flatMap(c => c.postes)).find(p => (p.acronym || '').toUpperCase() === acronym.toUpperCase() || p.id.toUpperCase() === acronym.toUpperCase());
         return found?.id;
@@ -2206,8 +2306,8 @@ export default function App() {
               expanded: false,
               steps: [
                 ...(m.steps || []),
-                { tool: 'extractInfoDossier', detail: 'Je remplis les informations du dossier', expandedText: 'Nom, prénom, date de naissance, profession, date de l\'accident' },
-                { tool: 'detectPostes', detail: `J'ai identifié ${detectedPostes.length} postes de préjudice`, expandedText: detectedPostes.join(', ') },
+                { tool: 'extractInfoDossier', detail: 'Je remplis les informations du dossier', expandedText: dossierFields },
+                { tool: 'detectPostes', detail: `J'ai identifié ${detectedPostes.length} ${postesNoun}`, expandedText: detectedPostes.join(', ') },
               ],
             };
           }
@@ -2245,8 +2345,8 @@ export default function App() {
             counters: { add: detectedPostes.length, update: 1 },
             steps: [
               { type: 'read_documents', label: 'Analyse de 8 documents', status: 'done' },
-              { type: 'read_rapport', label: "Lecture du rapport d'expertise médicale", status: 'done' },
-              { type: 'extract_data', label: 'Extraction des informations du dossier', status: 'done', children: ['Identité', 'Date de naissance', 'N° dossier'] },
+              { type: 'read_rapport', label: readDocLabel, status: 'done' },
+              { type: 'extract_data', label: 'Extraction des informations du dossier', status: 'done', children: extractChildren },
               { type: 'verify_data', label: 'Vérification des données extraites', status: 'done' },
               ...detectedPostes.map(acronym => ({
                 type: 'add_row', label: `Poste ${acronym} identifié`, status: 'done', poste: acronym,
@@ -2257,7 +2357,7 @@ export default function App() {
           },
           {
             type: 'ai',
-            text: `C'est fait : j'ai rempli les informations du dossier (onglet Dossier) et identifié ${detectedPostes.length} postes de préjudice à 0 € (onglet Chiffrage). Cliquez sur un poste pour lancer le calcul.`,
+            text: `C'est fait : j'ai rempli les informations du dossier (onglet Dossier) et identifié ${detectedPostes.length} ${postesNoun} à 0 € (onglet Chiffrage). Cliquez sur un poste pour lancer le calcul.`,
           },
         ];
       });
@@ -2686,6 +2786,8 @@ export default function App() {
   };
 
   const currentLevel = navStack[navStack.length - 1] || { type: 'dossier', activeTab: 'dossier' };
+  // Matter type of the active dossier — drives the Dossier + Chiffrage layout fork (corporel vs droit social).
+  const activeMatterType = (dossiers.find(d => d.id === activeDossierId) || {}).matterType || 'corporel';
 
   const fmt = (n) => n != null ? n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '— €';
   const getPieceLabel = (pieceId) => {
@@ -3634,7 +3736,8 @@ export default function App() {
       date: formData.dateAccident,
       lastEditBy: 'Meghan R.',
       lastEditDate: new Date().toLocaleDateString('fr-FR'),
-      statut: 'ouvert'
+      statut: 'ouvert',
+      matterType: formData.matterType || 'corporel'
     }, ...prev]);
 
     setVictimeData({
@@ -3698,6 +3801,18 @@ export default function App() {
     setCurrentPage('dossier');
     setCreationWizard(null);
   };
+
+  // one-click demo — « ?demo=social » seeds + opens a droit-social matter straight on
+  // Chiffrage › Relevé d'heures, so the labor flow is reachable without the drop-first modal.
+  const demoSocialBooted = useRef(false);
+  useEffect(() => {
+    if (DEMO_SOCIAL && !demoSocialBooted.current) {
+      demoSocialBooted.current = true;
+      handleCreateDossier({ nom: 'Aubert', prenom: 'Camille', matterType: 'social', typeFait: 'Rappel d’heures supplémentaires', dateAccident: '01/09/2022', sexe: 'Femme', dateNaissance: '14/03/1989' }, 'chiffrage');
+      setSocialDetail('releve');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ========== EXTRACTION DEPUIS EMPTY STATE ==========
   const [extractionState, setExtractionState] = useState(null); // { phase, progress }
@@ -4874,7 +4989,7 @@ export default function App() {
   const [stagedDocs, setStagedDocs] = useState([]);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const dragCounter = useRef(0);
-  const [attachMenuOpen, setAttachMenuOpen] = useState(false); // false | 'main' | 'pieces' | 'templates'
+  const [attachMenuOpen, setAttachMenuOpen] = useState(false); // false | 'pieces' | 'templates'
   const [attachSearch, setAttachSearch] = useState('');
   const [attachExpanded, setAttachExpanded] = useState(() => new Set()); // expanded folder ids in the chat pieces tree
   const [attachSelected, setAttachSelected] = useState(() => new Set()); // selected piece ids in the chat pieces tree
@@ -4886,6 +5001,7 @@ export default function App() {
   // @-mention state
   const [mentionQuery, setMentionQuery] = useState(null); // null or { query: string, startIdx: number }
   const [mentionIdx, setMentionIdx] = useState(0); // highlighted index in dropdown
+  const [mentionScope, setMentionScope] = useState('all'); // 'all' | 'pieces' | 'templates' - dropdown filter
   const chatTextareaRef = useRef(null);
   const chatAnalysisTimeouts = useRef([]);
   const chatExtractionAnnounced = useRef(false);
@@ -5003,29 +5119,61 @@ export default function App() {
     const isDossierClosed = dossierStatut === 'fermé';
     // Weekly AI quota exhausted (demo: quotaFill='full'). Members can't self-upgrade.
     const outOfQuota = quotaFill === 'full' && billingState !== 'none' && !!myPlan;
+    // Approaching the weekly ceiling (>=90%, not yet full): a non-blocking heads-up.
+    const nearQuota = !outOfQuota && myQuotaPct >= 90 && billingState !== 'none' && !!myPlan;
     const chatLocked = chatBlocked || isDossierClosed || outOfQuota;
+    // A single notice sits atop the composer. Priority: block > analysing > warn.
+    const composerNotice = outOfQuota ? 'quota-full' : chatBlocked ? 'analyzing' : nearQuota ? 'quota-warning' : null;
+    const openMyUsage = () => { setSettingsSection('usage'); setCurrentPage('settings'); };
 
-    // @-mention source - pieces organised by their folder (GED structure),
-    // then templates. Returns { sections: [{ label, docs }], flat: [docs] }
-    // so the keyboard nav and the rendered list iterate the same order.
-    const buildMentionList = (rawQuery) => {
+    // @-mention source. Two distinct worlds a user can mention: matter
+    // *pièces* (grouped by their GED folder) and org-wide *modèles d'actes*.
+    // Returns two clearly separated super-groups so the split is legible, plus
+    // a `flat` list (render order) the keyboard nav iterates in lockstep.
+    // `scope` ('all'|'pieces'|'templates') filters which world is shown; when
+    // browsing everything with no query we cap pièces per folder so modèles are
+    // never buried below the fold.
+    const buildMentionList = (rawQuery, scope = 'all') => {
       const q = (rawQuery || '').toLowerCase();
       const match = (p) => !q || [p.nom, p.intitule, p.type, p.nomOriginal].filter(Boolean).some(s => String(s).toLowerCase().includes(q));
       const toDoc = (p) => ({ id: p.id, name: p.intitule || p.nom, source: 'piece' });
-      const sections = [];
-      // Folders in their stored order; only those with matching direct pieces.
+
+      // Pièce folders in stored order, only those with matching direct pièces.
+      const pieceSubs = [];
       bordereauCategories.forEach(cat => {
         const inCat = pieces.filter(p => p.categoryId === cat.id && match(p));
-        if (inCat.length > 0) sections.push({ label: cat.name, docs: inCat.map(toDoc) });
+        if (inCat.length > 0) pieceSubs.push({ label: cat.name, docs: inCat.map(toDoc) });
       });
-      // Uncategorised.
       const sansCat = pieces.filter(p => p.categoryId == null && match(p));
-      if (sansCat.length > 0) sections.push({ label: 'Sans catégorie', docs: sansCat.map(toDoc) });
-      // Templates.
-      const tpl = templatesLibrary.filter(t => !q || (t.fileName || '').toLowerCase().includes(q)).map(t => ({ id: t.id, name: t.fileName, source: 'template' }));
-      if (tpl.length > 0) sections.push({ label: 'Modèles', docs: tpl });
-      const flat = sections.flatMap(s => s.docs);
-      return { sections, flat };
+      if (sansCat.length > 0) pieceSubs.push({ label: 'Sans catégorie', docs: sansCat.map(toDoc) });
+      const pieceTotal = pieceSubs.reduce((n, s) => n + s.docs.length, 0);
+
+      const tplDocs = templatesLibrary.filter(t => !q || (t.fileName || '').toLowerCase().includes(q)).map(t => ({ id: t.id, name: t.fileName, source: 'template' }));
+
+      const counts = { pieces: pieceTotal, templates: tplDocs.length };
+
+      // Cap only while browsing (scope 'all', no active query) so a long GED
+      // never pushes Modèles off-screen; a "voir tout" nudge switches scope.
+      const capped = scope === 'all' && !q;
+      const PER_FOLDER = 3;
+      let hiddenPieces = 0;
+      const shownPieceSubs = pieceSubs.map(s => {
+        if (capped && s.docs.length > PER_FOLDER) {
+          hiddenPieces += s.docs.length - PER_FOLDER;
+          return { ...s, docs: s.docs.slice(0, PER_FOLDER) };
+        }
+        return s;
+      });
+
+      const groups = [];
+      if (scope !== 'templates' && shownPieceSubs.length > 0) {
+        groups.push({ key: 'pieces', label: 'Pièces du dossier', subsections: shownPieceSubs, total: pieceTotal, hidden: hiddenPieces });
+      }
+      if (scope !== 'pieces' && tplDocs.length > 0) {
+        groups.push({ key: 'templates', label: "Modèles d'actes", subsections: [{ label: null, docs: tplDocs }], total: tplDocs.length, hidden: 0 });
+      }
+      const flat = groups.flatMap(g => g.subsections.flatMap(s => s.docs));
+      return { groups, flat, counts };
     };
 
     return (
@@ -5466,18 +5614,40 @@ export default function App() {
                 onDismiss={() => setChatInputValue('')}
               />
             )}
+            {/* Englobing wrapper (Figma "ChatInput" Processing/Limit/Quota states):
+                when a notice caps the composer, a tinted 1px frame wraps the white
+                input and the notice row sits on top of that tint. */}
             <div
               style={{
-                backgroundColor: '#ffffff',
-                borderRadius: 2,
-                border: hasContent ? '2px solid #aabcd5' : '2px solid white',
-                boxShadow: hasContent
-                  ? '0px 0px 0px 0px transparent, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)'
-                  : '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
                 display: 'flex',
                 flexDirection: 'column',
+                borderRadius: composerNotice ? 10 : 0,
+                backgroundColor: composerNotice ? NOTICE_WRAP_BG[composerNotice] : 'transparent',
+                padding: composerNotice ? '0 1px 1px 1px' : 0,
               }}
             >
+              {composerNotice && (
+                <ChatComposerNotice
+                  variant={composerNotice}
+                  pct={myQuotaPct}
+                  onOpenUsage={openMyUsage}
+                  onRequestUpgrade={() => setAskUpgradeOpen(true)}
+                />
+              )}
+              <div
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: 6,
+                  border: composerNotice ? '1px solid transparent' : hasContent ? '2px solid #aabcd5' : '2px solid white',
+                  boxShadow: composerNotice
+                    ? '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)'
+                    : hasContent
+                    ? '0px 0px 0px 0px transparent, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)'
+                    : '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
               {/* CONTEXT bar - only when a zone is selected in the acte */}
               {currentLevel.type === 'acte' && selectedActeZone && (
                 <div className="border-b border-border flex flex-wrap gap-y-[7px] items-start p-[6px] w-full">
@@ -5533,7 +5703,9 @@ export default function App() {
                 <div className="flex flex-wrap gap-2 pt-3 px-3">
                   {stagedDocs.map((doc, di) => (
                     <span key={di} className="inline-flex items-center gap-1 px-2 py-1 rounded-[6px] text-[12px] font-medium" style={{ backgroundColor: '#eeece6', color: '#44403c' }}>
-                      <Paperclip className="w-3 h-3 text-foreground-secondary" />
+                      {doc.source === 'template'
+                        ? <LayoutTemplate className="w-3 h-3 text-foreground-secondary" />
+                        : <Paperclip className="w-3 h-3 text-foreground-secondary" />}
                       <span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[140px]">{doc.name}</span>
                       <button onClick={() => setStagedDocs(prev => prev.filter((_, i) => i !== di))} className="ml-0.5 hover:text-red-500 transition-colors">
                         <X className="w-3 h-3" />
@@ -5728,36 +5900,6 @@ export default function App() {
                 );
               })() : (
               <>
-              {/* Blocked indicator */}
-              {chatBlocked && (
-                <div className="flex items-center gap-2 px-3 py-1.5" style={{ borderBottom: '1px solid #e7e5e3' }}>
-                  <ThinkingDots />
-                  <span style={{ fontSize: 11, color: '#a8a29e' }}>Plato analyse vos documents...</span>
-                </div>
-              )}
-              {/* Weekly-quota gate - locks the composer; the user requests an upgrade from an admin. */}
-              {outOfQuota && (
-                <div className="mx-3 mt-3 mb-1 rounded-lg border px-3.5 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
-                  <div className="flex items-start gap-2.5">
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#bd6c1a' }} strokeWidth={1.75} />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[13px] font-medium" style={{ color: '#855b31' }}>Quota hebdomadaire atteint</div>
-                      <p className="text-[12px] mt-0.5" style={{ color: '#855b31', opacity: 0.9, lineHeight: '16px' }}>
-                        Il se recharge lundi. Pour plus d'usage dès maintenant, demandez une mise à niveau à un administrateur.
-                      </p>
-                      <div className="mt-2.5">
-                        <button
-                          onClick={() => setAskUpgradeOpen(true)}
-                          className="inline-flex items-center gap-1.5 h-8 px-3 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors"
-                        >
-                          <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
-                          Demander une mise à niveau
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
               {/* Text area + @mention dropdown */}
               <div style={{ padding: '12px 12px 32px 12px', position: 'relative' }}>
                 <textarea
@@ -5775,6 +5917,7 @@ export default function App() {
                     const before = val.slice(0, cursor);
                     const atMatch = before.match(/@([^\s@]*)$/);
                     if (atMatch) {
+                      if (mentionQuery === null) setMentionScope('all'); // reset scope on a fresh @
                       setMentionQuery({ query: atMatch[1], startIdx: before.length - atMatch[0].length });
                       setMentionIdx(0);
                     } else {
@@ -5784,7 +5927,7 @@ export default function App() {
                   onKeyDown={(e) => {
                     // @mention keyboard nav
                     if (mentionQuery !== null) {
-                      const filtered = buildMentionList(mentionQuery.query).flat;
+                      const filtered = buildMentionList(mentionQuery.query, mentionScope).flat;
                       if (filtered.length > 0) {
                         if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIdx(prev => Math.min(prev + 1, filtered.length - 1)); return; }
                         if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIdx(prev => Math.max(prev - 1, 0)); return; }
@@ -5812,10 +5955,12 @@ export default function App() {
                   rows={1}
                   disabled={chatLocked}
                 />
-                {/* @mention dropdown - pieces grouped by their folder (GED) */}
+                {/* @mention dropdown - two distinct worlds (pièces du dossier /
+                    modèles d'actes) kept visually separate, with a scope filter
+                    on top so "you can mention both kinds" reads at a glance. */}
                 {mentionQuery !== null && (() => {
-                  const { sections } = buildMentionList(mentionQuery.query);
-                  if (sections.length === 0) return null;
+                  const { groups, counts } = buildMentionList(mentionQuery.query, mentionScope);
+                  if (counts.pieces === 0 && counts.templates === 0) return null;
 
                   let globalIdx = 0;
                   const selectDoc = (doc) => {
@@ -5829,36 +5974,81 @@ export default function App() {
                     setMentionQuery(null);
                     chatTextareaRef.current?.focus();
                   };
+                  const setScope = (s) => { setMentionScope(s); setMentionIdx(0); };
+
+                  const SCOPES = [
+                    { key: 'all', label: 'Tout' },
+                    { key: 'pieces', label: `Pièces${counts.pieces ? ` ${counts.pieces}` : ''}` },
+                    { key: 'templates', label: `Modèles${counts.templates ? ` ${counts.templates}` : ''}` },
+                  ];
+                  const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' };
 
                   return (
                     <div className="absolute bottom-full left-0 mb-1 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                      <div className="overflow-y-auto p-1" style={{ maxHeight: 260 }}>
-                        {sections.map((section) => {
-                          const isTpl = section.label === 'Modèles';
-                          const SectionIcon = isTpl ? BookOpen : Folder;
-                          const RowIcon = isTpl ? BookOpen : FileText;
+                      {/* Scope filter - doubles as a legend for the two mentionable kinds */}
+                      <div className="flex items-center gap-1 p-1 border-b border-border">
+                        {SCOPES.map((s) => {
+                          const active = mentionScope === s.key;
                           return (
-                            <React.Fragment key={`sec-${section.label}`}>
-                              <div className="flex items-center gap-1.5 px-2 py-1">
-                                <SectionIcon className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                                <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{section.label}</span>
+                            <button
+                              key={s.key}
+                              onMouseDown={(e) => { e.preventDefault(); setScope(s.key); }}
+                              className={`px-2 py-1 rounded-[6px] transition-colors ${active ? '' : 'text-foreground-muted hover:bg-background'}`}
+                              style={{ ...monoLabel, ...(active ? { backgroundColor: '#292524', color: '#fff' } : {}) }}
+                            >
+                              {s.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="overflow-y-auto p-1" style={{ maxHeight: 260 }}>
+                        {groups.map((group) => {
+                          const isTpl = group.key === 'templates';
+                          const GroupIcon = isTpl ? LayoutTemplate : Files;
+                          const RowIcon = isTpl ? LayoutTemplate : FileText;
+                          return (
+                            <div key={group.key} className="mb-0.5">
+                              {/* Super-header - the two worlds */}
+                              <div className="flex items-center gap-1.5 px-2 pt-1.5 pb-1">
+                                <GroupIcon className="w-3 h-3 text-foreground flex-shrink-0" strokeWidth={1.75} />
+                                <span style={{ ...monoLabel, fontWeight: 600, color: '#44403c' }}>{group.label}</span>
+                                <span className="ml-auto" style={{ ...monoLabel, color: '#a8a29e' }}>{group.total}</span>
                               </div>
-                              {section.docs.map((doc) => {
-                                const idx = globalIdx++;
-                                return (
-                                  <button
-                                    key={`${doc.source}-${doc.id}`}
-                                    className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${idx === mentionIdx ? 'bg-background' : 'hover:bg-background'}`}
-                                    style={{ paddingLeft: 20 }}
-                                    onMouseDown={(e) => { e.preventDefault(); selectDoc(doc); }}
-                                    onMouseEnter={() => setMentionIdx(idx)}
-                                  >
-                                    <RowIcon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                                    <span className="truncate text-[13px] text-foreground">{doc.name}</span>
-                                  </button>
-                                );
-                              })}
-                            </React.Fragment>
+                              {group.subsections.map((sub, si) => (
+                                <React.Fragment key={`${group.key}-sub-${si}`}>
+                                  {sub.label && (
+                                    <div className="flex items-center gap-1.5 py-0.5" style={{ paddingLeft: 20, paddingRight: 8 }}>
+                                      <Folder className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
+                                      <span className="truncate opacity-80" style={{ ...monoLabel, color: '#78716c' }}>{sub.label}</span>
+                                    </div>
+                                  )}
+                                  {sub.docs.map((doc) => {
+                                    const idx = globalIdx++;
+                                    return (
+                                      <button
+                                        key={`${doc.source}-${doc.id}`}
+                                        className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${idx === mentionIdx ? 'bg-background' : 'hover:bg-background'}`}
+                                        style={{ paddingLeft: sub.label ? 32 : 20 }}
+                                        onMouseDown={(e) => { e.preventDefault(); selectDoc(doc); }}
+                                        onMouseEnter={() => setMentionIdx(idx)}
+                                      >
+                                        <RowIcon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
+                                        <span className="truncate text-[13px] text-foreground">{doc.name}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </React.Fragment>
+                              ))}
+                              {group.hidden > 0 && (
+                                <button
+                                  onMouseDown={(e) => { e.preventDefault(); setScope('pieces'); }}
+                                  className="w-full text-left py-1 pr-2 rounded-[6px] hover:bg-background transition-colors"
+                                  style={{ paddingLeft: 20 }}
+                                >
+                                  <span style={{ ...monoLabel, color: '#a8a29e' }}>+ {group.hidden} autre{group.hidden > 1 ? 's' : ''} · voir tout</span>
+                                </button>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
@@ -5872,63 +6062,47 @@ export default function App() {
                 className="flex items-center justify-between px-3 py-3"
                 style={{
                   background: (hasContent && !chatLocked) ? 'linear-gradient(to bottom, white 44.66%, #eeece6 100%)' : 'transparent',
+                  borderBottomLeftRadius: 5,
+                  borderBottomRightRadius: 5,
                 }}
               >
-                <div className="flex items-center gap-0.5 relative" ref={attachMenuRef}>
+                <div className="flex items-center gap-1 relative" ref={attachMenuRef}>
+                  {/* Two explicit labeled buttons instead of a trombone: in the
+                      chat the user can only *link* existing documents (never
+                      upload), so an upload-flavoured paperclip was misleading.
+                      Pièces = matter documents ; Modèles = org-wide act templates. */}
                   <button
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors ${attachMenuOpen ? 'bg-stone-100' : ''}`}
+                    className={`h-8 flex items-center gap-1.5 px-2.5 rounded-lg hover:bg-stone-100 transition-colors ${attachMenuOpen === 'pieces' ? 'bg-stone-100' : ''}`}
                     disabled={chatLocked}
                     style={{ opacity: chatLocked ? 0.4 : 1 }}
-                    onClick={() => { if (!chatLocked) setAttachMenuOpen(attachMenuOpen ? false : 'main'); }}
+                    onClick={() => {
+                      if (chatLocked) return;
+                      if (attachMenuOpen === 'pieces') { setAttachMenuOpen(false); return; }
+                      setAttachSearch('');
+                      setAttachExpanded(new Set(bordereauCategories.map(c => c.id)));
+                      setAttachSelected(new Set());
+                      setAttachMenuOpen('pieces');
+                    }}
                   >
-                    <Paperclip className="w-4 h-4 text-foreground-secondary" />
+                    <Files className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
+                    <span className="text-[13px] text-foreground-secondary">Pièces</span>
                   </button>
 
-                  {/* Attach popover menu */}
-                  {attachMenuOpen === 'main' && (
-                    <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 260, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                      {/* Import button */}
-                      <div className="border-b border-border px-4 py-[11px]">
-                        <button
-                          className="flex items-center gap-2 transition-colors"
-                          onClick={() => {
-                            setAttachMenuOpen(false);
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = '.pdf,.docx,.doc,.xlsx,.xls,.png,.jpg,.jpeg,.odt,.txt';
-                            input.multiple = true;
-                            input.onchange = (e) => {
-                              const files = Array.from(e.target.files);
-                              setStagedDocs(prev => [...prev, ...files.map(f => ({ name: f.name, file: f, source: 'upload' }))]);
-                            };
-                            input.click();
-                          }}
-                        >
-                          <Plus className="w-4 h-4 text-link" strokeWidth={1.5} />
-                          <span className="text-[14px] font-medium text-link">Importer un document</span>
-                        </button>
-                      </div>
-                      {/* Browse options */}
-                      <div className="p-1">
-                        <button
-                          className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
-                          onClick={() => { setAttachMenuOpen('pieces'); setAttachSearch(''); setAttachExpanded(new Set(bordereauCategories.map(c => c.id))); setAttachSelected(new Set()); }}
-                        >
-                          <span className="text-[14px] text-foreground">Pièces du dossier</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-border-strong" />
-                        </button>
-                        <button
-                          className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
-                          onClick={() => { setAttachMenuOpen('templates'); setAttachSearch(''); }}
-                        >
-                          <span className="text-[14px] text-foreground">Modèles d'actes</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-border-strong" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <button
+                    className={`h-8 flex items-center gap-1.5 px-2.5 rounded-lg hover:bg-stone-100 transition-colors ${attachMenuOpen === 'templates' ? 'bg-stone-100' : ''}`}
+                    disabled={chatLocked}
+                    style={{ opacity: chatLocked ? 0.4 : 1 }}
+                    onClick={() => {
+                      if (chatLocked) return;
+                      setAttachSearch('');
+                      setAttachMenuOpen(attachMenuOpen === 'templates' ? false : 'templates');
+                    }}
+                  >
+                    <LayoutTemplate className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
+                    <span className="text-[13px] text-foreground-secondary">Modèles</span>
+                  </button>
 
-                  {/* Pièces sub-menu */}
+                  {/* Pièces popover (matter documents - folder tree + search + multi-select) */}
                   {attachMenuOpen === 'pieces' && (() => {
                     // Compact folder-tree browser - mirrors the GED structure
                     // (folders + files) using the shared buildTreeViewRows
@@ -5965,6 +6139,27 @@ export default function App() {
                       if (next.has(id)) next.delete(id); else next.add(id);
                       return next;
                     });
+                    // All (search-visible) piece ids inside a folder's subtree -
+                    // lets the user select / deselect a whole folder at once.
+                    const folderPieceIds = (catId) => {
+                      const ids = new Set([catId]);
+                      const stack = [catId];
+                      while (stack.length) {
+                        const x = stack.pop();
+                        bordereauCategories.forEach(c => { if (c.parentId === x && !ids.has(c.id)) { ids.add(c.id); stack.push(c.id); } });
+                      }
+                      return filtered.filter(p => ids.has(p.categoryId)).map(p => p.id);
+                    };
+                    const toggleFolder = (catId) => {
+                      const ids = folderPieceIds(catId).filter(id => !isStaged(id));
+                      if (ids.length === 0) return;
+                      setAttachSelected(prev => {
+                        const next = new Set(prev);
+                        const allOn = ids.every(id => next.has(id));
+                        ids.forEach(id => allOn ? next.delete(id) : next.add(id));
+                        return next;
+                      });
+                    };
                     const confirmAttach = () => {
                       const chosen = pieces.filter(p => attachSelected.has(p.id) && !isStaged(p.id));
                       if (chosen.length > 0) {
@@ -5975,15 +6170,28 @@ export default function App() {
                       setAttachSelected(new Set());
                     };
 
+                    // Row indentation: base 12px + one step per depth level
+                    // (mirrors the Figma "Select Menu" component 12 → 32 → 56).
+                    const ROW_PAD = (depth) => 12 + depth * 20;
+                    // Shared checkbox mark - checked (all) / dash (partial).
+                    const CheckMark = ({ mode }) => (
+                      <span style={{
+                        width: 16, height: 16, borderRadius: 4,
+                        border: `1px solid ${mode ? '#292524' : '#e7e5e3'}`,
+                        backgroundColor: mode ? '#292524' : 'white',
+                        boxShadow: '0px 1px 1px rgba(26,26,26,0.05)',
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {mode === 'all' && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                        {mode === 'some' && <Minus className="w-3 h-3 text-white" strokeWidth={3} />}
+                      </span>
+                    );
                     return (
-                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden flex flex-col" style={{ width: 320, maxHeight: 420, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                        {/* Navigation header */}
-                        <div className="flex items-center gap-2 bg-background-canvas px-2.5 py-2 border-b border-border flex-shrink-0">
-                          <button onClick={() => { setAttachMenuOpen('main'); setAttachSearch(''); }} className="opacity-50 hover:opacity-100 transition-opacity">
-                            <ChevronRight className="w-4 h-4 text-foreground-secondary rotate-180" />
-                          </button>
+                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden flex flex-col" style={{ width: 320, maxHeight: 460, boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)' }}>
+                        {/* Header */}
+                        <div className="flex items-center gap-2 bg-background px-2.5 border-b border-border flex-shrink-0" style={{ height: 32 }}>
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
-                            Pièces du dossier
+                            Mentionnez des pièces
                           </span>
                         </div>
                         {/* Search */}
@@ -5993,39 +6201,69 @@ export default function App() {
                             type="text"
                             value={attachSearch}
                             onChange={(e) => setAttachSearch(e.target.value)}
-                            placeholder="Rechercher une pièce ou un dossier..."
+                            placeholder="Rechercher..."
                             className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-secondary placeholder:opacity-70 focus:outline-none"
                             autoFocus
                           />
                         </div>
                         {/* Tree */}
-                        <div className="overflow-y-auto p-1 flex-1" style={{ minHeight: 80 }}>
+                        <div className="overflow-y-auto flex-1" style={{ minHeight: 80 }}>
                           {treeRows.length === 0 ? (
-                            <div className="px-2 py-6 text-center text-[12px] text-foreground-muted">Aucune pièce trouvée</div>
+                            <div className="px-3 py-6 text-center text-[12px] text-foreground-muted">Aucune pièce trouvée</div>
                           ) : treeRows.map((row, ri) => {
                             if (row.kind === 'sansCategorieHeader') {
                               return (
-                                <div key="sc-head" className="px-2 py-1.5">
+                                <div key="sc-head" className="px-3 py-1.5 border-b border-border">
                                   <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sans catégorie</span>
                                 </div>
                               );
                             }
                             if (row.kind === 'category') {
                               const Chevron = row.expanded ? ChevronDown : ChevronRight;
+                              const FolderIcon = row.expanded ? FolderOpen : Folder;
+                              // Folder-level selection: tri-state from its subtree.
+                              const subIds = folderPieceIds(row.category.id);
+                              const subTotal = subIds.length;
+                              const subSelected = subIds.filter(id => attachSelected.has(id) || isStaged(id)).length;
+                              const mode = subTotal > 0 && subSelected === subTotal ? 'all' : (subSelected > 0 ? 'some' : null);
                               return (
-                                <button
+                                <div
                                   key={`cat-${row.category.id}`}
-                                  onClick={() => toggleExpand(row.category.id)}
-                                  className="w-full flex items-center gap-1.5 py-1.5 pr-2 text-left rounded-[6px] hover:bg-background transition-colors"
-                                  style={{ paddingLeft: 8 + row.depth * INDENT }}
+                                  className="group w-full flex items-center gap-2 pr-3 border-b border-border hover:bg-background transition-colors"
+                                  style={{ height: 40, paddingLeft: ROW_PAD(row.depth) }}
                                 >
-                                  <span style={{ width: 14, flexShrink: 0, display: 'inline-flex', justifyContent: 'center', color: '#a8a29e' }}>
-                                    {row.hasChildren && <Chevron className="w-3.5 h-3.5" strokeWidth={2} />}
-                                  </span>
-                                  <Folder className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                                  <span className="truncate text-[13px] font-medium text-foreground">{row.category.name}</span>
-                                  {row.directPieceCount > 0 && <span className="ml-auto text-[10px] text-foreground-muted flex-shrink-0">{row.directPieceCount}</span>}
-                                </button>
+                                  {/* Leading cluster: chevron + folder-icon / checkbox */}
+                                  <div className="flex items-center gap-1 flex-shrink-0">
+                                    <button
+                                      onClick={() => toggleExpand(row.category.id)}
+                                      disabled={!row.hasChildren}
+                                      className="w-4 h-4 flex items-center justify-center"
+                                      style={{ opacity: row.hasChildren ? 0.7 : 0, cursor: row.hasChildren ? 'pointer' : 'default' }}
+                                    >
+                                      <Chevron className="w-4 h-4 text-foreground-secondary" strokeWidth={2} />
+                                    </button>
+                                    <button
+                                      onClick={() => toggleFolder(row.category.id)}
+                                      disabled={subTotal === 0}
+                                      className="w-4 h-4 flex items-center justify-center relative"
+                                      style={{ cursor: subTotal === 0 ? 'default' : 'pointer' }}
+                                      title={subTotal === 0 ? 'Dossier vide' : (mode === 'all' ? 'Tout désélectionner' : 'Tout sélectionner')}
+                                    >
+                                      <FolderIcon className={`w-4 h-4 text-foreground-tertiary ${mode ? 'hidden' : (subTotal === 0 ? '' : 'group-hover:hidden')}`} strokeWidth={1.5} />
+                                      {subTotal > 0 && (
+                                        <span className={mode ? 'flex' : 'hidden group-hover:flex'}>
+                                          <CheckMark mode={mode} />
+                                        </span>
+                                      )}
+                                    </button>
+                                  </div>
+                                  <button onClick={() => toggleExpand(row.category.id)} className="flex-1 min-w-0 text-left">
+                                    <span className="block truncate text-[14px] font-medium text-foreground">{row.category.name}</span>
+                                  </button>
+                                  {subTotal > 0 && (
+                                    <span className="flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c' }}>{subTotal}</span>
+                                  )}
+                                </div>
                               );
                             }
                             // piece or sansCategoriePiece
@@ -6037,35 +6275,36 @@ export default function App() {
                                 key={`p-${p.id}-${ri}`}
                                 disabled={staged}
                                 onClick={() => toggleSelect(p.id)}
-                                className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${staged ? 'opacity-50' : 'hover:bg-background'}`}
-                                style={{ paddingLeft: 8 + (row.depth * INDENT) }}
+                                className={`group w-full flex items-center gap-2 pr-3 text-left border-b border-border transition-colors ${staged ? 'opacity-50' : 'hover:bg-background'}`}
+                                style={{ height: 40, paddingLeft: ROW_PAD(row.depth) }}
                               >
-                                <span style={{
-                                  width: 15, height: 15, flexShrink: 0, borderRadius: 3,
-                                  border: `1.5px solid ${selected ? '#292524' : '#d6d3d1'}`,
-                                  backgroundColor: selected ? '#292524' : 'transparent',
-                                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                }}>
-                                  {selected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
-                                </span>
-                                <span className="truncate text-[13px] text-foreground">{p.intitule || p.nom}</span>
+                                {/* Leading cluster: phantom chevron + file-icon / checkbox */}
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <span className="w-4 h-4 flex-shrink-0" />
+                                  <span className="w-4 h-4 flex items-center justify-center relative flex-shrink-0">
+                                    <FileText className={`w-4 h-4 text-foreground-tertiary ${selected ? 'hidden' : 'group-hover:hidden'}`} strokeWidth={1.5} />
+                                    <span className={selected ? 'flex' : 'hidden group-hover:flex'}>
+                                      <CheckMark mode={selected ? 'all' : null} />
+                                    </span>
+                                  </span>
+                                </div>
+                                <span className="flex-1 truncate text-[14px] text-foreground">{p.intitule || p.nom}</span>
                               </button>
                             );
                           })}
                         </div>
                         {/* Footer */}
-                        <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-background flex-shrink-0">
-                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#78716c' }}>
-                            {attachSelected.size === 0 ? 'Sélectionnez' : `${attachSelected.size} sélectionnée${attachSelected.size > 1 ? 's' : ''}`}
+                        <div className="flex items-center justify-between p-3 border-t border-border bg-white flex-shrink-0">
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#78716c', letterSpacing: '0.12px' }}>
+                            {attachSelected.size === 0 ? 'Sélectionnez des pièces' : `${attachSelected.size} doc${attachSelected.size > 1 ? 's' : ''}. sélectionné${attachSelected.size > 1 ? 's' : ''}`}
                           </span>
                           <button
                             onClick={confirmAttach}
                             disabled={attachSelected.size === 0}
-                            className="inline-flex items-center gap-1.5 px-3 h-8 rounded-[7px] text-[12px] font-medium text-white transition-colors"
-                            style={{ backgroundColor: attachSelected.size === 0 ? '#d6d3d1' : '#292524', cursor: attachSelected.size === 0 ? 'not-allowed' : 'pointer' }}
+                            className="inline-flex items-center justify-center rounded-[4px] text-[12px] font-medium text-white transition-colors"
+                            style={{ height: 24, padding: '4px 8px', backgroundColor: attachSelected.size === 0 ? '#d6d3d1' : '#292524', cursor: attachSelected.size === 0 ? 'not-allowed' : 'pointer', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}
                           >
-                            <Check className="w-3 h-3" strokeWidth={2} />
-                            {attachSelected.size > 0 ? `Ajouter (${attachSelected.size})` : 'Ajouter'}
+                            Ajouter au chat
                           </button>
                         </div>
                       </div>
@@ -6078,11 +6317,8 @@ export default function App() {
                     const filteredTemplates = q ? templatesLibrary.filter(t => t.label.toLowerCase().includes(q) || t.fileName.toLowerCase().includes(q) || (t.actType && t.actType.toLowerCase().includes(q))) : templatesLibrary;
                     return (
                       <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 300, maxHeight: 400, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                        {/* Navigation header */}
+                        {/* Header */}
                         <div className="flex items-center gap-2 bg-background-canvas px-2.5 py-2 border-b border-border">
-                          <button onClick={() => { setAttachMenuOpen('main'); setAttachSearch(''); }} className="opacity-50 hover:opacity-100 transition-opacity">
-                            <ChevronRight className="w-4 h-4 text-foreground-secondary rotate-180" />
-                          </button>
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
                             Modèles d'actes
                           </span>
@@ -6195,6 +6431,7 @@ export default function App() {
             )}
             </div>
             </div>{/* close relative wrapper */}
+            </div>{/* close englobing notice wrapper */}
           </div>
         </div>
       </>
@@ -9328,6 +9565,319 @@ export default function App() {
   };
 
   // ========== RENDER CONTENT ==========
+  // ===== DROIT SOCIAL — native Chiffrage : ① bases de calcul → ② postes indemnités
+  // → ③ cotisations et impôts (4 lignes, chacune ouvre sa page) → bloc de résultats.
+  // Chaque étage se sert de celui du dessus ; on ne remonte jamais. =====
+  const renderSocialChiffrage = () => {
+    const INFO = '#1e3a8a', INFO_BG = '#dfe8f5', INFO_BORDER = '#aabcd5';
+    const salaire = 2504, hours = 430;
+    const hourly = salaire / 151.67;
+    const POSTES = [
+      { cat: 'Rappels de salaire', acro: 'HS', label: 'Rappel d’heures supplémentaires', montant: Math.round(hours * hourly * 1.25) },
+      { cat: 'Rappels de salaire', acro: 'CP', label: 'Congés payés sur heures supplémentaires', montant: Math.round(hours * hourly * 1.25 * 0.1) },
+      { cat: 'Indemnités de rupture', acro: 'PRÉA', label: 'Indemnité compensatrice de préavis', montant: Math.round(salaire * 2) },
+      { cat: 'Indemnités de rupture', acro: 'IL', label: 'Indemnité légale de licenciement', montant: Math.round(salaire * 0.25 * 3) },
+      { cat: 'Dommages-intérêts', acro: 'DI', label: 'Dommages-intérêts pour licenciement sans cause réelle', montant: Math.round(salaire * 4) },
+    ];
+    const CATS = ['Rappels de salaire', 'Indemnités de rupture', 'Dommages-intérêts'];
+    const total = POSTES.reduce((a, p) => a + p.montant, 0);
+    const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
+    const cardChrome = { border: '1px solid #e7e5e3', borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+    const intrants = [
+      { key: 'salaire', name: 'Salaire de référence', Icon: Wallet, value: `${fmt(salaire)} /mois` },
+      { key: 'releve', name: 'Heures supplémentaires cumulées', Icon: Clock, value: `${hours} h` },
+    ];
+    return (
+      <div className="space-y-6" data-zone-id="postes">
+        {/* toolbar */}
+        <div className="flex items-center gap-2 px-px">
+          <div className="h-8 px-2.5 flex items-center gap-1.5 border border-[#e7e5e3] rounded-lg whitespace-nowrap" style={{ backgroundColor: '#eeece6' }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#292524', letterSpacing: 0.1 }}>Total demandé</span>
+            <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, color: '#292524' }}>{fmt(total)}</span>
+          </div>
+          <div className="flex-1" />
+          <button className="h-9 px-3 flex items-center gap-2 border border-[#d6d3d1] rounded-lg hover:bg-stone-50 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#44403c' }}>
+            <Download className="w-3.5 h-3.5 text-[#78716c]" /> Exporter
+          </button>
+          <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: 'white', backgroundColor: '#292524' }}>
+            <Plus className="w-3.5 h-3.5" /> Nouveau poste
+          </button>
+        </div>
+
+        {/* ① bases de calcul — ce que le cabinet a constaté, rien de ce qu'il demande */}
+        <div>
+          <div className="flex items-center justify-between" style={{ padding: '0 6px', marginBottom: 16 }}>
+            <div className="flex items-center" style={{ gap: 12 }}>
+              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: INFO_BG, border: `1px solid ${INFO_BORDER}` }}><SlidersHorizontal className="w-4 h-4" style={{ color: INFO }} /></span>
+              <div className="flex flex-col" style={{ gap: 5 }}>
+                <span style={{ ...colHeaderStyle, lineHeight: '1' }}>Constats</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px' }}>Bases de calcul</span>
+              </div>
+            </div>
+            <p style={{ fontSize: 12, color: '#78716c', lineHeight: '16px', textAlign: 'right', maxWidth: 365, margin: 0 }}>Ce que le cabinet a constaté, rien de ce qu’il demande. Corriger le salaire de référence met à jour presque tout en dessous.</p>
+          </div>
+          <div style={{ ...cardChrome, background: 'white' }}>
+            {intrants.map((it, i) => (
+              <button key={it.key} onClick={() => setSocialDetail(it.key)} className="group flex items-center w-full transition-colors" style={{ height: 56, background: 'white', border: 'none', borderBottom: i < intrants.length - 1 ? `1px solid ${ROW_DIVIDER}` : 'none', cursor: 'pointer', textAlign: 'left' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#fafaf9'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
+                <div className="flex items-center flex-1 min-w-0" style={{ gap: 10, padding: '0 12px 0 14px' }}>
+                  <it.Icon className="w-4 h-4 flex-shrink-0" style={{ color: '#44403c' }} strokeWidth={1.75} />
+                  <span className="truncate" style={{ fontSize: 14, color: '#292524' }}>{it.name}</span>
+                </div>
+                <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}>
+                  <ValuePill>{it.value}</ValuePill>
+                </div>
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}>
+                  <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#a8a29e' }} />
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ② postes indemnités — ce que le cabinet demande ; la section se
+            termine par le total brut, qui lui appartient (la suivante s'en
+            sert sans le réafficher) */}
+        <div>
+          <div className="flex items-center justify-between" style={{ padding: '0 6px', marginBottom: 16 }}>
+            <div className="flex items-center" style={{ gap: 12 }}>
+              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: '#e9f1ea', color: '#4a7256', fontSize: 12, fontWeight: 600 }}>{(matterRef[0] || 'S').toUpperCase()}</span>
+              <div className="flex flex-col" style={{ gap: 5 }}>
+                <span style={{ ...colHeaderStyle, lineHeight: '1' }}>Salarié</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px' }}>{matterRef}</span>
+              </div>
+            </div>
+            <span style={{ ...serifAmountStyle, color: '#292524' }}>{fmt(total)}</span>
+          </div>
+          <div className="flex flex-col" style={{ gap: 16 }}>
+            {CATS.map(cat => {
+              const rows = POSTES.filter(p => p.cat === cat);
+              if (!rows.length) return null;
+              return (
+                <div key={cat} style={{ ...cardChrome, background: 'white' }}>
+                  <div className="flex items-center" style={{ height: 40, padding: '0 16px', borderBottom: `1px solid ${ROW_DIVIDER}`, background: '#f8f7f5' }}>
+                    <span className="flex-1" style={colHeaderStyle}>{cat}</span>
+                    <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Montant demandé</span></div>
+                    <div className="flex-shrink-0" style={{ width: 44 }} />
+                  </div>
+                  {rows.map((p, i) => (
+                    <div key={p.acro} className="group flex items-center" style={{ height: 56, background: 'white', borderBottom: i < rows.length - 1 ? `1px solid ${ROW_DIVIDER}` : 'none' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#fafaf9'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
+                      <div className="flex-shrink-0" style={{ width: 64, padding: '0 16px' }}><span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>{p.acro}</span></div>
+                      <div className="flex-1 min-w-0" style={{ padding: '0 12px' }}><span className="truncate block" style={{ fontSize: 14, color: '#292524' }}>{p.label}</span></div>
+                      <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>{fmt(p.montant)}</span></div>
+                      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}><MoreVertical className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#a8a29e' }} /></div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+            {/* le total brut clôt la section ② */}
+            <div style={{ ...cardChrome, background: 'white' }}>
+              <CotRow resolved={resolveCotLigne({ id: 'total-brut', famille: 'resultat', operateur: '=', valueKey: 'total.brut', emphase: 'section', panel: false })} isLast />
+            </div>
+          </div>
+        </div>
+
+        {/* ③ cotisations et impôts — quatre lignes, chacune ouvre sa page de détail */}
+        <CotisationsSection onOpenPage={(k) => setSocialDetail(k)} />
+
+        {/* bloc de résultats — deux chiffres côte à côte + l'écart ; collé en
+            bas de l'écran (à confirmer en le voyant) ; s'audite comme une ligne */}
+        <ResultatsBloc sticky onOpenPanel={(b) => setSocialResultPanel(b)} />
+        {socialResultPanel && (
+          <LinePanel
+            key={socialResultPanel.id}
+            resolved={socialResultPanel}
+            onClose={() => setSocialResultPanel(null)}
+            onNavigateValue={(key) => {
+              const home = { 'cot.sal': 'cot-sal', 'cot.csg': 'cot-csg', 'cot.ir': 'cot-ir', 'cot.pat': 'cot-pat' }[key];
+              if (home) { setSocialResultPanel(null); setSocialDetail(home); }
+            }}
+          />
+        )}
+      </div>
+    );
+  };
+
+  // ===== DROIT SOCIAL — native Dossier (salarié / relation de travail / contract timeline / employeur / procédure) =====
+  const renderSocialDossier = () => {
+    const LINE = '#e7e5e3', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', WHITE = 'white', SUBTLE = '#fafaf9', INFO = '#1e3a8a';
+    const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
+    const monoHead = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' };
+    const dHead = (Icon, title, right) => (
+      <div className="flex items-center gap-2.5" style={{ padding: '13px 16px', borderBottom: `1px solid ${LINE}`, background: WHITE }}>
+        <Icon className="w-4 h-4" style={{ color: MUTE }} strokeWidth={1.5} />
+        <span style={monoHead}>{title}</span>
+        {right && <span className="ml-auto" style={{ fontSize: 11, color: FAINT }}>{right}</span>}
+      </div>
+    );
+    const dField = (label, value) => (
+      <div className="flex-1" style={{ padding: '16px 20px', minWidth: 0 }}>
+        <div style={{ fontSize: 12, color: MUTE, marginBottom: 5 }}>{label}</div>
+        <div style={{ fontSize: 14, color: value ? INK : FAINT, fontWeight: value ? 500 : 400, lineHeight: '19px' }}>{value || 'Non renseigné'}</div>
+      </div>
+    );
+    const dRow = (a, b, last) => <div className="flex" style={last ? undefined : { borderBottom: `1px solid ${LINE}` }}>{a}{b}</div>;
+    const dCard = (Icon, title, children) => (
+      <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>{dHead(Icon, title)}{children}</div>
+    );
+    const events = [
+      { date: '02/05/2020', title: 'Embauche', desc: 'CDI · poste de Cariste · statut Employée · 2 100 € brut mensuel.', src: 'Pièce 1 · Contrat de travail', dot: '#4a7256' },
+      { date: '01/09/2021', title: 'Avenant n°1', desc: 'Passage en horaires postés (équipes 2×8).', src: 'Pièce 3 · Avenant', dot: MUTE },
+      { date: 'Janv. 2022 → juin 2023', title: 'Heures supplémentaires non rémunérées', desc: 'Dépassements réguliers de l’amplitude journalière, reconstitués à partir des badges d’accès et des e-mails.', src: 'Relevé d’heures', dot: INFO },
+      { date: '01/04/2023', title: 'Augmentation', desc: 'Salaire mensuel porté à 2 350 € brut.', src: 'Pièce 5 · Bulletins de salaire', dot: MUTE },
+      { date: '15/06/2023', title: 'Entretien préalable', desc: 'Convocation à un entretien préalable au licenciement.', src: 'Pièce 10 · Convocation', dot: MUTE },
+      { date: '30/06/2023', title: 'Licenciement', desc: 'Rupture du CDI notifiée (motif : insuffisance professionnelle).', src: 'Pièce 12 · Lettre de licenciement', dot: '#b4593f' },
+      { date: '12/09/2023', title: 'Saisine du conseil de prud’hommes', desc: 'CPH de Nanterre · tentative de conciliation échouée.', src: 'Pièce 14 · Requête', dot: INK },
+    ];
+    return (
+      <div className="flex flex-col" style={{ gap: 16, maxWidth: 960, margin: '0 auto' }}>
+        {dCard(User, 'Salarié', <>
+          {dRow(dField('Nom et prénom', matterRef), dField('Poste occupé', 'Cariste'))}
+          {dRow(dField('Date de naissance', '14/03/1989'), dField('Ancienneté', '3 ans · 2 mois'), true)}
+        </>)}
+        {dCard(ClipboardList, 'Relation de travail', <>
+          {dRow(dField('Type de contrat', 'CDI'), dField('Date d’embauche', '02/05/2020'))}
+          {dRow(dField('Fin du contrat', '30/06/2023'), dField('Motif de la rupture', 'Licenciement'))}
+          <div className="flex items-center gap-2" style={{ padding: '13px 20px', borderTop: `1px solid ${LINE}` }}>
+            <SlidersHorizontal className="w-3.5 h-3.5 flex-shrink-0" style={{ color: INFO }} />
+            <span style={{ fontSize: 13, color: MUTE }}>Salaire mensuel de référence</span>
+            <span className="ml-auto" style={{ fontSize: 14, fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmt(2504)}</span>
+          </div>
+        </>)}
+        {/* Chronologie du contrat — reconstructed timeline */}
+        <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>
+          {dHead(Calendar, 'Chronologie du contrat', 'Reconstituée à partir des pièces')}
+          <div style={{ padding: '18px 20px 6px' }}>
+            {events.map((e, i) => {
+              const last = i === events.length - 1;
+              return (
+                <div key={i} className="flex" style={{ gap: 14 }}>
+                  <div className="flex flex-col items-center flex-shrink-0" style={{ width: 10 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: 9, background: e.dot, marginTop: 3, flexShrink: 0 }} />
+                    {!last && <span style={{ flex: 1, width: 2, background: LINE, marginTop: 3 }} />}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1, paddingBottom: last ? 12 : 18 }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: MUTE, fontVariantNumeric: 'tabular-nums' }}>{e.date}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: INK, marginTop: 3, lineHeight: '18px' }}>{e.title}</div>
+                    <div style={{ fontSize: 13, color: MUTE, marginTop: 3, lineHeight: '18px' }}>{e.desc}</div>
+                    <span className="inline-flex items-center gap-1.5 rounded-md" style={{ marginTop: 8, padding: '3px 8px', background: SUBTLE, border: `1px solid ${LINE}`, fontSize: 11.5, color: INK2 }}>
+                      <FileText className="w-3 h-3 flex-shrink-0" style={{ color: FAINT }} /> {e.src}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {dCard(Landmark, 'Employeur', <>
+          {dRow(dField('Société', 'SAS Delprat Logistique'), dField('Forme', 'SAS'))}
+          {dRow(dField('Convention collective', 'Transport routier'), dField('Effectif', '120 salariés'), true)}
+        </>)}
+        {dCard(Scale, 'Procédure', <>
+          {dRow(dField('Juridiction', 'Conseil de prud’hommes de Nanterre'), dField('Stade', 'Bureau de jugement'))}
+          {dRow(dField('Objet', 'Rappel d’heures supplémentaires et indemnités'), <div className="flex-1" />, true)}
+        </>)}
+        {dCard(FileText, 'Faits et procédure', (
+          <div style={{ padding: '16px 20px' }}>
+            <div style={{ fontSize: 12, color: MUTE, marginBottom: 5 }}>Commentaire</div>
+            <div style={{ fontSize: 13.5, color: INK, lineHeight: '19px' }}>Saisine du conseil de prud’hommes le 12/09/2023 ; tentative de conciliation échouée. Demande principale : rappel d’heures supplémentaires et indemnités afférentes.</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // ===== DROIT SOCIAL — intrant detail sub-views (opened in-place from the chiffrage intrant rows) =====
+  const renderSocialDetail = () => {
+    // pages de prélèvement (2e niveau) — remplacent l'écran, jamais plus de
+    // trois niveaux : Chiffrage → page du prélèvement → panneau latéral.
+    if (COTISATIONS_PAGES[socialDetail]) {
+      // On annule le padding du conteneur de chiffrage (px-8 pt-6 pb-8) pour
+      // que l'en-tête de la page aille de bord à bord et reste collant en haut
+      // du scroll ; la page réintroduit son propre padding sous l'en-tête.
+      return (
+        <div style={{ margin: '-24px -32px -32px' }}>
+          <PrelevementPage
+            pageKey={socialDetail}
+            sticky
+            flush
+            onBack={() => setSocialDetail(null)}
+            onNavigatePage={(target) => setSocialDetail(target || null)}
+            onCopy={() => { setToastMessage('Chiffrage copié dans le presse-papiers'); setTimeout(() => setToastMessage(null), 2500); }}
+          />
+        </div>
+      );
+    }
+    const LINE = '#e7e5e3', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', WHITE = 'white', SUBTLE = '#fafaf9', PAPER = '#f8f7f5', INFO = '#1e3a8a', INFO_BG = '#dfe8f5';
+    const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+    const back = (
+      <button onClick={() => setSocialDetail(null)} className="inline-flex items-center gap-1.5 rounded-md transition-colors" style={{ height: 32, padding: '0 10px 0 7px', fontSize: 13, color: INK2, border: `1px solid ${LINE}`, background: 'transparent', cursor: 'pointer' }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
+        <ChevronLeft className="w-4 h-4" /> Chiffrage
+      </button>
+    );
+    if (socialDetail === 'salaire') {
+      const BULLETINS = [
+        { m: 'Juil. 2022', brut: 2300 }, { m: 'Août 2022', brut: 2300 }, { m: 'Sept. 2022', brut: 2300 },
+        { m: 'Oct. 2022', brut: 2300 }, { m: 'Nov. 2022', brut: 2300 }, { m: 'Déc. 2022', brut: 4600 },
+        { m: 'Janv. 2023', brut: 2300 }, { m: 'Févr. 2023', brut: 2300 }, { m: 'Mars 2023', brut: 2300 },
+        { m: 'Avr. 2023', brut: 2350 }, { m: 'Mai 2023', brut: 2350 }, { m: 'Juin 2023', brut: 2350 },
+      ];
+      const moy = (a) => a.reduce((s, b) => s + b.brut, 0) / a.length;
+      const moy12 = moy(BULLETINS), moy3 = moy(BULLETINS.slice(-3));
+      const fav = moy12 >= moy3 ? '12' : '3';
+      const salaireRef = Math.round(socialSalaireBasis === '3' ? moy3 : moy12);
+      return (
+        <div className="space-y-5" style={{ maxWidth: 920, margin: '0 auto' }}>
+          <div className="flex items-center gap-3">{back}<span style={{ fontSize: 15, fontWeight: 600, color: INK }}>Salaire de référence</span></div>
+          <div style={{ ...cardChrome, background: WHITE }}>
+            <div className="flex items-center" style={{ height: 40, padding: '0 16px', background: PAPER, borderBottom: `1px solid ${LINE}` }}>
+              <span className="flex-1" style={colHeaderStyle}>Salaire de référence retenu</span>
+              <span style={{ fontSize: 11, color: MUTE }}>base la plus favorable au salarié</span>
+            </div>
+            <div className="flex items-stretch">
+              <div className="flex flex-col justify-center flex-shrink-0" style={{ padding: '18px 22px', borderRight: `1px solid ${LINE}`, minWidth: 210 }}>
+                <span style={{ ...serifAmountStyle, fontSize: 30 }}>{fmt(salaireRef)}</span>
+                <span style={{ fontSize: 12, color: MUTE, marginTop: 4 }}>brut mensuel · moyenne {socialSalaireBasis === '3' ? 'sur 3 mois' : 'sur 12 mois'}</span>
+              </div>
+              <div className="flex-1 flex">
+                {[['12', '12 derniers mois', moy12], ['3', '3 derniers mois', moy3]].map(([k, label, val]) => {
+                  const active = socialSalaireBasis === k;
+                  return (
+                    <button key={k} onClick={() => setSocialSalaireBasis(k)} className="flex-1 flex flex-col justify-center transition-colors" style={{ padding: '14px 18px', borderRight: k === '12' ? `1px solid ${LINE}` : 'none', borderLeft: `3px solid ${active ? INFO : 'transparent'}`, background: active ? INFO_BG : WHITE, cursor: 'pointer', textAlign: 'left' }}>
+                      <div className="flex items-center gap-2"><span style={{ ...colHeaderStyle, color: active ? INFO : MUTE }}>{label}</span>{fav === k && <span className="rounded-md" style={{ padding: '1px 6px', background: INFO_BG, color: INFO, fontSize: 9.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Le plus favorable</span>}</div>
+                      <span style={{ fontSize: 16, fontWeight: 600, color: INK, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(Math.round(val))}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div style={{ ...cardChrome, background: WHITE }}>
+            <div className="flex items-center" style={{ height: 40, padding: '0 16px', background: PAPER, borderBottom: `1px solid ${LINE}` }}>
+              <span className="flex-1" style={colHeaderStyle}>Bulletins de salaire</span>
+              <div className="flex items-center justify-end" style={{ width: 140, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Brut</span></div>
+            </div>
+            {BULLETINS.map((b, i) => (
+              <div key={b.m} className="flex items-center" style={{ height: 48, borderBottom: i < BULLETINS.length - 1 ? `1px solid ${LINE}` : 'none' }}>
+                <div className="flex items-center flex-1 min-w-0" style={{ padding: '0 16px', gap: 10 }}>
+                  <span className="inline-flex items-center justify-center rounded-md flex-shrink-0" style={{ width: 28, height: 28, background: PAPER, border: `1px solid ${LINE}` }}><FileText className="w-3.5 h-3.5" style={{ color: MUTE }} /></span>
+                  <span style={{ fontSize: 13.5, color: INK }}>{b.m}</span>
+                  <span className="truncate" style={{ fontSize: 11.5, color: '#a8a29e' }}>Bulletin de paie.pdf</span>
+                </div>
+                <div className="flex items-center justify-end" style={{ width: 140, padding: '0 12px' }}><span style={{ fontSize: 13.5, fontWeight: 500, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmt(b.brut)}</span></div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 12, color: MUTE, margin: 0, lineHeight: '17px' }}>La moyenne sur 12 mois intègre les primes (13e mois, prime annuelle) au prorata. Le salaire de référence retenu est la moyenne la plus favorable au salarié (art. R. 1234-4 du Code du travail).</p>
+        </div>
+      );
+    }
+    return <ReleveEditor onBack={() => setSocialDetail(null)} demo={demoSocialBooted.current} />;
+  };
+
   const renderContent = () => {
     // ACTE - document view with streaming
     if (currentLevel.type === 'acte') {
@@ -9478,6 +10028,7 @@ export default function App() {
     // DOSSIER
     if (currentLevel.type === 'dossier') {
       if (currentLevel.activeTab === 'dossier') {
+        if (activeMatterType === 'social') return renderSocialDossier();
         // Drop-First Info Dossier (new layout with streaming)
         if (dropFirstActive || dropFirstPieces.length > 0) {
           const streaming = infoDossierStreaming;
@@ -10080,6 +10631,7 @@ export default function App() {
         );
       }
       if (currentLevel.activeTab === 'chiffrage') {
+        if (activeMatterType === 'social') return socialDetail ? renderSocialDetail() : renderSocialChiffrage();
         // eslint-disable-next-line no-unused-vars
         const _getPosteAiReasoning = () => null;
 
@@ -10713,13 +11265,15 @@ export default function App() {
       }
       if (currentLevel.activeTab === 'pièces') {
         if (dropFirstActive || dropFirstPieces.length > 0) return renderDropFirstPiecesTab();
+        const isSoc = activeMatterType === 'social';
         return (
           <PiecesTab
-            pieces={pieces}
-            categories={bordereauCategories}
-            setPieces={setPieces}
-            setCategories={setBordereauCategories}
+            pieces={isSoc ? socialPieces : pieces}
+            categories={isSoc ? socialCategories : bordereauCategories}
+            setPieces={isSoc ? setSocialPieces : setPieces}
+            setCategories={isSoc ? setSocialCategories : setBordereauCategories}
             onAddFiles={handleAddMorePieces}
+            onImportEmails={() => setEmailImportTarget('dossier')}
             onAskChato={askChatoAboutSelection}
             onGenerateBordereau={() => {
               redaction.playScenario('redaction-bordereau');
@@ -13870,6 +14424,8 @@ export default function App() {
     // ingestion. Off = keep documents as-is (no surprise splitting); on = split
     // multi-part documents automatically. Overridable per-doc / in bulk later.
     const splitDocs = !!dropModal.splitDocsEnabled;
+    // Matter type chosen in the drop-first modal — drives the dossier layout (chiffrage postes, dossier content).
+    const matterType = dropModal.matterType || 'corporel';
 
     // Save current dossier if any
     if (activeDossierId) saveDossierData(activeDossierId);
@@ -13892,7 +14448,7 @@ export default function App() {
     setDossiers(prev => [{
       id: newId, reference: refName, typeFait: hasRapport ? 'Accident de la voie publique' : '',
       date: new Date().toLocaleDateString('fr-FR'), lastEditBy: 'Meghan R.', lastEditDate: new Date().toLocaleDateString('fr-FR'),
-      statut: 'ouvert'
+      statut: 'ouvert', matterType
     }, ...prev]);
 
     setVictimeData(extracted
@@ -13923,7 +14479,7 @@ export default function App() {
 
     // One processing item per dropped document - matched to its name's type,
     // split per the per-document choice (see buildStagedProcessingItems).
-    const processingItems = buildStagedProcessingItems(files, dropModal.rapportFileId, 'dfp');
+    const processingItems = buildStagedProcessingItems(files, dropModal.rapportFileId, 'dfp', matterType === 'social' ? DROP_FIRST_DOCUMENT_POOL_SOCIAL : DROP_FIRST_DOCUMENT_POOL);
 
     setDropFirstPieces(processingItems);
     setDropFirstHasRapport(hasRapport);
@@ -13960,10 +14516,10 @@ export default function App() {
     // duplicate state is demoable on the creation drop, not just on "add").
     // allowDetections, but NOT forced - so we don't inject a guaranteed fake
     // doublon on every drop; the processed pièces reflect the dropped files.
-    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs), 300);
+    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs, matterType), 300);
   };
 
-  const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false, splitDocs = false) => {
+  const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false, splitDocs = false, matterType = 'corporel') => {
     // Clear any existing timeouts
     processingTimeouts.current.forEach(t => clearTimeout(t));
     processingTimeouts.current = [];
@@ -14075,7 +14631,9 @@ export default function App() {
               newPieces[itemIndex] = {
                 ...newPieces[itemIndex],
                 cleanName: renamedBase || poolEntry.cleanName,
-                type: item.guessedType || poolEntry.type,
+                // Pool entries that carry a categoryId (droit social) are the source of truth for type + folder.
+                type: poolEntry.categoryId ? poolEntry.type : (item.guessedType || poolEntry.type),
+                categoryId: poolEntry.categoryId || undefined,
                 date: poolEntry.date,
                 postesLies: [...poolEntry.postesLies],
                 summary: poolEntry.summary,
@@ -14148,16 +14706,17 @@ export default function App() {
       setDropFirstProcessingDone(true);
 
       // Toast summarising where the just-processed batch landed.
+      const toastCats = matterType === 'social' ? socialCategories : bordereauCategories;
       const counts = new Map();
       items.forEach(it => {
         const cat = it.categoryIdOverride !== undefined
           ? it.categoryIdOverride
-          : classifyDropFirstPiece(it.poolRef || it, bordereauCategories);
+          : classifyDropFirstPiece(it.poolRef || it, toastCats);
         counts.set(cat, (counts.get(cat) || 0) + 1);
       });
       const labelFor = (catId) => {
         if (!catId) return 'Sans catégorie';
-        return bordereauCategories.find(c => c.id === catId)?.name || 'Sans catégorie';
+        return toastCats.find(c => c.id === catId)?.name || 'Sans catégorie';
       };
       const parts = [...counts.entries()].map(([catId, n]) => `${n} dans ${labelFor(catId)}`);
       const total = items.length;
@@ -14381,6 +14940,42 @@ export default function App() {
     });
     setChatSidebarOpen(true);
     setTimeout(() => chatTextareaRef.current?.focus(), 50);
+  };
+
+  // « Importer depuis Outlook » - courriel as a document source. Échanges
+  // picked in the ImportEmailDialog become pièces: one per thread body (the
+  // email text itself, typed Correspondance) + one per parsed attachment.
+  // target 'staging' feeds the open drop/SAS modal (matter creation); target
+  // 'dossier' imports straight into the current dossier with background
+  // processing - no re-staging, matching the démo flow.
+  const handleEmailImport = (threads, opts = {}) => {
+    const staged = buildEmailStagedFiles(threads, opts);
+    if (emailImportTarget === 'staging') {
+      // Append to the staging modal list with a short upload shimmer.
+      setDropModal(prev => prev ? {
+        ...prev,
+        files: [...prev.files, ...staged.map(f => ({ ...f, status: 'uploading' }))],
+      } : prev);
+      staged.forEach((f, i) => {
+        setTimeout(() => {
+          setDropModal(prev => prev ? {
+            ...prev,
+            files: prev.files.map(x => x.id === f.id ? { ...x, status: 'ready' } : x),
+          } : prev);
+        }, 600 + i * 250 + Math.random() * 300);
+      });
+    } else {
+      // Détections (erreur/doublon) stay off: the échange is already parsed
+      // into body + attachments, nothing to re-découper.
+      const newItems = buildStagedProcessingItems(staged, null, 'dfp-mail');
+      setDropFirstPieces(prev => [...prev, ...newItems]);
+      setDropFirstProcessingDone(false);
+      setShowAddPiecesZone(false);
+      setTimeout(() => startProcessingSimulation(newItems, false, null, false, false), 300);
+      const text = `${threads.length} échange${threads.length > 1 ? 's' : ''} importé${threads.length > 1 ? 's' : ''}`;
+      setToastMessage(text);
+      setTimeout(() => setToastMessage(curr => (curr === text ? null : curr)), 4000);
+    }
   };
 
   // Adding pièces to an open dossier goes through the same split-staging SAS as
@@ -15070,7 +15665,7 @@ export default function App() {
 
     // Split (exploded) segments are classified into the regular dossier folders
     // by type (in dropFirstAsBordereauPieces) - no synthetic source-named folder.
-    const treeCategories = bordereauCategories;
+    const treeCategories = activeMatterType === 'social' ? socialCategories : bordereauCategories;
 
     // Ingest review zone vs. the list. A dropped file stays in the "À vérifier"
     // zone (as a card) while it's still being analysed, flagged as a possible
@@ -15097,7 +15692,7 @@ export default function App() {
     // Sans-catégorie with a spinner icon.
     // Demo: always surface a « Frais médicaux » folder (nested under Médical)
     // holding 10 split factures, regardless of what's been dropped.
-    const adaptedPieces = dropFirstAsBordereauPieces([...DEMO_FRAIS_MEDICAUX_FACTURES, ...settledPieces], treeCategories, piles);
+    const adaptedPieces = dropFirstAsBordereauPieces([...(activeMatterType === 'social' ? [] : DEMO_FRAIS_MEDICAUX_FACTURES), ...settledPieces], treeCategories, piles);
 
     // Translate BordereauTable's setPieces updater calls (which operate on
     // the bordereau-piece shape) back into setDropFirstPieces mutations.
@@ -15206,6 +15801,7 @@ export default function App() {
                 setPieceOverviewPanel(pid);
               }}
               onAddFiles={handleAddMorePieces}
+              onImportEmails={() => setEmailImportTarget('dossier')}
               onAskChato={askChatoAboutSelection}
               onFusePieces={openFusionModal}
               onToggleDocSplit={toggleDocSplit}
@@ -15374,6 +15970,27 @@ export default function App() {
     const dateLabel = !piece.date ? '' : (/^\d{2}\/\d{2}\/\d{4}$/.test(piece.date) ? piece.date : (isNaN(new Date(piece.date)) ? piece.date : new Date(piece.date).toLocaleDateString('fr-FR')));
     const flashToast = (text) => { setToastMessage(text); setTimeout(() => setToastMessage(curr => (curr === text ? null : curr)), 2400); };
 
+    // Email provenance - a pièce imported from an échange (body or PJ).
+    // The body's panel lists its PJ, each cross-linked to the imported pièce
+    // (or flagged « Non importée »); a PJ's panel links back to the échange.
+    // Links resolve live against dropFirstPieces, so a deleted pièce simply
+    // drops off. Cross-navigation opens the Pièces-tab panel, so it's only
+    // clickable outside bordereau mode.
+    const emailMeta = piece.emailMeta || piece._emailSource || null;
+    const emailSiblings = emailMeta?.threadId
+      ? dropFirstPieces.filter(p => p.status === 'done' && p.emailMeta?.threadId === emailMeta.threadId)
+      : [];
+    const emailBodyPiece = emailMeta?.kind === 'attachment'
+      ? emailSiblings.find(p => p.emailMeta.kind === 'body') || null
+      : null;
+    const emailAttachmentRows = emailMeta?.kind === 'body'
+      ? (emailMeta.attachmentNames || []).map(name => ({
+          name,
+          piece: emailSiblings.find(p => p.emailMeta.kind === 'attachment' && p.emailMeta.attName === name) || null,
+        }))
+      : [];
+    const openLinkedPiece = (id) => { setPieceDownloadMenu(false); setPieceOverviewPanel(id); };
+
     // Commit an edited date back to the right store for this context.
     const commitDate = (val) => {
       if (bordereau) {
@@ -15443,7 +16060,9 @@ export default function App() {
         <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-cream text-foreground-tertiary flex-shrink-0">
-              <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />
+              {emailMeta?.kind === 'body'
+                ? <Mail className="w-3.5 h-3.5" strokeWidth={1.75} />
+                : <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />}
             </span>
             <span className="text-body-medium text-foreground-strong truncate">{piece.cleanName}</span>
           </div>
@@ -15601,6 +16220,68 @@ export default function App() {
                 </div>
               </Input>
             </div>
+
+            {/* ── Courriel - provenance de l'échange + pièces liées ────── */}
+            {emailMeta && (
+              <>
+                <div className="h-px bg-border" />
+                <div className="px-5 flex flex-col gap-3">
+                  <FieldGroupLabel>{emailMeta.kind === 'body' ? 'Échange courriel' : "Courriel d'origine"}</FieldGroupLabel>
+                  <div className="rounded-lg border border-border bg-background-canvas p-3">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-md bg-white border border-border flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                        <span className="text-[14px] leading-5 font-medium text-foreground truncate" title={emailMeta.subject}>{emailMeta.subject}</span>
+                        <span className="text-[12px] leading-4 tracking-[0.12px] text-foreground-secondary truncate" title={emailMeta.from}>
+                          De : {emailMeta.from}{emailMeta.kind === 'body' && emailMeta.messages ? ` · ${emailMeta.messages} message${emailMeta.messages > 1 ? 's' : ''}` : ''}
+                        </span>
+                      </div>
+                      {emailMeta.kind === 'attachment' && emailBodyPiece && !bordereau && (
+                        <button
+                          type="button"
+                          onClick={() => openLinkedPiece(emailBodyPiece.id)}
+                          className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
+                          style={{ color: '#1e3a8a' }}
+                        >
+                          Ouvrir
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {emailMeta.kind === 'body' && emailAttachmentRows.length > 0 && (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="px-0.5 text-[12px] leading-4 font-medium text-foreground-secondary">
+                        {emailAttachmentRows.length} pièce{emailAttachmentRows.length > 1 ? 's' : ''} jointe{emailAttachmentRows.length > 1 ? 's' : ''}
+                      </span>
+                      {emailAttachmentRows.map((row, i) => (row.piece && !bordereau) ? (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => openLinkedPiece(row.piece.id)}
+                          className="group flex items-center gap-2 h-8 px-2 -mx-1.5 rounded-md hover:bg-cream transition-colors text-left min-w-0"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
+                          <span className="flex-1 min-w-0 truncate text-[13px] leading-5 text-foreground group-hover:underline underline-offset-2">
+                            {row.piece.cleanName || row.name}
+                          </span>
+                          <ChevronRight className="w-3.5 h-3.5 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                        </button>
+                      ) : (
+                        <div key={i} className="flex items-center gap-2 h-8 px-2 -mx-1.5 min-w-0">
+                          <FileText className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
+                          <span className="flex-1 min-w-0 truncate text-[13px] leading-5 text-foreground-secondary">
+                            {row.piece ? (row.piece.cleanName || row.name) : row.name}
+                          </span>
+                          {!row.piece && <span className="text-[11px] text-foreground-muted flex-shrink-0">Non importée</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
             {/* ── Numérotation de la pièce (bordereau only) ────────────── */}
             {bordereau && (
@@ -16042,23 +16723,38 @@ export default function App() {
 
           {/* Body */}
           <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
-            {/* Matter reference - creation only (add-files targets the open dossier) */}
+            {/* Matter reference + type - creation only; the type drives the layout (chiffrage postes, dossier content) */}
             {!isAdd && (
-              <div className="mb-4 flex-shrink-0">
-                <label className="block text-sm font-medium text-foreground mb-1.5">Référence du dossier</label>
-                <input
-                  type="text"
-                  value={reference}
-                  onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
-                  placeholder="Dossier Leblanc..."
-                  className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
-                />
+              <div className="mb-4 flex-shrink-0 flex items-end gap-3">
+                <div className="flex-1 min-w-0">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Référence du dossier</label>
+                  <input
+                    type="text"
+                    value={reference}
+                    onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
+                    placeholder="Dossier Leblanc..."
+                    className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
+                  />
+                </div>
+                <div className="flex-shrink-0" style={{ width: 220 }}>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Type de dossier</label>
+                  <select
+                    value={dropModal.matterType || 'corporel'}
+                    onChange={(e) => setDropModal(prev => ({ ...prev, matterType: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm cursor-pointer"
+                  >
+                    <option value="corporel">Dommages corporels</option>
+                    <option value="social">Droit social</option>
+                  </select>
+                </div>
               </div>
             )}
 
-            {/* Drop zone */}
+            {/* Document sources - two distinct zones side by side: the file
+                drop zone and the Outlook import zone (its own click target). */}
+            <div className={`flex items-stretch gap-3 ${hasFiles ? 'flex-shrink-0' : 'flex-1 min-h-0'}`}>
             <div
-              className={`dropzone-container border border-dashed rounded-lg transition-all cursor-pointer ${hasFiles ? 'flex-shrink-0' : 'flex-1 min-h-0 flex flex-col'}`}
+              className={`dropzone-container border border-dashed rounded-lg transition-all cursor-pointer ${hasFiles ? 'flex-1 min-w-0' : 'basis-1/2 grow-0 shrink min-w-0 flex flex-col'}`}
               style={{ borderColor: '#d6d3d1' }}
               onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dropzone-drop'); }}
               onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('dropzone-drop'); }}
@@ -16076,11 +16772,6 @@ export default function App() {
                       <div className="text-center space-y-2">
                         <p className="text-heading-lg-medium text-stone-800 leading-7">Déposez l'ensemble des pièces du dossier</p>
                         <p className="text-body text-stone-500">PDF, Images, Word - Vous pourrez en ajouter d'autres plus tard.</p>
-                      </div>
-                      <div className="flex flex-wrap justify-center gap-3" onClick={e => e.stopPropagation()}>
-                        {['Rapport d\'expertise', 'Décisions de justice', 'Factures', 'Bulletins de salaires'].map((label, i) => (
-                          <span key={i} className="badge badge-sm badge-secondary">{label}</span>
-                        ))}
                       </div>
                       <span className="h-10 px-6 bg-stone-800 text-white text-body-medium rounded-lg hover:bg-stone-900 transition-colors inline-flex items-center gap-2 shadow-sm">
                         <Upload className="w-4 h-4" /> Importer des pièces
@@ -16115,6 +16806,35 @@ export default function App() {
                 </>
               )}
               <input id="drop-first-file-input" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" className="hidden" onChange={handleFileSelect} />
+            </div>
+
+            {/* Outlook import zone - distinct from the drop zone */}
+            {!hasFiles ? (
+              <button
+                type="button"
+                onClick={() => setEmailImportTarget('staging')}
+                className="basis-1/2 grow-0 shrink min-w-0 border border-dashed rounded-lg flex flex-col items-center justify-center gap-5 px-6 py-8 text-center transition-colors hover:bg-background-canvas"
+                style={{ borderColor: '#d6d3d1' }}
+              >
+                <span className="inline-flex items-center justify-center rounded-full p-4 border shadow-sm" style={{ backgroundColor: '#dfe8f5', borderColor: '#c7d4ea' }}>
+                  <Mail className="w-6 h-6" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+                </span>
+                <span className="flex flex-col gap-2">
+                  <span className="text-body-medium text-stone-800">Importer depuis Outlook</span>
+                  <span className="text-sm text-stone-500 leading-5">Vos échanges deviennent des pièces, avec ou sans leurs pièces jointes.</span>
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEmailImportTarget('staging')}
+                className="flex-shrink-0 border border-dashed rounded-lg flex items-center justify-center gap-2.5 px-5 transition-colors hover:bg-background-canvas"
+                style={{ borderColor: '#d6d3d1' }}
+              >
+                <Mail className="w-5 h-5" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+                <span className="text-body text-stone-600 whitespace-nowrap">Importer depuis <span className="font-medium text-foreground">Outlook</span></span>
+              </button>
+            )}
             </div>
 
             {/* File list */}
@@ -16168,7 +16888,11 @@ export default function App() {
                               <Loader2 className="w-4 h-4 text-foreground-secondary animate-spin" />
                             ) : (
                               <>
-                                <Paperclip className="w-4 h-4 text-foreground-secondary group-hover:hidden" />
+                                {f.emailMeta?.kind === 'body' ? (
+                                  <Mail className="w-4 h-4 text-foreground-secondary group-hover:hidden" />
+                                ) : (
+                                  <Paperclip className="w-4 h-4 text-foreground-secondary group-hover:hidden" />
+                                )}
                                 <Trash2
                                   className="w-4 h-4 text-foreground-secondary hover:text-red-500 hidden group-hover:block cursor-pointer"
                                   onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}
@@ -16179,8 +16903,11 @@ export default function App() {
                           {/* Filename */}
                           <span className={`text-sm truncate ${isUploading ? 'italic opacity-40 text-foreground' : 'text-foreground'}`}>{f.name}</span>
                         </div>
-                        {/* Right side - per-document split choice (segmented) */}
-                        {!isUploading && (
+                        {/* Right side - per-document split choice (segmented).
+                            An email body is one échange - nothing to découper. */}
+                        {!isUploading && f.emailMeta?.kind === 'body' ? (
+                          <span className="text-xs text-foreground-muted flex-shrink-0">Échange courriel</span>
+                        ) : !isUploading && (
                           <SplitSegmentedControl
                             value={!!f.splitEnabled}
                             onChange={(v) => setDropModal(prev => ({
@@ -16688,107 +17415,271 @@ export default function App() {
   // Weekly-usage quota gauge (Réflexion Vic) - shared by the sidebar indicator and
   // the Plan & facturation page. Shows a 0–100 % gauge that refills Monday; never
   // tokens, never euros. `variant`: 'full' (bordered card) or 'compact' (sidebar).
-  const renderWeeklyQuotaCard = ({ plan, pct = 0, lifecycle = 'active', trialDaysRemaining = 0, variant = 'full', org = false }) => {
-    const compact = variant === 'compact';
-    const isTrial = lifecycle === 'trial' || lifecycle === 'trial-end';
-    const isNone = lifecycle === 'none' || !plan;
-    const tone = quotaTone(pct);
-    const trialEndingSoon = isTrial && trialDaysRemaining > 0 && trialDaysRemaining <= 2;
-    const shell = {
-      borderRadius: 4,
-      border: compact ? 'none' : (tone.warn && !isTrial ? '1px solid rgba(238,185,126,0.5)' : '1px solid #e7e5e3'),
-      boxShadow: compact ? 'none' : '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)',
-      backgroundColor: compact ? 'transparent' : '#ffffff',
-    };
-
-    // ── Ø licence - lecture seule ────────────────────────────────────────────
-    if (isNone) {
-      return (
-        <div className="overflow-hidden" style={shell}>
-          <div style={{ padding: compact ? '14px 16px 16px' : '20px' }}>
-            <div className="inline-flex items-center gap-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
-              <Eye className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />
-              <span>Lecture seule</span>
-            </div>
-            <div style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 22 : 28, fontWeight: 400, color: '#292524', letterSpacing: '-0.015em', marginTop: 8 }}>
-              Aucune licence
-            </div>
-            <p style={{ fontSize: 12, fontWeight: 500, color: '#78716c', marginTop: 4, lineHeight: '16px' }}>
-              Demandez une licence à votre administrateur pour reprendre la main.
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    const headerWarn = !isTrial && tone.warn;
-    const headerBg = isTrial
-      ? (trialEndingSoon ? 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' : 'linear-gradient(180deg, #e0eaf6 0%, #ffffff 100%)')
-      : (headerWarn ? 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' : 'transparent');
-    const headerColor = isTrial
-      ? (trialEndingSoon ? '#855b31' : '#1e3a8a')
-      : (headerWarn ? '#855b31' : '#78716c');
-
+  // Pure consumption meter: % of the weekly quota + gauge. Lifecycle content
+  // Trial management card - only on Plan et facturation (admin). Day clock +
+  // billing sentence + cancel. The banner handles awareness; this handles action.
+  // Small trial info - Mon usage only. No cancel, just context.
+  const renderTrialInfo = () => {
+    if (!isTrialing) return null;
+    const t = trialTone;
     return (
-      <div className="overflow-hidden" style={shell}>
-        {/* Header - eyebrow + plan chip / trial countdown */}
-        <div style={{ padding: compact ? '14px 16px 0' : '20px 20px 0', background: headerBg }}>
-          <div className="flex items-center justify-between gap-2" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: headerColor, textTransform: 'uppercase', letterSpacing: 'normal' }}>
-            <span className="inline-flex items-center gap-1.5 min-w-0">
-              {isTrial && <Clock className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />}
-              <span className="truncate">{isTrial ? (org ? "Essai gratuit pour toute l'organisation" : 'Essai gratuit') : 'Quota hebdomadaire'}</span>
-            </span>
-            {isTrial && trialDaysRemaining > 0 && (
-              <span className="flex-shrink-0">Expire dans <span className="tabular-nums" style={{ fontWeight: 700 }}>{trialDaysRemaining} j</span></span>
-            )}
-            {!isTrial && plan && (
-              <span className="flex-shrink-0" style={{ color: tone.warn ? '#855b31' : '#a8a29e' }}>{plan.name} · ×{plan.quotaMult}</span>
-            )}
+      <div className="flex items-center gap-3 rounded-lg px-4 py-3" style={{ border: `1px solid ${t.border}`, background: t.gradient }}>
+        <img src="/logo-plato.png" alt="" className="w-4 h-4 flex-shrink-0" style={{ opacity: 0.6 }} />
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          <span className="text-[13px] font-medium" style={{ color: t.text }}>Essai gratuit - jour {trialDayNumber} sur {TRIAL_TOTAL_DAYS}</span>
+          <div className="flex" style={{ gap: 2, width: 49 }}>
+            {Array.from({ length: TRIAL_TOTAL_DAYS }, (_, i) => (
+              <div key={i} style={{ height: 3, flex: 1, borderRadius: 999, backgroundColor: i < trialDaysRemaining ? t.bar : t.barTrack }} />
+            ))}
           </div>
-        </div>
-
-        {/* Body - big % + caption + gauge bar */}
-        <div style={{ padding: compact ? '8px 16px 18px' : '12px 20px 24px', display: 'flex', flexDirection: 'column', gap: compact ? 10 : 14 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div className="flex items-baseline gap-0.5">
-              <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 30 : 48, fontWeight: 400, color: tone.warn ? '#bd6c1a' : '#292524', letterSpacing: '-0.6px', lineHeight: 1 }}>
-                {pct}
-              </span>
-              <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: compact ? 16 : 24, fontWeight: 500, color: '#78716c', opacity: 0.5 }}>%</span>
-            </div>
-            <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>
-              {pct >= 100 ? 'Quota atteint · se recharge lundi' : 'utilisé cette semaine · se recharge lundi'}
-            </div>
-          </div>
-          <div style={{ height: 4, width: '100%', borderRadius: 999, overflow: 'hidden', backgroundColor: tone.warn ? tone.fill : tone.track }}>
-            {!tone.warn && (
-              <div style={{ height: '100%', width: `${Math.min(100, pct)}%`, backgroundColor: tone.fill, borderRadius: 999, transition: 'width 0.5s ease' }} />
-            )}
-          </div>
+          <span className="text-[12px]" style={{ color: '#78716c' }}>Se termine le {trialEndDateLabel}</span>
         </div>
       </div>
     );
   };
 
-  // Sidebar weekly-usage indicator for the current user - deep-links to billing.
-  const renderDossierIndicator = () => {
-    const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
+  // Trial management card - Plan et facturation only (admin). Day clock +
+  // billing sentence + cancel that triggers the two-step deletion flow.
+  const renderTrialCard = () => {
+    if (!isTrialing) return null;
+    const t = trialTone;
     return (
-      <button
-        onClick={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
-        className="block w-full text-left overflow-hidden transition-colors hover:bg-background"
-        style={{ backgroundColor: 'transparent', fontFamily: "'Inter', system-ui, sans-serif" }}
-      >
-        {renderWeeklyQuotaCard({
-          plan: myPlan,
-          pct: myQuotaPct,
-          lifecycle: billingState,
-          trialDaysRemaining,
-          variant: 'compact',
-        })}
-      </button>
+      <div className="overflow-hidden" style={{ borderRadius: 4, border: `1px solid ${t.border}`, boxShadow: '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)', backgroundColor: '#ffffff' }}>
+        <div style={{ padding: '20px 20px 0', background: t.gradient }}>
+          <div className="flex items-center justify-between gap-2" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: t.text, textTransform: 'uppercase' }}>
+            <span className="inline-flex items-center gap-1.5">
+              <img src="/logo-plato.png" alt="" className="w-3.5 h-3.5 flex-shrink-0" style={{ opacity: 0.6 }} />
+              <span>Essai gratuit</span>
+            </span>
+            <span>{TRIAL_TOTAL_DAYS} jours</span>
+          </div>
+        </div>
+        <div style={{ padding: '12px 20px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="flex items-baseline gap-1.5">
+            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 40, fontWeight: 400, color: trialUrgent ? '#bd6c1a' : '#292524', letterSpacing: '-0.4px', lineHeight: 1 }}>
+              Jour {trialDayNumber}
+            </span>
+            <span style={{ fontSize: 18, fontWeight: 500, color: '#78716c', opacity: 0.7 }}>sur {TRIAL_TOTAL_DAYS}</span>
+          </div>
+          <div className="flex" style={{ gap: 3 }}>
+            {Array.from({ length: TRIAL_TOTAL_DAYS }, (_, i) => (
+              <div key={i} style={{ height: 4, flex: 1, borderRadius: 999, backgroundColor: i < trialDaysRemaining ? t.bar : t.barTrack }} />
+            ))}
+          </div>
+          <p style={{ fontSize: 13, fontWeight: 500, color: '#78716c', lineHeight: '18px', margin: 0 }}>
+            Premier prélèvement le {trialEndDateLabel} - {totalLicenceCount} licence{totalLicenceCount > 1 ? 's' : ''} · {accountMonthlyTotal.toLocaleString('fr-FR')} € HT/mois.
+          </p>
+          <button
+            onClick={() => { setCancelTrialStep('reason'); setCancelTrialReason(null); setCancelTrialConfirmText(''); }}
+            className="self-start inline-flex items-center h-9 px-3.5 bg-white border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors"
+          >
+            Annuler l'essai
+          </button>
+        </div>
+      </div>
     );
   };
+
+  // Two-step cancel flow: reason -> confirm deletion with SUPPRIMER-{cabinet}
+  const CANCEL_REASONS = [
+    'Le produit ne correspond pas à mes besoins',
+    'Le prix est trop élevé',
+    'Je n\'ai pas eu le temps de tester',
+    'Je préfère un autre outil',
+    'Autre raison',
+  ];
+  const confirmTarget = `SUPPRIMER-${orgName.toUpperCase().replace(/\s+/g, '-')}`;
+  const renderCancelTrialModals = () => {
+    if (!cancelTrialStep) return null;
+
+    if (cancelTrialStep === 'reason') {
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setCancelTrialStep(null)}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 pt-6 pb-4">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                <AlertTriangle className="w-5 h-5 text-red-500" strokeWidth={1.75} />
+              </div>
+              <h2 className="text-[16px] font-medium text-foreground mb-1">Annuler l'essai gratuit ?</h2>
+              <p className="text-[13px] text-foreground-secondary leading-5">
+                Cette action supprimera votre organisation et toutes ses données. Dites-nous pourquoi vous partez.
+              </p>
+            </div>
+            <div className="px-6 pb-2">
+              <div className="flex flex-col gap-1.5">
+                {CANCEL_REASONS.map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setCancelTrialReason(r)}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-lg text-[13px] transition-colors border ${
+                      cancelTrialReason === r
+                        ? 'border-foreground bg-cream font-medium text-foreground'
+                        : 'border-border hover:bg-background text-foreground-secondary'
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="px-6 py-4 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setCancelTrialStep(null)}
+                className="h-9 px-4 text-[13px] font-medium text-foreground-tertiary rounded-lg hover:bg-cream transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => { if (cancelTrialReason) setCancelTrialStep('confirm'); }}
+                disabled={!cancelTrialReason}
+                className={`h-9 px-4 text-[13px] font-medium rounded-lg transition-colors ${
+                  cancelTrialReason
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-border text-foreground-muted cursor-not-allowed'
+                }`}
+              >
+                Continuer
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (cancelTrialStep === 'confirm') {
+      const canConfirm = cancelTrialConfirmText.trim() === confirmTarget;
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setCancelTrialStep(null)}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 pt-6 pb-4">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                <Trash2 className="w-5 h-5 text-red-500" strokeWidth={1.75} />
+              </div>
+              <h2 className="text-[16px] font-medium text-foreground mb-1">Supprimer l'organisation</h2>
+              <p className="text-[13px] text-foreground-secondary leading-5">
+                Cette action est irréversible. Tous les dossiers, pièces, actes et données de <span className="font-medium text-foreground">{orgName}</span> seront définitivement supprimés.
+              </p>
+            </div>
+            <div className="px-6 pb-2">
+              <label className="block text-[12px] font-medium text-foreground-secondary mb-2">
+                Tapez <span className="font-mono text-foreground bg-cream px-1.5 py-0.5 rounded">{confirmTarget}</span> pour confirmer
+              </label>
+              <input
+                type="text"
+                value={cancelTrialConfirmText}
+                onChange={(e) => setCancelTrialConfirmText(e.target.value)}
+                placeholder={confirmTarget}
+                className="w-full h-10 px-3 text-[14px] rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-shadow"
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                autoFocus
+              />
+            </div>
+            <div className="px-6 py-4 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setCancelTrialStep('reason')}
+                className="h-9 px-4 text-[13px] font-medium text-foreground-tertiary rounded-lg hover:bg-cream transition-colors"
+              >
+                Retour
+              </button>
+              <button
+                onClick={() => {
+                  if (!canConfirm) return;
+                  setCancelTrialStep(null);
+                  setToastMessage('Organisation supprimée. Redirection...');
+                  setTimeout(() => setToastMessage(null), 3000);
+                }}
+                disabled={!canConfirm}
+                className={`h-9 px-4 text-[13px] font-medium rounded-lg transition-colors ${
+                  canConfirm
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-border text-foreground-muted cursor-not-allowed'
+                }`}
+              >
+                Supprimer définitivement
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // During the trial the weekly quota gauge still applies - the trial banner
+  // and a Monday-reset quota are two different clocks answering two different
+  // questions ("how long do I have Norma ?" vs "how much Plato this week ?"),
+  // so they never share a card.
+  // Thin wrapper over the shared WeeklyUsageCard - injects the live trial tone
+  // for the settings-only trial header row.
+  const renderWeeklyQuotaCard = ({ plan, pct = 0, variant = 'full', showTrialHeader = false }) => (
+    <WeeklyUsageCard
+      plan={plan}
+      pct={pct}
+      variant={variant}
+      trial={showTrialHeader && isTrialing ? { tone: trialTone, daysRemaining: trialDaysRemaining } : null}
+    />
+  );
+
+  // Global trial banner - full width, top of the viewport (home + matter),
+  // same pattern as the closed-dossier banner. One line: day progress + the
+  // admin sees the billing sentence. Clicks through to Plan et facturation.
+  // Management (cancel) stays on Plan et facturation only.
+  const renderTrialBanner = () => {
+    if (!isTrialing) return null;
+    const t = trialTone;
+    return (
+      <div
+        className="w-full flex items-center justify-between px-4 flex-shrink-0"
+        style={{ height: 44, backgroundColor: t.bg, borderBottom: `1px solid ${t.border}` }}
+      >
+        <div className="flex items-center gap-4 min-w-0">
+          <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: t.text }} strokeWidth={2} />
+          <span style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 15, fontWeight: 500, color: t.text, letterSpacing: '-0.3px' }}>
+            Essai gratuit en cours
+          </span>
+          <span style={{ fontSize: 13, color: t.text, opacity: 0.7 }}>-</span>
+          <span style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 15, fontWeight: 500, color: t.text, letterSpacing: '-0.3px' }}>
+            Jour {trialDayNumber} sur {TRIAL_TOTAL_DAYS}
+          </span>
+          <div className="flex" style={{ gap: 2.5, width: 56 }}>
+            {Array.from({ length: TRIAL_TOTAL_DAYS }, (_, i) => (
+              <div key={i} style={{ height: 4, flex: 1, borderRadius: 999, backgroundColor: i < trialDaysRemaining ? t.bar : t.barTrack }} />
+            ))}
+          </div>
+        </div>
+        {isAdmin && (
+          <button
+            onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }}
+            className="inline-flex items-center gap-1 text-[12px] font-medium hover:opacity-70 transition-opacity flex-shrink-0"
+            style={{ color: t.text }}
+          >
+            Gérer
+            <ArrowRight className="w-3 h-3" strokeWidth={2.25} />
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  // Sidebar bottom slot - the weekly quota gauge (active / trial) or the
+  // read-only card (none). The trial strip lives below the logo, not here.
+  const renderDossierIndicator = () => (
+    <button
+      onClick={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
+      className="block w-full text-left overflow-hidden transition-colors hover:bg-background"
+      style={{ backgroundColor: 'transparent', fontFamily: "'Inter', system-ui, sans-serif" }}
+    >
+      {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, variant: 'compact' })}
+    </button>
+  );
 
   const renderHomeSidebar = () => renderUnifiedSidebar({ collapsed: false });
 
@@ -16798,7 +17689,9 @@ export default function App() {
     const filteredDossiers = dossiers.filter(d => dossierListTab === 'termines' ? d.statut === 'fermé' : (d.statut ?? 'ouvert') !== 'fermé');
 
     return (
-    <div className="h-screen flex relative" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
+    <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
+      {renderTrialBanner()}
+      <div className="flex-1 flex relative overflow-hidden">
       {renderHomeSidebar()}
 
       {/* Main content */}
@@ -16811,7 +17704,7 @@ export default function App() {
             </h1>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create' })}
+                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create', matterType: 'corporel' })}
                 className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors"
               >
                 <Plus className="w-4 h-4" />
@@ -16925,6 +17818,7 @@ export default function App() {
         </div>
       </div>
       {renderCreationWizard()}
+    </div>
     </div>
     );
   };
@@ -17255,6 +18149,7 @@ export default function App() {
               { label: 'Barème Components', slug: 'bareme-components' },
               { label: 'JP - Jurisprudence', slug: 'jp' },
               { label: 'Split - Variantes A/B/C', slug: 'split-variants' },
+              { label: 'Film - Cotisations (Social)', slug: 'film-social' },
             ].map(({ label, slug }) => (
               <button
                 key={slug}
@@ -17283,6 +18178,24 @@ export default function App() {
             </button>
             <button onClick={() => navigate('/ui-kit/sommaire-acte')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <AlignLeft className="w-3.5 h-3.5" /> Sommaire d'acte
+            </button>
+            <button onClick={() => navigate('/ui-kit/chat-composer-notice')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5" /> Chat Composer Notice
+            </button>
+            <button onClick={() => navigate('/ui-kit/import-dossier')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <Mail className="w-3.5 h-3.5" /> Import dossier - agencements
+            </button>
+            <button onClick={() => navigate('/ui-kit/preview-doc')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <FileText className="w-3.5 h-3.5" /> Preview document - plus grand
+            </button>
+            <button onClick={() => navigate('/ui-kit/trial-flow')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5" /> Essai gratuit - le flow complet
+            </button>
+            <button onClick={() => navigate('/ui-kit/cotisations')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <Calculator className="w-3.5 h-3.5" /> Cotisations et impôts - social
+            </button>
+            <button onClick={() => navigate('/welcome')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <UserRound className="w-3.5 h-3.5" /> Première connexion - onboarding
             </button>
           </nav>
         </div>
@@ -17314,6 +18227,31 @@ export default function App() {
                 Every reusable component currently in the codebase, plus the primitives we still need to build (status <em>missing</em>). Filter by status or category to focus a review pass. Tell Claude which components are validated and where their Figma source lives.
               </p>
               <ComponentsInventorySection />
+            </div>
+
+            {/* ====== FILM - COTISATIONS (SOCIAL) ====== */}
+            <div id="section-film-social" className={sectionClass}>
+              {sectionTitle('Film - Cotisations et impôts (Social)')}
+              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16, maxWidth: 760 }}>
+                Le film de présentation de l'US (52 s) : la page Chiffrage, la page d'un prélèvement,
+                les badges par poids d'autorité, le panneau en prose et le bloc de résultats - sur le
+                dossier fictif Camille Aubert. Démos interactives : <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>?demo=social</code> et <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>/ui-kit/cotisations</code>.
+                Source : projet Remotion dans <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>video/</code> (<code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>npm run render</code>).
+              </p>
+              <video
+                controls
+                preload="metadata"
+                src="/videos/norma-social.mp4"
+                style={{
+                  width: '100%',
+                  maxWidth: 960,
+                  borderRadius: 10,
+                  border: '1px solid #e7e5e3',
+                  boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05), 0px 1px 1px 0px rgba(26,26,26,0.05)',
+                  background: '#292524',
+                  display: 'block',
+                }}
+              />
             </div>
 
             {/* ====== DIFF ROWS ====== */}
@@ -19843,41 +20781,7 @@ export default function App() {
               <label className="text-body-medium" style={{ color: '#292524' }}>
                 Licence
               </label>
-              <div className="flex flex-col gap-1.5">
-                <button
-                  onClick={() => setInvitePlan(null)}
-                  className={`w-full flex items-center justify-between gap-3 px-3 h-10 rounded-lg border text-left transition-colors ${invitePlan === null ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
-                >
-                  <span className="flex items-center gap-2 min-w-0">
-                    <Eye className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
-                    <span className="text-[14px] text-foreground">Lecture seule</span>
-                    <span className="text-[12px] text-foreground-muted">gratuit</span>
-                  </span>
-                  {invitePlan === null && <Check className="w-4 h-4 text-foreground flex-shrink-0" strokeWidth={2} />}
-                </button>
-                {PRICING_PLANS.map((p) => {
-                  const isCurrent = invitePlan === p.id;
-                  const PG = p.id === 'MAX+' ? ChessQueen : p.id === 'MAX' ? ChessRook : ChessPawn;
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => setInvitePlan(p.id)}
-                      className={`w-full flex items-center justify-between gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${isCurrent ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
-                    >
-                      <span className="flex items-center gap-2 min-w-0">
-                        <PG className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-[14px] text-foreground">Plan {p.name}</span>
-                        <span className="text-[12px] text-foreground-muted tabular-nums">{p.monthly} €/mois</span>
-                      </span>
-                      {isCurrent ? (
-                        <Check className="w-4 h-4 text-foreground flex-shrink-0" strokeWidth={2} />
-                      ) : (
-                        <span className="text-[11px] font-medium text-[#855b31] tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              <LicencePicker value={invitePlan} onChange={setInvitePlan} includeFree showDelta />
               <p className="text-caption text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>
                 {invitePlan === null
                   ? 'Sans licence, l\'accès reste en lecture seule.'
@@ -20478,6 +21382,83 @@ export default function App() {
     </>
   );
 
+  // Connecteurs - connect a mailbox so échanges (and their PJ) can be imported
+  // into dossiers. Secured through Nylas ; read-only ; nothing synced without
+  // the avocat explicitly picking échanges per dossier.
+  const renderSettingsConnecteurs = () => {
+    const PROVIDERS = [
+      { id: 'outlook', name: 'Microsoft Outlook', desc: 'Outlook, Microsoft 365, Exchange', account: 'cabinet@durand-avocats.fr', bg: '#dfe8f5', fg: '#1e3a8a' },
+      { id: 'gmail', name: 'Google Workspace', desc: 'Gmail, Google Workspace', account: 'cabinet@durand-avocats.fr', bg: '#fce8e6', fg: '#c5221f' },
+    ];
+    return (
+      <>
+        <div className="flex-1 overflow-y-auto px-8 py-10">
+          <div className="max-w-5xl w-full mx-auto">
+            {renderSettingsHeader(
+              'Connecteurs',
+              'Connectez votre boîte email pour importer vos échanges - et leurs pièces jointes - directement dans vos dossiers. La connexion passe par Nylas : Norma ne voit jamais votre mot de passe.'
+            )}
+
+            <div className="flex flex-col gap-4">
+              <div className="bg-white rounded-md border border-border overflow-hidden divide-y divide-border shadow-sm">
+                <div className="px-5 py-3 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
+                  <span className="text-body-medium text-foreground">Boîte email</span>
+                </div>
+                {PROVIDERS.map(p => {
+                  const connected = emailConnection.status === 'connected' && emailConnection.provider === p.id;
+                  return (
+                    <div key={p.id} className="px-5 py-4 flex items-center gap-4">
+                      <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0" style={{ backgroundColor: p.bg }}>
+                        <Mail className="w-5 h-5" style={{ color: p.fg }} strokeWidth={1.75} />
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-body-medium text-foreground">{p.name}</span>
+                          {connected && (
+                            <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#e4efe8', color: '#4a9168' }}>
+                              <Check className="w-3 h-3" strokeWidth={3} /> Connecté
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[13px] text-foreground-secondary truncate">
+                          {connected ? `${emailConnection.account} · Dernière synchro il y a 4 min` : p.desc}
+                        </p>
+                      </div>
+                      {connected ? (
+                        <button
+                          onClick={() => setEmailConnection({ status: 'disconnected', provider: null, account: null })}
+                          className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background transition-colors flex-shrink-0"
+                        >
+                          Déconnecter
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setEmailConnection({ status: 'connected', provider: p.id, account: p.account })}
+                          className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
+                          style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                        >
+                          <Plug2 className="w-4 h-4" strokeWidth={1.75} /> Connecter
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg" style={{ backgroundColor: '#f4f7fc', border: '1px solid #dfe8f5' }}>
+                <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+                <p className="text-[13px] text-foreground-secondary leading-relaxed">
+                  Norma demande un accès <span className="font-medium text-foreground">en lecture seule</span> à vos emails et dossiers, via Nylas. Vous choisissez les échanges à importer dossier par dossier - rien n'est versé automatiquement.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   const renderSettingsPreferences = () => {
     return (
       <>
@@ -20778,11 +21759,9 @@ export default function App() {
   // "Mon usage" - personal settings section every user sees (plan + weekly gauge).
   // The cabinet billing page (renderSettingsBilling) is admin-only.
   const renderSettingsUsage = () => {
-    const trialDaysRemaining = billingState === 'trial' ? 5 : billingState === 'trial-end' ? 1 : 0;
     // Weekly quota exhausted (demo: quota 100%). Members ask their admin for an
     // upgrade; admins self-upgrade. Reuses the existing ask/self-upgrade modals.
     const outOfQuota = myQuotaPct >= 100 && billingState !== 'none' && !!myPlan;
-    const pillCls = (on) => `px-2 py-0.5 rounded-md transition-colors ${on ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
     const sectionLabel = (text) => (
       <div className="flex items-baseline gap-3 mb-4">
         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{text}</span>
@@ -20795,76 +21774,53 @@ export default function App() {
           <div className="max-w-5xl w-full mx-auto">
             {renderSettingsHeader(
               'Mon usage',
-              'Votre plan et votre consommation hebdomadaire.',
-              <div className="flex flex-col items-end gap-1.5 text-[10px] text-foreground-muted" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-                <div className="flex items-center gap-1">
-                  <span className="uppercase tracking-wider mr-1">Démo</span>
-                  {[{ id: 'active', label: 'actif' }, { id: 'trial', label: 'essai 5j' }, { id: 'trial-end', label: 'essai 1j' }, { id: 'none', label: 'Ø licence' }].map(s => (
-                    <button key={s.id} onClick={() => setBillingState(s.id)} className={pillCls(billingState === s.id)}>{s.label}</button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-1">
-                  {[{ id: 'fresh', label: 'quota 16%' }, { id: 'mid', label: 'quota 63%' }, { id: 'full', label: 'quota 100%' }].map(s => (
-                    <button key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
-                  ))}
-                </div>
-              </div>
+              'Votre licence et votre consommation hebdomadaire.'
             )}
             <div className="space-y-4">
-              <div className="pt-2">
-                {sectionLabel('VOTRE PLAN')}
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-cream border border-border flex items-center justify-center flex-shrink-0">
-                    {(() => { const G = myPlan ? ({ PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen }[myPlan.id] || ChessPawn) : Eye; return <G className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />; })()}
+              {(
+                <div className="pt-2">
+                  {sectionLabel('VOTRE LICENCE')}
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-cream border border-border flex items-center justify-center flex-shrink-0">
+                      {(() => { const G = myPlan ? ({ PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen }[myPlan.id] || ChessPawn) : Eye; return <G className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />; })()}
+                    </div>
+                    <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }}>
+                      {myPlan ? `Licence ${myPlan.name}` : 'Lecture seule'}
+                    </span>
                   </div>
-                  <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }}>
-                    {myPlan ? `Plan ${myPlan.name}` : 'Lecture seule'}
-                  </span>
-                </div>
 
-                <div className="mt-5">
-                  {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, lifecycle: billingState, trialDaysRemaining, variant: 'full' })}
-                </div>
-
-                {outOfQuota && (
-                  <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border px-4 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
-                    <p className="text-[13px] min-w-0" style={{ color: '#855b31' }}>
-                      Besoin de plus d'usage cette semaine ? Demandez une mise à niveau à un administrateur.
-                    </p>
-                    <button
-                      onClick={() => setAskUpgradeOpen(true)}
-                      className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-                    >
-                      <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
-                      Demander une mise à niveau
-                    </button>
+                  <div className="mt-5">
+                    {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, variant: 'full', showTrialHeader: true })}
                   </div>
-                )}
-              </div>
 
-              <div className="pt-6">
-                <div className="flex items-baseline gap-3 mb-2">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE PLAN' : 'VOTRE ACCÈS'}</span>
-                  <span className="flex-1 h-px bg-border" />
-                </div>
-                {myPlan && <p className="text-[12px] text-foreground-secondary mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
-                <div className="bg-white rounded-lg border border-border/60 overflow-hidden divide-y divide-border/60">
-                  {myPlan ? PLAN_FEATURES.map((f, i) => {
-                    const Icon = f.icon;
-                    return (
-                      <div key={i} className="flex items-center gap-3 px-5 py-3.5">
-                        <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-[13px] text-foreground font-medium">{f.label}</span>
-                        {f.hint && <span className="text-[12px] text-foreground-muted">({f.hint})</span>}
-                      </div>
-                    );
-                  }) : (
-                    <div className="flex items-center gap-3 px-5 py-3.5">
-                      <Eye className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
-                      <span className="text-[13px] text-foreground font-medium">Accès aux dossiers en lecture seule</span>
+                  {outOfQuota && (
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border px-4 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
+                      <p className="text-[13px] min-w-0" style={{ color: '#855b31' }}>
+                        Besoin de plus d'usage cette semaine ? Demandez une mise à niveau à un administrateur.
+                      </p>
+                      <button
+                        onClick={() => setAskUpgradeOpen(true)}
+                        className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
+                      >
+                        <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
+                        Demander une mise à niveau
+                      </button>
                     </div>
                   )}
                 </div>
+              )}
+
+              <div className="pt-6">
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE LICENCE' : 'VOTRE ACCÈS'}</span>
+                  <span className="flex-1 h-px bg-border" />
+                </div>
+                {myPlan && <p className="text-[12px] text-foreground-secondary mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
+                <PlanFeatureList
+                  dense
+                  subtle
+                  features={myPlan ? PLAN_FEATURES : [{ icon: Eye, label: 'Accès aux dossiers en lecture seule' }]}
+                />
               </div>
             </div>
           </div>
@@ -20878,9 +21834,6 @@ export default function App() {
   // and what every licence includes. This is the org billing view; the per-user
   // weekly consumption lives on "Mon usage" (renderSettingsUsage).
   const renderSettingsBilling = () => {
-    // Tier glyph mirrors the licence-picker: Pawn → Rook → Queen.
-    const tierGlyph = { PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen };
-    const quotaLabel = { PRO: 'QUOTA DE BASE', MAX: 'QUOTA X2', 'MAX+': 'QUOTA X6' };
     return (
       <>
         <div className="flex-1 overflow-y-auto px-8 py-10">
@@ -20889,7 +21842,7 @@ export default function App() {
               'Plan et facturation',
               'Le forfait du cabinet, la répartition des licences et la facturation.',
               <button
-                onClick={() => { setToastMessage('Redirection vers l’espace facturation Stripe…'); setTimeout(() => setToastMessage(null), 3000); }}
+                onClick={() => { setToastMessage('Redirection vers l\'espace facturation Stripe...'); setTimeout(() => setToastMessage(null), 3000); }}
                 className="inline-flex items-center gap-2 h-9 px-4 bg-cream text-foreground-tertiary text-[14px] font-medium rounded-lg hover:bg-border transition-colors flex-shrink-0"
               >
                 Accéder à l'espace facturation
@@ -20897,53 +21850,22 @@ export default function App() {
               </button>
             )}
             <div className="space-y-5">
+              {/* Votre essai - the same self-contained trial object as Mon
+                  usage (status sentence + cancel / resume inside the card).
+                  The forfait table below reads as "what will be charged". */}
+              {isTrialing && (
+                <div>
+                  <div className="flex items-baseline gap-3 mb-4">
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>VOTRE ESSAI</span>
+                    <span className="flex-1 h-px bg-border" />
+                  </div>
+                  {renderTrialCard()}
+                </div>
+              )}
+
               {/* Forfait - per-tier licence breakdown + account total */}
               <div>
-                <div className="bg-white rounded-lg border border-border overflow-hidden">
-                  <div className="flex items-stretch">
-                    {PRICING_PLANS.map((p, i) => {
-                      const count = licencesAssigned[p.id] || 0;
-                      const Glyph = tierGlyph[p.id] || ChessPawn;
-                      return (
-                        <div key={p.id} className={`flex-1 min-w-0 px-4 py-4 ${i < PRICING_PLANS.length - 1 ? 'border-r border-border' : ''}`}>
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Glyph className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
-                              <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }} className="truncate">
-                                Plan {p.name}
-                              </span>
-                            </div>
-                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase whitespace-nowrap">
-                              {quotaLabel[p.id]}
-                            </span>
-                          </div>
-                          <p className="mt-1.5 text-[14px] leading-5">
-                            <span className="text-foreground font-medium">{p.monthly} € </span>
-                            <span className="text-foreground-secondary">HT / mois / licence</span>
-                          </p>
-                          <div className="h-px bg-border my-2.5" />
-                          <div className="flex items-baseline gap-1.5">
-                            <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '24px', fontWeight: 500, color: '#292524', letterSpacing: '-0.02em' }} className="tabular-nums">
-                              {count}
-                            </span>
-                            <span className="text-[14px] text-foreground-secondary">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="flex items-center justify-between px-5 py-3.5 bg-background border-t border-border">
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase">
-                      Total du compte
-                    </span>
-                    <p className="whitespace-nowrap">
-                      <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '30px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.02em' }} className="tabular-nums">
-                        {accountMonthlyTotal.toLocaleString('fr-FR')} €
-                      </span>
-                      <span className="text-[13px] text-foreground-secondary ml-2">HT / mois</span>
-                    </p>
-                  </div>
-                </div>
+                <LicenceSummaryCard counts={licencesAssigned} total={accountMonthlyTotal} />
                 <p className="text-[12px] text-foreground-secondary leading-4 mt-2.5">
                   Sans engagement, facturation mensuelle. Une licence s'obtient en invitant un collaborateur ; sans licence, accès lecture seule gratuit.
                 </p>
@@ -20957,17 +21879,7 @@ export default function App() {
                   </span>
                   <span className="flex-1 h-px bg-border" />
                 </div>
-                <div className="bg-white rounded-lg border border-border overflow-hidden divide-y divide-border">
-                  {LICENCE_INCLUDED_FEATURES.map((f, i) => {
-                    const Icon = f.icon;
-                    return (
-                      <div key={i} className="flex items-center gap-4 px-5 py-3.5">
-                        <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-[14px] text-foreground font-medium">{f.label}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                <PlanFeatureList features={LICENCE_INCLUDED_FEATURES} />
               </div>
             </div>
           </div>
@@ -21622,6 +22534,7 @@ export default function App() {
         items: [
           { id: 'general', label: 'Général', icon: User },
           { id: 'usage', label: 'Mon usage', icon: Activity },
+          { id: 'connecteurs', label: 'Connecteurs', icon: Plug2 },
           { id: 'tampon', label: 'Tamponnage', icon: Stamp },
         ],
       },
@@ -21657,21 +22570,73 @@ export default function App() {
             </span>
           </button>
 
-          {/* Demo view toggle - admin / membre (preview every settings page) */}
-          <div className="px-3 py-2.5 border-b border-border">
-            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
-              Démo · vue
+          {/* Demo controls - persona + billing state + quota */}
+          <div className="px-3 py-2.5 border-b border-border flex flex-col gap-2.5">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                Vue
+              </div>
+              <div className="flex items-center gap-1.5">
+                {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
+                    className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
-                  className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
-                >
-                  {s.label}
-                </button>
-              ))}
+            <div>
+              <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                État
+              </div>
+              <div className="flex items-center gap-1">
+                {[{ id: 'trial', label: 'Essai' }, { id: 'active', label: 'Actif' }, { id: 'none', label: 'Ø' }].map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setBillingState(s.id)}
+                    className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${billingState === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {isTrialing && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                  Jour
+                </div>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5, 6, 7].map(d => (
+                    <button
+                      key={d}
+                      onClick={() => setDemoTrialDay(d)}
+                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${demoTrialDay === d ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div>
+              <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                Quota
+              </div>
+              <div className="flex items-center gap-1">
+                {[{ id: 'fresh', label: '16%' }, { id: 'mid', label: '63%' }, { id: 'high', label: '92%' }, { id: 'full', label: '100%' }].map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setQuotaFill(s.id)}
+                    className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${quotaFill === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -21712,6 +22677,7 @@ export default function App() {
           {settingsSection === 'general' && renderSettingsGeneral()}
           {/* Org settings are admin-only; non-admins fall back to their account page. */}
           {settingsSection === 'organisation' && (isAdmin ? renderSettingsOrganisation() : renderSettingsGeneral())}
+          {settingsSection === 'connecteurs' && renderSettingsConnecteurs()}
           {settingsSection === 'tampon' && renderSettingsTampon()}
           {settingsSection === 'usage' && renderSettingsUsage()}
           {settingsSection === 'preferences' && renderSettingsPreferences()}
@@ -23612,6 +24578,9 @@ export default function App() {
   // from Settings, the dossier list, and the matter views alike.
   const renderGlobalOverlays = () => (
     <>
+      {/* Cancel trial modals (reason -> confirm deletion) */}
+      {renderCancelTrialModals()}
+
       {/* JP Decision Drawer */}
       {/* JP detail used to render here as a fixed-position overlay drawer.
           It now renders inline inside the canvas (see the left content
@@ -23753,6 +24722,16 @@ export default function App() {
           not only the dossiers list. */}
       {renderDropFirstModal()}
 
+      {/* « Importer depuis Outlook » picker - z-[60] so it overlays the
+          staging modal when opened from matter creation. */}
+      <ImportEmailDialog
+        open={!!emailImportTarget}
+        onClose={() => setEmailImportTarget(null)}
+        threads={OUTLOOK_THREADS}
+        folders={OUTLOOK_FOLDERS}
+        onImport={handleEmailImport}
+      />
+
       {/* Toast notification */}
       {toastMessage && (
         <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 text-white text-body rounded-lg shadow-lg flex items-center gap-2 animate-fade-up bg-zinc-800`}>
@@ -23776,9 +24755,250 @@ export default function App() {
   );
 
   // ========== ROUTING ==========
+  if (currentPage === 'chat-composer-notice') {
+    const previewQuotaPct = { fresh: 16, mid: 63, high: 92, full: 100 }[quotaFill] ?? 63;
+    const previewOutOfQuota = quotaFill === 'full';
+    const previewNearQuota = !previewOutOfQuota && previewQuotaPct >= 90;
+    const pillCls = (on) => `px-2 py-0.5 rounded-md text-[11px] transition-colors ${on ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
+    // Mirrors the real composer: tinted englobing wrapper (when a variant is set)
+    // wrapping a white rounded-6 input with the notice row capping the top.
+    const MockComposer = ({ variant, pct }) => {
+      const dim = variant === 'quota-full';
+      return (
+        <div
+          style={{
+            width: 380, display: 'flex', flexDirection: 'column',
+            borderRadius: variant ? 10 : 6,
+            backgroundColor: variant ? NOTICE_WRAP_BG[variant] : '#ffffff',
+            padding: variant ? '0 1px 1px 1px' : 0,
+          }}
+        >
+          {variant && (
+            <ChatComposerNotice
+              variant={variant}
+              pct={pct}
+              days={1}
+              onOpenUsage={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
+              onRequestUpgrade={() => setAskUpgradeOpen(true)}
+            />
+          )}
+          <div style={{ backgroundColor: '#ffffff', borderRadius: 6, boxShadow: '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '12px 12px 28px', color: '#78716c', fontSize: 14, lineHeight: '20px', opacity: dim ? 0.4 : 1 }}>
+              Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...
+            </div>
+            <div className="flex items-center justify-between" style={{ padding: 12 }}>
+              <div className="flex items-center gap-0.5" style={{ opacity: dim ? 0.5 : 1 }}>
+                <div className="w-8 h-8 flex items-center justify-center rounded-lg"><Paperclip className="w-4 h-4 text-foreground-secondary" /></div>
+                <div className="w-8 h-8 flex items-center justify-center rounded-lg"><Lightbulb className="w-4 h-4 text-foreground-secondary" /></div>
+              </div>
+              <div className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: '#eeece6', opacity: 0.5 }}>
+                <ArrowUp className="w-4 h-4" style={{ color: '#78716c' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+    const swatch = (v) => {
+      const label = { analyzing: 'Processing docs', 'quota-warning': 'Limit reached (92%)', 'quota-full': 'Quota reach (100%)' };
+      return (
+        <div key={v} className="flex flex-col gap-2">
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label[v]}</span>
+          <MockComposer variant={v} pct={92} />
+        </div>
+      );
+    };
+    return (
+      <>
+        <div className="min-h-screen" style={{ backgroundColor: '#f8f7f5', padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
+          <button onClick={() => navigate('/ui-kit')} className="flex items-center gap-1.5 text-[13px] text-foreground-secondary hover:text-foreground mb-8 transition-colors">
+            <ChevronRight className="w-3.5 h-3.5 rotate-180" strokeWidth={2} />
+            UI Kit
+          </button>
+          <div className="mb-8">
+            <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', marginBottom: 6 }}>
+              Chat Composer Notice
+            </h1>
+            <p style={{ fontSize: 13, color: '#78716c', lineHeight: '20px', maxWidth: 520 }}>
+              A tinted frame that englobes the chat composer, with a notice row capping the top. Variants: Processing docs (Plato analysing dropped files), Limit reached (~90% of weekly quota), Quota reach (100%, composer blocked), plus the free-trial lifecycle - Trial ending (amber heads-up) and Trial ended (mauve, composer blocked).
+            </p>
+          </div>
+
+          {/* Live demo */}
+          <div className="mb-10">
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Live demo</div>
+            <div className="flex items-center gap-2 mb-4" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+              {[{ id: 'fresh', label: 'quota 16%' }, { id: 'mid', label: 'quota 63%' }, { id: 'high', label: 'quota 92%' }, { id: 'full', label: 'quota 100%' }].map(s => (
+                <button key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
+              ))}
+              <button onClick={() => setChatBlocked(b => !b)} className={pillCls(chatBlocked)}>analysing</button>
+            </div>
+            <MockComposer
+              variant={previewOutOfQuota ? 'quota-full' : chatBlocked ? 'analyzing' : previewNearQuota ? 'quota-warning' : null}
+              pct={previewQuotaPct}
+            />
+          </div>
+
+          {/* Static swatches */}
+          <div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>All variants</div>
+            <div className="flex flex-wrap gap-8">
+              {['analyzing', 'quota-warning', 'quota-full'].map(swatch)}
+            </div>
+          </div>
+        </div>
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
   if (currentPage === 'reasoning-demo') {
     return (<>{renderReasoningDemoPage()}{renderGlobalOverlays()}</>);
   }
+  if (currentPage === 'welcome') {
+    // First-run flow: login -> trial explainer -> licence -> card -> Plato.
+    // Entering the platform switches the demo into "essai · jour 1" as admin.
+    return (
+      <OnboardingFlow
+        onSelectPlan={(planId) => setWorkspaceMembers((ms) => ms.map((m) => (m.id === 'u-1' ? { ...m, plan: planId } : m)))}
+        onEnter={() => { setDemoPersona('admin'); setBillingState('trial'); setDemoTrialDay(1); navigate('/'); }}
+      />
+    );
+  }
+
+  if (currentPage === 'trial-flow') {
+    const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase' };
+    const surfaceCaption = { fontSize: 12, color: '#78716c', lineHeight: '17px', marginTop: 10, maxWidth: 460 };
+    const pillCls = (on) => `px-2.5 py-1 rounded-md text-[11px] transition-colors ${on ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
+    const flowChip = ({ eyebrow, text, tone = 'stone' }) => {
+      const tones = {
+        stone: { border: '#e7e5e3', eyebrow: '#78716c', bg: '#ffffff' },
+        blue: { border: '#d7e2f2', eyebrow: '#1e3a8a', bg: 'linear-gradient(180deg, #eef3fa 0%, #ffffff 60%)' },
+      };
+      const t = tones[tone];
+      return (
+        <div className="flex-1 min-w-0 rounded-lg border px-3.5 py-3" style={{ borderColor: t.border, background: t.bg }}>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: t.eyebrow, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{eyebrow}</div>
+          <div style={{ fontSize: 12, color: '#44403c', lineHeight: '17px', marginTop: 4 }}>{text}</div>
+        </div>
+      );
+    };
+    const flowArrow = <ArrowRight className="w-4 h-4 flex-shrink-0 self-center" style={{ color: '#d6d3d1' }} strokeWidth={2} />;
+    return (
+      <>
+        <div className="min-h-screen" style={{ backgroundColor: '#f8f7f5', padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
+          <button onClick={() => navigate('/ui-kit')} className="flex items-center gap-1.5 text-[13px] text-foreground-secondary hover:text-foreground mb-8 transition-colors">
+            <ChevronRight className="w-3.5 h-3.5 rotate-180" strokeWidth={2} />
+            UI Kit
+          </button>
+          <div className="mb-10">
+            <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', marginBottom: 6 }}>
+              Essai gratuit - le flow complet
+            </h1>
+            <p style={{ fontSize: 13, color: '#78716c', lineHeight: '20px', maxWidth: 620 }}>
+              Trois cas : essai (7j), abonnement actif, annulé (suppression du compte). La bannière bleue en haut de page est la seule surface de l'essai ; l'annulation vit sur Plan et facturation.
+            </p>
+          </div>
+
+          {/* ── Le parcours ── */}
+          <div className="mb-12">
+            <div style={{ ...monoLabel, marginBottom: 14 }}>Le parcours - 3 cas</div>
+            <div className="flex gap-2 items-stretch" style={{ maxWidth: 900 }}>
+              {flowChip({ eyebrow: 'Inscription', text: 'Carte bancaire + choix des licences. L\'essai de 7 jours démarre.', tone: 'stone' })}
+              {flowArrow}
+              {flowChip({ eyebrow: 'Essai · 7 jours', text: 'Bannière bleue en haut « Essai gratuit · J3/7 ». L\'admin peut annuler dans Réglages.', tone: 'blue' })}
+              {flowArrow}
+              {flowChip({ eyebrow: 'Abonnement actif', text: 'La bannière disparaît. L\'usage continue normalement.', tone: 'blue' })}
+            </div>
+          </div>
+
+          {/* ── Démo en direct ── */}
+          <div className="mb-12">
+            <div style={{ ...monoLabel, marginBottom: 14 }}>Démo en direct</div>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+              <div className="flex items-center gap-1">
+                <span style={{ ...monoLabel, marginRight: 4 }}>Vue</span>
+                {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
+                  <button key={s.id} onClick={() => setDemoPersona(s.id)} className={pillCls(demoPersona === s.id)}>{s.label}</button>
+                ))}
+              </div>
+              <div className="flex items-center gap-1">
+                <span style={{ ...monoLabel, marginRight: 4 }}>État</span>
+                {[{ id: 'trial', label: 'Essai' }, { id: 'active', label: 'Actif' }, { id: 'none', label: 'Ø licence' }].map(s => (
+                  <button key={s.id} onClick={() => setBillingState(s.id)} className={pillCls(billingState === s.id)}>{s.label}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-10">
+              {/* Bannière */}
+              <div>
+                <div style={{ ...monoLabel, marginBottom: 10 }}>Bannière · home + dossier</div>
+                <div style={{ maxWidth: 900 }}>
+                  {isTrialing ? (
+                    <div className="rounded-lg overflow-hidden border border-border">{renderTrialBanner()}</div>
+                  ) : (
+                    <div className="rounded-lg border border-dashed border-border-strong flex items-center justify-center text-center" style={{ minHeight: 48, padding: '14px 20px' }}>
+                      <span style={{ fontSize: 12, color: '#a8a29e' }}>Pas d'essai en cours - la bannière n'apparaît pas.</span>
+                    </div>
+                  )}
+                </div>
+                <p style={surfaceCaption}>
+                  Pleine largeur, au-dessus de tout. L'admin voit le montant et la date du prélèvement + « Gérer ». Un membre voit la date de fin, sans action.
+                </p>
+              </div>
+
+              {/* Lien vers Plan et facturation */}
+              <div>
+                <div style={{ ...monoLabel, marginBottom: 10 }}>Gestion · Plan et facturation (admin)</div>
+                <button onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-white border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors">
+                  Plan et facturation <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                </button>
+                <p style={surfaceCaption}>
+                  « Annuler l'essai » vit ici, sur la page d'administration. La bannière y renvoie via « Gérer ».
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Qui voit quoi ── */}
+          <div className="mb-8">
+            <div style={{ ...monoLabel, marginBottom: 14 }}>Qui voit quoi</div>
+            <div className="bg-white rounded-lg border border-border overflow-hidden" style={{ maxWidth: 900 }}>
+              <table className="w-full" style={{ fontSize: 12.5, lineHeight: '18px' }}>
+                <thead>
+                  <tr className="border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: '#78716c' }}>État</th>
+                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: '#78716c' }}>Admin</th>
+                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: '#78716c' }}>Membre</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  <tr className="align-top">
+                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: '#44403c' }}>Essai (7j)</td>
+                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Bannière bleue (J3/7, montant, « Gérer »). Carte essai sur Plan et facturation avec « Annuler l'essai ».</td>
+                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Bannière bleue (J3/7, date de fin). Pas d'action.</td>
+                  </tr>
+                  <tr className="align-top">
+                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: '#44403c' }}>Actif</td>
+                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Pas de bannière. Jauge quota en sidebar. Plan et facturation normal.</td>
+                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Pas de bannière. Jauge quota en sidebar. Mon usage normal.</td>
+                  </tr>
+                  <tr className="align-top">
+                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: '#44403c' }}>Annulé</td>
+                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Suppression du compte (hors scope).</td>
+                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Perd l'accès.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
   if (currentPage === 'diff-engine') {
     return (<>{renderDiffEnginePage()}{renderGlobalOverlays()}</>);
   }
@@ -23794,6 +25014,16 @@ export default function App() {
   if (currentPage === 'prompt-suggestions') {
     return (<>{renderPromptSuggestionsPage()}{renderGlobalOverlays()}</>);
   }
+  if (currentPage === 'import-dossier') {
+    return (<><ImportDossierLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'preview-doc') {
+    return (<><PreviewDocLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'cotisations') {
+    return (<><CotisationsLab />{renderGlobalOverlays()}</>);
+  }
+
   if (currentPage === 'sommaire-acte') {
     return (<><SommaireActeLab />{renderGlobalOverlays()}</>);
   }
@@ -23815,6 +25045,9 @@ export default function App() {
         color: '#27272a'
       }}
     >
+      {/* Trial banner - full viewport width, above the closed-dossier banner */}
+      {dossierStatut !== 'fermé' && renderTrialBanner()}
+
       {/* Closed-dossier banner - full viewport width, above the top nav (Figma node 2018:119250) */}
       {dossierStatut === 'fermé' && (
         <div
@@ -23837,6 +25070,7 @@ export default function App() {
           </button>
         </div>
       )}
+
 
       {/* Horizontal split: left content column + right chat sidebar */}
       <div className="flex-1 flex overflow-hidden">

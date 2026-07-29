@@ -395,8 +395,23 @@ const TYPE_TO_CATEGORY_KEY = {
   'Revenus':        'cat-bulletins',
   'Décision':       'cat-procedure',
   'Administratif':  'cat-indemnites',
-  // 'Correspondance' falls through → name keyword check, then sans-catégorie
+  // 'Correspondance' deliberately unmapped: the Correspondance folder holds
+  // the imported échanges (email bodies) only. A Correspondance-typed
+  // document (a letter, an offer received as PJ) classifies by its substance
+  // via the name keyword check below (e.g. « Offre d'indemnisation » →
+  // Indemnités), then Sans-catégorie.
 };
+
+// The dossier's Correspondance folder - where imported échanges (email
+// bodies) live. Resolved per matter type; null when the tree has none.
+const CORRESPONDANCE_CATEGORY_IDS = ['cat-correspondance', 'soc-correspondance'];
+export function correspondanceCategoryId(categories) {
+  for (const id of CORRESPONDANCE_CATEGORY_IDS) {
+    if (categories.some(c => c.id === id)) return id;
+  }
+  const byName = categories.find(c => /correspondance/i.test(c.name));
+  return byName ? byName.id : null;
+}
 
 const NAME_KEYWORDS = [
   // ordered: first match wins
@@ -405,7 +420,7 @@ const NAME_KEYWORDS = [
   { test: /compte[-\s]?rendu|ordonnance|consult|hospitali|urgence|soins|arrêt.*travail/i, cat: 'cat-soins' },
   { test: /facture|honoraires|note.*frais|chu|pharmacie|kiné|irm|radio/i, cat: 'cat-frais-med' },
   { test: /bulletin.*salaire|fiche.*paie|paie/i,          cat: 'cat-bulletins' },
-  { test: /attestation|cpam|décompte|ag2r|ij\b|indemnit/i, cat: 'cat-indemnites' },
+  { test: /attestation|cpam|décompte|ag2r|ij\b|indemni/i, cat: 'cat-indemnites' },
 ];
 
 /**
@@ -518,9 +533,17 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
 
     // ── Standard (non-pile) branch ──────────────────────────────────────
     const overrideCat = df.categoryIdOverride;
+    // An imported échange (email body) is correspondence, not a substantive
+    // pièce: it goes to the dossier's Correspondance folder, never through
+    // the keyword fallback (subject keywords would scatter it, e.g.
+    // « … - Expertise du 04/03 » landing in Expertises). Its attachments
+    // still classify by type into the regular folders.
+    const isEmailBody = df.emailMeta?.kind === 'body';
     const categoryId = overrideCat !== undefined
       ? overrideCat
-      : (isDone ? classifyDropFirstPiece(df, categories) : null);
+      : !isDone ? null
+      : isEmailBody ? correspondanceCategoryId(categories)
+      : classifyDropFirstPiece(df, categories);
 
     const next = bumpOrder(categoryId);
 
@@ -560,6 +583,9 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
       _pSplit: df._pSplit || undefined,
       // User renamed it in the panel/list → keep showing the original name as a subtitle.
       _userRenamed: df._userRenamed || undefined,
+      // Imported from an email: { kind: 'body'|'attachment', label, subject, from }.
+      // Body rows get the Mail icon; both show their provenance as the subtitle.
+      _emailSource: df.emailMeta || undefined,
     });
   });
   return result;
@@ -576,6 +602,9 @@ export function dropFirstAsBordereauPieces(dfPieces, categories, piles = {}) {
 export function classifyDropFirstPiece(piece, categories) {
   if (!piece) return null;
   const validId = (key) => categories.some(c => c.id === key) ? key : null;
+
+  // 0. Explicit categoryId carried by the piece (e.g. the droit-social drop pool) wins if valid here.
+  if (piece.categoryId && validId(piece.categoryId)) return piece.categoryId;
 
   // 1. Type-based mapping
   const type = piece.type || piece.docType;
