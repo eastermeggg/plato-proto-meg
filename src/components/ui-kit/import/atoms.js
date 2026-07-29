@@ -1,0 +1,270 @@
+// Shared primitives of the Import/Sync email lab. Badges keep the SAME colors
+// and seats everywhere (spec Annexe) : Suivi (vert) · Non suivi · Déjà suivi ·
+// Nouveau (bleu) · échecs (rouge/ambre).
+
+import React, { createContext, useContext, useState } from 'react';
+import { ArrowDown, Check, Scissors, AlertTriangle, Mail } from 'lucide-react';
+import outlookLogo from '../../../assets/outlook.svg';
+
+// ── Phase (le calque sync se lève d'un flag - rien ne change de place) ──────
+export const PhaseContext = createContext(2);
+export const usePhase2 = () => useContext(PhaseContext) === 2;
+
+// ── Typo utilitaire ─────────────────────────────────────────────────────────
+export const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: '#a8a29e' };
+
+export function SectionLabel({ children, right, className = '' }) {
+  return (
+    <div className={`flex items-center justify-between mb-2 ${className}`}>
+      <span style={monoLabel}>{children}</span>
+      {right}
+    </div>
+  );
+}
+
+// ── Contrôles ───────────────────────────────────────────────────────────────
+
+export function LabSwitch({ checked, onChange, disabled = false }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={(e) => { e.stopPropagation(); if (!disabled) onChange?.(!checked); }}
+      className="relative flex-shrink-0"
+      style={{ width: 36, height: 20, borderRadius: 999, border: 'none', padding: 0, cursor: disabled ? 'not-allowed' : 'pointer', backgroundColor: checked ? '#292524' : '#e0ddd5', opacity: disabled ? 0.5 : 1, transition: 'background-color 150ms' }}
+    >
+      <span className="absolute" style={{ top: 2, left: checked ? 18 : 2, width: 16, height: 16, borderRadius: 999, backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.18)', transition: 'left 150ms' }} />
+    </button>
+  );
+}
+
+export function LabSeg({ options, value, onChange }) {
+  const seg = (active) => ({
+    height: '100%', padding: '0 10px', display: 'flex', alignItems: 'center',
+    borderRadius: 6, border: 'none', cursor: 'pointer', transition: 'all 150ms',
+    background: active ? '#ffffff' : 'transparent',
+    boxShadow: active ? '0 1px 4px 0 rgba(26,26,26,0.05), 0 1px 2px 0 rgba(26,26,26,0.05)' : 'none',
+    fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500,
+    color: active ? '#292524' : '#78716c', textTransform: 'uppercase', whiteSpace: 'nowrap',
+  });
+  return (
+    <div className="flex items-center h-7 rounded-lg p-0.5 flex-shrink-0" style={{ backgroundColor: '#eeece6' }}>
+      {options.map(o => (
+        <button key={o.value} type="button" onClick={() => onChange(o.value)} style={seg(value === o.value)}>{o.label}</button>
+      ))}
+    </div>
+  );
+}
+
+// Une seule sémantique de coche, partout : cocher = prendre le contenu.
+export function Checkbox({ checked, disabled = false, onToggle, title, className = '' }) {
+  if (disabled) {
+    return (
+      <span
+        className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border border-border flex-shrink-0 ${className}`}
+        style={{ backgroundColor: '#f5f4f1' }}
+        title={title}
+        aria-hidden
+      />
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onToggle?.(); }}
+      className={`flex-shrink-0 ${className}`}
+      title={title}
+      aria-pressed={checked}
+    >
+      <span className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border transition-colors ${checked ? 'bg-foreground border-foreground' : 'bg-white border-border-strong'}`} style={checked ? undefined : { boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}>
+        {checked && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+      </span>
+    </button>
+  );
+}
+
+// ── Badges d'état (mêmes couleurs, mêmes emplacements partout) ──────────────
+
+export function SuiviBadge() {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium flex-shrink-0" style={{ color: '#4a9168' }}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4a9168' }} aria-hidden /> Suivi
+    </span>
+  );
+}
+
+export function NonSuiviBadge() {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground-muted flex-shrink-0">
+      <span className="w-1.5 h-1.5 rounded-full border" style={{ borderColor: '#a8a29e' }} aria-hidden /> Non suivi
+    </span>
+  );
+}
+
+// Sur ligne inerte : la ligne est estompée, le badge reste à pleine opacité.
+export function DejaSuiviBadge() {
+  return (
+    <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#e4efe8', color: '#3d7a57', opacity: 1 }}>
+      Déjà suivi
+    </span>
+  );
+}
+
+// « Nouveau » : pièce arrivée par sync - BLEU (spec §2).
+export function NouveauBadge() {
+  return (
+    <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#dfe8f5', color: '#1e3a8a' }}>
+      Nouveau
+    </span>
+  );
+}
+
+export function CountBadge({ n }) {
+  if (!n) return null;
+  return (
+    <span className="inline-flex items-center h-5 px-1.5 rounded-full text-[10px] font-medium tabular-nums flex-shrink-0" style={{ backgroundColor: '#dfe8f5', color: '#1e3a8a' }}>
+      +{n}
+    </span>
+  );
+}
+
+export function WarnBadge({ n, title }) {
+  if (!n) return null;
+  return (
+    <span className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-full text-[10px] font-medium tabular-nums flex-shrink-0" style={{ backgroundColor: '#fbe9e7', color: '#b4483c' }} title={title}>
+      <AlertTriangle className="w-2.5 h-2.5" strokeWidth={2} /> {n}
+    </span>
+  );
+}
+
+export function TypeChip({ children }) {
+  return (
+    <span className="inline-flex items-center h-5 px-1.5 rounded bg-cream text-[10px] font-medium text-foreground-tertiary flex-shrink-0">{children}</span>
+  );
+}
+
+// ── Découpe (spec §6) ───────────────────────────────────────────────────────
+// off : « Découper » (sobre) · on : pill verte « Sera découpé » - re-clic
+// annule. Jamais de compte de pièces détectées affiché ; jamais sur images ni
+// emails (le parent ne rend pas le contrôle).
+export function DecoupeControl({ on, onToggle }) {
+  if (on) {
+    return (
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onToggle(); }}
+        className="inline-flex items-center gap-1 h-6 px-2 rounded-full text-[11px] font-medium flex-shrink-0 transition-colors"
+        style={{ backgroundColor: '#e4efe8', color: '#3d7a57' }}
+        title="Annuler la découpe"
+      >
+        <Check className="w-3 h-3" strokeWidth={2.5} />
+        Sera découpé
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onToggle(); }}
+      className="inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors flex-shrink-0"
+      title="Scinder ce document en pièces"
+    >
+      <Scissors className="w-3 h-3" strokeWidth={1.75} />
+      Découper
+    </button>
+  );
+}
+
+// ── Overlays ────────────────────────────────────────────────────────────────
+
+// Near-full-viewport : 16px de marge, pas de cap de largeur.
+export function ModalOverlay({ onClose, children }) {
+  return (
+    <div className="fixed inset-0 z-50" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', padding: 16 }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="w-full h-full flex flex-col">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export function DropOverlay() {
+  return (
+    <div className="absolute inset-2 z-30 rounded-xl flex flex-col items-center justify-center gap-4 pointer-events-none" style={{ backgroundColor: 'rgba(238,236,230,0.94)', border: '2px dashed #a8a29e' }}>
+      <div className="bg-white border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
+        <ArrowDown className="w-6 h-6 text-stone-600" strokeWidth={1.75} />
+      </div>
+      <p className="text-base font-medium text-stone-800">Déposer pour ajouter au dossier</p>
+      <p className="text-sm text-stone-500">PDF, images, .eml, .msg, zip d'export Outlook</p>
+    </div>
+  );
+}
+
+// La surface entière est déposable : overlay dès le dragenter.
+export function Droppable({ onFiles, className, style, children }) {
+  const [drag, setDrag] = useState(false);
+  return (
+    <div
+      className={className}
+      style={{ position: 'relative', ...style }}
+      onDragEnter={(e) => { if (e.dataTransfer?.types?.includes('Files')) { e.preventDefault(); setDrag(true); } }}
+      onDragOver={(e) => { if (drag) e.preventDefault(); }}
+      onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDrag(false); }}
+      onDrop={(e) => { e.preventDefault(); setDrag(false); onFiles?.(); }}
+    >
+      {children}
+      {drag && <DropOverlay />}
+    </div>
+  );
+}
+
+// Dialog d'action centré, sur son propre voile (au-dessus des panneaux).
+export function ConfirmDialog({ title, children, onClose }) {
+  return (
+    <div className="absolute inset-0 z-[60] flex items-center justify-center" style={{ backgroundColor: 'rgba(28,25,23,0.32)' }} onClick={(e) => { e.stopPropagation(); onClose?.(); }}>
+      <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl border border-border flex flex-col" style={{ width: 420, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}>
+        <p className="px-5 pt-4 pb-1 text-[15px] font-semibold text-foreground">{title}</p>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── État vide « email non connecté » (une seule vérité, trois surfaces) ─────
+export function ConnectScreen({ onConnect, compact = false }) {
+  return (
+    <div className={`flex-1 min-h-0 flex flex-col items-center justify-center gap-4 text-center ${compact ? 'px-6 py-8' : 'px-10 py-12'}`}>
+      <span className="relative inline-flex">
+        <span className="inline-flex items-center justify-center rounded-full p-4" style={{ backgroundColor: '#eeece6', border: '1px solid #d6d3d1' }}>
+          <Mail className="w-6 h-6 text-foreground" strokeWidth={1.75} />
+        </span>
+        <img src={outlookLogo} alt="" className="absolute -bottom-1 -right-1 w-5 h-5" />
+      </span>
+      <div className="flex flex-col gap-1" style={{ maxWidth: 340 }}>
+        <p className="text-sm font-medium text-foreground">Connectez votre boîte mail</p>
+        <p className="text-[13px] text-foreground-secondary leading-5">
+          Ajoutez des échanges et leurs PJ directement depuis Outlook ou Gmail - sans export manuel.
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onConnect}
+        className="h-9 px-4 rounded-lg text-sm font-medium text-white transition-colors"
+        style={{ backgroundColor: '#292524' }}
+      >
+        Connecter Outlook
+      </button>
+    </div>
+  );
+}
+
+// ── Coude d'indentation des PJ ──────────────────────────────────────────────
+export function Elbow() {
+  return (
+    <span className="flex-shrink-0" aria-hidden style={{ width: 18, height: 18 }}>
+      <span className="block" style={{ width: 15, height: 18, marginLeft: 3, borderLeft: '1.11px solid #d6d3d1', borderBottom: '1.11px solid #d6d3d1', borderBottomLeftRadius: 5 }} />
+    </span>
+  );
+}

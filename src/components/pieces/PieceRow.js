@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, MoreVertical, Loader2, Check, Download, Scissors } from 'lucide-react';
+import { FileText, MoreVertical, Loader2, Check, Download, Scissors, Mail } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 
 // Doc row aligned with Figma "Row Documents" - 64px tall.
@@ -27,9 +27,12 @@ export default function PieceRow({
   const isSplitDoc = piece._docSplit === 'split' || piece._docSplit === 'exploded'
     || piece.splitIndex != null || !!piece.siblings;
   const cleanLabel = piece.intitule || (piece.nom ? piece.nom.replace(/\.[^/.]+$/, '') : '');
+  // Email-imported pieces (thread body or parsed attachment) show their clean
+  // name with the email provenance as the subtitle.
+  const emailSource = piece._emailSource;
   // Show the clean/renamed name (with the original as a subtitle) for split parts
   // OR docs the user renamed in the panel; otherwise a whole doc shows its original name.
-  const showCleanName = isSplitDoc || !!piece._userRenamed;
+  const showCleanName = isSplitDoc || !!piece._userRenamed || !!emailSource;
   const label = showCleanName ? cleanLabel : (piece.nomOriginal || cleanLabel);
   const [hover, setHover] = useState(false);
 
@@ -96,6 +99,8 @@ export default function PieceRow({
           <Loader2 className="animate-spin" style={{ width: 15, height: 15 }} strokeWidth={1.5} />
         ) : isSplitDoc ? (
           <Scissors style={{ width: 15, height: 15 }} strokeWidth={1.5} />
+        ) : emailSource?.kind === 'body' ? (
+          <Mail style={{ width: 15, height: 15 }} strokeWidth={1.5} />
         ) : (
           <FileText style={{ width: 15, height: 15 }} strokeWidth={1.5} />
         )}
@@ -114,7 +119,20 @@ export default function PieceRow({
         }}>
           {label}
         </span>
-        {piece.nomOriginal && piece.nomOriginal !== label && piece.nomOriginal !== piece.nom && (
+        {emailSource?.label ? (
+          <span
+            title={emailSource.label}
+            style={{
+              fontFamily: typography.fontFamily.sans,
+              fontSize: 12,
+              color: colors.semantic.foregroundMuted,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+            {emailSource.label}
+          </span>
+        ) : piece.nomOriginal && piece.nomOriginal !== label && piece.nomOriginal !== piece.nom && (
           <span
             title={`Nom d'origine : ${piece.nomOriginal}`}
             style={{
