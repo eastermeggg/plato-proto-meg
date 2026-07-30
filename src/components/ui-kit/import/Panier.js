@@ -5,7 +5,7 @@
 // curation se fait à gauche.
 
 import React, { useState } from 'react';
-import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle } from 'lucide-react';
+import { ChevronRight, FileText, Folder, FileArchive, Loader2, Lock, Mail, Plus, X, AlertTriangle } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
 import {
@@ -275,6 +275,15 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
       </div>
       {open && (
         <div className="mt-3 rounded-lg border border-border-subtle overflow-hidden" style={{ backgroundColor: '#faf9f7' }}>
+          {/* Bandeau lecture seule EN TÊTE : le bloc ne se curate pas ici (un
+              dossier = un sous-arbre). L'affordance de sélection ressemblait aux
+              cartes du panier - on lève l'ambiguïté avant le premier clic. */}
+          <div className="px-3.5 py-2 border-b border-border-subtle flex items-start gap-2" style={{ backgroundColor: '#f2f0ec' }}>
+            <Lock className="w-3 h-3 flex-shrink-0 mt-0.5 text-foreground-muted" strokeWidth={2} />
+            <span className="text-[11px] leading-4 text-foreground-secondary">
+              Le dossier entre <span className="font-medium text-foreground">en bloc</span>, en lecture seule. Pour n'en garder que certains échanges, ajoutez-les un à un depuis la colonne de gauche plutôt que le dossier entier.
+            </span>
+          </div>
           {/* Bloc de composition : les sous-dossiers immédiats en inventaire.
               Sur une affaire → structure de travail (rassurant) ; sur un
               conteneur → noms d'autres clients (le sur-import se voit). */}
@@ -321,11 +330,10 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
               </div>
             ))}
           </div>
-          <div className="px-3.5 py-2 border-t border-border-subtle flex items-center justify-between gap-3">
-            <span className="text-[11px] text-foreground-secondary flex-shrink-0">
+          <div className="px-3.5 py-2 border-t border-border-subtle">
+            <span className="text-[11px] text-foreground-secondary">
               {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''}{hasSub ? ', sous-dossiers compris' : ''} - tout entre avec le dossier
             </span>
-            <span className="text-[10px] text-foreground-muted truncate text-right">Aperçu en lecture seule - la curation se fait à gauche</span>
           </div>
         </div>
       )}
