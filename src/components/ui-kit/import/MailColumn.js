@@ -16,7 +16,7 @@ import {
   folderById, folderBreadcrumb, childFolders, rootFolders, statsForDeep, threadsOfFolder,
   threadView, folderOfThread, ancestorFolderIds, DEJA_LIE,
 } from './labData';
-import { AjouteBadge, AjouterChip, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
+import { AjouteBadge, AjouterChip, DejaSuiviBadge, DejaImporteBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
 import outlookLogo from '../../../assets/outlook.svg';
 
 const CAP_THREADS = 30;
@@ -59,8 +59,9 @@ function SelectAll({ takeableTids, onTake }) {
 export default function MailColumn({
   width = 440,
   threadStateMap, stagedFolderIds = new Set(),
-  takeThread, takeManyThreads, takeFolder, removeFolder, removeThread,
+  takeThread, takeThreadDelta, takeManyThreads, takeFolder, removeFolder, removeThread,
   dejaSuiviFolderIds = new Set(), dejaSuiviThreadIds = new Set(),
+  importInfo = new Map(),
   connected = true, onConnect,
   onCollapse,
 }) {
@@ -83,9 +84,20 @@ export default function MailColumn({
   const threadCoveredBy = (tid) => coveringFolderOf(folderOfThread(tid));
   const threadCovered = (tid) => threadCoveredBy(tid) != null;
 
-  // État dérivé d'un thread : available | partial | full.
+  // État dérivé d'un thread. Fil déjà importé : la base de comparaison n'est
+  // plus « toutes les pièces » mais le DELTA (ce qui n'est pas encore au
+  // dossier) - on ne repropose jamais ce qui est déjà pris.
   const threadState = (tv) => {
+    const imp = importInfo.get(tv.id);
     const s = threadStateMap.get(tv.id);
+    if (imp) {
+      const deltaN = imp.delta.length;
+      if (deltaN === 0) return { kind: 'imported-done', total: 0, taken: 0, importedOn: imp.importedOn };
+      const taken = s ? s.taken.size : 0;
+      if (taken >= deltaN) return { kind: 'full', total: deltaN, taken };
+      if (taken > 0) return { kind: 'partial', total: deltaN, taken };
+      return { kind: 'imported-delta', total: deltaN, taken: 0, deltaN, importedOn: imp.importedOn };
+    }
     const total = 1 + tv.pj; // corps + PJ
     if (!s) return { kind: 'available', total, taken: 0 };
     const taken = s.taken.size;
@@ -113,9 +125,11 @@ export default function MailColumn({
 
   const enter = (fid) => { setPath(p => [...p, fid]); setQuery(''); listRef.current?.scrollTo?.({ top: 0 }); };
 
-  // tids preneurs (available ou partiel, ni inertes ni couverts) parmi une liste.
+  // tids preneurs (available ou partiel, ni inertes ni couverts ni déjà
+  // importés) parmi une liste. « Tout sélectionner » ne touche jamais un fil
+  // déjà importé : son complément passe par le geste « nouvelles » dédié.
   const takeableOf = (tvs) => tvs
-    .filter(tv => !(phase2 && dejaSuiviThreadIds.has(tv.id)) && !threadCovered(tv.id) && threadState(tv).kind !== 'full')
+    .filter(tv => !(phase2 && dejaSuiviThreadIds.has(tv.id)) && !threadCovered(tv.id) && !importInfo.has(tv.id) && threadState(tv).kind !== 'full')
     .map(tv => tv.id);
 
   // Les threads couverts par un bloc pris ne se rendent PAS ligne par ligne
@@ -196,8 +210,11 @@ export default function MailColumn({
     const dejaSuivi = phase2 && dejaSuiviThreadIds.has(tid);
     const coveredBy = threadCoveredBy(tid);
     const covered = coveredBy != null;
-    const inert = dejaSuivi || covered;
-    const state = inert ? { kind: 'inert' } : threadState(tv);
+    const baseInert = dejaSuivi || covered;
+    const state = baseInert ? { kind: 'inert' } : threadState(tv);
+    const importedDone = state.kind === 'imported-done';
+    const importedDelta = state.kind === 'imported-delta';
+    const inert = baseInert || importedDone; // rien de neuf → inerte
     return (
       <React.Fragment key={tid}>
         <div
@@ -210,10 +227,10 @@ export default function MailColumn({
               cliquable. L'estompage est réservé aux impossibles (inert). */}
           <button
             type="button"
-            onClick={inert || state.kind === 'full' ? undefined : () => takeThread(tid)}
+            onClick={inert || state.kind === 'full' ? undefined : () => (importedDelta ? takeThreadDelta(tid) : takeThread(tid))}
             className={`flex-1 min-w-0 flex flex-col gap-0.5 text-left ${inert || state.kind === 'full' ? 'cursor-default' : ''}`}
             style={state.kind === 'full' ? { pointerEvents: 'none' } : undefined}
-            title={inert || state.kind === 'full' ? undefined : state.kind === 'partial' ? 'Ajouter le reste de l\'échange' : 'Ajouter cet échange'}
+            title={inert || state.kind === 'full' ? undefined : importedDelta ? 'Ajouter les nouvelles pièces' : state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter cet échange'}
           >
             <span className="flex items-center gap-2.5 min-w-0">
               <span className={`flex-1 min-w-0 text-[13px] leading-5 truncate ${tv.illegible ? 'italic text-foreground-secondary font-normal' : 'font-medium text-foreground'}`}>{tv.subject}</span>
@@ -222,6 +239,7 @@ export default function MailColumn({
                   <Check className="w-2.5 h-2.5" strokeWidth={2.5} /> {state.taken} sur {state.total} ajouté
                 </span>
               )}
+              {(importedDone || importedDelta) && <DejaImporteBadge />}
               {dejaSuivi ? <DejaSuiviBadge /> : (
                 <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">{relDate(tv.date)}</span>
               )}
@@ -244,19 +262,25 @@ export default function MailColumn({
                 </span>
               )}
             </span>
-            {/* Aperçu : une phrase qui dit de quoi parle l'échange - décider
-                sans ouvrir. Masqué quand l'échange est couvert par un bloc. */}
-            {tv.summary && !covered && (
+            {/* Ligne 3 : aperçu du fil - OU, pour un fil déjà importé, l'état
+                de complétude (le delta à ajouter, ou « à jour »). */}
+            {importedDelta ? (
+              <span className="text-[11px] truncate leading-4 mt-px font-medium" style={{ color: '#855b31' }}>
+                {state.deltaN} nouvelle{state.deltaN > 1 ? 's' : ''} pièce{state.deltaN > 1 ? 's' : ''} depuis l'import du {state.importedOn}
+              </span>
+            ) : importedDone ? (
+              <span className="text-[11px] text-foreground-muted truncate leading-4 mt-px">Importé le {state.importedOn} · à jour</span>
+            ) : tv.summary && !covered ? (
               <span className="text-[11px] text-foreground-muted truncate leading-4 mt-px">{tv.summary}</span>
-            )}
+            ) : null}
           </button>
           {state.kind === 'full' && <AjouteBadge onRemove={() => removeThread(tid)} title="Retirer l'échange" />}
           {/* Pas de dépliage sur un échange : la gauche prend des objets
               entiers, la curation corps/PJ vit dans la carte du panier. */}
           {!inert && state.kind !== 'full' && (
             <AjouterChip
-              onAdd={() => takeThread(tid)}
-              label={state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter'}
+              onAdd={() => (importedDelta ? takeThreadDelta(tid) : takeThread(tid))}
+              label={importedDelta ? `${state.deltaN} nouvelle${state.deltaN > 1 ? 's' : ''}` : state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter'}
             />
           )}
         </div>

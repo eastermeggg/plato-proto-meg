@@ -151,6 +151,16 @@ export function NonSuiviBadge() {
   );
 }
 
+// « Déjà importé » : le fil a déjà été pioché une fois (snapshot). GRIS neutre
+// (pas de vert : ce n'est pas un suivi). Constat, non cliquable.
+export function DejaImporteBadge() {
+  return (
+    <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#eeece6', color: '#78716c', opacity: 1 }}>
+      Déjà importé
+    </span>
+  );
+}
+
 // Sur ligne inerte : la ligne est estompée, le badge reste à pleine opacité.
 export function DejaSuiviBadge() {
   return (

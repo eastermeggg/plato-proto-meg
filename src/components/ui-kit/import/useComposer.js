@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  mkThreadItem, mkFolderItem, localFileToItem, MOCK_LOCAL_FILES, decoupableKeys,
+  mkThreadItem, mkThreadDeltaItem, mkFolderItem, localFileToItem, MOCK_LOCAL_FILES, decoupableKeys,
   ancestorFolderIds, descendantFolders, folderOfThread,
 } from './labData';
 
@@ -45,6 +45,15 @@ export function useComposer() {
       return ex;
     }
     const it = mkThreadItem(tid);
+    if (it) setItems(prev => [...prev, it]);
+    return it;
+  };
+
+  // Complète un fil déjà importé : ne prend QUE le delta (nouvelles PJ + corps
+  // actualisé). Les pièces déjà au dossier n'entrent jamais deux fois.
+  const takeThreadDelta = (tid) => {
+    if (findThread(tid)) return null;
+    const it = mkThreadDeltaItem(tid);
     if (it) setItems(prev => [...prev, it]);
     return it;
   };
@@ -168,7 +177,7 @@ export function useComposer() {
   return {
     items, setItems, decoupe, suivre,
     addLocalFiles,
-    takeThread, takeManyThreads, togglePieceById,
+    takeThread, takeThreadDelta, takeManyThreads, togglePieceById,
     takeFolder, removeThread, removeFolder, removeItem, redirectFolder,
     toggleFolderThread, toggleFolderPiece,
     toggleDecoupe, toggleAllDecoupe, toggleSuivre, setSuivre,

@@ -476,9 +476,38 @@ const FILLER_PIECES = Array.from({ length: 24 }, (_, i) => ({
 
 export const seedPieces = () => { pieceSeq = 0; return [...HAND_PIECES, ...FILLER_PIECES].map(mkPiece); };
 
-// Threads dont le contenu est déjà dans le dossier → mention doublon inline
-// au panier (jamais d'écrasement silencieux).
-export const DOSSIER_THREAD_IDS = new Set(['th-expertise', 'th-arret']);
+// ── Fils DÉJÀ IMPORTÉS une fois (snapshot, sans suivi) ──────────────────────
+// L'import est un instantané : si le fil a grossi DEPUIS (nouvelles PJ,
+// nouveaux messages), ces pièces ne sont PAS au dossier - on les complète
+// manuellement (pas de sync : le thread n'est jamais une source). `inNames` =
+// PJ déjà au dossier ('ALL' = tout le fil de l'époque) ; le corps est toujours
+// au dossier. `newMessages` : le fil a grossi → corps « à actualiser ».
+export const DOSSIER_IMPORTED_THREADS = {
+  // Expertise importée le 2 juil. (corps 3 msg + rapport). Depuis : le fil a
+  // gagné 2 messages ET les annexes d'imagerie sont arrivées.
+  'th-expertise': { importedOn: '2 juil.', inNames: ['Rapport_expertise_04-03-2025.pdf'], newMessages: 2 },
+  // Arrêt de travail : tout est au dossier, rien de neuf.
+  'th-arret': { importedOn: '2 juil.', inNames: 'ALL', newMessages: 0 },
+};
+
+// État d'import d'un fil : { importedOn, inSet, delta:[{key,kind,name,reason}], total }.
+// delta = pièces courantes PAS encore au dossier (nouvelles PJ + corps actualisé
+// si le fil a grossi). reason ∈ 'nouvelle' | 'actualisé'.
+export function threadImportInfo(tid) {
+  const rec = DOSSIER_IMPORTED_THREADS[tid];
+  if (!rec) return null;
+  const tv = threadViewById(tid);
+  if (!tv) return null;
+  const pjNames = tv.attachments.map(a => a.name);
+  const inNames = rec.inNames === 'ALL' ? pjNames : rec.inNames;
+  const inSet = new Set([bodyKey(tid), ...inNames.map(n => pjKey(tid, n))]);
+  const delta = [];
+  if (rec.newMessages > 0) delta.push({ key: `${bodyKey(tid)}::maj`, kind: 'body', name: 'Corps du mail', reason: 'actualisé', newMessages: rec.newMessages, msg: tv.msg });
+  tv.attachments.forEach(a => {
+    if (!inSet.has(pjKey(tid, a.name))) delta.push({ key: pjKey(tid, a.name), kind: 'pj', name: a.name, decoupable: a.decoupable, reason: 'nouvelle' });
+  });
+  return { importedOn: rec.importedOn, inSet, delta, total: 1 + tv.pj };
+}
 
 // ── Sources (le lien vivant) ────────────────────────────────────────────────
 // history[].kind : arrival | failure | doublon | decoupe | initial
@@ -621,11 +650,30 @@ export function mkThreadItem(tid, { onlyKey = null, origin = 'emails' } = {}) {
   if (!tv) return null;
   return mkItem({
     kind: 'thread', origin,
-    status: DOSSIER_THREAD_IDS.has(tid) ? 'doublon' : 'ready',
     thread: {
       threadId: tid, subject: tv.subject, illegible: tv.illegible,
       lead: `${tv.sender} · ${relDate(tv.date)}`, msg: tv.msg,
       pieces: threadItemPieces(tv, { onlyKey }),
+    },
+  });
+}
+
+// Thread → item « complément » : n'entre qu'avec le DELTA (nouvelles PJ + corps
+// actualisé), jamais les pièces déjà au dossier. Porte `topUp` pour la carte.
+export function mkThreadDeltaItem(tid) {
+  const info = threadImportInfo(tid);
+  if (!info || info.delta.length === 0) return null;
+  const tv = threadViewById(tid);
+  const pieces = info.delta.map(d => ({
+    key: d.key, kind: d.kind, name: d.name, decoupable: d.decoupable,
+    msg: d.msg, reason: d.reason, newMessages: d.newMessages, included: true,
+  }));
+  return mkItem({
+    kind: 'thread', origin: 'emails',
+    topUp: { importedOn: info.importedOn },
+    thread: {
+      threadId: tid, subject: tv.subject, illegible: tv.illegible,
+      lead: `${tv.sender} · ${relDate(tv.date)}`, msg: tv.msg, pieces,
     },
   });
 }

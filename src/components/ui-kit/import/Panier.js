@@ -101,8 +101,15 @@ function PieceLine({ piece, included, onToggle, decoupe, onToggleDecoupe }) {
       <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: isBody ? '#1e3a8a' : '#b4483c' }} />
       <span className="flex-1 min-w-0 flex items-center gap-2">
         <span className="text-[13px] text-foreground truncate">{isBody ? 'Corps du mail' : piece.name}</span>
-        {isBody && piece.msg > 1 && (
+        {isBody && piece.msg > 1 && !piece.reason && (
           <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{piece.msg} msg</span>
+        )}
+        {/* Complément d'un fil déjà importé : d'où vient cette pièce. */}
+        {piece.reason === 'nouvelle' && (
+          <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>nouvelle</span>
+        )}
+        {piece.reason === 'actualisé' && (
+          <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>+{piece.newMessages} message{piece.newMessages > 1 ? 's' : ''}</span>
         )}
       </span>
       {!isBody && piece.decoupable && included && (
@@ -171,6 +178,7 @@ function FileCard({ item, decoupe, onToggleDecoupe, onRemove }) {
 function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove }) {
   const t = item.thread;
   const uploading = item.status === 'uploading';
+  const topUp = item.topUp;
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2.5 min-w-0">
@@ -179,9 +187,11 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
           : <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />}
         <span className="flex-1 min-w-0">
           <span className={`text-sm leading-5 truncate block ${uploading || t.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{t.subject}</span>
-          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">{uploading ? 'Import en cours…' : threadCardSubtitle(t)}</span>
+          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
+            {uploading ? 'Import en cours…' : topUp ? `Complète l'import du ${topUp.importedOn} · nouvelles pièces seulement` : threadCardSubtitle(t)}
+          </span>
         </span>
-        <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Échange courriel</span>
+        <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>{topUp ? 'Complément' : 'Échange courriel'}</span>
         {!uploading && <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer l'échange" />}
       </div>
       {!uploading && (

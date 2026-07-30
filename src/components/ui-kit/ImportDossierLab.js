@@ -9,6 +9,7 @@ import {
   seedPieces, seedSources, seedSuggestions, PENDING_ARRIVALS, mkPiece,
   detectionFor, threadsOfFolderDeep, folderPath, folderById, statsFor,
   LAB_SENDERS, threadById, displaySubject, cleanSubject, approxPieces,
+  DOSSIER_IMPORTED_THREADS, threadImportInfo,
 } from './import/labData';
 
 // « Import & synchronisation email → Pièces du dossier » - lab de la spec du
@@ -362,6 +363,13 @@ export default function ImportDossierLab() {
 
   const dejaSuiviFolderIds = useMemo(() => new Set(sources.filter(s => s.kind === 'folder' && s.followed && s.refId).map(s => s.refId)), [sources]);
   const dejaSuiviThreadIds = useMemo(() => new Set(sources.filter(s => s.kind === 'thread' && s.followed && s.refId).map(s => s.refId)), [sources]);
+  // Fils déjà importés une fois dans Leblanc (snapshot) - certains ont grossi
+  // depuis : la colonne mail y propose le complément du delta.
+  const importInfo = useMemo(() => {
+    const m = new Map();
+    Object.keys(DOSSIER_IMPORTED_THREADS).forEach(tid => { const info = threadImportInfo(tid); if (info) m.set(tid, info); });
+    return m;
+  }, []);
 
   return (
     <PhaseContext.Provider value={phase}>
@@ -547,6 +555,7 @@ export default function ImportDossierLab() {
             onConnect={() => setConnected(true)}
             dejaSuiviFolderIds={dejaSuiviFolderIds}
             dejaSuiviThreadIds={dejaSuiviThreadIds}
+            importInfo={importInfo}
             demoSeed={demoSeed}
           />
         )}

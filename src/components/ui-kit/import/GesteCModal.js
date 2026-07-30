@@ -52,7 +52,7 @@ function DestinationSelect({ value, onChange }) {
 
 // `habituels` : la section n'existe que si le dossier a DÉJÀ importé depuis la
 // boîte mail (la frecency se construit) - premier import → boîte nue.
-export default function GesteCModal({ onClose, onCommit, connected, onConnect, dejaSuiviFolderIds, dejaSuiviThreadIds, dossierLabel = 'Leblanc c/ AXA', demoSeed = false }) {
+export default function GesteCModal({ onClose, onCommit, connected, onConnect, dejaSuiviFolderIds, dejaSuiviThreadIds, importInfo, dossierLabel = 'Leblanc c/ AXA', demoSeed = false }) {
   const phase2 = usePhase2();
   const c = useComposer();
   const { items, decoupe, suivre } = c;
@@ -64,7 +64,7 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
   useEffect(() => {
     if (!demoSeed || seededRef.current) return;
     seededRef.current = true;
-    c.takeThread('th-expertise'); // doublon (déjà au dossier)
+    c.takeThreadDelta('th-expertise'); // fil déjà importé qui a grossi → complément du delta
     const partial = c.takeThread('th-mutuelle');
     if (partial) c.togglePieceById(partial.id, 'th-mutuelle::body', false); // partiel : corps décoché
     c.takeThread('th-employeur');
@@ -160,12 +160,14 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
                 threadStateMap={c.threadStateMap}
                 stagedFolderIds={stagedFolderIds}
                 takeThread={c.takeThread}
+                takeThreadDelta={c.takeThreadDelta}
                 takeManyThreads={c.takeManyThreads}
                 takeFolder={c.takeFolder}
                 removeFolder={c.removeFolder}
                 removeThread={c.removeThread}
                 dejaSuiviFolderIds={dejaSuiviFolderIds}
                 dejaSuiviThreadIds={dejaSuiviThreadIds}
+                importInfo={importInfo}
                 connected={connected}
                 onConnect={onConnect}
                 onCollapse={() => setCollapsed(true)}
