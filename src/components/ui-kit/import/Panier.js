@@ -207,7 +207,9 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
         <Folder className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
         <span className="flex-1 min-w-0 ml-0.5">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
-          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">{f.path} · {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces</span>
+          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
+            {f.path}{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''} · {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces
+          </span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Dossier Outlook</span>
         <RemoveBtn onClick={() => onRemove(item.id)} />

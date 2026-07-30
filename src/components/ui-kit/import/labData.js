@@ -215,11 +215,12 @@ export function statsFor(folderId) {
 const deepStatsCache = new Map();
 export function statsForDeep(folderId) {
   if (deepStatsCache.has(folderId)) return deepStatsCache.get(folderId);
-  const all = [folderId, ...descendantFolders(folderId).map(f => f.id)];
+  const descendants = descendantFolders(folderId);
+  const all = [folderId, ...descendants.map(f => f.id)];
   const out = all.reduce((acc, id) => {
     const s = statsFor(id);
-    return { threads: acc.threads + s.threads, pieces: acc.pieces + s.pieces, synthetic: acc.synthetic || s.synthetic };
-  }, { threads: 0, pieces: 0, synthetic: false });
+    return { ...acc, threads: acc.threads + s.threads, pieces: acc.pieces + s.pieces, synthetic: acc.synthetic || s.synthetic };
+  }, { folders: descendants.length, threads: 0, pieces: 0, synthetic: false });
   deepStatsCache.set(folderId, out);
   return out;
 }

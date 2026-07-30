@@ -226,7 +226,9 @@ export default function MailColumn({
                 Déjà lié à {dejaLie}
               </span>
             ) : (
-              <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">{st.threads} échange{st.threads > 1 ? 's' : ''}</span>
+              <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">
+                {st.folders > 0 ? `${st.folders} dossier${st.folders > 1 ? 's' : ''} · ` : ''}{st.threads} échange{st.threads > 1 ? 's' : ''}
+              </span>
             ))}
           {!inert && !taken && <ChevronRight className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />}
         </button>
