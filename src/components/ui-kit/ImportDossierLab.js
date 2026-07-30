@@ -51,13 +51,15 @@ export default function ImportDossierLab() {
   };
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
-  // Deep-link : ?open=c|b|a&phase=1|2 (captures Figma, démos).
+  // Deep-link : ?open=c|b|a&phase=1|2&demo=1 (captures Figma, démos).
+  const [demoSeed, setDemoSeed] = useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const open = params.get('open');
     if (open === 'c' || open === 'cbis' || open === 'b' || open === 'a') setModal(open);
     const ph = params.get('phase');
     if (ph === '1' || ph === '2') setPhase(Number(ph));
+    if (params.get('demo') === '1') setDemoSeed(true);
   }, []);
 
   const reset = () => {
@@ -545,6 +547,7 @@ export default function ImportDossierLab() {
             onConnect={() => setConnected(true)}
             dejaSuiviFolderIds={dejaSuiviFolderIds}
             dejaSuiviThreadIds={dejaSuiviThreadIds}
+            demoSeed={demoSeed}
           />
         )}
         {modal === 'cbis' && (
