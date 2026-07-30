@@ -229,6 +229,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
                   <div className={`px-3.5 pt-2.5 pb-0.5 flex items-center gap-1.5 ${gi > 0 ? 'border-t border-border-subtle' : ''}`}>
                     <Folder className="w-3 h-3 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
                     <span className="truncate" style={monoLabel}>{groupLabel(g.folder)}</span>
+                    <span className="flex-shrink-0 tabular-nums" style={{ ...monoLabel, color: '#a8a29e' }}>· {g.threads.length}</span>
                   </div>
                 )}
                 <div className="divide-y divide-border-subtle">
