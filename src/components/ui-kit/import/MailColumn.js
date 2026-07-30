@@ -13,7 +13,7 @@ import {
   folderById, folderPath, childFolders, rootFolders, statsForDeep, threadsOfFolder,
   threadView, folderOfThread, ancestorFolderIds, DEJA_LIE, bodyKey, pjKey,
 } from './labData';
-import { Checkbox, AjouteBadge, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
+import { Checkbox, AjouteBadge, AjouterChip, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
 import outlookLogo from '../../../assets/outlook.svg';
 
 const CAP_THREADS = 30;
@@ -159,7 +159,9 @@ export default function MailColumn({
           {msgBadge}
         </span>
         {sub}
-        {included && <AjouteBadge onRemove={() => untakePiece(tid, key)} title="Retirer cette pièce" />}
+        {included
+          ? <AjouteBadge onRemove={() => untakePiece(tid, key)} title="Retirer cette pièce" />
+          : <AjouterChip onAdd={() => takePiece(tid, key)} />}
       </div>
     );
   };
@@ -195,7 +197,7 @@ export default function MailColumn({
     return (
       <div
         key={fid}
-        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
+        className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
         style={inert ? { opacity: 0.55 } : undefined}
       >
         {inert || taken ? (
@@ -229,6 +231,7 @@ export default function MailColumn({
           {!inert && !taken && <ChevronRight className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />}
         </button>
         {taken && <AjouteBadge onRemove={() => removeFolder(fid)} title="Retirer le dossier" />}
+        {!inert && !taken && <AjouterChip onAdd={() => takeFolder(fid)} />}
       </div>
     );
   };
@@ -246,7 +249,7 @@ export default function MailColumn({
     return (
       <React.Fragment key={tid}>
         <div
-          className={`flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
+          className={`group flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
           style={inert ? { opacity: 0.55 } : undefined}
         >
           {/* Contrôle de prise */}
@@ -301,6 +304,13 @@ export default function MailColumn({
             </span>
           </button>
           {state.kind === 'full' && <AjouteBadge onRemove={() => removeThread(tid)} title="Retirer l'échange" />}
+          {!inert && state.kind !== 'full' && (
+            <AjouterChip
+              onAdd={() => takeThread(tid)}
+              label={state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter'}
+              className="mt-0.5"
+            />
+          )}
           {/* Chevron de dépliage à DROITE - cohérent avec les lignes dossier. */}
           {composite && !inert && (
             <button
@@ -335,7 +345,7 @@ export default function MailColumn({
     const hasSub = folderChildren.length > 0;
     return (
       <div
-        className="mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
+        className="group mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
         style={{ borderColor: '#e7e5e3', opacity: inert ? 0.55 : 1 }}
       >
         {inert || taken ? <span className="w-4 flex-shrink-0" aria-hidden /> : (
@@ -354,7 +364,7 @@ export default function MailColumn({
             <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>
               Déjà lié à {dejaLie}
             </span>
-          ) : null}
+          ) : !inert ? <AjouterChip onAdd={() => takeFolder(fid)} /> : null}
       </div>
     );
   };

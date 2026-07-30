@@ -3,7 +3,7 @@
 // Nouveau (bleu) · échecs (rouge/ambre).
 
 import React, { createContext, useContext, useState } from 'react';
-import { ArrowDown, Check, Minus, Scissors, AlertTriangle, Mail, X } from 'lucide-react';
+import { ArrowDown, Check, Minus, Plus, Scissors, AlertTriangle, Mail, X } from 'lucide-react';
 import outlookLogo from '../../../assets/outlook.svg';
 
 // ── Phase (le calque sync se lève d'un flag - rien ne change de place) ──────
@@ -108,6 +108,26 @@ export function AjouteBadge({ onRemove, title = 'Retirer', label = 'Ajouté' }) 
     >
       {hover ? <X className="w-2.5 h-2.5" strokeWidth={2.5} /> : <Check className="w-2.5 h-2.5" strokeWidth={2.5} />}
       {hover ? 'Retirer' : label}
+    </button>
+  );
+}
+
+// Promesse au survol : même place, même géométrie que le badge « Ajouté ».
+// Survoler une ligne disponible montre son futur (« + Ajouter » → « Ajouté »).
+// L'espace est réservé (opacity) pour que rien ne saute au survol. Contrôle
+// redondant avec la case → hors du parcours clavier (la case reste l'accès).
+export function AjouterChip({ onAdd, label = 'Ajouter', className = '' }) {
+  return (
+    <button
+      type="button"
+      tabIndex={-1}
+      aria-hidden="true"
+      onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
+      className={`inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${className}`}
+      style={{ backgroundColor: '#ffffff', border: '1px solid #d6d3d1', color: '#292524' }}
+    >
+      <Plus className="w-2.5 h-2.5" strokeWidth={2.5} />
+      {label}
     </button>
   );
 }
