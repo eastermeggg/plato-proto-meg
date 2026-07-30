@@ -311,8 +311,11 @@ export default function MailColumn({
               className="mt-0.5"
             />
           )}
-          {/* Chevron de dépliage à DROITE - cohérent avec les lignes dossier. */}
-          {composite && !inert && (
+          {/* Chevron de dépliage à DROITE - cohérent avec les lignes dossier.
+              Un échange ENTIÈREMENT pris se replie : plus rien à prendre dedans,
+              la curation pièce par pièce continue dans le panier - la ligne se
+              résume à son badge « Ajouté ». */}
+          {composite && !inert && state.kind !== 'full' && (
             <button
               type="button"
               onClick={() => toggleExpand(tid)}
@@ -323,7 +326,7 @@ export default function MailColumn({
             </button>
           )}
         </div>
-        {isOpen && composite && !inert && (
+        {isOpen && composite && !inert && state.kind !== 'full' && (
           <div className="flex flex-col pb-1">{threadChildren(tv)}</div>
         )}
       </React.Fragment>
