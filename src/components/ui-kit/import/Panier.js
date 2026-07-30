@@ -8,8 +8,8 @@ import React, { useState } from 'react';
 import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
-import { decoupableKeys, threadsOfFolder } from './labData';
-import { DecoupeControl, Elbow, LabSwitch, monoLabel, usePhase2 } from './atoms';
+import { decoupableKeys, threadGroupsOfFolderDeep, threadCardSubtitle, folderPath } from './labData';
+import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel, usePhase2 } from './atoms';
 
 const CARD = { border: '1px solid #e7e5e3', borderRadius: 12, backgroundColor: '#ffffff' };
 
@@ -22,19 +22,27 @@ function RemoveBtn({ onClick, title = 'Retirer' }) {
     <button
       type="button"
       onClick={onClick}
-      className="p-1 rounded text-foreground-muted opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all flex-shrink-0"
+      className="p-1 rounded text-foreground-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-red-500 transition-all flex-shrink-0"
       title={title}
+      aria-label={title}
     >
       <X className="w-4 h-4" strokeWidth={1.75} />
     </button>
   );
 }
 
-function DoublonMention() {
+// Un échec ou un doute est une ligne avec sa raison ET une action (invariant) :
+// ici, la sortie honnête est de ne pas ajouter le doublon - un geste réel.
+function DoublonMention({ onSkip }) {
   return (
     <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] leading-4 rounded-md px-2 py-1" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>
       <AlertTriangle className="w-3 h-3 flex-shrink-0" strokeWidth={2} />
       Doublon possible - une pièce identique existe déjà dans le dossier, rien ne sera écrasé.
+      {onSkip && (
+        <button type="button" onClick={onSkip} className="font-medium underline underline-offset-2 hover:opacity-70 transition-opacity flex-shrink-0" title="Retirer cette carte du panier">
+          Ne pas ajouter
+        </button>
+      )}
     </p>
   );
 }
@@ -47,8 +55,7 @@ function UploadBar() {
   );
 }
 
-// Ligne PJ indentée (coude), avec son contrôle découpe. Hauteur fixe : le
-// rythme vertical reste régulier quel que soit l'état du contrôle.
+// Ligne PJ indentée (coude), lecture seule (aperçu dossier / zip), avec découpe.
 function PJLine({ pj, decoupe, onToggleDecoupe, dim = false }) {
   return (
     <div className="flex items-center gap-2.5 min-w-0 h-7" style={dim ? { opacity: 0.85 } : undefined}>
@@ -57,6 +64,30 @@ function PJLine({ pj, decoupe, onToggleDecoupe, dim = false }) {
       <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">{pj.name}</span>
       {pj.decoupable && (
         <DecoupeControl on={decoupe.has(pj.key)} onToggle={() => onToggleDecoupe(pj.key)} />
+      )}
+    </div>
+  );
+}
+
+// Pièce d'un thread dans le panier : case (inclusion), la ligne RESTE visible
+// même décochée (estompée, jamais barrée) - recocher est le même geste. Le corps
+// du mail est une pièce comme les autres ; seules les PJ portent la découpe.
+function PieceLine({ piece, included, onToggle, decoupe, onToggleDecoupe }) {
+  const isBody = piece.kind === 'body';
+  const Icon = isBody ? Mail : FileText;
+  return (
+    <div className="flex items-center gap-2.5 min-w-0 h-8" style={included ? undefined : { opacity: 0.45 }}>
+      <Elbow />
+      <Checkbox checked={included} onToggle={onToggle} title={included ? 'Ne pas inclure cette pièce' : 'Inclure cette pièce'} />
+      <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: isBody ? '#1e3a8a' : '#b4483c' }} />
+      <span className="flex-1 min-w-0 flex items-center gap-2">
+        <span className="text-[13px] text-foreground truncate">{isBody ? 'Corps du mail' : piece.name}</span>
+        {isBody && piece.msg > 1 && (
+          <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{piece.msg} msg</span>
+        )}
+      </span>
+      {!isBody && piece.decoupable && included && (
+        <DecoupeControl on={decoupe.has(piece.key)} onToggle={() => onToggleDecoupe(piece.key)} />
       )}
     </div>
   );
@@ -107,12 +138,12 @@ function FileCard({ item, decoupe, onToggleDecoupe, onRemove }) {
         {!uploading && <RemoveBtn onClick={() => onRemove(item.id)} />}
       </div>
       {uploading && <UploadBar />}
-      {item.status === 'doublon' && <DoublonMention />}
+      {item.status === 'doublon' && <DoublonMention onSkip={() => onRemove(item.id)} />}
     </div>
   );
 }
 
-function ThreadCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre }) {
+function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, suivre, onToggleSuivre, onRemove }) {
   const phase2 = usePhase2();
   const t = item.thread;
   const uploading = item.status === 'uploading';
@@ -125,18 +156,27 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre }) 
           : <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />}
         <span className="flex-1 min-w-0">
           <span className={`text-sm leading-5 truncate block ${uploading || t.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{t.subject}</span>
-          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">{uploading ? 'Import en cours…' : t.meta}</span>
+          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">{uploading ? 'Import en cours…' : threadCardSubtitle(t)}</span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Échange courriel</span>
-        {!uploading && <RemoveBtn onClick={() => item.onRemoveId && item.onRemoveId()} />}
+        {!uploading && <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer l'échange" />}
       </div>
-      {t.pj.length > 0 && !uploading && (
+      {!uploading && (
         <div className="mt-2 pl-1 flex flex-col">
-          {t.pj.map(pj => <PJLine key={pj.key} pj={pj} decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} />)}
+          {t.pieces.map(p => (
+            <PieceLine
+              key={p.key}
+              piece={p}
+              included={p.included}
+              onToggle={() => onTogglePiece(item.id, p.key, !p.included)}
+              decoupe={decoupe}
+              onToggleDecoupe={onToggleDecoupe}
+            />
+          ))}
         </div>
       )}
       {uploading && <UploadBar />}
-      {item.status === 'doublon' && <DoublonMention />}
+      {item.status === 'doublon' && <DoublonMention onSkip={() => onRemove(item.id)} />}
       {followable && (
         <SuivreFoot
           on={suivre.has(item.id)}
@@ -153,8 +193,17 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
   const phase2 = usePhase2();
   const [open, setOpen] = useState(false);
   const f = item.folder;
-  // Aperçu INTÉGRAL : tout ce qui entrera est visible, rien de caché.
-  const preview = open ? threadsOfFolder(f.folderId) : [];
+  // Aperçu INTÉGRAL et RÉCURSIF : tout ce qui entrera est visible, sous-dossiers
+  // compris, groupé par dossier - rien de caché, l'aperçu dit ce que le commit fait.
+  const groups = open ? threadGroupsOfFolderDeep(f.folderId) : [];
+  const nThreads = groups.reduce((n, g) => n + g.threads.length, 0);
+  const hasSub = groups.length > 1;
+  // Intitulé d'un groupe : chemin RELATIF au dossier pris (« Bernard c/ AXA /
+  // Correspondance ») - un nom seul est ambigu dès que deux sous-dossiers
+  // portent le même nom (chaque client a sa « Correspondance »).
+  const groupLabel = (folder) => (folder.id === f.folderId
+    ? f.name
+    : folderPath(folder).slice(f.path.length + 1).split('/').join(' / '));
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2 min-w-0">
@@ -164,32 +213,49 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
         <Folder className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
         <span className="flex-1 min-w-0 ml-0.5">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
-          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">{f.path} · {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces</span>
+          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
+            {f.path}{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''} · {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces
+          </span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Dossier Outlook</span>
         <RemoveBtn onClick={() => onRemove(item.id)} />
       </div>
       {open && (
         <div className="mt-3 rounded-lg border border-border-subtle overflow-hidden" style={{ backgroundColor: '#faf9f7' }}>
-          <div className="divide-y divide-border-subtle" style={{ maxHeight: 420, overflowY: 'auto' }}>
-            {preview.map(tv => (
-              <PreviewThreadGroup
-                key={tv.id}
-                subject={tv.subject}
-                sender={tv.sender}
-                illegible={tv.illegible}
-                pjLines={tv.attachments.map((a, i) => (
-                  <PJLine
-                    key={`${tv.id}-${i}`}
-                    pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
-                    decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
-                  />
-                ))}
-              />
+          <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+            {groups.map((g, gi) => (
+              <div key={g.folder.id}>
+                {hasSub && (
+                  <div className={`px-3.5 pt-2.5 pb-0.5 flex items-center gap-1.5 ${gi > 0 ? 'border-t border-border-subtle' : ''}`}>
+                    <Folder className="w-3 h-3 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
+                    <span className="truncate" style={monoLabel}>{groupLabel(g.folder)}</span>
+                    <span className="flex-shrink-0 tabular-nums" style={{ ...monoLabel, color: '#a8a29e' }}>· {g.threads.length}</span>
+                  </div>
+                )}
+                <div className="divide-y divide-border-subtle">
+                  {g.threads.map(tv => (
+                    <PreviewThreadGroup
+                      key={tv.id}
+                      subject={tv.subject}
+                      sender={tv.sender}
+                      illegible={tv.illegible}
+                      pjLines={tv.attachments.map((a, i) => (
+                        <PJLine
+                          key={`${tv.id}-${i}`}
+                          pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
+                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
+                        />
+                      ))}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
           <div className="px-3.5 py-2 border-t border-border-subtle flex items-center justify-between gap-3">
-            <span className="text-[11px] text-foreground-secondary flex-shrink-0">{preview.length} échange{preview.length > 1 ? 's' : ''} - tout entre avec le dossier</span>
+            <span className="text-[11px] text-foreground-secondary flex-shrink-0">
+              {nThreads} échange{nThreads > 1 ? 's' : ''}{hasSub ? ', sous-dossiers compris' : ''} - tout entre avec le dossier
+            </span>
             <span className="text-[10px] text-foreground-muted truncate text-right">Aperçu en lecture seule - la curation se fait à gauche</span>
           </div>
         </div>
@@ -248,11 +314,11 @@ function ZipCard({ item, decoupe, onToggleDecoupe, onRemove }) {
 }
 
 export default function Panier({
-  items, onRemove,
+  items, onRemove, onTogglePiece,
   decoupe, onToggleDecoupe, onToggleAllDecoupe,
   suivre, onToggleSuivre,
   onAddFiles,
-  collapsed, onExpand, expandBadge = 0,
+  collapsed, onExpand,
   introCopy,
 }) {
   const docs = items.filter(i => i.kind === 'file');
@@ -271,14 +337,7 @@ export default function Panier({
         <div className="flex items-center gap-2 min-w-0">
           <Button variant="outline" size="md" icon={Plus} label="Ajouter depuis l'ordinateur" onClick={onAddFiles} />
           {collapsed && (
-            <span className="relative inline-flex">
-              <Button variant="outline" size="md" icon={Mail} label="Ajouter depuis mes emails" onClick={onExpand} />
-              {expandBadge > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center h-[18px] min-w-[18px] px-1 rounded-full text-[10px] font-medium text-white tabular-nums" style={{ backgroundColor: '#292524' }}>
-                  {expandBadge}
-                </span>
-              )}
-            </span>
+            <Button variant="outline" size="md" icon={Mail} label="Ajouter depuis mes emails" onClick={onExpand} />
           )}
         </div>
         {items.length > 0 && allKeys.length > 0 && (
@@ -323,9 +382,11 @@ export default function Panier({
                       return (
                         <ThreadCard
                           key={it.id}
-                          item={{ ...it, onRemoveId: () => onRemove(it.id) }}
+                          item={it}
                           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
+                          onTogglePiece={onTogglePiece}
                           suivre={suivre} onToggleSuivre={onToggleSuivre}
+                          onRemove={onRemove}
                         />
                       );
                     }

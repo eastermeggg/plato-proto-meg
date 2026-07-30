@@ -7,7 +7,7 @@ import GesteBModal from './import/GesteBModal';
 import PiecesPage from './import/PiecesPage';
 import {
   seedPieces, seedSources, seedSuggestions, PENDING_ARRIVALS, mkPiece,
-  detectionFor, threadsOfFolder, folderPath, folderById, statsFor,
+  detectionFor, threadsOfFolderDeep, folderPath, folderById, statsFor,
   LAB_SENDERS, threadById, displaySubject, cleanSubject, approxPieces,
 } from './import/labData';
 
@@ -263,15 +263,23 @@ export default function ImportDossierLab() {
         pushFilePieces(item.file.name, provenance, decoupe.has(item.id));
         count = 1;
       } else if (item.kind === 'thread') {
-        newPieces.push(mkPiece({ name: item.thread.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
-        item.thread.pj.forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
-        count = 1 + item.thread.pj.length;
+        // Seules les pièces RETENUES entrent : le corps est une pièce, chaque PJ
+        // une pièce - selon les cases cochées à droite.
+        const pieces = item.thread.pieces.filter(p => p.included);
+        if (pieces.some(p => p.kind === 'body')) {
+          newPieces.push(mkPiece({ name: item.thread.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
+        }
+        pieces.filter(p => p.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
+        count = pieces.length;
       } else if (item.kind === 'folder') {
-        threadsOfFolder(item.folder.folderId).forEach(tv => {
+        // Bloc RÉCURSIF : tout le contenu, sous-dossiers compris - exactement
+        // ce que la carte et l'aperçu annoncent. Le compte est le compte réel.
+        const before = newPieces.length;
+        threadsOfFolderDeep(item.folder.folderId).forEach(tv => {
           newPieces.push(mkPiece({ name: tv.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
           tv.attachments.forEach(a => pushFilePieces(a.name, provenance, decoupe.has(`${tv.id}::${a.name}`)));
         });
-        count = item.folder.stats.pieces;
+        count = newPieces.length - before;
       } else if (item.kind === 'zip') {
         item.zip.children.forEach(c => {
           newPieces.push(mkPiece({ name: cleanSubject(c.subject) || c.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
@@ -288,7 +296,7 @@ export default function ImportDossierLab() {
           pathLabel: item.kind === 'folder' ? item.folder.path : item.thread.subject,
           subtitleBits: item.kind === 'folder'
             ? [`${item.folder.stats.threads} échange${item.folder.stats.threads > 1 ? 's' : ''}`]
-            : [item.thread.meta.split(' · ')[0]],
+            : [(item.thread.lead || '').split(' · ')[0]],
           followed: true, since: '28 juil. 2026', destinationId, decoupeAuto: false,
           newCount: 0, error: null,
           history: [{ id: liveId('h-live'), date: '28 juil.', kind: 'initial', count }],
@@ -379,13 +387,13 @@ export default function ImportDossierLab() {
             <LauncherCard
               badge="Geste C · ajouter"
               title="Ajouter des pièces"
-              desc="Le geste le plus fréquent : compléter un dossier avec quelques mails, PJ, fichiers. Colonne mail à gauche (recherche globale, habituels, drill-down, carte « en entier », tray), panier en cartes à droite (découpe, sections Documents / Depuis les emails), CTA « Ajouter au dossier / Ajouter et suivre »."
+              desc="Le geste le plus fréquent : compléter un dossier avec quelques mails, PJ, fichiers. Colonne mail à gauche (recherche globale, drill-down, carte « en entier »), panier en cartes à droite - un clic à gauche (« + Ajouter ») transvase l'objet entier, la curation corps / PJ se fait à droite. CTA « Ajouter au dossier / Ajouter et suivre »."
               onOpen={() => setModal('c')}
             />
             <LauncherCard
               badge="Geste B · créer"
               title="Nouveau dossier"
-              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook coché ; un dossier coché ici est suivi par défaut (création = miroir), un thread reste OFF."
+              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook ajouté ; un dossier ajouté ici est suivi par défaut (création = miroir), un thread reste OFF."
               onOpen={() => setModal('b')}
             />
             <LauncherCard
@@ -444,25 +452,25 @@ export default function ImportDossierLab() {
                 gest="C bis" title="Premier import" when="le dossier n'a jamais touché la boîte mail"
                 lead="Le même écran que le geste C, mais sur un dossier vierge de tout import email."
                 steps={[
-                  "La colonne mail s'ouvre sur la boîte nue : « Dossiers Outlook » puis « Échanges récents » - pas de « Vos habituels », aucune ligne « Déjà suivi ».",
+                  "La colonne mail s'ouvre sur la boîte nue : « Dossiers Outlook » puis « Échanges récents », aucune ligne « Déjà suivi ».",
                   "On navigue : recherche globale, drill-down dans un dossier (avec fil d'Ariane), ou carte « Ajouter en entier ».",
-                  "On coche ce qu'on prend ; le tray flottant récapitule et « Ajoute à la liste ».",
-                  "Le panier vérifie à droite : découpe par document si besoin, puis « Ajouter au dossier ».",
+                  "Un clic (« + Ajouter ») transvase immédiatement à droite - pas d'étape « Ajouter à la liste ». La gauche prend des objets entiers (échange, dossier).",
+                  "Le panier vérifie à droite : corps du mail et chaque PJ y sont des pièces cochables - on décoche une pièce de trop, on découpe si besoin, puis « Ajouter au dossier ».",
                 ]}
                 rule="Ce premier import fait naître la frecency - dès la fois suivante, ce sera le geste C, habituels en tête."
                 onOpen={() => setModal('cbis')}
               />
               <GestureDetail
                 gest="C" title="Ajouter des pièces" when="le quotidien, compléter un dossier qui vit déjà"
-                lead="Le geste le plus fréquent. Tout est là : habituels, navigation à l'échelle, découpe, suivi."
+                lead="Le geste le plus fréquent. Tout est là : navigation à l'échelle, transvasement pièce par pièce, découpe, suivi."
                 steps={[
-                  "« Vos habituels » remontent en tête (frecency par dossier, max 6) - accès direct aux sources récurrentes.",
                   "Recherche globale à l'échelle (134 dossiers), drill-down, carte « en entier » qui neutralise les enfants (jamais dossier + enfants).",
+                  "Un clic transvase l'échange entier ; « Tout sélectionner » prend les échanges d'une vue. À droite, la carte décompose : corps du mail + PJ, chacun décochable.",
                   "Les sources déjà suivies sont inertes, badge « Déjà suivi » - on ne re-prend pas ce qui arrive tout seul.",
-                  "Tray → panier en cartes (fichier, échange + PJ, dossier, zip) ; découpe par pièce ou « Tout découper ».",
+                  "À droite, panier en cartes : on décoche une pièce de trop (la ligne reste, jamais barrée), « ✕ » retire une carte entière ; découpe par pièce ou « Tout découper ».",
                   "On choisit la destination (« Ajouter dans : … »), puis « Ajouter au dossier » (ou « Ajouter et suivre »).",
                 ]}
-                rule="À gauche on choisit, à droite on vérifie : le panier ne curate pas, sauf la découpe (décision de forme, jamais de périmètre)."
+                rule="Transvasement, pas miroir : gauche = disponible, droite = retenu. « + Ajouter » = il reste à prendre ; estompé + badge « Ajouté » = plus rien à prendre ici."
                 onOpen={() => setModal('c')}
               />
               <GestureDetail
@@ -470,11 +478,11 @@ export default function ImportDossierLab() {
                 lead="B = C + une fiche. Créer l'affaire et composer son contenu initial d'un seul geste."
                 steps={[
                   "Étape 1 - la fiche : nom du dossier, client. « Continuer », ou « Créer sans contenu » pour un dossier-coquille.",
-                  "Étape 2 - le contenu initial : même colonne mail, même panier. Le nom se pré-remplit du premier dossier Outlook coché (éditable).",
+                  "Étape 2 - le contenu initial : même colonne mail, même panier. Le nom se pré-remplit du premier dossier Outlook ajouté (éditable).",
                   "Ni « habituels » ni « Déjà suivi » (le dossier n'existe pas encore) ; « Déjà lié à … » signale un dossier Outlook déjà miroir d'une autre affaire.",
                   "« ← Retour » préserve la composition ; « Créer le dossier » (ou « Créer et suivre »).",
                 ]}
-                rule="Un dossier Outlook coché ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un thread, lui, reste OFF."
+                rule="Un dossier Outlook ajouté ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un thread, lui, reste OFF."
                 onOpen={() => setModal('b')}
               />
               <GestureDetail
@@ -536,7 +544,6 @@ export default function ImportDossierLab() {
             dejaSuiviFolderIds={new Set()}
             dejaSuiviThreadIds={new Set()}
             dossierLabel="Petit c/ MAIF"
-            habituels={false}
           />
         )}
         {modal === 'b' && (
@@ -597,8 +604,8 @@ export default function ImportDossierLab() {
         </div>
 
         {toast && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] h-10 pl-4 pr-2 rounded-lg text-white text-sm flex items-center gap-3 shadow-lg" style={{ maxWidth: 760, backgroundColor: '#292524' }}>
-            <span className="truncate">{toast.text}</span>
+          <div role="status" aria-live="polite" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] min-h-10 py-2 pl-4 pr-2 rounded-lg text-white text-sm flex items-center gap-3 shadow-lg" style={{ maxWidth: 760, backgroundColor: '#292524' }}>
+            <span className="leading-5">{toast.text}</span>
             {toast.action ? (
               <button
                 onClick={() => { toast.action.onClick(); setToast(null); }}
@@ -721,7 +728,7 @@ function ExplainSection({ kicker, title, children }) {
 
 function GestureCard({ accent, tag, verb, lead, body }) {
   return (
-    <div className="rounded-xl border border-border bg-white p-5 flex flex-col gap-2" style={{ borderLeft: `3px solid ${accent}` }}>
+    <div className="rounded-xl border border-border bg-white p-5 flex flex-col gap-2">
       <div className="flex items-baseline gap-2">
         <span className="text-[11px] font-medium uppercase tracking-wider" style={{ ...EXPLAIN_MONO, color: accent }}>{tag}</span>
         <span className="text-[12px] text-foreground-muted">= « {verb} »</span>

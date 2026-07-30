@@ -153,24 +153,76 @@ export function childFolders(parentId) {
 }
 export const rootFolders = () => childFolders(null).filter(f => !(f.attributes || []).includes('\\Sent'));
 
+// ── Hiérarchie (un dossier pris est un bloc RÉCURSIF : sous-dossiers compris) ─
+export function ancestorFolderIds(fid) {
+  const out = [];
+  let cur = folderById(fid);
+  let guard = 0;
+  while (cur && cur.parentId && guard++ < 10) {
+    out.push(cur.parentId);
+    cur = folderById(cur.parentId);
+  }
+  return out;
+}
+
+const descendantsCache = new Map();
+export function descendantFolders(fid) {
+  if (descendantsCache.has(fid)) return descendantsCache.get(fid);
+  const out = [];
+  const walk = (id) => childFolders(id).forEach(f => { out.push(f); walk(f.id); });
+  walk(fid);
+  descendantsCache.set(fid, out);
+  return out;
+}
+
 // ── Stats & threads synthétiques (chaque dossier est explorable) ───────────
 const hashOf = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973; return h; };
 
-// « N échanges, ≈ P pièces » de la carte « en entier ». Réels si le dossier
-// porte des threads du seed, synthétiques (déterministes) sinon.
-export function statsFor(folderId) {
-  const real = LAB_THREADS.filter(t => t.folderId === folderId);
-  if (real.length > 0) {
-    return {
-      threads: real.length,
-      pieces: real.reduce((n, t) => n + 1 + (t.attachmentCount || 0), 0),
-      synthetic: false,
-    };
-  }
+const synthThreadCount = (folderId) => {
   const h = hashOf(folderId);
   const sub = /-(corr|pieces)$/.test(folderId);
-  const threads = sub ? 3 + (h % 5) : 8 + (h % 23);
-  return { threads, pieces: Math.round(threads * 2.3), synthetic: true };
+  return sub ? 3 + (h % 5) : 8 + (h % 23);
+};
+
+// « N échanges, ≈ P pièces » de la carte « en entier ». Réels si le dossier
+// porte des threads du seed, synthétiques (déterministes) sinon. Les comptes
+// synthétiques sont EXACTS (dérivés du contenu généré) : le récap, l'aperçu et
+// le commit disent le même nombre.
+const statsCache = new Map();
+export function statsFor(folderId) {
+  if (statsCache.has(folderId)) return statsCache.get(folderId);
+  const real = LAB_THREADS.filter(t => t.folderId === folderId);
+  const out = real.length > 0
+    ? {
+        threads: real.length,
+        pieces: real.reduce((n, t) => n + 1 + (t.attachmentCount || 0), 0),
+        synthetic: false,
+      }
+    : (() => {
+        const synth = synthThreadsFor(folderId);
+        return {
+          threads: synth.length,
+          pieces: synth.reduce((n, t) => n + 1 + t.attachmentCount, 0),
+          synthetic: true,
+        };
+      })();
+  statsCache.set(folderId, out);
+  return out;
+}
+
+// Stats d'un dossier EN BLOC : lui-même + tous ses sous-dossiers. C'est ce que
+// « Ajouter en entier » engage réellement - jamais moins que ce qui est annoncé.
+const deepStatsCache = new Map();
+export function statsForDeep(folderId) {
+  if (deepStatsCache.has(folderId)) return deepStatsCache.get(folderId);
+  const descendants = descendantFolders(folderId);
+  const all = [folderId, ...descendants.map(f => f.id)];
+  const out = all.reduce((acc, id) => {
+    const s = statsFor(id);
+    return { ...acc, threads: acc.threads + s.threads, pieces: acc.pieces + s.pieces, synthetic: acc.synthetic || s.synthetic };
+  }, { folders: descendants.length, threads: 0, pieces: 0, synthetic: false });
+  deepStatsCache.set(folderId, out);
+  return out;
 }
 
 const STUB_SUBJECTS = [
@@ -189,10 +241,12 @@ const STUB_DATES = ['2026-07-21', '2026-07-09', '2026-06-28', '2026-06-15', '202
 // Échanges déterministes d'un dossier synthétique - AUTANT que ce que la
 // carte « en entier » annonce (statsFor) : l'aperçu montre tout, jamais de
 // reste caché. Les sujets recyclés deviennent des « Re : » (fils réalistes).
+const synthCache = new Map();
 export function synthThreadsFor(folderId) {
+  if (synthCache.has(folderId)) return synthCache.get(folderId);
   const h = hashOf(folderId);
-  const n = statsFor(folderId).threads;
-  return Array.from({ length: n }, (_, i) => {
+  const n = synthThreadCount(folderId);
+  const out = Array.from({ length: n }, (_, i) => {
     const pjCount = (h + i) % 3; // 0-2 PJ
     const base = STUB_SUBJECTS[(h + i) % STUB_SUBJECTS.length];
     return {
@@ -207,6 +261,8 @@ export function synthThreadsFor(folderId) {
       attachments: Array.from({ length: pjCount }, (_, j) => ({ name: STUB_PJ[(h * 3 + i * 5 + j * 7) % STUB_PJ.length] })),
     };
   });
+  synthCache.set(folderId, out);
+  return out;
 }
 
 // Vue unifiée thread réel / synthétique pour la colonne mail et le panier.
@@ -235,6 +291,16 @@ export function threadsOfFolder(folderId) {
   const real = LAB_THREADS.filter(t => t.folderId === folderId);
   return (real.length > 0 ? real : synthThreadsFor(folderId)).map(threadView);
 }
+
+// Contenu EN BLOC d'un dossier, groupé : lui-même puis chaque sous-dossier.
+// C'est la vérité de l'aperçu ET du commit - les deux lisent la même liste.
+export function threadGroupsOfFolderDeep(folderId) {
+  return [folderById(folderId), ...descendantFolders(folderId)]
+    .filter(Boolean)
+    .map(f => ({ folder: f, threads: threadsOfFolder(f.id) }))
+    .filter(g => g.threads.length > 0);
+}
+export const threadsOfFolderDeep = (folderId) => threadGroupsOfFolderDeep(folderId).flatMap(g => g.threads);
 
 // Vue d'un thread par id, réel ou synthétique (id = `${folderId}-th-N`).
 export function threadViewById(tid) {
@@ -466,40 +532,87 @@ export const PENDING_ARRIVALS = {
 export const DEJA_LIE = { 'f-moreau': 'Moreau c/ Textilia' };
 
 // ── Items du panier ─────────────────────────────────────────────────────────
+// TRANSVASEMENT : les items du panier sont l'unique source de vérité. Cocher à
+// gauche crée / complète un item ; la colonne mail dérive son état des items.
+// Un thread est un COMPOSITE : ses « pièces » sont le corps du mail + chaque PJ,
+// chacune cochable (`included`). Le corps du mail est une pièce comme les autres.
 let itemSeq = 0;
 export const mkItem = (it) => ({ id: `it-${itemSeq++}`, status: 'ready', ...it });
 
-// Sélection de la colonne mail → items du panier. Dédup : un thread dont le
-// contenu est déjà dans le dossier reçoit la mention doublon (jamais silencieux).
-export function buildStagedItems({ folders = [], threads = [], includePJ = true }, existingItems = []) {
-  const haveThread = new Set(existingItems.filter(i => i.kind === 'thread' && i.thread?.threadId).map(i => i.thread.threadId));
-  const haveFolder = new Set(existingItems.filter(i => i.kind === 'folder' && i.folder?.folderId).map(i => i.folder.folderId));
-  const out = [];
-  folders.forEach(fid => {
-    if (haveFolder.has(fid)) return;
-    const f = folderById(fid);
-    if (!f) return;
-    const st = statsFor(fid);
-    out.push(mkItem({
-      kind: 'folder', origin: 'emails',
-      folder: { folderId: fid, name: f.name, path: folderPath(f), stats: st },
-    }));
+export const bodyKey = (tid) => `${tid}::body`;
+export const pjKey = (tid, name) => `${tid}::${name}`;
+
+// Liste complète des pièces d'un thread (corps + PJ). `onlyKey` : n'inclut que
+// cette pièce (cas « je ne prends qu'une PJ ») - le reste reste disponible.
+export function threadItemPieces(tv, { onlyKey = null } = {}) {
+  const pieces = [
+    { key: bodyKey(tv.id), kind: 'body', name: 'Corps du mail', msg: tv.msg },
+    ...tv.attachments.map(a => ({ key: pjKey(tv.id, a.name), kind: 'pj', name: a.name, decoupable: a.decoupable, type: a.type })),
+  ];
+  return pieces.map(p => ({ ...p, included: onlyKey ? p.key === onlyKey : true }));
+}
+
+// Thread → item du panier. `onlyKey` : n'entre qu'avec cette seule pièce.
+export function mkThreadItem(tid, { onlyKey = null, origin = 'emails' } = {}) {
+  const tv = threadViewById(tid);
+  if (!tv) return null;
+  return mkItem({
+    kind: 'thread', origin,
+    status: DOSSIER_THREAD_IDS.has(tid) ? 'doublon' : 'ready',
+    thread: {
+      threadId: tid, subject: tv.subject, illegible: tv.illegible,
+      lead: `${tv.sender} · ${relDate(tv.date)}`, msg: tv.msg,
+      pieces: threadItemPieces(tv, { onlyKey }),
+    },
   });
-  threads.forEach(tid => {
-    if (haveThread.has(tid)) return;
-    const tv = threadViewById(tid);
-    if (!tv) return;
-    out.push(mkItem({
-      kind: 'thread', origin: 'emails',
-      status: DOSSIER_THREAD_IDS.has(tid) ? 'doublon' : 'ready',
-      thread: {
-        threadId: tid, subject: tv.subject, illegible: tv.illegible,
-        meta: `${tv.sender} · ${relDate(tv.date)}${includePJ && tv.pj > 0 ? ` · ${tv.pj} PJ incluse${tv.pj > 1 ? 's' : ''}` : ''}`,
-        pj: includePJ ? tv.attachments.map(a => ({ key: `${tid}::${a.name}`, name: a.name, decoupable: a.decoupable })) : [],
-      },
-    }));
+}
+
+// Dossier → item du panier (bloc RÉCURSIF, aperçu en lecture seule). Les stats
+// sont profondes : ce que la carte annonce est ce que le commit importe.
+export function mkFolderItem(fid) {
+  const f = folderById(fid);
+  if (!f) return null;
+  return mkItem({
+    kind: 'folder', origin: 'emails',
+    folder: { folderId: fid, name: f.name, path: folderPath(f), stats: statsForDeep(fid) },
   });
-  return out;
+}
+
+// Pièces d'un thread réellement retenues (cochées).
+export const includedPieces = (thread) => thread.pieces.filter(p => p.included);
+export const threadHasBody = (thread) => thread.pieces.some(p => p.kind === 'body' && p.included);
+export const threadPJs = (thread) => thread.pieces.filter(p => p.kind === 'pj');
+
+// Sous-titre de carte thread : « expéditeur · date · corps + 2 PJ sur 3 »
+// (ou « 0 pièce » - transitoire, la carte quitte le panier au dernier décoché).
+export function threadPieceSummary(thread) {
+  const pjs = threadPJs(thread);
+  const pjIn = pjs.filter(p => p.included).length;
+  const parts = [];
+  if (threadHasBody(thread)) parts.push('corps');
+  if (pjs.length) parts.push(`${pjIn} PJ sur ${pjs.length}`);
+  return parts.length ? parts.join(' + ') : '0 pièce';
+}
+export const threadCardSubtitle = (thread) => `${thread.lead} · ${threadPieceSummary(thread)}`;
+
+// Récap du footer : « 1 échange (1 corps) + 2 PJ, 2 fichiers » (grammaire spec §5).
+export function composerRecap(items) {
+  const threads = items.filter(i => i.kind === 'thread');
+  const files = items.filter(i => i.kind === 'file');
+  const folders = items.filter(i => i.kind === 'folder');
+  const zips = items.filter(i => i.kind === 'zip');
+  const corps = threads.filter(t => threadHasBody(t.thread)).length;
+  const pj = threads.reduce((n, t) => n + threadPJs(t.thread).filter(p => p.included).length, 0);
+  const bits = [];
+  if (threads.length) {
+    let s = `${threads.length} échange${threads.length > 1 ? 's' : ''} (${corps} corps)`;
+    if (pj) s += ` + ${pj} PJ`;
+    bits.push(s);
+  }
+  if (files.length) bits.push(`${files.length} fichier${files.length > 1 ? 's' : ''}`);
+  if (folders.length) bits.push(`${folders.length} dossier${folders.length > 1 ? 's' : ''} Outlook`);
+  if (zips.length) bits.push(`${zips.length} export`);
+  return bits.join(', ');
 }
 
 // Fichier local simulé → item (fichier, .eml ou zip d'export Outlook).
@@ -509,8 +622,11 @@ export function localFileToItem(mock) {
       kind: 'thread', origin: 'ordinateur', status: 'uploading',
       thread: {
         threadId: null, subject: mock.subject, illegible: false,
-        meta: `${mock.sender} · ${mock.name}${mock.pj.length ? ` · ${mock.pj.length} PJ incluse${mock.pj.length > 1 ? 's' : ''}` : ''}`,
-        pj: mock.pj.map((a, i) => ({ key: `eml-${mock.name}-${i}-${a.name}`, name: a.name, decoupable: a.decoupable })),
+        lead: `${mock.sender} · ${mock.name}`, msg: 1,
+        pieces: [
+          { key: `eml-${mock.name}::body`, kind: 'body', name: 'Corps du mail', msg: 1, included: true },
+          ...mock.pj.map((a, i) => ({ key: `eml-${mock.name}-${i}-${a.name}`, kind: 'pj', name: a.name, decoupable: a.decoupable, included: true })),
+        ],
       },
     });
   }
@@ -537,10 +653,12 @@ export function localFileToItem(mock) {
 // détection.
 export function decoupableKeys(item) {
   if (item.kind === 'file') return item.file.decoupable ? [{ key: item.id, name: item.file.name }] : [];
-  if (item.kind === 'thread') return item.thread.pj.filter(a => a.decoupable).map(a => ({ key: a.key, name: a.name }));
+  // Seules les PJ RETENUES sont découpables : « Tout découper » ne porte jamais
+  // sur une pièce décochée.
+  if (item.kind === 'thread') return item.thread.pieces.filter(a => a.kind === 'pj' && a.decoupable && a.included).map(a => ({ key: a.key, name: a.name }));
   if (item.kind === 'zip') return item.zip.children.flatMap(c => c.pj.filter(a => a.decoupable).map(a => ({ key: a.key, name: a.name })));
   if (item.kind === 'folder') {
-    return threadsOfFolder(item.folder.folderId)
+    return threadsOfFolderDeep(item.folder.folderId)
       .flatMap(tv => tv.attachments.filter(a => a.decoupable).map(a => ({ key: `${tv.id}::${a.name}`, name: a.name })));
   }
   return [];
@@ -555,15 +673,24 @@ export function approxPieces(items, decoupe) {
       const det = detectionFor(it.file.name);
       n += (decoupe.has(it.id) && det) ? det.count : 1;
     } else if (it.kind === 'thread') {
-      n += 1;
-      it.thread.pj.forEach(a => {
-        const det = detectionFor(a.name);
-        n += (decoupe.has(a.key) && det) ? det.count : 1;
+      // Seules les pièces retenues comptent : corps = 1, chaque PJ = 1 (ou N si
+      // découpe détectée active).
+      it.thread.pieces.forEach(p => {
+        if (!p.included) return;
+        if (p.kind === 'body') { n += 1; return; }
+        const det = detectionFor(p.name);
+        n += (decoupe.has(p.key) && det) ? det.count : 1;
       });
     } else if (it.kind === 'folder') {
       n += it.folder.stats.pieces;
     } else if (it.kind === 'zip') {
-      it.zip.children.forEach(c => { n += 1 + c.pj.length; });
+      it.zip.children.forEach(c => {
+        n += 1;
+        c.pj.forEach(pj => {
+          const det = detectionFor(pj.name);
+          n += (decoupe.has(pj.key) && det) ? det.count : 1;
+        });
+      });
     }
   });
   return n;

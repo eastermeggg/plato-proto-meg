@@ -4,16 +4,14 @@
 // (défaut conservateur : OFF) ; le CTA devient « Ajouter et suivre » dès
 // qu'un suivi est actif.
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import Button from '../../ui/Button';
-import { ModalOverlay, Droppable, usePhase2 } from './atoms';
+import { ModalOverlay, Droppable, ConfirmDialog, usePhase2 } from './atoms';
 import MailColumn from './MailColumn';
 import Panier from './Panier';
-import {
-  buildStagedItems, localFileToItem, MOCK_LOCAL_FILES, approxPieces,
-  decoupableKeys, PIECES_NODES, nodeLabel,
-} from './labData';
+import { useComposer } from './useComposer';
+import { approxPieces, composerRecap, PIECES_NODES, nodeLabel } from './labData';
 
 const MAIL_W = 440;
 
@@ -54,68 +52,34 @@ function DestinationSelect({ value, onChange }) {
 
 // `habituels` : la section n'existe que si le dossier a DÉJÀ importé depuis la
 // boîte mail (la frecency se construit) - premier import → boîte nue.
-export default function GesteCModal({ onClose, onCommit, connected, onConnect, dejaSuiviFolderIds, dejaSuiviThreadIds, dossierLabel = 'Leblanc c/ AXA', habituels = true }) {
+export default function GesteCModal({ onClose, onCommit, connected, onConnect, dejaSuiviFolderIds, dejaSuiviThreadIds, dossierLabel = 'Leblanc c/ AXA' }) {
   const phase2 = usePhase2();
-  const [items, setItems] = useState([]);
-  const [decoupe, setDecoupe] = useState(() => new Set());
-  const [suivre, setSuivre] = useState(() => new Set());
-  const [selection, setSelection] = useState({ folders: new Set(), threads: new Set() });
-  const [includePJ, setIncludePJ] = useState(true);
+  const c = useComposer();
+  const { items, decoupe, suivre } = c;
   const [collapsed, setCollapsed] = useState(false);
-  const [destination, setDestination] = useState('correspondance');
-  const fileCursor = useRef(0);
-  const timers = useRef([]);
+  // Défaut CONSERVATEUR : « Sans catégorie ». Un défaut métier (Correspondance)
+  // rangerait silencieusement un rapport d'expertise au mauvais endroit.
+  const [destination, setDestination] = useState('sans-categorie');
+  const [confirmClose, setConfirmClose] = useState(false);
+
+  // Garde-fou de fermeture : une sélection en cours ne se détruit jamais sur
+  // un Échap ou un clic de voile - on demande d'abord.
+  const dirty = items.length > 0;
+  const requestClose = () => { if (dirty) setConfirmClose(true); else onClose(); };
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (confirmClose) { setConfirmClose(false); return; }
+      if (dirty) setConfirmClose(true); else onClose();
+    };
     window.addEventListener('keydown', onKey);
-    const t = timers.current;
-    return () => { window.removeEventListener('keydown', onKey); t.forEach(clearTimeout); };
-  }, [onClose]);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose, dirty, confirmClose]);
 
-  // Upload simulé : progression par ligne, le CTA attend la fin.
-  const settle = (ids) => {
-    const t = setTimeout(() => {
-      setItems(prev => prev.map(i => (ids.includes(i.id) && i.status === 'uploading' ? { ...i, status: 'ready' } : i)));
-    }, 1400);
-    timers.current.push(t);
-  };
-
-  const addLocalFiles = (n = 1) => {
-    const added = Array.from({ length: n }, () => {
-      const mock = MOCK_LOCAL_FILES[fileCursor.current++ % MOCK_LOCAL_FILES.length];
-      return localFileToItem(mock);
-    });
-    setItems(prev => [...prev, ...added]);
-    settle(added.map(i => i.id));
-  };
-
-  const addFromTray = (picked) => {
-    setItems(prev => [...prev, ...buildStagedItems(picked, prev)]);
-  };
-
-  const removeItem = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id));
-    setSuivre(prev => { const n = new Set(prev); n.delete(id); return n; });
-  };
-
-  const toggleDecoupe = (key) => setDecoupe(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
-  const allKeys = useMemo(() => items.flatMap(decoupableKeys).map(k => k.key), [items]);
-  const toggleAllDecoupe = () => setDecoupe(prev => {
-    const allOn = allKeys.length > 0 && allKeys.every(k => prev.has(k));
-    return allOn ? new Set() : new Set(allKeys);
-  });
-  const toggleSuivre = (id) => setSuivre(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-
-  const stagedFolderIds = useMemo(() => new Set(items.filter(i => i.kind === 'folder').map(i => i.folder.folderId)), [items]);
-  const stagedThreadIds = useMemo(() => new Set(items.filter(i => i.kind === 'thread' && i.thread.threadId).map(i => i.thread.threadId)), [items]);
-
-  // Récap footer
+  // Récap footer (grammaire spec §5).
   const nPieces = approxPieces(items, decoupe);
-  const nFiles = items.filter(i => i.kind === 'file').length;
-  const nThreads = items.filter(i => i.kind === 'thread').length;
-  const nFolders = items.filter(i => i.kind === 'folder').length;
-  const nZips = items.filter(i => i.kind === 'zip').length;
+  const detail = composerRecap(items);
   const nDecoupes = decoupe.size;
   const nSuivis = phase2 ? suivre.size : 0;
   const uploading = items.some(i => i.status === 'uploading');
@@ -124,10 +88,7 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
 
   const recap = items.length === 0 ? 'Aucune pièce ajoutée' : [
     `≈ ${nPieces} pièce${nPieces > 1 ? 's' : ''}`,
-    nFiles ? `${nFiles} fichier${nFiles > 1 ? 's' : ''}` : null,
-    nThreads ? `${nThreads} échange${nThreads > 1 ? 's' : ''}` : null,
-    nFolders ? `${nFolders} dossier${nFolders > 1 ? 's' : ''} Outlook` : null,
-    nZips ? `${nZips} export` : null,
+    detail || null,
     nDecoupes ? `${nDecoupes} découpé${nDecoupes > 1 ? 's' : ''}` : null,
     nSuivis ? `${nSuivis} suivi${nSuivis > 1 ? 's' : ''}` : null,
   ].filter(Boolean).join(' · ');
@@ -137,42 +98,56 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
     onCommit({ items, decoupe, suivre: phase2 ? suivre : new Set(), destinationId: destination });
   };
 
+  const stagedFolderIds = c.stagedFolderIds;
+
   return (
-    <ModalOverlay onClose={onClose}>
-      <Droppable onFiles={() => addLocalFiles(2)} className="bg-white rounded-md w-full h-full flex flex-col overflow-hidden" style={{ boxShadow: '0px 25px 50px -12px rgba(0,0,0,0.25)' }}>
+    <ModalOverlay onClose={requestClose}>
+      <Droppable
+        onFiles={() => c.addLocalFiles(2)}
+        className="bg-white rounded-md w-full h-full flex flex-col overflow-hidden"
+        style={{ boxShadow: '0px 25px 50px -12px rgba(0,0,0,0.25)' }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Ajouter des pièces au dossier ${dossierLabel}`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-[15px] border-b border-border flex-shrink-0">
           <div className="flex items-baseline gap-2.5 min-w-0">
             <h2 className="text-foreground flex-shrink-0" style={{ fontFamily: 'Georgia, serif', fontSize: 18, lineHeight: '20px', letterSpacing: '-0.5px' }}>
               Ajouter des pièces au dossier
             </h2>
-            <span className="text-[13px] text-foreground-muted truncate">{dossierLabel} · destination</span>
+            <span className="text-[13px] text-foreground-muted truncate">{dossierLabel}</span>
           </div>
-          <button type="button" onClick={onClose} className="inline-flex items-center justify-center w-[26px] h-[26px] rounded bg-cream text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0" title="Fermer">
+          <button type="button" onClick={requestClose} className="inline-flex items-center justify-center w-[26px] h-[26px] rounded bg-cream text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0" title="Fermer">
             <X className="w-3.5 h-3.5" strokeWidth={2} />
           </button>
         </div>
 
         <div className="flex-1 min-h-0 flex">
-          {/* Colonne mail - repli en largeur, jamais démontée : la sélection survit. */}
+          {/* Colonne mail - repli en largeur, jamais démontée : la sélection
+              survit. `visibility` suit le repli (en fin de transition) pour
+              sortir les contrôles du parcours clavier et de l'arbre d'a11y. */}
           <div
             className="relative flex-shrink-0 h-full"
-            style={{ width: collapsed ? 0 : MAIL_W, overflow: 'hidden', transition: 'width 320ms cubic-bezier(0.4,0,0.2,1)' }}
+            style={{
+              width: collapsed ? 0 : MAIL_W, overflow: 'hidden',
+              visibility: collapsed ? 'hidden' : 'visible',
+              transition: `width 320ms cubic-bezier(0.4,0,0.2,1), visibility 0s ${collapsed ? '320ms' : '0s'}`,
+            }}
             aria-hidden={collapsed || undefined}
           >
             <div className="absolute inset-y-0 left-0" style={{ width: MAIL_W }}>
               <MailColumn
                 width={MAIL_W}
-                selection={selection}
-                onSelectionChange={setSelection}
-                includePJ={includePJ}
-                onIncludePJ={setIncludePJ}
-                onAddToBasket={addFromTray}
+                threadStateMap={c.threadStateMap}
                 stagedFolderIds={stagedFolderIds}
-                stagedThreadIds={stagedThreadIds}
+                takeThread={c.takeThread}
+                takeManyThreads={c.takeManyThreads}
+                takeFolder={c.takeFolder}
+                removeFolder={c.removeFolder}
+                removeThread={c.removeThread}
                 dejaSuiviFolderIds={dejaSuiviFolderIds}
                 dejaSuiviThreadIds={dejaSuiviThreadIds}
-                habituels={habituels}
                 connected={connected}
                 onConnect={onConnect}
                 onCollapse={() => setCollapsed(true)}
@@ -182,16 +157,16 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
 
           <Panier
             items={items}
-            onRemove={removeItem}
+            onRemove={c.removeItem}
+            onTogglePiece={c.togglePieceById}
             decoupe={decoupe}
-            onToggleDecoupe={toggleDecoupe}
-            onToggleAllDecoupe={toggleAllDecoupe}
+            onToggleDecoupe={c.toggleDecoupe}
+            onToggleAllDecoupe={c.toggleAllDecoupe}
             suivre={suivre}
-            onToggleSuivre={toggleSuivre}
-            onAddFiles={() => addLocalFiles(1)}
+            onToggleSuivre={c.toggleSuivre}
+            onAddFiles={() => c.addLocalFiles(1)}
             collapsed={collapsed}
             onExpand={() => setCollapsed(false)}
-            expandBadge={selection.folders.size + selection.threads.size}
             introCopy="Les pièces ajoutées rejoindront le dossier. Vous pourrez les découper et les ranger ensuite."
           />
         </div>
@@ -208,10 +183,22 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
             )}
           </div>
           <div className="flex items-center gap-2.5 flex-shrink-0">
-            <Button variant="secondary" size="md" label="Annuler" onClick={onClose} />
-            <Button variant="primary" size="md" label={uploading ? 'Import en cours…' : ctaLabel} onClick={commit} disabled={!canCommit} />
+            <Button variant="secondary" size="md" label="Annuler" onClick={requestClose} />
+            <Button variant="primary" size="md" label={uploading ? 'Réception des fichiers…' : ctaLabel} onClick={commit} disabled={!canCommit} />
           </div>
         </div>
+
+        {confirmClose && (
+          <ConfirmDialog title="Abandonner la sélection ?" onClose={() => setConfirmClose(false)}>
+            <p className="px-5 pt-1 pb-3 text-[13px] text-foreground-secondary leading-5">
+              Votre sélection (≈ {nPieces} pièce{nPieces > 1 ? 's' : ''}) sera libérée - rien n'a encore été ajouté au dossier.
+            </p>
+            <div className="px-5 pb-4 flex items-center justify-end gap-2.5">
+              <Button variant="secondary" size="md" label="Continuer la sélection" onClick={() => setConfirmClose(false)} />
+              <Button variant="primary" size="md" label="Abandonner" onClick={onClose} />
+            </div>
+          </ConfirmDialog>
+        )}
       </Droppable>
     </ModalOverlay>
   );
