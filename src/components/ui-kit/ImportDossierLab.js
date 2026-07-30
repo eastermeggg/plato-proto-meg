@@ -387,7 +387,7 @@ export default function ImportDossierLab() {
             <LauncherCard
               badge="Geste C · ajouter"
               title="Ajouter des pièces"
-              desc="Le geste le plus fréquent : compléter un dossier avec quelques mails, PJ, fichiers. Colonne mail à gauche (recherche globale, drill-down, carte « en entier »), panier en cartes à droite - cocher à gauche transvase immédiatement, corps du mail et chaque PJ cochables des deux côtés. CTA « Ajouter au dossier / Ajouter et suivre »."
+              desc="Le geste le plus fréquent : compléter un dossier avec quelques mails, PJ, fichiers. Colonne mail à gauche (recherche globale, drill-down, carte « en entier »), panier en cartes à droite - cocher à gauche transvase l'objet entier, la curation corps / PJ se fait à droite. CTA « Ajouter au dossier / Ajouter et suivre »."
               onOpen={() => setModal('c')}
             />
             <LauncherCard
@@ -454,8 +454,8 @@ export default function ImportDossierLab() {
                 steps={[
                   "La colonne mail s'ouvre sur la boîte nue : « Dossiers Outlook » puis « Échanges récents », aucune ligne « Déjà suivi ».",
                   "On navigue : recherche globale, drill-down dans un dossier (avec fil d'Ariane), ou carte « Ajouter en entier ».",
-                  "Cocher transvase immédiatement à droite - pas d'étape « Ajouter à la liste ». Le corps du mail et chaque PJ sont des pièces cochables.",
-                  "Le panier vérifie à droite : on décoche une pièce de trop, on découpe un document si besoin, puis « Ajouter au dossier ».",
+                  "Cocher transvase immédiatement à droite - pas d'étape « Ajouter à la liste ». La gauche prend des objets entiers (échange, dossier).",
+                  "Le panier vérifie à droite : corps du mail et chaque PJ y sont des pièces cochables - on décoche une pièce de trop, on découpe si besoin, puis « Ajouter au dossier ».",
                 ]}
                 rule="Ce premier import fait naître la frecency - dès la fois suivante, ce sera le geste C, habituels en tête."
                 onOpen={() => setModal('cbis')}
@@ -465,7 +465,7 @@ export default function ImportDossierLab() {
                 lead="Le geste le plus fréquent. Tout est là : navigation à l'échelle, transvasement pièce par pièce, découpe, suivi."
                 steps={[
                   "Recherche globale à l'échelle (134 dossiers), drill-down, carte « en entier » qui neutralise les enfants (jamais dossier + enfants).",
-                  "Cocher transvase : le thread se décompose en corps du mail + PJ, chacun cochable ; « Tout sélectionner » prend les échanges d'une vue.",
+                  "Cocher transvase l'échange entier ; « Tout sélectionner » prend les échanges d'une vue. À droite, la carte décompose : corps du mail + PJ, chacun décochable.",
                   "Les sources déjà suivies sont inertes, badge « Déjà suivi » - on ne re-prend pas ce qui arrive tout seul.",
                   "À droite, panier en cartes : on décoche une pièce de trop (la ligne reste, jamais barrée), « ✕ » retire une carte entière ; découpe par pièce ou « Tout découper ».",
                   "On choisit la destination (« Ajouter dans : … »), puis « Ajouter au dossier » (ou « Ajouter et suivre »).",

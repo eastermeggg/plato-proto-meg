@@ -143,8 +143,6 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
                 stagedFolderIds={stagedFolderIds}
                 takeThread={c.takeThread}
                 takeManyThreads={c.takeManyThreads}
-                takePiece={c.takePiece}
-                untakePiece={c.untakePiece}
                 takeFolder={c.takeFolder}
                 removeFolder={c.removeFolder}
                 removeThread={c.removeThread}

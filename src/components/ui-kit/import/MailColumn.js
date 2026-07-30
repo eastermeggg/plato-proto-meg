@@ -2,16 +2,17 @@
 // immédiatement à droite ; aucun tray, aucune étape « Ajouter à la liste ».
 //
 // Règle unique à tous les niveaux : une case = il reste quelque chose à prendre ;
-// estompé + badge « Ajouté » = plus rien à prendre ici. Un thread est un
-// composite dépliable : corps du mail + chaque PJ, cochables un par un. L'état
-// de chaque ligne est DÉRIVÉ des items du panier (source de vérité unique).
+// estompé + badge « Ajouté » = plus rien à prendre ici. La gauche ne manipule
+// que des OBJETS ENTIERS (échange, dossier) - la curation pièce par pièce
+// (corps du mail, chaque PJ) vit à droite, dans la carte du panier. L'état de
+// chaque ligne est DÉRIVÉ des items du panier (source de vérité unique).
 
 import React, { useMemo, useRef, useState } from 'react';
-import { ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, FileText, CheckCheck } from 'lucide-react';
+import { ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
 import {
   normalize, relDate, LAB_THREADS, LAB_FOLDERS,
   folderById, folderPath, childFolders, rootFolders, statsForDeep, threadsOfFolder,
-  threadView, folderOfThread, ancestorFolderIds, DEJA_LIE, bodyKey, pjKey,
+  threadView, folderOfThread, ancestorFolderIds, DEJA_LIE,
 } from './labData';
 import { Checkbox, AjouteBadge, AjouterChip, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
 import outlookLogo from '../../../assets/outlook.svg';
@@ -56,7 +57,7 @@ function SelectAll({ takeableTids, onTake }) {
 export default function MailColumn({
   width = 440,
   threadStateMap, stagedFolderIds = new Set(),
-  takeThread, takeManyThreads, takePiece, untakePiece, takeFolder, removeFolder, removeThread,
+  takeThread, takeManyThreads, takeFolder, removeFolder, removeThread,
   dejaSuiviFolderIds = new Set(), dejaSuiviThreadIds = new Set(),
   connected = true, onConnect,
   onCollapse,
@@ -64,7 +65,6 @@ export default function MailColumn({
   const phase2 = usePhase2();
   const [query, setQuery] = useState('');
   const [path, setPath] = useState([]); // folderIds, racine = []
-  const [expanded, setExpanded] = useState(() => new Set()); // threads dépliés
   const listRef = useRef(null);
   const q = normalize(query.trim());
 
@@ -80,7 +80,6 @@ export default function MailColumn({
   };
   const threadCoveredBy = (tid) => coveringFolderOf(folderOfThread(tid));
   const threadCovered = (tid) => threadCoveredBy(tid) != null;
-  const toggleExpand = (tid) => setExpanded(prev => { const n = new Set(prev); n.has(tid) ? n.delete(tid) : n.add(tid); return n; });
 
   // État dérivé d'un thread : available | partial | full.
   const threadState = (tv) => {
@@ -91,7 +90,6 @@ export default function MailColumn({
     if (taken >= total) return { kind: 'full', total, taken };
     return { kind: 'partial', total, taken };
   };
-  const pieceIncluded = (tid, key) => threadStateMap.get(tid)?.taken.has(key) || false;
 
   // ── Données des vues ──
   const recentThreads = useMemo(() => [...LAB_THREADS].sort((a, b) => (a.date < b.date ? 1 : -1)).map(threadView), []);
@@ -138,49 +136,6 @@ export default function MailColumn({
       {n} échange{n > 1 ? 's' : ''} inclus via « {name} » - aperçu dans le panier
     </p>
   ));
-
-  // ── Enfant d'un thread (corps ou PJ) ──
-  const childRow = (tid, { key, icon: Icon, iconColor, label, sub, msgBadge }) => {
-    const included = pieceIncluded(tid, key);
-    return (
-      <div
-        key={key}
-        className={`group flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg transition-colors ${included ? '' : 'hover:bg-cream/50'}`}
-      >
-        {included ? (
-          <span className="w-4 flex-shrink-0" aria-hidden />
-        ) : (
-          <Checkbox checked={false} onToggle={() => takePiece(tid, key)} title="Ajouter cette pièce" />
-        )}
-        {/* Estompage sur le CONTENU seul - jamais sur le badge (spec §3). */}
-        <span className="flex-1 min-w-0 flex items-center gap-2" style={included ? { opacity: 0.5 } : undefined}>
-          <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: iconColor }} />
-          <span className="text-[12.5px] text-foreground truncate">{label}</span>
-          {msgBadge}
-        </span>
-        {sub}
-        {included
-          ? <AjouteBadge onRemove={() => untakePiece(tid, key)} title="Retirer cette pièce" />
-          : <AjouterChip onAdd={() => takePiece(tid, key)} />}
-      </div>
-    );
-  };
-
-  const threadChildren = (tv) => {
-    const rows = [];
-    rows.push(childRow(tv.id, {
-      key: bodyKey(tv.id), icon: Mail, iconColor: '#1e3a8a', label: 'Corps du mail',
-      msgBadge: tv.msg > 1 ? (
-        <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{tv.msg} msg</span>
-      ) : null,
-    }));
-    tv.attachments.forEach(a => {
-      rows.push(childRow(tv.id, {
-        key: pjKey(tv.id, a.name), icon: FileText, iconColor: '#b4483c', label: a.name,
-      }));
-    });
-    return rows;
-  };
 
   // ── Ligne dossier ──
   const folderRow = (f, { showPath = false } = {}) => {
@@ -246,8 +201,6 @@ export default function MailColumn({
     const covered = coveredBy != null;
     const inert = dejaSuivi || covered;
     const state = inert ? { kind: 'inert' } : threadState(tv);
-    const isOpen = expanded.has(tid);
-    const composite = tv.pj > 0; // corps + au moins une PJ → dépliable
     return (
       <React.Fragment key={tid}>
         <div
@@ -306,6 +259,8 @@ export default function MailColumn({
             </span>
           </button>
           {state.kind === 'full' && <AjouteBadge onRemove={() => removeThread(tid)} title="Retirer l'échange" />}
+          {/* Pas de dépliage sur un échange : la gauche prend des objets
+              entiers, la curation corps/PJ vit dans la carte du panier. */}
           {!inert && state.kind !== 'full' && (
             <AjouterChip
               onAdd={() => takeThread(tid)}
@@ -313,24 +268,7 @@ export default function MailColumn({
               className="mt-0.5"
             />
           )}
-          {/* Chevron de dépliage à DROITE - cohérent avec les lignes dossier.
-              Un échange ENTIÈREMENT pris se replie : plus rien à prendre dedans,
-              la curation pièce par pièce continue dans le panier - la ligne se
-              résume à son badge « Ajouté ». */}
-          {composite && !inert && state.kind !== 'full' && (
-            <button
-              type="button"
-              onClick={() => toggleExpand(tid)}
-              className="mt-0.5 p-0.5 rounded text-foreground-muted hover:text-foreground-secondary flex-shrink-0"
-              title={isOpen ? 'Replier les pièces' : 'Voir corps et PJ'}
-            >
-              <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
-            </button>
-          )}
         </div>
-        {isOpen && composite && !inert && state.kind !== 'full' && (
-          <div className="flex flex-col pb-1">{threadChildren(tv)}</div>
-        )}
       </React.Fragment>
     );
   };

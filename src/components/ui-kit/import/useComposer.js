@@ -60,30 +60,16 @@ export function useComposer() {
     return [...completed, ...added];
   });
 
-  // Prend une seule pièce (corps ou PJ) : crée l'item avec cette pièce si besoin.
-  const takePiece = (tid, key) => {
-    const ex = findThread(tid);
-    if (!ex) {
-      const it = mkThreadItem(tid, { onlyKey: key });
-      if (it) setItems(prev => [...prev, it]);
-      return;
-    }
-    setItems(prev => prev.map(i => (i.id === ex.id
-      ? { ...i, thread: { ...i.thread, pieces: i.thread.pieces.map(p => (p.key === key ? { ...p, included: true } : p)) } }
-      : i)));
-  };
-
-  // Décoche une pièce (corps ou PJ), par threadId (gauche) ou id d'item (droite).
+  // (Dé)coche une pièce (corps ou PJ) dans la carte du panier - la curation
+  // pièce par pièce vit à DROITE uniquement, la gauche prend des objets entiers.
   // La ligne reste visible ; si plus rien n'est retenu, la carte quitte le panier.
-  const setPieceIncluded = (match, key, included) => setItems(prev => prev.flatMap(i => {
-    const hit = match.itemId ? i.id === match.itemId : (i.kind === 'thread' && i.thread.threadId === match.tid);
-    if (!hit) return [i];
+  const setPieceIncluded = (itemId, key, included) => setItems(prev => prev.flatMap(i => {
+    if (i.id !== itemId) return [i];
     const pieces = i.thread.pieces.map(p => (p.key === key ? { ...p, included } : p));
     if (!pieces.some(p => p.included)) return [];
     return [{ ...i, thread: { ...i.thread, pieces } }];
   }));
-  const untakePiece = (tid, key) => setPieceIncluded({ tid }, key, false);
-  const togglePieceById = (itemId, key, included) => setPieceIncluded({ itemId }, key, included);
+  const togglePieceById = (itemId, key, included) => setPieceIncluded(itemId, key, included);
 
   // Prend un dossier EN BLOC (sous-dossiers compris). Les threads et
   // sous-dossiers déjà pris individuellement sont ABSORBÉS par le bloc :
@@ -155,7 +141,7 @@ export function useComposer() {
   return {
     items, setItems, decoupe, suivre,
     addLocalFiles,
-    takeThread, takeManyThreads, takePiece, untakePiece, togglePieceById,
+    takeThread, takeManyThreads, togglePieceById,
     takeFolder, removeThread, removeFolder, removeItem,
     toggleDecoupe, toggleAllDecoupe, toggleSuivre, setSuivre,
     stagedFolderIds, threadStateMap,

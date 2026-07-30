@@ -181,8 +181,6 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
                   stagedFolderIds={c.stagedFolderIds}
                   takeThread={c.takeThread}
                   takeManyThreads={c.takeManyThreads}
-                  takePiece={c.takePiece}
-                  untakePiece={c.untakePiece}
                   takeFolder={takeFolderB}
                   removeFolder={c.removeFolder}
                   removeThread={c.removeThread}
