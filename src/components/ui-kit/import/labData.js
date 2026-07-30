@@ -656,7 +656,9 @@ export function threadPieceSummary(thread) {
   if (pjs.length) parts.push(`${pjIn} PJ sur ${pjs.length}`);
   return parts.length ? parts.join(' + ') : '0 pièce';
 }
-export const threadCardSubtitle = (thread) => `${thread.lead} · ${threadPieceSummary(thread)}`;
+// Sous-titre de carte : expéditeur · date, rien de plus. La composition (corps
+// + PJ) est listée juste en dessous - la répéter en sous-titre est du bruit.
+export const threadCardSubtitle = (thread) => thread.lead;
 
 // Récap du footer : « 1 échange (1 corps) + 2 PJ, 2 fichiers » (grammaire spec §5).
 export function composerRecap(items) {

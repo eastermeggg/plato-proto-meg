@@ -10,7 +10,7 @@ import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
 import {
   decoupableKeys, threadCardSubtitle,
-  folderComposition, folderSpan, threadSampleDeep, folderBreadcrumb, folderChainNames,
+  folderComposition, folderSpan, threadSampleDeep, folderBreadcrumb,
 } from './labData';
 import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel, usePhase2 } from './atoms';
 
@@ -265,7 +265,6 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
   const sample = open ? threadSampleDeep(f.folderId, SAMPLE_LIMIT) : [];
   const shownCompo = compo.slice(0, COMPO_LIMIT);
   const redirectLabel = phase2 ? 'Suivre' : 'Ajouter';
-  const parentCrumb = folderChainNames(f.folderId).slice(0, -1).join(' / ');
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2 min-w-0">
@@ -276,7 +275,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
         <span className="flex-1 min-w-0 ml-0.5">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
-            {parentCrumb ? `${parentCrumb} · ` : ''}{f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''}
+            {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''}
           </span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Dossier Outlook</span>
