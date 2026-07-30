@@ -247,13 +247,15 @@ export default function ImportDossierLab() {
     };
 
     items.forEach(item => {
+      // Seul un DOSSIER est un concept de source (le suivi vit sur l'arbre). Un
+      // échange est un objet importé, un instantané - jamais une source.
       const followed = suivre.has(item.id);
       let sourceId = null;
-      if (followed && (item.kind === 'folder' || (item.kind === 'thread' && item.origin === 'emails'))) {
+      if (followed && item.kind === 'folder') {
         sourceId = liveId('src-live');
       }
       const provenance = sourceId
-        ? { kind: 'source', sourceId, label: item.kind === 'folder' ? item.folder.path : item.thread.subject }
+        ? { kind: 'source', sourceId, label: item.folder.path }
         : item.origin === 'ordinateur'
           ? { kind: 'drop', sourceId: null, label: 'Déposé à l\'instant' }
           : { kind: 'import', sourceId: null, label: 'Import du 28 juil.' };
@@ -289,14 +291,13 @@ export default function ImportDossierLab() {
       }
 
       if (sourceId) {
+        // sourceId n'est posé que sur un dossier (cf. plus haut) : source = arbre.
         newSources.push({
           id: sourceId,
-          kind: item.kind === 'folder' ? 'folder' : 'thread',
-          refId: item.kind === 'folder' ? item.folder.folderId : item.thread.threadId,
-          pathLabel: item.kind === 'folder' ? item.folder.path : item.thread.subject,
-          subtitleBits: item.kind === 'folder'
-            ? [`${item.folder.stats.threads} échange${item.folder.stats.threads > 1 ? 's' : ''}`]
-            : [(item.thread.lead || '').split(' · ')[0]],
+          kind: 'folder',
+          refId: item.folder.folderId,
+          pathLabel: item.folder.path,
+          subtitleBits: [`${item.folder.stats.threads} échange${item.folder.stats.threads > 1 ? 's' : ''}`],
           followed: true, since: '28 juil. 2026', destinationId, decoupeAuto: false,
           newCount: 0, error: null,
           history: [{ id: liveId('h-live'), date: '28 juil.', kind: 'initial', count }],
@@ -393,7 +394,7 @@ export default function ImportDossierLab() {
             <LauncherCard
               badge="Geste B · créer"
               title="Nouveau dossier"
-              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook ajouté ; un dossier ajouté ici est suivi par défaut (création = miroir), un thread reste OFF."
+              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook ajouté ; un dossier ajouté ici est suivi par défaut (création = miroir). Un échange, lui, est un objet importé - jamais une source."
               onOpen={() => setModal('b')}
             />
             <LauncherCard
@@ -482,7 +483,7 @@ export default function ImportDossierLab() {
                   "Ni « habituels » ni « Déjà suivi » (le dossier n'existe pas encore) ; « Déjà lié à … » signale un dossier Outlook déjà miroir d'une autre affaire.",
                   "« ← Retour » préserve la composition ; « Créer le dossier » (ou « Créer et suivre »).",
                 ]}
-                rule="Un dossier Outlook ajouté ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un thread, lui, reste OFF."
+                rule="Un dossier Outlook ajouté ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un échange n'est jamais une source : il est importé, un instantané - seul le dossier se suit."
                 onOpen={() => setModal('b')}
               />
               <GestureDetail

@@ -10,7 +10,7 @@
 // (source de vérité unique).
 
 import React, { useMemo, useRef, useState } from 'react';
-import { ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
+import { Check, ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
 import {
   normalize, relDate, LAB_THREADS, LAB_FOLDERS,
   folderById, folderBreadcrumb, childFolders, rootFolders, statsForDeep, threadsOfFolder,
@@ -159,9 +159,9 @@ export default function MailColumn({
       >
         <button
           type="button"
-          onClick={() => { if (!dejaSuivi && !coveredBy) enter(fid); }}
-          className={`flex-1 min-w-0 flex items-center gap-2.5 text-left ${dejaSuivi || coveredBy ? 'cursor-default' : ''}`}
-          style={{ ...(dejaSuivi || coveredBy ? { pointerEvents: 'none' } : null), ...(taken ? { opacity: 0.5 } : null) }}
+          onClick={() => { if (!dejaSuivi && !coveredBy && !taken) enter(fid); }}
+          className={`flex-1 min-w-0 flex items-center gap-2.5 text-left ${dejaSuivi || coveredBy || taken ? 'cursor-default' : ''}`}
+          style={dejaSuivi || coveredBy || taken ? { pointerEvents: 'none' } : undefined}
         >
           <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
           <span className="flex-1 min-w-0">
@@ -204,20 +204,23 @@ export default function MailColumn({
           className={`group relative flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
           style={inert ? { opacity: 0.55 } : undefined}
         >
-          {/* Corps de ligne : clic = prendre l'échange. Entièrement pris : le
-              contenu s'estompe et devient inerte - le badge « Ajouté » est le
-              SEUL inverseur (jamais de retrait au clic sur le contenu). */}
+          {/* Corps de ligne : clic = prendre l'échange. Un échange AJOUTÉ reste
+              en plein contraste (c'est un objet acquis, pas un impossible) - le
+              badge « Ajouté » porte le seul retrait ; le contenu n'est pas
+              cliquable. L'estompage est réservé aux impossibles (inert). */}
           <button
             type="button"
             onClick={inert || state.kind === 'full' ? undefined : () => takeThread(tid)}
             className={`flex-1 min-w-0 flex flex-col gap-0.5 text-left ${inert || state.kind === 'full' ? 'cursor-default' : ''}`}
-            style={state.kind === 'full' ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
+            style={state.kind === 'full' ? { pointerEvents: 'none' } : undefined}
             title={inert || state.kind === 'full' ? undefined : state.kind === 'partial' ? 'Ajouter le reste de l\'échange' : 'Ajouter cet échange'}
           >
             <span className="flex items-center gap-2.5 min-w-0">
               <span className={`flex-1 min-w-0 text-[13px] leading-5 truncate ${tv.illegible ? 'italic text-foreground-secondary font-normal' : 'font-medium text-foreground'}`}>{tv.subject}</span>
               {state.kind === 'partial' && (
-                <span className="text-[10px] font-medium tabular-nums flex-shrink-0" style={{ color: '#855b31' }}>{state.taken} sur {state.total} ajoutées</span>
+                <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 tabular-nums" style={{ backgroundColor: '#eeece6', color: '#78716c' }}>
+                  <Check className="w-2.5 h-2.5" strokeWidth={2.5} /> {state.taken} sur {state.total} ajouté
+                </span>
               )}
               {dejaSuivi ? <DejaSuiviBadge /> : (
                 <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">{relDate(tv.date)}</span>
@@ -279,7 +282,7 @@ export default function MailColumn({
         className="group relative mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
         style={{ borderColor: '#e7e5e3', opacity: inert ? 0.55 : 1 }}
       >
-        <span className="flex-1 min-w-0" style={taken ? { opacity: 0.55 } : undefined}>
+        <span className="flex-1 min-w-0">
           <span className="text-[13px] font-medium text-foreground truncate block">Ajouter « {f.name} » en entier</span>
           <span className="text-[11px] text-foreground-muted truncate block">
             {coveredBy

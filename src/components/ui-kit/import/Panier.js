@@ -166,11 +166,11 @@ function FileCard({ item, decoupe, onToggleDecoupe, onRemove }) {
   );
 }
 
-function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, suivre, onToggleSuivre, onRemove }) {
-  const phase2 = usePhase2();
+// Un échange est un objet IMPORTÉ (instantané), jamais une source : pas de
+// suivi au niveau thread - seul le dossier est un concept de source.
+function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove }) {
   const t = item.thread;
   const uploading = item.status === 'uploading';
-  const followable = phase2 && item.origin === 'emails';
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2.5 min-w-0">
@@ -200,14 +200,6 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, suivre, onT
       )}
       {uploading && <UploadBar />}
       {item.status === 'doublon' && <DoublonMention onSkip={() => onRemove(item.id)} />}
-      {followable && (
-        <SuivreFoot
-          on={suivre.has(item.id)}
-          onToggle={() => onToggleSuivre(item.id)}
-          label="Suivre cet échange"
-          hint="les prochains messages arriveront dans les pièces, marqués « Nouveau »"
-        />
-      )}
     </div>
   );
 }
@@ -463,7 +455,6 @@ export default function Panier({
                           item={it}
                           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
                           onTogglePiece={onTogglePiece}
-                          suivre={suivre} onToggleSuivre={onToggleSuivre}
                           onRemove={onRemove}
                         />
                       );
