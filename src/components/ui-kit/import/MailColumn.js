@@ -1,11 +1,13 @@
-// Colonne mail (gauche) - TRANSVASEMENT : cocher prend et transvase
+// Colonne mail (gauche) - TRANSVASEMENT : un clic prend et transvase
 // immédiatement à droite ; aucun tray, aucune étape « Ajouter à la liste ».
 //
-// Règle unique à tous les niveaux : une case = il reste quelque chose à prendre ;
-// estompé + badge « Ajouté » = plus rien à prendre ici. La gauche ne manipule
-// que des OBJETS ENTIERS (échange, dossier) - la curation pièce par pièce
-// (corps du mail, chaque PJ) vit à droite, dans la carte du panier. L'état de
-// chaque ligne est DÉRIVÉ des items du panier (source de vérité unique).
+// Règle unique à tous les niveaux : « + Ajouter » (au survol) = il reste
+// quelque chose à prendre ; estompé + badge « Ajouté » = plus rien à prendre
+// ici. Pas de case à gauche : la gauche ne manipule que des OBJETS ENTIERS
+// (échange, dossier) et un état pris s'exprime en badge, pas en coche - la
+// curation pièce par pièce (corps du mail, chaque PJ) vit à droite, dans la
+// carte du panier. L'état de chaque ligne est DÉRIVÉ des items du panier
+// (source de vérité unique).
 
 import React, { useMemo, useRef, useState } from 'react';
 import { ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
@@ -14,7 +16,7 @@ import {
   folderById, folderPath, childFolders, rootFolders, statsForDeep, threadsOfFolder,
   threadView, folderOfThread, ancestorFolderIds, DEJA_LIE,
 } from './labData';
-import { Checkbox, AjouteBadge, AjouterChip, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
+import { AjouteBadge, AjouterChip, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
 import outlookLogo from '../../../assets/outlook.svg';
 
 const CAP_THREADS = 30;
@@ -155,11 +157,6 @@ export default function MailColumn({
         className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
         style={inert ? { opacity: 0.55 } : undefined}
       >
-        {inert || taken ? (
-          <span className="w-4 flex-shrink-0" aria-hidden />
-        ) : (
-          <Checkbox checked={false} onToggle={() => takeFolder(fid)} title="Ajouter tout le dossier (sous-dossiers compris)" />
-        )}
         <button
           type="button"
           onClick={() => { if (!dejaSuivi && !coveredBy) enter(fid); }}
@@ -188,7 +185,7 @@ export default function MailColumn({
           {!inert && !taken && <ChevronRight className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />}
         </button>
         {taken && <AjouteBadge onRemove={() => removeFolder(fid)} title="Retirer le dossier" />}
-        {!inert && !taken && <AjouterChip onAdd={() => takeFolder(fid)} />}
+        {!inert && !taken && <AjouterChip onAdd={() => takeFolder(fid)} title="Ajouter tout le dossier (sous-dossiers compris)" />}
       </div>
     );
   };
@@ -207,22 +204,9 @@ export default function MailColumn({
           className={`group flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
           style={inert ? { opacity: 0.55 } : undefined}
         >
-          {/* Contrôle de prise */}
-          {inert || state.kind === 'full' ? (
-            <span className="mt-0.5 w-4 flex-shrink-0" aria-hidden />
-          ) : (
-            <Checkbox
-              checked={false}
-              partial={state.kind === 'partial'}
-              onToggle={() => takeThread(tid)}
-              className="mt-0.5"
-              title={state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter cet échange'}
-            />
-          )}
-          {/* Corps de ligne : clic = prendre l'échange (le dépliage est réservé
-              au chevron). Entièrement pris : le contenu s'estompe et devient
-              inerte - le badge « Ajouté » est le SEUL inverseur (grammaire
-              case / ✕ / badge, jamais de retrait au clic sur le contenu). */}
+          {/* Corps de ligne : clic = prendre l'échange. Entièrement pris : le
+              contenu s'estompe et devient inerte - le badge « Ajouté » est le
+              SEUL inverseur (jamais de retrait au clic sur le contenu). */}
           <button
             type="button"
             onClick={inert || state.kind === 'full' ? undefined : () => takeThread(tid)}
@@ -291,9 +275,6 @@ export default function MailColumn({
         className="group mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
         style={{ borderColor: '#e7e5e3', opacity: inert ? 0.55 : 1 }}
       >
-        {inert || taken ? <span className="w-4 flex-shrink-0" aria-hidden /> : (
-          <Checkbox checked={false} onToggle={() => takeFolder(fid)} title="Ajouter tout le dossier (sous-dossiers compris)" />
-        )}
         <span className="flex-1 min-w-0" style={taken ? { opacity: 0.55 } : undefined}>
           <span className="text-[13px] font-medium text-foreground truncate block">Ajouter « {f.name} » en entier</span>
           <span className="text-[11px] text-foreground-muted truncate block">
@@ -307,7 +288,7 @@ export default function MailColumn({
             <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>
               Déjà lié à {dejaLie}
             </span>
-          ) : !inert ? <AjouterChip onAdd={() => takeFolder(fid)} /> : null}
+          ) : !inert ? <AjouterChip onAdd={() => takeFolder(fid)} title="Ajouter tout le dossier (sous-dossiers compris)" /> : null}
       </div>
     );
   };

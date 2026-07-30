@@ -112,19 +112,21 @@ export function AjouteBadge({ onRemove, title = 'Retirer', label = 'Ajouté' }) 
   );
 }
 
-// Promesse au survol : même place, même géométrie que le badge « Ajouté ».
-// Survoler une ligne disponible montre son futur (« + Ajouter » → « Ajouté »).
-// L'espace est réservé (opacity) pour que rien ne saute au survol. Contrôle
-// redondant avec la case → hors du parcours clavier (la case reste l'accès).
-export function AjouterChip({ onAdd, label = 'Ajouter', className = '' }) {
+// LE contrôle de prise de la colonne mail (il n'y a pas de case à gauche : la
+// gauche prend des objets entiers, une case qui ne se coche jamais serait un
+// mensonge de contrôle). Même place, même géométrie que le badge « Ajouté » :
+// survoler une ligne disponible montre son futur (« + Ajouter » → « Ajouté »).
+// L'espace est réservé (opacity) pour que rien ne saute ; révélé aussi au
+// focus clavier.
+export function AjouterChip({ onAdd, label = 'Ajouter', title, className = '' }) {
   return (
     <button
       type="button"
-      tabIndex={-1}
-      aria-hidden="true"
       onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
-      className={`inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${className}`}
+      className={`inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ${className}`}
       style={{ backgroundColor: '#ffffff', border: '1px solid #d6d3d1', color: '#292524' }}
+      title={title}
+      aria-label={title || label}
     >
       <Plus className="w-2.5 h-2.5" strokeWidth={2.5} />
       {label}

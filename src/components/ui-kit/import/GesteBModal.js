@@ -1,6 +1,6 @@
 // Geste B (spec §4) - « Créer un dossier Plato ». B = C + fiche : même
 // navigation, même panier, destination inexistante. Étape 1 la fiche, étape 2
-// le contenu initial. Seul opt-out du système : un dossier Outlook coché ICI
+// le contenu initial. Seul opt-out du système : un dossier Outlook ajouté ICI
 // est suivi par défaut (création = déclaration de miroir) ; un thread reste
 // OFF. « ← Retour » préserve la composition.
 
@@ -28,7 +28,7 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
   const [nom, setNom] = useState('');
   const [client, setClient] = useState('');
   const [collapsed, setCollapsed] = useState(false);
-  // Nom prérempli depuis le PREMIER dossier Outlook coché uniquement, jamais
+  // Nom prérempli depuis le PREMIER dossier Outlook ajouté uniquement, jamais
   // par-dessus une saisie : on retient ce que l'auto-nommage a écrit.
   const autoNameRef = useRef(null);
   const [confirmClose, setConfirmClose] = useState(false);
@@ -61,7 +61,7 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
   );
 
   // Prendre un dossier à la création : suivi par défaut ON (miroir, seul opt-out
-  // du système) et nom prérempli depuis le premier dossier coché.
+  // du système) et nom prérempli depuis le premier dossier ajouté.
   const takeFolderB = (fid) => {
     const it = c.takeFolder(fid);
     if (!it) return it;

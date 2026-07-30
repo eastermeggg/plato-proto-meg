@@ -387,13 +387,13 @@ export default function ImportDossierLab() {
             <LauncherCard
               badge="Geste C · ajouter"
               title="Ajouter des pièces"
-              desc="Le geste le plus fréquent : compléter un dossier avec quelques mails, PJ, fichiers. Colonne mail à gauche (recherche globale, drill-down, carte « en entier »), panier en cartes à droite - cocher à gauche transvase l'objet entier, la curation corps / PJ se fait à droite. CTA « Ajouter au dossier / Ajouter et suivre »."
+              desc="Le geste le plus fréquent : compléter un dossier avec quelques mails, PJ, fichiers. Colonne mail à gauche (recherche globale, drill-down, carte « en entier »), panier en cartes à droite - un clic à gauche (« + Ajouter ») transvase l'objet entier, la curation corps / PJ se fait à droite. CTA « Ajouter au dossier / Ajouter et suivre »."
               onOpen={() => setModal('c')}
             />
             <LauncherCard
               badge="Geste B · créer"
               title="Nouveau dossier"
-              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook coché ; un dossier coché ici est suivi par défaut (création = miroir), un thread reste OFF."
+              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook ajouté ; un dossier ajouté ici est suivi par défaut (création = miroir), un thread reste OFF."
               onOpen={() => setModal('b')}
             />
             <LauncherCard
@@ -454,7 +454,7 @@ export default function ImportDossierLab() {
                 steps={[
                   "La colonne mail s'ouvre sur la boîte nue : « Dossiers Outlook » puis « Échanges récents », aucune ligne « Déjà suivi ».",
                   "On navigue : recherche globale, drill-down dans un dossier (avec fil d'Ariane), ou carte « Ajouter en entier ».",
-                  "Cocher transvase immédiatement à droite - pas d'étape « Ajouter à la liste ». La gauche prend des objets entiers (échange, dossier).",
+                  "Un clic (« + Ajouter ») transvase immédiatement à droite - pas d'étape « Ajouter à la liste ». La gauche prend des objets entiers (échange, dossier).",
                   "Le panier vérifie à droite : corps du mail et chaque PJ y sont des pièces cochables - on décoche une pièce de trop, on découpe si besoin, puis « Ajouter au dossier ».",
                 ]}
                 rule="Ce premier import fait naître la frecency - dès la fois suivante, ce sera le geste C, habituels en tête."
@@ -465,12 +465,12 @@ export default function ImportDossierLab() {
                 lead="Le geste le plus fréquent. Tout est là : navigation à l'échelle, transvasement pièce par pièce, découpe, suivi."
                 steps={[
                   "Recherche globale à l'échelle (134 dossiers), drill-down, carte « en entier » qui neutralise les enfants (jamais dossier + enfants).",
-                  "Cocher transvase l'échange entier ; « Tout sélectionner » prend les échanges d'une vue. À droite, la carte décompose : corps du mail + PJ, chacun décochable.",
+                  "Un clic transvase l'échange entier ; « Tout sélectionner » prend les échanges d'une vue. À droite, la carte décompose : corps du mail + PJ, chacun décochable.",
                   "Les sources déjà suivies sont inertes, badge « Déjà suivi » - on ne re-prend pas ce qui arrive tout seul.",
                   "À droite, panier en cartes : on décoche une pièce de trop (la ligne reste, jamais barrée), « ✕ » retire une carte entière ; découpe par pièce ou « Tout découper ».",
                   "On choisit la destination (« Ajouter dans : … »), puis « Ajouter au dossier » (ou « Ajouter et suivre »).",
                 ]}
-                rule="Transvasement, pas miroir : gauche = disponible, droite = retenu. Une case = il reste à prendre ; estompé + badge « Ajouté » = plus rien à prendre ici."
+                rule="Transvasement, pas miroir : gauche = disponible, droite = retenu. « + Ajouter » = il reste à prendre ; estompé + badge « Ajouté » = plus rien à prendre ici."
                 onOpen={() => setModal('c')}
               />
               <GestureDetail
@@ -478,11 +478,11 @@ export default function ImportDossierLab() {
                 lead="B = C + une fiche. Créer l'affaire et composer son contenu initial d'un seul geste."
                 steps={[
                   "Étape 1 - la fiche : nom du dossier, client. « Continuer », ou « Créer sans contenu » pour un dossier-coquille.",
-                  "Étape 2 - le contenu initial : même colonne mail, même panier. Le nom se pré-remplit du premier dossier Outlook coché (éditable).",
+                  "Étape 2 - le contenu initial : même colonne mail, même panier. Le nom se pré-remplit du premier dossier Outlook ajouté (éditable).",
                   "Ni « habituels » ni « Déjà suivi » (le dossier n'existe pas encore) ; « Déjà lié à … » signale un dossier Outlook déjà miroir d'une autre affaire.",
                   "« ← Retour » préserve la composition ; « Créer le dossier » (ou « Créer et suivre »).",
                 ]}
-                rule="Un dossier Outlook coché ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un thread, lui, reste OFF."
+                rule="Un dossier Outlook ajouté ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un thread, lui, reste OFF."
                 onOpen={() => setModal('b')}
               />
               <GestureDetail
