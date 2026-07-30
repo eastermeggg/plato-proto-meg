@@ -58,6 +58,22 @@ function UploadBar() {
   );
 }
 
+// Ligne « Corps du mail » indentée, lecture seule (aperçu dossier / zip). Le
+// corps est une pièce comme les autres (invariant) : il DOIT apparaître sous
+// chaque échange, au même titre que ses PJ, jamais implicite.
+function BodyLine({ msg, dim = false }) {
+  return (
+    <div className="flex items-center gap-2.5 min-w-0 h-7" style={dim ? { opacity: 0.85 } : undefined}>
+      <Elbow />
+      <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
+      <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">Corps du mail</span>
+      {msg > 1 && (
+        <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{msg} msg</span>
+      )}
+    </div>
+  );
+}
+
 // Ligne PJ indentée (coude), lecture seule (aperçu dossier / zip), avec découpe.
 function PJLine({ pj, decoupe, onToggleDecoupe, dim = false }) {
   return (
@@ -96,8 +112,9 @@ function PieceLine({ piece, included, onToggle, decoupe, onToggleDecoupe }) {
   );
 }
 
-// Groupe « échange + ses PJ » dans un aperçu (dossier ouvert, zip déplié).
-function PreviewThreadGroup({ subject, sender, illegible = false, pjLines }) {
+// Groupe « échange + ses pièces » dans un aperçu (zip déplié). Le corps du mail
+// est une pièce : il figure sous l'échange, puis chaque PJ.
+function PreviewThreadGroup({ subject, sender, illegible = false, msg, pjLines }) {
   return (
     <div className="px-3.5 py-2.5 flex flex-col gap-1">
       <div className="flex items-center gap-2.5 min-w-0 h-6">
@@ -105,7 +122,10 @@ function PreviewThreadGroup({ subject, sender, illegible = false, pjLines }) {
         <span className={`flex-1 min-w-0 text-[13px] truncate ${illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{subject}</span>
         <span className="text-[11px] text-foreground-muted truncate flex-shrink-0 text-right" style={{ maxWidth: 180 }}>{sender}</span>
       </div>
-      {pjLines.length > 0 && <div className="pl-1.5 flex flex-col">{pjLines}</div>}
+      <div className="pl-1.5 flex flex-col">
+        <BodyLine msg={msg} />
+        {pjLines}
+      </div>
     </div>
   );
 }
@@ -296,17 +316,17 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
                     <span className="flex-shrink-0 truncate text-right" style={{ ...monoLabel, maxWidth: 150 }} title={folderBreadcrumb(origin.id)}>{origin.name}</span>
                   )}
                 </div>
-                {tv.attachments.length > 0 && (
-                  <div className="pl-1.5 flex flex-col">
-                    {tv.attachments.map((a, i) => (
-                      <PJLine
-                        key={`${tv.id}-${i}`}
-                        pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
-                        decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
-                      />
-                    ))}
-                  </div>
-                )}
+                {/* Corps du mail (pièce) + chaque PJ - jamais le corps implicite. */}
+                <div className="pl-1.5 flex flex-col">
+                  <BodyLine msg={tv.msg} dim />
+                  {tv.attachments.map((a, i) => (
+                    <PJLine
+                      key={`${tv.id}-${i}`}
+                      pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
+                      decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
+                    />
+                  ))}
+                </div>
               </div>
             ))}
           </div>
