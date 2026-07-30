@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
-import { decoupableKeys, threadGroupsOfFolderDeep, threadCardSubtitle } from './labData';
+import { decoupableKeys, threadGroupsOfFolderDeep, threadCardSubtitle, folderPath } from './labData';
 import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel, usePhase2 } from './atoms';
 
 const CARD = { border: '1px solid #e7e5e3', borderRadius: 12, backgroundColor: '#ffffff' };
@@ -198,6 +198,12 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
   const groups = open ? threadGroupsOfFolderDeep(f.folderId) : [];
   const nThreads = groups.reduce((n, g) => n + g.threads.length, 0);
   const hasSub = groups.length > 1;
+  // Intitulé d'un groupe : chemin RELATIF au dossier pris (« Bernard c/ AXA /
+  // Correspondance ») - un nom seul est ambigu dès que deux sous-dossiers
+  // portent le même nom (chaque client a sa « Correspondance »).
+  const groupLabel = (folder) => (folder.id === f.folderId
+    ? f.name
+    : folderPath(folder).slice(f.path.length + 1).split('/').join(' / '));
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2 min-w-0">
@@ -222,7 +228,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
                 {hasSub && (
                   <div className={`px-3.5 pt-2.5 pb-0.5 flex items-center gap-1.5 ${gi > 0 ? 'border-t border-border-subtle' : ''}`}>
                     <Folder className="w-3 h-3 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
-                    <span style={monoLabel}>{g.folder.id === f.folderId ? f.name : g.folder.name}</span>
+                    <span className="truncate" style={monoLabel}>{groupLabel(g.folder)}</span>
                   </div>
                 )}
                 <div className="divide-y divide-border-subtle">
