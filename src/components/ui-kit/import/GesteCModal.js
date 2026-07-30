@@ -160,6 +160,8 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
             onRemove={c.removeItem}
             onTogglePiece={c.togglePieceById}
             onRedirectFolder={c.redirectFolder}
+            onToggleFolderThread={c.toggleFolderThread}
+            onToggleFolderPiece={c.toggleFolderPiece}
             decoupe={decoupe}
             onToggleDecoupe={c.toggleDecoupe}
             onToggleAllDecoupe={c.toggleAllDecoupe}

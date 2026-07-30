@@ -632,13 +632,40 @@ export function mkThreadItem(tid, { onlyKey = null, origin = 'emails' } = {}) {
 
 // Dossier → item du panier (bloc RÉCURSIF, aperçu en lecture seule). Les stats
 // sont profondes : ce que la carte annonce est ce que le commit importe.
+// Dossier → item du panier. Un dossier d'affaire est MATÉRIALISÉ et curable :
+// ses échanges (groupés par sous-dossier) et leurs pièces portent un `included`,
+// décochables dans le panier. Un CONTENEUR large (≥5 sous-dossiers) ne l'est
+// pas (curer des milliers de lignes n'a pas de sens) : il reste un bloc en
+// lecture seule, on le recentre via « à la place ».
 export function mkFolderItem(fid) {
   const f = folderById(fid);
   if (!f) return null;
+  const pickable = !folderSpan(fid).multi;
   return mkItem({
     kind: 'folder', origin: 'emails',
-    folder: { folderId: fid, name: f.name, path: folderPath(f), stats: statsForDeep(fid) },
+    folder: {
+      folderId: fid, name: f.name, path: folderPath(f), stats: statsForDeep(fid), pickable,
+      groups: pickable ? threadGroupsOfFolderDeep(fid).map(g => ({
+        folderId: g.folder.id, folderName: g.folder.name,
+        threads: g.threads.map(tv => ({
+          threadId: tv.id, subject: tv.subject, illegible: tv.illegible, msg: tv.msg,
+          pieces: threadItemPieces(tv),
+        })),
+      })) : null,
+    },
   });
+}
+
+// Comptes RÉELLEMENT retenus d'un dossier curable (sinon = stats du bloc).
+export function folderIncludedCounts(folder) {
+  if (!folder.groups) return { threads: folder.stats.threads, pieces: folder.stats.pieces, total: folder.stats.threads };
+  let threads = 0, pieces = 0, total = 0;
+  folder.groups.forEach(g => g.threads.forEach(t => {
+    total += 1;
+    const inc = t.pieces.filter(p => p.included).length;
+    if (inc > 0) { threads += 1; pieces += inc; }
+  }));
+  return { threads, pieces, total };
 }
 
 // Pièces d'un thread réellement retenues (cochées).
@@ -723,6 +750,11 @@ export function decoupableKeys(item) {
   if (item.kind === 'thread') return item.thread.pieces.filter(a => a.kind === 'pj' && a.decoupable && a.included).map(a => ({ key: a.key, name: a.name }));
   if (item.kind === 'zip') return item.zip.children.flatMap(c => c.pj.filter(a => a.decoupable).map(a => ({ key: a.key, name: a.name })));
   if (item.kind === 'folder') {
+    // Curable : seules les PJ retenues ; bloc conteneur : tout le sous-arbre.
+    if (item.folder.groups) {
+      return item.folder.groups.flatMap(g => g.threads.flatMap(t =>
+        t.pieces.filter(p => p.kind === 'pj' && p.decoupable && p.included).map(p => ({ key: p.key, name: p.name }))));
+    }
     return threadsOfFolderDeep(item.folder.folderId)
       .flatMap(tv => tv.attachments.filter(a => a.decoupable).map(a => ({ key: `${tv.id}::${a.name}`, name: a.name })));
   }
@@ -747,7 +779,16 @@ export function approxPieces(items, decoupe) {
         n += (decoupe.has(p.key) && det) ? det.count : 1;
       });
     } else if (it.kind === 'folder') {
-      n += it.folder.stats.pieces;
+      if (it.folder.groups) {
+        it.folder.groups.forEach(g => g.threads.forEach(t => t.pieces.forEach(p => {
+          if (!p.included) return;
+          if (p.kind === 'body') { n += 1; return; }
+          const det = detectionFor(p.name);
+          n += (decoupe.has(p.key) && det) ? det.count : 1;
+        })));
+      } else {
+        n += it.folder.stats.pieces;
+      }
     } else if (it.kind === 'zip') {
       it.zip.children.forEach(c => {
         n += 1;

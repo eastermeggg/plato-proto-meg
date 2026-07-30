@@ -274,13 +274,24 @@ export default function ImportDossierLab() {
         pieces.filter(p => p.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
         count = pieces.length;
       } else if (item.kind === 'folder') {
-        // Bloc RÉCURSIF : tout le contenu, sous-dossiers compris - exactement
-        // ce que la carte et l'aperçu annoncent. Le compte est le compte réel.
+        // Curable : seuls les échanges/pièces RETENUS entrent (le picker fait foi).
+        // Conteneur (bloc lecture seule) : tout le sous-arbre. Le compte est réel.
         const before = newPieces.length;
-        threadsOfFolderDeep(item.folder.folderId).forEach(tv => {
-          newPieces.push(mkPiece({ name: tv.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
-          tv.attachments.forEach(a => pushFilePieces(a.name, provenance, decoupe.has(`${tv.id}::${a.name}`)));
-        });
+        if (item.folder.groups) {
+          item.folder.groups.forEach(g => g.threads.forEach(t => {
+            const inc = t.pieces.filter(p => p.included);
+            if (!inc.length) return;
+            if (inc.some(p => p.kind === 'body')) {
+              newPieces.push(mkPiece({ name: t.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
+            }
+            inc.filter(p => p.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
+          }));
+        } else {
+          threadsOfFolderDeep(item.folder.folderId).forEach(tv => {
+            newPieces.push(mkPiece({ name: tv.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
+            tv.attachments.forEach(a => pushFilePieces(a.name, provenance, decoupe.has(`${tv.id}::${a.name}`)));
+          });
+        }
         count = newPieces.length - before;
       } else if (item.kind === 'zip') {
         item.zip.children.forEach(c => {

@@ -93,6 +93,18 @@ export function useComposer() {
   const removeThread = (tid) => setItems(prev => prev.filter(i => !(i.kind === 'thread' && i.thread.threadId === tid)));
   const removeFolder = (fid) => setItems(prev => prev.filter(i => !(i.kind === 'folder' && i.folder.folderId === fid)));
 
+  // ── Curation d'un dossier matérialisé (picker du panier) ──
+  const mapFolderThreads = (itemId, fn) => setItems(prev => prev.map(i => (
+    i.id === itemId && i.kind === 'folder' && i.folder.groups
+      ? { ...i, folder: { ...i.folder, groups: i.folder.groups.map(g => ({ ...g, threads: g.threads.map(fn) })) } }
+      : i)));
+  // (Dé)coche un échange entier du dossier (toutes ses pièces).
+  const toggleFolderThread = (itemId, tid, included) => mapFolderThreads(itemId, t => (
+    t.threadId === tid ? { ...t, pieces: t.pieces.map(p => ({ ...p, included })) } : t));
+  // (Dé)coche une pièce (corps ou PJ) d'un échange du dossier.
+  const toggleFolderPiece = (itemId, tid, key, included) => mapFolderThreads(itemId, t => (
+    t.threadId === tid ? { ...t, pieces: t.pieces.map(p => (p.key === key ? { ...p, included } : p)) } : t));
+
   // Redirection corrective (« Suivre / Ajouter à la place ») : remplace un bloc
   // large par l'un de ses sous-dossiers. Un source = un sous-arbre : on ne
   // s'ajoute pas EN PLUS, on se recentre. L'intention de suivi est reportée.
@@ -158,6 +170,7 @@ export function useComposer() {
     addLocalFiles,
     takeThread, takeManyThreads, togglePieceById,
     takeFolder, removeThread, removeFolder, removeItem, redirectFolder,
+    toggleFolderThread, toggleFolderPiece,
     toggleDecoupe, toggleAllDecoupe, toggleSuivre, setSuivre,
     stagedFolderIds, threadStateMap,
   };
