@@ -13,7 +13,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
 import {
   normalize, relDate, LAB_THREADS, LAB_FOLDERS,
-  folderById, folderPath, childFolders, rootFolders, statsForDeep, threadsOfFolder,
+  folderById, folderBreadcrumb, childFolders, rootFolders, statsForDeep, threadsOfFolder,
   threadView, folderOfThread, ancestorFolderIds, DEJA_LIE,
 } from './labData';
 import { AjouteBadge, AjouterChip, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
@@ -100,7 +100,7 @@ export default function MailColumn({
     if (!q) return null;
     const folders = LAB_FOLDERS
       .filter(f => !(f.attributes || []).includes('\\Sent'))
-      .filter(f => normalize(f.name).includes(q) || normalize(folderPath(f)).includes(q));
+      .filter(f => normalize(f.name).includes(q) || normalize(folderBreadcrumb(f)).includes(q));
     const threads = LAB_THREADS
       .filter(t => [t.subject, t.summary, t.snippet, ...(t.senders || []).flatMap(s => [s.name, s.email, s.role])].some(x => x && normalize(x).includes(q)))
       .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -167,9 +167,9 @@ export default function MailColumn({
           <span className="flex-1 min-w-0">
             <span className="text-[13px] text-foreground truncate block">{f.name}</span>
             {coveredBy ? (
-              <span className="text-[11px] text-foreground-secondary truncate block">Inclus via « {coveredBy.name} »</span>
+              <span className="text-[11px] text-foreground-secondary truncate block">Déjà couvert par « {folderBreadcrumb(coveredBy)} »</span>
             ) : showPath ? (
-              <span className="text-[11px] text-foreground-muted truncate block">{folderPath(f)}</span>
+              <span className="text-[11px] text-foreground-muted truncate block">{folderBreadcrumb(f)}</span>
             ) : null}
           </span>
           {!taken && !coveredBy && (dejaSuivi ? <DejaSuiviBadge />
@@ -179,7 +179,7 @@ export default function MailColumn({
               </span>
             ) : (
               <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">
-                {st.folders > 0 ? `${st.folders} dossier${st.folders > 1 ? 's' : ''} · ` : ''}{st.threads} échange{st.threads > 1 ? 's' : ''}
+                {st.threads} échange{st.threads > 1 ? 's' : ''} · {st.pieces} pièces
               </span>
             ))}
           {!inert && !taken && <ChevronRight className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />}
@@ -283,8 +283,8 @@ export default function MailColumn({
           <span className="text-[13px] font-medium text-foreground truncate block">Ajouter « {f.name} » en entier</span>
           <span className="text-[11px] text-foreground-muted truncate block">
             {coveredBy
-              ? `Inclus via « ${coveredBy.name} »`
-              : <>{st.threads} échange{st.threads > 1 ? 's' : ''}, ≈ {st.pieces} pièces{hasSub ? ' · sous-dossiers compris' : ''}{phase2 && !inert ? ' · suivable' : ''}</>}
+              ? `Déjà couvert par « ${folderBreadcrumb(coveredBy)} »`
+              : <>{st.threads} échange{st.threads > 1 ? 's' : ''} · ≈ {st.pieces} pièces{hasSub ? ' · sous-dossiers compris' : ''}{phase2 && !inert ? ' · suivable' : ''}</>}
           </span>
         </span>
         {taken ? <AjouteBadge onRemove={() => removeFolder(fid)} title="Retirer le dossier" />

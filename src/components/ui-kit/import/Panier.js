@@ -8,7 +8,10 @@ import React, { useState } from 'react';
 import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
-import { decoupableKeys, threadGroupsOfFolderDeep, threadCardSubtitle, folderPath } from './labData';
+import {
+  decoupableKeys, threadCardSubtitle,
+  folderComposition, folderSpan, threadSampleDeep, folderBreadcrumb, folderChainNames,
+} from './labData';
 import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel, usePhase2 } from './atoms';
 
 const CARD = { border: '1px solid #e7e5e3', borderRadius: 12, backgroundColor: '#ffffff' };
@@ -189,21 +192,60 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, suivre, onT
   );
 }
 
-function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, onRemove }) {
+const SAMPLE_LIMIT = 6;
+const COMPO_LIMIT = 5;
+
+// Ligne de composition : un sous-dossier immédiat, double compte profond. C'est
+// de l'INVENTAIRE, jamais une ligne suivable - mais elle porte la redirection
+// corrective « Suivre à la place » (désigner l'affaire, pas le conteneur).
+function CompositionLine({ folder, stats, redirectLabel, onRedirect }) {
+  return (
+    <div className="group/compo flex items-center gap-2 min-w-0 h-8 px-3.5">
+      <Folder className="w-3.5 h-3.5 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
+      <span className="flex-1 min-w-0 text-[12.5px] text-foreground truncate">{folder.name}</span>
+      <span className="flex-shrink-0 text-[11px] text-foreground-muted tabular-nums">
+        {stats.threads} échange{stats.threads > 1 ? 's' : ''} · {stats.pieces} pièces
+      </span>
+      {onRedirect && (
+        <button
+          type="button"
+          onClick={onRedirect}
+          className="flex-shrink-0 text-[11px] font-medium text-foreground-secondary opacity-0 group-hover/compo:opacity-100 focus-visible:opacity-100 hover:text-foreground transition-all"
+          title={`${redirectLabel} « ${folder.name} » seul`}
+        >
+          {redirectLabel} à la place
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Avertissement de sur-import : au-dessus du suivi, jamais bloquant, DÉNOMBRÉ EN
+// PIÈCES (ce que le pipeline traite réellement). Se termine par le chemin de
+// correction, pas par un refus.
+function OverImportWarning({ nAffaires, pieces }) {
+  return (
+    <div className="mt-3 rounded-lg px-3 py-2.5 flex items-start gap-2" style={{ backgroundColor: '#fdf6ea', border: '1px solid #f0e2c8' }}>
+      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-px" strokeWidth={2} style={{ color: '#855b31' }} />
+      <span className="text-[11px] leading-4" style={{ color: '#855b31' }}>
+        <span className="font-medium">{nAffaires} affaires différentes</span> - ≈ {pieces} pièces entreraient dans un seul dossier, découpage compris.
+        Désignez plutôt le dossier de l'affaire concernée (« à la place » ci-dessus).
+      </span>
+    </div>
+  );
+}
+
+function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, onRemove, onRedirect }) {
   const phase2 = usePhase2();
   const [open, setOpen] = useState(false);
   const f = item.folder;
-  // Aperçu INTÉGRAL et RÉCURSIF : tout ce qui entrera est visible, sous-dossiers
-  // compris, groupé par dossier - rien de caché, l'aperçu dit ce que le commit fait.
-  const groups = open ? threadGroupsOfFolderDeep(f.folderId) : [];
-  const nThreads = groups.reduce((n, g) => n + g.threads.length, 0);
-  const hasSub = groups.length > 1;
-  // Intitulé d'un groupe : chemin RELATIF au dossier pris (« Bernard c/ AXA /
-  // Correspondance ») - un nom seul est ambigu dès que deux sous-dossiers
-  // portent le même nom (chaque client a sa « Correspondance »).
-  const groupLabel = (folder) => (folder.id === f.folderId
-    ? f.name
-    : folderPath(folder).slice(f.path.length + 1).split('/').join(' / '));
+  const compo = folderComposition(f.folderId);
+  const hasSub = compo.length > 0;
+  const span = folderSpan(f.folderId);
+  const sample = open ? threadSampleDeep(f.folderId, SAMPLE_LIMIT) : [];
+  const shownCompo = compo.slice(0, COMPO_LIMIT);
+  const redirectLabel = phase2 ? 'Suivre' : 'Ajouter';
+  const parentCrumb = folderChainNames(f.folderId).slice(0, -1).join(' / ');
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2 min-w-0">
@@ -214,7 +256,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
         <span className="flex-1 min-w-0 ml-0.5">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
-            {f.path}{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''} · {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces
+            {parentCrumb ? `${parentCrumb} · ` : ''}{f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''}
           </span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Dossier Outlook</span>
@@ -222,50 +264,67 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
       </div>
       {open && (
         <div className="mt-3 rounded-lg border border-border-subtle overflow-hidden" style={{ backgroundColor: '#faf9f7' }}>
-          <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-            {groups.map((g, gi) => (
-              <div key={g.folder.id}>
-                {hasSub && (
-                  <div className={`px-3.5 pt-2.5 pb-0.5 flex items-center gap-1.5 ${gi > 0 ? 'border-t border-border-subtle' : ''}`}>
-                    <Folder className="w-3 h-3 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
-                    <span className="truncate" style={monoLabel}>{groupLabel(g.folder)}</span>
-                    <span className="flex-shrink-0 tabular-nums" style={{ ...monoLabel, color: '#a8a29e' }}>· {g.threads.length}</span>
+          {/* Bloc de composition : les sous-dossiers immédiats en inventaire.
+              Sur une affaire → structure de travail (rassurant) ; sur un
+              conteneur → noms d'autres clients (le sur-import se voit). */}
+          {hasSub && (
+            <div className="py-1.5 border-b border-border-subtle">
+              <p className="px-3.5 pt-1 pb-1" style={monoLabel}>Sous-dossiers</p>
+              {shownCompo.map(c => (
+                <CompositionLine
+                  key={c.folder.id}
+                  folder={c.folder}
+                  stats={c.stats}
+                  redirectLabel={redirectLabel}
+                  onRedirect={onRedirect ? () => onRedirect(item.id, c.folder.id) : null}
+                />
+              ))}
+              {compo.length > COMPO_LIMIT && (
+                <p className="px-3.5 pt-1 text-[11px] text-foreground-muted">et {compo.length - COMPO_LIMIT} autre{compo.length - COMPO_LIMIT > 1 ? 's' : ''}</p>
+              )}
+            </div>
+          )}
+          {/* Échantillon plat : provenance par message (sous-dossier d'origine). */}
+          <p className="px-3.5 pt-2 pb-0.5" style={monoLabel}>Aperçu des échanges</p>
+          <div className="divide-y divide-border-subtle">
+            {sample.map(({ tv, origin }) => (
+              <div key={tv.id} className="px-3.5 py-2 flex flex-col gap-1">
+                <div className="flex items-center gap-2.5 min-w-0 h-6">
+                  <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a', opacity: 0.8 }} />
+                  <span className={`flex-1 min-w-0 text-[13px] truncate ${tv.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{tv.subject}</span>
+                  {origin.id !== f.folderId && (
+                    <span className="flex-shrink-0 truncate text-right" style={{ ...monoLabel, maxWidth: 150 }} title={folderBreadcrumb(origin.id)}>{origin.name}</span>
+                  )}
+                </div>
+                {tv.attachments.length > 0 && (
+                  <div className="pl-1.5 flex flex-col">
+                    {tv.attachments.map((a, i) => (
+                      <PJLine
+                        key={`${tv.id}-${i}`}
+                        pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
+                        decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
+                      />
+                    ))}
                   </div>
                 )}
-                <div className="divide-y divide-border-subtle">
-                  {g.threads.map(tv => (
-                    <PreviewThreadGroup
-                      key={tv.id}
-                      subject={tv.subject}
-                      sender={tv.sender}
-                      illegible={tv.illegible}
-                      pjLines={tv.attachments.map((a, i) => (
-                        <PJLine
-                          key={`${tv.id}-${i}`}
-                          pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
-                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
-                        />
-                      ))}
-                    />
-                  ))}
-                </div>
               </div>
             ))}
           </div>
           <div className="px-3.5 py-2 border-t border-border-subtle flex items-center justify-between gap-3">
             <span className="text-[11px] text-foreground-secondary flex-shrink-0">
-              {nThreads} échange{nThreads > 1 ? 's' : ''}{hasSub ? ', sous-dossiers compris' : ''} - tout entre avec le dossier
+              {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''}{hasSub ? ', sous-dossiers compris' : ''} - tout entre avec le dossier
             </span>
             <span className="text-[10px] text-foreground-muted truncate text-right">Aperçu en lecture seule - la curation se fait à gauche</span>
           </div>
         </div>
       )}
+      {span.multi && <OverImportWarning nAffaires={span.nAffaires} pieces={span.pieces} />}
       {phase2 && (
         <SuivreFoot
           on={suivre.has(item.id)}
           onToggle={() => onToggleSuivre(item.id)}
           label="Suivre ce dossier"
-          hint="tout son contenu, y compris les futurs sous-dossiers"
+          hint="échanges et pièces, y compris les futurs sous-dossiers"
         />
       )}
     </div>
@@ -314,7 +373,7 @@ function ZipCard({ item, decoupe, onToggleDecoupe, onRemove }) {
 }
 
 export default function Panier({
-  items, onRemove, onTogglePiece,
+  items, onRemove, onTogglePiece, onRedirectFolder,
   decoupe, onToggleDecoupe, onToggleAllDecoupe,
   suivre, onToggleSuivre,
   onAddFiles,
@@ -398,6 +457,7 @@ export default function Panier({
                           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
                           suivre={suivre} onToggleSuivre={onToggleSuivre}
                           onRemove={onRemove}
+                          onRedirect={onRedirectFolder}
                         />
                       );
                     }

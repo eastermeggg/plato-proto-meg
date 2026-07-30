@@ -175,6 +175,53 @@ export function descendantFolders(fid) {
   return out;
 }
 
+// Chemin en fil d'Ariane (« Clients / Leblanc c/ AXA ») - construit depuis la
+// chaîne de parents, jamais par split de string : les noms contiennent « / ».
+export function folderChainNames(folder, folders = LAB_FOLDERS) {
+  const chain = [];
+  let cur = typeof folder === 'string' ? folders.find(f => f.id === folder) : folder;
+  let guard = 0;
+  while (cur && guard++ < 10) {
+    chain.unshift(cur.name);
+    const parentId = cur.parentId;
+    cur = parentId ? folders.find(f => f.id === parentId) : null;
+  }
+  return chain;
+}
+export const folderBreadcrumb = (folder) => folderChainNames(folder).join(' / ');
+
+// Composition d'un dossier : ses sous-dossiers IMMÉDIATS, chacun avec son
+// double compte profond (échanges · pièces). Inventaire, pas des lignes
+// suivables (un source = un sous-arbre).
+export function folderComposition(fid) {
+  return childFolders(fid).map(f => ({ folder: f, stats: statsForDeep(f.id) }));
+}
+
+// Un dossier « conteneur large » couvre plusieurs affaires : suivre / importer
+// en bloc verse toutes leurs pièces dans un seul dossier Plato. Le seuil
+// distingue une STRUCTURE de travail (2-3 sous-dossiers : Correspondance,
+// Expertise) d'un CONTENEUR d'affaires (« Clients » : 130 dossiers-affaires).
+export const CONTAINER_MIN_CHILDREN = 5;
+export function folderSpan(fid) {
+  const kids = childFolders(fid);
+  const deep = statsForDeep(fid);
+  return { multi: kids.length >= CONTAINER_MIN_CHILDREN, nAffaires: kids.length, pieces: deep.pieces, threads: deep.threads };
+}
+
+// Échantillon plat des échanges d'un bloc, chacun avec son dossier d'origine
+// (provenance par message) - premiers `limit`.
+export function threadSampleDeep(fid, limit = 8) {
+  const groups = threadGroupsOfFolderDeep(fid);
+  const flat = [];
+  for (const g of groups) {
+    for (const tv of g.threads) {
+      flat.push({ tv, origin: g.folder });
+      if (flat.length >= limit) return flat;
+    }
+  }
+  return flat;
+}
+
 // ── Stats & threads synthétiques (chaque dossier est explorable) ───────────
 const hashOf = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973; return h; };
 

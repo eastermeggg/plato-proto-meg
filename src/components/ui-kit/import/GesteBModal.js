@@ -197,6 +197,7 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
               items={items}
               onRemove={c.removeItem}
               onTogglePiece={c.togglePieceById}
+              onRedirectFolder={c.redirectFolder}
               decoupe={decoupe}
               onToggleDecoupe={c.toggleDecoupe}
               onToggleAllDecoupe={c.toggleAllDecoupe}

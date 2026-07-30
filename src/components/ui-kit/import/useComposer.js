@@ -93,6 +93,21 @@ export function useComposer() {
   const removeThread = (tid) => setItems(prev => prev.filter(i => !(i.kind === 'thread' && i.thread.threadId === tid)));
   const removeFolder = (fid) => setItems(prev => prev.filter(i => !(i.kind === 'folder' && i.folder.folderId === fid)));
 
+  // Redirection corrective (« Suivre / Ajouter à la place ») : remplace un bloc
+  // large par l'un de ses sous-dossiers. Un source = un sous-arbre : on ne
+  // s'ajoute pas EN PLUS, on se recentre. L'intention de suivi est reportée.
+  const redirectFolder = (itemId, childFid) => {
+    const wasFollowed = suivre.has(itemId);
+    const it = mkFolderItem(childFid);
+    if (!it) return;
+    setItems(prev => {
+      const rest = prev.filter(i => i.id !== itemId);
+      if (rest.some(i => i.kind === 'folder' && i.folder.folderId === childFid)) return rest;
+      return [...rest, it];
+    });
+    if (wasFollowed) setSuivre(prev => new Set([...prev, it.id]));
+  };
+
   const removeItem = (id) => setItems(prev => prev.filter(i => i.id !== id));
 
   // ── Découpe / suivi ──
@@ -142,7 +157,7 @@ export function useComposer() {
     items, setItems, decoupe, suivre,
     addLocalFiles,
     takeThread, takeManyThreads, togglePieceById,
-    takeFolder, removeThread, removeFolder, removeItem,
+    takeFolder, removeThread, removeFolder, removeItem, redirectFolder,
     toggleDecoupe, toggleAllDecoupe, toggleSuivre, setSuivre,
     stagedFolderIds, threadStateMap,
   };
