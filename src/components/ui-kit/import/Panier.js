@@ -400,12 +400,17 @@ function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, on
         </div>
       )}
       {span.multi && <OverImportWarning nAffaires={span.nAffaires} pieces={span.pieces} />}
+      {/* DÉCISION : l'import est un instantané (curable), le suivi est un flux
+          (toujours ENTIER). Décocher ne troue jamais un suivi - la sélection ne
+          vaut que pour cet import. */}
       {phase2 && (
         <SuivreFoot
           on={suivre.has(item.id)}
           onToggle={() => onToggleSuivre(item.id)}
           label="Suivre ce dossier"
-          hint="échanges et pièces, y compris les futurs sous-dossiers"
+          hint={curated
+            ? 'le suivi porte sur tout le dossier - la sélection ci-dessus ne vaut que pour cet import'
+            : 'échanges et pièces, y compris les futurs sous-dossiers'}
         />
       )}
     </div>

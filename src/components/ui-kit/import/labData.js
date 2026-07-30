@@ -668,21 +668,9 @@ export function folderIncludedCounts(folder) {
   return { threads, pieces, total };
 }
 
-// Pièces d'un thread réellement retenues (cochées).
-export const includedPieces = (thread) => thread.pieces.filter(p => p.included);
 export const threadHasBody = (thread) => thread.pieces.some(p => p.kind === 'body' && p.included);
 export const threadPJs = (thread) => thread.pieces.filter(p => p.kind === 'pj');
 
-// Sous-titre de carte thread : « expéditeur · date · corps + 2 PJ sur 3 »
-// (ou « 0 pièce » - transitoire, la carte quitte le panier au dernier décoché).
-export function threadPieceSummary(thread) {
-  const pjs = threadPJs(thread);
-  const pjIn = pjs.filter(p => p.included).length;
-  const parts = [];
-  if (threadHasBody(thread)) parts.push('corps');
-  if (pjs.length) parts.push(`${pjIn} PJ sur ${pjs.length}`);
-  return parts.length ? parts.join(' + ') : '0 pièce';
-}
 // Sous-titre de carte : expéditeur · date, rien de plus. La composition (corps
 // + PJ) est listée juste en dessous - la répéter en sous-titre est du bruit.
 export const threadCardSubtitle = (thread) => thread.lead;
