@@ -154,7 +154,7 @@ export default function MailColumn({
     return (
       <div
         key={fid}
-        className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
+        className={`group relative flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
         style={inert ? { opacity: 0.55 } : undefined}
       >
         <button
@@ -201,7 +201,7 @@ export default function MailColumn({
     return (
       <React.Fragment key={tid}>
         <div
-          className={`group flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
+          className={`group relative flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
           style={inert ? { opacity: 0.55 } : undefined}
         >
           {/* Corps de ligne : clic = prendre l'échange. Entièrement pris : le
@@ -241,6 +241,11 @@ export default function MailColumn({
                 </span>
               )}
             </span>
+            {/* Aperçu : une phrase qui dit de quoi parle l'échange - décider
+                sans ouvrir. Masqué quand l'échange est couvert par un bloc. */}
+            {tv.summary && !covered && (
+              <span className="text-[11px] text-foreground-muted truncate leading-4 mt-px">{tv.summary}</span>
+            )}
           </button>
           {state.kind === 'full' && <AjouteBadge onRemove={() => removeThread(tid)} title="Retirer l'échange" />}
           {/* Pas de dépliage sur un échange : la gauche prend des objets
@@ -249,7 +254,6 @@ export default function MailColumn({
             <AjouterChip
               onAdd={() => takeThread(tid)}
               label={state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter'}
-              className="mt-0.5"
             />
           )}
         </div>
@@ -272,7 +276,7 @@ export default function MailColumn({
     const hasSub = folderChildren.length > 0;
     return (
       <div
-        className="group mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
+        className="group relative mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
         style={{ borderColor: '#e7e5e3', opacity: inert ? 0.55 : 1 }}
       >
         <span className="flex-1 min-w-0" style={taken ? { opacity: 0.55 } : undefined}>

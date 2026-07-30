@@ -114,21 +114,20 @@ export function AjouteBadge({ onRemove, title = 'Retirer', label = 'Ajouté' }) 
 
 // LE contrôle de prise de la colonne mail (il n'y a pas de case à gauche : la
 // gauche prend des objets entiers, une case qui ne se coche jamais serait un
-// mensonge de contrôle). Même place, même géométrie que le badge « Ajouté » :
-// survoler une ligne disponible montre son futur (« + Ajouter » → « Ajouté »).
-// L'espace est réservé (opacity) pour que rien ne saute ; révélé aussi au
-// focus clavier.
-export function AjouterChip({ onAdd, label = 'Ajouter', title, className = '' }) {
+// mensonge de contrôle). Il ne réserve PAS d'espace : il flotte en absolu au
+// bord droit et n'apparaît qu'au survol / focus, POSÉ sur le contenu (fond
+// plein + ombre) - la ligne garde toute sa largeur pour son contenu.
+export function AjouterChip({ onAdd, label = 'Ajouter', title }) {
   return (
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
-      className={`inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ${className}`}
-      style={{ backgroundColor: '#ffffff', border: '1px solid #d6d3d1', color: '#292524' }}
+      className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-opacity"
+      style={{ backgroundColor: '#ffffff', border: '1px solid #d6d3d1', color: '#292524', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.16), 0 1px 2px rgba(28,25,23,0.10)' }}
       title={title}
       aria-label={title || label}
     >
-      <Plus className="w-2.5 h-2.5" strokeWidth={2.5} />
+      <Plus className="w-3 h-3" strokeWidth={2.5} />
       {label}
     </button>
   );

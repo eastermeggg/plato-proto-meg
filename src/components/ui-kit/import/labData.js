@@ -237,6 +237,18 @@ const STUB_PJ = [
   'CR_consultation.pdf', 'Bordereau_communication.pdf',
 ];
 const STUB_DATES = ['2026-07-21', '2026-07-09', '2026-06-28', '2026-06-15', '2026-05-30', '2026-05-11'];
+// Aperçu d'une ligne (résumé synthétique du fil) - la même règle que les vrais
+// threads : une phrase qui dit de quoi parle l'échange.
+const STUB_SNIPPETS = [
+  'Transmission des pièces réclamées par le confrère, avec accusé de réception.',
+  'Réponse à votre courrier : compléments demandés sur le dossier en cours.',
+  'Convocation à l\'audience de mise en état, calendrier de procédure joint.',
+  'Complément de justificatifs de frais pour le poste de préjudice concerné.',
+  'Certificat médical actualisé transmis par le secrétariat du praticien.',
+  'Discussion sur la proposition d\'indemnisation et les postes contestés.',
+  'Attestation demandée en vue de la constitution du dossier probatoire.',
+  'Compte rendu de consultation et suites envisagées par le médecin.',
+];
 
 // Échanges déterministes d'un dossier synthétique - AUTANT que ce que la
 // carte « en entier » annonce (statsFor) : l'aperçu montre tout, jamais de
@@ -254,6 +266,7 @@ export function synthThreadsFor(folderId) {
       synthetic: true,
       folderId,
       subject: i >= STUB_SUBJECTS.length ? `Re : ${base.replace(/^Re : /, '')}` : base,
+      snippet: STUB_SNIPPETS[(h + i * 2) % STUB_SNIPPETS.length],
       senderLabel: STUB_SENDER_LABELS[(h + i * 3) % STUB_SENDER_LABELS.length],
       date: STUB_DATES[(h + i) % STUB_DATES.length],
       messageCount: 1 + ((h + i) % 6),
@@ -271,7 +284,7 @@ export function threadView(t) {
   if (t.synthetic) {
     return {
       id: t.id, synthetic: true, folderId: t.folderId,
-      subject: t.subject, illegible: false,
+      subject: t.subject, illegible: false, summary: t.snippet || null,
       sender: t.senderLabel, date: t.date,
       msg: t.messageCount, pj: t.attachmentCount,
       attachments: (t.attachments || []).map(a => ({ name: a.name, decoupable: /\.(pdf|docx?)$/i.test(a.name) })),
@@ -281,6 +294,9 @@ export function threadView(t) {
   return {
     id: t.id, synthetic: false, folderId: t.folderId,
     subject: ds.text, illegible: ds.illegible,
+    // Aperçu : le résumé synthétisé du fil, sinon l'extrait brut. Jamais quand
+    // l'objet est illisible - dans ce cas le résumé EST déjà le sujet affiché.
+    summary: ds.illegible ? null : (t.summary || t.snippet || null),
     sender: senderLine(t), date: t.date,
     msg: t.messageCount, pj: t.attachmentCount,
     attachments: (t.attachments || []).map(a => ({ name: a.name, decoupable: /\.(pdf|docx?)$/i.test(a.name), type: a.pool?.type })),
