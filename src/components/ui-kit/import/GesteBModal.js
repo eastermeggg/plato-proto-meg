@@ -4,16 +4,14 @@
 // est suivi par défaut (création = déclaration de miroir) ; un thread reste
 // OFF. « ← Retour » préserve la composition.
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, X } from 'lucide-react';
 import Button from '../../ui/Button';
-import { ModalOverlay, Droppable, monoLabel, usePhase2 } from './atoms';
+import { ModalOverlay, Droppable, ConfirmDialog, monoLabel, usePhase2 } from './atoms';
 import MailColumn from './MailColumn';
 import Panier from './Panier';
-import {
-  buildStagedItems, localFileToItem, MOCK_LOCAL_FILES, approxPieces,
-  decoupableKeys, folderById,
-} from './labData';
+import { useComposer } from './useComposer';
+import { approxPieces, composerRecap, folderById } from './labData';
 
 const MAIL_W = 440;
 
@@ -24,89 +22,67 @@ const inputStyle = { border: '1px solid #e7e5e3', boxShadow: '0px 1px 1px rgba(2
 // (dossier Outlook miroir d'une AUTRE affaire) reste pertinent.
 export default function GesteBModal({ onClose, onCommit, connected, onConnect }) {
   const phase2 = usePhase2();
+  const c = useComposer();
+  const { items, decoupe, suivre } = c;
   const [step, setStep] = useState(1);
   const [nom, setNom] = useState('');
   const [client, setClient] = useState('');
-  const [items, setItems] = useState([]);
-  const [decoupe, setDecoupe] = useState(() => new Set());
-  const [suivre, setSuivre] = useState(() => new Set());
-  const [selection, setSelection] = useState({ folders: new Set(), threads: new Set() });
-  const [includePJ, setIncludePJ] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
-  const fileCursor = useRef(0);
-  const timers = useRef([]);
   // Nom prérempli depuis le PREMIER dossier Outlook coché uniquement, jamais
   // par-dessus une saisie : on retient ce que l'auto-nommage a écrit.
   const autoNameRef = useRef(null);
+  const [confirmClose, setConfirmClose] = useState(false);
+
+  // Garde-fou de fermeture : fiche saisie ou contenu composé → on demande
+  // avant de détruire (Échap, voile, ✕, Annuler).
+  const dirty = items.length > 0 || nom.trim() !== '' || client.trim() !== '';
+  const requestClose = () => { if (dirty) setConfirmClose(true); else onClose(); };
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (confirmClose) { setConfirmClose(false); return; }
+      if (dirty) setConfirmClose(true); else onClose();
+    };
     window.addEventListener('keydown', onKey);
-    const t = timers.current;
-    return () => { window.removeEventListener('keydown', onKey); t.forEach(clearTimeout); };
-  }, [onClose]);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose, dirty, confirmClose]);
 
-  const settle = (ids) => {
-    const t = setTimeout(() => {
-      setItems(prev => prev.map(i => (ids.includes(i.id) && i.status === 'uploading' ? { ...i, status: 'ready' } : i)));
-    }, 1400);
-    timers.current.push(t);
-  };
+  const confirmDialog = confirmClose && (
+    <ConfirmDialog title="Abandonner la création ?" onClose={() => setConfirmClose(false)}>
+      <p className="px-5 pt-1 pb-3 text-[13px] text-foreground-secondary leading-5">
+        La fiche{items.length > 0 ? ' et le contenu composé' : ''} seront perdus - le dossier n'a pas encore été créé.
+      </p>
+      <div className="px-5 pb-4 flex items-center justify-end gap-2.5">
+        <Button variant="secondary" size="md" label="Continuer" onClick={() => setConfirmClose(false)} />
+        <Button variant="primary" size="md" label="Abandonner" onClick={onClose} />
+      </div>
+    </ConfirmDialog>
+  );
 
-  const addLocalFiles = (n = 1) => {
-    const added = Array.from({ length: n }, () => localFileToItem(MOCK_LOCAL_FILES[fileCursor.current++ % MOCK_LOCAL_FILES.length]));
-    setItems(prev => [...prev, ...added]);
-    settle(added.map(i => i.id));
-  };
-
-  const addFromTray = (picked) => {
-    const added = buildStagedItems(picked, items);
-    if (!added.length) return;
-    // Sync par défaut : ON pour un dossier Outlook coché à la création
-    // (miroir - seul opt-out du système), OFF pour un thread.
-    if (phase2) {
-      const folderIds = added.filter(i => i.kind === 'folder').map(i => i.id);
-      if (folderIds.length) setSuivre(s => new Set([...s, ...folderIds]));
-    }
-    // Nom prérempli depuis le premier dossier coché, jamais par-dessus une saisie.
-    const firstFolder = added.find(i => i.kind === 'folder');
-    if (firstFolder && (nom.trim() === '' || nom === autoNameRef.current)) {
-      const fname = folderById(firstFolder.folder.folderId)?.name || firstFolder.folder.name;
+  // Prendre un dossier à la création : suivi par défaut ON (miroir, seul opt-out
+  // du système) et nom prérempli depuis le premier dossier coché.
+  const takeFolderB = (fid) => {
+    const it = c.takeFolder(fid);
+    if (!it) return it;
+    if (phase2) c.setSuivre(s => new Set([...s, it.id]));
+    if (nom.trim() === '' || nom === autoNameRef.current) {
+      const fname = folderById(fid)?.name || it.folder.name;
       autoNameRef.current = fname;
       setNom(fname);
     }
-    setItems(prev => [...prev, ...added]);
+    return it;
   };
-
-  const removeItem = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id));
-    setSuivre(prev => { const n = new Set(prev); n.delete(id); return n; });
-  };
-
-  const toggleDecoupe = (key) => setDecoupe(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
-  const allKeys = useMemo(() => items.flatMap(decoupableKeys).map(k => k.key), [items]);
-  const toggleAllDecoupe = () => setDecoupe(prev => {
-    const allOn = allKeys.length > 0 && allKeys.every(k => prev.has(k));
-    return allOn ? new Set() : new Set(allKeys);
-  });
-  const toggleSuivre = (id) => setSuivre(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-
-  const stagedFolderIds = useMemo(() => new Set(items.filter(i => i.kind === 'folder').map(i => i.folder.folderId)), [items]);
-  const stagedThreadIds = useMemo(() => new Set(items.filter(i => i.kind === 'thread' && i.thread.threadId).map(i => i.thread.threadId)), [items]);
 
   const nameOk = nom.trim().length > 0;
   const nPieces = approxPieces(items, decoupe);
+  const detail = composerRecap(items);
   const nSuivis = phase2 ? suivre.size : 0;
   const uploading = items.some(i => i.status === 'uploading');
-  const nFiles = items.filter(i => i.kind === 'file').length;
-  const nThreads = items.filter(i => i.kind === 'thread').length;
-  const nFolders = items.filter(i => i.kind === 'folder').length;
 
   const recap = items.length === 0 ? 'Aucun contenu pour l\'instant - vous pouvez créer le dossier vide' : [
     `≈ ${nPieces} pièce${nPieces > 1 ? 's' : ''}`,
-    nFiles ? `${nFiles} fichier${nFiles > 1 ? 's' : ''}` : null,
-    nThreads ? `${nThreads} échange${nThreads > 1 ? 's' : ''}` : null,
-    nFolders ? `${nFolders} dossier${nFolders > 1 ? 's' : ''} Outlook` : null,
+    detail || null,
     decoupe.size ? `${decoupe.size} découpé${decoupe.size > 1 ? 's' : ''}` : null,
     nSuivis ? `${nSuivis} source${nSuivis > 1 ? 's' : ''} suivie${nSuivis > 1 ? 's' : ''}` : null,
   ].filter(Boolean).join(' · ');
@@ -121,12 +97,12 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
   };
 
   return (
-    <ModalOverlay onClose={onClose}>
+    <ModalOverlay onClose={requestClose}>
       {step === 1 ? (
-        <div className="bg-white rounded-md w-full h-full flex flex-col overflow-hidden" style={{ boxShadow: '0px 25px 50px -12px rgba(0,0,0,0.25)' }}>
+        <div className="relative bg-white rounded-md w-full h-full flex flex-col overflow-hidden" style={{ boxShadow: '0px 25px 50px -12px rgba(0,0,0,0.25)' }} role="dialog" aria-modal="true" aria-label="Nouveau dossier">
           <div className="flex items-center justify-between px-5 pt-4 pb-[15px] border-b border-border flex-shrink-0">
             <h2 className="text-foreground" style={{ fontFamily: 'Georgia, serif', fontSize: 18, lineHeight: '20px', letterSpacing: '-0.5px' }}>Nouveau dossier</h2>
-            <button type="button" onClick={onClose} className="inline-flex items-center justify-center w-[26px] h-[26px] rounded bg-cream text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0" title="Fermer">
+            <button type="button" onClick={requestClose} className="inline-flex items-center justify-center w-[26px] h-[26px] rounded bg-cream text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0" title="Fermer">
               <X className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
@@ -165,17 +141,25 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
               </div>
             </div>
           </div>
+          {confirmDialog}
         </div>
       ) : (
-        <Droppable onFiles={() => addLocalFiles(2)} className="bg-white rounded-md w-full h-full flex flex-col overflow-hidden" style={{ boxShadow: '0px 25px 50px -12px rgba(0,0,0,0.25)' }}>
+        <Droppable
+          onFiles={() => c.addLocalFiles(2)}
+          className="bg-white rounded-md w-full h-full flex flex-col overflow-hidden"
+          style={{ boxShadow: '0px 25px 50px -12px rgba(0,0,0,0.25)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Contenu initial de ${nom.trim()}`}
+        >
           <div className="flex items-center justify-between px-5 pt-4 pb-[15px] border-b border-border flex-shrink-0">
             <div className="flex items-baseline gap-2.5 min-w-0">
               <h2 className="text-foreground flex-shrink-0" style={{ fontFamily: 'Georgia, serif', fontSize: 18, lineHeight: '20px', letterSpacing: '-0.5px' }}>
                 Contenu initial de « {nom.trim()} »
               </h2>
-              <span className="text-[13px] text-foreground-muted flex-shrink-0" style={monoLabel}>Étape 2 · Contenu initial</span>
+              <span className="flex-shrink-0" style={monoLabel}>Étape 2 sur 2</span>
             </div>
-            <button type="button" onClick={onClose} className="inline-flex items-center justify-center w-[26px] h-[26px] rounded bg-cream text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0" title="Fermer">
+            <button type="button" onClick={requestClose} className="inline-flex items-center justify-center w-[26px] h-[26px] rounded bg-cream text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0" title="Fermer">
               <X className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
@@ -183,20 +167,27 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
           <div className="flex-1 min-h-0 flex">
             <div
               className="relative flex-shrink-0 h-full"
-              style={{ width: collapsed ? 0 : MAIL_W, overflow: 'hidden', transition: 'width 320ms cubic-bezier(0.4,0,0.2,1)' }}
+              style={{
+                width: collapsed ? 0 : MAIL_W, overflow: 'hidden',
+                visibility: collapsed ? 'hidden' : 'visible',
+                transition: `width 320ms cubic-bezier(0.4,0,0.2,1), visibility 0s ${collapsed ? '320ms' : '0s'}`,
+              }}
               aria-hidden={collapsed || undefined}
             >
               <div className="absolute inset-y-0 left-0" style={{ width: MAIL_W }}>
                 <MailColumn
                   width={MAIL_W}
-                  selection={selection}
-                  onSelectionChange={setSelection}
-                  includePJ={includePJ}
-                  onIncludePJ={setIncludePJ}
-                  onAddToBasket={addFromTray}
-                  stagedFolderIds={stagedFolderIds}
-                  stagedThreadIds={stagedThreadIds}
-                  habituels={false}
+                  threadStateMap={c.threadStateMap}
+                  stagedFolderIds={c.stagedFolderIds}
+                  takeThread={c.takeThread}
+                  takeManyThreads={c.takeManyThreads}
+                  takePiece={c.takePiece}
+                  untakePiece={c.untakePiece}
+                  takeFolder={takeFolderB}
+                  removeFolder={c.removeFolder}
+                  removeThread={c.removeThread}
+                  dejaSuiviFolderIds={new Set()}
+                  dejaSuiviThreadIds={new Set()}
                   connected={connected}
                   onConnect={onConnect}
                   onCollapse={() => setCollapsed(true)}
@@ -206,16 +197,16 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
 
             <Panier
               items={items}
-              onRemove={removeItem}
+              onRemove={c.removeItem}
+              onTogglePiece={c.togglePieceById}
               decoupe={decoupe}
-              onToggleDecoupe={toggleDecoupe}
-              onToggleAllDecoupe={toggleAllDecoupe}
+              onToggleDecoupe={c.toggleDecoupe}
+              onToggleAllDecoupe={c.toggleAllDecoupe}
               suivre={suivre}
-              onToggleSuivre={toggleSuivre}
-              onAddFiles={() => addLocalFiles(1)}
+              onToggleSuivre={c.toggleSuivre}
+              onAddFiles={() => c.addLocalFiles(1)}
               collapsed={collapsed}
               onExpand={() => setCollapsed(false)}
-              expandBadge={selection.folders.size + selection.threads.size}
               introCopy={`Composez le contenu initial de « ${nom.trim()} » - boîte mail à gauche, ordinateur ici.`}
             />
           </div>
@@ -228,15 +219,16 @@ export default function GesteBModal({ onClose, onCommit, connected, onConnect })
               <p className="text-[13px] text-foreground-secondary truncate">{recap}</p>
             </div>
             <div className="flex items-center gap-2.5 flex-shrink-0">
-              <Button variant="secondary" size="md" label="Annuler" onClick={onClose} />
+              <Button variant="secondary" size="md" label="Annuler" onClick={requestClose} />
               <Button
                 variant="primary" size="md"
-                label={uploading ? 'Import en cours…' : nSuivis > 0 ? 'Créer et suivre' : 'Créer le dossier'}
+                label={uploading ? 'Réception des fichiers…' : nSuivis > 0 ? 'Créer et suivre' : 'Créer le dossier'}
                 onClick={() => create(false)}
                 disabled={!nameOk || uploading}
               />
             </div>
           </div>
+          {confirmDialog}
         </Droppable>
       )}
     </ModalOverlay>

@@ -3,7 +3,7 @@
 // Nouveau (bleu) · échecs (rouge/ambre).
 
 import React, { createContext, useContext, useState } from 'react';
-import { ArrowDown, Check, Scissors, AlertTriangle, Mail } from 'lucide-react';
+import { ArrowDown, Check, Minus, Scissors, AlertTriangle, Mail, X } from 'lucide-react';
 import outlookLogo from '../../../assets/outlook.svg';
 
 // ── Phase (le calque sync se lève d'un flag - rien ne change de place) ──────
@@ -11,7 +11,7 @@ export const PhaseContext = createContext(2);
 export const usePhase2 = () => useContext(PhaseContext) === 2;
 
 // ── Typo utilitaire ─────────────────────────────────────────────────────────
-export const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: '#a8a29e' };
+export const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: '#78716c' };
 
 export function SectionLabel({ children, right, className = '' }) {
   return (
@@ -59,7 +59,8 @@ export function LabSeg({ options, value, onChange }) {
 }
 
 // Une seule sémantique de coche, partout : cocher = prendre le contenu.
-export function Checkbox({ checked, disabled = false, onToggle, title, className = '' }) {
+// `partial` : état partiel (thread partiellement pris) - barre + aria mixed.
+export function Checkbox({ checked, partial = false, disabled = false, onToggle, title, className = '' }) {
   if (disabled) {
     return (
       <span
@@ -70,17 +71,43 @@ export function Checkbox({ checked, disabled = false, onToggle, title, className
       />
     );
   }
+  const on = checked || partial;
   return (
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onToggle?.(); }}
       className={`flex-shrink-0 ${className}`}
       title={title}
-      aria-pressed={checked}
+      aria-label={title}
+      aria-checked={partial ? 'mixed' : checked}
+      role="checkbox"
     >
-      <span className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border transition-colors ${checked ? 'bg-foreground border-foreground' : 'bg-white border-border-strong'}`} style={checked ? undefined : { boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}>
-        {checked && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+      <span className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border transition-colors ${on ? 'bg-foreground border-foreground' : 'bg-white border-border-strong'}`} style={on ? undefined : { boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}>
+        {partial ? <Minus className="w-3 h-3 text-white" strokeWidth={3} /> : checked ? <Check className="w-3 h-3 text-white" strokeWidth={3} /> : null}
       </span>
+    </button>
+  );
+}
+
+// Badge « Ajouté » - GRIS neutre (le vert est réservé à « Suivi »). Cliquable
+// pour retirer : il vire au rouge au survol pour annoncer le retrait. Sert
+// d'affordance sur toute ligne entièrement prise (colonne mail).
+export function AjouteBadge({ onRemove, title = 'Retirer', label = 'Ajouté' }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 transition-colors"
+      style={hover
+        ? { backgroundColor: '#fbe9e7', color: '#b4483c' }
+        : { backgroundColor: '#eeece6', color: '#78716c' }}
+      title={title}
+    >
+      {hover ? <X className="w-2.5 h-2.5" strokeWidth={2.5} /> : <Check className="w-2.5 h-2.5" strokeWidth={2.5} />}
+      {hover ? 'Retirer' : label}
     </button>
   );
 }
@@ -146,9 +173,11 @@ export function TypeChip({ children }) {
 }
 
 // ── Découpe (spec §6) ───────────────────────────────────────────────────────
-// off : « Découper » (sobre) · on : pill verte « Sera découpé » - re-clic
-// annule. Jamais de compte de pièces détectées affiché ; jamais sur images ni
-// emails (le parent ne rend pas le contrôle).
+// off : « Découper » (sobre) · on : pill sombre « Sera découpé » - re-clic
+// annule. Le VERT est réservé à « Suivi » (vocabulaire des couleurs) : l'état
+// actif reprend le sombre des cases cochées. Jamais de compte de pièces
+// détectées affiché ; jamais sur images ni emails (le parent ne rend pas le
+// contrôle).
 export function DecoupeControl({ on, onToggle }) {
   if (on) {
     return (
@@ -156,7 +185,7 @@ export function DecoupeControl({ on, onToggle }) {
         type="button"
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
         className="inline-flex items-center gap-1 h-6 px-2 rounded-full text-[11px] font-medium flex-shrink-0 transition-colors"
-        style={{ backgroundColor: '#e4efe8', color: '#3d7a57' }}
+        style={{ backgroundColor: '#292524', color: '#f5f4f1' }}
         title="Annuler la découpe"
       >
         <Check className="w-3 h-3" strokeWidth={2.5} />
@@ -203,10 +232,11 @@ export function DropOverlay() {
 }
 
 // La surface entière est déposable : overlay dès le dragenter.
-export function Droppable({ onFiles, className, style, children }) {
+export function Droppable({ onFiles, className, style, children, ...rest }) {
   const [drag, setDrag] = useState(false);
   return (
     <div
+      {...rest}
       className={className}
       style={{ position: 'relative', ...style }}
       onDragEnter={(e) => { if (e.dataTransfer?.types?.includes('Files')) { e.preventDefault(); setDrag(true); } }}
