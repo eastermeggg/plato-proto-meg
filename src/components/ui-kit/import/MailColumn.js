@@ -118,6 +118,27 @@ export default function MailColumn({
     .filter(tv => !(phase2 && dejaSuiviThreadIds.has(tv.id)) && !threadCovered(tv.id) && threadState(tv).kind !== 'full')
     .map(tv => tv.id);
 
+  // Les threads couverts par un bloc pris ne se rendent PAS ligne par ligne
+  // (N lignes inertes identiques = bruit sans action) : ils se replient en une
+  // ligne de résumé par dossier couvrant. Le contenu reste visible dans
+  // l'aperçu du panier ; retirer le bloc les fait tous réapparaître.
+  const splitCovered = (tvs) => {
+    const visible = [];
+    const covered = new Map(); // nom du dossier couvrant → nombre d'échanges
+    tvs.forEach(tv => {
+      const cb = threadCoveredBy(tv.id);
+      if (cb) covered.set(cb.name, (covered.get(cb.name) || 0) + 1);
+      else visible.push(tv);
+    });
+    return { visible, covered: [...covered.entries()] };
+  };
+
+  const coveredLines = (covered) => covered.map(([name, n]) => (
+    <p key={name} className="px-3 py-1.5 text-[11px] text-foreground-muted">
+      {n} échange{n > 1 ? 's' : ''} inclus via « {name} » - aperçu dans le panier
+    </p>
+  ));
+
   // ── Enfant d'un thread (corps ou PJ) ──
   const childRow = (tid, { key, icon: Icon, iconColor, label, sub, msgBadge }) => {
     const included = pieceIncluded(tid, key);
@@ -344,14 +365,16 @@ export default function MailColumn({
   const rootView = () => {
     const roots = rootFolders();
     const nThreadsShown = Math.max(0, CAP_THREADS - roots.length);
-    const shown = recentThreads.slice(0, nThreadsShown);
+    const { visible, covered } = splitCovered(recentThreads);
+    const shown = visible.slice(0, nThreadsShown);
     return (
       <>
         <MonoHeader>Dossiers Outlook</MonoHeader>
         {roots.map(f => folderRow(f))}
         <MonoHeader>Échanges récents</MonoHeader>
         {shown.map(tv => threadRow(tv))}
-        <CapLine n={recentThreads.length - shown.length} />
+        {coveredLines(covered)}
+        <CapLine n={visible.length - shown.length} />
       </>
     );
   };
@@ -359,7 +382,8 @@ export default function MailColumn({
   const searchView = () => {
     const { folders, threads } = searchResults;
     const fShown = folders.slice(0, CAP_FOLDERS);
-    const tShown = threads.slice(0, CAP_THREADS);
+    const { visible, covered } = splitCovered(threads);
+    const tShown = visible.slice(0, CAP_THREADS);
     // « Tout » = tous les résultats, pas la tranche affichée.
     const takeable = takeableOf(threads);
     if (folders.length === 0 && threads.length === 0) {
@@ -379,11 +403,12 @@ export default function MailColumn({
             <CapLine n={folders.length - fShown.length} />
           </>
         )}
-        {tShown.length > 0 && (
+        {(tShown.length > 0 || covered.length > 0) && (
           <>
             <MonoHeader right={<SelectAll takeableTids={takeable} onTake={takeManyThreads} />}>Échanges · {threads.length}</MonoHeader>
             {tShown.map(tv => threadRow(tv))}
-            <CapLine n={threads.length - tShown.length} />
+            {coveredLines(covered)}
+            <CapLine n={visible.length - tShown.length} />
           </>
         )}
       </>
@@ -391,8 +416,11 @@ export default function MailColumn({
   };
 
   const drillView = () => {
-    // Couvert = ce dossier OU un de ses parents est pris en bloc.
-    const folderTaken = coveringFolderOf(currentFolderId) != null;
+    // Couvert = ce dossier OU un de ses parents est pris en bloc. Dans ce cas
+    // la carte « en entier » porte déjà l'état (badge « Ajouté » = le seul
+    // inverseur) : on ne répète pas N lignes inertes en dessous, une seule
+    // ligne renvoie à l'aperçu du panier.
+    const covering = coveringFolderOf(currentFolderId);
     const shownThreads = folderThreads.slice(0, CAP_THREADS);
     const hidden = folderThreads.length - shownThreads.length;
     // « Tout » = tous les échanges du dossier, pas la tranche affichée.
@@ -400,14 +428,10 @@ export default function MailColumn({
     return (
       <>
         {enEntierCard()}
-        {folderTaken ? (
-          <>
-            <div className="px-3 pt-3 pb-1"><span style={monoLabel}>Inclus ci-dessus</span></div>
-            <div style={{ pointerEvents: 'none' }} aria-hidden>
-              {folderChildren.map(f => folderRow(f))}
-              {shownThreads.map(tv => threadRow(tv))}
-            </div>
-          </>
+        {covering ? (
+          <p className="px-4 py-2.5 text-[11px] text-foreground-muted leading-4">
+            Tout le contenu est inclus - aperçu en lecture seule dans le panier.
+          </p>
         ) : (
           <>
             <MonoHeader right={<SelectAll takeableTids={takeable} onTake={takeManyThreads} />}>Contenu du dossier</MonoHeader>
