@@ -10,13 +10,71 @@
 // (source de vérité unique).
 
 import React, { useMemo, useRef, useState } from 'react';
-import { Check, ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
+import { Check, ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck, FileText } from 'lucide-react';
 import {
   normalize, relDate, LAB_THREADS, LAB_FOLDERS,
   folderById, folderBreadcrumb, childFolders, rootFolders, statsForDeep, threadsOfFolder,
-  threadView, folderOfThread, ancestorFolderIds, DEJA_LIE,
+  threadView, folderOfThread, ancestorFolderIds, DEJA_LIE, threadPreview,
 } from './labData';
 import { AjouteBadge, AjouterChip, DejaSuiviBadge, DejaImporteBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
+
+// Carte au survol : comprendre un échange sans l'ouvrir. Flotte à droite de la
+// ligne survolée (position fixe → échappe au clip de la colonne).
+function ThreadPreviewCard({ tid, rect }) {
+  const p = threadPreview(tid);
+  if (!p) return null;
+  const CARD_W = 340;
+  let left = rect.right + 8;
+  if (left + CARD_W > window.innerWidth - 12) left = Math.max(12, rect.left - CARD_W - 8);
+  const top = Math.min(Math.max(12, rect.top - 4), window.innerHeight - 380);
+  return (
+    <div
+      className="fixed z-[80] rounded-xl border border-border bg-white overflow-hidden flex flex-col pointer-events-none"
+      style={{ left, top, width: CARD_W, maxHeight: 380, boxShadow: '0 20px 45px -12px rgba(28,25,23,0.30)' }}
+    >
+      <div className="px-3.5 pt-3 pb-2.5 border-b border-border flex-shrink-0">
+        <div className="flex items-start gap-2">
+          <Mail className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
+          <div className="min-w-0">
+            <p className={`text-[13px] leading-4 ${p.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{p.subject}</p>
+            <p className="text-[11px] text-foreground-muted mt-0.5 truncate">{p.sender} · {p.date}</p>
+          </div>
+        </div>
+        {p.summary && <p className="text-[12px] text-foreground-secondary leading-[17px] mt-2">{p.summary}</p>}
+      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto px-3.5 py-2.5">
+        <p className="mb-1.5" style={monoLabel}>Pièces · {p.pieces.length}</p>
+        <div className="flex flex-col gap-1.5">
+          {p.pieces.map((pc, i) => {
+            const Icon = pc.kind === 'body' ? Mail : FileText;
+            return (
+              <div key={i} className="flex items-start gap-2 min-w-0">
+                <Icon className="w-3.5 h-3.5 flex-shrink-0 mt-px" strokeWidth={1.75} style={{ color: pc.kind === 'body' ? '#1e3a8a' : '#b4483c' }} />
+                <div className="min-w-0">
+                  <p className="text-[12px] text-foreground truncate">
+                    {pc.name}
+                    {pc.detail && <span className="text-foreground-muted"> · {pc.detail}</span>}
+                    {pc.type && <span className="ml-1.5 inline-flex items-center h-4 px-1 rounded bg-cream text-[9px] font-medium text-foreground-tertiary align-middle">{pc.type}</span>}
+                  </p>
+                  {pc.summary && <p className="text-[11px] text-foreground-muted leading-4 truncate">{pc.summary}</p>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {p.info && (
+          <div className="mt-2.5 pt-2 border-t border-border-subtle flex flex-wrap gap-1">
+            {Object.entries(p.info).slice(0, 4).map(([k, v]) => (
+              <span key={k} className="inline-flex items-center gap-1 h-5 px-1.5 rounded bg-background-canvas text-[10px] text-foreground-secondary">
+                <span className="text-foreground-muted">{k}</span> <span className="font-medium text-foreground truncate" style={{ maxWidth: 130 }}>{String(v)}</span>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 import outlookLogo from '../../../assets/outlook.svg';
 
 const CAP_THREADS = 30;
@@ -70,6 +128,17 @@ export default function MailColumn({
   const [path, setPath] = useState([]); // folderIds, racine = []
   const listRef = useRef(null);
   const q = normalize(query.trim());
+
+  // Carte au survol : ouverte après un court délai (anti-flicker), fermée au
+  // départ ou au scroll (le rect deviendrait obsolète).
+  const [preview, setPreview] = useState(null); // { tid, rect }
+  const previewTimer = useRef(null);
+  const openPreview = (tid, el) => {
+    clearTimeout(previewTimer.current);
+    const rect = el.getBoundingClientRect();
+    previewTimer.current = setTimeout(() => setPreview({ tid, rect }), 340);
+  };
+  const closePreview = () => { clearTimeout(previewTimer.current); setPreview(null); };
 
   const currentFolderId = path.length ? path[path.length - 1] : null;
   const currentFolder = currentFolderId ? folderById(currentFolderId) : null;
@@ -220,6 +289,8 @@ export default function MailColumn({
         <div
           className={`group relative flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
           style={inert ? { opacity: 0.55 } : undefined}
+          onMouseEnter={(e) => openPreview(tid, e.currentTarget)}
+          onMouseLeave={closePreview}
         >
           {/* Corps de ligne : clic = prendre l'échange. Un échange AJOUTÉ reste
               en plein contraste (c'est un objet acquis, pas un impossible) - le
@@ -476,11 +547,12 @@ export default function MailColumn({
             </div>
           )}
 
-          <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto px-1.5 pb-2">
+          <div ref={listRef} onScroll={closePreview} className="flex-1 min-h-0 overflow-y-auto px-1.5 pb-2">
             {q ? searchView() : path.length > 0 ? drillView() : rootView()}
           </div>
         </>
       )}
+      {preview && <ThreadPreviewCard tid={preview.tid} rect={preview.rect} />}
     </div>
   );
 }

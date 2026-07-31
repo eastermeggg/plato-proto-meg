@@ -406,6 +406,31 @@ export const folderOfThread = (tid) => {
   return m ? m[1] : null;
 };
 
+// Aperçu riche d'un échange (carte au survol) : de quoi décider VITE sans ouvrir.
+// Sujet · expéditeur · date · résumé du fil · pièces (corps + PJ avec type /
+// pages / résumé) · infos extraites. Enrichi depuis le seed si dispo.
+export function threadPreview(tid) {
+  const tv = threadViewById(tid);
+  if (!tv) return null;
+  const raw = threadById(tid);
+  const poolByName = raw ? Object.fromEntries((raw.attachments || []).map(a => [a.name, a.pool])) : {};
+  const pieces = [
+    { kind: 'body', name: 'Corps du mail', detail: tv.msg > 1 ? `${tv.msg} messages` : '1 message', type: null, summary: raw?.body?.summary || null },
+    ...tv.attachments.map(a => {
+      const pool = poolByName[a.name];
+      return { kind: 'pj', name: a.name, type: pool?.type || a.type || null, detail: pool?.pages ? `${pool.pages} p.` : null, summary: pool?.summary || null };
+    }),
+  ];
+  const info = raw?.body?.extractedInfo || null;
+  return {
+    subject: tv.subject, illegible: tv.illegible, sender: tv.sender, date: relDate(tv.date),
+    msg: tv.msg, pj: tv.pj,
+    summary: raw?.body?.summary || tv.summary || null,
+    pieces,
+    info: info && Object.keys(info).length ? info : null,
+  };
+}
+
 // ── Habituels (frecency par dossier Plato, max 6, dédupliqués) ─────────────
 export const LAB_HABITUELS = [
   { kind: 'folder', id: 'f-leblanc' },
