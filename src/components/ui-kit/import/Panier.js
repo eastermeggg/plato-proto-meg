@@ -206,21 +206,21 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
 // « Tout découper » contextuel (dossier / sous-dossier / échange) : bascule la
 // découpe de TOUTES les PJ découpables retenues sous le nœud. Tri-état, révélé
 // au survol (visible dès qu'au moins une est découpée).
+// Discret par principe : révélé au survol, JAMAIS de pastille de compteur
+// persistante (trop bruyant sur chaque niveau). Le détail se lit sur les PJ
+// elles-mêmes. Le libellé bascule « Tout découper » ⇄ « Tout recoller ».
 function NodeDecoupeControl({ keys, decoupe, onToggleMany, revealOnHover = true }) {
   const on = keys.reduce((a, k) => a + (decoupe.has(k) ? 1 : 0), 0);
-  const state = on === 0 ? 'none' : on === keys.length ? 'all' : 'some';
-  const active = state !== 'none';
-  const idle = !active && revealOnHover;
+  const allOn = on === keys.length;
   return (
     <button
       type="button"
-      onClick={(e) => { e.stopPropagation(); onToggleMany(keys, state !== 'all'); }}
-      className={`inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium flex-shrink-0 transition-all ${idle ? 'opacity-0 group-hover/node:opacity-100 focus-visible:opacity-100' : ''} ${active ? '' : 'text-foreground-secondary hover:text-foreground hover:bg-cream'}`}
-      style={active ? (state === 'all' ? { backgroundColor: '#292524', color: '#f5f4f1' } : { backgroundColor: '#e7e5e3', color: '#57534e' }) : undefined}
-      title={state === 'all' ? 'Annuler la découpe' : 'Découper toutes les pièces découpables'}
+      onClick={(e) => { e.stopPropagation(); onToggleMany(keys, !allOn); }}
+      className={`inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium flex-shrink-0 text-foreground-secondary hover:text-foreground hover:bg-cream transition-all ${revealOnHover ? 'opacity-0 group-hover/node:opacity-100 focus-visible:opacity-100' : ''}`}
+      title={allOn ? 'Recoller ces pièces' : 'Découper toutes les pièces découpables de ce niveau'}
     >
       <Scissors className="w-3 h-3" strokeWidth={1.75} />
-      {state === 'all' ? 'Tout découpé' : state === 'some' ? `${on}/${keys.length} découpés` : 'Tout découper'}
+      {allOn ? 'Tout recoller' : 'Tout découper'}
     </button>
   );
 }
