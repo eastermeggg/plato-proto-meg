@@ -5,12 +5,12 @@
 // curation se fait à gauche.
 
 import React, { useState } from 'react';
-import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle } from 'lucide-react';
+import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle, Scissors } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
 import {
   decoupableKeys, threadCardSubtitle,
-  folderIncludedCounts, treeState, treeCounts, treeThreadTotals,
+  folderIncludedCounts, treeState, treeCounts, treeThreadTotals, treeLeaves,
 } from './labData';
 import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel } from './atoms';
 
@@ -203,11 +203,33 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
   );
 }
 
+// « Tout découper » contextuel (dossier / sous-dossier / échange) : bascule la
+// découpe de TOUTES les PJ découpables retenues sous le nœud. Tri-état, révélé
+// au survol (visible dès qu'au moins une est découpée).
+function NodeDecoupeControl({ keys, decoupe, onToggleMany, revealOnHover = true }) {
+  const on = keys.reduce((a, k) => a + (decoupe.has(k) ? 1 : 0), 0);
+  const state = on === 0 ? 'none' : on === keys.length ? 'all' : 'some';
+  const active = state !== 'none';
+  const idle = !active && revealOnHover;
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onToggleMany(keys, state !== 'all'); }}
+      className={`inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium flex-shrink-0 transition-all ${idle ? 'opacity-0 group-hover/node:opacity-100 focus-visible:opacity-100' : ''} ${active ? '' : 'text-foreground-secondary hover:text-foreground hover:bg-cream'}`}
+      style={active ? (state === 'all' ? { backgroundColor: '#292524', color: '#f5f4f1' } : { backgroundColor: '#e7e5e3', color: '#57534e' }) : undefined}
+      title={state === 'all' ? 'Annuler la découpe' : 'Découper toutes les pièces découpables'}
+    >
+      <Scissors className="w-3 h-3" strokeWidth={1.75} />
+      {state === 'all' ? 'Tout découpé' : state === 'some' ? `${on}/${keys.length} découpés` : 'Tout découper'}
+    </button>
+  );
+}
+
 // ── Nœud récursif de l'arbre d'un dossier ───────────────────────────────────
 // Case sur CHAQUE nœud (dossier / sous-dossier / thread / corps / PJ), tri-état,
-// repliable (replié au-delà du 1er niveau), compteur par ligne, action Découper
-// au survol sur les PJ (coexiste avec la case).
-function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe }) {
+// repliable, compteur par ligne, « Découper » sur les PJ + « Tout découper »
+// contextuel sur les dossiers / échanges.
+function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe, onToggleDecoupeMany }) {
   const hasChildren = !!node.children;
   const isOpen = expanded.has(node.key);
   const state = treeState(node);
@@ -221,6 +243,8 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
   const tt = isFolder ? treeThreadTotals(node) : null;
   // Un échange se présente comme une carte : titre + expéditeur en dessous.
   const twoLine = node.kind === 'thread' && !!node.sub;
+  // PJ découpables retenues sous ce nœud → « Tout découper » contextuel.
+  const decKeys = hasChildren ? treeLeaves(node).filter(l => l.kind === 'pj' && l.decoupable && l.included).map(l => l.key) : [];
   const nameCls = `min-w-0 truncate ${isFolder || node.kind === 'thread' ? 'text-[13px] font-medium' : 'text-[12.5px]'} ${node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`;
   return (
     <>
@@ -260,6 +284,10 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
           {isPj && node.decoupable && node.included && (
             <span className="h-5 flex items-center flex-shrink-0"><DecoupeControl on={decoupe.has(node.key)} onToggle={() => onToggleDecoupe(node.key)} /></span>
           )}
+          {/* « Tout découper » du dossier / sous-dossier / échange. */}
+          {hasChildren && decKeys.length > 0 && (
+            <span className="h-5 flex items-center flex-shrink-0"><NodeDecoupeControl keys={decKeys} decoupe={decoupe} onToggleMany={onToggleDecoupeMany} /></span>
+          )}
           {/* Compteur (dossier / sous-dossier) - un échange montre ses pièces, pas de compteur. */}
           {isFolder && (
             <span className="h-5 flex items-center flex-shrink-0 tabular-nums text-[11px] text-foreground-muted">
@@ -272,7 +300,7 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
         <FolderTreeNode
           key={c.key} node={c} depth={depth + 1} itemId={itemId}
           onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={onToggleExpand}
-          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
+          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
         />
       ))}
     </>
@@ -281,13 +309,14 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
 
 // Carte dossier : arbre récursif à cases + barre d'action (Tout sélectionner +
 // compteur live). L'import global reste le CTA du footer du modal.
-function FolderCard({ item, decoupe, onToggleDecoupe, onRemove, onToggleNode }) {
+function FolderCard({ item, decoupe, onToggleDecoupe, onToggleDecoupeMany, onRemove, onToggleNode }) {
   const [expanded, setExpanded] = useState(() => new Set());
   const toggleExpand = (key) => setExpanded(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
   const f = item.folder;
   const inc = folderIncludedCounts(f);
   const rootState = treeState(f.tree);
   const curated = inc.threads !== inc.total || inc.pieces !== inc.piecesTotal;
+  const decKeys = treeLeaves(f.tree).filter(l => l.kind === 'pj' && l.decoupable && l.included).map(l => l.key);
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2.5 min-w-0">
@@ -311,6 +340,9 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onRemove, onToggleNode }) 
         <span className="ml-auto text-[11px] tabular-nums text-foreground-secondary">
           <span className="font-medium text-foreground">{inc.threads}</span>/{inc.total} échanges · <span className="font-medium text-foreground">{inc.pieces}</span>/{inc.piecesTotal} pièces{curated ? ' retenus' : ''}
         </span>
+        {decKeys.length > 0 && (
+          <NodeDecoupeControl keys={decKeys} decoupe={decoupe} onToggleMany={onToggleDecoupeMany} revealOnHover={false} />
+        )}
       </div>
 
       {/* Arbre - replié au-delà du 1er niveau */}
@@ -319,7 +351,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onRemove, onToggleNode }) 
           <FolderTreeNode
             key={c.key} node={c} depth={0} itemId={item.id}
             onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={toggleExpand}
-            decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
+            decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
           />
         ))}
       </div>
@@ -370,7 +402,7 @@ function ZipCard({ item, decoupe, onToggleDecoupe, onRemove }) {
 
 export default function Panier({
   items, onRemove, onTogglePiece, onToggleFolderNode,
-  decoupe, onToggleDecoupe, onToggleAllDecoupe,
+  decoupe, onToggleDecoupe, onToggleDecoupeMany, onToggleAllDecoupe,
   onAddFiles,
   collapsed, onExpand,
   introCopy,
@@ -448,7 +480,7 @@ export default function Panier({
                         <FolderCard
                           key={it.id}
                           item={it}
-                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
+                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
                           onRemove={onRemove}
                           onToggleFolderNode={onToggleFolderNode}
                         />

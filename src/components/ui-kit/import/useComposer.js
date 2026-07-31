@@ -114,6 +114,13 @@ export function useComposer() {
 
   // ── Découpe / suivi ──
   const toggleDecoupe = (key) => setDecoupe(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
+  // « Tout découper » contextuel (dossier / sous-dossier / échange) : bascule un
+  // lot de clés d'un coup (on = ajouter, sinon retirer).
+  const toggleDecoupeMany = (keys, on) => setDecoupe(prev => {
+    const n = new Set(prev);
+    keys.forEach(k => (on ? n.add(k) : n.delete(k)));
+    return n;
+  });
   const allKeys = useMemo(() => items.flatMap(decoupableKeys).map(k => k.key), [items]);
   const toggleAllDecoupe = () => setDecoupe(prev => {
     const allOn = allKeys.length > 0 && allKeys.every(k => prev.has(k));
@@ -161,7 +168,7 @@ export function useComposer() {
     takeThread, takeThreadDelta, takeManyThreads, togglePieceById,
     takeFolder, removeThread, removeFolder, removeItem,
     toggleFolderNode,
-    toggleDecoupe, toggleAllDecoupe, toggleSuivre, setSuivre,
+    toggleDecoupe, toggleDecoupeMany, toggleAllDecoupe, toggleSuivre, setSuivre,
     stagedFolderIds, threadStateMap,
   };
 }
