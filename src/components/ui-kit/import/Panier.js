@@ -225,7 +225,7 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
           <button type="button" onClick={() => onToggleExpand(node.key)} className="p-0.5 -ml-0.5 rounded text-foreground-muted hover:text-foreground-secondary flex-shrink-0" title={isOpen ? 'Replier' : 'Déplier'}>
             <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
           </button>
-        ) : <span className="w-3.5 flex-shrink-0" />}
+        ) : <Elbow />}
         <Checkbox
           checked={state === 'all'}
           partial={state === 'some'}
@@ -242,11 +242,10 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
           )}
           {node.sub && <span className="text-[11px] truncate flex-shrink-0" style={{ color: '#a8a29e' }}>{node.sub}</span>}
         </span>
-        {/* Action au survol : découper un PDF (coexiste avec la case) */}
+        {/* Découper un PDF - visible sur toute PJ retenue découpable, comme dans
+            les cartes échange (coexiste avec la case). */}
         {isPj && node.decoupable && node.included && (
-          <span className={`flex-shrink-0 transition-opacity ${decoupe.has(node.key) ? '' : 'opacity-0 group-hover/node:opacity-100 focus-within:opacity-100'}`}>
-            <DecoupeControl on={decoupe.has(node.key)} onToggle={() => onToggleDecoupe(node.key)} />
-          </span>
+          <DecoupeControl on={decoupe.has(node.key)} onToggle={() => onToggleDecoupe(node.key)} />
         )}
         {/* Compteur par ligne : reflète la sélection */}
         {hasChildren && (
