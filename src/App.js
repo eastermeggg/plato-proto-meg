@@ -30,6 +30,7 @@ import ComponentsInventorySection from './components/ui-kit/ComponentsInventoryS
 import ComponentDetailPage from './components/ui-kit/ComponentDetailPage';
 import SommaireActeLab from './components/ui-kit/SommaireActeLab';
 import ImportDossierLab from './components/ui-kit/ImportDossierLab';
+import ImportFolderTreeLab from './components/ui-kit/ImportFolderTreeLab';
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
@@ -1336,7 +1337,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'trial-flow', 'preview-panel', 'cotisations'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'trial-flow', 'preview-panel', 'cotisations'];
 const UI_KIT_SUBSECTION_SLUGS = [
   'tokens',
   'inventory',
@@ -18185,6 +18186,9 @@ export default function App() {
             <button onClick={() => navigate('/ui-kit/import-dossier')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Mail className="w-3.5 h-3.5" /> Import dossier - agencements
             </button>
+            <button onClick={() => navigate('/ui-kit/import-folder-tree')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <Folder className="w-3.5 h-3.5" /> Import dossier - arbre à cases
+            </button>
             <button onClick={() => navigate('/ui-kit/preview-panel')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Files className="w-3.5 h-3.5" /> Preview panel - tous les types
             </button>
@@ -25013,6 +25017,9 @@ export default function App() {
   }
   if (currentPage === 'prompt-suggestions') {
     return (<>{renderPromptSuggestionsPage()}{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'import-folder-tree') {
+    return (<><ImportFolderTreeLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'import-dossier') {
     return (<><ImportDossierLab />{renderGlobalOverlays()}</>);
