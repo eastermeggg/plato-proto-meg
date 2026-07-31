@@ -248,21 +248,16 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
   const nameCls = `min-w-0 truncate ${isFolder || node.kind === 'thread' ? 'text-[13px] font-medium' : 'text-[12.5px]'} ${node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`;
   return (
     <>
-      {/* items-stretch : les guides verticaux courent sur toute la hauteur de la
-          ligne. Un guide par niveau parent → la hiérarchie se lit d'un coup, et
-          les colonnes (chevron / case / icône) s'alignent à chaque profondeur. */}
-      <div className="group/node flex items-stretch rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingRight: 10 }}>
-        {Array.from({ length: depth }).map((_, i) => (
-          <span key={i} aria-hidden className="flex-shrink-0" style={{ width: 22, marginLeft: i === 0 ? 12 : 0, borderLeft: '1px solid #ece9e3' }} />
-        ))}
-        <div className="flex-1 min-w-0 flex gap-2 items-start" style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: depth === 0 ? 12 : 8 }}>
-          {/* Chevron : slot fixe 16px (vide sur une feuille) → cases alignées. */}
-          <span className="w-4 h-5 flex items-center justify-center flex-shrink-0">
-            {hasChildren && (
+      {/* Indentation par palier fixe (20px/niveau) + tête à largeur fixe :
+          chevron (nœud dépliable) ou COUDE (feuille) - harmonise les pièces avec
+          les cartes échange, cases alignées à chaque profondeur. */}
+      <div className="group/node flex gap-2 items-start rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingLeft: 10 + depth * 20, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+          <span className="h-5 flex items-center justify-center flex-shrink-0" style={{ width: 18 }}>
+            {hasChildren ? (
               <button type="button" onClick={() => onToggleExpand(node.key)} className="text-foreground-muted hover:text-foreground-secondary focus:outline-none" title={isOpen ? 'Replier' : 'Déplier'}>
                 <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
               </button>
-            )}
+            ) : <Elbow />}
           </span>
           <span className="h-5 flex items-center flex-shrink-0">
             <Checkbox checked={state === 'all'} partial={state === 'some'} onToggle={() => onToggleNode(itemId, node.key, state !== 'all')} title={state === 'all' ? 'Ne pas importer' : 'Importer'} />
@@ -294,7 +289,6 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
               {tt ? `${tt.included}/${tt.threads} éch. · ` : ''}{included}/{total} pièces
             </span>
           )}
-        </div>
       </div>
       {hasChildren && isOpen && node.children.map(c => (
         <FolderTreeNode
