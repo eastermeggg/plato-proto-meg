@@ -217,52 +217,56 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
   const Icon = node.kind === 'folder' ? Folder : (node.kind === 'thread' || isBody) ? Mail : FileText;
   const color = isPj ? '#b4483c' : node.kind === 'folder' ? '#78716c' : '#1e3a8a';
   const dim = state === 'none';
-  const tt = node.kind === 'folder' ? treeThreadTotals(node) : null;
+  const isFolder = node.kind === 'folder';
+  const tt = isFolder ? treeThreadTotals(node) : null;
   // Un échange se présente comme une carte : titre + expéditeur en dessous.
   const twoLine = node.kind === 'thread' && !!node.sub;
+  const nameCls = `min-w-0 truncate ${isFolder || node.kind === 'thread' ? 'text-[13px] font-medium' : 'text-[12.5px]'} ${node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`;
   return (
     <>
-      <div
-        className="group/node flex gap-2 rounded-lg hover:bg-cream/50 transition-colors"
-        style={{ paddingLeft: 10 + depth * 16, paddingRight: 10, minHeight: 32, alignItems: twoLine ? 'flex-start' : 'center', paddingTop: twoLine ? 6 : 0, paddingBottom: twoLine ? 6 : 0 }}
-      >
-        {hasChildren ? (
-          <button type="button" onClick={() => onToggleExpand(node.key)} className={`p-0.5 -ml-0.5 rounded text-foreground-muted hover:text-foreground-secondary flex-shrink-0 ${twoLine ? 'mt-0.5' : ''}`} title={isOpen ? 'Replier' : 'Déplier'}>
-            <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
-          </button>
-        ) : <Elbow />}
-        <Checkbox
-          checked={state === 'all'}
-          partial={state === 'some'}
-          onToggle={() => onToggleNode(itemId, node.key, state !== 'all')}
-          title={state === 'all' ? 'Ne pas importer' : 'Importer'}
-          className={twoLine ? 'mt-0.5' : ''}
-        />
-        <Icon className={`w-4 h-4 flex-shrink-0 ${twoLine ? 'mt-0.5' : ''}`} strokeWidth={1.75} style={{ color, opacity: dim ? 0.5 : 1 }} />
-        <span className="flex-1 min-w-0 flex flex-col justify-center" style={dim ? { opacity: 0.5 } : undefined}>
-          <span className="flex items-center gap-2 min-w-0">
-            <span className={`min-w-0 truncate ${hasChildren ? 'text-[13px]' : 'text-[12.5px]'} ${node.kind === 'folder' || node.kind === 'thread' ? 'font-medium text-foreground' : node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`}>
-              {node.name}
-            </span>
-            {isBody && node.msg > 1 && (
-              <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{node.msg} msg</span>
+      {/* items-stretch : les guides verticaux courent sur toute la hauteur de la
+          ligne. Un guide par niveau parent → la hiérarchie se lit d'un coup, et
+          les colonnes (chevron / case / icône) s'alignent à chaque profondeur. */}
+      <div className="group/node flex items-stretch rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingRight: 10 }}>
+        {Array.from({ length: depth }).map((_, i) => (
+          <span key={i} aria-hidden className="flex-shrink-0" style={{ width: 22, marginLeft: i === 0 ? 12 : 0, borderLeft: '1px solid #ece9e3' }} />
+        ))}
+        <div className="flex-1 min-w-0 flex gap-2 items-start" style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: depth === 0 ? 12 : 8 }}>
+          {/* Chevron : slot fixe 16px (vide sur une feuille) → cases alignées. */}
+          <span className="w-4 h-5 flex items-center justify-center flex-shrink-0">
+            {hasChildren && (
+              <button type="button" onClick={() => onToggleExpand(node.key)} className="text-foreground-muted hover:text-foreground-secondary focus:outline-none" title={isOpen ? 'Replier' : 'Déplier'}>
+                <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
+              </button>
             )}
-            {!twoLine && node.sub && <span className="text-[11px] truncate flex-shrink-0" style={{ color: '#a8a29e' }}>{node.sub}</span>}
           </span>
-          {twoLine && <span className="text-[11px] truncate leading-4 mt-0.5" style={{ color: '#a8a29e' }}>{node.sub}</span>}
-        </span>
-        {/* Découper un PDF - visible sur toute PJ retenue découpable, comme dans
-            les cartes échange (coexiste avec la case). */}
-        {isPj && node.decoupable && node.included && (
-          <DecoupeControl on={decoupe.has(node.key)} onToggle={() => onToggleDecoupe(node.key)} />
-        )}
-        {/* Compteur par ligne (dossier / sous-dossier) : reflète la sélection.
-            Un échange montre directement ses pièces, pas de compteur. */}
-        {node.kind === 'folder' && (
-          <span className="flex-shrink-0 tabular-nums text-[11px] text-foreground-muted">
-            {tt ? `${tt.included}/${tt.threads} éch. · ` : ''}{included}/{total} pièces
+          <span className="h-5 flex items-center flex-shrink-0">
+            <Checkbox checked={state === 'all'} partial={state === 'some'} onToggle={() => onToggleNode(itemId, node.key, state !== 'all')} title={state === 'all' ? 'Ne pas importer' : 'Importer'} />
           </span>
-        )}
+          <span className="h-5 flex items-center flex-shrink-0">
+            <Icon className="w-4 h-4" strokeWidth={1.75} style={{ color, opacity: dim ? 0.5 : 1 }} />
+          </span>
+          <div className="flex-1 min-w-0 flex flex-col justify-center" style={dim ? { opacity: 0.5 } : undefined}>
+            <div className="flex items-center gap-2 min-w-0 h-5">
+              <span className={nameCls}>{node.name}</span>
+              {isBody && node.msg > 1 && (
+                <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{node.msg} msg</span>
+              )}
+              {!twoLine && node.sub && <span className="text-[11px] truncate flex-shrink-0" style={{ color: '#a8a29e' }}>{node.sub}</span>}
+            </div>
+            {twoLine && <span className="text-[11px] truncate leading-4" style={{ color: '#a8a29e' }}>{node.sub}</span>}
+          </div>
+          {/* Découper (PJ retenue) - aligné sur la 1re ligne, coexiste avec la case. */}
+          {isPj && node.decoupable && node.included && (
+            <span className="h-5 flex items-center flex-shrink-0"><DecoupeControl on={decoupe.has(node.key)} onToggle={() => onToggleDecoupe(node.key)} /></span>
+          )}
+          {/* Compteur (dossier / sous-dossier) - un échange montre ses pièces, pas de compteur. */}
+          {isFolder && (
+            <span className="h-5 flex items-center flex-shrink-0 tabular-nums text-[11px] text-foreground-muted">
+              {tt ? `${tt.included}/${tt.threads} éch. · ` : ''}{included}/{total} pièces
+            </span>
+          )}
+        </div>
       </div>
       {hasChildren && isOpen && node.children.map(c => (
         <FolderTreeNode
@@ -291,7 +295,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onRemove, onToggleNode }) 
         <span className="flex-1 min-w-0">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
-            {f.path}{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''}
+            {f.stats.folders > 0 ? `${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''} · ` : ''}{inc.total} échange{inc.total > 1 ? 's' : ''} · {inc.piecesTotal} pièces
           </span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Dossier Outlook</span>
