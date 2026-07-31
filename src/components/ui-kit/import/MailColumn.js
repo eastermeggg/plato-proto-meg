@@ -24,8 +24,9 @@ function ThreadPreviewCard({ tid, rect }) {
   const p = threadPreview(tid);
   if (!p) return null;
   const CARD_W = 340;
-  let left = rect.right + 8;
-  if (left + CARD_W > window.innerWidth - 12) left = Math.max(12, rect.left - CARD_W - 8);
+  // Toujours à DROITE de la ligne (jamais de bascule à gauche qui recouvrirait
+  // la colonne mail) - clampé au bord droit de la fenêtre si besoin.
+  const left = Math.min(rect.right + 8, window.innerWidth - CARD_W - 12);
   const top = Math.min(Math.max(12, rect.top - 4), window.innerHeight - 380);
   return (
     <div
