@@ -5,14 +5,14 @@
 // curation se fait à gauche.
 
 import React, { useState } from 'react';
-import { ChevronRight, FileText, Folder, FileArchive, Loader2, Lock, Mail, Plus, X, AlertTriangle } from 'lucide-react';
+import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
 import {
   decoupableKeys, threadCardSubtitle,
-  folderComposition, folderSpan, threadSampleDeep, folderBreadcrumb, folderIncludedCounts,
+  folderIncludedCounts, treeState, treeCounts, treeThreadTotals,
 } from './labData';
-import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel, usePhase2 } from './atoms';
+import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel } from './atoms';
 
 const CARD = { border: '1px solid #e7e5e3', borderRadius: 12, backgroundColor: '#ffffff' };
 
@@ -137,17 +137,6 @@ function PreviewThreadGroup({ subject, sender, illegible = false, msg, pjLines }
   );
 }
 
-// Pied « Suivre » (phase 2, sources email uniquement - un fichier ne se suit pas).
-function SuivreFoot({ on, onToggle, label, hint }) {
-  return (
-    <div className="mt-3 pt-3 border-t border-border/70 flex items-center gap-2.5">
-      <LabSwitch checked={on} onChange={onToggle} />
-      <span className="text-xs font-medium text-foreground flex-shrink-0">{label}</span>
-      <span className="text-[11px] text-foreground-muted truncate">{hint}</span>
-    </div>
-  );
-}
-
 // Ligne condensée : nom + méta sur une seule ligne, contrôles à droite.
 function FileCard({ item, decoupe, onToggleDecoupe, onRemove }) {
   const f = item.file;
@@ -214,215 +203,113 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
   );
 }
 
-const SAMPLE_LIMIT = 6;
-const COMPO_LIMIT = 5;
-
-// Ligne de composition : un sous-dossier immédiat, double compte profond. C'est
-// de l'INVENTAIRE, jamais une ligne suivable - mais elle porte la redirection
-// corrective « Suivre à la place » (désigner l'affaire, pas le conteneur).
-function CompositionLine({ folder, stats, redirectLabel, onRedirect }) {
+// ── Nœud récursif de l'arbre d'un dossier ───────────────────────────────────
+// Case sur CHAQUE nœud (dossier / sous-dossier / thread / corps / PJ), tri-état,
+// repliable (replié au-delà du 1er niveau), compteur par ligne, action Découper
+// au survol sur les PJ (coexiste avec la case).
+function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe }) {
+  const hasChildren = !!node.children;
+  const isOpen = expanded.has(node.key);
+  const state = treeState(node);
+  const { total, included } = treeCounts(node);
+  const isPj = node.kind === 'pj';
+  const isBody = node.kind === 'body';
+  const Icon = node.kind === 'folder' ? Folder : (node.kind === 'thread' || isBody) ? Mail : FileText;
+  const color = isPj ? '#b4483c' : node.kind === 'folder' ? '#78716c' : '#1e3a8a';
+  const dim = state === 'none';
+  const tt = node.kind === 'folder' ? treeThreadTotals(node) : null;
   return (
-    <div className="group/compo flex items-center gap-2 min-w-0 h-8 px-3.5">
-      <Folder className="w-3.5 h-3.5 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
-      <span className="flex-1 min-w-0 text-[12.5px] text-foreground truncate">{folder.name}</span>
-      <span className="flex-shrink-0 text-[11px] text-foreground-muted tabular-nums">
-        {stats.threads} échange{stats.threads > 1 ? 's' : ''} · {stats.pieces} pièces
-      </span>
-      {onRedirect && (
-        <button
-          type="button"
-          onClick={onRedirect}
-          className="flex-shrink-0 text-[11px] font-medium text-foreground-secondary opacity-0 group-hover/compo:opacity-100 focus-visible:opacity-100 hover:text-foreground transition-all"
-          title={`${redirectLabel} « ${folder.name} » seul`}
-        >
-          {redirectLabel} à la place
-        </button>
-      )}
-    </div>
+    <>
+      <div className="group/node flex items-center gap-2 rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingLeft: 10 + depth * 16, paddingRight: 10, height: 32 }}>
+        {hasChildren ? (
+          <button type="button" onClick={() => onToggleExpand(node.key)} className="p-0.5 -ml-0.5 rounded text-foreground-muted hover:text-foreground-secondary flex-shrink-0" title={isOpen ? 'Replier' : 'Déplier'}>
+            <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
+          </button>
+        ) : <span className="w-3.5 flex-shrink-0" />}
+        <Checkbox
+          checked={state === 'all'}
+          partial={state === 'some'}
+          onToggle={() => onToggleNode(itemId, node.key, state !== 'all')}
+          title={state === 'all' ? 'Ne pas importer' : 'Importer'}
+        />
+        <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color, opacity: dim ? 0.5 : 1 }} />
+        <span className="flex-1 min-w-0 flex items-center gap-2" style={dim ? { opacity: 0.5 } : undefined}>
+          <span className={`min-w-0 truncate ${hasChildren ? 'text-[13px]' : 'text-[12.5px]'} ${node.kind === 'folder' ? 'font-medium text-foreground' : node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`}>
+            {node.name}
+          </span>
+          {isBody && node.msg > 1 && (
+            <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{node.msg} msg</span>
+          )}
+          {node.sub && <span className="text-[11px] truncate flex-shrink-0" style={{ color: '#a8a29e' }}>{node.sub}</span>}
+        </span>
+        {/* Action au survol : découper un PDF (coexiste avec la case) */}
+        {isPj && node.decoupable && node.included && (
+          <span className={`flex-shrink-0 transition-opacity ${decoupe.has(node.key) ? '' : 'opacity-0 group-hover/node:opacity-100 focus-within:opacity-100'}`}>
+            <DecoupeControl on={decoupe.has(node.key)} onToggle={() => onToggleDecoupe(node.key)} />
+          </span>
+        )}
+        {/* Compteur par ligne : reflète la sélection */}
+        {hasChildren && (
+          <span className="flex-shrink-0 tabular-nums text-[11px] text-foreground-muted">
+            {tt ? `${tt.included}/${tt.threads} éch. · ` : ''}{included}/{total} pièces
+          </span>
+        )}
+      </div>
+      {hasChildren && isOpen && node.children.map(c => (
+        <FolderTreeNode
+          key={c.key} node={c} depth={depth + 1} itemId={itemId}
+          onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={onToggleExpand}
+          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
+        />
+      ))}
+    </>
   );
 }
 
-// Avertissement de sur-import : au-dessus du suivi, jamais bloquant, DÉNOMBRÉ EN
-// PIÈCES (ce que le pipeline traite réellement). Se termine par le chemin de
-// correction, pas par un refus.
-function OverImportWarning({ nAffaires, pieces }) {
-  return (
-    <div className="mt-3 rounded-lg px-3 py-2.5 flex items-start gap-2" style={{ backgroundColor: '#fdf6ea', border: '1px solid #f0e2c8' }}>
-      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-px" strokeWidth={2} style={{ color: '#855b31' }} />
-      <span className="text-[11px] leading-4" style={{ color: '#855b31' }}>
-        <span className="font-medium">{nAffaires} affaires différentes</span> - ≈ {pieces} pièces entreraient dans un seul dossier, découpage compris.
-        Désignez plutôt le dossier de l'affaire concernée (« à la place » ci-dessus).
-      </span>
-    </div>
-  );
-}
-
-function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, onRemove, onRedirect, onToggleFolderThread, onToggleFolderPiece }) {
-  const phase2 = usePhase2();
-  const [open, setOpen] = useState(false);
+// Carte dossier : arbre récursif à cases + barre d'action (Tout sélectionner +
+// compteur live). L'import global reste le CTA du footer du modal.
+function FolderCard({ item, decoupe, onToggleDecoupe, onRemove, onToggleNode }) {
   const [expanded, setExpanded] = useState(() => new Set());
-  const toggleExpand = (tid) => setExpanded(prev => { const n = new Set(prev); n.has(tid) ? n.delete(tid) : n.add(tid); return n; });
+  const toggleExpand = (key) => setExpanded(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
   const f = item.folder;
-  const pickable = !!f.groups;
   const inc = folderIncludedCounts(f);
-  const compo = folderComposition(f.folderId);
-  const hasSub = compo.length > 0;
-  const multiGroup = pickable && f.groups.length > 1;
-  const span = folderSpan(f.folderId);
-  const sample = open && !pickable ? threadSampleDeep(f.folderId, SAMPLE_LIMIT) : [];
-  const shownCompo = compo.slice(0, COMPO_LIMIT);
-  const redirectLabel = phase2 ? 'Suivre' : 'Ajouter';
-  const curated = inc.threads !== inc.total;
+  const rootState = treeState(f.tree);
+  const curated = inc.threads !== inc.total || inc.pieces !== inc.piecesTotal;
   return (
     <div className="group p-3.5" style={CARD}>
-      <div className="flex items-center gap-2 min-w-0">
-        <button type="button" onClick={() => setOpen(o => !o)} className="p-0.5 rounded text-foreground-muted hover:text-foreground-secondary flex-shrink-0" title={open ? 'Replier' : (pickable ? 'Choisir les échanges' : 'Aperçu du contenu')}>
-          <ChevronRight className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-90' : ''}`} strokeWidth={2} />
-        </button>
+      <div className="flex items-center gap-2.5 min-w-0">
         <Folder className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
-        <span className="flex-1 min-w-0 ml-0.5">
+        <span className="flex-1 min-w-0">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
-            {curated ? `${inc.threads} sur ${inc.total}` : inc.total} échange{inc.total > 1 ? 's' : ''} · ≈ {inc.pieces} pièces{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''}
+            {f.path}{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''}
           </span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Dossier Outlook</span>
-        <RemoveBtn onClick={() => onRemove(item.id)} />
+        <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer le dossier" />
       </div>
-      {open && (
-        <div className="mt-3 rounded-lg border border-border-subtle overflow-hidden" style={{ backgroundColor: '#faf9f7' }}>
-          {pickable ? (
-            // ── Picker : décochez ce que vous ne voulez pas importer ──
-            <>
-              <div className="px-3.5 py-2 border-b border-border-subtle" style={{ backgroundColor: '#f2f0ec' }}>
-                <span className="text-[11px] leading-4 text-foreground-secondary">Décochez ce que vous ne voulez pas importer - échange entier ou pièce par pièce.</span>
-              </div>
-              <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-                {f.groups.map(g => (
-                  <div key={g.folderId}>
-                    {multiGroup && (
-                      <div className="px-3.5 pt-2.5 pb-0.5 flex items-center gap-1.5 border-b border-border-subtle">
-                        <Folder className="w-3 h-3 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
-                        <span className="truncate" style={monoLabel}>{g.folderName}</span>
-                      </div>
-                    )}
-                    {g.threads.map(t => {
-                      const incCount = t.pieces.filter(p => p.included).length;
-                      const total = t.pieces.length;
-                      const allIn = incCount === total;
-                      const isOpen = expanded.has(t.threadId);
-                      return (
-                        <div key={t.threadId} className="border-b border-border-subtle last:border-0">
-                          <div className="flex items-center gap-2.5 min-w-0 px-3.5 py-2">
-                            <Checkbox
-                              checked={allIn}
-                              partial={incCount > 0 && !allIn}
-                              onToggle={() => onToggleFolderThread(item.id, t.threadId, !allIn)}
-                              title={allIn ? 'Ne pas importer cet échange' : 'Importer cet échange'}
-                            />
-                            <button type="button" onClick={() => toggleExpand(t.threadId)} className="flex-1 min-w-0 flex items-center gap-2 text-left" title={isOpen ? 'Replier' : 'Voir corps et PJ'}>
-                              <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a', opacity: 0.8 }} />
-                              <span className={`flex-1 min-w-0 text-[13px] truncate ${incCount === 0 ? 'text-foreground-muted line-through' : t.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{t.subject}</span>
-                              <ChevronRight className={`w-3.5 h-3.5 flex-shrink-0 text-foreground-muted transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
-                            </button>
-                          </div>
-                          {isOpen && (
-                            <div className="pl-6 pr-3.5 pb-1.5 flex flex-col">
-                              {t.pieces.map(p => (
-                                <PieceLine
-                                  key={p.key}
-                                  piece={p}
-                                  included={p.included}
-                                  onToggle={() => onToggleFolderPiece(item.id, t.threadId, p.key, !p.included)}
-                                  decoupe={decoupe}
-                                  onToggleDecoupe={onToggleDecoupe}
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-              <div className="px-3.5 py-2 border-t border-border-subtle">
-                <span className="text-[11px] text-foreground-secondary">
-                  {inc.threads} échange{inc.threads > 1 ? 's' : ''} · ≈ {inc.pieces} pièces retenus{curated ? ` sur ${inc.total}` : ''}
-                </span>
-              </div>
-            </>
-          ) : (
-            // ── Conteneur large : bloc lecture seule + recentrage « à la place » ──
-            <>
-              <div className="px-3.5 py-2 border-b border-border-subtle flex items-start gap-2" style={{ backgroundColor: '#f2f0ec' }}>
-                <Lock className="w-3 h-3 flex-shrink-0 mt-0.5 text-foreground-muted" strokeWidth={2} />
-                <span className="text-[11px] leading-4 text-foreground-secondary">
-                  Trop d'affaires pour trier ici. Recentrez sur un dossier avec « {redirectLabel} à la place », ou importez le conteneur en bloc.
-                </span>
-              </div>
-              {hasSub && (
-                <div className="py-1.5 border-b border-border-subtle">
-                  <p className="px-3.5 pt-1 pb-1" style={monoLabel}>Sous-dossiers</p>
-                  {shownCompo.map(c => (
-                    <CompositionLine
-                      key={c.folder.id}
-                      folder={c.folder}
-                      stats={c.stats}
-                      redirectLabel={redirectLabel}
-                      onRedirect={onRedirect ? () => onRedirect(item.id, c.folder.id) : null}
-                    />
-                  ))}
-                  {compo.length > COMPO_LIMIT && (
-                    <p className="px-3.5 pt-1 text-[11px] text-foreground-muted">et {compo.length - COMPO_LIMIT} autre{compo.length - COMPO_LIMIT > 1 ? 's' : ''}</p>
-                  )}
-                </div>
-              )}
-              <p className="px-3.5 pt-2 pb-0.5" style={monoLabel}>Aperçu des échanges</p>
-              <div className="divide-y divide-border-subtle">
-                {sample.map(({ tv, origin }) => (
-                  <div key={tv.id} className="px-3.5 py-2 flex flex-col gap-1">
-                    <div className="flex items-center gap-2.5 min-w-0 h-6">
-                      <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a', opacity: 0.8 }} />
-                      <span className={`flex-1 min-w-0 text-[13px] truncate ${tv.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{tv.subject}</span>
-                      {origin.id !== f.folderId && (
-                        <span className="flex-shrink-0 truncate text-right" style={{ ...monoLabel, maxWidth: 150 }} title={folderBreadcrumb(origin.id)}>{origin.name}</span>
-                      )}
-                    </div>
-                    <div className="pl-1.5 flex flex-col">
-                      <BodyLine msg={tv.msg} dim />
-                      {tv.attachments.map((a, i) => (
-                        <PJLine
-                          key={`${tv.id}-${i}`}
-                          pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
-                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="px-3.5 py-2 border-t border-border-subtle">
-                <span className="text-[11px] text-foreground-secondary">{f.stats.threads} échanges, sous-dossiers compris - tout entre avec le dossier</span>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-      {span.multi && <OverImportWarning nAffaires={span.nAffaires} pieces={span.pieces} />}
-      {/* DÉCISION : l'import est un instantané (curable), le suivi est un flux
-          (toujours ENTIER). Décocher ne troue jamais un suivi - la sélection ne
-          vaut que pour cet import. */}
-      {phase2 && (
-        <SuivreFoot
-          on={suivre.has(item.id)}
-          onToggle={() => onToggleSuivre(item.id)}
-          label="Suivre ce dossier"
-          hint={curated
-            ? 'le suivi porte sur tout le dossier - la sélection ci-dessus ne vaut que pour cet import'
-            : 'échanges et pièces, y compris les futurs sous-dossiers'}
-        />
-      )}
+
+      {/* Barre d'action : Tout sélectionner + compteur live */}
+      <div className="mt-2.5 flex items-center gap-2.5 px-3 h-10 rounded-lg" style={{ backgroundColor: '#f5f4f1' }}>
+        <button type="button" onClick={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} className="inline-flex items-center gap-2 flex-shrink-0" title={rootState === 'all' ? 'Tout décocher' : 'Tout sélectionner'}>
+          <Checkbox checked={rootState === 'all'} partial={rootState === 'some'} onToggle={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} title="Tout sélectionner" />
+          <span className="text-[12.5px] font-medium text-foreground">Tout sélectionner</span>
+        </button>
+        <span className="ml-auto text-[11px] tabular-nums text-foreground-secondary">
+          <span className="font-medium text-foreground">{inc.threads}</span>/{inc.total} échanges · <span className="font-medium text-foreground">{inc.pieces}</span>/{inc.piecesTotal} pièces{curated ? ' retenus' : ''}
+        </span>
+      </div>
+
+      {/* Arbre - replié au-delà du 1er niveau */}
+      <div className="mt-1.5 -mx-1" style={{ maxHeight: 440, overflowY: 'auto' }}>
+        {f.tree.children.map(c => (
+          <FolderTreeNode
+            key={c.key} node={c} depth={0} itemId={item.id}
+            onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={toggleExpand}
+            decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -469,9 +356,8 @@ function ZipCard({ item, decoupe, onToggleDecoupe, onRemove }) {
 }
 
 export default function Panier({
-  items, onRemove, onTogglePiece, onRedirectFolder, onToggleFolderThread, onToggleFolderPiece,
+  items, onRemove, onTogglePiece, onToggleFolderNode,
   decoupe, onToggleDecoupe, onToggleAllDecoupe,
-  suivre, onToggleSuivre,
   onAddFiles,
   collapsed, onExpand,
   introCopy,
@@ -550,11 +436,8 @@ export default function Panier({
                           key={it.id}
                           item={it}
                           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
-                          suivre={suivre} onToggleSuivre={onToggleSuivre}
                           onRemove={onRemove}
-                          onRedirect={onRedirectFolder}
-                          onToggleFolderThread={onToggleFolderThread}
-                          onToggleFolderPiece={onToggleFolderPiece}
+                          onToggleFolderNode={onToggleFolderNode}
                         />
                       );
                     }

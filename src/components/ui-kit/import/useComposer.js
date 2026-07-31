@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   mkThreadItem, mkThreadDeltaItem, mkFolderItem, localFileToItem, MOCK_LOCAL_FILES, decoupableKeys,
-  ancestorFolderIds, descendantFolders, folderOfThread,
+  ancestorFolderIds, descendantFolders, folderOfThread, mapTreeInclude,
 } from './labData';
 
 export function useComposer() {
@@ -102,32 +102,13 @@ export function useComposer() {
   const removeThread = (tid) => setItems(prev => prev.filter(i => !(i.kind === 'thread' && i.thread.threadId === tid)));
   const removeFolder = (fid) => setItems(prev => prev.filter(i => !(i.kind === 'folder' && i.folder.folderId === fid)));
 
-  // ── Curation d'un dossier matérialisé (picker du panier) ──
-  const mapFolderThreads = (itemId, fn) => setItems(prev => prev.map(i => (
-    i.id === itemId && i.kind === 'folder' && i.folder.groups
-      ? { ...i, folder: { ...i.folder, groups: i.folder.groups.map(g => ({ ...g, threads: g.threads.map(fn) })) } }
+  // ── Curation d'un dossier : (dé)coche N'IMPORTE quel nœud de l'arbre ──
+  // Toutes les feuilles sous ce nœud passent à `included`. Les parents dérivent
+  // leur état (tout / partiel / aucun) de leurs feuilles.
+  const toggleFolderNode = (itemId, nodeKey, included) => setItems(prev => prev.map(i => (
+    i.id === itemId && i.kind === 'folder' && i.folder.tree
+      ? { ...i, folder: { ...i.folder, tree: mapTreeInclude(i.folder.tree, nodeKey, included) } }
       : i)));
-  // (Dé)coche un échange entier du dossier (toutes ses pièces).
-  const toggleFolderThread = (itemId, tid, included) => mapFolderThreads(itemId, t => (
-    t.threadId === tid ? { ...t, pieces: t.pieces.map(p => ({ ...p, included })) } : t));
-  // (Dé)coche une pièce (corps ou PJ) d'un échange du dossier.
-  const toggleFolderPiece = (itemId, tid, key, included) => mapFolderThreads(itemId, t => (
-    t.threadId === tid ? { ...t, pieces: t.pieces.map(p => (p.key === key ? { ...p, included } : p)) } : t));
-
-  // Redirection corrective (« Suivre / Ajouter à la place ») : remplace un bloc
-  // large par l'un de ses sous-dossiers. Un source = un sous-arbre : on ne
-  // s'ajoute pas EN PLUS, on se recentre. L'intention de suivi est reportée.
-  const redirectFolder = (itemId, childFid) => {
-    const wasFollowed = suivre.has(itemId);
-    const it = mkFolderItem(childFid);
-    if (!it) return;
-    setItems(prev => {
-      const rest = prev.filter(i => i.id !== itemId);
-      if (rest.some(i => i.kind === 'folder' && i.folder.folderId === childFid)) return rest;
-      return [...rest, it];
-    });
-    if (wasFollowed) setSuivre(prev => new Set([...prev, it.id]));
-  };
 
   const removeItem = (id) => setItems(prev => prev.filter(i => i.id !== id));
 
@@ -178,8 +159,8 @@ export function useComposer() {
     items, setItems, decoupe, suivre,
     addLocalFiles,
     takeThread, takeThreadDelta, takeManyThreads, togglePieceById,
-    takeFolder, removeThread, removeFolder, removeItem, redirectFolder,
-    toggleFolderThread, toggleFolderPiece,
+    takeFolder, removeThread, removeFolder, removeItem,
+    toggleFolderNode,
     toggleDecoupe, toggleAllDecoupe, toggleSuivre, setSuivre,
     stagedFolderIds, threadStateMap,
   };

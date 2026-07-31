@@ -7,7 +7,7 @@ import GesteBModal from './import/GesteBModal';
 import PiecesPage from './import/PiecesPage';
 import {
   seedPieces, seedSources, seedSuggestions, PENDING_ARRIVALS, mkPiece,
-  detectionFor, threadsOfFolderDeep, folderPath, folderById, statsFor,
+  detectionFor, folderPath, folderById, statsFor,
   LAB_SENDERS, threadById, displaySubject, cleanSubject, approxPieces,
   DOSSIER_IMPORTED_THREADS, threadImportInfo,
 } from './import/labData';
@@ -282,24 +282,23 @@ export default function ImportDossierLab() {
         pieces.filter(p => p.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
         count = pieces.length;
       } else if (item.kind === 'folder') {
-        // Curable : seuls les échanges/pièces RETENUS entrent (le picker fait foi).
-        // Conteneur (bloc lecture seule) : tout le sous-arbre. Le compte est réel.
+        // Seuls les nœuds RETENUS de l'arbre entrent (les cases font foi). On
+        // parcourt les threads : corps retenu → une pièce email, PJ retenue →
+        // pièce fichier (découpe si active).
         const before = newPieces.length;
-        if (item.folder.groups) {
-          item.folder.groups.forEach(g => g.threads.forEach(t => {
-            const inc = t.pieces.filter(p => p.included);
-            if (!inc.length) return;
-            if (inc.some(p => p.kind === 'body')) {
-              newPieces.push(mkPiece({ name: t.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
+        const walkTree = (node) => {
+          if (node.kind === 'thread') {
+            const leaves = (node.children || []).filter(l => l.included);
+            if (!leaves.length) return;
+            if (leaves.some(l => l.kind === 'body')) {
+              newPieces.push(mkPiece({ name: node.name, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
             }
-            inc.filter(p => p.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
-          }));
-        } else {
-          threadsOfFolderDeep(item.folder.folderId).forEach(tv => {
-            newPieces.push(mkPiece({ name: tv.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
-            tv.attachments.forEach(a => pushFilePieces(a.name, provenance, decoupe.has(`${tv.id}::${a.name}`)));
-          });
-        }
+            leaves.filter(l => l.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
+            return;
+          }
+          (node.children || []).forEach(walkTree);
+        };
+        walkTree(item.folder.tree);
         count = newPieces.length - before;
       } else if (item.kind === 'zip') {
         item.zip.children.forEach(c => {

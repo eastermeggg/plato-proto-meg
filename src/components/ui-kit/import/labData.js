@@ -685,35 +685,68 @@ export function mkThreadDeltaItem(tid) {
 // décochables dans le panier. Un CONTENEUR large (≥5 sous-dossiers) ne l'est
 // pas (curer des milliers de lignes n'a pas de sens) : il reste un bloc en
 // lecture seule, on le recentre via « à la place ».
+// ── Arbre récursif d'un dossier (sélection par nœud) ────────────────────────
+// Dossier → Sous-dossier → Thread → [Corps + PJ]. Feuilles = corps/PJ, chacune
+// `included`. TOUT dossier est un arbre curable, sans distinction conteneur.
+// Les clés de feuilles = bodyKey/pjKey : découpe et commit s'alignent sans code.
+function threadNode(tv) {
+  return {
+    key: tv.id, kind: 'thread', name: tv.subject, sub: tv.sender, illegible: tv.illegible,
+    children: [
+      { key: bodyKey(tv.id), kind: 'body', name: 'Corps du mail', msg: tv.msg, included: true },
+      ...tv.attachments.map(a => ({ key: pjKey(tv.id, a.name), kind: 'pj', name: a.name, decoupable: a.decoupable, included: true })),
+    ],
+  };
+}
+export function buildFolderNode(fid) {
+  const f = folderById(fid);
+  if (!f) return null;
+  const subs = childFolders(fid).map(sf => buildFolderNode(sf.id)).filter(Boolean);
+  const threads = threadsOfFolder(fid).map(threadNode);
+  return { key: fid, kind: 'folder', name: f.name, children: [...subs, ...threads] };
+}
+
+// Helpers d'arbre (inclusion inline sur les feuilles).
+export function treeLeaves(node) { return node.children ? node.children.flatMap(treeLeaves) : [node]; }
+export function treeCounts(node) {
+  const leaves = treeLeaves(node);
+  let included = 0; leaves.forEach(l => { if (l.included) included += 1; });
+  return { total: leaves.length, included };
+}
+export function treeState(node) {
+  const { total, included } = treeCounts(node);
+  return included === 0 ? 'none' : included === total ? 'all' : 'some';
+}
+export function treeThreadTotals(node) {
+  if (node.kind === 'thread') { const c = treeCounts(node); return { threads: 1, included: c.included > 0 ? 1 : 0 }; }
+  if (!node.children) return { threads: 0, included: 0 };
+  return node.children.reduce((a, c) => { const t = treeThreadTotals(c); return { threads: a.threads + t.threads, included: a.included + t.included }; }, { threads: 0, included: 0 });
+}
+function setAllLeaves(node, val) {
+  if (!node.children) return { ...node, included: val };
+  return { ...node, children: node.children.map(c => setAllLeaves(c, val)) };
+}
+// Nouvel arbre avec toutes les feuilles sous `targetKey` mises à `val`.
+export function mapTreeInclude(node, targetKey, val) {
+  if (node.key === targetKey) return setAllLeaves(node, val);
+  if (!node.children) return node;
+  return { ...node, children: node.children.map(c => mapTreeInclude(c, targetKey, val)) };
+}
+
 export function mkFolderItem(fid) {
   const f = folderById(fid);
   if (!f) return null;
-  const pickable = !folderSpan(fid).multi;
   return mkItem({
     kind: 'folder', origin: 'emails',
-    folder: {
-      folderId: fid, name: f.name, path: folderPath(f), stats: statsForDeep(fid), pickable,
-      groups: pickable ? threadGroupsOfFolderDeep(fid).map(g => ({
-        folderId: g.folder.id, folderName: g.folder.name,
-        threads: g.threads.map(tv => ({
-          threadId: tv.id, subject: tv.subject, illegible: tv.illegible, msg: tv.msg,
-          pieces: threadItemPieces(tv),
-        })),
-      })) : null,
-    },
+    folder: { folderId: fid, name: f.name, path: folderPath(f), stats: statsForDeep(fid), tree: buildFolderNode(fid) },
   });
 }
 
-// Comptes RÉELLEMENT retenus d'un dossier curable (sinon = stats du bloc).
+// Comptes réellement retenus d'un dossier (échanges + pièces).
 export function folderIncludedCounts(folder) {
-  if (!folder.groups) return { threads: folder.stats.threads, pieces: folder.stats.pieces, total: folder.stats.threads };
-  let threads = 0, pieces = 0, total = 0;
-  folder.groups.forEach(g => g.threads.forEach(t => {
-    total += 1;
-    const inc = t.pieces.filter(p => p.included).length;
-    if (inc > 0) { threads += 1; pieces += inc; }
-  }));
-  return { threads, pieces, total };
+  const c = treeCounts(folder.tree);
+  const t = treeThreadTotals(folder.tree);
+  return { threads: t.included, total: t.threads, pieces: c.included, piecesTotal: c.total };
 }
 
 export const threadHasBody = (thread) => thread.pieces.some(p => p.kind === 'body' && p.included);
@@ -786,13 +819,10 @@ export function decoupableKeys(item) {
   if (item.kind === 'thread') return item.thread.pieces.filter(a => a.kind === 'pj' && a.decoupable && a.included).map(a => ({ key: a.key, name: a.name }));
   if (item.kind === 'zip') return item.zip.children.flatMap(c => c.pj.filter(a => a.decoupable).map(a => ({ key: a.key, name: a.name })));
   if (item.kind === 'folder') {
-    // Curable : seules les PJ retenues ; bloc conteneur : tout le sous-arbre.
-    if (item.folder.groups) {
-      return item.folder.groups.flatMap(g => g.threads.flatMap(t =>
-        t.pieces.filter(p => p.kind === 'pj' && p.decoupable && p.included).map(p => ({ key: p.key, name: p.name }))));
-    }
-    return threadsOfFolderDeep(item.folder.folderId)
-      .flatMap(tv => tv.attachments.filter(a => a.decoupable).map(a => ({ key: `${tv.id}::${a.name}`, name: a.name })));
+    // Seules les PJ RETENUES de l'arbre sont découpables.
+    return treeLeaves(item.folder.tree)
+      .filter(l => l.kind === 'pj' && l.decoupable && l.included)
+      .map(l => ({ key: l.key, name: l.name }));
   }
   return [];
 }
@@ -815,16 +845,12 @@ export function approxPieces(items, decoupe) {
         n += (decoupe.has(p.key) && det) ? det.count : 1;
       });
     } else if (it.kind === 'folder') {
-      if (it.folder.groups) {
-        it.folder.groups.forEach(g => g.threads.forEach(t => t.pieces.forEach(p => {
-          if (!p.included) return;
-          if (p.kind === 'body') { n += 1; return; }
-          const det = detectionFor(p.name);
-          n += (decoupe.has(p.key) && det) ? det.count : 1;
-        })));
-      } else {
-        n += it.folder.stats.pieces;
-      }
+      treeLeaves(it.folder.tree).forEach(l => {
+        if (!l.included) return;
+        if (l.kind === 'body') { n += 1; return; }
+        const det = detectionFor(l.name);
+        n += (decoupe.has(l.key) && det) ? det.count : 1;
+      });
     } else if (it.kind === 'zip') {
       it.zip.children.forEach(c => {
         n += 1;
