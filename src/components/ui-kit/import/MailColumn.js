@@ -17,6 +17,7 @@ import {
   threadView, folderOfThread, ancestorFolderIds, DEJA_LIE, threadPreview,
 } from './labData';
 import { AjouteBadge, AjouterChip, DejaSuiviBadge, DejaImporteBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
+import outlookLogo from '../../../assets/outlook.svg';
 
 // Carte au survol : comprendre un échange sans l'ouvrir. Flotte à droite de la
 // ligne survolée (position fixe → échappe au clip de la colonne).
@@ -76,7 +77,6 @@ function ThreadPreviewCard({ tid, rect }) {
     </div>
   );
 }
-import outlookLogo from '../../../assets/outlook.svg';
 
 const CAP_THREADS = 30;
 const CAP_FOLDERS = 8;
