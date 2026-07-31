@@ -168,6 +168,10 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
   const t = item.thread;
   const uploading = item.status === 'uploading';
   const topUp = item.topUp;
+  // Fil sans PJ = le corps EST l'échange : l'en-tête suffit, on n'affiche pas une
+  // ligne « Corps du mail » redondante (sauf complément, où « +N messages » informe).
+  const hasPJ = t.pieces.some(p => p.kind === 'pj');
+  const showPieces = !uploading && (topUp || hasPJ);
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2.5 min-w-0">
@@ -183,7 +187,7 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>{topUp ? 'Complément' : 'Échange courriel'}</span>
         {!uploading && <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer l'échange" />}
       </div>
-      {!uploading && (
+      {showPieces && (
         <div className="mt-2 pl-1 flex flex-col">
           {t.pieces.map(p => (
             <PieceLine
@@ -270,6 +274,10 @@ function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, o
                 <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
               </button>
             </span>
+          ) : node.kind === 'thread' ? (
+            // Fil sans PJ = une feuille de niveau échange : slot vide (pas de
+            // connecteur « pièce »), sa case s'aligne sur les autres échanges.
+            <span className="h-5 flex-shrink-0" style={{ width: 18 }} />
           ) : <TreeGuide isLast={isLast} />}
           <span className="h-5 flex items-center flex-shrink-0">
             <Checkbox checked={state === 'all'} partial={state === 'some'} onToggle={() => onToggleNode(itemId, node.key, state !== 'all')} title={state === 'all' ? 'Ne pas importer' : 'Importer'} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowRight, ArrowLeft, Check, ChevronDown, Clock, Eye, Lock, Loader2, Plus, Scale, ShieldCheck, Sparkles, CreditCard, X } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, ChevronDown, Clock, Lock, Loader2, ShieldCheck, Sparkles, CreditCard, X } from 'lucide-react';
 import { PRICING_PLANS, PLAN_BY_ID, QUOTA_FILL_PCT, fmtEur } from '../data/pricing';
 import LicencePicker from './billing/LicencePicker';
 import WeeklyUsageCard from './billing/WeeklyUsageCard';
@@ -49,16 +49,41 @@ const SERIF = "'RL Para Trial Central', Georgia, serif";
 const SANS = "'Inter', system-ui, sans-serif";
 const MONO = "'IBM Plex Mono', monospace";
 
+// Shared dark side-panel language (brand hero + trial timeline use the same
+// shell so the onboarding reads as one continuous surface, left panel throughout).
+const D = {
+  bg: `linear-gradient(165deg, ${'#1c1917'} 0%, #262220 62%, #302b28 100%)`,
+  head: '#faf9f7',
+  title: '#f5f3f0',
+  body: 'rgba(255,255,255,0.6)',
+  muted: 'rgba(255,255,255,0.42)',
+  line: 'rgba(255,255,255,0.1)',
+  tile: 'rgba(255,255,255,0.07)',
+  tileBorder: 'rgba(255,255,255,0.1)',
+  accent: '#b8cdec',
+  accentBg: 'rgba(184,205,236,0.12)',
+  accentBorder: 'rgba(184,205,236,0.25)',
+};
+const PANEL_WIDTH = 468;
+const panelShell = { width: PANEL_WIDTH, padding: '48px 48px', background: D.bg };
+
 const eyebrow = { fontFamily: MONO, fontSize: 10.5, fontWeight: 500, color: C.muted, letterSpacing: '0.08em', textTransform: 'uppercase' };
 const emailRe = /\S+@\S+\.\S+/;
 
-function NormaMark({ size = 22 }) {
+// Plato logo mark (rounded-square temple glyph). Source: PlatoIcon in App.js.
+function PlatoIcon({ size = 28, color = C.fgStrong }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center justify-center rounded-md" style={{ width: size + 6, height: size + 6, background: C.fg }}>
-        <Scale style={{ width: size - 6, height: size - 6, color: '#fff' }} strokeWidth={2} />
-      </div>
-      <span style={{ fontFamily: SERIF, fontSize: size, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.4px' }}>Norma</span>
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+      <path d="M73.5996 0C75.8398 0 76.9608 -0.000427067 77.8164 0.435547C78.5689 0.819016 79.181 1.43109 79.5645 2.18359C80.0004 3.03924 80 4.16018 80 6.40039V73.5996C80 75.8398 80.0004 76.9608 79.5645 77.8164C79.181 78.5689 78.5689 79.181 77.8164 79.5645C76.9608 80.0004 75.8398 80 73.5996 80H55L53 70H57V62H23V70H27L25 80H6.40039C4.16018 80 3.03924 80.0004 2.18359 79.5645C1.43109 79.181 0.819016 78.5689 0.435547 77.8164C-0.000427067 76.9608 0 75.8398 0 73.5996V6.40039C0 4.16018 -0.000427067 3.03924 0.435547 2.18359C0.819016 1.43109 1.43109 0.819016 2.18359 0.435547C3.03924 -0.000427067 4.16018 0 6.40039 0H73.5996ZM28.916 39.083L21 32L15 36L26 56H54L65 36L59 32L51.083 39.083L40 28L28.916 39.083ZM33 17L40 24L47 17L40 10L33 17Z" fill={color} />
+    </svg>
+  );
+}
+
+function PlatoMark({ size = 28, color = C.fgStrong, wordColor = C.fgStrong }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <PlatoIcon size={size} color={color} />
+      <span style={{ fontFamily: SERIF, fontSize: 23, fontWeight: 500, color: wordColor, letterSpacing: '-0.4px' }}>Plato</span>
     </div>
   );
 }
@@ -136,30 +161,58 @@ function AccordionRow({ n, title, optional, open, summary, onToggle, children })
   );
 }
 
-// Compact plan segmented picker - one per collaborator licence row.
-// includeFree prepends a "lecture seule" (view-only, gratuit) segment (Eye).
-function PlanSegments({ value, onChange, includeFree = false, height = 38 }) {
+// Compact plan dropdown - one per collaborator licence row. Revealed only once
+// an email is entered (email-first), so empty rows stay clean. Pro is default;
+// includeFree adds a "lecture seule" (view-only, gratuit) option. The at-a-glance
+// price/usage comparison lives in PlanLegend above the rows.
+function PlanDropdown({ value, onChange, includeFree = false, height = 38 }) {
+  const [open, setOpen] = useState(false);
   const opts = [
-    ...(includeFree ? [{ id: null, icon: Eye, title: 'Lecture seule · gratuit' }] : []),
-    ...PRICING_PLANS.map((p) => ({ id: p.id, label: p.name, title: `${p.name} · ${p.monthly} €/mois · ${p.usage}` })),
+    ...PRICING_PLANS.map((p) => ({ id: p.id, name: p.name, price: `${p.monthly} €/m`, usage: p.usage })),
+    ...(includeFree ? [{ id: null, name: 'Lecture seule', price: 'Gratuit', usage: 'Consultation, sans agent IA' }] : []),
   ];
+  const current = opts.find((o) => o.id === value) || opts[0];
   return (
-    <div className="flex flex-shrink-0 rounded-lg overflow-hidden" style={{ border: `1px solid ${C.border}`, height, background: C.surface }}>
-      {opts.map((o, i) => {
-        const on = value === o.id;
-        const Icon = o.icon;
-        return (
-          <button
-            key={o.id ?? 'free'}
-            onClick={() => onChange(o.id)}
-            title={o.title}
-            className="px-2.5 flex items-center justify-center transition-colors"
-            style={{ fontSize: 12, fontWeight: on ? 600 : 500, background: on ? C.fg : 'transparent', color: on ? '#fff' : C.fg2, borderLeft: i > 0 ? `1px solid ${C.border}` : 'none' }}
-          >
-            {Icon ? <Icon className="w-3.5 h-3.5" strokeWidth={1.75} /> : o.label}
-          </button>
-        );
-      })}
+    <div className="relative flex-shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center justify-between gap-1.5 rounded-lg px-3 transition-colors"
+        style={{ height, minWidth: 118, border: `1px solid ${open ? C.borderStrong : C.border}`, background: C.surface, fontSize: 13, fontWeight: 500, color: value === null ? C.fg2 : C.fg }}
+      >
+        <span className="truncate">{current.name}</span>
+        <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" style={{ color: C.muted, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }} strokeWidth={2} />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-50 mt-1.5 rounded-xl overflow-hidden" style={{ width: 244, background: C.surface, border: `1px solid ${C.borderStrong}`, boxShadow: '0 8px 24px rgba(41,37,36,0.12)' }}>
+            {opts.map((o, i) => {
+              const on = o.id === value;
+              return (
+                <button
+                  key={o.id ?? 'free'}
+                  type="button"
+                  onClick={() => { onChange(o.id); setOpen(false); }}
+                  className="w-full flex items-start gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-cream"
+                  style={{ background: on ? C.cream : 'transparent', borderTop: i > 0 ? `1px solid ${C.border}` : 'none' }}
+                >
+                  <div className="flex items-center justify-center flex-shrink-0" style={{ width: 15, height: 15, marginTop: 1 }}>
+                    {on && <Check className="w-3.5 h-3.5" style={{ color: C.fg }} strokeWidth={2.5} />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.fg }}>{o.name}</span>
+                      <span className="tabular-nums flex-shrink-0" style={{ fontSize: 11.5, color: C.fg2 }}>{o.price}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: C.fg2, marginTop: 1 }}>{o.usage}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -183,83 +236,151 @@ function PlanLegend() {
 }
 
 // ── Persistent RIGHT rail: the 7-day trial as an always-visible timeline ──
+// Branded hero panel shown alongside the login step. Carries the pitch: a
+// litigation-SPECIALIST AI (not a generalist chatbot), built around three
+// contentieux domains - the "trois terrains de jeu" from the landing page.
+// Dark stone so the cream form beside it reads as the bright focal area.
+function BrandPanel() {
+  const domains = ['Dommage corporel', 'Contentieux social', 'Directions juridiques'];
+  return (
+    <div
+      className="hidden lg:flex flex-col flex-shrink-0 relative overflow-hidden"
+      style={panelShell}
+    >
+      {/* Soft top-light so the panel doesn't read as flat black */}
+      <div className="absolute pointer-events-none" style={{ top: -160, right: -120, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%)' }} />
+
+      {/* Chess engraving (from plato.legal) - the "coup d'avance" emblem */}
+      <img
+        src="/brand/chess-king-pawn.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute pointer-events-none select-none"
+        style={{ right: -34, bottom: -22, width: 288, opacity: 0.85, filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.35))' }}
+      />
+
+      <div className="relative flex-1 flex flex-col justify-center" style={{ maxWidth: 320 }}>
+        <div style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 500, color: 'rgba(255,255,255,0.42)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 18 }}>
+          L'IA des cabinets de contentieux
+        </div>
+        <h2 style={{ fontFamily: SERIF, fontSize: 33, fontWeight: 500, color: '#faf9f7', letterSpacing: '-0.6px', lineHeight: '40px', marginBottom: 14 }}>
+          Spécialisée dans<br />vos contentieux.
+        </h2>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: '22px' }}>
+          Pas un assistant généraliste. Une IA experte de vos dossiers, du premier acte au chiffrage des indemnités.
+        </p>
+
+        <div className="mt-7" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 20 }}>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 12 }}>
+            Trois terrains de jeu
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {domains.map((d) => (
+              <span key={d} className="rounded-full" style={{ fontSize: 12, fontWeight: 500, color: '#f5f3f0', padding: '5px 11px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>{d}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="relative flex items-center gap-2 mt-auto pt-10" style={{ fontSize: 12, color: 'rgba(255,255,255,0.42)' }}>
+        <Lock className="w-3.5 h-3.5" strokeWidth={2} />
+        Confidentialité avocat-client préservée
+      </div>
+    </div>
+  );
+}
+
 function TimelineRail({ billingDate, started }) {
   const nodes = [
-    { tag: 'Aujourd’hui', title: started ? 'Votre essai a démarré' : 'Votre essai démarre', body: "Accès complet immédiat à tout Norma. Aucun montant prélevé.", icon: Sparkles, now: true },
+    { tag: 'Aujourd’hui', title: started ? 'Votre essai a démarré' : 'Votre essai démarre', body: "Accès complet immédiat à tout Plato. Aucun montant prélevé.", icon: Sparkles, now: true },
     { tag: 'Jour 7', title: "Dernier jour de l'essai", body: 'Annulable sans frais depuis Réglages.', icon: ShieldCheck },
     { tag: 'Jour 8', title: "L'abonnement démarre", body: `Premier prélèvement le ${billingDate}.`, icon: CreditCard },
   ];
   return (
     <div
-      className="hidden lg:flex flex-col flex-shrink-0"
-      style={{ width: 372, padding: '40px 40px', background: `linear-gradient(200deg, ${C.cream} 0%, ${C.canvas} 78%)`, borderLeft: `1px solid ${C.border}` }}
+      className="hidden lg:flex flex-col flex-shrink-0 relative overflow-hidden"
+      style={panelShell}
     >
-      <div
-        className="inline-flex items-center gap-1.5 mb-6 px-2.5 py-1 rounded-full self-start"
-        style={{ background: C.surface, border: `1px solid ${C.blueBorder}` }}
-      >
-        <Clock className="w-3.5 h-3.5" style={{ color: C.blue }} strokeWidth={2} />
-        <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>Essai gratuit de {TRIAL_DAYS} jours</span>
-      </div>
+      {/* Soft top-light, matches the brand panel */}
+      <div className="absolute pointer-events-none" style={{ top: -160, right: -120, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%)' }} />
 
-      <div style={{ fontFamily: SERIF, fontSize: 22, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.4px', marginBottom: 4 }}>
-        Votre essai, jour par jour
-      </div>
-      <p style={{ fontSize: 12.5, color: C.fg2, lineHeight: '18px', marginBottom: 20 }}>
-        Sans engagement. Vous gardez la main du premier au dernier jour.
-      </p>
+      {/* Chess engraving - keeps the brand motif on the post-login panel */}
+      <img
+        src="/brand/chess-hand-right.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute pointer-events-none select-none"
+        style={{ right: -24, bottom: 26, width: 250, opacity: 0.5 }}
+      />
 
-      {/* 7-day progress bar */}
-      <div className="flex items-center gap-2.5 mb-6">
-        <span style={{ ...eyebrow, fontSize: 9.5 }}>J1</span>
-        <div className="flex flex-1" style={{ gap: 3 }}>
-          {Array.from({ length: TRIAL_DAYS }, (_, i) => (
-            <div key={i} style={{ height: 4, flex: 1, borderRadius: 999, backgroundColor: i === 0 ? C.fg : '#e2ded6' }} />
-          ))}
+      <div className="relative flex-1 flex flex-col justify-center">
+        <div
+          className="inline-flex items-center gap-1.5 mb-6 px-2.5 py-1 rounded-full self-start"
+          style={{ background: D.accentBg, border: `1px solid ${D.accentBorder}` }}
+        >
+          <Clock className="w-3.5 h-3.5" style={{ color: D.accent }} strokeWidth={2} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: D.accent }}>Essai gratuit de {TRIAL_DAYS} jours</span>
         </div>
-        <span style={{ ...eyebrow, fontSize: 9.5 }}>J7</span>
-      </div>
 
-      {/* Dotted timeline */}
-      <div className="flex-1">
-        {nodes.map((t, i) => {
-          const last = i === nodes.length - 1;
-          return (
-            <div key={t.tag} className="flex gap-3.5">
-              <div className="flex flex-col items-center flex-shrink-0" style={{ width: 28 }}>
-                <div
-                  className="flex items-center justify-center rounded-full flex-shrink-0"
-                  style={{
-                    width: 28, height: 28,
-                    background: t.now ? C.fg : C.surface,
-                    border: `1.5px solid ${t.now ? C.fg : C.borderStrong}`,
-                    boxShadow: t.now ? `0 0 0 4px rgba(255,255,255,0.6)` : 'none',
-                  }}
-                >
-                  <t.icon className="w-3.5 h-3.5" style={{ color: t.now ? '#fff' : C.muted }} strokeWidth={2} />
-                </div>
-                {!last && (
-                  <div className="flex-1" style={{ width: 2, minHeight: 20, margin: '4px 0', borderRadius: 999, background: i === 0 ? `linear-gradient(180deg, ${C.fg} 0%, ${C.borderStrong} 100%)` : C.borderStrong }} />
-                )}
-              </div>
-              <div style={{ paddingBottom: last ? 0 : 16, paddingTop: 1 }}>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: t.now ? C.blue : C.muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{t.tag}</span>
-                  {t.now && (
-                    <span className="px-1.5 py-px rounded-full" style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, color: C.blue, background: C.blueBg, border: `1px solid ${C.blueBorder}`, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                      {started ? 'Vous êtes ici' : 'Point de départ'}
-                    </span>
+        <div style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: D.head, letterSpacing: '-0.5px', marginBottom: 6 }}>
+          Votre essai, jour par jour
+        </div>
+        <p style={{ fontSize: 13, color: D.body, lineHeight: '19px', marginBottom: 22 }}>
+          Sans engagement. Vous gardez la main du premier au dernier jour.
+        </p>
+
+        {/* 7-day progress bar */}
+        <div className="flex items-center gap-2.5 mb-7">
+          <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, color: D.muted, letterSpacing: '0.08em' }}>J1</span>
+          <div className="flex flex-1" style={{ gap: 3 }}>
+            {Array.from({ length: TRIAL_DAYS }, (_, i) => (
+              <div key={i} style={{ height: 4, flex: 1, borderRadius: 999, backgroundColor: i === 0 ? '#fff' : 'rgba(255,255,255,0.18)' }} />
+            ))}
+          </div>
+          <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, color: D.muted, letterSpacing: '0.08em' }}>J7</span>
+        </div>
+
+        {/* Dotted timeline */}
+        <div>
+          {nodes.map((t, i) => {
+            const last = i === nodes.length - 1;
+            return (
+              <div key={t.tag} className="flex gap-3.5">
+                <div className="flex flex-col items-center flex-shrink-0" style={{ width: 28 }}>
+                  <div
+                    className="flex items-center justify-center rounded-full flex-shrink-0"
+                    style={{
+                      width: 28, height: 28,
+                      background: t.now ? '#fff' : D.tile,
+                      border: `1.5px solid ${t.now ? '#fff' : D.tileBorder}`,
+                      boxShadow: t.now ? `0 0 0 4px rgba(255,255,255,0.12)` : 'none',
+                    }}
+                  >
+                    <t.icon className="w-3.5 h-3.5" style={{ color: t.now ? C.fgStrong : D.muted }} strokeWidth={2} />
+                  </div>
+                  {!last && (
+                    <div className="flex-1" style={{ width: 2, minHeight: 20, margin: '4px 0', borderRadius: 999, background: i === 0 ? 'linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.18) 100%)' : 'rgba(255,255,255,0.18)' }} />
                   )}
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.fg }}>{t.title}</div>
-                <div style={{ fontSize: 12, color: C.fg2, lineHeight: '17px', marginTop: 2 }}>{t.body}</div>
+                <div style={{ paddingBottom: last ? 0 : 16, paddingTop: 1 }}>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: t.now ? D.accent : D.muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{t.tag}</span>
+                    {t.now && (
+                      <span className="px-1.5 py-px rounded-full" style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, color: D.accent, background: D.accentBg, border: `1px solid ${D.accentBorder}`, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                        {started ? 'Vous êtes ici' : 'Point de départ'}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: D.title }}>{t.title}</div>
+                  <div style={{ fontSize: 12, color: D.body, lineHeight: '17px', marginTop: 2 }}>{t.body}</div>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 pt-6" style={{ fontSize: 12, color: C.fg2 }}>
+      <div className="relative flex items-center gap-2 mt-auto pt-10" style={{ fontSize: 12, color: D.muted }}>
         <Lock className="w-3.5 h-3.5" strokeWidth={2} />
         Chiffré et hébergé en France
       </div>
@@ -376,10 +497,8 @@ function StripeModal({ open, totalMonthly, licenceCount, billingDate, defaultEma
             <div className="px-6 pt-5 pb-4" style={{ borderBottom: `1px solid ${C.border}` }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center rounded-md" style={{ width: 24, height: 24, background: C.fg }}>
-                    <Scale className="w-3 h-3" style={{ color: '#fff' }} strokeWidth={2} />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: C.fg }}>Norma</span>
+                  <PlatoIcon size={22} color={C.fg} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: C.fg }}>Plato</span>
                 </div>
                 <button onClick={onClose} disabled={phase !== 'form'} className="flex items-center justify-center rounded-md transition-colors hover:bg-cream" style={{ width: 26, height: 26, color: C.muted }} aria-label="Fermer">
                   <X className="w-4 h-4" strokeWidth={2} />
@@ -491,15 +610,28 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
   const setInvite = (id, patch) => setInvites((v) => v.map((i) => (i.id === id ? { ...i, ...patch } : i)));
   const addInvite = () => setInvites((v) => [...v, { id: (v[v.length - 1]?.id || 0) + 1, email: '', plan: 'PRO' }]);
   const removeInvite = (id) => setInvites((v) => v.filter((i) => i.id !== id));
+  // Auto-grow: filling the last row's email spawns a fresh empty row, so there
+  // is always exactly one trailing blank ready for the next collaborator.
+  const handleInviteEmail = (id, value) =>
+    setInvites((v) => {
+      const next = v.map((i) => (i.id === id ? { ...i, email: value } : i));
+      const last = next[next.length - 1];
+      if (last && last.id === id && value.trim().length > 0) {
+        next.push({ id: (last.id || 0) + 1, email: '', plan: 'PRO' });
+      }
+      return next;
+    });
 
   const maxWidth = step === 'plan' ? 560 : 440;
+
+  const isLogin = step === 'login';
 
   return (
     <div className="min-h-screen flex" style={{ background: C.canvas, fontFamily: SANS }}>
       {/* Main form column */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-6 lg:px-16 pt-8 flex-shrink-0">
-          <NormaMark />
+          <PlatoMark />
         </div>
         <div className="flex-1 flex items-center justify-center px-6 lg:px-16 py-10">
           <div style={{ width: '100%', maxWidth }}>
@@ -509,7 +641,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
               <div>
                 <div style={{ ...eyebrow, marginBottom: 12 }}>Première connexion</div>
                 <h1 style={{ fontFamily: SERIF, fontSize: 27, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', marginBottom: 6 }}>
-                  Bienvenue sur Norma
+                  Bienvenue sur Plato
                 </h1>
                 <p style={{ fontSize: 13.5, color: C.fg2, lineHeight: '20px', marginBottom: 28 }}>
                   Entrez l'adresse e-mail avec laquelle votre compte a été créé.
@@ -532,12 +664,6 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
                   </PrimaryButton>
                 </div>
 
-                <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${C.border}` }}>
-                  <p style={{ fontSize: 12.5, color: C.fg2, lineHeight: '19px' }}>
-                    Les comptes Norma sont créés par notre équipe. Pas encore inscrit ?{' '}
-                    <a href="mailto:hello@norma.legal" style={{ color: C.blue, fontWeight: 500 }}>Contactez-nous</a>.
-                  </p>
-                </div>
               </div>
             )}
 
@@ -605,7 +731,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
                   Choisissez votre licence
                 </h1>
                 <p style={{ fontSize: 13.5, color: C.fg2, lineHeight: '20px', marginBottom: 22 }}>
-                  Essayez tout Norma pendant {TRIAL_DAYS} jours. 0 € aujourd'hui, annulable à tout moment.
+                  Essayez tout Plato pendant {TRIAL_DAYS} jours. 0 € aujourd'hui, annulable à tout moment.
                 </p>
 
                 {/* Accordion: your licence, then optional collaborators */}
@@ -645,32 +771,26 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
                               type="email"
                               placeholder="collaborateur@cabinet.fr"
                               value={inv.email}
-                              onChange={(e) => setInvite(inv.id, { email: e.target.value })}
+                              onChange={(e) => handleInviteEmail(inv.id, e.target.value)}
                               style={{ height: 38, fontSize: 13, flex: 1, width: 'auto' }}
                             />
-                            <PlanSegments value={inv.plan} onChange={(p) => setInvite(inv.id, { plan: p })} includeFree />
-                            <button
-                              onClick={() => removeInvite(inv.id)}
-                              className="flex items-center justify-center rounded-lg flex-shrink-0 transition-colors hover:bg-cream"
-                              style={{ width: 30, height: 38, color: C.muted }}
-                              aria-label="Retirer cette licence"
-                            >
-                              <X className="w-3.5 h-3.5" strokeWidth={2} />
-                            </button>
+                            {inv.email.trim().length > 0 && (
+                              <>
+                                <PlanDropdown value={inv.plan} onChange={(p) => setInvite(inv.id, { plan: p })} includeFree />
+                                <button
+                                  onClick={() => removeInvite(inv.id)}
+                                  className="flex items-center justify-center rounded-lg flex-shrink-0 transition-colors hover:bg-cream"
+                                  style={{ width: 30, height: 38, color: C.muted }}
+                                  aria-label="Retirer cette licence"
+                                >
+                                  <X className="w-3.5 h-3.5" strokeWidth={2} />
+                                </button>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
                     )}
-                    <button
-                      onClick={addInvite}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-3.5 transition-colors hover:bg-cream mt-3"
-                      style={{ height: 38, fontSize: 13, fontWeight: 500, color: C.fg3, border: `1px dashed ${C.borderStrong}`, background: 'transparent' }}
-                    >
-                      <Plus className="w-4 h-4" strokeWidth={2} /> Ajouter une licence
-                    </button>
-                    <div className="mt-4 flex justify-end">
-                      <PrimaryButton onClick={() => setOpenSection(null)}>Terminer</PrimaryButton>
-                    </div>
                   </AccordionRow>
                 </div>
 
@@ -688,14 +808,13 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
                       <span style={{ color: C.fg2 }}>Gratuit</span>
                     </div>
                   )}
-                  <div className="flex items-end justify-between pt-3 mt-1" style={{ borderTop: `1px solid ${C.borderStrong}` }}>
-                    <div>
-                      <div style={{ fontSize: 13.5, fontWeight: 600, color: C.fg }}>0 € aujourd'hui</div>
-                      <div style={{ fontSize: 11.5, color: C.fg2, marginTop: 1 }}>premier prélèvement le {billingDate}</div>
+                  <div className="pt-3 mt-1 text-right" style={{ borderTop: `1px solid ${C.borderStrong}` }}>
+                    <div className="flex items-baseline justify-end gap-2.5">
+                      <span style={{ fontSize: 14, fontWeight: 500, color: C.fg }}>à payer aujourd'hui</span>
+                      <span className="tabular-nums" style={{ fontFamily: SERIF, fontSize: 38, fontWeight: 600, color: C.fgStrong, letterSpacing: '-1px', lineHeight: 1 }}>0 €</span>
                     </div>
-                    <div className="text-right whitespace-nowrap">
-                      <span className="tabular-nums" style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 600, color: C.fgStrong }}>{fmtEur(totalMonthly)} €</span>
-                      <span style={{ fontSize: 11.5, color: C.fg2 }}> HT/mois</span>
+                    <div style={{ fontSize: 12, color: C.fg2, marginTop: 6 }}>
+                      Puis <span className="tabular-nums" style={{ fontWeight: 600, color: C.fg }}>{fmtEur(totalMonthly)} € HT/mois</span> · premier prélèvement le {billingDate}
                     </div>
                   </div>
                 </div>
@@ -730,7 +849,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
                 </div>
 
                 <div className="max-w-[300px]">
-                  <PrimaryButton full onClick={goEnter}>Accéder à Norma</PrimaryButton>
+                  <PrimaryButton full onClick={goEnter}>Accéder à Plato</PrimaryButton>
                 </div>
               </div>
             )}
@@ -740,7 +859,9 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
       </div>
 
       {/* Persistent trial timeline rail (right) */}
-      {step !== 'login' && <TimelineRail billingDate={billingDate} started={step === 'done'} />}
+      {/* Persistent dark brand panel on the RIGHT throughout: brand hero at
+          login, then the trial timeline once past it. One continuous surface. */}
+      {isLogin ? <BrandPanel /> : <TimelineRail billingDate={billingDate} started={step === 'done'} />}
 
       {/* Stripe-style payment modal, layered above the flow */}
       <StripeModal

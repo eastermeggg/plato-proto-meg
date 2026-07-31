@@ -739,6 +739,11 @@ export function mkThreadDeltaItem(tid) {
 // `included`. TOUT dossier est un arbre curable, sans distinction conteneur.
 // Les clés de feuilles = bodyKey/pjKey : découpe et commit s'alignent sans code.
 function threadNode(tv) {
+  // Fil sans PJ = le corps du mail lui-meme : une feuille (pas de chevron, pas
+  // de « Corps du mail » indente a l'interieur).
+  if (!tv.attachments || tv.attachments.length === 0) {
+    return { key: tv.id, kind: 'thread', name: tv.subject, sub: tv.sender, illegible: tv.illegible, msg: tv.msg, bodyOnly: true, included: true };
+  }
   return {
     key: tv.id, kind: 'thread', name: tv.subject, sub: tv.sender, illegible: tv.illegible,
     children: [
@@ -896,7 +901,7 @@ export function approxPieces(items, decoupe) {
     } else if (it.kind === 'folder') {
       treeLeaves(it.folder.tree).forEach(l => {
         if (!l.included) return;
-        if (l.kind === 'body') { n += 1; return; }
+        if (l.kind === 'body' || l.kind === 'thread') { n += 1; return; }
         const det = detectionFor(l.name);
         n += (decoupe.has(l.key) && det) ? det.count : 1;
       });

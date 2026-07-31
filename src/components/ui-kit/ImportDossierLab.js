@@ -288,7 +288,12 @@ export default function ImportDossierLab() {
         const before = newPieces.length;
         const walkTree = (node) => {
           if (node.kind === 'thread') {
-            const leaves = (node.children || []).filter(l => l.included);
+            // Fil sans PJ (feuille) = le corps lui-meme : une piece email.
+            if (!node.children) {
+              if (node.included) newPieces.push(mkPiece({ name: node.name, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
+              return;
+            }
+            const leaves = node.children.filter(l => l.included);
             if (!leaves.length) return;
             if (leaves.some(l => l.kind === 'body')) {
               newPieces.push(mkPiece({ name: node.name, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
