@@ -339,10 +339,10 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onToggleDecoupeMany, onRem
 
       {/* Barre d'action : Tout sélectionner + compteur live */}
       <div className="mt-2.5 flex items-center gap-2.5 px-3 h-10 rounded-lg" style={{ backgroundColor: '#f5f4f1' }}>
-        <button type="button" onClick={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} className="inline-flex items-center gap-2 flex-shrink-0" title={rootState === 'all' ? 'Tout décocher' : 'Tout sélectionner'}>
-          <Checkbox checked={rootState === 'all'} partial={rootState === 'some'} onToggle={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} title="Tout sélectionner" />
-          <span className="text-[12.5px] font-medium text-foreground">Tout sélectionner</span>
-        </button>
+        <div className="inline-flex items-center gap-2 flex-shrink-0">
+          <Checkbox checked={rootState === 'all'} partial={rootState === 'some'} onToggle={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} title={rootState === 'all' ? 'Tout décocher' : 'Tout sélectionner'} />
+          <button type="button" onClick={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} className="text-[12.5px] font-medium text-foreground hover:text-foreground-secondary transition-colors">Tout sélectionner</button>
+        </div>
         <span className="ml-auto text-[11px] tabular-nums text-foreground-secondary">
           <span className="font-medium text-foreground">{inc.threads}</span>/{inc.total} échanges · <span className="font-medium text-foreground">{inc.pieces}</span>/{inc.piecesTotal} pièces{curated ? ' retenus' : ''}
         </span>
@@ -488,7 +488,7 @@ export default function Panier({
                           item={it}
                           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
                           onRemove={onRemove}
-                          onToggleFolderNode={onToggleFolderNode}
+                          onToggleNode={onToggleFolderNode}
                         />
                       );
                     }
