@@ -225,11 +225,23 @@ function NodeDecoupeControl({ keys, decoupe, onToggleMany, revealOnHover = true 
   );
 }
 
+// Connecteur d'arbre d'une feuille (pièce) : trait vertical continu entre
+// pièces sœurs, terminé en └ sous la dernière ; le trait horizontal tombe au
+// CENTRE de la case (alignement propre). Remplace le coude flottant.
+function TreeGuide({ isLast }) {
+  return (
+    <span className="relative self-stretch flex-shrink-0" style={{ width: 18 }} aria-hidden>
+      <span className="absolute" style={{ left: 7, top: 0, height: isLast ? '50%' : '100%', borderLeft: '1.5px solid #d9d5cf' }} />
+      <span className="absolute" style={{ left: 7, top: 'calc(50% - 0.75px)', width: 8, borderTop: '1.5px solid #d9d5cf' }} />
+    </span>
+  );
+}
+
 // ── Nœud récursif de l'arbre d'un dossier ───────────────────────────────────
 // Case sur CHAQUE nœud (dossier / sous-dossier / thread / corps / PJ), tri-état,
 // repliable, compteur par ligne, « Découper » sur les PJ + « Tout découper »
 // contextuel sur les dossiers / échanges.
-function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe, onToggleDecoupeMany }) {
+function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe, onToggleDecoupeMany }) {
   const hasChildren = !!node.children;
   const isOpen = expanded.has(node.key);
   const state = treeState(node);
@@ -248,17 +260,17 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
   const nameCls = `min-w-0 truncate ${isFolder || node.kind === 'thread' ? 'text-[13px] font-medium' : 'text-[12.5px]'} ${node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`;
   return (
     <>
-      {/* Indentation par palier fixe (20px/niveau) + tête à largeur fixe :
-          chevron (nœud dépliable) ou COUDE (feuille) - harmonise les pièces avec
-          les cartes échange, cases alignées à chaque profondeur. */}
-      <div className="group/node flex gap-2 items-start rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingLeft: 10 + depth * 20, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
-          <span className="h-5 flex items-center justify-center flex-shrink-0" style={{ width: 18 }}>
-            {hasChildren ? (
+      {/* Indentation par palier fixe (24px/niveau) + tête à largeur fixe :
+          chevron (nœud dépliable) ou connecteur d'arbre (feuille) - hiérarchie
+          lisible, cases alignées à chaque profondeur. */}
+      <div className="group/node flex gap-2 items-start rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingLeft: 10 + depth * 24, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+          {hasChildren ? (
+            <span className="h-5 flex items-center justify-center flex-shrink-0" style={{ width: 18 }}>
               <button type="button" onClick={() => onToggleExpand(node.key)} className="text-foreground-muted hover:text-foreground-secondary focus:outline-none" title={isOpen ? 'Replier' : 'Déplier'}>
                 <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
               </button>
-            ) : <Elbow />}
-          </span>
+            </span>
+          ) : <TreeGuide isLast={isLast} />}
           <span className="h-5 flex items-center flex-shrink-0">
             <Checkbox checked={state === 'all'} partial={state === 'some'} onToggle={() => onToggleNode(itemId, node.key, state !== 'all')} title={state === 'all' ? 'Ne pas importer' : 'Importer'} />
           </span>
@@ -290,9 +302,9 @@ function FolderTreeNode({ node, depth, itemId, onToggleNode, expanded, onToggleE
             </span>
           )}
       </div>
-      {hasChildren && isOpen && node.children.map(c => (
+      {hasChildren && isOpen && node.children.map((c, i) => (
         <FolderTreeNode
-          key={c.key} node={c} depth={depth + 1} itemId={itemId}
+          key={c.key} node={c} depth={depth + 1} isLast={i === node.children.length - 1} itemId={itemId}
           onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={onToggleExpand}
           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
         />
@@ -341,9 +353,9 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onToggleDecoupeMany, onRem
 
       {/* Arbre - replié au-delà du 1er niveau */}
       <div className="mt-1.5 -mx-1" style={{ maxHeight: 440, overflowY: 'auto' }}>
-        {f.tree.children.map(c => (
+        {f.tree.children.map((c, i) => (
           <FolderTreeNode
-            key={c.key} node={c} depth={0} itemId={item.id}
+            key={c.key} node={c} depth={0} isLast={i === f.tree.children.length - 1} itemId={item.id}
             onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={toggleExpand}
             decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
           />
