@@ -111,28 +111,42 @@ export const LAB_SENDERS = [
   { email: 'cpam-remboursements@ameli.fr', name: 'CPAM - Service RCT', role: 'CPAM', exchanges: 2, isShared: true, sharedWith: '4 autres dossiers du cabinet' },
 ];
 
-// ── Dossiers Outlook (échelle : 134 dossiers, ~1 800 threads) ──────────────
-const CLIENT_LAST = ['Bernard', 'Petit', 'Durand', 'Girard', 'Lefèvre', 'Rousseau', 'Vincent', 'Fournier', 'Morel', 'Garcia', 'Roux', 'Chevalier', 'Faure', 'André', 'Mercier', 'Blanc', 'Guérin', 'Boyer', 'Garnier', 'Lambert', 'Bonnet', 'François', 'Martinez', 'Legrand', 'Robin', 'Clément', 'Gauthier', 'Dumont', 'Lopez', 'Fontaine'];
-const ADVERSAIRE = ['AXA', 'MAAF', 'Allianz', 'Groupama', 'MACIF', 'GMF', 'CPAM', 'URSSAF', 'Pôle emploi', 'SNCF', 'EDF', 'Orange', 'La Poste', 'Generali'];
+// ── Dossiers Outlook - données RÉALISTES de cabinet d'avocats ───────────────
+// Un dossier par affaire : « Client c/ Partie adverse » ou « Client - Nature ».
+// 2-5 sous-dossiers par affaire, tirés des familles de pièces réelles. Tout est
+// déterministe (hash de l'index) : stable entre rendus.
+const CLIENT_LAST = ['Dupont', 'Rivière', 'Lemoine', 'Fabre', 'Nguyen', 'Rousseau', 'Petit', 'Morel', 'Ollivier', 'Legrand', 'Chevalier', 'Faure', 'Mercier', 'Guérin', 'Lambert', 'Bonnet', 'Garnier', 'Renaud', 'Brun', 'Deschamps', 'Perret', 'Barbier', 'Hoarau', 'Marchand', 'Colin', 'Vidal', 'Caron', 'Leroy', 'Noël', 'Aubert'];
+const CLIENT_ENTITY = ['SCI Lorraine', 'SARL Descamps', 'Groupe Vasseur', 'SAS Verdier', 'Chantiers Morel', 'Consorts Bréa', 'SCI du Parc', 'EURL Lenoir', 'SAS Prima', 'Domaine Vaugelas', 'SARL Bâti-Sud', 'Indivision Roy'];
+const ADVERSAIRE = ['MAIF', 'CPAM', 'AXA', 'MACIF', 'Allianz', 'Pôle emploi', 'URSSAF', 'MAAF', 'Groupama', 'GMF', 'la MMA', 'Generali', 'la SNCF', 'Orange'];
+const NATURE = ['Bail commercial', 'Succession', 'Contentieux fournisseur', 'Prud\'hommes', 'Divorce', 'Recouvrement', 'Redressement', 'Indivision', 'Malfaçons', 'Congé', 'Rupture commerciale', 'Servitude'];
+const PIECE_FAMILIES = ['Pièces adverses', 'Correspondances confrère', 'Expertise médicale', 'Audiences & conclusions', 'Honoraires', 'Pièces communiquées', 'Constitution de dossier', 'Archives 2024'];
+
+const N_CLIENTS = 128;
+const famKey = (fam) => fam.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '');
 
 export const LAB_FOLDERS = (() => {
   const out = [...OUTLOOK_FOLDERS];
-  // 128 dossiers clients synthétiques + 6 du seed = 134 (référence spec §8).
-  for (let i = 0; i < 128; i++) {
-    const last = CLIENT_LAST[i % CLIENT_LAST.length];
-    const adv = ADVERSAIRE[(i * 5) % ADVERSAIRE.length];
+  const hh = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100003; return h; };
+  for (let i = 0; i < N_CLIENTS; i++) {
     const id = `f-cli-${i}`;
-    out.push({ id, name: `${last} c/ ${adv}`, parentId: 'f-clients', attributes: [] });
-    if (i < 6) {
-      out.push({ id: `${id}-corr`, name: 'Correspondance', parentId: id, attributes: [] });
-      out.push({ id: `${id}-pieces`, name: 'Pièces adverses', parentId: id, attributes: [] });
+    const h = hh(id);
+    // ~1 affaire sur 3 est « Entité - Nature », le reste « Nom c/ Adversaire ».
+    const name = (h % 3 === 0)
+      ? `${CLIENT_ENTITY[h % CLIENT_ENTITY.length]} - ${NATURE[(h * 7) % NATURE.length]}`
+      : `${CLIENT_LAST[i % CLIENT_LAST.length]} c/ ${ADVERSAIRE[(h * 5) % ADVERSAIRE.length]}`;
+    out.push({ id, name, parentId: 'f-clients', attributes: [] });
+    // 2-5 sous-dossiers distincts, tirés des familles de pièces.
+    const nSub = 2 + (h % 4);
+    const pool = [...PIECE_FAMILIES];
+    for (let s = 0; s < nSub && pool.length; s++) {
+      const fam = pool.splice((h * (s + 3)) % pool.length, 1)[0];
+      out.push({ id: `${id}-${famKey(fam)}`, name: fam, parentId: id, attributes: [] });
     }
   }
   return out;
 })();
 
-export const TOTAL_FOLDERS = 134;
-export const TOTAL_THREADS = 1834;
+export const TOTAL_FOLDERS = LAB_FOLDERS.length;
 
 export const folderById = (id) => LAB_FOLDERS.find(f => f.id === id) || null;
 
@@ -226,9 +240,13 @@ export function threadSampleDeep(fid, limit = 8) {
 const hashOf = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973; return h; };
 
 const synthThreadCount = (folderId) => {
+  // Un CONTENEUR (dossier d'affaire, « Clients ») n'a pas d'échange en propre :
+  // son contenu vit dans les sous-dossiers. Une famille de pièces (feuille) a
+  // une volumétrie VARIÉE : la plupart 1-8, ~1/6 volumineux (10-20).
+  if (childFolders(folderId).length > 0) return 0;
   const h = hashOf(folderId);
-  const sub = /-(corr|pieces)$/.test(folderId);
-  return sub ? 3 + (h % 5) : 8 + (h % 23);
+  const heavy = h % 6 === 0;
+  return heavy ? 10 + (h % 11) : 1 + (h % 8);
 };
 
 // « N échanges, ≈ P pièces » de la carte « en entier ». Réels si le dossier
