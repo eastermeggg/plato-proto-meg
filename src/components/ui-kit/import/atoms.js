@@ -204,23 +204,20 @@ export function TypeChip({ children }) {
 }
 
 // ── Découpe (spec §6) ───────────────────────────────────────────────────────
-// off : « Découper » (sobre) · on : pill sombre « Sera découpé » - re-clic
-// annule. Le VERT est réservé à « Suivi » (vocabulaire des couleurs) : l'état
-// actif reprend le sombre des cases cochées. Jamais de compte de pièces
-// détectées affiché ; jamais sur images ni emails (le parent ne rend pas le
-// contrôle).
+// off : « Découper » (sobre, avec libellé) · on : juste une petite icône ciseaux
+// sombre (l'état « sera découpé » se lit d'un coup d'œil, sans texte) - re-clic
+// annule. Le VERT est réservé à « Suivi ». Jamais sur images ni emails.
 export function DecoupeControl({ on, onToggle }) {
   if (on) {
     return (
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
-        className="inline-flex items-center gap-1 h-6 px-2 rounded-full text-[11px] font-medium flex-shrink-0 transition-colors"
+        className="inline-flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors"
         style={{ backgroundColor: '#292524', color: '#f5f4f1' }}
-        title="Annuler la découpe"
+        title="Sera découpé - cliquer pour annuler"
       >
-        <Check className="w-3 h-3" strokeWidth={2.5} />
-        Sera découpé
+        <Scissors className="w-3 h-3" strokeWidth={2} />
       </button>
     );
   }
