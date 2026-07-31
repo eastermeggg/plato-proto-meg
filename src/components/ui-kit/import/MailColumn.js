@@ -329,12 +329,13 @@ export default function MailColumn({
   // et échanges récents, « tout » n'y a pas de sens défendable.
   const rootView = () => {
     const roots = rootFolders();
-    const nThreadsShown = Math.max(0, CAP_THREADS - roots.length);
+    // Les affaires s'affichent directement à la racine ; les échanges récents
+    // gardent un nombre fixe (indépendant du nombre de dossiers).
     const { visible, covered } = splitCovered(recentThreads);
-    const shown = visible.slice(0, nThreadsShown);
+    const shown = visible.slice(0, 12);
     return (
       <>
-        <MonoHeader>Dossiers Outlook</MonoHeader>
+        <MonoHeader>Dossiers</MonoHeader>
         {roots.map(f => folderRow(f))}
         <MonoHeader>Échanges récents</MonoHeader>
         {shown.map(tv => threadRow(tv))}

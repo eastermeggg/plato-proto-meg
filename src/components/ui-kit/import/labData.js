@@ -121,11 +121,17 @@ const ADVERSAIRE = ['MAIF', 'CPAM', 'AXA', 'MACIF', 'Allianz', 'Pôle emploi', '
 const NATURE = ['Bail commercial', 'Succession', 'Contentieux fournisseur', 'Prud\'hommes', 'Divorce', 'Recouvrement', 'Redressement', 'Indivision', 'Malfaçons', 'Congé', 'Rupture commerciale', 'Servitude'];
 const PIECE_FAMILIES = ['Pièces adverses', 'Correspondances confrère', 'Expertise médicale', 'Audiences & conclusions', 'Honoraires', 'Pièces communiquées', 'Constitution de dossier', 'Archives 2024'];
 
-const N_CLIENTS = 128;
+const N_CLIENTS = 24;
 const famKey = (fam) => fam.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '');
 
 export const LAB_FOLDERS = (() => {
-  const out = [...OUTLOOK_FOLDERS];
+  // Les AFFAIRES s'affichent directement à la racine : on retire le conteneur
+  // « Clients » et la « Boîte de réception » ; les dossiers du seed qui étaient
+  // sous « Clients » (Leblanc, Moreau) remontent à la racine.
+  const base = OUTLOOK_FOLDERS
+    .filter(f => f.id !== 'f-clients' && f.id !== 'f-inbox')
+    .map(f => (f.parentId === 'f-clients' ? { ...f, parentId: null } : f));
+  const out = [...base];
   const hh = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100003; return h; };
   for (let i = 0; i < N_CLIENTS; i++) {
     const id = `f-cli-${i}`;
@@ -134,7 +140,7 @@ export const LAB_FOLDERS = (() => {
     const name = (h % 3 === 0)
       ? `${CLIENT_ENTITY[h % CLIENT_ENTITY.length]} - ${NATURE[(h * 7) % NATURE.length]}`
       : `${CLIENT_LAST[i % CLIENT_LAST.length]} c/ ${ADVERSAIRE[(h * 5) % ADVERSAIRE.length]}`;
-    out.push({ id, name, parentId: 'f-clients', attributes: [] });
+    out.push({ id, name, parentId: null, attributes: [] });
     // 2-5 sous-dossiers distincts, tirés des familles de pièces.
     const nSub = 2 + (h % 4);
     const pool = [...PIECE_FAMILIES];
