@@ -400,15 +400,19 @@ export default function MailColumn({
   // Pas de « Tout sélectionner » à la racine (spec §9) : la vue mêle dossiers
   // et échanges récents, « tout » n'y a pas de sens défendable.
   const rootView = () => {
+    // Deux catégories, point : les dossiers (affaires) puis les échanges
+    // récents. Chacune est plafonnée pour rester lisible - le reste se
+    // retrouve par la recherche ; jamais un mur de 26 dossiers qui enterre
+    // les échanges.
     const roots = rootFolders();
-    // Les affaires s'affichent directement à la racine ; les échanges récents
-    // gardent un nombre fixe (indépendant du nombre de dossiers).
+    const fShown = roots.slice(0, CAP_FOLDERS);
     const { visible, covered } = splitCovered(recentThreads);
     const shown = visible.slice(0, 12);
     return (
       <>
         <MonoHeader>Dossiers</MonoHeader>
-        {roots.map(f => folderRow(f))}
+        {fShown.map(f => folderRow(f))}
+        <CapLine n={roots.length - fShown.length} hint="recherchez un dossier" />
         <MonoHeader>Échanges récents</MonoHeader>
         {shown.map(tv => threadRow(tv))}
         {coveredLines(covered)}
