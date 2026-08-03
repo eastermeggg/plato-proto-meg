@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowRight, ArrowLeft, Check, ChevronDown, Clock, Lock, Loader2, ShieldCheck, Sparkles, CreditCard, X } from 'lucide-react';
-import { PRICING_PLANS, PLAN_BY_ID, QUOTA_FILL_PCT, fmtEur } from '../data/pricing';
+import { PRICING_PLANS, PLAN_BY_ID, fmtEur } from '../data/pricing';
 import LicencePicker from './billing/LicencePicker';
-import WeeklyUsageCard from './billing/WeeklyUsageCard';
 
 // ───────────────────────────────────────────────────────────────────────────
 // OnboardingFlow - first-run experience for a newly provisioned account.
@@ -28,6 +27,7 @@ import WeeklyUsageCard from './billing/WeeklyUsageCard';
 // ───────────────────────────────────────────────────────────────────────────
 
 const TRIAL_DAYS = 7;
+const REDIRECT_SECONDS = 5; // done step auto-launches into Plato after this
 
 // ── Tokens (aligned with src/design-system/tokens.js) ──
 const C = {
@@ -252,11 +252,11 @@ function BrandPanel() {
 
       {/* Chess engraving (from plato.legal) - the "coup d'avance" emblem */}
       <img
-        src="/brand/chess-king-pawn.png"
+        src="/brand/chess-hand-right.png"
         alt=""
         aria-hidden="true"
         className="absolute pointer-events-none select-none"
-        style={{ right: -34, bottom: -22, width: 288, opacity: 0.85, filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.35))' }}
+        style={{ right: -8, bottom: 0, width: 360, opacity: 0.6 }}
       />
 
       <div className="relative flex-1 flex flex-col justify-center" style={{ maxWidth: 320 }}>
@@ -310,7 +310,7 @@ function TimelineRail({ billingDate, started }) {
         alt=""
         aria-hidden="true"
         className="absolute pointer-events-none select-none"
-        style={{ right: -24, bottom: 26, width: 250, opacity: 0.5 }}
+        style={{ right: -8, bottom: 0, width: 360, opacity: 0.5 }}
       />
 
       <div className="relative flex-1 flex flex-col justify-center">
@@ -576,6 +576,8 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
   const [invites, setInvites] = useState([]); // starts empty - added via "Ajouter une licence"
   const [payOpen, setPayOpen] = useState(false);
   const [openSection, setOpenSection] = useState('licence'); // accordion: 'licence' | 'team' | null
+  const [redirectLeft, setRedirectLeft] = useState(REDIRECT_SECONDS);
+  const [barFill, setBarFill] = useState(0);
 
   const plan = PLAN_BY_ID[planId];
   const validInvites = invites.filter((i) => emailRe.test(i.email));
@@ -605,6 +607,18 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
     onSelectPlan && onSelectPlan(planId);
     onEnter && onEnter();
   };
+
+  // Once payment clears, the done step self-launches into Plato: fill the bar,
+  // tick down the countdown, then enter. Any of it can be short-circuited by the
+  // "maintenant" button (which calls goEnter directly).
+  useEffect(() => {
+    if (step !== 'done') { setBarFill(0); setRedirectLeft(REDIRECT_SECONDS); return; }
+    const raf = requestAnimationFrame(() => setBarFill(100));
+    const iv = setInterval(() => setRedirectLeft((n) => Math.max(0, n - 1)), 1000);
+    const to = setTimeout(() => goEnter(), REDIRECT_SECONDS * 1000);
+    return () => { cancelAnimationFrame(raf); clearInterval(iv); clearTimeout(to); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // ── Licence row helpers ──
   const setInvite = (id, patch) => setInvites((v) => v.map((i) => (i.id === id ? { ...i, ...patch } : i)));
@@ -826,30 +840,32 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
               </div>
             )}
 
-            {/* ══ DONE (payment cleared) - enter Plato ══ */}
+            {/* ══ DONE (payment cleared) - auto-launch into Plato ══ */}
             {step === 'done' && (
               <div>
-                <Stepper activeIndex={2} />
-                <div className="flex items-center justify-center rounded-full mb-6" style={{ width: 56, height: 56, background: C.fg }}>
-                  <Check className="w-7 h-7" style={{ color: '#fff' }} strokeWidth={2.5} />
+                <div className="inline-flex items-center px-2.5 py-1 rounded-full mb-5" style={{ background: C.blueBg, border: `1px solid ${C.blueBorder}` }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>Paiement confirmé · Essai activé</span>
                 </div>
-                <div style={{ ...eyebrow, marginBottom: 12 }}>Paiement confirmé · essai activé</div>
-                <h1 style={{ fontFamily: SERIF, fontSize: 28, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', marginBottom: 8 }}>
-                  Tout est prêt
+                <h1 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', lineHeight: '36px', marginBottom: 10, maxWidth: 460 }}>
+                  Votre essai sur Plato commence maintenant&nbsp;!
                 </h1>
-                <p style={{ fontSize: 13.5, color: C.fg2, lineHeight: '21px', marginBottom: 20, maxWidth: 400 }}>
-                  {licenceCount} licence{licenceCount > 1 ? 's' : ''} activée{licenceCount > 1 ? 's' : ''}.
-                  {validInvites.length > 0 && ` ${validInvites.length > 1 ? `Vos ${validInvites.length} invitations ont été envoyées` : 'Votre invitation a été envoyée'}.`}
-                  {' '}Votre essai de {TRIAL_DAYS} jours démarre maintenant - le détail est dans le volet de droite.
+                <p style={{ fontSize: 13.5, color: C.fg2, lineHeight: '21px', marginBottom: 28, maxWidth: 400 }}>
+                  Essayez tout Plato pendant {TRIAL_DAYS} jours avec votre équipe. 0 € aujourd'hui, annulable à tout moment.
                 </p>
 
-                {/* Reuse the "Mon usage" gauge so the trial's weekly quota is tangible */}
-                <div className="mb-6" style={{ maxWidth: 360 }}>
-                  <WeeklyUsageCard plan={plan} pct={QUOTA_FILL_PCT.fresh} />
-                </div>
+                {/* Auto-launch: countdown + progress bar, redirect into Plato */}
+                <div style={{ maxWidth: 420 }}>
+                  <div className="flex items-baseline justify-between mb-2">
+                    <span style={{ fontSize: 12.5, fontWeight: 500, color: C.fg3 }}>Ouverture de Plato…</span>
+                    <span className="tabular-nums" style={{ fontFamily: MONO, fontSize: 11.5, color: C.fg2 }}>{redirectLeft}s</span>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 999, background: C.cream, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${barFill}%`, background: C.fg, borderRadius: 999, transition: `width ${REDIRECT_SECONDS}s linear` }} />
+                  </div>
 
-                <div className="max-w-[300px]">
-                  <PrimaryButton full onClick={goEnter}>Accéder à Plato</PrimaryButton>
+                  <div className="mt-6">
+                    <PrimaryButton full onClick={goEnter}>Commencer à utiliser Plato</PrimaryButton>
+                  </div>
                 </div>
               </div>
             )}
@@ -861,7 +877,8 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
       {/* Persistent trial timeline rail (right) */}
       {/* Persistent dark brand panel on the RIGHT throughout: brand hero at
           login, then the trial timeline once past it. One continuous surface. */}
-      {isLogin ? <BrandPanel /> : <TimelineRail billingDate={billingDate} started={step === 'done'} />}
+      {isLogin && <BrandPanel />}
+      {step === 'plan' && <TimelineRail billingDate={billingDate} started={false} />}
 
       {/* Stripe-style payment modal, layered above the flow */}
       <StripeModal
