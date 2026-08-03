@@ -245,7 +245,7 @@ function TreeGuide({ isLast }) {
 // Case sur CHAQUE nœud (dossier / sous-dossier / thread / corps / PJ), tri-état,
 // repliable, compteur par ligne, « Découper » sur les PJ + « Tout découper »
 // contextuel sur les dossiers / échanges.
-function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe, onToggleDecoupeMany }) {
+function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe, onToggleDecoupeMany, showDivider = false }) {
   const hasChildren = !!node.children;
   const isOpen = expanded.has(node.key);
   const state = treeState(node);
@@ -264,6 +264,11 @@ function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, o
   const nameCls = `min-w-0 truncate ${isFolder || node.kind === 'thread' ? 'text-[13px] font-medium' : 'text-[12.5px]'} ${node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`;
   return (
     <>
+      {/* Séparateur entre frères de niveau dossier / échange (jamais entre les
+          pièces d'un même fil) - indenté sur le niveau courant. */}
+      {showDivider && (
+        <div aria-hidden style={{ marginLeft: 10 + depth * 24, marginRight: 10, borderTop: '1px solid #f0efed' }} />
+      )}
       {/* Indentation par palier fixe (24px/niveau) + tête à largeur fixe :
           chevron (nœud dépliable) ou connecteur d'arbre (feuille) - hiérarchie
           lisible, cases alignées à chaque profondeur. */}
@@ -315,6 +320,7 @@ function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, o
           key={c.key} node={c} depth={depth + 1} isLast={i === node.children.length - 1} itemId={itemId}
           onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={onToggleExpand}
           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
+          showDivider={i > 0 && c.kind !== 'pj' && c.kind !== 'body'}
         />
       ))}
     </>
@@ -366,6 +372,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onToggleDecoupeMany, onRem
             key={c.key} node={c} depth={0} isLast={i === f.tree.children.length - 1} itemId={item.id}
             onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={toggleExpand}
             decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
+            showDivider={i > 0 && c.kind !== 'pj' && c.kind !== 'body'}
           />
         ))}
       </div>
