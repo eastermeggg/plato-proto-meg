@@ -10,14 +10,73 @@
 // (source de vérité unique).
 
 import React, { useMemo, useRef, useState } from 'react';
-import { ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
+import { Check, ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck, FileText } from 'lucide-react';
 import {
   normalize, relDate, LAB_THREADS, LAB_FOLDERS,
-  folderById, folderPath, childFolders, rootFolders, statsForDeep, threadsOfFolder,
-  threadView, folderOfThread, ancestorFolderIds, DEJA_LIE,
+  folderById, folderBreadcrumb, childFolders, rootFolders, statsForDeep, threadsOfFolder,
+  threadView, folderOfThread, ancestorFolderIds, DEJA_LIE, threadPreview,
 } from './labData';
-import { AjouteBadge, AjouterChip, DejaSuiviBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
+import { AjouteBadge, AjouterChip, DejaSuiviBadge, DejaImporteBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
 import outlookLogo from '../../../assets/outlook.svg';
+
+// Carte au survol : comprendre un échange sans l'ouvrir. Flotte à droite de la
+// ligne survolée (position fixe → échappe au clip de la colonne).
+function ThreadPreviewCard({ tid, rect }) {
+  const p = threadPreview(tid);
+  if (!p) return null;
+  const CARD_W = 340;
+  // Toujours à DROITE de la ligne (jamais de bascule à gauche qui recouvrirait
+  // la colonne mail) - clampé au bord droit de la fenêtre si besoin.
+  const left = Math.min(rect.right + 8, window.innerWidth - CARD_W - 12);
+  const top = Math.min(Math.max(12, rect.top - 4), window.innerHeight - 380);
+  return (
+    <div
+      className="fixed z-[80] rounded-xl border border-border bg-white overflow-hidden flex flex-col pointer-events-none"
+      style={{ left, top, width: CARD_W, maxHeight: 380, boxShadow: '0 20px 45px -12px rgba(28,25,23,0.30)' }}
+    >
+      <div className="px-3.5 pt-3 pb-2.5 border-b border-border flex-shrink-0">
+        <div className="flex items-start gap-2">
+          <Mail className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
+          <div className="min-w-0">
+            <p className={`text-[13px] leading-4 ${p.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{p.subject}</p>
+            <p className="text-[11px] text-foreground-muted mt-0.5 truncate">{p.sender} · {p.date}</p>
+          </div>
+        </div>
+        {p.summary && <p className="text-[12px] text-foreground-secondary leading-[17px] mt-2">{p.summary}</p>}
+      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto px-3.5 py-2.5">
+        <p className="mb-1.5" style={monoLabel}>Pièces · {p.pieces.length}</p>
+        <div className="flex flex-col gap-1.5">
+          {p.pieces.map((pc, i) => {
+            const Icon = pc.kind === 'body' ? Mail : FileText;
+            return (
+              <div key={i} className="flex items-start gap-2 min-w-0">
+                <Icon className="w-3.5 h-3.5 flex-shrink-0 mt-px" strokeWidth={1.75} style={{ color: pc.kind === 'body' ? '#1e3a8a' : '#b4483c' }} />
+                <div className="min-w-0">
+                  <p className="text-[12px] text-foreground truncate">
+                    {pc.name}
+                    {pc.detail && <span className="text-foreground-muted"> · {pc.detail}</span>}
+                    {pc.type && <span className="ml-1.5 inline-flex items-center h-4 px-1 rounded bg-cream text-[9px] font-medium text-foreground-tertiary align-middle">{pc.type}</span>}
+                  </p>
+                  {pc.summary && <p className="text-[11px] text-foreground-muted leading-4 truncate">{pc.summary}</p>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {p.info && (
+          <div className="mt-2.5 pt-2 border-t border-border-subtle flex flex-wrap gap-1">
+            {Object.entries(p.info).slice(0, 4).map(([k, v]) => (
+              <span key={k} className="inline-flex items-center gap-1 h-5 px-1.5 rounded bg-background-canvas text-[10px] text-foreground-secondary">
+                <span className="text-foreground-muted">{k}</span> <span className="font-medium text-foreground truncate" style={{ maxWidth: 130 }}>{String(v)}</span>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const CAP_THREADS = 30;
 const CAP_FOLDERS = 8;
@@ -59,8 +118,9 @@ function SelectAll({ takeableTids, onTake }) {
 export default function MailColumn({
   width = 440,
   threadStateMap, stagedFolderIds = new Set(),
-  takeThread, takeManyThreads, takeFolder, removeFolder, removeThread,
+  takeThread, takeThreadDelta, takeManyThreads, takeFolder, removeFolder, removeThread,
   dejaSuiviFolderIds = new Set(), dejaSuiviThreadIds = new Set(),
+  importInfo = new Map(),
   connected = true, onConnect,
   onCollapse,
 }) {
@@ -69,6 +129,17 @@ export default function MailColumn({
   const [path, setPath] = useState([]); // folderIds, racine = []
   const listRef = useRef(null);
   const q = normalize(query.trim());
+
+  // Carte au survol : ouverte après un court délai (anti-flicker), fermée au
+  // départ ou au scroll (le rect deviendrait obsolète).
+  const [preview, setPreview] = useState(null); // { tid, rect }
+  const previewTimer = useRef(null);
+  const openPreview = (tid, el) => {
+    clearTimeout(previewTimer.current);
+    const rect = el.getBoundingClientRect();
+    previewTimer.current = setTimeout(() => setPreview({ tid, rect }), 340);
+  };
+  const closePreview = () => { clearTimeout(previewTimer.current); setPreview(null); };
 
   const currentFolderId = path.length ? path[path.length - 1] : null;
   const currentFolder = currentFolderId ? folderById(currentFolderId) : null;
@@ -83,9 +154,20 @@ export default function MailColumn({
   const threadCoveredBy = (tid) => coveringFolderOf(folderOfThread(tid));
   const threadCovered = (tid) => threadCoveredBy(tid) != null;
 
-  // État dérivé d'un thread : available | partial | full.
+  // État dérivé d'un thread. Fil déjà importé : la base de comparaison n'est
+  // plus « toutes les pièces » mais le DELTA (ce qui n'est pas encore au
+  // dossier) - on ne repropose jamais ce qui est déjà pris.
   const threadState = (tv) => {
+    const imp = importInfo.get(tv.id);
     const s = threadStateMap.get(tv.id);
+    if (imp) {
+      const deltaN = imp.delta.length;
+      if (deltaN === 0) return { kind: 'imported-done', total: 0, taken: 0, importedOn: imp.importedOn };
+      const taken = s ? s.taken.size : 0;
+      if (taken >= deltaN) return { kind: 'full', total: deltaN, taken };
+      if (taken > 0) return { kind: 'partial', total: deltaN, taken };
+      return { kind: 'imported-delta', total: deltaN, taken: 0, deltaN, importedOn: imp.importedOn };
+    }
     const total = 1 + tv.pj; // corps + PJ
     if (!s) return { kind: 'available', total, taken: 0 };
     const taken = s.taken.size;
@@ -100,7 +182,7 @@ export default function MailColumn({
     if (!q) return null;
     const folders = LAB_FOLDERS
       .filter(f => !(f.attributes || []).includes('\\Sent'))
-      .filter(f => normalize(f.name).includes(q) || normalize(folderPath(f)).includes(q));
+      .filter(f => normalize(f.name).includes(q) || normalize(folderBreadcrumb(f)).includes(q));
     const threads = LAB_THREADS
       .filter(t => [t.subject, t.summary, t.snippet, ...(t.senders || []).flatMap(s => [s.name, s.email, s.role])].some(x => x && normalize(x).includes(q)))
       .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -113,9 +195,11 @@ export default function MailColumn({
 
   const enter = (fid) => { setPath(p => [...p, fid]); setQuery(''); listRef.current?.scrollTo?.({ top: 0 }); };
 
-  // tids preneurs (available ou partiel, ni inertes ni couverts) parmi une liste.
+  // tids preneurs (available ou partiel, ni inertes ni couverts ni déjà
+  // importés) parmi une liste. « Tout sélectionner » ne touche jamais un fil
+  // déjà importé : son complément passe par le geste « nouvelles » dédié.
   const takeableOf = (tvs) => tvs
-    .filter(tv => !(phase2 && dejaSuiviThreadIds.has(tv.id)) && !threadCovered(tv.id) && threadState(tv).kind !== 'full')
+    .filter(tv => !(phase2 && dejaSuiviThreadIds.has(tv.id)) && !threadCovered(tv.id) && !importInfo.has(tv.id) && threadState(tv).kind !== 'full')
     .map(tv => tv.id);
 
   // Les threads couverts par un bloc pris ne se rendent PAS ligne par ligne
@@ -154,22 +238,22 @@ export default function MailColumn({
     return (
       <div
         key={fid}
-        className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
+        className={`group relative flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
         style={inert ? { opacity: 0.55 } : undefined}
       >
         <button
           type="button"
-          onClick={() => { if (!dejaSuivi && !coveredBy) enter(fid); }}
-          className={`flex-1 min-w-0 flex items-center gap-2.5 text-left ${dejaSuivi || coveredBy ? 'cursor-default' : ''}`}
-          style={{ ...(dejaSuivi || coveredBy ? { pointerEvents: 'none' } : null), ...(taken ? { opacity: 0.5 } : null) }}
+          onClick={() => { if (!dejaSuivi && !coveredBy && !taken) enter(fid); }}
+          className={`flex-1 min-w-0 flex items-center gap-2.5 text-left ${dejaSuivi || coveredBy || taken ? 'cursor-default' : ''}`}
+          style={dejaSuivi || coveredBy || taken ? { pointerEvents: 'none' } : undefined}
         >
           <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
           <span className="flex-1 min-w-0">
             <span className="text-[13px] text-foreground truncate block">{f.name}</span>
             {coveredBy ? (
-              <span className="text-[11px] text-foreground-secondary truncate block">Inclus via « {coveredBy.name} »</span>
+              <span className="text-[11px] text-foreground-secondary truncate block">Déjà couvert par « {folderBreadcrumb(coveredBy)} »</span>
             ) : showPath ? (
-              <span className="text-[11px] text-foreground-muted truncate block">{folderPath(f)}</span>
+              <span className="text-[11px] text-foreground-muted truncate block">{folderBreadcrumb(f)}</span>
             ) : null}
           </span>
           {!taken && !coveredBy && (dejaSuivi ? <DejaSuiviBadge />
@@ -179,7 +263,7 @@ export default function MailColumn({
               </span>
             ) : (
               <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">
-                {st.folders > 0 ? `${st.folders} dossier${st.folders > 1 ? 's' : ''} · ` : ''}{st.threads} échange{st.threads > 1 ? 's' : ''}
+                {st.threads} échange{st.threads > 1 ? 's' : ''} · {st.pieces} pièces
               </span>
             ))}
           {!inert && !taken && <ChevronRight className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />}
@@ -196,29 +280,38 @@ export default function MailColumn({
     const dejaSuivi = phase2 && dejaSuiviThreadIds.has(tid);
     const coveredBy = threadCoveredBy(tid);
     const covered = coveredBy != null;
-    const inert = dejaSuivi || covered;
-    const state = inert ? { kind: 'inert' } : threadState(tv);
+    const baseInert = dejaSuivi || covered;
+    const state = baseInert ? { kind: 'inert' } : threadState(tv);
+    const importedDone = state.kind === 'imported-done';
+    const importedDelta = state.kind === 'imported-delta';
+    const inert = baseInert || importedDone; // rien de neuf → inerte
     return (
       <React.Fragment key={tid}>
         <div
-          className={`group flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
+          className={`group relative flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
           style={inert ? { opacity: 0.55 } : undefined}
+          onMouseEnter={(e) => openPreview(tid, e.currentTarget)}
+          onMouseLeave={closePreview}
         >
-          {/* Corps de ligne : clic = prendre l'échange. Entièrement pris : le
-              contenu s'estompe et devient inerte - le badge « Ajouté » est le
-              SEUL inverseur (jamais de retrait au clic sur le contenu). */}
+          {/* Corps de ligne : clic = prendre l'échange. Un échange AJOUTÉ reste
+              en plein contraste (c'est un objet acquis, pas un impossible) - le
+              badge « Ajouté » porte le seul retrait ; le contenu n'est pas
+              cliquable. L'estompage est réservé aux impossibles (inert). */}
           <button
             type="button"
-            onClick={inert || state.kind === 'full' ? undefined : () => takeThread(tid)}
+            onClick={inert || state.kind === 'full' ? undefined : () => (importedDelta ? takeThreadDelta(tid) : takeThread(tid))}
             className={`flex-1 min-w-0 flex flex-col gap-0.5 text-left ${inert || state.kind === 'full' ? 'cursor-default' : ''}`}
-            style={state.kind === 'full' ? { opacity: 0.5, pointerEvents: 'none' } : undefined}
-            title={inert || state.kind === 'full' ? undefined : state.kind === 'partial' ? 'Ajouter le reste de l\'échange' : 'Ajouter cet échange'}
+            style={state.kind === 'full' ? { pointerEvents: 'none' } : undefined}
+            title={inert || state.kind === 'full' ? undefined : importedDelta ? 'Ajouter les nouvelles pièces' : state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter cet échange'}
           >
             <span className="flex items-center gap-2.5 min-w-0">
               <span className={`flex-1 min-w-0 text-[13px] leading-5 truncate ${tv.illegible ? 'italic text-foreground-secondary font-normal' : 'font-medium text-foreground'}`}>{tv.subject}</span>
               {state.kind === 'partial' && (
-                <span className="text-[10px] font-medium tabular-nums flex-shrink-0" style={{ color: '#855b31' }}>{state.taken} sur {state.total} ajoutées</span>
+                <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 tabular-nums" style={{ backgroundColor: '#eeece6', color: '#78716c' }}>
+                  <Check className="w-2.5 h-2.5" strokeWidth={2.5} /> {state.taken} sur {state.total} ajouté
+                </span>
               )}
+              {(importedDone || importedDelta) && <DejaImporteBadge />}
               {dejaSuivi ? <DejaSuiviBadge /> : (
                 <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">{relDate(tv.date)}</span>
               )}
@@ -241,15 +334,25 @@ export default function MailColumn({
                 </span>
               )}
             </span>
+            {/* Ligne 3 : aperçu du fil - OU, pour un fil déjà importé, l'état
+                de complétude (le delta à ajouter, ou « à jour »). */}
+            {importedDelta ? (
+              <span className="text-[11px] truncate leading-4 mt-px font-medium" style={{ color: '#855b31' }}>
+                {state.deltaN} nouvelle{state.deltaN > 1 ? 's' : ''} pièce{state.deltaN > 1 ? 's' : ''} depuis l'import du {state.importedOn}
+              </span>
+            ) : importedDone ? (
+              <span className="text-[11px] text-foreground-muted truncate leading-4 mt-px">Importé le {state.importedOn} · à jour</span>
+            ) : tv.summary && !covered ? (
+              <span className="text-[11px] text-foreground-muted truncate leading-4 mt-px">{tv.summary}</span>
+            ) : null}
           </button>
           {state.kind === 'full' && <AjouteBadge onRemove={() => removeThread(tid)} title="Retirer l'échange" />}
           {/* Pas de dépliage sur un échange : la gauche prend des objets
               entiers, la curation corps/PJ vit dans la carte du panier. */}
           {!inert && state.kind !== 'full' && (
             <AjouterChip
-              onAdd={() => takeThread(tid)}
-              label={state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter'}
-              className="mt-0.5"
+              onAdd={() => (importedDelta ? takeThreadDelta(tid) : takeThread(tid))}
+              label={importedDelta ? `${state.deltaN} nouvelle${state.deltaN > 1 ? 's' : ''}` : state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter'}
             />
           )}
         </div>
@@ -272,15 +375,15 @@ export default function MailColumn({
     const hasSub = folderChildren.length > 0;
     return (
       <div
-        className="group mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
+        className="group relative mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
         style={{ borderColor: '#e7e5e3', opacity: inert ? 0.55 : 1 }}
       >
-        <span className="flex-1 min-w-0" style={taken ? { opacity: 0.55 } : undefined}>
+        <span className="flex-1 min-w-0">
           <span className="text-[13px] font-medium text-foreground truncate block">Ajouter « {f.name} » en entier</span>
           <span className="text-[11px] text-foreground-muted truncate block">
             {coveredBy
-              ? `Inclus via « ${coveredBy.name} »`
-              : <>{st.threads} échange{st.threads > 1 ? 's' : ''}, ≈ {st.pieces} pièces{hasSub ? ' · sous-dossiers compris' : ''}{phase2 && !inert ? ' · suivable' : ''}</>}
+              ? `Déjà couvert par « ${folderBreadcrumb(coveredBy)} »`
+              : <>{st.threads} échange{st.threads > 1 ? 's' : ''} · ≈ {st.pieces} pièces{hasSub ? ' · sous-dossiers compris' : ''}{phase2 && !inert ? ' · suivable' : ''}</>}
           </span>
         </span>
         {taken ? <AjouteBadge onRemove={() => removeFolder(fid)} title="Retirer le dossier" />
@@ -297,14 +400,19 @@ export default function MailColumn({
   // Pas de « Tout sélectionner » à la racine (spec §9) : la vue mêle dossiers
   // et échanges récents, « tout » n'y a pas de sens défendable.
   const rootView = () => {
+    // Deux catégories, point : les dossiers (affaires) puis les échanges
+    // récents. Chacune est plafonnée pour rester lisible - le reste se
+    // retrouve par la recherche ; jamais un mur de 26 dossiers qui enterre
+    // les échanges.
     const roots = rootFolders();
-    const nThreadsShown = Math.max(0, CAP_THREADS - roots.length);
+    const fShown = roots.slice(0, CAP_FOLDERS);
     const { visible, covered } = splitCovered(recentThreads);
-    const shown = visible.slice(0, nThreadsShown);
+    const shown = visible.slice(0, 12);
     return (
       <>
-        <MonoHeader>Dossiers Outlook</MonoHeader>
-        {roots.map(f => folderRow(f))}
+        <MonoHeader>Dossiers</MonoHeader>
+        {fShown.map(f => folderRow(f))}
+        <CapLine n={roots.length - fShown.length} hint="recherchez un dossier" />
         <MonoHeader>Échanges récents</MonoHeader>
         {shown.map(tv => threadRow(tv))}
         {coveredLines(covered)}
@@ -444,11 +552,12 @@ export default function MailColumn({
             </div>
           )}
 
-          <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto px-1.5 pb-2">
+          <div ref={listRef} onScroll={closePreview} className="flex-1 min-h-0 overflow-y-auto px-1.5 pb-2">
             {q ? searchView() : path.length > 0 ? drillView() : rootView()}
           </div>
         </>
       )}
+      {preview && <ThreadPreviewCard tid={preview.tid} rect={preview.rect} />}
     </div>
   );
 }

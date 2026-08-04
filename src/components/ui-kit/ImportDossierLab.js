@@ -7,8 +7,9 @@ import GesteBModal from './import/GesteBModal';
 import PiecesPage from './import/PiecesPage';
 import {
   seedPieces, seedSources, seedSuggestions, PENDING_ARRIVALS, mkPiece,
-  detectionFor, threadsOfFolderDeep, folderPath, folderById, statsFor,
+  detectionFor, folderPath, folderById, statsFor,
   LAB_SENDERS, threadById, displaySubject, cleanSubject, approxPieces,
+  DOSSIER_IMPORTED_THREADS, threadImportInfo,
 } from './import/labData';
 
 // « Import & synchronisation email → Pièces du dossier » - lab de la spec du
@@ -21,9 +22,14 @@ import {
 let liveSeq = 0;
 const liveId = (p) => `${p}-${++liveSeq}`;
 
+// Calque « sync » (suivi phase 2) masqué pour l'instant : basculer à true pour
+// le réactiver d'un coup (toggles Suivre, badges Déjà suivi / Nouveau, panneau
+// Sources, geste A, film, sections d'explication du suivi).
+const SYNC_ENABLED = false;
+
 export default function ImportDossierLab() {
   const navigate = useNavigate();
-  const [phase, setPhase] = useState(2);
+  const [phase, setPhase] = useState(SYNC_ENABLED ? 2 : 1);
   const [connected, setConnected] = useState(true);
   const [modal, setModal] = useState(null); // 'c' | 'cbis' | 'b' | 'a' | null
   const [labOpen, setLabOpen] = useState(false);
@@ -51,13 +57,15 @@ export default function ImportDossierLab() {
   };
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
-  // Deep-link : ?open=c|b|a&phase=1|2 (captures Figma, démos).
+  // Deep-link : ?open=c|b|a&phase=1|2&demo=1 (captures Figma, démos).
+  const [demoSeed, setDemoSeed] = useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const open = params.get('open');
-    if (open === 'c' || open === 'cbis' || open === 'b' || open === 'a') setModal(open);
+    if (open === 'c' || open === 'cbis' || open === 'b' || (open === 'a' && SYNC_ENABLED)) setModal(open);
     const ph = params.get('phase');
-    if (ph === '1' || ph === '2') setPhase(Number(ph));
+    if (SYNC_ENABLED && (ph === '1' || ph === '2')) setPhase(Number(ph));
+    if (params.get('demo') === '1') setDemoSeed(true);
   }, []);
 
   const reset = () => {
@@ -247,13 +255,15 @@ export default function ImportDossierLab() {
     };
 
     items.forEach(item => {
+      // Seul un DOSSIER est un concept de source (le suivi vit sur l'arbre). Un
+      // échange est un objet importé, un instantané - jamais une source.
       const followed = suivre.has(item.id);
       let sourceId = null;
-      if (followed && (item.kind === 'folder' || (item.kind === 'thread' && item.origin === 'emails'))) {
+      if (followed && item.kind === 'folder') {
         sourceId = liveId('src-live');
       }
       const provenance = sourceId
-        ? { kind: 'source', sourceId, label: item.kind === 'folder' ? item.folder.path : item.thread.subject }
+        ? { kind: 'source', sourceId, label: item.folder.path }
         : item.origin === 'ordinateur'
           ? { kind: 'drop', sourceId: null, label: 'Déposé à l\'instant' }
           : { kind: 'import', sourceId: null, label: 'Import du 28 juil.' };
@@ -272,13 +282,28 @@ export default function ImportDossierLab() {
         pieces.filter(p => p.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
         count = pieces.length;
       } else if (item.kind === 'folder') {
-        // Bloc RÉCURSIF : tout le contenu, sous-dossiers compris - exactement
-        // ce que la carte et l'aperçu annoncent. Le compte est le compte réel.
+        // Seuls les nœuds RETENUS de l'arbre entrent (les cases font foi). On
+        // parcourt les threads : corps retenu → une pièce email, PJ retenue →
+        // pièce fichier (découpe si active).
         const before = newPieces.length;
-        threadsOfFolderDeep(item.folder.folderId).forEach(tv => {
-          newPieces.push(mkPiece({ name: tv.subject, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
-          tv.attachments.forEach(a => pushFilePieces(a.name, provenance, decoupe.has(`${tv.id}::${a.name}`)));
-        });
+        const walkTree = (node) => {
+          if (node.kind === 'thread') {
+            // Fil sans PJ (feuille) = le corps lui-meme : une piece email.
+            if (!node.children) {
+              if (node.included) newPieces.push(mkPiece({ name: node.name, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
+              return;
+            }
+            const leaves = node.children.filter(l => l.included);
+            if (!leaves.length) return;
+            if (leaves.some(l => l.kind === 'body')) {
+              newPieces.push(mkPiece({ name: node.name, type: 'Correspondance', kind: 'email', nodeId: destinationId, pagesLabel: '', ...stamp, provenance }));
+            }
+            leaves.filter(l => l.kind === 'pj').forEach(pj => pushFilePieces(pj.name, provenance, decoupe.has(pj.key)));
+            return;
+          }
+          (node.children || []).forEach(walkTree);
+        };
+        walkTree(item.folder.tree);
         count = newPieces.length - before;
       } else if (item.kind === 'zip') {
         item.zip.children.forEach(c => {
@@ -289,14 +314,13 @@ export default function ImportDossierLab() {
       }
 
       if (sourceId) {
+        // sourceId n'est posé que sur un dossier (cf. plus haut) : source = arbre.
         newSources.push({
           id: sourceId,
-          kind: item.kind === 'folder' ? 'folder' : 'thread',
-          refId: item.kind === 'folder' ? item.folder.folderId : item.thread.threadId,
-          pathLabel: item.kind === 'folder' ? item.folder.path : item.thread.subject,
-          subtitleBits: item.kind === 'folder'
-            ? [`${item.folder.stats.threads} échange${item.folder.stats.threads > 1 ? 's' : ''}`]
-            : [(item.thread.lead || '').split(' · ')[0]],
+          kind: 'folder',
+          refId: item.folder.folderId,
+          pathLabel: item.folder.path,
+          subtitleBits: [`${item.folder.stats.threads} échange${item.folder.stats.threads > 1 ? 's' : ''}`],
           followed: true, since: '28 juil. 2026', destinationId, decoupeAuto: false,
           newCount: 0, error: null,
           history: [{ id: liveId('h-live'), date: '28 juil.', kind: 'initial', count }],
@@ -348,6 +372,13 @@ export default function ImportDossierLab() {
 
   const dejaSuiviFolderIds = useMemo(() => new Set(sources.filter(s => s.kind === 'folder' && s.followed && s.refId).map(s => s.refId)), [sources]);
   const dejaSuiviThreadIds = useMemo(() => new Set(sources.filter(s => s.kind === 'thread' && s.followed && s.refId).map(s => s.refId)), [sources]);
+  // Fils déjà importés une fois dans Leblanc (snapshot) - certains ont grossi
+  // depuis : la colonne mail y propose le complément du delta.
+  const importInfo = useMemo(() => {
+    const m = new Map();
+    Object.keys(DOSSIER_IMPORTED_THREADS).forEach(tid => { const info = threadImportInfo(tid); if (info) m.set(tid, info); });
+    return m;
+  }, []);
 
   return (
     <PhaseContext.Provider value={phase}>
@@ -362,20 +393,27 @@ export default function ImportDossierLab() {
           </button>
 
           <h1 style={{ fontSize: 26, fontWeight: 700, color: '#1a1a1a', margin: '0 0 6px' }}>
-            Import & synchronisation email
+            {SYNC_ENABLED ? 'Import & synchronisation email' : 'Import email → pièces du dossier'}
           </h1>
           <p style={{ fontSize: 14, color: '#78716c', margin: '0 0 8px', maxWidth: 920, lineHeight: '21px' }}>
-            Deux natures de geste, un seul système : piocher (Ajouter - ponctuel, figé) et lier
-            (Suivre - source vivante, synchronisée). À gauche on choisit, à droite on vérifie ; la
-            sync ne détruit jamais et ne verse jamais silencieusement ; les échecs sont des lignes,
-            pas des silences ; la détection propose, l'utilisateur dispose. Le calque sync (phase 2)
-            se lève d'un flag - rien ne change de place.
+            {SYNC_ENABLED ? (
+              <>Deux natures de geste, un seul système : piocher (Ajouter - ponctuel, figé) et lier
+              (Suivre - source vivante, synchronisée). À gauche on choisit, à droite on vérifie ; la
+              sync ne détruit jamais et ne verse jamais silencieusement ; les échecs sont des lignes,
+              pas des silences ; la détection propose, l'utilisateur dispose. Le calque sync (phase 2)
+              se lève d'un flag - rien ne change de place.</>
+            ) : (
+              <>Alimenter un dossier depuis la boîte mail : on pioche des échanges, des PJ, des
+              fichiers. À gauche on choisit (objets entiers), à droite on vérifie (corps du mail et
+              chaque PJ, curables) ; rien ne s'écrase silencieusement ; la détection propose,
+              l'utilisateur dispose.</>
+            )}
           </p>
 
           <div style={{ height: 1, background: '#f0eee9', margin: '20px 0 24px' }} />
 
           {/* ── Film de présentation - le parcours en 5 gestes clés ── */}
-          <FilmSection />
+          {SYNC_ENABLED && <FilmSection />}
 
           <div className="flex gap-4">
             <LauncherCard
@@ -393,57 +431,63 @@ export default function ImportDossierLab() {
             <LauncherCard
               badge="Geste B · créer"
               title="Nouveau dossier"
-              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook ajouté ; un dossier ajouté ici est suivi par défaut (création = miroir), un thread reste OFF."
+              desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook ajouté ; un dossier ajouté ici est suivi par défaut (création = miroir). Un échange, lui, est un objet importé - jamais une source."
               onOpen={() => setModal('b')}
             />
-            <LauncherCard
-              badge="Geste A · vivre"
-              title="Dossier vivant - pièces & sources"
-              desc="La page Pièces : arborescence, vue « Nouveautés » transverse (bleu), provenance en méta avec filtre par source, drop Finder. Le panneau Sources (master–détail–ajout) : toggle Suivi inline, sync manuelle par source, historique avec échecs en rouge, destination obligatoire, retrait avec choix conserver / retirer."
-              onOpen={() => setModal('a')}
-            />
+            {SYNC_ENABLED && (
+              <LauncherCard
+                badge="Geste A · vivre"
+                title="Dossier vivant - pièces & sources"
+                desc="La page Pièces : arborescence, vue « Nouveautés » transverse (bleu), provenance en méta avec filtre par source, drop Finder. Le panneau Sources (master–détail–ajout) : toggle Suivi inline, sync manuelle par source, historique avec échecs en rouge, destination obligatoire, retrait avec choix conserver / retirer."
+                onOpen={() => setModal('a')}
+              />
+            )}
           </div>
 
           {/* ── Explication de l'epic (pour l'équipe et les parcours user) ── */}
-          <ExplainSection kicker="Le modèle mental" title="Deux natures de geste, un seul système">
-            <p className="text-[14px] text-foreground-secondary leading-relaxed mb-5" style={{ maxWidth: 840 }}>
-              Alimenter un dossier depuis la boîte mail, ce n'est pas une action mais deux intentions.
-              On ne demande jamais à l'avocat de choisir un paradigme en amont :{' '}
-              <span className="font-medium text-foreground">chaque point d'entrée porte déjà son intention</span>.
-            </p>
-            <div className="grid grid-cols-2 gap-4" style={{ maxWidth: 840 }}>
-              <GestureCard
-                accent="#78716c"
-                tag="Piocher"
-                verb="Ajouter"
-                lead="Prélèvement ponctuel, figé."
-                body="Je prends ces pièces-là, maintenant. Une curation fine et légitime. Rien ne bouge après : c'est un instantané."
-              />
-              <GestureCard
-                accent="#1e3a8a"
-                tag="Lier"
-                verb="Suivre"
-                lead="Source vivante, synchronisée."
-                body="Je branche un flux - dossier Outlook, thread ou expéditeur. Les prochains messages arriveront tout seuls, marqués « Nouveau »."
-              />
-            </div>
-          </ExplainSection>
+          {SYNC_ENABLED && (
+            <ExplainSection kicker="Le modèle mental" title="Deux natures de geste, un seul système">
+              <p className="text-[14px] text-foreground-secondary leading-relaxed mb-5" style={{ maxWidth: 840 }}>
+                Alimenter un dossier depuis la boîte mail, ce n'est pas une action mais deux intentions.
+                On ne demande jamais à l'avocat de choisir un paradigme en amont :{' '}
+                <span className="font-medium text-foreground">chaque point d'entrée porte déjà son intention</span>.
+              </p>
+              <div className="grid grid-cols-2 gap-4" style={{ maxWidth: 840 }}>
+                <GestureCard
+                  accent="#78716c"
+                  tag="Piocher"
+                  verb="Ajouter"
+                  lead="Prélèvement ponctuel, figé."
+                  body="Je prends ces pièces-là, maintenant. Une curation fine et légitime. Rien ne bouge après : c'est un instantané."
+                />
+                <GestureCard
+                  accent="#1e3a8a"
+                  tag="Lier"
+                  verb="Suivre"
+                  lead="Source vivante, synchronisée."
+                  body="Je branche un flux - dossier Outlook, thread ou expéditeur. Les prochains messages arriveront tout seuls, marqués « Nouveau »."
+                />
+              </div>
+            </ExplainSection>
+          )}
 
-          <ExplainSection kicker="Le vocabulaire" title="Quatre verbes, jamais de synonyme sur un contrôle">
+          <ExplainSection kicker="Le vocabulaire" title={SYNC_ENABLED ? 'Quatre verbes, jamais de synonyme sur un contrôle' : 'Le vocabulaire, jamais de synonyme sur un contrôle'}>
             <div className="flex flex-wrap gap-2.5" style={{ maxWidth: 840 }}>
               <VerbChip verb="Ajouter" gloss="prendre une fois (figé)" />
-              <VerbChip verb="Suivre" gloss="activer le flux (vivant)" />
-              <VerbChip verb="Retirer" gloss="couper le lien, jamais les pièces" />
+              {SYNC_ENABLED && <VerbChip verb="Suivre" gloss="activer le flux (vivant)" />}
+              <VerbChip verb="Retirer" gloss={SYNC_ENABLED ? 'couper le lien, jamais les pièces' : 'retirer du panier avant import'} />
               <VerbChip verb="Découper" gloss="scinder un document en pièces" />
             </div>
-            <p className="text-[13px] text-foreground-muted leading-relaxed mt-3.5" style={{ maxWidth: 840 }}>
-              Et quatre états, mêmes couleurs partout :
-              <StateTag c="#4a9168" bg="#e4efe8">Suivi</StateTag>·
-              <StateTag c="#78716c">Non suivi</StateTag>·
-              <StateTag c="#3d7a57" bg="#e4efe8">Déjà suivi</StateTag>·
-              <StateTag c="#1e3a8a" bg="#dfe8f5">Nouveau</StateTag>
-              (pièce arrivée par sync).
-            </p>
+            {SYNC_ENABLED && (
+              <p className="text-[13px] text-foreground-muted leading-relaxed mt-3.5" style={{ maxWidth: 840 }}>
+                Et quatre états, mêmes couleurs partout :
+                <StateTag c="#4a9168" bg="#e4efe8">Suivi</StateTag>·
+                <StateTag c="#78716c">Non suivi</StateTag>·
+                <StateTag c="#3d7a57" bg="#e4efe8">Déjà suivi</StateTag>·
+                <StateTag c="#1e3a8a" bg="#dfe8f5">Nouveau</StateTag>
+                (pièce arrivée par sync).
+              </p>
+            )}
           </ExplainSection>
 
           <ExplainSection kicker="Les parcours" title="Quatre portes, dans l'ordre de la vie d'un dossier">
@@ -482,44 +526,50 @@ export default function ImportDossierLab() {
                   "Ni « habituels » ni « Déjà suivi » (le dossier n'existe pas encore) ; « Déjà lié à … » signale un dossier Outlook déjà miroir d'une autre affaire.",
                   "« ← Retour » préserve la composition ; « Créer le dossier » (ou « Créer et suivre »).",
                 ]}
-                rule="Un dossier Outlook ajouté ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un thread, lui, reste OFF."
+                rule="Un dossier Outlook ajouté ici est suivi par défaut - création = déclaration de miroir, le seul opt-out du système. Un échange n'est jamais une source : il est importé, un instantané - seul le dossier se suit."
                 onOpen={() => setModal('b')}
               />
-              <GestureDetail
-                gest="A" title="Dossier vivant" when="le dossier est alimenté et se met à jour seul"
-                lead="Deux surfaces : les pièces (ce que l'avocat lit) et les sources (les tuyaux qui alimentent)."
-                steps={[
-                  "Onglet Pièces : tableau-arbre par catégorie (Correspondance, adverses, médicales…), recherche, pagination - l'anatomie réelle de l'app.",
-                  "Vue « Nouveautés » en tête d'arbre (bleu, transverse) : une sync bascule dessus ; la revisiter éteint les points, la provenance reste.",
-                  "Chaque pièce porte sa provenance (« via [source] ») ; un clic filtre les pièces de cette source.",
-                  "Panneau Sources : connexion + « Vérifier maintenant », sources suivies avec toggle Suivi inline et « Synchroniser » par source, suggestions.",
-                  "Fiche d'une source : Suivi / Découpe automatique / Destination (obligatoire) + historique daté ; « Retirer » demande conserver ou retirer les pièces.",
-                ]}
-                rule="La sync ajoute (marqué « Nouveau »), ne verse jamais silencieusement, ne supprime jamais ; retirer coupe le flux, pas les pièces."
-                onOpen={() => setModal('a')}
-              />
+              {SYNC_ENABLED && (
+                <GestureDetail
+                  gest="A" title="Dossier vivant" when="le dossier est alimenté et se met à jour seul"
+                  lead="Deux surfaces : les pièces (ce que l'avocat lit) et les sources (les tuyaux qui alimentent)."
+                  steps={[
+                    "Onglet Pièces : tableau-arbre par catégorie (Correspondance, adverses, médicales…), recherche, pagination - l'anatomie réelle de l'app.",
+                    "Vue « Nouveautés » en tête d'arbre (bleu, transverse) : une sync bascule dessus ; la revisiter éteint les points, la provenance reste.",
+                    "Chaque pièce porte sa provenance (« via [source] ») ; un clic filtre les pièces de cette source.",
+                    "Panneau Sources : connexion + « Vérifier maintenant », sources suivies avec toggle Suivi inline et « Synchroniser » par source, suggestions.",
+                    "Fiche d'une source : Suivi / Découpe automatique / Destination (obligatoire) + historique daté ; « Retirer » demande conserver ou retirer les pièces.",
+                  ]}
+                  rule="La sync ajoute (marqué « Nouveau »), ne verse jamais silencieusement, ne supprime jamais ; retirer coupe le flux, pas les pièces."
+                  onOpen={() => setModal('a')}
+                />
+              )}
             </div>
           </ExplainSection>
 
-          <ExplainSection kicker="Le phasage" title="Un flag lève un calque - rien ne change de place">
-            <div className="grid grid-cols-2 gap-4" style={{ maxWidth: 840 }}>
-              <PhaseCard n="Phase 1" title="Les imports ponctuels"
-                body="Seul le monde « piocher ». On ajoute des mails et des fichiers, une fois. Aucun objet suivi n'est visible : ni toggle, ni panneau Sources, ni « Nouveautés »." />
-              <PhaseCard n="Phase 2" title="Le calque sync" accent
-                body="Les mêmes écrans + le suivi : toggles « Suivre », badges « Déjà suivi », panneau Sources, vue « Nouveautés », synchronisation. Rien ne bouge de place, un calque se pose." />
-            </div>
-            <p className="text-[13px] text-foreground-muted leading-relaxed mt-3.5" style={{ maxWidth: 840 }}>
-              Le sélecteur <span className="font-medium text-foreground">Lab</span> en bas à gauche bascule entre les deux en direct - la meilleure preuve de modularité : on retire la sync devant témoins.
-            </p>
-          </ExplainSection>
+          {SYNC_ENABLED && (
+            <ExplainSection kicker="Le phasage" title="Un flag lève un calque - rien ne change de place">
+              <div className="grid grid-cols-2 gap-4" style={{ maxWidth: 840 }}>
+                <PhaseCard n="Phase 1" title="Les imports ponctuels"
+                  body="Seul le monde « piocher ». On ajoute des mails et des fichiers, une fois. Aucun objet suivi n'est visible : ni toggle, ni panneau Sources, ni « Nouveautés »." />
+                <PhaseCard n="Phase 2" title="Le calque sync" accent
+                  body="Les mêmes écrans + le suivi : toggles « Suivre », badges « Déjà suivi », panneau Sources, vue « Nouveautés », synchronisation. Rien ne bouge de place, un calque se pose." />
+              </div>
+              <p className="text-[13px] text-foreground-muted leading-relaxed mt-3.5" style={{ maxWidth: 840 }}>
+                Le sélecteur <span className="font-medium text-foreground">Lab</span> en bas à gauche bascule entre les deux en direct - la meilleure preuve de modularité : on retire la sync devant témoins.
+              </p>
+            </ExplainSection>
+          )}
 
           <ExplainSection kicker="Les principes" title="Ce qui ne se négocie pas">
             <div className="grid grid-cols-2 gap-x-8 gap-y-2.5" style={{ maxWidth: 940 }}>
               <Principle>À gauche on choisit, à droite on vérifie.</Principle>
-              <Principle>La sync ne détruit jamais, ne verse jamais silencieusement.</Principle>
+              {SYNC_ENABLED
+                ? <Principle>La sync ne détruit jamais, ne verse jamais silencieusement.</Principle>
+                : <Principle>Rien ne s'écrase silencieusement ; un doublon est signalé.</Principle>}
               <Principle>Les échecs sont des lignes, pas des silences.</Principle>
               <Principle>La détection propose, l'utilisateur dispose.</Principle>
-              <Principle>Défauts conservateurs : pas de découpe, pas de sync (sauf création-miroir).</Principle>
+              <Principle>Défauts conservateurs : pas de découpe par défaut, rien d'irréversible sans geste.</Principle>
               <Principle>La provenance est une métadonnée, pas un rangement.</Principle>
             </div>
           </ExplainSection>
@@ -533,6 +583,8 @@ export default function ImportDossierLab() {
             onConnect={() => setConnected(true)}
             dejaSuiviFolderIds={dejaSuiviFolderIds}
             dejaSuiviThreadIds={dejaSuiviThreadIds}
+            importInfo={importInfo}
+            demoSeed={demoSeed}
           />
         )}
         {modal === 'cbis' && (
@@ -574,11 +626,13 @@ export default function ImportDossierLab() {
           {labOpen ? (
             <div className="flex items-center gap-3 rounded-xl border border-border px-3 py-2 shadow-lg" style={{ backgroundColor: '#fcfbfa' }}>
               <button onClick={() => setLabOpen(false)} style={monoLabel} className="hover:opacity-70 transition-opacity" title="Replier">Lab</button>
-              <LabSeg
-                value={phase}
-                onChange={setPhase}
-                options={[{ value: 1, label: 'Phase 1 · imports' }, { value: 2, label: 'Phase 2 · + sync' }]}
-              />
+              {SYNC_ENABLED && (
+                <LabSeg
+                  value={phase}
+                  onChange={setPhase}
+                  options={[{ value: 1, label: 'Phase 1 · imports' }, { value: 2, label: 'Phase 2 · + sync' }]}
+                />
+              )}
               <span className="flex items-center gap-1.5">
                 <LabSwitch checked={connected} onChange={setConnected} />
                 <span className="text-[11px] font-medium text-foreground-secondary">Email connecté</span>

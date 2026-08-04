@@ -3,8 +3,8 @@
 // Nouveau (bleu) · échecs (rouge/ambre).
 
 import React, { createContext, useContext, useState } from 'react';
-import { ArrowDown, Check, Minus, Plus, Scissors, AlertTriangle, Mail, X } from 'lucide-react';
-import outlookLogo from '../../../assets/outlook.svg';
+import { ArrowDown, Check, Minus, Plus, Scissors, AlertTriangle, X } from 'lucide-react';
+import { ConnectorPromoPanel } from '../../connectors/ConnectorPromo';
 
 // ── Phase (le calque sync se lève d'un flag - rien ne change de place) ──────
 export const PhaseContext = createContext(2);
@@ -114,21 +114,20 @@ export function AjouteBadge({ onRemove, title = 'Retirer', label = 'Ajouté' }) 
 
 // LE contrôle de prise de la colonne mail (il n'y a pas de case à gauche : la
 // gauche prend des objets entiers, une case qui ne se coche jamais serait un
-// mensonge de contrôle). Même place, même géométrie que le badge « Ajouté » :
-// survoler une ligne disponible montre son futur (« + Ajouter » → « Ajouté »).
-// L'espace est réservé (opacity) pour que rien ne saute ; révélé aussi au
-// focus clavier.
-export function AjouterChip({ onAdd, label = 'Ajouter', title, className = '' }) {
+// mensonge de contrôle). Il ne réserve PAS d'espace : il flotte en absolu au
+// bord droit et n'apparaît qu'au survol / focus, POSÉ sur le contenu (fond
+// plein + ombre) - la ligne garde toute sa largeur pour son contenu.
+export function AjouterChip({ onAdd, label = 'Ajouter', title }) {
   return (
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
-      className={`inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ${className}`}
-      style={{ backgroundColor: '#ffffff', border: '1px solid #d6d3d1', color: '#292524' }}
+      className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-opacity"
+      style={{ backgroundColor: '#ffffff', border: '1px solid #d6d3d1', color: '#292524', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.16), 0 1px 2px rgba(28,25,23,0.10)' }}
       title={title}
       aria-label={title || label}
     >
-      <Plus className="w-2.5 h-2.5" strokeWidth={2.5} />
+      <Plus className="w-3 h-3" strokeWidth={2.5} />
       {label}
     </button>
   );
@@ -148,6 +147,16 @@ export function NonSuiviBadge() {
   return (
     <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground-muted flex-shrink-0">
       <span className="w-1.5 h-1.5 rounded-full border" style={{ borderColor: '#a8a29e' }} aria-hidden /> Non suivi
+    </span>
+  );
+}
+
+// « Déjà importé » : le fil a déjà été pioché une fois (snapshot). GRIS neutre
+// (pas de vert : ce n'est pas un suivi). Constat, non cliquable.
+export function DejaImporteBadge() {
+  return (
+    <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#eeece6', color: '#78716c', opacity: 1 }}>
+      Déjà importé
     </span>
   );
 }
@@ -195,23 +204,20 @@ export function TypeChip({ children }) {
 }
 
 // ── Découpe (spec §6) ───────────────────────────────────────────────────────
-// off : « Découper » (sobre) · on : pill sombre « Sera découpé » - re-clic
-// annule. Le VERT est réservé à « Suivi » (vocabulaire des couleurs) : l'état
-// actif reprend le sombre des cases cochées. Jamais de compte de pièces
-// détectées affiché ; jamais sur images ni emails (le parent ne rend pas le
-// contrôle).
+// off : « Découper » (sobre, avec libellé) · on : juste une petite icône ciseaux
+// sombre (l'état « sera découpé » se lit d'un coup d'œil, sans texte) - re-clic
+// annule. Le VERT est réservé à « Suivi ». Jamais sur images ni emails.
 export function DecoupeControl({ on, onToggle }) {
   if (on) {
     return (
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
-        className="inline-flex items-center gap-1 h-6 px-2 rounded-full text-[11px] font-medium flex-shrink-0 transition-colors"
+        className="inline-flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors"
         style={{ backgroundColor: '#292524', color: '#f5f4f1' }}
-        title="Annuler la découpe"
+        title="Sera découpé - cliquer pour annuler"
       >
-        <Check className="w-3 h-3" strokeWidth={2.5} />
-        Sera découpé
+        <Scissors className="w-3 h-3" strokeWidth={2} />
       </button>
     );
   }
@@ -285,31 +291,10 @@ export function ConfirmDialog({ title, children, onClose }) {
 }
 
 // ── État vide « email non connecté » (une seule vérité, trois surfaces) ─────
+// Le visuel vit dans connectors/ConnectorPromo - même promesse, mêmes
+// garanties que la modale connecteur et le bandeau d'engagement.
 export function ConnectScreen({ onConnect, compact = false }) {
-  return (
-    <div className={`flex-1 min-h-0 flex flex-col items-center justify-center gap-4 text-center ${compact ? 'px-6 py-8' : 'px-10 py-12'}`}>
-      <span className="relative inline-flex">
-        <span className="inline-flex items-center justify-center rounded-full p-4" style={{ backgroundColor: '#eeece6', border: '1px solid #d6d3d1' }}>
-          <Mail className="w-6 h-6 text-foreground" strokeWidth={1.75} />
-        </span>
-        <img src={outlookLogo} alt="" className="absolute -bottom-1 -right-1 w-5 h-5" />
-      </span>
-      <div className="flex flex-col gap-1" style={{ maxWidth: 340 }}>
-        <p className="text-sm font-medium text-foreground">Connectez votre boîte mail</p>
-        <p className="text-[13px] text-foreground-secondary leading-5">
-          Ajoutez des échanges et leurs PJ directement depuis Outlook ou Gmail - sans export manuel.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onConnect}
-        className="h-9 px-4 rounded-lg text-sm font-medium text-white transition-colors"
-        style={{ backgroundColor: '#292524' }}
-      >
-        Connecter Outlook
-      </button>
-    </div>
-  );
+  return <ConnectorPromoPanel provider="outlook" compact={compact} onConnect={onConnect} />;
 }
 
 // ── Coude d'indentation des PJ ──────────────────────────────────────────────
