@@ -4,7 +4,7 @@
 // (défaut conservateur : OFF) ; le CTA devient « Ajouter et suivre » dès
 // qu'un suivi est actif.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import Button from '../../ui/Button';
 import { ModalOverlay, Droppable, ConfirmDialog, usePhase2 } from './atoms';
@@ -52,10 +52,28 @@ function DestinationSelect({ value, onChange }) {
 
 // `habituels` : la section n'existe que si le dossier a DÉJÀ importé depuis la
 // boîte mail (la frecency se construit) - premier import → boîte nue.
-export default function GesteCModal({ onClose, onCommit, connected, onConnect, dejaSuiviFolderIds, dejaSuiviThreadIds, dossierLabel = 'Leblanc c/ AXA' }) {
+export default function GesteCModal({ onClose, onCommit, connected, onConnect, dejaSuiviFolderIds, dejaSuiviThreadIds, importInfo, dossierLabel = 'Leblanc c/ AXA', demoSeed = false }) {
   const phase2 = usePhase2();
   const c = useComposer();
   const { items, decoupe, suivre } = c;
+
+  // ?demo=1 : pré-compose un panier représentatif de TOUS les états finalisés
+  // (doublon, partiel, découpe, dossier curable suivi, fichiers locaux) - pour
+  // les captures Figma et les démos. Jamais actif hors deep-link.
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (!demoSeed || seededRef.current) return;
+    seededRef.current = true;
+    c.takeThreadDelta('th-expertise'); // fil déjà importé qui a grossi → complément du delta
+    const partial = c.takeThread('th-mutuelle');
+    if (partial) c.togglePieceById(partial.id, 'th-mutuelle::body', false); // partiel : corps décoché
+    c.takeThread('th-employeur');
+    c.toggleDecoupe('th-employeur::Bulletins_salaire_2024.pdf'); // découpe active
+    const fo = c.takeFolder('f-cli-0'); // dossier d'affaire → picker
+    if (fo) c.toggleSuivre(fo.id); // suivi ON → CTA « Ajouter et suivre »
+    c.addLocalFiles(2); // fichiers locaux (upload puis prêt)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoSeed]);
   const [collapsed, setCollapsed] = useState(false);
   // Défaut CONSERVATEUR : « Sans catégorie ». Un défaut métier (Correspondance)
   // rangerait silencieusement un rapport d'expertise au mauvais endroit.
@@ -142,12 +160,14 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
                 threadStateMap={c.threadStateMap}
                 stagedFolderIds={stagedFolderIds}
                 takeThread={c.takeThread}
+                takeThreadDelta={c.takeThreadDelta}
                 takeManyThreads={c.takeManyThreads}
                 takeFolder={c.takeFolder}
                 removeFolder={c.removeFolder}
                 removeThread={c.removeThread}
                 dejaSuiviFolderIds={dejaSuiviFolderIds}
                 dejaSuiviThreadIds={dejaSuiviThreadIds}
+                importInfo={importInfo}
                 connected={connected}
                 onConnect={onConnect}
                 onCollapse={() => setCollapsed(true)}
@@ -159,8 +179,10 @@ export default function GesteCModal({ onClose, onCommit, connected, onConnect, d
             items={items}
             onRemove={c.removeItem}
             onTogglePiece={c.togglePieceById}
+            onToggleFolderNode={c.toggleFolderNode}
             decoupe={decoupe}
             onToggleDecoupe={c.toggleDecoupe}
+            onToggleDecoupeMany={c.toggleDecoupeMany}
             onToggleAllDecoupe={c.toggleAllDecoupe}
             suivre={suivre}
             onToggleSuivre={c.toggleSuivre}

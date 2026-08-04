@@ -111,28 +111,48 @@ export const LAB_SENDERS = [
   { email: 'cpam-remboursements@ameli.fr', name: 'CPAM - Service RCT', role: 'CPAM', exchanges: 2, isShared: true, sharedWith: '4 autres dossiers du cabinet' },
 ];
 
-// ── Dossiers Outlook (échelle : 134 dossiers, ~1 800 threads) ──────────────
-const CLIENT_LAST = ['Bernard', 'Petit', 'Durand', 'Girard', 'Lefèvre', 'Rousseau', 'Vincent', 'Fournier', 'Morel', 'Garcia', 'Roux', 'Chevalier', 'Faure', 'André', 'Mercier', 'Blanc', 'Guérin', 'Boyer', 'Garnier', 'Lambert', 'Bonnet', 'François', 'Martinez', 'Legrand', 'Robin', 'Clément', 'Gauthier', 'Dumont', 'Lopez', 'Fontaine'];
-const ADVERSAIRE = ['AXA', 'MAAF', 'Allianz', 'Groupama', 'MACIF', 'GMF', 'CPAM', 'URSSAF', 'Pôle emploi', 'SNCF', 'EDF', 'Orange', 'La Poste', 'Generali'];
+// ── Dossiers Outlook - données RÉALISTES de cabinet d'avocats ───────────────
+// Un dossier par affaire : « Client c/ Partie adverse » ou « Client - Nature ».
+// 2-5 sous-dossiers par affaire, tirés des familles de pièces réelles. Tout est
+// déterministe (hash de l'index) : stable entre rendus.
+const CLIENT_LAST = ['Dupont', 'Rivière', 'Lemoine', 'Fabre', 'Nguyen', 'Rousseau', 'Petit', 'Morel', 'Ollivier', 'Legrand', 'Chevalier', 'Faure', 'Mercier', 'Guérin', 'Lambert', 'Bonnet', 'Garnier', 'Renaud', 'Brun', 'Deschamps', 'Perret', 'Barbier', 'Hoarau', 'Marchand', 'Colin', 'Vidal', 'Caron', 'Leroy', 'Noël', 'Aubert'];
+const CLIENT_ENTITY = ['SCI Lorraine', 'SARL Descamps', 'Groupe Vasseur', 'SAS Verdier', 'Chantiers Morel', 'Consorts Bréa', 'SCI du Parc', 'EURL Lenoir', 'SAS Prima', 'Domaine Vaugelas', 'SARL Bâti-Sud', 'Indivision Roy'];
+const ADVERSAIRE = ['MAIF', 'CPAM', 'AXA', 'MACIF', 'Allianz', 'Pôle emploi', 'URSSAF', 'MAAF', 'Groupama', 'GMF', 'la MMA', 'Generali', 'la SNCF', 'Orange'];
+const NATURE = ['Bail commercial', 'Succession', 'Contentieux fournisseur', 'Prud\'hommes', 'Divorce', 'Recouvrement', 'Redressement', 'Indivision', 'Malfaçons', 'Congé', 'Rupture commerciale', 'Servitude'];
+const PIECE_FAMILIES = ['Pièces adverses', 'Correspondances confrère', 'Expertise médicale', 'Audiences & conclusions', 'Honoraires', 'Pièces communiquées', 'Constitution de dossier', 'Archives 2024'];
+
+const N_CLIENTS = 24;
+const famKey = (fam) => fam.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '');
 
 export const LAB_FOLDERS = (() => {
-  const out = [...OUTLOOK_FOLDERS];
-  // 128 dossiers clients synthétiques + 6 du seed = 134 (référence spec §8).
-  for (let i = 0; i < 128; i++) {
-    const last = CLIENT_LAST[i % CLIENT_LAST.length];
-    const adv = ADVERSAIRE[(i * 5) % ADVERSAIRE.length];
+  // Les AFFAIRES s'affichent directement à la racine : on retire le conteneur
+  // « Clients » et la « Boîte de réception » ; les dossiers du seed qui étaient
+  // sous « Clients » (Leblanc, Moreau) remontent à la racine.
+  const base = OUTLOOK_FOLDERS
+    .filter(f => f.id !== 'f-clients' && f.id !== 'f-inbox')
+    .map(f => (f.parentId === 'f-clients' ? { ...f, parentId: null } : f));
+  const out = [...base];
+  const hh = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100003; return h; };
+  for (let i = 0; i < N_CLIENTS; i++) {
     const id = `f-cli-${i}`;
-    out.push({ id, name: `${last} c/ ${adv}`, parentId: 'f-clients', attributes: [] });
-    if (i < 6) {
-      out.push({ id: `${id}-corr`, name: 'Correspondance', parentId: id, attributes: [] });
-      out.push({ id: `${id}-pieces`, name: 'Pièces adverses', parentId: id, attributes: [] });
+    const h = hh(id);
+    // ~1 affaire sur 3 est « Entité - Nature », le reste « Nom c/ Adversaire ».
+    const name = (h % 3 === 0)
+      ? `${CLIENT_ENTITY[h % CLIENT_ENTITY.length]} - ${NATURE[(h * 7) % NATURE.length]}`
+      : `${CLIENT_LAST[i % CLIENT_LAST.length]} c/ ${ADVERSAIRE[(h * 5) % ADVERSAIRE.length]}`;
+    out.push({ id, name, parentId: null, attributes: [] });
+    // 2-5 sous-dossiers distincts, tirés des familles de pièces.
+    const nSub = 2 + (h % 4);
+    const pool = [...PIECE_FAMILIES];
+    for (let s = 0; s < nSub && pool.length; s++) {
+      const fam = pool.splice((h * (s + 3)) % pool.length, 1)[0];
+      out.push({ id: `${id}-${famKey(fam)}`, name: fam, parentId: id, attributes: [] });
     }
   }
   return out;
 })();
 
-export const TOTAL_FOLDERS = 134;
-export const TOTAL_THREADS = 1834;
+export const TOTAL_FOLDERS = LAB_FOLDERS.length;
 
 export const folderById = (id) => LAB_FOLDERS.find(f => f.id === id) || null;
 
@@ -175,13 +195,64 @@ export function descendantFolders(fid) {
   return out;
 }
 
+// Chemin en fil d'Ariane (« Clients / Leblanc c/ AXA ») - construit depuis la
+// chaîne de parents, jamais par split de string : les noms contiennent « / ».
+export function folderChainNames(folder, folders = LAB_FOLDERS) {
+  const chain = [];
+  let cur = typeof folder === 'string' ? folders.find(f => f.id === folder) : folder;
+  let guard = 0;
+  while (cur && guard++ < 10) {
+    chain.unshift(cur.name);
+    const parentId = cur.parentId;
+    cur = parentId ? folders.find(f => f.id === parentId) : null;
+  }
+  return chain;
+}
+export const folderBreadcrumb = (folder) => folderChainNames(folder).join(' / ');
+
+// Composition d'un dossier : ses sous-dossiers IMMÉDIATS, chacun avec son
+// double compte profond (échanges · pièces). Inventaire, pas des lignes
+// suivables (un source = un sous-arbre).
+export function folderComposition(fid) {
+  return childFolders(fid).map(f => ({ folder: f, stats: statsForDeep(f.id) }));
+}
+
+// Un dossier « conteneur large » couvre plusieurs affaires : suivre / importer
+// en bloc verse toutes leurs pièces dans un seul dossier Plato. Le seuil
+// distingue une STRUCTURE de travail (2-3 sous-dossiers : Correspondance,
+// Expertise) d'un CONTENEUR d'affaires (« Clients » : 130 dossiers-affaires).
+export const CONTAINER_MIN_CHILDREN = 5;
+export function folderSpan(fid) {
+  const kids = childFolders(fid);
+  const deep = statsForDeep(fid);
+  return { multi: kids.length >= CONTAINER_MIN_CHILDREN, nAffaires: kids.length, pieces: deep.pieces, threads: deep.threads };
+}
+
+// Échantillon plat des échanges d'un bloc, chacun avec son dossier d'origine
+// (provenance par message) - premiers `limit`.
+export function threadSampleDeep(fid, limit = 8) {
+  const groups = threadGroupsOfFolderDeep(fid);
+  const flat = [];
+  for (const g of groups) {
+    for (const tv of g.threads) {
+      flat.push({ tv, origin: g.folder });
+      if (flat.length >= limit) return flat;
+    }
+  }
+  return flat;
+}
+
 // ── Stats & threads synthétiques (chaque dossier est explorable) ───────────
 const hashOf = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973; return h; };
 
 const synthThreadCount = (folderId) => {
+  // Un CONTENEUR (dossier d'affaire, « Clients ») n'a pas d'échange en propre :
+  // son contenu vit dans les sous-dossiers. Une famille de pièces (feuille) a
+  // une volumétrie VARIÉE : la plupart 1-8, ~1/6 volumineux (10-20).
+  if (childFolders(folderId).length > 0) return 0;
   const h = hashOf(folderId);
-  const sub = /-(corr|pieces)$/.test(folderId);
-  return sub ? 3 + (h % 5) : 8 + (h % 23);
+  const heavy = h % 6 === 0;
+  return heavy ? 10 + (h % 11) : 1 + (h % 8);
 };
 
 // « N échanges, ≈ P pièces » de la carte « en entier ». Réels si le dossier
@@ -237,6 +308,18 @@ const STUB_PJ = [
   'CR_consultation.pdf', 'Bordereau_communication.pdf',
 ];
 const STUB_DATES = ['2026-07-21', '2026-07-09', '2026-06-28', '2026-06-15', '2026-05-30', '2026-05-11'];
+// Aperçu d'une ligne (résumé synthétique du fil) - la même règle que les vrais
+// threads : une phrase qui dit de quoi parle l'échange.
+const STUB_SNIPPETS = [
+  'Transmission des pièces réclamées par le confrère, avec accusé de réception.',
+  'Réponse à votre courrier : compléments demandés sur le dossier en cours.',
+  'Convocation à l\'audience de mise en état, calendrier de procédure joint.',
+  'Complément de justificatifs de frais pour le poste de préjudice concerné.',
+  'Certificat médical actualisé transmis par le secrétariat du praticien.',
+  'Discussion sur la proposition d\'indemnisation et les postes contestés.',
+  'Attestation demandée en vue de la constitution du dossier probatoire.',
+  'Compte rendu de consultation et suites envisagées par le médecin.',
+];
 
 // Échanges déterministes d'un dossier synthétique - AUTANT que ce que la
 // carte « en entier » annonce (statsFor) : l'aperçu montre tout, jamais de
@@ -254,6 +337,7 @@ export function synthThreadsFor(folderId) {
       synthetic: true,
       folderId,
       subject: i >= STUB_SUBJECTS.length ? `Re : ${base.replace(/^Re : /, '')}` : base,
+      snippet: STUB_SNIPPETS[(h + i * 2) % STUB_SNIPPETS.length],
       senderLabel: STUB_SENDER_LABELS[(h + i * 3) % STUB_SENDER_LABELS.length],
       date: STUB_DATES[(h + i) % STUB_DATES.length],
       messageCount: 1 + ((h + i) % 6),
@@ -271,7 +355,7 @@ export function threadView(t) {
   if (t.synthetic) {
     return {
       id: t.id, synthetic: true, folderId: t.folderId,
-      subject: t.subject, illegible: false,
+      subject: t.subject, illegible: false, summary: t.snippet || null,
       sender: t.senderLabel, date: t.date,
       msg: t.messageCount, pj: t.attachmentCount,
       attachments: (t.attachments || []).map(a => ({ name: a.name, decoupable: /\.(pdf|docx?)$/i.test(a.name) })),
@@ -281,6 +365,9 @@ export function threadView(t) {
   return {
     id: t.id, synthetic: false, folderId: t.folderId,
     subject: ds.text, illegible: ds.illegible,
+    // Aperçu : le résumé synthétisé du fil, sinon l'extrait brut. Jamais quand
+    // l'objet est illisible - dans ce cas le résumé EST déjà le sujet affiché.
+    summary: ds.illegible ? null : (t.summary || t.snippet || null),
     sender: senderLine(t), date: t.date,
     msg: t.messageCount, pj: t.attachmentCount,
     attachments: (t.attachments || []).map(a => ({ name: a.name, decoupable: /\.(pdf|docx?)$/i.test(a.name), type: a.pool?.type })),
@@ -318,6 +405,31 @@ export const folderOfThread = (tid) => {
   const m = /^(.*)-th-\d+$/.exec(tid || '');
   return m ? m[1] : null;
 };
+
+// Aperçu riche d'un échange (carte au survol) : de quoi décider VITE sans ouvrir.
+// Sujet · expéditeur · date · résumé du fil · pièces (corps + PJ avec type /
+// pages / résumé) · infos extraites. Enrichi depuis le seed si dispo.
+export function threadPreview(tid) {
+  const tv = threadViewById(tid);
+  if (!tv) return null;
+  const raw = threadById(tid);
+  const poolByName = raw ? Object.fromEntries((raw.attachments || []).map(a => [a.name, a.pool])) : {};
+  const pieces = [
+    { kind: 'body', name: 'Corps du mail', detail: tv.msg > 1 ? `${tv.msg} messages` : '1 message', type: null, summary: raw?.body?.summary || null },
+    ...tv.attachments.map(a => {
+      const pool = poolByName[a.name];
+      return { kind: 'pj', name: a.name, type: pool?.type || a.type || null, detail: pool?.pages ? `${pool.pages} p.` : null, summary: pool?.summary || null };
+    }),
+  ];
+  const info = raw?.body?.extractedInfo || null;
+  return {
+    subject: tv.subject, illegible: tv.illegible, sender: tv.sender, date: relDate(tv.date),
+    msg: tv.msg, pj: tv.pj,
+    summary: raw?.body?.summary || tv.summary || null,
+    pieces,
+    info: info && Object.keys(info).length ? info : null,
+  };
+}
 
 // ── Habituels (frecency par dossier Plato, max 6, dédupliqués) ─────────────
 export const LAB_HABITUELS = [
@@ -413,9 +525,38 @@ const FILLER_PIECES = Array.from({ length: 24 }, (_, i) => ({
 
 export const seedPieces = () => { pieceSeq = 0; return [...HAND_PIECES, ...FILLER_PIECES].map(mkPiece); };
 
-// Threads dont le contenu est déjà dans le dossier → mention doublon inline
-// au panier (jamais d'écrasement silencieux).
-export const DOSSIER_THREAD_IDS = new Set(['th-expertise', 'th-arret']);
+// ── Fils DÉJÀ IMPORTÉS une fois (snapshot, sans suivi) ──────────────────────
+// L'import est un instantané : si le fil a grossi DEPUIS (nouvelles PJ,
+// nouveaux messages), ces pièces ne sont PAS au dossier - on les complète
+// manuellement (pas de sync : le thread n'est jamais une source). `inNames` =
+// PJ déjà au dossier ('ALL' = tout le fil de l'époque) ; le corps est toujours
+// au dossier. `newMessages` : le fil a grossi → corps « à actualiser ».
+export const DOSSIER_IMPORTED_THREADS = {
+  // Expertise importée le 2 juil. (corps 3 msg + rapport). Depuis : le fil a
+  // gagné 2 messages ET les annexes d'imagerie sont arrivées.
+  'th-expertise': { importedOn: '2 juil.', inNames: ['Rapport_expertise_04-03-2025.pdf'], newMessages: 2 },
+  // Arrêt de travail : tout est au dossier, rien de neuf.
+  'th-arret': { importedOn: '2 juil.', inNames: 'ALL', newMessages: 0 },
+};
+
+// État d'import d'un fil : { importedOn, inSet, delta:[{key,kind,name,reason}], total }.
+// delta = pièces courantes PAS encore au dossier (nouvelles PJ + corps actualisé
+// si le fil a grossi). reason ∈ 'nouvelle' | 'actualisé'.
+export function threadImportInfo(tid) {
+  const rec = DOSSIER_IMPORTED_THREADS[tid];
+  if (!rec) return null;
+  const tv = threadViewById(tid);
+  if (!tv) return null;
+  const pjNames = tv.attachments.map(a => a.name);
+  const inNames = rec.inNames === 'ALL' ? pjNames : rec.inNames;
+  const inSet = new Set([bodyKey(tid), ...inNames.map(n => pjKey(tid, n))]);
+  const delta = [];
+  if (rec.newMessages > 0) delta.push({ key: `${bodyKey(tid)}::maj`, kind: 'body', name: 'Corps du mail', reason: 'actualisé', newMessages: rec.newMessages, msg: tv.msg });
+  tv.attachments.forEach(a => {
+    if (!inSet.has(pjKey(tid, a.name))) delta.push({ key: pjKey(tid, a.name), kind: 'pj', name: a.name, decoupable: a.decoupable, reason: 'nouvelle' });
+  });
+  return { importedOn: rec.importedOn, inSet, delta, total: 1 + tv.pj };
+}
 
 // ── Sources (le lien vivant) ────────────────────────────────────────────────
 // history[].kind : arrival | failure | doublon | decoupe | initial
@@ -558,7 +699,6 @@ export function mkThreadItem(tid, { onlyKey = null, origin = 'emails' } = {}) {
   if (!tv) return null;
   return mkItem({
     kind: 'thread', origin,
-    status: DOSSIER_THREAD_IDS.has(tid) ? 'doublon' : 'ready',
     thread: {
       threadId: tid, subject: tv.subject, illegible: tv.illegible,
       lead: `${tv.sender} · ${relDate(tv.date)}`, msg: tv.msg,
@@ -567,33 +707,108 @@ export function mkThreadItem(tid, { onlyKey = null, origin = 'emails' } = {}) {
   });
 }
 
+// Thread → item « complément » : n'entre qu'avec le DELTA (nouvelles PJ + corps
+// actualisé), jamais les pièces déjà au dossier. Porte `topUp` pour la carte.
+export function mkThreadDeltaItem(tid) {
+  const info = threadImportInfo(tid);
+  if (!info || info.delta.length === 0) return null;
+  const tv = threadViewById(tid);
+  const pieces = info.delta.map(d => ({
+    key: d.key, kind: d.kind, name: d.name, decoupable: d.decoupable,
+    msg: d.msg, reason: d.reason, newMessages: d.newMessages, included: true,
+  }));
+  return mkItem({
+    kind: 'thread', origin: 'emails',
+    topUp: { importedOn: info.importedOn },
+    thread: {
+      threadId: tid, subject: tv.subject, illegible: tv.illegible,
+      lead: `${tv.sender} · ${relDate(tv.date)}`, msg: tv.msg, pieces,
+    },
+  });
+}
+
 // Dossier → item du panier (bloc RÉCURSIF, aperçu en lecture seule). Les stats
 // sont profondes : ce que la carte annonce est ce que le commit importe.
+// Dossier → item du panier. Un dossier d'affaire est MATÉRIALISÉ et curable :
+// ses échanges (groupés par sous-dossier) et leurs pièces portent un `included`,
+// décochables dans le panier. Un CONTENEUR large (≥5 sous-dossiers) ne l'est
+// pas (curer des milliers de lignes n'a pas de sens) : il reste un bloc en
+// lecture seule, on le recentre via « à la place ».
+// ── Arbre récursif d'un dossier (sélection par nœud) ────────────────────────
+// Dossier → Sous-dossier → Thread → [Corps + PJ]. Feuilles = corps/PJ, chacune
+// `included`. TOUT dossier est un arbre curable, sans distinction conteneur.
+// Les clés de feuilles = bodyKey/pjKey : découpe et commit s'alignent sans code.
+function threadNode(tv) {
+  // Fil sans PJ = le corps du mail lui-meme : une feuille (pas de chevron, pas
+  // de « Corps du mail » indente a l'interieur).
+  if (!tv.attachments || tv.attachments.length === 0) {
+    return { key: tv.id, kind: 'thread', name: tv.subject, sub: tv.sender, illegible: tv.illegible, msg: tv.msg, bodyOnly: true, included: true };
+  }
+  return {
+    key: tv.id, kind: 'thread', name: tv.subject, sub: tv.sender, illegible: tv.illegible,
+    children: [
+      { key: bodyKey(tv.id), kind: 'body', name: 'Corps du mail', msg: tv.msg, included: true },
+      ...tv.attachments.map(a => ({ key: pjKey(tv.id, a.name), kind: 'pj', name: a.name, decoupable: a.decoupable, included: true })),
+    ],
+  };
+}
+export function buildFolderNode(fid) {
+  const f = folderById(fid);
+  if (!f) return null;
+  const subs = childFolders(fid).map(sf => buildFolderNode(sf.id)).filter(Boolean);
+  const threads = threadsOfFolder(fid).map(threadNode);
+  return { key: fid, kind: 'folder', name: f.name, children: [...subs, ...threads] };
+}
+
+// Helpers d'arbre (inclusion inline sur les feuilles).
+export function treeLeaves(node) { return node.children ? node.children.flatMap(treeLeaves) : [node]; }
+export function treeCounts(node) {
+  const leaves = treeLeaves(node);
+  let included = 0; leaves.forEach(l => { if (l.included) included += 1; });
+  return { total: leaves.length, included };
+}
+export function treeState(node) {
+  const { total, included } = treeCounts(node);
+  return included === 0 ? 'none' : included === total ? 'all' : 'some';
+}
+export function treeThreadTotals(node) {
+  if (node.kind === 'thread') { const c = treeCounts(node); return { threads: 1, included: c.included > 0 ? 1 : 0 }; }
+  if (!node.children) return { threads: 0, included: 0 };
+  return node.children.reduce((a, c) => { const t = treeThreadTotals(c); return { threads: a.threads + t.threads, included: a.included + t.included }; }, { threads: 0, included: 0 });
+}
+function setAllLeaves(node, val) {
+  if (!node.children) return { ...node, included: val };
+  return { ...node, children: node.children.map(c => setAllLeaves(c, val)) };
+}
+// Nouvel arbre avec toutes les feuilles sous `targetKey` mises à `val`.
+export function mapTreeInclude(node, targetKey, val) {
+  if (node.key === targetKey) return setAllLeaves(node, val);
+  if (!node.children) return node;
+  return { ...node, children: node.children.map(c => mapTreeInclude(c, targetKey, val)) };
+}
+
 export function mkFolderItem(fid) {
   const f = folderById(fid);
   if (!f) return null;
   return mkItem({
     kind: 'folder', origin: 'emails',
-    folder: { folderId: fid, name: f.name, path: folderPath(f), stats: statsForDeep(fid) },
+    folder: { folderId: fid, name: f.name, path: folderPath(f), stats: statsForDeep(fid), tree: buildFolderNode(fid) },
   });
 }
 
-// Pièces d'un thread réellement retenues (cochées).
-export const includedPieces = (thread) => thread.pieces.filter(p => p.included);
+// Comptes réellement retenus d'un dossier (échanges + pièces).
+export function folderIncludedCounts(folder) {
+  const c = treeCounts(folder.tree);
+  const t = treeThreadTotals(folder.tree);
+  return { threads: t.included, total: t.threads, pieces: c.included, piecesTotal: c.total };
+}
+
 export const threadHasBody = (thread) => thread.pieces.some(p => p.kind === 'body' && p.included);
 export const threadPJs = (thread) => thread.pieces.filter(p => p.kind === 'pj');
 
-// Sous-titre de carte thread : « expéditeur · date · corps + 2 PJ sur 3 »
-// (ou « 0 pièce » - transitoire, la carte quitte le panier au dernier décoché).
-export function threadPieceSummary(thread) {
-  const pjs = threadPJs(thread);
-  const pjIn = pjs.filter(p => p.included).length;
-  const parts = [];
-  if (threadHasBody(thread)) parts.push('corps');
-  if (pjs.length) parts.push(`${pjIn} PJ sur ${pjs.length}`);
-  return parts.length ? parts.join(' + ') : '0 pièce';
-}
-export const threadCardSubtitle = (thread) => `${thread.lead} · ${threadPieceSummary(thread)}`;
+// Sous-titre de carte : expéditeur · date, rien de plus. La composition (corps
+// + PJ) est listée juste en dessous - la répéter en sous-titre est du bruit.
+export const threadCardSubtitle = (thread) => thread.lead;
 
 // Récap du footer : « 1 échange (1 corps) + 2 PJ, 2 fichiers » (grammaire spec §5).
 export function composerRecap(items) {
@@ -658,8 +873,10 @@ export function decoupableKeys(item) {
   if (item.kind === 'thread') return item.thread.pieces.filter(a => a.kind === 'pj' && a.decoupable && a.included).map(a => ({ key: a.key, name: a.name }));
   if (item.kind === 'zip') return item.zip.children.flatMap(c => c.pj.filter(a => a.decoupable).map(a => ({ key: a.key, name: a.name })));
   if (item.kind === 'folder') {
-    return threadsOfFolderDeep(item.folder.folderId)
-      .flatMap(tv => tv.attachments.filter(a => a.decoupable).map(a => ({ key: `${tv.id}::${a.name}`, name: a.name })));
+    // Seules les PJ RETENUES de l'arbre sont découpables.
+    return treeLeaves(item.folder.tree)
+      .filter(l => l.kind === 'pj' && l.decoupable && l.included)
+      .map(l => ({ key: l.key, name: l.name }));
   }
   return [];
 }
@@ -682,7 +899,12 @@ export function approxPieces(items, decoupe) {
         n += (decoupe.has(p.key) && det) ? det.count : 1;
       });
     } else if (it.kind === 'folder') {
-      n += it.folder.stats.pieces;
+      treeLeaves(it.folder.tree).forEach(l => {
+        if (!l.included) return;
+        if (l.kind === 'body' || l.kind === 'thread') { n += 1; return; }
+        const det = detectionFor(l.name);
+        n += (decoupe.has(l.key) && det) ? det.count : 1;
+      });
     } else if (it.kind === 'zip') {
       it.zip.children.forEach(c => {
         n += 1;

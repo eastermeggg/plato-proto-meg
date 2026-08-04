@@ -5,8 +5,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  mkThreadItem, mkFolderItem, localFileToItem, MOCK_LOCAL_FILES, decoupableKeys,
-  ancestorFolderIds, descendantFolders, folderOfThread,
+  mkThreadItem, mkThreadDeltaItem, mkFolderItem, localFileToItem, MOCK_LOCAL_FILES, decoupableKeys,
+  ancestorFolderIds, descendantFolders, folderOfThread, mapTreeInclude,
 } from './labData';
 
 export function useComposer() {
@@ -45,6 +45,15 @@ export function useComposer() {
       return ex;
     }
     const it = mkThreadItem(tid);
+    if (it) setItems(prev => [...prev, it]);
+    return it;
+  };
+
+  // Complète un fil déjà importé : ne prend QUE le delta (nouvelles PJ + corps
+  // actualisé). Les pièces déjà au dossier n'entrent jamais deux fois.
+  const takeThreadDelta = (tid) => {
+    if (findThread(tid)) return null;
+    const it = mkThreadDeltaItem(tid);
     if (it) setItems(prev => [...prev, it]);
     return it;
   };
@@ -93,10 +102,25 @@ export function useComposer() {
   const removeThread = (tid) => setItems(prev => prev.filter(i => !(i.kind === 'thread' && i.thread.threadId === tid)));
   const removeFolder = (fid) => setItems(prev => prev.filter(i => !(i.kind === 'folder' && i.folder.folderId === fid)));
 
+  // ── Curation d'un dossier : (dé)coche N'IMPORTE quel nœud de l'arbre ──
+  // Toutes les feuilles sous ce nœud passent à `included`. Les parents dérivent
+  // leur état (tout / partiel / aucun) de leurs feuilles.
+  const toggleFolderNode = (itemId, nodeKey, included) => setItems(prev => prev.map(i => (
+    i.id === itemId && i.kind === 'folder' && i.folder.tree
+      ? { ...i, folder: { ...i.folder, tree: mapTreeInclude(i.folder.tree, nodeKey, included) } }
+      : i)));
+
   const removeItem = (id) => setItems(prev => prev.filter(i => i.id !== id));
 
   // ── Découpe / suivi ──
   const toggleDecoupe = (key) => setDecoupe(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
+  // « Tout découper » contextuel (dossier / sous-dossier / échange) : bascule un
+  // lot de clés d'un coup (on = ajouter, sinon retirer).
+  const toggleDecoupeMany = (keys, on) => setDecoupe(prev => {
+    const n = new Set(prev);
+    keys.forEach(k => (on ? n.add(k) : n.delete(k)));
+    return n;
+  });
   const allKeys = useMemo(() => items.flatMap(decoupableKeys).map(k => k.key), [items]);
   const toggleAllDecoupe = () => setDecoupe(prev => {
     const allOn = allKeys.length > 0 && allKeys.every(k => prev.has(k));
@@ -141,9 +165,10 @@ export function useComposer() {
   return {
     items, setItems, decoupe, suivre,
     addLocalFiles,
-    takeThread, takeManyThreads, togglePieceById,
+    takeThread, takeThreadDelta, takeManyThreads, togglePieceById,
     takeFolder, removeThread, removeFolder, removeItem,
-    toggleDecoupe, toggleAllDecoupe, toggleSuivre, setSuivre,
+    toggleFolderNode,
+    toggleDecoupe, toggleDecoupeMany, toggleAllDecoupe, toggleSuivre, setSuivre,
     stagedFolderIds, threadStateMap,
   };
 }

@@ -5,11 +5,14 @@
 // curation se fait à gauche.
 
 import React, { useState } from 'react';
-import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle } from 'lucide-react';
+import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle, Scissors } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
-import { decoupableKeys, threadGroupsOfFolderDeep, threadCardSubtitle, folderPath } from './labData';
-import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel, usePhase2 } from './atoms';
+import {
+  decoupableKeys, threadCardSubtitle,
+  folderIncludedCounts, treeState, treeCounts, treeThreadTotals, treeLeaves,
+} from './labData';
+import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel } from './atoms';
 
 const CARD = { border: '1px solid #e7e5e3', borderRadius: 12, backgroundColor: '#ffffff' };
 
@@ -55,6 +58,22 @@ function UploadBar() {
   );
 }
 
+// Ligne « Corps du mail » indentée, lecture seule (aperçu dossier / zip). Le
+// corps est une pièce comme les autres (invariant) : il DOIT apparaître sous
+// chaque échange, au même titre que ses PJ, jamais implicite.
+function BodyLine({ msg, dim = false }) {
+  return (
+    <div className="flex items-center gap-2.5 min-w-0 h-7" style={dim ? { opacity: 0.85 } : undefined}>
+      <Elbow />
+      <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
+      <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">Corps du mail</span>
+      {msg > 1 && (
+        <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{msg} msg</span>
+      )}
+    </div>
+  );
+}
+
 // Ligne PJ indentée (coude), lecture seule (aperçu dossier / zip), avec découpe.
 function PJLine({ pj, decoupe, onToggleDecoupe, dim = false }) {
   return (
@@ -82,8 +101,15 @@ function PieceLine({ piece, included, onToggle, decoupe, onToggleDecoupe }) {
       <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: isBody ? '#1e3a8a' : '#b4483c' }} />
       <span className="flex-1 min-w-0 flex items-center gap-2">
         <span className="text-[13px] text-foreground truncate">{isBody ? 'Corps du mail' : piece.name}</span>
-        {isBody && piece.msg > 1 && (
+        {isBody && piece.msg > 1 && !piece.reason && (
           <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{piece.msg} msg</span>
+        )}
+        {/* Complément d'un fil déjà importé : d'où vient cette pièce. */}
+        {piece.reason === 'nouvelle' && (
+          <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>nouvelle</span>
+        )}
+        {piece.reason === 'actualisé' && (
+          <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>+{piece.newMessages} message{piece.newMessages > 1 ? 's' : ''}</span>
         )}
       </span>
       {!isBody && piece.decoupable && included && (
@@ -93,8 +119,9 @@ function PieceLine({ piece, included, onToggle, decoupe, onToggleDecoupe }) {
   );
 }
 
-// Groupe « échange + ses PJ » dans un aperçu (dossier ouvert, zip déplié).
-function PreviewThreadGroup({ subject, sender, illegible = false, pjLines }) {
+// Groupe « échange + ses pièces » dans un aperçu (zip déplié). Le corps du mail
+// est une pièce : il figure sous l'échange, puis chaque PJ.
+function PreviewThreadGroup({ subject, sender, illegible = false, msg, pjLines }) {
   return (
     <div className="px-3.5 py-2.5 flex flex-col gap-1">
       <div className="flex items-center gap-2.5 min-w-0 h-6">
@@ -102,18 +129,10 @@ function PreviewThreadGroup({ subject, sender, illegible = false, pjLines }) {
         <span className={`flex-1 min-w-0 text-[13px] truncate ${illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{subject}</span>
         <span className="text-[11px] text-foreground-muted truncate flex-shrink-0 text-right" style={{ maxWidth: 180 }}>{sender}</span>
       </div>
-      {pjLines.length > 0 && <div className="pl-1.5 flex flex-col">{pjLines}</div>}
-    </div>
-  );
-}
-
-// Pied « Suivre » (phase 2, sources email uniquement - un fichier ne se suit pas).
-function SuivreFoot({ on, onToggle, label, hint }) {
-  return (
-    <div className="mt-3 pt-3 border-t border-border/70 flex items-center gap-2.5">
-      <LabSwitch checked={on} onChange={onToggle} />
-      <span className="text-xs font-medium text-foreground flex-shrink-0">{label}</span>
-      <span className="text-[11px] text-foreground-muted truncate">{hint}</span>
+      <div className="pl-1.5 flex flex-col">
+        <BodyLine msg={msg} />
+        {pjLines}
+      </div>
     </div>
   );
 }
@@ -143,11 +162,16 @@ function FileCard({ item, decoupe, onToggleDecoupe, onRemove }) {
   );
 }
 
-function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, suivre, onToggleSuivre, onRemove }) {
-  const phase2 = usePhase2();
+// Un échange est un objet IMPORTÉ (instantané), jamais une source : pas de
+// suivi au niveau thread - seul le dossier est un concept de source.
+function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove }) {
   const t = item.thread;
   const uploading = item.status === 'uploading';
-  const followable = phase2 && item.origin === 'emails';
+  const topUp = item.topUp;
+  // Fil sans PJ = le corps EST l'échange : l'en-tête suffit, on n'affiche pas une
+  // ligne « Corps du mail » redondante (sauf complément, où « +N messages » informe).
+  const hasPJ = t.pieces.some(p => p.kind === 'pj');
+  const showPieces = !uploading && (topUp || hasPJ);
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2.5 min-w-0">
@@ -156,12 +180,14 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, suivre, onT
           : <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />}
         <span className="flex-1 min-w-0">
           <span className={`text-sm leading-5 truncate block ${uploading || t.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{t.subject}</span>
-          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">{uploading ? 'Import en cours…' : threadCardSubtitle(t)}</span>
+          <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
+            {uploading ? 'Import en cours…' : topUp ? `Complète l'import du ${topUp.importedOn} · nouvelles pièces seulement` : threadCardSubtitle(t)}
+          </span>
         </span>
-        <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Échange courriel</span>
+        <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>{topUp ? 'Complément' : 'Échange courriel'}</span>
         {!uploading && <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer l'échange" />}
       </div>
-      {!uploading && (
+      {showPieces && (
         <div className="mt-2 pl-1 flex flex-col">
           {t.pieces.map(p => (
             <PieceLine
@@ -177,97 +203,179 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, suivre, onT
       )}
       {uploading && <UploadBar />}
       {item.status === 'doublon' && <DoublonMention onSkip={() => onRemove(item.id)} />}
-      {followable && (
-        <SuivreFoot
-          on={suivre.has(item.id)}
-          onToggle={() => onToggleSuivre(item.id)}
-          label="Suivre cet échange"
-          hint="les prochains messages arriveront dans les pièces, marqués « Nouveau »"
-        />
-      )}
     </div>
   );
 }
 
-function FolderCard({ item, decoupe, onToggleDecoupe, suivre, onToggleSuivre, onRemove }) {
-  const phase2 = usePhase2();
-  const [open, setOpen] = useState(false);
+// « Tout découper » contextuel (dossier / sous-dossier / échange) : bascule la
+// découpe de TOUTES les PJ découpables retenues sous le nœud. Tri-état, révélé
+// au survol (visible dès qu'au moins une est découpée).
+// Discret par principe : révélé au survol, JAMAIS de pastille de compteur
+// persistante (trop bruyant sur chaque niveau). Le détail se lit sur les PJ
+// elles-mêmes. Le libellé bascule « Tout découper » ⇄ « Tout recoller ».
+function NodeDecoupeControl({ keys, decoupe, onToggleMany, revealOnHover = true }) {
+  const on = keys.reduce((a, k) => a + (decoupe.has(k) ? 1 : 0), 0);
+  const allOn = on === keys.length;
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onToggleMany(keys, !allOn); }}
+      className={`inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium flex-shrink-0 text-foreground-secondary hover:text-foreground hover:bg-cream transition-all ${revealOnHover ? 'opacity-0 group-hover/node:opacity-100 focus-visible:opacity-100' : ''}`}
+      title={allOn ? 'Recoller ces pièces' : 'Découper toutes les pièces découpables de ce niveau'}
+    >
+      <Scissors className="w-3 h-3" strokeWidth={1.75} />
+      {allOn ? 'Tout recoller' : 'Tout découper'}
+    </button>
+  );
+}
+
+// Connecteur d'arbre d'une feuille (pièce) : trait vertical continu entre
+// pièces sœurs, terminé en └ sous la dernière ; le trait horizontal tombe au
+// CENTRE de la case (alignement propre). Remplace le coude flottant.
+function TreeGuide({ isLast }) {
+  return (
+    <span className="relative self-stretch flex-shrink-0" style={{ width: 18 }} aria-hidden>
+      <span className="absolute" style={{ left: 7, top: 0, height: isLast ? '50%' : '100%', borderLeft: '1.5px solid #d9d5cf' }} />
+      <span className="absolute" style={{ left: 7, top: 'calc(50% - 0.75px)', width: 8, borderTop: '1.5px solid #d9d5cf' }} />
+    </span>
+  );
+}
+
+// ── Nœud récursif de l'arbre d'un dossier ───────────────────────────────────
+// Case sur CHAQUE nœud (dossier / sous-dossier / thread / corps / PJ), tri-état,
+// repliable, compteur par ligne, « Découper » sur les PJ + « Tout découper »
+// contextuel sur les dossiers / échanges.
+function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, onToggleExpand, decoupe, onToggleDecoupe, onToggleDecoupeMany, showDivider = false }) {
+  const hasChildren = !!node.children;
+  const isOpen = expanded.has(node.key);
+  const state = treeState(node);
+  const { total, included } = treeCounts(node);
+  const isPj = node.kind === 'pj';
+  const isBody = node.kind === 'body';
+  const Icon = node.kind === 'folder' ? Folder : (node.kind === 'thread' || isBody) ? Mail : FileText;
+  const color = isPj ? '#b4483c' : node.kind === 'folder' ? '#78716c' : '#1e3a8a';
+  const dim = state === 'none';
+  const isFolder = node.kind === 'folder';
+  const tt = isFolder ? treeThreadTotals(node) : null;
+  // Un échange se présente comme une carte : titre + expéditeur en dessous.
+  const twoLine = node.kind === 'thread' && !!node.sub;
+  // PJ découpables retenues sous ce nœud → « Tout découper » contextuel.
+  const decKeys = hasChildren ? treeLeaves(node).filter(l => l.kind === 'pj' && l.decoupable && l.included).map(l => l.key) : [];
+  const nameCls = `min-w-0 truncate ${isFolder || node.kind === 'thread' ? 'text-[13px] font-medium' : 'text-[12.5px]'} ${node.illegible ? 'italic text-foreground-secondary' : 'text-foreground'} ${!hasChildren && !node.included ? 'line-through' : ''}`;
+  return (
+    <>
+      {/* Séparateur entre frères de niveau dossier / échange (jamais entre les
+          pièces d'un même fil) - indenté sur le niveau courant. */}
+      {showDivider && (
+        <div aria-hidden style={{ marginLeft: 10 + depth * 24, marginRight: 10, borderTop: '1px solid #f0efed' }} />
+      )}
+      {/* Indentation par palier fixe (24px/niveau) + tête à largeur fixe :
+          chevron (nœud dépliable) ou connecteur d'arbre (feuille) - hiérarchie
+          lisible, cases alignées à chaque profondeur. */}
+      <div className="group/node flex gap-2 items-start rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingLeft: 10 + depth * 24, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+          {hasChildren ? (
+            <span className="h-5 flex items-center justify-center flex-shrink-0" style={{ width: 18 }}>
+              <button type="button" onClick={() => onToggleExpand(node.key)} className="text-foreground-muted hover:text-foreground-secondary focus:outline-none" title={isOpen ? 'Replier' : 'Déplier'}>
+                <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-90' : ''}`} strokeWidth={2} />
+              </button>
+            </span>
+          ) : node.kind === 'thread' ? (
+            // Fil sans PJ = une feuille de niveau échange : slot vide (pas de
+            // connecteur « pièce »), sa case s'aligne sur les autres échanges.
+            <span className="h-5 flex-shrink-0" style={{ width: 18 }} />
+          ) : <TreeGuide isLast={isLast} />}
+          <span className="h-5 flex items-center flex-shrink-0">
+            <Checkbox checked={state === 'all'} partial={state === 'some'} onToggle={() => onToggleNode(itemId, node.key, state !== 'all')} title={state === 'all' ? 'Ne pas importer' : 'Importer'} />
+          </span>
+          <span className="h-5 flex items-center flex-shrink-0">
+            <Icon className="w-4 h-4" strokeWidth={1.75} style={{ color, opacity: dim ? 0.5 : 1 }} />
+          </span>
+          <div className="flex-1 min-w-0 flex flex-col justify-center" style={dim ? { opacity: 0.5 } : undefined}>
+            <div className="flex items-center gap-2 min-w-0 h-5">
+              <span className={nameCls}>{node.name}</span>
+              {isBody && node.msg > 1 && (
+                <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{node.msg} msg</span>
+              )}
+              {!twoLine && node.sub && <span className="text-[11px] truncate flex-shrink-0" style={{ color: '#a8a29e' }}>{node.sub}</span>}
+            </div>
+            {twoLine && <span className="text-[11px] truncate leading-4" style={{ color: '#a8a29e' }}>{node.sub}</span>}
+          </div>
+          {/* Découper (PJ retenue) - aligné sur la 1re ligne, coexiste avec la case. */}
+          {isPj && node.decoupable && node.included && (
+            <span className="h-5 flex items-center flex-shrink-0"><DecoupeControl on={decoupe.has(node.key)} onToggle={() => onToggleDecoupe(node.key)} /></span>
+          )}
+          {/* « Tout découper » du dossier / sous-dossier / échange. */}
+          {hasChildren && decKeys.length > 0 && (
+            <span className="h-5 flex items-center flex-shrink-0"><NodeDecoupeControl keys={decKeys} decoupe={decoupe} onToggleMany={onToggleDecoupeMany} /></span>
+          )}
+          {/* Compteur (dossier / sous-dossier) - un échange montre ses pièces, pas de compteur. */}
+          {isFolder && (
+            <span className="h-5 flex items-center flex-shrink-0 tabular-nums text-[11px] text-foreground-muted">
+              {tt ? `${tt.included}/${tt.threads} éch. · ` : ''}{included}/{total} pièces
+            </span>
+          )}
+      </div>
+      {hasChildren && isOpen && node.children.map((c, i) => (
+        <FolderTreeNode
+          key={c.key} node={c} depth={depth + 1} isLast={i === node.children.length - 1} itemId={itemId}
+          onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={onToggleExpand}
+          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
+          showDivider={i > 0 && c.kind !== 'pj' && c.kind !== 'body'}
+        />
+      ))}
+    </>
+  );
+}
+
+// Carte dossier : arbre récursif à cases + barre d'action (Tout sélectionner +
+// compteur live). L'import global reste le CTA du footer du modal.
+function FolderCard({ item, decoupe, onToggleDecoupe, onToggleDecoupeMany, onRemove, onToggleNode }) {
+  const [expanded, setExpanded] = useState(() => new Set());
+  const toggleExpand = (key) => setExpanded(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
   const f = item.folder;
-  // Aperçu INTÉGRAL et RÉCURSIF : tout ce qui entrera est visible, sous-dossiers
-  // compris, groupé par dossier - rien de caché, l'aperçu dit ce que le commit fait.
-  const groups = open ? threadGroupsOfFolderDeep(f.folderId) : [];
-  const nThreads = groups.reduce((n, g) => n + g.threads.length, 0);
-  const hasSub = groups.length > 1;
-  // Intitulé d'un groupe : chemin RELATIF au dossier pris (« Bernard c/ AXA /
-  // Correspondance ») - un nom seul est ambigu dès que deux sous-dossiers
-  // portent le même nom (chaque client a sa « Correspondance »).
-  const groupLabel = (folder) => (folder.id === f.folderId
-    ? f.name
-    : folderPath(folder).slice(f.path.length + 1).split('/').join(' / '));
+  const inc = folderIncludedCounts(f);
+  const rootState = treeState(f.tree);
+  const curated = inc.threads !== inc.total || inc.pieces !== inc.piecesTotal;
+  const decKeys = treeLeaves(f.tree).filter(l => l.kind === 'pj' && l.decoupable && l.included).map(l => l.key);
   return (
     <div className="group p-3.5" style={CARD}>
-      <div className="flex items-center gap-2 min-w-0">
-        <button type="button" onClick={() => setOpen(o => !o)} className="p-0.5 rounded text-foreground-muted hover:text-foreground-secondary flex-shrink-0" title={open ? 'Replier l\'aperçu' : 'Aperçu du contenu (lecture seule)'}>
-          <ChevronRight className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-90' : ''}`} strokeWidth={2} />
-        </button>
+      <div className="flex items-center gap-2.5 min-w-0">
         <Folder className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
-        <span className="flex-1 min-w-0 ml-0.5">
+        <span className="flex-1 min-w-0">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
-            {f.path}{f.stats.folders > 0 ? ` · ${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''}` : ''} · {f.stats.threads} échange{f.stats.threads > 1 ? 's' : ''} · ≈ {f.stats.pieces} pièces
+            {f.stats.folders > 0 ? `${f.stats.folders} sous-dossier${f.stats.folders > 1 ? 's' : ''} · ` : ''}{inc.total} échange{inc.total > 1 ? 's' : ''} · {inc.piecesTotal} pièces
           </span>
         </span>
         <span className="text-[11px] leading-4 flex-shrink-0" style={{ color: '#a8a29e' }}>Dossier Outlook</span>
-        <RemoveBtn onClick={() => onRemove(item.id)} />
+        <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer le dossier" />
       </div>
-      {open && (
-        <div className="mt-3 rounded-lg border border-border-subtle overflow-hidden" style={{ backgroundColor: '#faf9f7' }}>
-          <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-            {groups.map((g, gi) => (
-              <div key={g.folder.id}>
-                {hasSub && (
-                  <div className={`px-3.5 pt-2.5 pb-0.5 flex items-center gap-1.5 ${gi > 0 ? 'border-t border-border-subtle' : ''}`}>
-                    <Folder className="w-3 h-3 flex-shrink-0 text-foreground-muted" strokeWidth={1.75} />
-                    <span className="truncate" style={monoLabel}>{groupLabel(g.folder)}</span>
-                    <span className="flex-shrink-0 tabular-nums" style={{ ...monoLabel, color: '#a8a29e' }}>· {g.threads.length}</span>
-                  </div>
-                )}
-                <div className="divide-y divide-border-subtle">
-                  {g.threads.map(tv => (
-                    <PreviewThreadGroup
-                      key={tv.id}
-                      subject={tv.subject}
-                      sender={tv.sender}
-                      illegible={tv.illegible}
-                      pjLines={tv.attachments.map((a, i) => (
-                        <PJLine
-                          key={`${tv.id}-${i}`}
-                          pj={{ key: `${tv.id}::${a.name}`, name: a.name, decoupable: a.decoupable }}
-                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} dim
-                        />
-                      ))}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="px-3.5 py-2 border-t border-border-subtle flex items-center justify-between gap-3">
-            <span className="text-[11px] text-foreground-secondary flex-shrink-0">
-              {nThreads} échange{nThreads > 1 ? 's' : ''}{hasSub ? ', sous-dossiers compris' : ''} - tout entre avec le dossier
-            </span>
-            <span className="text-[10px] text-foreground-muted truncate text-right">Aperçu en lecture seule - la curation se fait à gauche</span>
-          </div>
+
+      {/* Barre d'action : Tout sélectionner + compteur live */}
+      <div className="mt-2.5 flex items-center gap-2.5 px-3 h-10 rounded-lg" style={{ backgroundColor: '#f5f4f1' }}>
+        <div className="inline-flex items-center gap-2 flex-shrink-0">
+          <Checkbox checked={rootState === 'all'} partial={rootState === 'some'} onToggle={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} title={rootState === 'all' ? 'Tout décocher' : 'Tout sélectionner'} />
+          <button type="button" onClick={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} className="text-[12.5px] font-medium text-foreground hover:text-foreground-secondary transition-colors">Tout sélectionner</button>
         </div>
-      )}
-      {phase2 && (
-        <SuivreFoot
-          on={suivre.has(item.id)}
-          onToggle={() => onToggleSuivre(item.id)}
-          label="Suivre ce dossier"
-          hint="tout son contenu, y compris les futurs sous-dossiers"
-        />
-      )}
+        <span className="ml-auto text-[11px] tabular-nums text-foreground-secondary">
+          <span className="font-medium text-foreground">{inc.threads}</span>/{inc.total} échanges · <span className="font-medium text-foreground">{inc.pieces}</span>/{inc.piecesTotal} pièces{curated ? ' retenus' : ''}
+        </span>
+        {decKeys.length > 0 && (
+          <NodeDecoupeControl keys={decKeys} decoupe={decoupe} onToggleMany={onToggleDecoupeMany} revealOnHover={false} />
+        )}
+      </div>
+
+      {/* Arbre - replié au-delà du 1er niveau */}
+      <div className="mt-1.5 -mx-1" style={{ maxHeight: 440, overflowY: 'auto' }}>
+        {f.tree.children.map((c, i) => (
+          <FolderTreeNode
+            key={c.key} node={c} depth={0} isLast={i === f.tree.children.length - 1} itemId={item.id}
+            onToggleNode={onToggleNode} expanded={expanded} onToggleExpand={toggleExpand}
+            decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
+            showDivider={i > 0 && c.kind !== 'pj' && c.kind !== 'body'}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -314,9 +422,8 @@ function ZipCard({ item, decoupe, onToggleDecoupe, onRemove }) {
 }
 
 export default function Panier({
-  items, onRemove, onTogglePiece,
-  decoupe, onToggleDecoupe, onToggleAllDecoupe,
-  suivre, onToggleSuivre,
+  items, onRemove, onTogglePiece, onToggleFolderNode,
+  decoupe, onToggleDecoupe, onToggleDecoupeMany, onToggleAllDecoupe,
   onAddFiles,
   collapsed, onExpand,
   introCopy,
@@ -385,7 +492,6 @@ export default function Panier({
                           item={it}
                           decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
                           onTogglePiece={onTogglePiece}
-                          suivre={suivre} onToggleSuivre={onToggleSuivre}
                           onRemove={onRemove}
                         />
                       );
@@ -395,9 +501,9 @@ export default function Panier({
                         <FolderCard
                           key={it.id}
                           item={it}
-                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe}
-                          suivre={suivre} onToggleSuivre={onToggleSuivre}
+                          decoupe={decoupe} onToggleDecoupe={onToggleDecoupe} onToggleDecoupeMany={onToggleDecoupeMany}
                           onRemove={onRemove}
+                          onToggleNode={onToggleFolderNode}
                         />
                       );
                     }
