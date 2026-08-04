@@ -7,6 +7,7 @@ import Bordereau, { Line, FolderBloc, GroupChapeau } from './import-v2/Bordereau
 import { useBordereau } from './import-v2/useBordereau';
 import { threadImportInfo, detectionFor } from './import/labData';
 import { folderModel, folderStats, folderBreadcrumbV2, buildFolderTree } from './import-v2/harvestData';
+import { Badge } from './import-v2/pieceRow';
 
 // « Import email - V2 Récolte & Bordereau ». La relecture du même problème
 // (gestes C / C bis / B, douleurs identifiées) avec le cadrage inversé : le
@@ -23,6 +24,8 @@ const PAINS = [
   { pain: 'Pièces méconnaissables', fix: 'Le bordereau garde le NOM D\'ORIGINE de chaque document (jamais renommé), groupé sous son échange - l\'avocat retrouve ses fichiers tels qu\'il les connaît.' },
   { pain: 'Découpe ambiguë', fix: 'Suggestion contextuelle par PJ (« Contient N documents ») qui liste les pièces produites - plus de bascule globale à trois états.' },
   { pain: 'Vocabulaire', fix: 'Les verbes verrouillés tiennent : Ajouter · Retirer · Découper. La confirmation reste un toast, jamais un écran.' },
+  { pain: 'Plusieurs boîtes', fix: 'La recherche agrège les canaux du user courant - boîte cabinet + sa boîte personnelle - en sections étiquetées. Un fil reçu deux fois = un résultat, une pièce, double provenance.' },
+  { pain: 'Boîte privée, dossier partagé', fix: 'Votre boîte n\'apparaît qu\'à vous ; le seul pont vers le cabinet est le geste de verser. Signal discret, une fois, au premier versement depuis votre boîte.' },
 ];
 
 // ── Galerie de composants (bas de page) ─────────────────────────────────────
@@ -163,6 +166,25 @@ function ComponentGallery() {
         </Spec>
       </GallerySection>
 
+      <GallerySection title="Multi-boîtes - provenance et privacy" cols={3}
+        intro="Le picker agrège les canaux du user courant : boîtes du cabinet + ses boîtes personnelles, en sections étiquetées. La boîte est privée, le DOSSIER est le lieu du partage - la provenance le dit sans dramatiser.">
+        <Spec label="Reçu deux fois - dédoublonné" note="Le même fil dans la boîte cabinet ET votre boîte (dédup par conversationId) : un seul résultat, la note méta dit la seconde boîte. Chercher « greffe » dans la démo.">
+          <CandidateCard tid="th-greffe" demoInfo={null} mailboxNote="aussi dans votre boîte" {...cardProps} />
+        </Spec>
+        <Spec label="Chapeau - depuis votre boîte" note="Pièce versée depuis une boîte personnelle : le chip porte le signal d'exposition - visible par le cabinet une fois dans le dossier. Un toast le dit aussi, une seule fois, au premier versement.">
+          <div className="rounded-lg border border-border bg-white overflow-hidden">
+            <GroupChapeau title="Compte rendu d'imagerie - Centre Imagerie Sud" tag={<Badge tone="secondary" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier.">Depuis votre boîte</Badge>} onRemove={noop} />
+            <Line line={dl({ kind: 'body', title: 'Corps du mail', provenance: '1 message' })} api={NOOP_API} />
+          </div>
+        </Spec>
+        <Spec label="Chapeau - reçu dans deux boîtes" note="Fil dédoublonné au bordereau : une seule pièce versée, la double provenance reste dite.">
+          <div className="rounded-lg border border-border bg-white overflow-hidden">
+            <GroupChapeau title="Notification d'audience - TJ Paris" tag={<Badge tone="secondary" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce.">Aussi dans votre boîte</Badge>} onRemove={noop} />
+            <Line line={dl({ kind: 'body', title: 'Corps du mail', provenance: '2 messages' })} api={NOOP_API} />
+          </div>
+        </Spec>
+      </GallerySection>
+
       <GallerySection title="Ligne de pièce - bordereau" cols={3}
         intro="Une ligne = une pièce, sous son NOM D'ORIGINE (jamais renommée). Décocher estompe (rien ne disparaît) ; tout ce qui doit être su est une ligne : le doublon, l'échec, la découpe.">
         <SpecLine label="Standard"
@@ -249,6 +271,20 @@ export default function ImportV2Lab() {
   };
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
+  // Signal d'exposition (spec « Connexion boîtes mail ») : la PREMIÈRE pièce
+  // issue de la boîte personnelle qui entre au bordereau déclenche un signal
+  // discret - une fois, pas à chaque pièce. La provenance pérenne reste sur le
+  // chapeau du groupe (« Depuis votre boîte »).
+  const exposureSignaled = useRef(false);
+  useEffect(() => {
+    if (exposureSignaled.current) return;
+    if (api.lines.some(l => l.threadMailbox === 'personal')) {
+      exposureSignaled.current = true;
+      showToast('Versé depuis votre boîte - visible par le cabinet une fois dans le dossier.');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [api.lines]);
+
   const commit = () => {
     const n = api.approx;
     const d = api.decoupeCount;
@@ -257,7 +293,7 @@ export default function ImportV2Lab() {
     showToast(`≈ ${n} pièce${n > 1 ? 's' : ''} ajoutée${n > 1 ? 's' : ''} au dossier Leblanc c/ AXA${d > 0 ? ` · ${d} découpe${d > 1 ? 's' : ''}` : ''}${r > 0 ? ` · ${r} remplacement${r > 1 ? 's' : ''}` : ''}`);
   };
 
-  const reset = () => { api.reset(); showToast('Lab réinitialisé'); };
+  const reset = () => { api.reset(); exposureSignaled.current = false; showToast('Lab réinitialisé'); };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
