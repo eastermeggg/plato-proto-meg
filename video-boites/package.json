@@ -1,0 +1,23 @@
+{
+  "name": "norma-boites-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Film de présentation - Connexion des boîtes mail : communes (Organisation) et personnelles (Ma boîte)",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render NormaBoites out/norma-boites.mp4",
+    "still": "remotion still NormaBoites"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.410",
+    "@remotion/google-fonts": "4.0.410",
+    "lucide-react": "^0.525.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "4.0.410"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.0",
+    "typescript": "5.8.2"
+  }
+}

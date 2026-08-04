@@ -9,7 +9,7 @@ import { Checkbox, monoLabel } from '../import/atoms';
 import outlookLogo from '../../../assets/outlook.svg';
 import { LAB_THREADS, normalize, relDate, threadView, threadViewById, threadPreview, bodyKey, pjKey } from '../import/labData';
 import {
-  HARVEST_GROUPS, PROPOSED_TIDS, deltaInfoOf,
+  HARVEST_GROUPS, PROPOSED_TIDS, deltaInfoOf, MAILBOXES, mailboxOf,
   FOLDER_CANDIDATE_IDS, folderModel, folderStats, folderDelta, folderDeltaKeys, childFolderModels,
 } from './harvestData';
 import { kindColor, V2, Badge, SmallBtn, HoverReveal, MetaDot } from './pieceRow';
@@ -116,7 +116,7 @@ function ReadonlyThreadRow({ tid }) {
 // ── Carte candidat ──────────────────────────────────────────────────────────
 // Sujet · expéditeur · preuve. Un clic ouvre l'aperçu EN PLACE (corps + PJ,
 // ajout pièce par pièce) : décider vite, sans survol chronométré ni panneau.
-export function CandidateCard({ tid, covered, taken, demoInfo, onAddThread, onTogglePiece, onAddThreadDelta, onRemoveThread }) {
+export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAddThread, onTogglePiece, onAddThreadDelta, onRemoveThread }) {
   const [open, setOpen] = useState(false);
   const raw = useMemo(() => LAB_THREADS.find(t => t.id === tid), [tid]);
   const tv = useMemo(() => threadView(raw), [raw]);
@@ -197,6 +197,14 @@ export function CandidateCard({ tid, covered, taken, demoInfo, onAddThread, onTo
                   </span>
                 </>
               )}
+              {/* Provenance multi-boîtes : le même fil reçu dans deux boîtes =
+                  UN résultat - la note dit la seconde boîte, le tooltip la dédup. */}
+              {mailboxNote && (
+                <>
+                  <MetaDot />
+                  <span className="text-[12px] leading-4 flex-shrink-0" style={{ color: V2.muted, letterSpacing: 0.12 }} title="Reçu dans la boîte cabinet et dans votre boîte - dédoublonné : un seul résultat, une seule pièce.">{mailboxNote}</span>
+                </>
+              )}
             </p>
           </div>
           {/* Ligne 3 : résumé du fil, barre violette (résumé IA), 2 lignes. */}
@@ -263,8 +271,11 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
   // sont au bordereau.
   const folderDeltaAdded = (fid) => { const ks = folderDeltaKeys(fid); return ks.length > 0 && ks.every(k => lineKeys.has(k)); };
 
-  // La recherche balaie TOUTE la boîte, pas seulement la récolte : le manuel
-  // n'est jamais bridé par la proposition.
+  // La recherche balaie TOUS les canaux du user courant (boîtes cabinet + ses
+  // boîtes personnelles), pas seulement la récolte : le manuel n'est jamais
+  // bridé par la proposition. Sections étiquetées par boîte ; un fil reçu dans
+  // deux boîtes est dédoublonné (conversationId) : il sort UNE fois, côté
+  // cabinet, avec sa double provenance.
   const results = useMemo(() => {
     if (!q) return null;
     const match = (t) => {
@@ -272,9 +283,11 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
       return normalize(`${t.subject} ${tv.sender} ${tv.summary || ''}`).includes(q);
     };
     const hits = LAB_THREADS.filter(match).map(t => t.id);
+    const others = hits.filter(id => !PROPOSED_TIDS.has(id));
     return {
       proposed: hits.filter(id => PROPOSED_TIDS.has(id)),
-      others: hits.filter(id => !PROPOSED_TIDS.has(id)),
+      cabinet: others.filter(id => mailboxOf(id) !== 'personal'),
+      personal: others.filter(id => mailboxOf(id) === 'personal'),
     };
   }, [q]);
 
@@ -476,14 +489,17 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
 
   return (
     <div className="w-[456px] h-full flex flex-col">
-      {/* En-tête boîte mail : logo + adresse connectée + Réduire (le panneau se
-          replie, le bordereau reste). */}
+      {/* En-tête : les canaux DU USER COURANT (boîte cabinet + sa boîte
+          personnelle), agrégés par le picker + Réduire (le panneau se replie,
+          le bordereau reste). La boîte personnelle d'un autre membre
+          n'apparaît jamais ici. */}
       <div className="px-3.5 pt-3.5 pb-1 flex items-start justify-between gap-2 flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <img src={outlookLogo} alt="" className="w-8 h-8 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>Votre boîte mail</p>
-            <p className="text-[12px] leading-4 truncate" style={{ color: V2.muted, letterSpacing: 0.12 }}>cabinet@durand-avocats.fr</p>
+            <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>Vos boîtes</p>
+            <p className="text-[12px] leading-4 truncate" style={{ color: V2.muted, letterSpacing: 0.12 }} title="Boîte du cabinet - consultable par tout le cabinet">{MAILBOXES.shared.label} · {MAILBOXES.shared.address}</p>
+            <p className="text-[12px] leading-4 truncate" style={{ color: V2.muted, letterSpacing: 0.12 }} title="Votre boîte - visible par vous seul. Ce que vous versez dans un dossier devient accessible au cabinet.">{MAILBOXES.personal.label} · {MAILBOXES.personal.address}</p>
           </div>
         </div>
         <button
@@ -512,7 +528,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
 
         {!showDrill && !results && (
           <section>
-            <p style={monoLabel} className="mb-1 px-3.5">Dossiers Outlook</p>
+            <p style={monoLabel} className="mb-1 px-3.5" title={`Dossiers de la ${MAILBOXES.shared.label.toLowerCase()} · ${MAILBOXES.shared.address}`}>Dossiers Outlook</p>
             <Rows>
               {FOLDER_CANDIDATE_IDS.map(fid => (
                 <FolderCandidateCard
@@ -541,20 +557,31 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
               <section>
                 <p style={monoLabel} className="mb-1 px-3.5">Dans les propositions</p>
                 <Rows>
-                  {results.proposed.map(tid => { const c = evidenceOf(tid); return card(tid, { evidence: c?.evidence }); })}
+                  {results.proposed.map(tid => { const c = evidenceOf(tid); return card(tid, { evidence: c?.evidence, mailboxNote: mailboxOf(tid) === 'both' ? 'aussi dans votre boîte' : undefined }); })}
                 </Rows>
               </section>
             )}
-            {results.others.length > 0 && (
+            {/* Sections étiquetées par boîte (spec) : boîtes cabinet d'abord,
+                puis les boîtes personnelles du user courant - jamais celles
+                d'un autre membre. */}
+            {results.cabinet.length > 0 && (
               <section>
-                <p style={monoLabel} className="mb-1 px-3.5">Autres résultats de votre boîte</p>
+                <p style={monoLabel} className="mb-1 px-3.5">{MAILBOXES.shared.label} · {MAILBOXES.shared.address}</p>
                 <Rows>
-                  {results.others.map(tid => card(tid, { evidence: 'Résultat de votre recherche - hors proposition' }))}
+                  {results.cabinet.map(tid => card(tid, { mailboxNote: mailboxOf(tid) === 'both' ? 'aussi dans votre boîte' : undefined }))}
                 </Rows>
               </section>
             )}
-            {results.proposed.length === 0 && results.others.length === 0 && (
-              <p className="text-[13px] text-foreground-secondary px-3.5 py-6 text-center">Aucun échange ne correspond à « {query.trim()} ».</p>
+            {results.personal.length > 0 && (
+              <section>
+                <p style={monoLabel} className="mb-1 px-3.5">{MAILBOXES.personal.label} · {MAILBOXES.personal.address}</p>
+                <Rows>
+                  {results.personal.map(tid => card(tid))}
+                </Rows>
+              </section>
+            )}
+            {results.proposed.length === 0 && results.cabinet.length === 0 && results.personal.length === 0 && (
+              <p className="text-[13px] text-foreground-secondary px-3.5 py-6 text-center">Aucun échange ne correspond à « {query.trim()} » dans vos boîtes.</p>
             )}
           </>
         )}

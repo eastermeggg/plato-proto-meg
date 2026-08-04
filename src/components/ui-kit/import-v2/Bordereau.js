@@ -387,12 +387,26 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor })
   lines.forEach(l => {
     if (!l.threadId) { fileLines.push(l); return; }
     if (!byTid.has(l.threadId)) {
-      const g = { threadId: l.threadId, subject: l.threadSubject, illegible: l.threadIllegible, lead: l.threadLead, topUp: l.topUp, ls: [] };
+      const g = { threadId: l.threadId, subject: l.threadSubject, illegible: l.threadIllegible, lead: l.threadLead, mailbox: l.threadMailbox, topUp: l.topUp, ls: [] };
       byTid.set(l.threadId, g);
       threadGroups.push(g);
     }
     byTid.get(l.threadId).ls.push(l);
   });
+
+  // Provenance multi-boîtes sur le chapeau (spec « Connexion boîtes mail ») :
+  // - personal : signal d'exposition - la boîte est privée, le DOSSIER est le
+  //   lieu du partage ; le chip le dit une fois, sans dramatiser.
+  // - both : reçu dans deux boîtes, dédoublonné - une seule pièce versée.
+  const mailboxTag = (g) => {
+    if (g.mailbox === 'personal') {
+      return <Badge tone="secondary" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier.">Depuis votre boîte</Badge>;
+    }
+    if (g.mailbox === 'both') {
+      return <Badge tone="secondary" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce.">Aussi dans votre boîte</Badge>;
+    }
+    return null;
+  };
 
   return (
     <div className="flex-1 min-w-0 border-l border-border flex flex-col min-h-0" style={{ backgroundColor: V2.accent }}>
@@ -451,7 +465,10 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor })
                 <GroupChapeau
                   title={g.subject}
                   illegible={g.illegible}
-                  tag={g.topUp && <Badge tone="warning">Complément de l'import du {g.topUp}</Badge>}
+                  tag={<>
+                    {mailboxTag(g)}
+                    {g.topUp && <Badge tone="warning">Complément de l'import du {g.topUp}</Badge>}
+                  </>}
                   onRemove={() => api.removeThread(g.threadId)}
                   removeTitle="Retirer cet échange du bordereau"
                 />

@@ -6,7 +6,7 @@
 // l'inverse), ce que le texte promet juste en dessous.
 
 import React from 'react';
-import { Briefcase, Check, FileText, Landmark, Mail, Paperclip, RefreshCw } from 'lucide-react';
+import { AtSign, Briefcase, Check, FileText, Landmark, Mail, Paperclip, RefreshCw } from 'lucide-react';
 import { CONNECTOR_PROVIDERS } from './connectorData';
 import outlookLogo from '../../assets/outlook.svg';
 
@@ -33,7 +33,11 @@ export function GmailMark({ size = 24 }) {
 }
 
 export function ProviderMark({ provider = 'outlook', size = 24 }) {
-  return provider === 'gmail' ? <GmailMark size={size} /> : <OutlookMark size={size} />;
+  if (provider === 'gmail') return <GmailMark size={size} />;
+  // « Autre » (IMAP) : pas de marque de grand fournisseur - une enveloppe/arobase
+  // neutre dans la teinte pierre du système.
+  if (provider === 'imap') return <AtSign aria-hidden style={{ width: size, height: size, color: '#57534e', display: 'block' }} strokeWidth={1.75} />;
+  return <OutlookMark size={size} />;
 }
 
 // Pastille WhatsApp dessinée (bulle verte + combiné blanc, tracé simplifié).

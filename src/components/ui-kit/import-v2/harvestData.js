@@ -9,6 +9,26 @@ import {
   treeLeaves, treeCounts, treeThreadTotals,
 } from '../import/labData';
 
+// ── Boîtes du user courant (spec « Connexion boîtes mail - solution finale ») ─
+// Le picker agrège les canaux DU USER COURANT : les boîtes partagées du cabinet
+// + ses boîtes personnelles - jamais la boîte personnelle d'un autre membre.
+// Persona du lab : Marie, collaboratrice du cabinet Durand.
+export const MAILBOXES = {
+  shared: { id: 'mb-cabinet', label: 'Boîte cabinet', address: 'cabinet@durand-avocats.fr' },
+  personal: { id: 'mb-perso', label: 'Ma boîte', address: 'marie@durand-avocats.fr' },
+};
+
+// tid → où le fil existe. Défaut : boîte cabinet. 'personal' = uniquement dans
+// la boîte de Marie (le client ou un confrère lui écrit en direct) ; 'both' =
+// reçu deux fois - dédup par conversationId : UN résultat, UNE pièce, double
+// provenance.
+const THREAD_MAILBOX = {
+  'th-confrere': 'personal',
+  'th-radiologue': 'personal',
+  'th-greffe': 'both',
+};
+export const mailboxOf = (tid) => THREAD_MAILBOX[tid] || 'shared';
+
 // ── Récolte proposée pour « Leblanc c/ AXA » ────────────────────────────────
 // Chaque candidat porte sa PREUVE : pourquoi Norma le propose. La confiance
 // vient de l'explication, jamais d'un score opaque.
@@ -158,7 +178,7 @@ export function threadDeltaLineSpecs(tid) {
   if (!info || info.delta.length === 0) return [];
   const tv = threadViewById(tid);
   const lead = `${tv.sender} · ${relDate(tv.date)}`;
-  const group = { threadId: tid, threadSubject: tv.subject, threadIllegible: tv.illegible, threadLead: lead, topUp: info.importedOn };
+  const group = { threadId: tid, threadSubject: tv.subject, threadIllegible: tv.illegible, threadLead: lead, threadMailbox: mailboxOf(tid), topUp: info.importedOn };
   return info.delta.map(d => {
     if (d.kind === 'body') {
       return {
@@ -212,7 +232,7 @@ export function threadLineSpecs(tid) {
   // Ce qui vient du même échange reste ENSEMBLE au bordereau : chaque ligne
   // porte le sujet + l'expéditeur de son échange pour former un groupe sous
   // chapeau - la provenance se dit une fois, pas ligne par ligne.
-  const group = { threadId: tid, threadSubject: tv.subject, threadIllegible: tv.illegible, threadLead: lead };
+  const group = { threadId: tid, threadSubject: tv.subject, threadIllegible: tv.illegible, threadLead: lead, threadMailbox: mailboxOf(tid) };
   const body = {
     key: bodyKey(tid), kind: 'body', ...group,
     title: 'Corps du mail',

@@ -32,6 +32,20 @@ export const CONNECTOR_PROVIDERS = {
     tint: '#fce8e6',
     fg: '#c5221f',
   },
+  // Troisième voie : toute autre boîte via IMAP (adresses @avocats.fr,
+  // hébergeurs FR type OVH / Infomaniak…). Pas d'OAuth d'un grand fournisseur -
+  // la connexion se fait par les identifiants du serveur, d'où la copie neutre.
+  imap: {
+    id: 'imap',
+    name: 'Autre boîte mail',
+    vendor: 'votre fournisseur',
+    short: 'IMAP',
+    desc: 'IMAP - @avocats.fr, OVH, Infomaniak…',
+    folderWord: 'dossiers IMAP',
+    authDomain: 'votre serveur IMAP',
+    tint: '#eeece6',
+    fg: '#57534e',
+  },
 };
 
 // Les deux « types de connexion » (même grammaire que les connecteurs Notion) :

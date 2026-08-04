@@ -513,8 +513,8 @@ export const COTISATIONS_PAGES = {
 // négociation), l'écart en dessous. Chaque bloc s'audite comme une ligne.
 export const RESULTATS_BLOC = {
   blocs: [
-    { id: 'r-net', valueKey: 'total.net', regleKey: 'regle.net', mentionWhenMissing: { dependsOn: 'cot.ir', mention: 'hors impôt sur le revenu' } },
     { id: 'r-emp', valueKey: 'total.employeur', regleKey: 'regle.coutEmployeur' },
+    { id: 'r-net', valueKey: 'total.net', regleKey: 'regle.net', mentionWhenMissing: { dependsOn: 'cot.ir', mention: 'hors impôt sur le revenu' } },
   ],
   ecart: { id: 'r-ecart', valueKey: 'total.ecart', regleKey: 'regle.ecart', phrase: 'de prélèvements sociaux ne reviennent à aucune des deux parties' },
 };

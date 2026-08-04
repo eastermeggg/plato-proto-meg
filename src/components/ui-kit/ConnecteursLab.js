@@ -12,7 +12,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Plug2 } from 'lucide-react';
 import MailConnectorModal from '../connectors/MailConnectorModal';
-import UpcomingConnectorsCard from '../connectors/UpcomingConnectors';
 import { ConnectorPromoBanner, ConnectorPromoPanel, GuaranteeChips } from '../connectors/ConnectorPromo';
 import { ConnectorHero, ConnectorMiniLink, OAuthWindow, ProviderMark } from '../connectors/ConnectorArt';
 import { CONNECTOR_PROVIDERS } from '../connectors/connectorData';
@@ -51,10 +50,13 @@ export default function ConnecteursLab() {
   const params = new URLSearchParams(window.location.search);
   const heroKind = params.get('hero');
   const [modal, setModal] = useState(params.get('modal')); // null | 'outlook' | 'gmail'
+  // Scope de la boîte en cours de connexion (spec « Connexion boîtes mail ») :
+  // personal = Ma boîte, visible par son owner seul · shared = boîte du
+  // cabinet, geste admin. Deep-link : ?scope=shared.
+  const [modalScope, setModalScope] = useState(params.get('scope') === 'shared' ? 'shared' : 'personal');
   const initialTab = params.get('tab') === 'sync' ? 'sync' : 'import';
   const [connected, setConnected] = useState(null); // provider id une fois « Terminer »
   const [bannerGone, setBannerGone] = useState(false);
-  const [interest, setInterest] = useState([]);
   const [toast, setToast] = useState(null);
 
   // Capture : le héro seul, plein cadre - APRÈS les hooks (ordre stable).
@@ -88,8 +90,10 @@ export default function ConnecteursLab() {
           Le parcours de connexion d'une boîte mail, pensé pour des avocats exigeants sur la donnée :
           l'engagement commence avant les réglages, la modale vend la valeur en montrant le produit
           (illustrations dessinées en code), et les garanties RGPD - lecture seule, hébergement UE,
-          réversibilité - restent visibles à chaque étape. Périmètre : dossiers, emails, pièces
-          jointes ; la synchronisation automatique est annoncée « à venir ».
+          réversibilité - restent visibles à chaque étape. Le workspace porte une liste de boîtes,
+          chacune avec son scope : personnelle (visible par son owner seul) ou cabinet (partagée) -
+          l'emplacement du geste dit la privacy. Périmètre : dossiers, emails, pièces jointes ;
+          la synchronisation automatique est annoncée « à venir ».
         </p>
 
         {/* ── 1 · Avant les réglages ── */}
@@ -144,7 +148,7 @@ export default function ConnecteursLab() {
                     </span>
                   ) : (
                     <button
-                      onClick={() => setModal(id)}
+                      onClick={() => { setModalScope('personal'); setModal(id); }}
                       className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors"
                     >
                       <Plug2 className="w-3.5 h-3.5" strokeWidth={1.75} /> Ouvrir la modale
@@ -156,21 +160,38 @@ export default function ConnecteursLab() {
           </div>
         </Section>
 
-        {/* ── 3 · Le réglage annonce la suite ── */}
+        {/* ── 3 · Deux gestes, deux emplacements ── */}
         <Section
-          title="3 · Le réglage annonce la suite"
-          intro="Sous la boîte email, Réglages > Connecteurs prévoit les prochains canaux du cabinet : WhatsApp, e-Barreau/RPVA, logiciels métier (SECIB, Kleos, Polyact). Chip « À venir », jamais de date ; « Me prévenir » transforme l'attente en signal de priorisation."
+          title="3 · Deux gestes, deux emplacements"
+          intro="Le workspace porte une LISTE de boîtes ; chaque boîte porte son scope. La localisation du geste dit la privacy : un non-admin ne peut brancher QUE du personal - le scope n'est jamais un toggle offert. La boîte est privée, le DOSSIER est le lieu du partage : le seul pont est le geste de verser."
         >
-          <Frame label="Carte - Réglages > Connecteurs, sous la boîte email">
-            <UpcomingConnectorsCard
-              interested={interest}
-              onNotify={(u) => {
-                setInterest(prev => [...prev, u.id]);
-                setToast(`C'est noté - on vous prévient dès que ${u.name} arrive.`);
-                setTimeout(() => setToast(null), 3200);
-              }}
-            />
-          </Frame>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              {
+                scope: 'personal', place: 'Votre compte › Ma boîte', title: 'Connecter ma boîte',
+                copy: 'Votre boîte - visible par vous seul. Ce que vous versez dans un dossier devient accessible au cabinet.',
+                note: 'Self-service, le geste PRINCIPAL. Cas dominant (Julien, Marylin) : chaque avocat sa boîte, les dossiers se travaillent à plusieurs via le dossier commun.',
+              },
+              {
+                scope: 'shared', place: 'Organisation › Connecteurs', title: 'Boîtes communes du cabinet',
+                copy: 'Boîtes communes - cabinet@, accueil@… - connectées une fois pour tout le cabinet.',
+                note: 'Geste admin, token rattaché au workspace. Liste visible par tous (statut, dernière vérification), actions admin only. Cas Benzera : la boîte commune est le cas SIMPLE du modèle.',
+              },
+            ].map(c => (
+              <div key={c.scope} className="bg-white rounded-xl border border-border p-5 flex flex-col items-start gap-2" style={{ boxShadow: '0 1px 3px rgba(28,25,23,0.05)' }}>
+                <p style={monoLabel}>{c.place}</p>
+                <p className="text-[15px] font-medium text-foreground">{c.title}</p>
+                <p className="text-[12.5px] text-foreground-secondary leading-[19px]">{c.copy}</p>
+                <p className="text-[12px] text-foreground-muted leading-[18px]">{c.note}</p>
+                <button
+                  onClick={() => { setModalScope(c.scope); setModal('outlook'); }}
+                  className="mt-2 inline-flex items-center gap-2 h-8 px-3 text-[12.5px] font-medium text-foreground-secondary bg-white border border-border rounded-lg hover:bg-cream hover:text-foreground transition-colors"
+                >
+                  <Plug2 className="w-3.5 h-3.5" strokeWidth={1.75} /> Modale en scope {c.scope}
+                </button>
+              </div>
+            ))}
+          </div>
         </Section>
 
         {/* ── 4 · Les briques ── */}
@@ -215,7 +236,8 @@ export default function ConnecteursLab() {
       {modal && (
         <MailConnectorModal
           provider={modal}
-          account="cabinet@durand-avocats.fr"
+          account={modalScope === 'shared' ? 'cabinet@durand-avocats.fr' : 'marie@durand-avocats.fr'}
+          scope={modalScope}
           initialTab={initialTab}
           onClose={() => setModal(null)}
           onFinish={finish}

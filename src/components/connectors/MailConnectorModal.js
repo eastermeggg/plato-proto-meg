@@ -37,6 +37,10 @@ function CheckDot() {
 export default function MailConnectorModal({
   provider = 'outlook',
   account = null, // adresse pressentie (affichée sur le CTA quand connue)
+  // Scope de la boîte (spec « Connexion boîtes mail ») : 'personal' = visible
+  // par son owner seul, self-service · 'shared' = boîte du cabinet, geste
+  // admin. Le scope découle de QUI branche OÙ - jamais un toggle offert ici.
+  scope = 'personal',
   initialTab = 'import',
   onClose, // fermeture sans terminer (X, voile, Annuler, Échap)
   onConnected, // la connexion vient d'aboutir (le parent pose son état)
@@ -45,6 +49,17 @@ export default function MailConnectorModal({
   const p = CONNECTOR_PROVIDERS[provider] || CONNECTOR_PROVIDERS.outlook;
   const [tab, setTab] = useState(initialTab);
   const [step, setStep] = useState('overview'); // 'overview' | 'connecting' | 'done'
+
+  // IMAP : pas d'OAuth (aucune redirection fournisseur) - on saisit des
+  // identifiants. Formulaire minimal : email + mot de passe d'application ; le
+  // serveur est déduit du domaine, modifiable si besoin.
+  const isImap = provider === 'imap';
+  const [imapEmail, setImapEmail] = useState(account || '');
+  const [imapPass, setImapPass] = useState('');
+  const [showServer, setShowServer] = useState(false);
+  const imapDomain = (imapEmail.split('@')[1] || '').trim().toLowerCase();
+  const imapHost = imapDomain ? `imap.${imapDomain}` : 'imap.votre-serveur.fr';
+  const imapReady = imapEmail.includes('@') && imapEmail.split('@')[1]?.includes('.') && imapPass.length > 0;
 
   const busy = step === 'connecting';
   const close = () => { if (!busy) onClose?.(); };
@@ -56,15 +71,17 @@ export default function MailConnectorModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [busy]);
 
+  const connectedAccount = (isImap ? imapEmail.trim() : '') || account || 'cabinet@durand-avocats.fr';
+
   const authorize = () => {
+    if (isImap && !imapReady) return;
     setStep('connecting');
     setTimeout(() => {
-      onConnected?.(p);
+      // On remonte l'adresse effectivement connectée (l'email saisi pour IMAP).
+      onConnected?.(p, connectedAccount);
       setStep('done');
-    }, 1900);
+    }, isImap ? 1400 : 1900);
   };
-
-  const connectedAccount = account || 'cabinet@durand-avocats.fr';
 
   return (
     <div
@@ -165,8 +182,82 @@ export default function MailConnectorModal({
             <X className="w-4 h-4" strokeWidth={2} />
           </button>
 
-          {/* ── Import - présentation + consentement ── */}
-          {step === 'overview' && tab === 'import' && (
+          {/* ── IMAP - formulaire d'identifiants (pas d'OAuth) ── */}
+          {step === 'overview' && tab === 'import' && isImap && (
+            <div className="flex-1 min-h-0 overflow-y-auto" style={{ padding: '22px 32px 18px' }}>
+              <h3 style={{ ...serifTitle, fontSize: 22 }}>Connectez votre boîte par IMAP</h3>
+              <p className="text-[13.5px] text-foreground-secondary leading-[21px] mt-2" style={{ maxWidth: 520 }}>
+                Pour une adresse @avocats.fr ou une messagerie d'hébergeur (OVH, Infomaniak…).
+                Norma s'y connecte en lecture seule, avec un mot de passe d'application.
+              </p>
+
+              <div className="flex flex-col gap-3.5 mt-5" style={{ maxWidth: 460 }}>
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[12px] font-medium text-foreground">Adresse email</span>
+                  <input
+                    type="email"
+                    value={imapEmail}
+                    onChange={(e) => setImapEmail(e.target.value)}
+                    placeholder="vous@avocats.fr"
+                    className="h-9 px-3 rounded-lg border border-border bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[12px] font-medium text-foreground">Mot de passe d'application</span>
+                  <input
+                    type="password"
+                    value={imapPass}
+                    onChange={(e) => setImapPass(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="h-9 px-3 rounded-lg border border-border bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
+                  />
+                  <span className="text-[11.5px] leading-[16px]" style={{ color: '#78716c' }}>
+                    Créez un mot de passe d'application dédié dans votre messagerie - jamais votre
+                    mot de passe principal. Révocable à tout moment.
+                  </span>
+                </label>
+
+                {/* Serveur : déduit du domaine, replié par défaut. */}
+                <div className="rounded-lg" style={{ backgroundColor: '#f6f5f2', border: '1px solid #e7e5e3', padding: '10px 12px' }}>
+                  <div className="flex items-center gap-2">
+                    <p className="flex-1 text-[12px] leading-[17px]" style={{ color: '#57534e' }}>
+                      Serveur détecté : <span className="font-medium text-foreground" style={{ fontFamily: MONO, fontSize: 11.5 }}>{imapHost}</span> · port 993 · SSL
+                    </p>
+                    <button type="button" onClick={() => setShowServer(s => !s)} className="text-[12px] font-medium text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0">
+                      {showServer ? 'Masquer' : 'Modifier'}
+                    </button>
+                  </div>
+                  {showServer && (
+                    <div className="flex gap-2 mt-2.5">
+                      <input defaultValue={imapHost} placeholder="Serveur IMAP" className="flex-1 h-8 px-2.5 rounded-md border border-border bg-white text-[13px] text-foreground focus:outline-none focus:border-border-strong" />
+                      <input defaultValue="993" placeholder="Port" style={{ width: 72 }} className="h-8 px-2.5 rounded-md border border-border bg-white text-[13px] text-foreground focus:outline-none focus:border-border-strong" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Le périmètre exact - même consentement que l'OAuth. */}
+              <div className="rounded-lg mt-5" style={{ backgroundColor: '#eeece6', padding: '12px 14px', maxWidth: 460 }}>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Lock className="w-4 h-4 flex-shrink-0 text-foreground" strokeWidth={1.75} />
+                  <p className="text-[13px] font-medium text-foreground">Accès en lecture seule</p>
+                  <span className="flex items-center gap-1.5 ml-1">
+                    {SCOPE_READS.map(s => (
+                      <span key={s} className="inline-flex items-center h-[22px] px-2 rounded-full bg-white text-[11.5px] font-medium" style={{ color: '#44403c', border: '1px solid #e0ddd6' }}>{s}</span>
+                    ))}
+                  </span>
+                </div>
+                <p className="text-[12px] leading-[18px] mt-2" style={{ color: '#57534e' }}>
+                  Jamais d'envoi ni de suppression. Votre boîte reste visible par vous seul - rien
+                  n'entre dans un dossier sans votre geste.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ── Import - présentation + consentement (OAuth) ── */}
+          {step === 'overview' && tab === 'import' && !isImap && (
               <div className="flex-1 min-h-0 overflow-y-auto" style={{ padding: '22px 32px 18px' }}>
                 <ConnectorHero provider={provider} kind="import" height={182} />
 
@@ -197,6 +288,12 @@ export default function MailConnectorModal({
                   </div>
                   <p className="text-[12px] leading-[18px] mt-2" style={{ color: '#57534e' }}>
                     Jamais d'envoi ni de suppression - rien n'entre dans un dossier sans votre geste.
+                  </p>
+                  {/* Qui verra cette boîte - dit AVANT le clic, comme le périmètre. */}
+                  <p className="text-[12px] leading-[18px] mt-1" style={{ color: '#57534e' }}>
+                    {scope === 'shared'
+                      ? 'Boîte commune du cabinet : consultable par tous les membres du workspace.'
+                      : 'Votre boîte personnelle : visible par vous seul. Ce que vous versez dans un dossier devient accessible au cabinet.'}
                   </p>
                 </div>
               </div>
@@ -239,36 +336,62 @@ export default function MailConnectorModal({
             <div className="flex items-center gap-4 flex-shrink-0" style={{ padding: '14px 32px', borderTop: '1px solid #e7e5e3' }}>
               <p className="flex items-center gap-2 text-[11.5px] text-foreground-secondary leading-4 flex-1 min-w-0">
                 <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#4a9168' }} strokeWidth={1.75} />
-                Votre mot de passe reste chez {p.vendor}.
+                {isImap
+                  ? 'Connexion chiffrée (TLS). Vos identifiants sont stockés de façon sécurisée, en lecture seule.'
+                  : `Votre mot de passe reste chez ${p.vendor}.`}
               </p>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button onClick={close} className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background transition-colors">
                   Annuler
                 </button>
-                <button onClick={authorize} className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors">
-                  Se connecter avec {p.short} <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
+                {isImap ? (
+                  <button
+                    onClick={authorize}
+                    disabled={!imapReady}
+                    className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-opacity disabled:opacity-40"
+                  >
+                    Connecter
+                  </button>
+                ) : (
+                  <button onClick={authorize} className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors">
+                    Se connecter avec {p.short} <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
+                  </button>
+                )}
               </div>
             </div>
           )}
 
-          {/* ── Autorisation en cours - la fenêtre du fournisseur, pas la nôtre ── */}
+          {/* ── Autorisation en cours ── */}
           {step === 'connecting' && (
-            <div className="flex-1 flex flex-col items-center justify-center gap-5" style={{ padding: '32px' }}>
-              <OAuthWindow provider={provider}>
-                <div className="flex flex-col items-center gap-2.5">
-                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: p.fg }} strokeWidth={1.75} />
-                  <p className="text-[13px] font-medium text-foreground">Autorisation chez {p.vendor}…</p>
-                  <p className="text-[12px] text-foreground-secondary leading-[18px]" style={{ maxWidth: 260 }}>
-                    Validez la lecture seule dans cette fenêtre. Norma ne voit ni votre mot de passe,
-                    ni rien d'autre que ce que vous acceptez.
-                  </p>
-                </div>
-              </OAuthWindow>
-              <p className="flex items-center gap-1.5 text-[11.5px] text-foreground-secondary">
-                <Lock className="w-3 h-3" strokeWidth={2} /> Connexion chiffrée (TLS) - hébergement dans l'Union européenne
-              </p>
-            </div>
+            isImap ? (
+              // IMAP : pas de fenêtre fournisseur - simple vérification serveur.
+              <div className="flex-1 flex flex-col items-center justify-center gap-3.5 text-center" style={{ padding: '32px' }}>
+                <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#57534e' }} strokeWidth={1.75} />
+                <p className="text-[13px] font-medium text-foreground">Connexion à {imapHost}…</p>
+                <p className="text-[12px] text-foreground-secondary leading-[18px]" style={{ maxWidth: 280 }}>
+                  Vérification de vos identifiants, en lecture seule.
+                </p>
+                <p className="flex items-center gap-1.5 text-[11.5px] text-foreground-secondary mt-1">
+                  <Lock className="w-3 h-3" strokeWidth={2} /> Connexion chiffrée (TLS) - hébergement dans l'Union européenne
+                </p>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center gap-5" style={{ padding: '32px' }}>
+                <OAuthWindow provider={provider}>
+                  <div className="flex flex-col items-center gap-2.5">
+                    <Loader2 className="w-5 h-5 animate-spin" style={{ color: p.fg }} strokeWidth={1.75} />
+                    <p className="text-[13px] font-medium text-foreground">Autorisation chez {p.vendor}…</p>
+                    <p className="text-[12px] text-foreground-secondary leading-[18px]" style={{ maxWidth: 260 }}>
+                      Validez la lecture seule dans cette fenêtre. Norma ne voit ni votre mot de passe,
+                      ni rien d'autre que ce que vous acceptez.
+                    </p>
+                  </div>
+                </OAuthWindow>
+                <p className="flex items-center gap-1.5 text-[11.5px] text-foreground-secondary">
+                  <Lock className="w-3 h-3" strokeWidth={2} /> Connexion chiffrée (TLS) - hébergement dans l'Union européenne
+                </p>
+              </div>
+            )
           )}
 
           {/* ── Confirmation ── */}
@@ -279,11 +402,11 @@ export default function MailConnectorModal({
                   <CheckCircle2 className="w-6 h-6" style={{ color: '#4a9168' }} strokeWidth={1.75} />
                 </span>
                 <div>
-                  <h3 style={{ ...serifTitle, fontSize: 22 }}>Votre boîte est connectée</h3>
+                  <h3 style={{ ...serifTitle, fontSize: 22 }}>{scope === 'shared' ? 'La boîte commune est connectée' : 'Votre boîte est connectée'}</h3>
                   <p className="text-[13px] text-foreground-secondary mt-1">{connectedAccount}</p>
                 </div>
                 <div className="flex items-center gap-1.5 flex-wrap justify-center">
-                  {['Lecture seule', 'Vous choisissez chaque pièce', 'Réversible à tout moment'].map(t => (
+                  {[scope === 'shared' ? 'Pour tout le cabinet' : 'Visible par vous seul', 'Lecture seule', 'Vous choisissez chaque pièce', 'Réversible à tout moment'].map(t => (
                     <span key={t} className="inline-flex items-center h-6 px-2 rounded-full text-[11px] font-medium" style={{ backgroundColor: '#eeece6', color: '#57534e' }}>{t}</span>
                   ))}
                 </div>

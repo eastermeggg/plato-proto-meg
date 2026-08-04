@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import ParallelTasks, { ParallelTasksLine } from './components/ParallelTasks';
 import ChatComposerNotice, { NOTICE_WRAP_BG } from './components/ChatComposerNotice';
@@ -34,7 +34,8 @@ import ImportFolderTreeLab from './components/ui-kit/ImportFolderTreeLab';
 import ImportV2Lab from './components/ui-kit/ImportV2Lab';
 import ConnecteursLab from './components/ui-kit/ConnecteursLab';
 import MailConnectorModal from './components/connectors/MailConnectorModal';
-import UpcomingConnectorsCard from './components/connectors/UpcomingConnectors';
+import { ProviderMark } from './components/connectors/ConnectorArt';
+import { GuaranteeChips } from './components/connectors/ConnectorPromo';
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
@@ -57,9 +58,9 @@ import PileAdjustSheet from './components/pieces/PileAdjustSheet';
 import FusePiecesModal from './components/pieces/FusePiecesModal';
 import SplitVariantsLab from './components/pieces/SplitVariantsLab';
 import { ReleveEditor } from './components/social/ReleveHeuresLab';
-import CotisationsSection, { PrelevementPage, ResultatsBloc, LinePanel, CotRow, ValuePill, ROW_DIVIDER } from './components/social/CotisationsSection';
+import CotisationsSection, { PrelevementPage, ResultatsBloc, LinePanel, ValuePill, ROW_DIVIDER } from './components/social/CotisationsSection';
 import CotisationsLab from './components/ui-kit/CotisationsLab';
-import { COTISATIONS_PAGES, resolveCotLigne } from './data/cotisationsSocial';
+import { COTISATIONS_PAGES } from './data/cotisationsSocial';
 import {
   ChiffrageSlot,
   RedactionSlot,
@@ -1418,7 +1419,7 @@ export default function App() {
   const [activeDossierId, setActiveDossierId] = useState(null);
 
   // ========== SETTINGS ==========
-  const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'connecteurs' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
+  const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'maboite' | 'connecteurs' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
   // Parrainage - modal-only feature triggered from the sidebar promo card
   const [parrainageModalOpen, setParrainageModalOpen] = useState(false);
   const [parrainageForm, setParrainageForm] = useState({ prenom: '', nom: '', email: '' });
@@ -1509,19 +1510,24 @@ export default function App() {
   const [orgName, setOrgName] = useState('Cabinet Hexa'); // cabinet / organisation display name (editable by admin in org settings)
   const [orgNameDraft, setOrgNameDraft] = useState(null); // in-progress org-name edit (null = not editing)
   const [accountEdits, setAccountEdits] = useState({}); // in-progress edits to the current user's name + email (Général settings)
-  // Email mailbox connection (Connecteurs settings). Backend is Nylas; the
-  // prototype only models the connect/disconnect UX. Per-user, read-only scope.
-  const [emailConnection, setEmailConnection] = useState({ status: 'connected', provider: 'outlook', account: 'cabinet@durand-avocats.fr' });
-  // Flow de connexion boîte mail (Connecteurs) : un parcours RASSURANT en 3
-  // temps - consentement explicite (ce que Norma pourra / ne pourra jamais
-  // faire), autorisation simulée chez le fournisseur (OAuth : le mot de passe
-  // ne passe jamais par Norma), confirmation. Déconnexion = dialog qui dit ce
-  // qui se passe VRAIMENT (rien n'est perdu) avant d'agir.
-  const [mailFlow, setMailFlow] = useState(null); // null | { provider }
-  const [mailDisconnectAsk, setMailDisconnectAsk] = useState(false);
-  // « Me prévenir » sur les connecteurs à venir (WhatsApp, e-Barreau, logiciels
-  // métier) : l'intérêt exprimé nourrit la priorisation produit.
-  const [connectorInterest, setConnectorInterest] = useState([]);
+  // Boîtes email du workspace (spec « Connexion boîtes mail - solution
+  // finale ») : le workspace porte une LISTE de boîtes, chaque boîte porte son
+  // scope. personal = consultable par son owner SEUL, self-service (Votre
+  // compte › Ma boîte) · shared = consultable par tout le cabinet, gérée par
+  // un ADMIN, token rattaché au workspace (Organisation › Connecteurs).
+  // Backend Nylas ; le prototype ne modélise que l'UX connecter/déconnecter.
+  // Démarre VIDE : le flow commence à l'empty state, chaque boîte se connecte
+  // par son geste (admin → commune, chacun → la sienne).
+  const [mailboxes, setMailboxes] = useState([]);
+  // Flow de connexion boîte mail : un parcours RASSURANT en 3 temps -
+  // consentement explicite (ce que Norma pourra / ne pourra jamais faire),
+  // autorisation simulée chez le fournisseur (OAuth : le mot de passe ne passe
+  // jamais par Norma), confirmation. Déconnexion = dialog qui dit ce qui se
+  // passe VRAIMENT (rien n'est perdu) avant d'agir.
+  const [mailFlow, setMailFlow] = useState(null); // null | { provider, scope: 'personal' | 'shared' }
+  const [mailDisconnectAsk, setMailDisconnectAsk] = useState(null); // null | mailbox id
+  const [mailAddPick, setMailAddPick] = useState(null); // null | 'add' - menu d'ajout d'adresse ouvert
+  const [mailAddAnchor, setMailAddAnchor] = useState(null); // { left, top } - ancre écran du menu (position fixed pour échapper aux overflow des réglages)
   const [preferenceDocs, setPreferenceDocs] = useState([]);
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
@@ -1587,6 +1593,7 @@ export default function App() {
   const [socialDetail, setSocialDetail] = useState(null); // droit social: null | 'salaire' | 'releve' — intrant detail sub-view inside the chiffrage
   const [socialSalaireBasis, setSocialSalaireBasis] = useState('12'); // '12' | '3' — reference-salary basis
   const [socialResultPanel, setSocialResultPanel] = useState(null); // bloc de résultats: ligne résolue auditée dans le panneau latéral
+  const [socialAssiettesOpen, setSocialAssiettesOpen] = useState(false); // total brut: replie/déplie la répartition en assiettes
   const [dropFirstPieces, setDropFirstPieces] = useState([]); // array of { id, originalName, cleanName, type, date, postesLies, summary, extractedInfo, pages, status, sourceFile?, pageRange?, siblings?, poolRef }
   // « Importer depuis Outlook » picker - null (closed) | 'dossier' (import
   // straight into the open dossier) | 'staging' (feed the drop/SAS modal).
@@ -9587,15 +9594,38 @@ export default function App() {
     const INFO = '#1e3a8a', INFO_BG = '#dfe8f5', INFO_BORDER = '#aabcd5';
     const salaire = 2504, hours = 430;
     const hourly = salaire / 151.67;
+    // Deux axes, distincts en droit : la NATURE qualifie le poste (rémunération
+    // du travail → salariale ; réparation d'un préjudice → indemnitaire) ; le
+    // RÉGIME en découle (dans l'assiette des cotisations, ou exclu).
+    const NATURES = {
+      salariale:    { label: 'Salariale',    dot: '#a8a29e' },
+      indemnitaire: { label: 'Indemnitaire', dot: '#b3a4c9' },
+    };
+    // Trois régimes, du plus au moins soumis : la salariale entre en totalité,
+    // l'indemnité de rupture est exclue sous plafonds, la réparation en est sortie.
+    const REGIMES = {
+      soumis:  { label: 'soumise',  color: '#57534e', dot: '#a8a29e', assiette: 'Assiette salariale',    note: 'assujettie en totalité' },
+      exclu:   { label: 'exclue',   color: '#8a7cae', dot: '#b3a4c9', assiette: 'Assiette indemnitaire', note: 'exclue sous plafonds' },
+      exonere: { label: 'exonérée', color: '#6f8f78', dot: '#6f8f78', assiette: 'Assiette exonérée',     note: 'réparation · hors cotisations' },
+    };
     const POSTES = [
-      { cat: 'Rappels de salaire', acro: 'HS', label: 'Rappel d’heures supplémentaires', montant: Math.round(hours * hourly * 1.25) },
-      { cat: 'Rappels de salaire', acro: 'CP', label: 'Congés payés sur heures supplémentaires', montant: Math.round(hours * hourly * 1.25 * 0.1) },
-      { cat: 'Indemnités de rupture', acro: 'PRÉA', label: 'Indemnité compensatrice de préavis', montant: Math.round(salaire * 2) },
-      { cat: 'Indemnités de rupture', acro: 'IL', label: 'Indemnité légale de licenciement', montant: Math.round(salaire * 0.25 * 3) },
-      { cat: 'Dommages-intérêts', acro: 'DI', label: 'Dommages-intérêts pour licenciement sans cause réelle', montant: Math.round(salaire * 4) },
+      { cat: 'Rappels de salaire', acro: 'HS', label: 'Rappel d’heures supplémentaires', montant: Math.round(hours * hourly * 1.25), nature: 'salariale', regime: 'soumis' },
+      { cat: 'Rappels de salaire', acro: 'CP', label: 'Congés payés sur heures supplémentaires', montant: Math.round(hours * hourly * 1.25 * 0.1), nature: 'salariale', regime: 'soumis' },
+      { cat: 'Indemnités de rupture', acro: 'PRÉA', label: 'Indemnité compensatrice de préavis', montant: Math.round(salaire * 2), nature: 'salariale', regime: 'soumis' },
+      { cat: 'Indemnités de rupture', acro: 'IL', label: 'Indemnité légale de licenciement', montant: Math.round(salaire * 0.25 * 3), nature: 'indemnitaire', regime: 'exclu' },
+      { cat: 'Dommages-intérêts', acro: 'DI', label: 'Dommages-intérêts pour licenciement sans cause réelle', montant: Math.round(salaire * 4), nature: 'indemnitaire', regime: 'exonere' },
     ];
     const CATS = ['Rappels de salaire', 'Indemnités de rupture', 'Dommages-intérêts'];
     const total = POSTES.reduce((a, p) => a + p.montant, 0);
+    // ② bis — la répartition du brut par régime. Une seule est l'assiette réelle
+    // (la salariale, soumise) ; les deux autres en sont sorties. Les trois se somment au brut.
+    const repartition = ['soumis', 'exclu', 'exonere'].map((r) => ({
+      key: r,
+      dot: REGIMES[r].dot,
+      label: REGIMES[r].assiette,
+      montant: POSTES.filter(p => p.regime === r).reduce((a, p) => a + p.montant, 0),
+      note: REGIMES[r].note,
+    }));
     const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
     const cardChrome = { border: '1px solid #e7e5e3', borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
     const intrants = [
@@ -9672,6 +9702,7 @@ export default function App() {
                 <div key={cat} style={{ ...cardChrome, background: 'white' }}>
                   <div className="flex items-center" style={{ height: 40, padding: '0 16px', borderBottom: `1px solid ${ROW_DIVIDER}`, background: '#f8f7f5' }}>
                     <span className="flex-1" style={colHeaderStyle}>{cat}</span>
+                    <div className="flex items-center" style={{ width: 186, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Nature</span></div>
                     <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Montant demandé</span></div>
                     <div className="flex-shrink-0" style={{ width: 44 }} />
                   </div>
@@ -9680,6 +9711,13 @@ export default function App() {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#fafaf9'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
                       <div className="flex-shrink-0" style={{ width: 64, padding: '0 16px' }}><span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>{p.acro}</span></div>
                       <div className="flex-1 min-w-0" style={{ padding: '0 12px' }}><span className="truncate block" style={{ fontSize: 14, color: '#292524' }}>{p.label}</span></div>
+                      <div className="flex items-center" style={{ width: 186, padding: '0 12px', gap: 8 }}>
+                        <span className="inline-flex items-center" style={{ gap: 6, height: 22, padding: '0 8px 0 7px', borderRadius: 999, border: `1px solid ${ROW_DIVIDER}`, background: '#fafaf9' }}>
+                          <span className="flex-shrink-0" style={{ width: 6, height: 6, borderRadius: '50%', background: NATURES[p.nature].dot }} />
+                          <span style={{ fontSize: 12, color: '#57534e', whiteSpace: 'nowrap' }}>{NATURES[p.nature].label}</span>
+                        </span>
+                        <span style={{ fontSize: 11, color: REGIMES[p.regime].color, whiteSpace: 'nowrap' }}>{REGIMES[p.regime].label}</span>
+                      </div>
                       <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>{fmt(p.montant)}</span></div>
                       <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}><MoreVertical className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#a8a29e' }} /></div>
                     </div>
@@ -9687,9 +9725,47 @@ export default function App() {
                 </div>
               );
             })}
-            {/* le total brut clôt la section ② */}
+            {/* le total brut, repliable : l'en-tête porte le tout (brut demandé) ;
+                le chevron déplie ses parts, une ligne par assiette, montant aligné
+                sur la colonne des postes au-dessus. */}
             <div style={{ ...cardChrome, background: 'white' }}>
-              <CotRow resolved={resolveCotLigne({ id: 'total-brut', famille: 'resultat', operateur: '=', valueKey: 'total.brut', emphase: 'section', panel: false })} isLast />
+              <button
+                onClick={() => setSocialAssiettesOpen((o) => !o)}
+                aria-expanded={socialAssiettesOpen}
+                className="flex items-center w-full transition-colors"
+                style={{ minHeight: 52, background: '#f8f7f5', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#f1efe9'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#f8f7f5'; }}
+              >
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 46 }}>
+                  <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 22, height: 22, borderRadius: 9999, border: '2px solid rgba(41,37,36,0.1)', background: '#292524' }} aria-hidden>
+                    <Equal style={{ width: 10, height: 10, color: 'white' }} strokeWidth={2.75} />
+                  </span>
+                </div>
+                <div className="flex items-baseline min-w-0 flex-1" style={{ gap: 9, padding: '12px 12px' }}>
+                  <span className="flex-shrink-0" style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>Total demandé (brut)</span>
+                  {!socialAssiettesOpen && <span className="truncate" style={{ fontSize: 12, color: '#a8a29e' }}>{repartition.length} assiettes</span>}
+                </div>
+                <div className="flex items-center justify-end flex-shrink-0" style={{ width: 176, padding: '0 12px' }}>
+                  <span style={{ ...serifAmountStyle, color: '#292524' }}>{fmt(total)}</span>
+                </div>
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44 }}>
+                  <ChevronRight className="w-4 h-4 transition-transform" style={{ color: '#a8a29e', transform: socialAssiettesOpen ? 'rotate(90deg)' : 'none' }} />
+                </div>
+              </button>
+              {socialAssiettesOpen && repartition.map((r) => (
+                <div key={r.key} className="flex items-center" style={{ height: 46, borderTop: `1px solid ${ROW_DIVIDER}`, background: 'white' }}>
+                  <div className="flex items-center min-w-0 flex-1" style={{ gap: 9, padding: '0 12px 0 16px' }}>
+                    <span className="flex-shrink-0" style={{ width: 7, height: 7, borderRadius: '50%', background: r.dot }} />
+                    <span className="flex-shrink-0" style={{ fontSize: 14, color: '#292524' }}>{r.label}</span>
+                    <span className="truncate" style={{ fontSize: 12, color: '#a8a29e' }}>{r.note}</span>
+                  </div>
+                  <div className="flex items-center justify-end flex-shrink-0" style={{ width: 176, padding: '0 12px' }}>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>{fmt(r.montant)}</span>
+                  </div>
+                  <span className="flex-shrink-0" style={{ width: 44 }} />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -21406,225 +21482,374 @@ export default function App() {
     </>
   );
 
-  // Connecteurs - connect a mailbox so échanges (and their PJ) can be imported
-  // into dossiers. Le parcours est construit pour RASSURER : consentement
-  // explicite avant tout (ce que Norma pourra / ne pourra JAMAIS faire),
-  // autorisation chez le fournisseur (OAuth - le mot de passe ne transite
-  // jamais par Norma), et une déconnexion qui dit ce qui se passe vraiment.
-  const renderSettingsConnecteurs = () => {
-    const PROVIDERS = [
-      { id: 'outlook', name: 'Microsoft Outlook', vendor: 'Microsoft', desc: 'Outlook, Microsoft 365, Exchange', account: 'cabinet@durand-avocats.fr', bg: '#dfe8f5', fg: '#1e3a8a' },
-      { id: 'gmail', name: 'Google Workspace', vendor: 'Google', desc: 'Gmail, Google Workspace', account: 'cabinet@durand-avocats.fr', bg: '#fce8e6', fg: '#c5221f' },
-    ];
-    const flowProvider = mailFlow ? PROVIDERS.find(p => p.id === mailFlow.provider) : null;
+  // ── Boîtes mail : deux gestes, deux emplacements ──────────────────────────
+  // Spec « Connexion boîtes mail - solution finale » : la LOCALISATION du geste
+  // dit la privacy. « Ma boîte » (Votre compte) branche une boîte PERSONNELLE -
+  // self-service, visible par son owner seul. « Connecteurs » (Organisation)
+  // branche une boîte du CABINET - geste admin, consultable par tous, token
+  // rattaché au workspace. Un non-admin ne peut brancher QUE du personal : le
+  // garde-fou anti-fuite est structurel, jamais un toggle offert.
+  // Le parcours reste construit pour RASSURER : consentement explicite avant
+  // tout (ce que Norma pourra / ne pourra JAMAIS faire), autorisation chez le
+  // fournisseur (OAuth - le mot de passe ne transite jamais par Norma), et une
+  // déconnexion qui dit ce qui se passe vraiment.
+  const MAIL_PROVIDERS = [
+    { id: 'outlook', name: 'Microsoft Outlook', vendor: 'Microsoft', short: 'Outlook', desc: 'Outlook, Microsoft 365, Exchange', bg: '#dfe8f5', fg: '#1e3a8a' },
+    { id: 'gmail', name: 'Google Workspace', vendor: 'Google', short: 'Gmail', desc: 'Gmail, Google Workspace', bg: '#fce8e6', fg: '#c5221f' },
+    // 3e voie : toute autre boîte via IMAP (@avocats.fr, OVH, Infomaniak…).
+    { id: 'imap', name: 'Autre boîte mail', vendor: 'votre fournisseur', short: 'Autre (IMAP)', desc: 'IMAP - @avocats.fr, OVH, Infomaniak…', bg: '#eeece6', fg: '#57534e' },
+  ];
+  const myMailboxes = mailboxes.filter(b => b.scope === 'personal' && b.owner === currentUserId);
+  const sharedMailboxes = mailboxes.filter(b => b.scope === 'shared');
+  const mailDisconnectTarget = mailDisconnectAsk ? mailboxes.find(b => b.id === mailDisconnectAsk) : null;
+  const mailFlowProvider = mailFlow ? MAIL_PROVIDERS.find(p => p.id === mailFlow.provider) : null;
+  // Adresse pressentie de la boîte en cours de connexion : chaque scope
+  // ACCUMULE ses boîtes (perso comme commune - pas de limite dure), donc on
+  // pioche la prochaine adresse libre du pool correspondant. L'adresse est
+  // FIGÉE au démarrage du flow (dans mailFlow.account) - sinon elle dériverait
+  // dès que la boîte rejoint la liste (toast ≠ rangée).
+  const SHARED_ADDRESS_POOL = ['cabinet@hexa.com', 'contact@hexa.com', 'facturation@hexa.com', 'contentieux@hexa.com'];
+  const PERSONAL_ADDRESS_POOL = [currentUser?.email, 'm.durand@gmail.com', 'contact@me-durand-avocat.fr'].filter(Boolean);
+  const nextFreeMailAddress = (pool, taken) => pool.find(a => a && !taken.some(b => b.address === a));
+  const mailFlowAccount = mailFlow?.account || null;
 
-    const startConnect = (p) => setMailFlow({ provider: p.id });
-    const finishFlow = (account) => {
-      setMailFlow(null);
-      setToastMessage(`${account} connectée en lecture seule.`);
-      setTimeout(() => setToastMessage(null), 3000);
+  const startMailConnect = (providerId, scope) => {
+    const account = scope === 'shared'
+      ? (nextFreeMailAddress(SHARED_ADDRESS_POOL, sharedMailboxes) || `boite-${sharedMailboxes.length + 1}@hexa.com`)
+      : (nextFreeMailAddress(PERSONAL_ADDRESS_POOL, myMailboxes) || `perso-${myMailboxes.length + 1}@gmail.com`);
+    setMailFlow({ provider: providerId, scope, account });
+  };
+  const handleMailConnected = (accountOverride) => {
+    if (!mailFlow) return;
+    // IMAP : la modale remonte l'adresse réellement saisie ; sinon l'adresse
+    // pressentie figée au démarrage du flow.
+    const address = accountOverride || mailFlow.account;
+    setMailboxes(prev => [...prev, {
+      id: `mb-${mailFlow.provider}-${prev.length + 1}`,
+      provider: mailFlow.provider,
+      address,
+      scope: mailFlow.scope,
+      // Le token d'une boîte cabinet est rattaché au workspace, pas à la
+      // personne qui clique - on garde juste la provenance du geste.
+      ...(mailFlow.scope === 'shared' ? { connectedBy: currentUser?.name } : { owner: currentUserId }),
+    }]);
+  };
+  const finishMailFlow = (account) => {
+    const shared = mailFlow?.scope === 'shared';
+    setMailFlow(null);
+    setToastMessage(shared ? `${account} connectée pour tout le cabinet - lecture seule.` : `${account} connectée en lecture seule.`);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+  const confirmMailDisconnect = () => {
+    if (!mailDisconnectTarget) return;
+    setMailboxes(prev => prev.filter(b => b.id !== mailDisconnectTarget.id));
+    setMailDisconnectAsk(null);
+    setToastMessage('Boîte déconnectée. Vos dossiers restent intacts.');
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+  const verifyMailboxNow = () => {
+    setToastMessage('Connexion vérifiée à l\'instant - accès en lecture seule actif.');
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Les deux colonnes de confiance : dire aussi clairement ce que Norma ne
+  // fera JAMAIS que ce qu'elle fait.
+  const MAIL_CAN = [
+    'Lire vos échanges pour vous les proposer, dossier par dossier',
+    'Copier dans un dossier une pièce que vous versez vous-même',
+    'Vérifier les nouveautés des sources que vous avez choisi de suivre',
+  ];
+  const MAIL_CANT = [
+    'Envoyer, modifier ou supprimer quoi que ce soit dans votre boîte',
+    'Verser une pièce dans un dossier sans votre geste',
+    'Conserver vos emails en dehors des pièces versées',
+  ];
+
+  // Marque Plato : titres en serif RL Para, étiquettes en mono IBM Plex,
+  // surface d'emphase bleue, neutres crème + primaire #292524.
+  const mailSerifTitle = { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', lineHeight: 1.2 };
+  const mailMonoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#292524', letterSpacing: '0.1em', textTransform: 'uppercase' };
+
+  // Rangée d'une boîte connectée : adresse en tête (c'est elle qu'on reconnaît),
+  // garanties « Lecture seule » + « vérifiée il y a X min », provenance du
+  // geste pour une boîte cabinet. Actions selon les droits : la liste est
+  // visible par tous, les gestes restent chez qui a le droit de les faire.
+  const renderMailboxRow = (b, { canManage }) => {
+    const p = MAIL_PROVIDERS.find(x => x.id === b.provider) || MAIL_PROVIDERS[0];
+    return (
+      <div key={b.id} className="px-5 py-4 flex items-center gap-4">
+        <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0" style={{ backgroundColor: p.bg }}>
+          <Mail className="w-5 h-5" style={{ color: p.fg }} strokeWidth={1.75} />
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-body-medium text-foreground">{b.address}</span>
+            <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#e4efe8', color: '#4a9168' }}>
+              <Check className="w-3 h-3" strokeWidth={3} /> Connectée
+            </span>
+          </div>
+          <p className="text-[13px] text-foreground-secondary truncate">
+            {p.name} · <span className="inline-flex items-center gap-1 align-middle"><Lock className="w-3 h-3 inline" strokeWidth={2} /> Lecture seule</span> · vérifiée il y a 2 min
+          </p>
+        </div>
+        {canManage && (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={verifyMailboxNow}
+              className="inline-flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background rounded-lg transition-colors"
+              title="Vérifier la connexion maintenant"
+            >
+              <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.75} /> Vérifier
+            </button>
+            <button
+              onClick={() => setMailDisconnectAsk(b.id)}
+              className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background transition-colors"
+            >
+              Déconnecter
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Ce que Norma peut / ne peut jamais faire + la note OAuth - la promesse
+  // tient dans le contraste, pas dans un paragraphe de mentions. Partagé par
+  // « Ma boîte » et « Connecteurs » : la confiance se dit pareil aux deux
+  // emplacements.
+  const renderMailTrustBlocks = () => (
+    <>
+      <div className="bg-white rounded-md border border-border shadow-sm overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-border">
+          <div className="px-5 py-4">
+            <div className="flex items-baseline gap-2.5 mb-3">
+              <span style={mailMonoLabel}>Ce que Norma peut faire</span>
+              <span className="flex-1 h-px bg-foreground/10" />
+            </div>
+            <ul className="flex flex-col gap-2.5">
+              {MAIL_CAN.map(t => (
+                <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: '#e4efe8' }}>
+                    <Check className="w-2.5 h-2.5" style={{ color: '#4a9168' }} strokeWidth={3} />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="px-5 py-4">
+            <div className="flex items-baseline gap-2.5 mb-3">
+              <span style={mailMonoLabel}>Ce que Norma ne peut jamais faire</span>
+              <span className="flex-1 h-px bg-foreground/10" />
+            </div>
+            <ul className="flex flex-col gap-2.5">
+              {MAIL_CANT.map(t => (
+                <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: '#f6e7e4' }}>
+                    <X className="w-2.5 h-2.5" style={{ color: '#b4483c' }} strokeWidth={3} />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-3 px-4 py-3.5 rounded-lg" style={{ backgroundColor: '#eef3fa', border: '1px solid #c4d5ea' }}>
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0" style={{ backgroundColor: '#dbeafe' }}>
+          <ShieldCheck className="w-4 h-4" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+        </span>
+        <p className="text-[13px] text-foreground-secondary leading-relaxed">
+          La connexion utilise le protocole officiel de votre fournisseur (OAuth) : <span className="font-medium text-foreground">votre mot de passe reste chez Microsoft ou Google</span>, Norma ne le voit jamais. Les données sont chiffrées (TLS, AES-256), <span className="font-medium text-foreground">hébergées dans l'Union européenne</span>, couvertes par le secret professionnel et jamais utilisées pour entraîner des modèles.
+        </p>
+      </div>
+    </>
+  );
+
+  // Modale connecteur + dialog de déconnexion, partagés par les deux écrans
+  // (un seul est monté à la fois).
+  const renderMailModals = () => (
+    <>
+      {/* ── Modale connecteur (grammaire Notion, voix Norma) : présentation,
+          consentement, autorisation OAuth stylisée, confirmation ── */}
+      {mailFlow && mailFlowProvider && (
+        <MailConnectorModal
+          provider={mailFlowProvider.id}
+          account={mailFlowAccount}
+          scope={mailFlow.scope}
+          onClose={() => setMailFlow(null)}
+          onConnected={(prov, acct) => handleMailConnected(acct)}
+          onFinish={finishMailFlow}
+        />
+      )}
+
+      {/* ── Déconnexion - dire ce qui se passe vraiment avant d'agir ── */}
+      {mailDisconnectTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setMailDisconnectAsk(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl border border-border flex flex-col" style={{ width: 440, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}>
+            <div className="px-6 pt-5 pb-2">
+              <h2 style={{ ...mailSerifTitle, fontSize: 20 }}>{mailDisconnectTarget.scope === 'shared' ? 'Déconnecter la boîte commune ?' : 'Déconnecter votre boîte ?'}</h2>
+              <p className="text-[13px] text-foreground-secondary mt-1.5">
+                Norma perdra immédiatement l'accès en lecture à {mailDisconnectTarget.address}{mailDisconnectTarget.scope === 'shared' ? ' - pour tout le cabinet' : ''}. Concrètement :
+              </p>
+            </div>
+            <ul className="px-6 pb-4 flex flex-col gap-2">
+              {[
+                'Vos dossiers gardent toutes les pièces déjà versées.',
+                'Les sources suivies sont mises en pause - elles reprendront telles quelles si vous reconnectez.',
+                'Norma ne conserve rien de votre boîte.',
+              ].map(t => (
+                <li key={t} className="flex items-start gap-2 text-[13px] text-foreground-secondary leading-5">
+                  <Check className="w-3.5 h-3.5 flex-shrink-0 mt-[3px]" style={{ color: '#4a9168' }} strokeWidth={2.5} />
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-2">
+              <button onClick={() => setMailDisconnectAsk(null)} className="h-9 px-4 text-[14px] font-medium text-foreground bg-white border border-border rounded-lg hover:bg-background transition-colors">Rester connectée</button>
+              <button onClick={confirmMailDisconnect} className="h-9 px-4 text-[14px] font-medium bg-white border rounded-lg transition-colors" style={{ color: '#b4483c', borderColor: '#e7c5c0' }}>Déconnecter</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  // Menu d'ajout : un seul CTA « Ajouter une adresse » qui ouvre le choix du
+  // fournisseur (Outlook / Gmail / Autre IMAP). Personnel uniquement - chacun
+  // connecte ses propres adresses (le groupe « Commune du cabinet » a été retiré
+  // sur demande, 2026-08-04).
+  const renderMailAddMenu = ({ first = false } = {}) => {
+    const open = mailAddPick === 'add';
+    // Ouverture : on mesure le bouton et on place le menu en position FIXED
+    // (écran) - sinon les overflow des réglages (scroll + panneau) le clippent.
+    const toggle = (e) => {
+      if (open) { setMailAddPick(null); return; }
+      const r = e.currentTarget.getBoundingClientRect();
+      setMailAddAnchor({ left: r.left, top: r.bottom + 4 });
+      setMailAddPick('add');
     };
-    const confirmDisconnect = () => {
-      setMailDisconnectAsk(false);
-      setEmailConnection({ status: 'disconnected', provider: null, account: null });
-      setToastMessage('Boîte déconnectée. Vos dossiers restent intacts.');
-      setTimeout(() => setToastMessage(null), 3000);
-    };
-    const verifyNow = () => {
-      setToastMessage('Connexion vérifiée à l\'instant - accès en lecture seule actif.');
-      setTimeout(() => setToastMessage(null), 3000);
-    };
+    return (
+      <div className="px-5 py-3">
+        <div className="inline-block -ml-3">
+          <button
+            onClick={toggle}
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background rounded-lg transition-colors"
+            title="Connecter une adresse email - Outlook, Gmail ou autre (IMAP)"
+          >
+            <Plus className="w-4 h-4" strokeWidth={1.75} /> {first ? 'Connecter une adresse' : 'Ajouter une adresse'}
+            <ChevronDown className={`w-3.5 h-3.5 text-foreground-muted transition-transform ${open ? 'rotate-180' : ''}`} strokeWidth={2} />
+          </button>
+          {open && mailAddAnchor && (
+            <>
+              <div className="fixed inset-0" style={{ zIndex: 70 }} onClick={() => setMailAddPick(null)} />
+              <div
+                className="bg-white border border-border shadow-lg overflow-hidden py-1"
+                style={{ position: 'fixed', left: mailAddAnchor.left, top: mailAddAnchor.top, zIndex: 71, borderRadius: 10, width: 220 }}
+              >
+                {MAIL_PROVIDERS.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => { setMailAddPick(null); startMailConnect(p.id, 'personal'); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
+                  >
+                    <ProviderMark provider={p.id} size={16} />
+                    {p.short}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-    // Les deux colonnes de confiance : dire aussi clairement ce que Norma ne
-    // fera JAMAIS que ce qu'elle fait.
-    const CAN = [
-      'Lire vos échanges pour vous les proposer, dossier par dossier',
-      'Copier dans un dossier une pièce que vous versez vous-même',
-      'Vérifier les nouveautés des sources que vous avez choisi de suivre',
-    ];
-    const CANT = [
-      'Envoyer, modifier ou supprimer quoi que ce soit dans votre boîte',
-      'Verser une pièce dans un dossier sans votre geste',
-      'Conserver vos emails en dehors des pièces versées',
-    ];
-
-    // Marque Plato : titres en serif RL Para, étiquettes en mono IBM Plex,
-    // surface d'emphase bleue, neutres crème + primaire #292524.
-    const serifTitle = { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', lineHeight: 1.2 };
-    const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#292524', letterSpacing: '0.1em', textTransform: 'uppercase' };
-
+  // ── Votre compte › Boîtes mail : LE hub de connexion ──────────────────────
+  // UNE SEULE box « Adresses emails connectées » (Meghan 2026-08-04 « only 1
+  // box → merge both »). Plus de deux sous-sections : une LISTE UNIQUE de toutes
+  // les adresses (perso + communes visibles par l'user), le scope se lit sur le
+  // La réassurance (garanties, invariant, ce que Norma peut/ne peut) vit une
+  // fois en pied.
+  const renderSettingsMaBoite = () => {
+    // Adresses PERSONNELLES uniquement (chacun connecte les siennes) - le groupe
+    // « commune du cabinet » a été retiré sur demande (2026-08-04).
+    const allBoxes = myMailboxes.map(b => ({ b, canManage: true }));
     return (
       <>
         <div className="flex-1 overflow-y-auto px-8 py-10">
           <div className="max-w-5xl w-full mx-auto">
             {renderSettingsHeader(
-              'Connecteurs',
-              'Connectez votre boîte email pour verser vos échanges - et leurs pièces jointes - dans vos dossiers, sans export manuel. Accès en lecture seule, réversible à tout moment.'
+              'Boîtes mail',
+              'Connectez vos boîtes email pour verser vos échanges - et leurs pièces jointes - dans vos dossiers, sans export manuel. Visibles par vous seul. Accès en lecture seule, réversible à tout moment.'
             )}
 
             <div className="flex flex-col gap-4">
-              <div className="bg-white rounded-md border border-border overflow-hidden divide-y divide-border shadow-sm">
+              {/* overflow-hidden OK : le dropdown d'ajout est en position fixed
+                  (écran), il n'est donc pas clippé par la carte. */}
+              <div className="bg-white rounded-md border border-border overflow-hidden shadow-sm">
                 <div className="px-5 py-3 flex items-center gap-2">
                   <Mail className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
-                  <span className="text-body-medium text-foreground">Boîte email</span>
-                  <span className="text-[12px] text-foreground-muted">Connexion personnelle - chaque membre du cabinet connecte la sienne</span>
+                  <span className="text-body-medium text-foreground">Adresses emails connectées</span>
+                  <span className="text-[12px] text-foreground-muted">Vos adresses - visibles par vous seul</span>
                 </div>
-                {PROVIDERS.map(p => {
-                  const connected = emailConnection.status === 'connected' && emailConnection.provider === p.id;
-                  return (
-                    <div key={p.id} className="px-5 py-4 flex items-center gap-4">
-                      <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0" style={{ backgroundColor: p.bg }}>
-                        <Mail className="w-5 h-5" style={{ color: p.fg }} strokeWidth={1.75} />
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-body-medium text-foreground">{p.name}</span>
-                          {connected && (
-                            <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#e4efe8', color: '#4a9168' }}>
-                              <Check className="w-3 h-3" strokeWidth={3} /> Connectée
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[13px] text-foreground-secondary truncate">
-                          {connected ? (
-                            <>
-                              {emailConnection.account} · <span className="inline-flex items-center gap-1 align-middle"><Lock className="w-3 h-3 inline" strokeWidth={2} /> Lecture seule</span> · vérifiée il y a 2 min
-                            </>
-                          ) : p.desc}
-                        </p>
-                      </div>
-                      {connected ? (
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <button
-                            onClick={verifyNow}
-                            className="inline-flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background rounded-lg transition-colors"
-                            title="Vérifier la connexion maintenant"
-                          >
-                            <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.75} /> Vérifier
-                          </button>
-                          <button
-                            onClick={() => setMailDisconnectAsk(true)}
-                            className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background transition-colors"
-                          >
-                            Déconnecter
-                          </button>
-                        </div>
-                      ) : (
+                {allBoxes.length > 0 ? (
+                  <>
+                    <div className="divide-y divide-border border-t border-border">
+                      {allBoxes.map(({ b, canManage }) => renderMailboxRow(b, { canManage }))}
+                    </div>
+                    {renderMailAddMenu({ first: false })}
+                  </>
+                ) : (
+                  // Empty state accueillant : le geste de connexion EST l'écran
+                  // (pastille + promesse + un bouton par fournisseur), les
+                  // garanties vivant une fois juste en dessous.
+                  <div className="px-6 py-9 flex flex-col items-center text-center border-t border-border">
+                    <span className="inline-flex items-center justify-center w-12 h-12 rounded-full" style={{ backgroundColor: '#eeece6' }}>
+                      <Mail className="w-5 h-5 text-foreground" strokeWidth={1.75} />
+                    </span>
+                    <p className="text-[15px] font-medium text-foreground mt-3">Connectez votre boîte email</p>
+                    <p className="text-[13px] text-foreground-secondary leading-5 mt-1" style={{ maxWidth: 460 }}>
+                      Norma vous propose vos échanges dossier par dossier - et seul ce que vous versez dans un dossier devient accessible au cabinet.
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                      {MAIL_PROVIDERS.map(p => (
                         <button
-                          onClick={() => startConnect(p)}
-                          className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
+                          key={p.id}
+                          onClick={() => startMailConnect(p.id, 'personal')}
+                          className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-foreground bg-white border border-border rounded-lg hover:bg-background transition-colors"
                           style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
                         >
-                          <Plug2 className="w-4 h-4" strokeWidth={1.75} /> Connecter
+                          <ProviderMark provider={p.id} size={18} />
+                          {p.short}
                         </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Ce que Norma peut / ne peut jamais faire - la promesse tient
-                  dans le contraste, pas dans un paragraphe de mentions. */}
-              <div className="bg-white rounded-md border border-border shadow-sm overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-border">
-                  <div className="px-5 py-4">
-                    <div className="flex items-baseline gap-2.5 mb-3">
-                      <span style={monoLabel}>Ce que Norma peut faire</span>
-                      <span className="flex-1 h-px bg-foreground/10" />
-                    </div>
-                    <ul className="flex flex-col gap-2.5">
-                      {CAN.map(t => (
-                        <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">
-                          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: '#e4efe8' }}>
-                            <Check className="w-2.5 h-2.5" style={{ color: '#4a9168' }} strokeWidth={3} />
-                          </span>
-                          {t}
-                        </li>
                       ))}
-                    </ul>
-                  </div>
-                  <div className="px-5 py-4">
-                    <div className="flex items-baseline gap-2.5 mb-3">
-                      <span style={monoLabel}>Ce que Norma ne peut jamais faire</span>
-                      <span className="flex-1 h-px bg-foreground/10" />
                     </div>
-                    <ul className="flex flex-col gap-2.5">
-                      {CANT.map(t => (
-                        <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">
-                          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: '#f6e7e4' }}>
-                            <X className="w-2.5 h-2.5" style={{ color: '#b4483c' }} strokeWidth={3} />
-                          </span>
-                          {t}
-                        </li>
-                      ))}
-                    </ul>
                   </div>
+                )}
+                {/* Garanties rapides, une seule fois, en pied de la box. */}
+                <div className="px-5 py-3 border-t border-border">
+                  <GuaranteeChips />
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 px-4 py-3.5 rounded-lg" style={{ backgroundColor: '#eef3fa', border: '1px solid #c4d5ea' }}>
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0" style={{ backgroundColor: '#dbeafe' }}>
-                  <ShieldCheck className="w-4 h-4" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+              {/* L'invariant de privacy, dit une fois : la boîte est privée, le
+                  DOSSIER est le lieu du partage. */}
+              <div className="flex items-start gap-3 px-4 py-3.5 rounded-lg" style={{ backgroundColor: '#f6f5f2', border: '1px solid #e7e5e3' }}>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 bg-white" style={{ border: '1px solid #e7e5e3' }}>
+                  <Lock className="w-3.5 h-3.5 text-foreground" strokeWidth={1.75} />
                 </span>
                 <p className="text-[13px] text-foreground-secondary leading-relaxed">
-                  La connexion utilise le protocole officiel de votre fournisseur (OAuth) : <span className="font-medium text-foreground">votre mot de passe reste chez Microsoft ou Google</span>, Norma ne le voit jamais. Les données sont chiffrées (TLS, AES-256), <span className="font-medium text-foreground">hébergées dans l'Union européenne</span>, couvertes par le secret professionnel et jamais utilisées pour entraîner des modèles.
+                  Une adresse personnelle n'apparaît jamais dans la recherche ni dans les sources d'un autre membre. <span className="font-medium text-foreground">Le seul pont vers le cabinet est le geste de verser</span> : ce qui entre au dossier est partagé, le reste de la boîte jamais.
                 </p>
               </div>
 
-              {/* La suite : le cabinet ne vit pas que dans l'email. Annoncer
-                  les prochains connecteurs (WhatsApp, e-Barreau, logiciels
-                  métier) et laisser « Me prévenir » guider la priorisation. */}
-              <UpcomingConnectorsCard
-                interested={connectorInterest}
-                onNotify={(u) => {
-                  setConnectorInterest(prev => [...prev, u.id]);
-                  setToastMessage(`C'est noté - on vous prévient dès que ${u.name} arrive.`);
-                  setTimeout(() => setToastMessage(null), 3000);
-                }}
-              />
+              {renderMailTrustBlocks()}
             </div>
           </div>
         </div>
-
-        {/* ── Modale connecteur (grammaire Notion, voix Norma) : présentation,
-            consentement, autorisation OAuth stylisée, confirmation ── */}
-        {mailFlow && flowProvider && (
-          <MailConnectorModal
-            provider={flowProvider.id}
-            account={flowProvider.account}
-            onClose={() => setMailFlow(null)}
-            onConnected={() => setEmailConnection({ status: 'connected', provider: flowProvider.id, account: flowProvider.account })}
-            onFinish={finishFlow}
-          />
-        )}
-
-        {/* ── Déconnexion - dire ce qui se passe vraiment avant d'agir ── */}
-        {mailDisconnectAsk && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setMailDisconnectAsk(false)}>
-            <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl border border-border flex flex-col" style={{ width: 440, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}>
-              <div className="px-6 pt-5 pb-2">
-                <h2 style={{ ...serifTitle, fontSize: 20 }}>Déconnecter votre boîte ?</h2>
-                <p className="text-[13px] text-foreground-secondary mt-1.5">Norma perdra immédiatement l'accès en lecture à {emailConnection.account}. Concrètement :</p>
-              </div>
-              <ul className="px-6 pb-4 flex flex-col gap-2">
-                {[
-                  'Vos dossiers gardent toutes les pièces déjà versées.',
-                  'Les sources suivies sont mises en pause - elles reprendront telles quelles si vous reconnectez.',
-                  'Norma ne conserve rien de votre boîte.',
-                ].map(t => (
-                  <li key={t} className="flex items-start gap-2 text-[13px] text-foreground-secondary leading-5">
-                    <Check className="w-3.5 h-3.5 flex-shrink-0 mt-[3px]" style={{ color: '#4a9168' }} strokeWidth={2.5} />
-                    {t}
-                  </li>
-                ))}
-              </ul>
-              <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-2">
-                <button onClick={() => setMailDisconnectAsk(false)} className="h-9 px-4 text-[14px] font-medium text-foreground bg-white border border-border rounded-lg hover:bg-background transition-colors">Rester connectée</button>
-                <button onClick={confirmDisconnect} className="h-9 px-4 text-[14px] font-medium bg-white border rounded-lg transition-colors" style={{ color: '#b4483c', borderColor: '#e7c5c0' }}>Déconnecter</button>
-              </div>
-            </div>
-          </div>
-        )}
+        {renderMailModals()}
       </>
     );
   };
@@ -22704,7 +22929,9 @@ export default function App() {
         items: [
           { id: 'general', label: 'Général', icon: User },
           { id: 'usage', label: 'Mon usage', icon: Activity },
-          { id: 'connecteurs', label: 'Connecteurs', icon: Plug2 },
+          // « Boîtes mail » : LE hub de connexion - boîtes personnelles ET
+          // communes du cabinet se branchent ici (plus de section Organisation).
+          { id: 'maboite', label: 'Boîtes mail', icon: Mail },
           { id: 'tampon', label: 'Tamponnage', icon: Stamp },
         ],
       },
@@ -22716,6 +22943,8 @@ export default function App() {
           { id: 'users', label: 'Collaborateurs', icon: Users },
           // Plan & facturation (cabinet billing) is admin-only - members see their plan in "Mon usage".
           ...(isAdmin ? [{ id: 'billing', label: 'Plan et facturation', icon: Receipt }] : []),
+          // (« Connecteurs » retiré d'Organisation : la connexion des boîtes -
+          // perso ET communes - vit désormais dans « Boîtes mail ».)
           { id: 'baremes', label: 'Référentiels', icon: Scale },
           { id: 'templates', label: "Modèles d'actes", icon: BookOpen },
           { id: 'preferences', label: 'Mémoire et préférences', icon: Brain },
@@ -22847,7 +23076,8 @@ export default function App() {
           {settingsSection === 'general' && renderSettingsGeneral()}
           {/* Org settings are admin-only; non-admins fall back to their account page. */}
           {settingsSection === 'organisation' && (isAdmin ? renderSettingsOrganisation() : renderSettingsGeneral())}
-          {settingsSection === 'connecteurs' && renderSettingsConnecteurs()}
+          {/* 'connecteurs' redirige vers le hub « Boîtes mail » (ancien deep-link). */}
+          {(settingsSection === 'maboite' || settingsSection === 'connecteurs') && renderSettingsMaBoite()}
           {settingsSection === 'tampon' && renderSettingsTampon()}
           {settingsSection === 'usage' && renderSettingsUsage()}
           {settingsSection === 'preferences' && renderSettingsPreferences()}
