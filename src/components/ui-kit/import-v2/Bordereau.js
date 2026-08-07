@@ -344,7 +344,7 @@ function LinesSelectionBar({ ls, api }) {
 
 // Bande de dépôt : strip 40px quand le bordereau a du contenu, grande zone
 // quand il est vide (écrans « Empty » de la planche).
-function DropStrip({ onClick }) {
+function DropStrip({ onClick, creating }) {
   return (
     <button
       type="button"
@@ -353,12 +353,14 @@ function DropStrip({ onClick }) {
       style={{ borderColor: '#d6d3d1', color: V2.muted }}
     >
       <Upload className="w-3.5 h-3.5" strokeWidth={1.75} />
-      Déposez des fichiers ici - PDF, images, .eml, .msg, zip d'export Outlook
+      {creating
+        ? 'Déposez-en le plus possible - chaque pièce nourrit le dossier'
+        : 'Déposez des fichiers ici - PDF, images, .eml, .msg, zip d\'export Outlook'}
     </button>
   );
 }
 
-function DropZoneLarge({ onClick }) {
+function DropZoneLarge({ onClick, creating }) {
   return (
     <button
       type="button"
@@ -369,13 +371,19 @@ function DropZoneLarge({ onClick }) {
       <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border" style={{ borderColor: '#d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
         <Upload className="w-5 h-5" strokeWidth={1.75} style={{ color: V2.foreground }} />
       </span>
-      <span className="text-[14px] font-medium" style={{ color: V2.foreground }}>Déposez vos fichiers ici</span>
-      <span className="text-[12px]" style={{ color: V2.muted }}>PDF, images, .eml, .msg, zip d'export Outlook - ou ajoutez depuis vos emails</span>
+      <span className="text-[14px] font-medium" style={{ color: V2.foreground }}>
+        {creating ? 'Déposez tout ce qui constitue le dossier' : 'Déposez vos fichiers ici'}
+      </span>
+      <span className="text-[12px] text-center max-w-[400px]" style={{ color: V2.muted }}>
+        {creating
+          ? 'Chaque pièce crée et nourrit le contexte du dossier - plus vous en déposez, mieux Norma cerne l\'affaire. PDF, images, .eml, .msg, zip d\'export Outlook, ou depuis vos emails.'
+          : 'PDF, images, .eml, .msg, zip d\'export Outlook - ou ajoutez depuis vos emails'}
+      </span>
     </button>
   );
 }
 
-export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor }) {
+export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, creating }) {
   const { lines, folders } = api;
   const empty = lines.length === 0 && folders.length === 0;
 
@@ -414,9 +422,13 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor })
           global à droite, bande de dépôt. */}
       <div className="px-6 pt-5 pb-4 flex-shrink-0 flex flex-col gap-4">
         <div>
-          <p className="text-[14px] leading-5 font-medium" style={{ color: V2.foreground }}>Bordereau d'ajout</p>
+          <p className="text-[14px] leading-5 font-medium" style={{ color: V2.foreground }}>
+            {creating ? 'Constituez le dossier' : 'Bordereau d\'ajout'}
+          </p>
           <p className="text-[14px] leading-5 mt-0.5" style={{ color: V2.muted }}>
-            Les pièces ajoutées rejoindront le dossier. Vous pourrez les découper et les ranger ensuite.
+            {creating
+              ? 'Déposez les pièces de l\'affaire : elles forment le dossier et donnent à Norma le contexte pour vous aider. Plus vous en déposez, mieux c\'est - vous pourrez découper et ranger ensuite.'
+              : 'Les pièces ajoutées rejoindront le dossier. Vous pourrez les découper et les ranger ensuite.'}
           </p>
         </div>
         <div className="flex items-center justify-between gap-3">
@@ -451,12 +463,12 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor })
             <LabSwitch checked={api.allDecoupe} disabled={!api.anyDecoupable} onChange={api.setAllDecoupe} />
           </label>
         </div>
-        {!empty && <DropStrip onClick={api.addLocalFile} />}
+        {!empty && <DropStrip onClick={api.addLocalFile} creating={creating} />}
       </div>
 
       <div className={`flex-1 min-h-0 px-6 pb-5 ${empty ? 'flex flex-col' : 'overflow-y-auto'}`}>
         {empty ? (
-          <DropZoneLarge onClick={api.addLocalFile} />
+          <DropZoneLarge onClick={api.addLocalFile} creating={creating} />
         ) : (
           <div className="flex flex-col gap-4">
             {folders.map(f => <FolderBloc key={f.fid} folder={f} api={api} detectionFor={detectionFor} />)}

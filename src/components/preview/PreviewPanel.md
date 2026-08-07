@@ -33,24 +33,33 @@ and the passage contract - is shared.
 | `ligne` | structured view + BOSS link | cotisation/relevé table | none | highlighted row |
 | `web` | external tab | none (ExternalCard explains) | none | - |
 
-### Metadata: header vs side, read vs edit (doc kinds)
+### Metadata: read vs edit (doc kinds)
 
-`piece` and `modele` carry the full metadata treatment merged in from the `preview-doc`
-viewer. Metadata renders either in a **header** bar (frees the full width for the
-document, default) or in a 320px **side panel** (`metaLayout` prop). In header mode a
-**Modifier** toggle swaps the read chips for the design-system `Input` components (Nom,
-Type, Date IA, Section, Numéro, plus the "document découpé - Ajuster" callout); the AI
-summary is a one-line clamp with a Détails/Réduire expander. Download is a dropdown
-(Document original). The other kinds (jp/email/loi/ligne) render header chips only - no
-side/edit, since they are enriched records, not user-owned documents.
+`piece` and `modele` carry the full metadata treatment: a **header** bar renders the
+chip row (Pièce · Date IA · Type · Découpé · Provenance) with a **Modifier** toggle
+top-right that swaps the read chips for the design-system `Input` components (Nom,
+Type, Date IA, Section, Numéro, plus the "document découpé - Ajuster" callout); the
+AI summary is a one-line clamp with a Détails/Réduire expander. Télécharger is a
+visible dark primary button; Supprimer lives in an overflow ⋯ menu. The other kinds
+(jp/email/loi/ligne) render header chips only - no edit, since they are enriched
+records, not user-owned documents.
+
+### Citations rail
+
+When the source carries at least one passage, a 280px right rail appears listing
+every citation: page + quote preview + active state. Complements the footer stepper
+(cycle) with a scan surface (see them all, pick one). Same tokens as the inline
+highlight (warning family), so the rail row and the doc-page chunk visibly belong to
+the same signal. Absent when the source has no passages - the body reclaims the
+full width.
 
 ### Cross-source navigation (provenance & attachments)
 
 Sources link to each other, and the panel hands off between them via `onOpenSource({ kind, source })`:
 
 - **A doc issued from an email** carries `source.provenance` and shows an "Issu de l'email
-  · {objet}" chip (header) / callout (side, edit) with a **Voir l'email** action that opens
-  the email source.
+  · {objet}" chip (read) / callout (edit) with a **Voir l'email** action that opens the
+  email source.
 - **An email** lists every attachment as a previewable doc - a consolidated "Pièces jointes
   du fil (N)" card at the top plus clickable chips on each message; a click opens the
   attachment as a `piece`. The metadata header also shows a "Pièces jointes: N" count.
@@ -102,6 +111,11 @@ chiffrage rows, and acte-citations-in-edit do; browse surfaces don't.
   single passage is just `N=1`.
 - **Chunk order from the DOM, not the data** - bodies render highlights in reading order, so
   the stepper is correct without threading indices through every body renderer.
+- **DS tokens throughout** - citation highlight = `banner.warning` tint, AI marker =
+  `banner.ai.accent`, text links = `link`, delete hover = `danger`, mono labels =
+  `typography.fontFamily.mono`; the JP quantum chip is the shared `Badge` (info). Two
+  local palettes remain by design - the per-kind accents (`PREVIEW_KINDS`) and the 5
+  authority tints - both candidates for token promotion via `/ui-kit/tokens`.
 
 ## Data model
 
@@ -137,7 +151,6 @@ renders it with the highlight + `data-cite` anchor. Authority badges (`urssaf`, 
 | `onClose` / `onPrev` / `onNext` | fn | chrome actions |
 | `navIndex` / `navTotal` | number | "x / n" pièce/result navigation (hidden if `navTotal <= 1`) |
 | `embedded` | bool | lab card (`h-[720px]`) vs full drawer |
-| `metaLayout` | `'header' \| 'side'` | doc-kind metadata placement (default `header`; ignored by non-doc kinds) |
 | `onOpenSource` | `(target) => void` | cross-source hand-off (email attachment → piece; doc provenance → email) |
 
 `PREVIEW_KINDS` is exported as the registry (label, icon, accent, footer type, `opens`
@@ -169,8 +182,8 @@ copy, external `link`).
 ## Related
 
 - `src/components/ui-kit/PreviewPanelLab.js` - the lab (`/ui-kit/preview-panel`); demoes
-  every kind, the header/side toggle, edit mode, and multi-chunk
+  every kind, edit mode, and multi-chunk
 - The `preview-doc` viewer (`PreviewDocLab.js`) was **merged into this component** and
-  removed; its viewer + header/side + edit capabilities now live here for doc kinds
+  removed; its viewer + edit capabilities now live here for doc kinds
 - `src/components/jp/DecisionDrawer.js` - JP body + `highlightPosteIds` to fold in
 - Notion "Scroll automatique des previews documents" (hexacc)
