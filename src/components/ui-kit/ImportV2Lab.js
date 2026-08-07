@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Mail, RotateCcw, X } from 'lucide-react';
+import { ArrowLeft, Check, FolderPlus, Mail, RotateCcw, X } from 'lucide-react';
 import { Droppable, monoLabel } from './import/atoms';
 import HarvestColumn, { CandidateCard, FolderCandidateCard } from './import-v2/HarvestColumn';
 import Bordereau, { Line, FolderBloc, GroupChapeau } from './import-v2/Bordereau';
@@ -255,12 +255,125 @@ function ComponentGallery() {
   );
 }
 
+// Les 3 pistes répondent au même feedback : « pas évident que ce petit bouton
+// ramène au top-level ». Chacune donne au retour une place STRUCTURELLE au
+// lieu d'un pictogramme.
+// ── En-tête de la modale en mode « création » ───────────────────────────────
+// La référence (= nom du dossier) doit se lire d'un coup. Quatre partis pris
+// commutables : le champ EST le titre, l'eyebrow au-dessus, le champ étiqueté
+// et séparé, ou un bandeau teinté qui isole le contexte création.
+const HEADER_VARIANTS = [
+  { id: 'title', label: 'A · Titre éditable', desc: 'La référence EST le titre de la modale - saisie inline, sans boîte (pattern Notion/Linear). Le contexte « nouveau dossier » est porté par le pictogramme et le CTA « Créer ».' },
+  { id: 'stacked', label: 'B · Eyebrow + champ', desc: 'Surtitre « Nouveau dossier » discret, la référence en gros dessous. Hiérarchie limpide, en-tête un peu plus haut.' },
+  { id: 'field', label: 'C · Champ étiqueté', desc: 'Le libellé de mode et le champ sont séparés par un filet ; le champ porte son étiquette « Référence ». Le plus explicite, très « formulaire ».' },
+  { id: 'band', label: 'D · Bandeau teinté', desc: 'Un bandeau crème isole le contexte création ; le champ blanc y ressort franchement (corrige le « on voit pas »).' },
+];
+
+function CloseBtn({ onClose }) {
+  return (
+    <button
+      type="button"
+      onClick={onClose}
+      className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0"
+      aria-label="Fermer"
+      title="Fermer (réinitialise le lab)"
+    >
+      <X className="w-3.5 h-3.5" strokeWidth={2} />
+    </button>
+  );
+}
+
+function CreationHeader({ variant, reference, setReference, onClose }) {
+  const bind = {
+    id: 'dossier-ref',
+    value: reference,
+    onChange: (e) => setReference(e.target.value),
+    autoFocus: true,
+  };
+
+  if (variant === 'stacked') {
+    return (
+      <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 76 }}>
+        <FolderPlus className="w-[18px] h-[18px] text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <label htmlFor="dossier-ref" className="text-[11px] font-medium uppercase tracking-[0.08em] text-foreground-muted leading-4">Nouveau dossier</label>
+          <input
+            {...bind}
+            placeholder="Référence - ex. Leblanc c/ AXA"
+            className="w-full bg-transparent text-[16px] font-semibold text-foreground placeholder:text-foreground-muted placeholder:font-normal focus:outline-none leading-6"
+          />
+        </div>
+        <CloseBtn onClose={onClose} />
+      </div>
+    );
+  }
+
+  if (variant === 'field') {
+    // Branded : titre en serif Georgia comme la vraie modale (GesteCModal),
+    // filet, puis le champ « Référence » qui s'ouvre déjà focalisé - anneau
+    // couleur brand (#b9703f) pour dire « c'est ici qu'on écrit ».
+    return (
+      <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
+        <h2 className="text-foreground flex-shrink-0" style={{ fontFamily: 'Georgia, serif', fontSize: 18, lineHeight: '20px', letterSpacing: '-0.5px' }}>
+          Nouveau dossier
+        </h2>
+        <div className="w-px h-5 bg-border flex-shrink-0 self-center" />
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          <label htmlFor="dossier-ref" className="text-[11px] font-medium uppercase tracking-[0.06em] text-foreground-muted flex-shrink-0">Référence</label>
+          <input
+            {...bind}
+            placeholder="ex. Leblanc c/ AXA"
+            className="flex-1 min-w-0 max-w-[380px] h-9 px-3 rounded-lg border border-[#b9703f] bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:shadow-[0_0_0_3px_rgba(185,112,63,0.18)] transition-shadow"
+          />
+        </div>
+        <CloseBtn onClose={onClose} />
+      </div>
+    );
+  }
+
+  if (variant === 'band') {
+    return (
+      <div className="flex items-center gap-2.5 pl-5 pr-4 border-b border-border flex-shrink-0" style={{ height: 58, backgroundColor: '#f8f7f5' }}>
+        <FolderPlus className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
+        <label htmlFor="dossier-ref" className="text-[14px] font-medium text-foreground flex-shrink-0">Nouveau dossier</label>
+        <input
+          {...bind}
+          placeholder="Référence - ex. Leblanc c/ AXA"
+          className="flex-1 min-w-0 max-w-[420px] h-9 px-3 rounded-lg border border-border bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong transition-colors"
+        />
+        <CloseBtn onClose={onClose} />
+      </div>
+    );
+  }
+
+  // 'title' (défaut) : la référence est le titre, saisie inline sans boîte.
+  return (
+    <div className="flex items-center gap-2.5 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
+      <FolderPlus className="w-[18px] h-[18px] text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
+      <input
+        {...bind}
+        placeholder="Nommer le dossier…"
+        className="flex-1 min-w-0 bg-transparent text-[15px] font-semibold text-foreground placeholder:text-foreground-muted placeholder:font-normal focus:outline-none leading-6"
+      />
+      <CloseBtn onClose={onClose} />
+    </div>
+  );
+}
+
 export default function ImportV2Lab() {
   const navigate = useNavigate();
   const api = useBordereau();
   // Panneau email repliable : le bordereau reste la scène, la boîte se
   // convoque depuis sa tête (« Ajouter depuis mes emails »).
   const [mailOpen, setMailOpen] = useState(true);
+
+  // Deux contextes pour la MÊME modale : « ajout » verse dans un dossier qui
+  // existe déjà (titre figé) ; « création » ouvre un dossier neuf, donc il faut
+  // d'abord le nommer - un champ « Référence » (le nom du dossier) en tête.
+  const [mode, setMode] = useState('ajout'); // 'ajout' | 'creation'
+  const [reference, setReference] = useState('');
+  const [headerVariant, setHeaderVariant] = useState('field'); // parti pris d'en-tête en création
+  const creating = mode === 'creation';
 
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
@@ -289,11 +402,20 @@ export default function ImportV2Lab() {
     const n = api.approx;
     const d = api.decoupeCount;
     const r = api.lines.filter(l => l.included && l.doublonStatus === 'replace').length;
+    const target = creating ? (reference.trim() || 'Sans référence') : 'Leblanc c/ AXA';
     api.reset();
-    showToast(`≈ ${n} pièce${n > 1 ? 's' : ''} ajoutée${n > 1 ? 's' : ''} au dossier Leblanc c/ AXA${d > 0 ? ` · ${d} découpe${d > 1 ? 's' : ''}` : ''}${r > 0 ? ` · ${r} remplacement${r > 1 ? 's' : ''}` : ''}`);
+    if (creating) {
+      const suffix = n > 0
+        ? ` avec ≈ ${n} pièce${n > 1 ? 's' : ''}${d > 0 ? ` · ${d} découpe${d > 1 ? 's' : ''}` : ''}`
+        : ' - vide pour l\'instant';
+      setReference('');
+      showToast(`Dossier « ${target} » créé${suffix}`);
+      return;
+    }
+    showToast(`≈ ${n} pièce${n > 1 ? 's' : ''} ajoutée${n > 1 ? 's' : ''} au dossier ${target}${d > 0 ? ` · ${d} découpe${d > 1 ? 's' : ''}` : ''}${r > 0 ? ` · ${r} remplacement${r > 1 ? 's' : ''}` : ''}`);
   };
 
-  const reset = () => { api.reset(); exposureSignaled.current = false; showToast('Lab réinitialisé'); };
+  const reset = () => { api.reset(); setReference(''); exposureSignaled.current = false; showToast('Lab réinitialisé'); };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -323,21 +445,62 @@ export default function ImportV2Lab() {
           </button>
         </div>
 
+        {/* ── Contexte de la modale : le même écran sert à VERSER dans un
+            dossier existant et à EN CRÉER un neuf. La création demande d'abord
+            une référence (le nom du dossier), saisie en tête de modale. ── */}
+        <div className="mb-3 flex items-center gap-3 flex-wrap">
+          <p style={monoLabel} className="flex-shrink-0">Contexte</p>
+          <div className="inline-flex rounded-lg border border-border bg-white p-0.5 flex-shrink-0">
+            {[{ id: 'ajout', label: 'Ajout de pièces' }, { id: 'creation', label: 'Nouveau dossier' }].map(o => (
+              <button
+                key={o.id}
+                type="button"
+                onClick={() => setMode(o.id)}
+                className={`h-7 px-3 rounded-md text-[12px] font-medium transition-colors ${mode === o.id ? 'bg-stone-800 text-white' : 'text-foreground-secondary hover:text-foreground'}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[12px] leading-4 text-foreground-secondary min-w-0">
+            {creating
+              ? 'Un dossier neuf : on le nomme (référence), puis on y dépose le plus de pièces possible - chacune crée et nourrit le contexte du dossier. Seule la référence est requise.'
+              : 'On verse dans un dossier qui existe déjà - son titre est figé en tête.'}
+          </p>
+        </div>
+
+        {/* ── Parti pris d'en-tête (création seule) : 4 façons de faire lire la
+            référence. Commutables pour trancher en direct. ────────────────── */}
+        {creating && (
+          <div className="mb-3 flex items-center gap-3 flex-wrap">
+            <p style={monoLabel} className="flex-shrink-0">En-tête</p>
+            <div className="inline-flex rounded-lg border border-border bg-white p-0.5 flex-shrink-0">
+              {HEADER_VARIANTS.map(o => (
+                <button
+                  key={o.id}
+                  type="button"
+                  onClick={() => setHeaderVariant(o.id)}
+                  className={`h-7 px-3 rounded-md text-[12px] font-medium transition-colors ${headerVariant === o.id ? 'bg-stone-800 text-white' : 'text-foreground-secondary hover:text-foreground'}`}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-[12px] leading-4 text-foreground-secondary min-w-0">{HEADER_VARIANTS.find(o => o.id === headerVariant)?.desc}</p>
+          </div>
+        )}
+
         {/* ── La démo : la MODALE de la planche (GesteCModal 58px · contenu ·
             pied 62px avec Annuler + Ajouter au dossier). ─────────────────── */}
         <div className="rounded-xl border border-border bg-white overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 220px)', minHeight: 560 }}>
-          <div className="flex items-center justify-between pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
-            <p className="text-[14px] leading-5 font-medium text-foreground">Ajouter des pièces - Leblanc c/ AXA</p>
-            <button
-              type="button"
-              onClick={reset}
-              className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors"
-              aria-label="Fermer"
-              title="Fermer (réinitialise le lab)"
-            >
-              <X className="w-3.5 h-3.5" strokeWidth={2} />
-            </button>
-          </div>
+          {creating ? (
+            <CreationHeader variant={headerVariant} reference={reference} setReference={setReference} onClose={reset} />
+          ) : (
+            <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
+              <p className="text-[14px] leading-5 font-medium text-foreground flex-1 min-w-0">Ajouter des pièces - Leblanc c/ AXA</p>
+              <CloseBtn onClose={reset} />
+            </div>
+          )}
           <Droppable onFiles={api.addLocalFile} className="flex-1 min-h-0 flex">
             {/* Replié par la largeur, jamais démonté (l'état de la colonne
                 survit) ; visibility:hidden le sort du focus clavier. */}
@@ -362,7 +525,7 @@ export default function ImportV2Lab() {
                 onCollapse={() => setMailOpen(false)}
               />
             </div>
-            <Bordereau api={api} mailOpen={mailOpen} onToggleMail={() => setMailOpen(o => !o)} detectionFor={detectionFor} />
+            <Bordereau api={api} mailOpen={mailOpen} onToggleMail={() => setMailOpen(o => !o)} detectionFor={detectionFor} creating={creating} />
           </Droppable>
           {/* Pied de modale (planche « Footer ») : constat à gauche, filet,
               Annuler + CTA sombre. Le CTA ne ment jamais. */}
@@ -370,7 +533,7 @@ export default function ImportV2Lab() {
             <p className="text-[12px] leading-4 text-foreground-secondary flex-shrink-0">
               {api.approx > 0
                 ? `≈ ${api.approx} pièce${api.approx > 1 ? 's' : ''}${api.decoupeCount > 0 ? ` · ${api.decoupeCount} découpe${api.decoupeCount > 1 ? 's' : ''}` : ''}`
-                : 'Aucune pièce sélectionnée'}
+                : creating ? 'Déposez des pièces pour nourrir le dossier - vous pourrez toujours en ajouter plus tard' : 'Aucune pièce sélectionnée'}
               {api.pendingDoublons > 0 && <span className="ml-2" style={{ color: '#855b31' }}>{api.pendingDoublons} doublon{api.pendingDoublons > 1 ? 's' : ''} à trancher</span>}
             </p>
             <div className="flex-1 h-px bg-border" />
@@ -383,12 +546,12 @@ export default function ImportV2Lab() {
             </button>
             <button
               type="button"
-              disabled={api.approx === 0 || api.pendingDoublons > 0 || api.uploadingCount > 0}
+              disabled={(creating ? reference.trim() === '' : api.approx === 0) || api.pendingDoublons > 0 || api.uploadingCount > 0}
               onClick={commit}
               className="h-9 px-4 rounded-lg text-[13px] font-medium text-white transition-opacity disabled:opacity-40 flex-shrink-0"
               style={{ backgroundColor: '#292524' }}
             >
-              {api.uploadingCount > 0 ? 'Réception des fichiers…' : 'Ajouter au dossier'}
+              {api.uploadingCount > 0 ? 'Réception des fichiers…' : creating ? 'Créer le dossier' : 'Ajouter au dossier'}
             </button>
           </div>
         </div>

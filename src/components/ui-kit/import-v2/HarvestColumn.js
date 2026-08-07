@@ -4,7 +4,7 @@
 // Plus aucun arbre Outlook à parcourir : les candidats sont des échanges.
 
 import React, { useMemo, useState } from 'react';
-import { ArrowRight, ChevronRight, FolderOpen, Inbox, Mail, Paperclip, PanelLeftClose, Plus, Search, X } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, FolderOpen, ListCollapse, Mail, Paperclip, Plus, Search, X } from 'lucide-react';
 import { Checkbox, monoLabel } from '../import/atoms';
 import outlookLogo from '../../../assets/outlook.svg';
 import { LAB_THREADS, normalize, relDate, threadView, threadViewById, threadPreview, bodyKey, pjKey } from '../import/labData';
@@ -263,7 +263,12 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
 }
 
 // ── Colonne complète ────────────────────────────────────────────────────────
-export default function HarvestColumn({ threadState, coveredTids, addedFolderIds, lineKeys, onAddThread, onAddPiece, onTogglePiece, onAddThreadDelta, onRemoveThread, onAddFolder, onAddFolderDelta, onRemoveFolder, onCollapse }) {
+// Navigation du drill (retenue 2026-08-07, pattern iOS) : en dossier ouvert,
+// l'en-tête du panneau DEVIENT la barre du dossier - bouton retour + titre +
+// chemin. La recherche, elle, reste GLOBALE : taper sort du dossier (l'en-tête
+// redevient « Vos boîtes ») et un bandeau au-dessus des résultats offre le
+// retour ; effacer la requête rend le dossier tel quel.
+export default function HarvestColumn({ threadState, coveredTids, addedFolderIds, lineKeys, onAddThread, onAddPiece, onTogglePiece, onAddThreadDelta, onRemoveThread, onAddFolder, onAddFolderDelta, onRemoveFolder, onCollapse, drillNav }) {
   const [query, setQuery] = useState('');
   const [drill, setDrill] = useState(null); // fid ouvert (drill), ou null = racine
   const q = normalize(query.trim());
@@ -271,11 +276,23 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
   // sont au bordereau.
   const folderDeltaAdded = (fid) => { const ks = folderDeltaKeys(fid); return ks.length > 0 && ks.every(k => lineKeys.has(k)); };
 
+  // Chaîne racine → dossier courant (courant inclus).
+  const chainOf = (fid) => {
+    const chain = [];
+    let cur = folderModel(fid);
+    let guard = 0;
+    while (cur && guard++ < 6) { chain.unshift(cur); cur = cur.parent ? folderModel(cur.parent) : null; }
+    return chain;
+  };
+  const drillChain = drill ? chainOf(drill) : [];
+  const drillParent = drillChain.length > 1 ? drillChain[drillChain.length - 2] : null;
+
   // La recherche balaie TOUS les canaux du user courant (boîtes cabinet + ses
-  // boîtes personnelles), pas seulement la récolte : le manuel n'est jamais
-  // bridé par la proposition. Sections étiquetées par boîte ; un fil reçu dans
-  // deux boîtes est dédoublonné (conversationId) : il sort UNE fois, côté
-  // cabinet, avec sa double provenance.
+  // boîtes personnelles), pas seulement la récolte ni le dossier ouvert : le
+  // manuel n'est jamais bridé - zéro faux « aucun résultat ». Sections
+  // étiquetées par boîte ; un fil reçu dans deux boîtes est dédoublonné
+  // (conversationId) : il sort UNE fois, côté cabinet, avec sa double
+  // provenance.
   const results = useMemo(() => {
     if (!q) return null;
     const match = (t) => {
@@ -329,30 +346,6 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
     );
   };
 
-  // Fil d'Ariane du drill (variante « Drill Down ») : icône Inbox = racine,
-  // puis la chaîne des parents (cliquables, muets), le courant en encre.
-  const Crumbs = ({ m }) => {
-    const chain = [];
-    let cur = m.parent ? folderModel(m.parent) : null;
-    let guard = 0;
-    while (cur && guard++ < 6) { chain.unshift(cur); cur = cur.parent ? folderModel(cur.parent) : null; }
-    return (
-      <div className="flex items-center gap-1 px-3.5 py-3 flex-shrink-0 min-w-0">
-        <button type="button" onClick={() => setDrill(null)} className="flex-shrink-0 hover:opacity-70 transition-opacity" title="Revenir à la boîte" aria-label="Revenir à la boîte">
-          <Inbox className="w-3.5 h-3.5" strokeWidth={1.33} style={{ color: V2.muted }} />
-        </button>
-        {chain.map(f => (
-          <React.Fragment key={f.id}>
-            <ChevronRight className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.muted }} />
-            <button type="button" onClick={() => setDrill(f.id)} className="text-[12px] leading-4 truncate hover:underline" style={{ color: V2.muted, letterSpacing: 0.12 }}>{f.name}</button>
-          </React.Fragment>
-        ))}
-        <ChevronRight className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.muted }} />
-        <span className="text-[12px] leading-4 truncate" style={{ color: V2.foreground, letterSpacing: 0.12 }}>{m.name}</span>
-      </div>
-    );
-  };
-
   // Vue « dossier ouvert » : fil d'Ariane, geste en bloc, sous-dossiers, échanges.
   // Pour un dossier déjà versé au dossier, le neuf est isolé en tête.
   const drillView = () => {
@@ -396,7 +389,8 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
 
     return (
       <div className="flex flex-col gap-2">
-        <Crumbs m={m} />
+        {/* La localisation vit dans l'en-tête du panneau (barre du dossier) -
+            rien à répéter ici, la liste commence au geste. */}
 
         {isNewState ? (
           <>
@@ -489,39 +483,85 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
 
   return (
     <div className="w-[456px] h-full flex flex-col">
-      {/* En-tête : les canaux DU USER COURANT (boîte cabinet + sa boîte
-          personnelle), agrégés par le picker + Réduire (le panneau se replie,
-          le bordereau reste). La boîte personnelle d'un autre membre
-          n'apparaît jamais ici. */}
-      <div className="px-3.5 pt-3.5 pb-1 flex items-start justify-between gap-2 flex-shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <img src={outlookLogo} alt="" className="w-8 h-8 flex-shrink-0" />
-          <div className="min-w-0">
-            <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>Vos boîtes</p>
-            <p className="text-[12px] leading-4 truncate" style={{ color: V2.muted, letterSpacing: 0.12 }} title="Boîte du cabinet - consultable par tout le cabinet">{MAILBOXES.shared.label} · {MAILBOXES.shared.address}</p>
-            <p className="text-[12px] leading-4 truncate" style={{ color: V2.muted, letterSpacing: 0.12 }} title="Votre boîte - visible par vous seul. Ce que vous versez dans un dossier devient accessible au cabinet.">{MAILBOXES.personal.label} · {MAILBOXES.personal.address}</p>
-          </div>
-        </div>
+      {/* Structure finale (Meg) : [1] EN-TÊTE D'IDENTITÉ fixe - petit logo
+          Outlook + « Importez depuis vos emails » + Réduire. Il dit ce que le
+          panneau EST, jamais où on se trouve. */}
+      <div className="px-3.5 pt-4 pb-2 flex items-center gap-3 flex-shrink-0">
+        <img src={outlookLogo} alt="" className="flex-shrink-0" style={{ width: 22, height: 22 }} />
+        <p className="flex-1 min-w-0 text-[13px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>Importez depuis vos emails</p>
         <button
           type="button"
           onClick={onCollapse}
-          className="inline-flex items-center gap-1 h-6 px-1.5 rounded text-[11px] font-medium text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors flex-shrink-0 mt-0.5"
+          className="inline-flex items-center gap-1.5 h-[26px] px-2 -mr-2 rounded text-[12px] font-medium text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors flex-shrink-0"
           title="Réduire le panneau email"
         >
-          <PanelLeftClose className="w-3.5 h-3.5" strokeWidth={1.75} /> Réduire
+          <ListCollapse className="w-3.5 h-3.5" strokeWidth={1.75} /> Réduire
         </button>
       </div>
-      <div className="px-3.5 pt-2 pb-2 flex-shrink-0">
+
+      {/* [2] La RECHERCHE - immobile, GLOBALE (jamais bornée au dossier
+          ouvert) : placeholder fixe, ✕ = clear simple qui rend le dossier
+          ouvert tel quel (le drill survit à la recherche). */}
+      <div className="px-3.5 pb-1 flex-shrink-0">
         <div className="relative">
           <Search className="w-4 h-4 text-foreground-muted absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={2} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher un dossier ou un échange…"
-            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-white text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
+            className="w-full h-9 pl-9 pr-8 rounded-lg border border-border bg-white text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
           />
+          {query !== '' && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-cream transition-colors"
+              title="Effacer la recherche"
+              aria-label="Effacer la recherche"
+            >
+              <X className="w-3.5 h-3.5" strokeWidth={2} />
+            </button>
+          )}
         </div>
       </div>
+
+      {/* [3] L'EN-TÊTE CONTEXTUEL - uniquement en drill (barre du dossier :
+          retour + titre + chemin). À la racine, rien (Meg a retiré le bloc
+          « Vos boîtes / adresses » - les adresses restent dans les tooltips
+          et les settings) ; pendant une recherche, rien non plus (Meg :
+          « si recherche enlève cette partie »). */}
+      {!results && drill && (
+        /* Planche MonoHeader 3557:4893 : bouton retour OUTLINE 36×36 (blanc,
+           bordé, arrondi 10) + à droite le fil d'Ariane 12 muet « Inbox /
+           parent » (séparateur /) sur le titre FolderOpen + nom 14 medium. */
+        <div className="px-3.5 pt-1 pb-3 flex items-center gap-3 flex-shrink-0 min-w-0">
+          <button
+            type="button"
+            onClick={() => setDrill(drillParent ? drillParent.id : null)}
+            className="w-9 h-9 rounded-[10px] border border-border bg-white flex items-center justify-center hover:bg-cream transition-colors flex-shrink-0"
+            style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}
+            title={drillParent ? `Revenir à « ${drillParent.name} »` : 'Revenir à la boîte de réception'}
+            aria-label={drillParent ? `Revenir à « ${drillParent.name} »` : 'Revenir à la boîte de réception'}
+          >
+            <ChevronLeft className="w-4 h-4" strokeWidth={2} style={{ color: V2.foreground }} />
+          </button>
+          <div className="min-w-0 flex flex-col gap-1">
+            <p className="text-[12px] leading-4 truncate" style={{ color: V2.muted, letterSpacing: 0.12 }}>
+              <button type="button" onClick={() => setDrill(null)} className="hover:underline" title="Revenir à la boîte de réception">Inbox</button>
+              {drillChain.slice(0, -1).map(f => (
+                <React.Fragment key={f.id}>
+                  {' / '}
+                  <button type="button" onClick={() => setDrill(f.id)} className="hover:underline" title={`Revenir à « ${f.name} »`}>{f.name}</button>
+                </React.Fragment>
+              ))}
+            </p>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <FolderOpen className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.folder }} />
+              <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{drillChain[drillChain.length - 1]?.name}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 min-h-0 overflow-y-auto pb-3 flex flex-col gap-3">
         {showDrill && drillView()}
@@ -551,6 +591,9 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
           </section>
         ))}
 
+        {/* Résultats globaux, que la recherche parte de la racine ou d'un
+            dossier ouvert - pas de bandeau (Meg : « plutôt un clear search
+            simple ») : le ✕ du champ efface et rend le dossier tel quel. */}
         {!showDrill && results && (
           <>
             {results.proposed.length > 0 && (

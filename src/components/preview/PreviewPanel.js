@@ -1,11 +1,14 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  FileText, LayoutTemplate, Scale, Mail, BookText, Calculator, Globe,
+  FileText, LayoutTemplate, Gavel, Mail, Stamp, Globe,
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X, Calendar, Hash,
   Sparkles, Scissors, Download, Trash2, ZoomIn, ZoomOut, Maximize2, Minimize2,
-  ExternalLink, Search, ArrowDownToLine, Paperclip, User, Pencil, Check,
+  ExternalLink, Search, ArrowDownToLine, Paperclip, Pencil, Check, MoreHorizontal,
 } from 'lucide-react';
 import Input from '../ui/Input';
+import Badge from '../ui/Badge';
+import { colors, typography } from '../../design-system/tokens';
+import { COT_BADGE_TOKENS } from '../../data/cotisationsSocial';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PreviewPanel - le panneau de preview systématisé (fusion preview-doc + panel)
@@ -31,46 +34,192 @@ import Input from '../ui/Input';
 // (react-pdf / pdf.js) porterait le rendu, l'UX zoom / scroll / surlignage identique.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const HL = '#fde68a'; // surlignage citation (cohérent avec DecisionDrawer)
+// Surlignage citation - teinte warning du DS (cohérente avec DecisionDrawer).
+const HL = colors.banner.warning.border;        // #fde68a
+const HL_EDGE = colors.banner.warning.accent;   // #d97706 - liseré + outline du chunk actif
+const AI_ACCENT = colors.banner.ai.accent;      // #9333ea - marqueur « généré par IA »
+const MONO = typography.fontFamily.mono;
 
-// ── Petits blocs partagés ────────────────────────────────────────────────────
+// Ring de focus keyboard-only cohérent, appliqué aux contrôles interactifs
+// principaux du panneau. Reste discret (foreground @ 40%, offset 1px) mais
+// visible sur les fonds blancs ET les fonds cream/canvas.
+const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-white focus-visible:ring-foreground/40';
 
-function MetaChip({ icon, label, value, ai }) {
+// ── PartyAvatar ─────────────────────────────────────────────────────────────
+// Portage local du système d'avatars « Victimes / Intervenants » de l'App
+// (App.js › VI_AVATAR_PALETTE + CHESS_PATHS) : une pastille carrée teintée
+// contenant une pièce d'échec. Le fil d'email dans le doc kind = 'email' s'en
+// sert pour habiller chaque expéditeur ; la couleur + la pièce sont dérivées
+// du NOM (déterministe), sauf pour le cabinet (cream + roi, comme userAvatar
+// pour un Admin dans l'App).
+//
+// Palette lue depuis les tokens (colors.avatar) - même source que l'App, donc
+// une modif propage naturellement sans dupliquer les hex.
+const CHESS_PATHS = {
+  knight: 'M14.18 0c.02.11.01 1.02.01 1.17l-.001 2.8c.4.29 1.01.66 1.44.93l2.64 1.72c.16.56.29 1.14.43 1.7.06.23.1.49.2.71.14.34 1.84 1.93 2.23 2.32l-4.52 4.45-4.05-.02c-.28-.25-.6-.59-.88-.86-.47-.46-.93-.93-1.4-1.4.04-.87.01-2 .01-2.88-.44.01-.88.01-1.33.01-.04 1.1-.01 2.4-.01 3.51.62.66 1.31 1.29 1.94 1.94l.33.36 2.2-.002c.95 1.35 2.12 2.82 3.13 4.16l.003 2.72c.39.36 1.02.84 1.45 1.19.01.8.003 1.63 0 2.44l-7-0.001-8.74.004-.002-2.45c.45-.4.98-.79 1.44-1.19l-.004-2.73-4.41-.007c.08-.34.13-.79.19-1.15l.3-1.97c.78-.61 1.84-1.23 2.61-1.87.01-.15.04-.36.06-.52-.73.23-1.7.69-2.45.97.13-1.04.34-2.2.5-3.26.82-.42 1.65-.8 2.47-1.22.01-.16.02-.32.03-.48-.76.2-1.56.38-2.33.57.04-.2.07-.43.1-.64.17-1.27.44-2.55.59-3.81.75.25 1.49.5 2.23.76l.18-.37c-.6-.5-1.28-.97-1.87-1.47l2.37-2.33c.39-.39.81-.81 1.21-1.18.45-.03 1.16-.01 1.62-.01l3-.008c.23-.21.49-.49.72-.72.88-.85 1.74-1.75 2.62-2.59zm7.93 12.35c.16.08 1.84 1.82 2.08 2.06l-.04 3.04c-.44.37-.93.75-1.38 1.11-.36-.22-.68-.46-1.03-.7l-1.53-1.05-.31.3c.29.43.64.9.95 1.32.23.32.46.64.68.96l-2.84-.03c-.26-.8-.72-1.84-1.03-2.66.56-.58 1.24-1.23 1.83-1.8.86-.83 1.74-1.73 2.61-2.54zm-.19 2.46l-.004.68.57.06c.07.12.14.23.2.35.13.22.25.45.37.67l.02-1.74c-.04-.03-.02-.03-.06-.03-.35.01-.71.02-1.06.02zm-8.05-7.02c.31.21.64.37.94.56.01.24.01.5.03.74.21.15.48.29.72.41.25-.11.47-.22.72-.35.2.09.41.19.6.29l.21.11-.95-1.76h-2.27z',
+  bishop: 'M12.67 20.83v3.08h-1.6l.81 3.95H1.1l.83-3.95H.31v-3.08h12.36zM6.49 0c.16.18.5.63.65.84.4.57.91 1.2 1.28 1.78L6.59 7.69c-.37 1.03-.79 2.12-1.13 3.15.12.39.31.87.45 1.25.18.51.37 1.07.57 1.56.13-.28.28-.77.38-1.07.26-.71.52-1.43.77-2.14l2.12-5.88c.19.26.41.6.59.87.38.57.76 1.14 1.13 1.72.3.47.6.95.89 1.43.21.33.43.69.6 1.05-.17.88-.41 1.87-.61 2.75-.11.47-.2.98-.31 1.46-.2.9-.39 1.8-.58 2.69-.12.6-.35 1.43-.43 2l-9.12.002c-.05-.34-.19-.92-.27-1.27-.12-.54-.24-1.08-.35-1.62l-.63-2.86C.46 11.74.24 10.68 0 9.63c.1-.23.33-.58.46-.8.38-.63.77-1.25 1.17-1.86 1.02-1.59 2.07-3.15 3.16-4.68.37-.53.75-1.05 1.14-1.56.19-.25.36-.49.56-.73z',
+  rook: 'M21.14 27.17c.73.82 1.71 1.66 2.44 2.48l.005 2.76-2.49-.001-21.08.003C-.001 31.49.01 30.58 0 29.65c.79-.83 1.69-1.64 2.46-2.48.02-.6-.001-1.32.006-1.93l18.68-.002c-.004.65-.004 1.29 0 1.94zm-1.97-3.45c-.51.01-1.04.004-1.55.005l-13.18-.005 1.13-8.12c.13-.97.29-1.93.4-2.9l11.63-.002 1.56 11.03zm-.01-12.53H4.43c.004-.64.004-1.29 0-1.93h14.73l-.01 1.93zM6.1.01c.01 1.25-.001 2.54-.001 3.8 1.11.02 2.3 0 3.42.005l-.007-3.8 4.56.004v3.8l3.41-.002-.002-3.8c.32.001 3.56-.02 3.66.03l.002 7.7-18.69-.003-.004-7.72C3.61-.02 4.93.01 6.1.01z',
+  pawn: 'M14 2a4 4 0 00-4 4c0 1.2.53 2.27 1.37 3H9.5a1.5 1.5 0 000 3h1.09A5.99 5.99 0 008 17v1h12v-1a5.99 5.99 0 00-2.59-4.93H18.5a1.5 1.5 0 000-3h-1.87A3.98 3.98 0 0018 6a4 4 0 00-4-4zM6 20v2h16v-2H6zm-2 4v2h20v-2H4z',
+  crown: 'M19.85 21.59v2.79h-1.39l.7 3.48H8.71l.7-3.48H8.01v-2.79h11.84zM17.79 13.61l2.76-2.47 2.09 1.39-3.83 6.97H9.05l-3.83-6.97 2.09-1.39 2.76 2.47 3.86-3.86 3.86 3.86zM16.37 5.92l-2.44 2.44-2.44-2.44 2.44-2.44 2.44 2.44z',
+  queen: 'M14 2a3 3 0 00-1 5.83V10H9L6 5l-4 9h3l1 8h16l1-8h3L22 5l-3 5h-4V7.83A3 3 0 0014 2zM6 24v2h16v-2H6z',
+  king: 'M15 2h-2v3h-3v2h3v3h2V7h3V5h-3V2zM9 12a5 5 0 0110 0v1H9v-1zm-2 3h14l1 7H6l1-7zm-2 9h18v2H5v-2z',
+};
+const CHESS_VB = {
+  knight: '0 0 24.19 27.63', bishop: '0 0 12.98 27.86', rook: '0 0 23.58 32.41',
+  pawn: '0 0 28 28', crown: '0 0 27.86 27.86', queen: '0 0 28 28', king: '0 0 28 28',
+};
+
+// Hash déterministe simple (djb2 tronqué) : le même nom → même couleur + même
+// pièce à travers les rendus.
+function hashName(name) {
+  let h = 5381;
+  for (let i = 0; i < name.length; i++) h = ((h << 5) + h + name.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+// Détection du cabinet : "Cabinet", "Cabinet Dupont", "Me. Martin", "Maître…"
+// → traité comme un membre workspace (cream + roi, à la userAvatar Admin).
+function isCabinet(name = '') {
+  return /^\s*(cabinet|m(a[îi])?tre|me\.?\s)/i.test(name);
+}
+
+const PARTY_PIECES = ['knight', 'bishop', 'rook', 'queen', 'crown'];
+
+function PartyAvatar({ name = '', size = 28 }) {
+  const cabinet = isCabinet(name);
+  const pal = cabinet ? colors.avatar[5] : colors.avatar[hashName(name) % (colors.avatar.length - 1)]; // le cream (idx 5) est réservé au cabinet
+  const piece = cabinet ? 'king' : PARTY_PIECES[hashName(name) % PARTY_PIECES.length];
+  const d = CHESS_PATHS[piece];
+  const vb = CHESS_VB[piece];
   return (
-    <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-background-canvas border border-border text-[13px] text-foreground-secondary">
-      {icon && <span className="text-foreground-muted">{icon}</span>}
-      {label && <span className="text-foreground-muted">{label}</span>}
-      <span className="text-foreground">{value}</span>
-      {ai && <Sparkles className="w-3 h-3" strokeWidth={2} style={{ color: '#9333ea' }} />}
-    </span>
+    <div
+      className="flex items-end justify-center flex-shrink-0 overflow-hidden"
+      style={{
+        width: size, height: size,
+        borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8,
+        backgroundColor: pal.bg,
+        paddingTop: 2,
+      }}
+      title={name}
+    >
+      <svg viewBox={vb} fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80%', height: '80%', display: 'block' }}>
+        <path d={d} fill={pal.fill} />
+      </svg>
+    </div>
   );
 }
 
-function AiMark() {
-  return <Sparkles className="inline w-3 h-3 ml-1 align-[-1px]" strokeWidth={2} style={{ color: '#9333ea' }} />;
+// Glyphe § du badge TEXTE - un composant à interface Lucide pour rester
+// interchangeable dans le registre des kinds ci-dessous.
+function TexteGlyph({ className, style, strokeWidth: _sw, ...rest }) {
+  return (
+    <span aria-hidden className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontWeight: 600, fontSize: 13, ...style }} {...rest}>§</span>
+  );
+}
+
+// ── Petits blocs partagés ────────────────────────────────────────────────────
+
+// ── MetaChip ────────────────────────────────────────────────────────────────
+// Chip d'atome de métadonnée - forme UNIQUE du header du panneau, avec toutes
+// les variantes rangées dans un même composant.
+//
+// Composition (dans l'ordre visuel) :
+//   [icon]  [label muted]  [value fg]  [· aside muted, truncable]  [✦ ai]  [action]
+//
+// Deux `variant` (fond) :
+//   · default   fond canvas + border neutre               (Date, Type…)
+//   · strong    fond cream + valeur medium                (chip d'identité)
+//
+// Deux comportements INTERACTIFS mutuellement exclusifs :
+//   · action    { label, onClick } - petit lien texte à droite du chip
+//                (le chip reste un <span>)
+//   · onClick   TOUT le chip devient un <button> - hover renforce border+texte
+//
+// États : default · hover (interactif) · disabled (onClick) · truncated (aside).
+//
+// `value` accepte un ReactNode : on compose librement une valeur multi-parties
+// (« I - MEDICAL · n° 2 ») sans multiplier les variants.
+export function MetaChip({
+  icon: Icon,
+  label,
+  value,
+  aside,
+  ai,
+  variant = 'default', // 'default' | 'strong'
+  action,              // { label, onClick } - lien texte à droite (span uniquement)
+  onClick,             // rend le chip entier cliquable (button)
+  disabled,
+  title,
+  className,
+}) {
+  const clickable = !!onClick;
+  const strong = variant === 'strong';
+
+  const chrome = [
+    'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border text-[13px] text-foreground-secondary min-w-0 max-w-full',
+    strong ? 'bg-cream' : 'bg-background-canvas',
+    clickable
+      ? 'transition-colors hover:border-border-strong disabled:hover:border-border disabled:cursor-not-allowed disabled:opacity-60'
+      : '',
+    className || '',
+  ].filter(Boolean).join(' ');
+
+  // Contraste : sur bg-canvas (#f8f7f5) et bg-cream (#eeece6), foreground-muted
+  // (#a8a29e) tombe à ~2.4:1 - sous le plancher WCAG. On monte à
+  // foreground-secondary (#78716c ≈ 4.7:1) tout en gardant la hiérarchie
+  // muted-label / strong-value. Le séparateur « · » de l'aside reste plus léger
+  // (foreground-muted) : c'est un signe typographique, pas du texte.
+  const inner = (
+    <>
+      {Icon && <Icon className="w-3.5 h-3.5 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />}
+      {label && <span className="text-foreground-secondary flex-shrink-0 whitespace-nowrap">{label}</span>}
+      {value != null && (
+        <span className={`text-foreground flex-shrink-0 whitespace-nowrap ${strong ? 'font-medium' : ''}`}>{value}</span>
+      )}
+      {aside && (
+        <span
+          className="text-foreground-secondary truncate min-w-0"
+          title={typeof aside === 'string' ? aside : undefined}
+        >
+          <span className="text-foreground-muted mr-1" aria-hidden>·</span>{aside}
+        </span>
+      )}
+      {ai && <Sparkles className="w-3 h-3 flex-shrink-0" strokeWidth={2} style={{ color: AI_ACCENT }} />}
+    </>
+  );
+
+  if (clickable) {
+    return (
+      <button type="button" onClick={onClick} disabled={disabled} title={title} className={chrome}>
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <span title={title} className={chrome}>
+      {inner}
+      {action && (
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="ml-0.5 font-medium text-link hover:underline underline-offset-2 flex-shrink-0"
+        >
+          {action.label}
+        </button>
+      )}
+    </span>
+  );
 }
 
 function FieldLabel({ children }) {
   return (
     <p
       className="text-foreground-secondary"
-      style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}
+      style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}
     >
       {children}
     </p>
-  );
-}
-
-// Champ lecture seule (side panel).
-function Field({ label, value, icon }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[13px] font-medium text-foreground">{label}</label>
-      <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs text-[14px] text-foreground">
-        {icon}
-        <span className="truncate">{value}</span>
-      </div>
-    </div>
   );
 }
 
@@ -80,21 +229,22 @@ function Citation({ children }) {
     <div
       data-cite="1"
       className="rounded-md px-3 py-2 my-1 text-[13px] leading-6 text-foreground scroll-mt-6"
-      style={{ background: HL, boxShadow: `inset 3px 0 0 #d97706` }}
+      style={{ background: HL, boxShadow: `inset 3px 0 0 ${HL_EDGE}` }}
     >
       {children}
     </div>
   );
 }
 
-// Badge autorité juridique (cotisations) - 5 teintes + neutre, aligné mémoire.
+// Badge autorité juridique (cotisations) - 5 teintes spécifiées par la spec
+// Social (pas encore promues en tokens - candidates /ui-kit/tokens) + neutre DS.
 const AUTHORITY = {
   urssaf: { label: 'URSSAF', bg: '#eff6ff', fg: '#1e40af' },
   boss: { label: 'BOSS', bg: '#f5f3ff', fg: '#6d28d9' },
   impots: { label: 'Impôts', bg: '#ecfdf5', fg: '#047857' },
   code: { label: 'Code du travail', bg: '#fff7ed', fg: '#c2410c' },
   conv: { label: 'Convention collective', bg: '#fdf2f8', fg: '#be185d' },
-  none: { label: '-', bg: '#f5f5f4', fg: '#78716c' },
+  none: { label: '-', bg: colors.semantic.backgroundSubtle, fg: colors.semantic.foregroundSecondary },
 };
 function AuthorityBadge({ authority }) {
   const a = AUTHORITY[authority] || AUTHORITY.none;
@@ -105,7 +255,7 @@ function AuthorityBadge({ authority }) {
   );
 }
 
-// Callout « document découpé » réutilisé en header (édition) et side panel.
+// Callout « document découpé » utilisé en mode édition.
 function SplitCallout({ split }) {
   return (
     <div className="rounded-lg border border-border bg-background-canvas p-3 flex items-center gap-2.5">
@@ -113,10 +263,10 @@ function SplitCallout({ split }) {
         <Scissors className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[14px] leading-5 font-medium text-foreground">Document découpé</div>
-        <div className="text-[12px] text-foreground-secondary truncate" title={split.source}>{split.source}</div>
+        <div className="text-body-medium text-foreground">Document découpé</div>
+        <div className="text-caption text-foreground-secondary truncate" title={split.source}>{split.source}</div>
       </div>
-      <button className="text-[13px] font-medium hover:underline flex-shrink-0" style={{ color: '#1e3a8a' }}>Ajuster</button>
+      <button type="button" className="text-[13px] font-medium text-link hover:underline flex-shrink-0">Ajuster</button>
     </div>
   );
 }
@@ -130,13 +280,13 @@ function ProvenanceCallout({ prov, onOpen }) {
         <Mail className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[14px] leading-5 font-medium text-foreground">Issu d'un email</div>
-        <div className="text-[12px] text-foreground-secondary truncate" title={prov.subject}>
+        <div className="text-body-medium text-foreground">Issu d'un email</div>
+        <div className="text-caption text-foreground-secondary truncate" title={prov.subject}>
           {prov.subject}{prov.from ? ` · ${prov.from}` : ''}{prov.date ? ` · ${prov.date}` : ''}
         </div>
       </div>
       {prov.open && (
-        <button onClick={() => onOpen(prov.open)} className="text-[13px] font-medium hover:underline flex-shrink-0" style={{ color: '#1e3a8a' }}>Voir l'email</button>
+        <button type="button" onClick={() => onOpen(prov.open)} className="text-[13px] font-medium text-link hover:underline flex-shrink-0">Voir l'email</button>
       )}
     </div>
   );
@@ -170,12 +320,12 @@ function DocPage({ title, date, pageNo, totalPages, width, quotes = [] }) {
               key={`c${i}`}
               data-cite="1"
               className="rounded-sm text-foreground scroll-mt-6"
-              style={{ background: HL, boxShadow: `inset 3px 0 0 #d97706`, padding: '2cqw 2.5cqw', margin: '1cqw 0', fontSize: '2.4cqw', lineHeight: 1.5 }}
+              style={{ background: HL, boxShadow: `inset 3px 0 0 ${HL_EDGE}`, padding: '2cqw 2.5cqw', margin: '1cqw 0', fontSize: '2.4cqw', lineHeight: 1.5 }}
             >
               {insert[i]}
             </div>
           ) : (
-            <div key={i} className="rounded-full" style={{ height: '1.1cqw', width: `${Math.round(w * 100)}%`, background: i % 7 === 6 ? 'transparent' : '#f1f0ee' }} />
+            <div key={i} className={`rounded-full ${i % 7 === 6 ? '' : 'bg-border-subtle'}`} style={{ height: '1.1cqw', width: `${Math.round(w * 100)}%` }} />
           )
         )}
       </div>
@@ -294,16 +444,14 @@ function EmailBody({ source, scrollRef, onOpen }) {
           const inner = (
             <div className={`rounded-xl border bg-white p-4 ${m.cite ? 'border-transparent' : 'border-border'}`}>
               <div className="flex items-center gap-2.5 mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-cream text-foreground-tertiary flex-shrink-0">
-                  <User className="w-3.5 h-3.5" strokeWidth={1.75} />
-                </span>
+                <PartyAvatar name={m.from} size={28} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[13px] font-medium text-foreground truncate">{m.from}</div>
                   <div className="text-[11.5px] text-foreground-muted truncate">à {m.to}</div>
                 </div>
                 <div className="text-[11.5px] text-foreground-muted tabular-nums flex-shrink-0">{m.date}</div>
               </div>
-              <p className="text-[13.5px] leading-6 text-foreground-secondary whitespace-pre-line">{m.body}</p>
+              <p data-cite-text className="text-[13.5px] leading-6 text-foreground-secondary whitespace-pre-line">{m.body}</p>
               {m.attachments?.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {m.attachments.map((a, j) => (
@@ -358,7 +506,7 @@ function LigneBody({ source, scrollRef }) {
           </div>
         )}
         <div className="rounded-xl border border-border bg-white overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_auto] text-[11px] font-medium uppercase tracking-wide text-foreground-muted bg-cream border-b border-border" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+          <div className="grid grid-cols-[1fr_auto_auto] text-[11px] font-medium uppercase tracking-wide text-foreground-muted bg-cream border-b border-border" style={{ fontFamily: MONO }}>
             <div className="px-4 py-2">Libellé</div>
             <div className="px-4 py-2 text-right">Base</div>
             <div className="px-4 py-2 text-right">Montant</div>
@@ -368,9 +516,12 @@ function LigneBody({ source, scrollRef }) {
               key={i}
               {...(r.cite ? { 'data-cite': '1' } : {})}
               className={`grid grid-cols-[1fr_auto_auto] text-[13px] border-b border-border last:border-0 scroll-mt-6 ${r.cite ? '' : 'text-foreground-secondary'}`}
-              style={r.cite ? { background: HL, boxShadow: 'inset 3px 0 0 #d97706' } : undefined}
+              style={r.cite ? { background: HL, boxShadow: `inset 3px 0 0 ${HL_EDGE}` } : undefined}
             >
-              <div className={`px-4 py-2.5 ${r.cite ? 'text-foreground font-medium' : ''}`}>{r.label}</div>
+              <div className={`px-4 py-2.5 ${r.cite ? 'text-foreground font-medium' : ''}`} {...(r.cite ? { 'data-cite-text': '1' } : {})}>
+                {r.label}
+                {r.cite && <span className="sr-only"> — base {r.base}, montant {r.montant}</span>}
+              </div>
               <div className="px-4 py-2.5 text-right tabular-nums">{r.base}</div>
               <div className={`px-4 py-2.5 text-right tabular-nums ${r.cite ? 'text-foreground font-medium' : ''}`}>{r.montant}</div>
             </div>
@@ -381,38 +532,209 @@ function LigneBody({ source, scrollRef }) {
   );
 }
 
+// ── CitesPanel ─────────────────────────────────────────────────────────────
+// Rail latéral droite qui n'apparaît QUE si la source porte au moins UNE
+// citation. Rend l'ensemble des chunks lisible d'un coup : page + extrait +
+// état actif. Complète le stepper du pied (raccourci nav) - la même donnée,
+// dans deux surfaces au poids différent : le rail pour SCANNER, le stepper
+// pour cycler.
+//
+// La liste lit `items` (dérivés du DOM) donc marche uniformément pour tous
+// les kinds sans logique spécifique par corps.
+function CitesPanel({ items, active, onGo }) {
+  const activeRef = useRef(null);
+  // Suit le stepper : quand la citation active change (clic dans le doc,
+  // flèches du pied, popover), on ramène la ligne dans le rail. Nearest
+  // évite de re-scroller quand elle est déjà visible.
+  useEffect(() => {
+    if (activeRef.current) activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [active]);
+  if (!items || items.length === 0) return null;
+  // Sur mobile / tablette étroite, le rail vole trop de largeur au doc. On le
+  // masque : la liste reste accessible via le popover du stepper dans le pied.
+  //
+  // Traitement typographique inbox-like : PAGE tient lieu d'objet (mono
+  // uppercase, bold quand actif = « non lu ») ; l'extrait tient lieu de snippet
+  // (deux lignes claires, pas de fioritures). Le numéro à gauche reprend la
+  // logique du stepper. L'état actif se déclare via une barre amber pleine à
+  // gauche (3px) + un fond cream - rappel visuel du surlignage dans le corps.
+  return (
+    <aside className="hidden md:flex w-[240px] lg:w-[300px] border-l border-border bg-white flex-col flex-shrink-0 min-h-0">
+      {/* Header : eyebrow mono + compteur en pastille discrète */}
+      <div className="px-4 pt-4 pb-3 border-b border-border-subtle flex-shrink-0 flex items-baseline justify-between gap-3">
+        <span className="uppercase tracking-wide text-foreground-secondary" style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, letterSpacing: '0.06em' }}>
+          Extraits cités
+        </span>
+        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-background-subtle text-[11px] font-medium text-foreground-secondary tabular-nums">
+          {items.length}
+        </span>
+      </div>
+      {/* Liste : items séparés par un filet très léger, tension respirable */}
+      <div className="overflow-auto flex-1 min-h-0">
+        {items.map((it, i) => {
+          const isActive = i === active;
+          return (
+            <button
+              key={i}
+              type="button"
+              ref={isActive ? activeRef : undefined}
+              onClick={() => onGo(i)}
+              aria-current={isActive ? 'true' : undefined}
+              aria-label={`Citation ${i + 1}${it.page ? `, page ${it.page}` : ''}${it.text ? `. ${it.text.slice(0, 80)}${it.text.length > 80 ? '…' : ''}` : ''}`}
+              className={`group relative w-full text-left px-4 py-3.5 flex items-start gap-3 transition-colors ${FOCUS_RING} focus-visible:ring-inset ${i > 0 ? 'border-t border-border-subtle' : ''} ${isActive ? 'bg-cream' : 'hover:bg-background-canvas'}`}
+            >
+              {/* Barre amber pleine à gauche quand actif - rappelle le liseré
+                  du chunk dans le doc */}
+              {isActive && (
+                <span
+                  aria-hidden
+                  className="absolute left-0 top-0 bottom-0 w-[3px]"
+                  style={{ background: HL_EDGE }}
+                />
+              )}
+              {/* Numéro dans une pastille carrée douce, amber quand actif */}
+              <span
+                className={`inline-flex items-center justify-center flex-shrink-0 w-[22px] h-[22px] rounded text-[11px] font-medium tabular-nums transition-colors ${
+                  isActive ? 'text-foreground' : 'text-foreground-secondary bg-background-subtle group-hover:bg-white group-hover:text-foreground'
+                }`}
+                style={isActive ? { background: HL, boxShadow: `0 1px 2px ${HL_EDGE}33` } : undefined}
+              >
+                {i + 1}
+              </span>
+              {/* Contenu : eyebrow page + extrait sobre.
+                  Traitement inbox-like : la page tient lieu d'objet (bold quand
+                  actif, comme un mail non-lu), l'extrait tient lieu de snippet
+                  (deux lignes claires, pas de fioritures typographiques). */}
+              <span className="min-w-0 flex-1">
+                {it.page && (
+                  <span
+                    className={`block uppercase tabular-nums mb-1 ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`}
+                    style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: isActive ? 600 : 500, letterSpacing: '0.06em' }}
+                  >
+                    page {it.page}
+                  </span>
+                )}
+                <span
+                  className={`block ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`}
+                  style={{
+                    fontSize: 13,
+                    lineHeight: '19px',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {it.text || <em className="text-foreground-muted">Extrait indisponible</em>}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </aside>
+  );
+}
+
 // ── Registre des types ───────────────────────────────────────────────────────
+// Accents et icônes alignés sur les badges SOURCE (COT_BADGE_TOKENS) : le titre
+// du panneau parle le même langage visuel que la pilule qui l'a ouvert.
+//
+//   piece / modele / email → PIECE   (bleu · document)
+//   jp                     → DECISION (vert · marteau)
+//   loi                    → TEXTE   (violet · § )
+//   ligne                  → REFERENCE (sépia · tampon) — barème / cotisation
+//   web                    → WEB     (neutre · globe)
+//
+// L'icône reste distinctive par kind (LayoutTemplate pour modèle, Mail pour
+// email, Calculator pour ligne) mais la teinte porte la famille de source.
+// WEB a un fond transparent + bord pointillé sur la pilule ; dans la puce du
+// titre (fond blanc), on retombe sur un neutre subtil pour rester visible.
+const BADGE_ACCENT = (family) => {
+  const t = COT_BADGE_TOKENS[family];
+  return { bg: t.bg === 'transparent' ? colors.semantic.backgroundSubtle : t.bg, fg: t.color };
+};
 
 export const PREVIEW_KINDS = {
-  piece: { label: 'Pièce', icon: FileText, accent: { bg: '#f5f3ef', fg: '#57534e' }, footer: 'doc', opens: 'Previewer interne (drawer à gauche du chat)', body: 'doc' },
-  modele: { label: 'Modèle', icon: LayoutTemplate, accent: { bg: '#eef2ff', fg: '#4338ca' }, footer: 'doc', opens: 'Previewer interne (modèle)', body: 'doc' },
-  jp: { label: 'Jurisprudence', icon: Scale, accent: { bg: '#eff6ff', fg: '#1e3a8a' }, footer: 'passage', opens: 'DecisionDrawer interne + lien Légifrance/Judilibre', body: 'jp', link: 'Légifrance' },
-  email: { label: 'Email', icon: Mail, accent: { bg: '#fffbeb', fg: '#b45309' }, footer: 'passage', opens: 'Panneau fil (drawer import), ancré sur le message', body: 'email' },
-  loi: { label: 'Article de loi', icon: BookText, accent: { bg: '#f5f3ff', fg: '#6d28d9' }, footer: 'none', opens: 'Panneau léger interne (version à la date)', body: 'loi', link: 'Légifrance' },
-  ligne: { label: 'Cotisation / relevé', icon: Calculator, accent: { bg: '#ecfeff', fg: '#0e7490' }, footer: 'none', opens: 'Vue structurée interne, ligne surlignée', body: 'ligne', link: 'BOSS' },
-  web: { label: 'Lien web', icon: Globe, accent: { bg: '#f5f5f4', fg: '#57534e' }, footer: 'none', opens: 'Lien externe (nouvel onglet) - pas de panneau', body: 'external' },
+  piece:  { label: 'Pièce',              icon: FileText,       accent: BADGE_ACCENT('PIECE'),     footer: 'doc',     opens: 'Previewer interne (drawer à gauche du chat)',           body: 'doc' },
+  modele: { label: 'Modèle',             icon: LayoutTemplate, accent: BADGE_ACCENT('PIECE'),     footer: 'doc',     opens: 'Previewer interne (modèle)',                             body: 'doc' },
+  jp:     { label: 'Jurisprudence',      icon: Gavel,          accent: BADGE_ACCENT('DECISION'),  footer: 'passage', opens: 'DecisionDrawer interne + lien Légifrance/Judilibre',    body: 'jp',    link: 'Légifrance' },
+  email:  { label: 'Email',              icon: Mail,           accent: BADGE_ACCENT('PIECE'),     footer: 'passage', opens: 'Panneau fil (drawer import), ancré sur le message',     body: 'email' },
+  loi:    { label: 'Article de loi',     icon: TexteGlyph,     accent: BADGE_ACCENT('TEXTE'),     footer: 'none',    opens: 'Panneau léger interne (version à la date)',              body: 'loi',   link: 'Légifrance' },
+  ligne:  { label: 'Cotisation / relevé', icon: Stamp,         accent: BADGE_ACCENT('REFERENCE'), footer: 'none',    opens: 'Vue structurée interne, ligne surlignée',                body: 'ligne', link: 'BOSS' },
+  web:    { label: 'Lien web',           icon: Globe,          accent: BADGE_ACCENT('WEB'),       footer: 'none',    opens: 'Lien externe (nouvel onglet) - pas de panneau',          body: 'external' },
 };
 
 // Enchaîne les passages cités d'un même document. 1 chunk → bouton simple ;
-// plusieurs → stepper « Citation i / N » avec flèches.
-function CiteNav({ count, active, onGo, onStep }) {
+// plusieurs → stepper avec flèches, dont le compteur ouvre la LISTE complète
+// (page + extrait) - un clic pour sauter à n'importe quelle citation.
+function CiteNav({ count, active, items, onGo, onStep }) {
+  const [open, setOpen] = useState(false);
   if (count <= 0) return null;
   if (count === 1) {
     return (
-      <button onClick={() => onGo(0)} className="inline-flex items-center gap-1.5 px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors">
+      <button type="button" onClick={() => onGo(0)} className="inline-flex items-center gap-1.5 px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors">
         <ArrowDownToLine className="w-3.5 h-3.5" strokeWidth={1.75} /> Aller à la citation
       </button>
     );
   }
   return (
-    <div className="inline-flex items-center gap-0.5">
-      <button onClick={() => onStep(-1)} disabled={active <= 0} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none" aria-label="Citation précédente">
+    <div className="inline-flex items-center gap-0.5 relative">
+      <button type="button" onClick={() => onStep(-1)} disabled={active <= 0} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none" aria-label="Citation précédente">
         <ChevronLeft className="w-4 h-4" />
       </button>
-      <span className="text-caption text-foreground-secondary tabular-nums px-1 whitespace-nowrap">Citation {active + 1} / {count}</span>
-      <button onClick={() => onStep(1)} disabled={active >= count - 1} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none" aria-label="Citation suivante">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors tabular-nums whitespace-nowrap"
+        title="Voir toutes les citations"
+      >
+        Citation <span className="font-medium text-foreground">{active + 1}</span> / {count}
+        <ChevronDown className={`w-3 h-3 opacity-70 transition-transform ${open ? 'rotate-180' : ''}`} strokeWidth={1.75} />
+      </button>
+      <button type="button" onClick={() => onStep(1)} disabled={active >= count - 1} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none" aria-label="Citation suivante">
         <ChevronRight className="w-4 h-4" />
       </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div
+            role="menu"
+            className="absolute bottom-full mb-2 right-0 z-20 w-[380px] max-h-[340px] overflow-auto bg-white border border-border rounded-lg shadow-lg py-1"
+            style={{ animation: 'fadeIn 0.15s ease-out' }}
+          >
+            <div className="px-3 pt-2 pb-1.5 sticky top-0 bg-white border-b border-border-subtle">
+              <FieldLabel>Citations dans ce document ({count})</FieldLabel>
+            </div>
+            {items.map((it, i) => {
+              const isActive = i === active;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => { onGo(i); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 flex items-start gap-2.5 transition-colors border-l-2 ${isActive ? 'bg-cream border-l-[color:var(--cite-edge)]' : 'border-l-transparent hover:bg-background'}`}
+                  style={{ '--cite-edge': HL_EDGE }}
+                >
+                  <span className={`inline-flex items-center justify-center flex-shrink-0 w-5 h-5 rounded text-[11px] font-medium tabular-nums mt-0.5 ${isActive ? 'text-foreground' : 'text-foreground-secondary bg-background-subtle'}`} style={isActive ? { background: HL, boxShadow: `inset 2px 0 0 ${HL_EDGE}` } : undefined}>
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    {it.page && <span className="block text-[11px] text-foreground-muted tabular-nums mb-0.5">page {it.page}</span>}
+                    <span className={`block text-[12.5px] leading-5 ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`} style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {it.text || <span className="italic text-foreground-muted">Extrait indisponible</span>}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -430,8 +752,7 @@ export default function PreviewPanel({
   navIndex,
   navTotal,
   embedded = false,
-  metaLayout = 'header', // 'header' | 'side' (docs uniquement)
-  onOpenSource,          // (target { kind, source }) => void - navigation croisée
+  onOpenSource, // (target { kind, source }) => void - navigation croisée
 }) {
   const cfg = PREVIEW_KINDS[kind] || PREVIEW_KINDS.piece;
   const Icon = cfg.icon;
@@ -441,17 +762,20 @@ export default function PreviewPanel({
   const [zoom, setZoom] = useState(100);
   const [fitWidth, setFitWidth] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
+  // ESC ferme les menus ouverts ; si plein écran, ferme d'abord le plein écran.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (fullscreen) { setFullscreen(false); return; }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [fullscreen]);
   const [currentPage, setCurrentPage] = useState(1);
   const [editing, setEditing] = useState(false);
   const [metaExpanded, setMetaExpanded] = useState(false);
   const [downloadOpen, setDownloadOpen] = useState(false);
   const scrollRef = useRef(null);
-
-  // Layout des métadonnées : header (défaut) ou side panel. Réservé aux docs ;
-  // les autres types restent en header (chips).
-  const layout = isDoc ? metaLayout : 'header';
-  const showHeader = layout === 'header';
-  const showSide = isDoc && layout === 'side';
 
   const [fitPx, setFitPx] = useState(640);
   useEffect(() => {
@@ -463,7 +787,7 @@ export default function PreviewPanel({
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [fitWidth, fullscreen, isDoc, showSide]);
+  }, [fitWidth, fullscreen, isDoc]);
 
   const pageWidth = fitWidth ? fitPx : Math.round(640 * (zoom / 100));
 
@@ -473,6 +797,9 @@ export default function PreviewPanel({
   const passages = source.passages || (source.passage ? [source.passage] : []);
   const [activeCite, setActiveCite] = useState(0);
   const [citeCount, setCiteCount] = useState(passages.length);
+  // Extraits + page dérivés de la source de vérité (le DOM rendu) : identique
+  // à la logique du stepper, donc list & flèches sont toujours en phase.
+  const [citeItems, setCiteItems] = useState([]);
 
   const goToCite = useCallback((idx) => {
     const el = scrollRef.current;
@@ -482,7 +809,7 @@ export default function PreviewPanel({
     const i = Math.max(0, Math.min(cites.length - 1, idx));
     setActiveCite(i);
     cites.forEach((n, k) => {
-      n.style.outline = k === i ? '2px solid #d97706' : 'none';
+      n.style.outline = k === i ? `2px solid ${HL_EDGE}` : 'none';
       n.style.outlineOffset = '1px';
     });
     cites[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -494,6 +821,19 @@ export default function PreviewPanel({
       const el = scrollRef.current;
       const cites = el ? el.querySelectorAll('[data-cite]') : [];
       setCiteCount(cites.length);
+      setCiteItems(Array.from(cites).map((n) => {
+        const pageEl = n.closest('[data-page]');
+        // Certains bodies (email, ligne) marquent une zone plus large que
+        // l'extrait avec data-cite (pour ancrer le highlight sur la carte
+        // entière). Un [data-cite-text] optionnel restreint l'extraction du
+        // texte à l'élément qui porte VRAIMENT le contenu cité.
+        const textEl = n.querySelector('[data-cite-text]') || n;
+        const raw = (textEl.textContent || '').replace(/\s+/g, ' ').trim();
+        return {
+          text: raw.length > 220 ? raw.slice(0, 217) + '…' : raw,
+          page: pageEl ? Number(pageEl.dataset.page) : undefined,
+        };
+      }));
       goToCite(source.activePassage || 0);
     }, 120);
     return () => clearTimeout(t);
@@ -528,41 +868,45 @@ export default function PreviewPanel({
       <div className="flex items-center gap-2 flex-wrap">
         {kind === 'piece' ? (
           <>
-            <span className="inline-flex items-center gap-1.5 h-7 pl-2 pr-2.5 rounded-md bg-cream border border-border text-[13px] text-foreground-secondary">
-              <Hash className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} />
-              <span className="text-foreground-muted">Pièce</span>
-              <span className="font-medium text-foreground">{source.section}</span>
-              <span className="text-foreground-muted">·</span>
-              <span className="font-medium text-foreground tabular-nums">n° {source.numero}</span>
-            </span>
-            <MetaChip icon={<Calendar className="w-3.5 h-3.5" strokeWidth={1.75} />} label="Date" value={source.date} ai />
+            {/* Identité de la pièce - chip strong (fond cream + valeur medium) */}
+            <MetaChip
+              variant="strong"
+              icon={Hash}
+              label="Pièce"
+              value={
+                <>
+                  {source.section}
+                  <span className="text-foreground-muted mx-1">·</span>
+                  <span className="tabular-nums">n° {source.numero}</span>
+                </>
+              }
+            />
+            <MetaChip icon={Calendar} label="Date" value={source.date} ai />
             <MetaChip label="Type" value={source.type} />
           </>
         ) : (
           <>
             {source.category && <MetaChip label="Catégorie" value={source.category} />}
-            <MetaChip icon={<Calendar className="w-3.5 h-3.5" strokeWidth={1.75} />} label="Mise à jour" value={source.date} />
+            <MetaChip icon={Calendar} label="Mise à jour" value={source.date} />
             {source.variables != null && <MetaChip label="Variables" value={source.variables} />}
           </>
         )}
         {source.split && (
-          <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-background-canvas border border-border text-[13px] text-foreground-secondary min-w-0">
-            <Scissors className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
-            Document découpé
-            {source.split.source && <span className="text-foreground-muted truncate max-w-[160px]" title={source.split.source}>· {source.split.source}</span>}
-            <button className="ml-0.5 font-medium hover:underline underline-offset-2 flex-shrink-0" style={{ color: '#1e3a8a' }}>Ajuster</button>
-          </span>
+          <MetaChip
+            icon={Scissors}
+            label="Document découpé"
+            aside={source.split.source}
+            action={{ label: 'Ajuster', onClick: () => {} }}
+          />
         )}
         {source.provenance && (
-          <button
+          <MetaChip
+            icon={Mail}
+            label="Issu de l'email"
+            aside={source.provenance.subject}
             onClick={() => openSource(source.provenance.open)}
             disabled={!source.provenance.open}
-            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-background-canvas border border-border text-[13px] text-foreground-secondary min-w-0 transition-colors hover:text-foreground hover:border-stone-300 disabled:hover:text-foreground-secondary disabled:hover:border-border"
-          >
-            <Mail className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
-            Issu de l'email
-            {source.provenance.subject && <span className="text-foreground-muted truncate max-w-[180px]" title={source.provenance.subject}>· {source.provenance.subject}</span>}
-          </button>
+          />
         )}
       </div>
       {source.summary && (
@@ -574,7 +918,7 @@ export default function PreviewPanel({
           >
             {source.summary}
           </p>
-          <button onClick={() => setMetaExpanded((v) => !v)} className="flex-shrink-0 inline-flex items-center gap-0.5 text-[12px] text-foreground-muted hover:text-foreground-secondary transition-colors mt-0.5">
+          <button type="button" onClick={() => setMetaExpanded((v) => !v)} className="flex-shrink-0 inline-flex items-center gap-0.5 text-caption text-foreground-muted hover:text-foreground-secondary transition-colors mt-0.5">
             {metaExpanded ? <>Réduire <ChevronUp className="w-3 h-3" /></> : <>Détails <ChevronDown className="w-3 h-3" /></>}
           </button>
         </div>
@@ -590,7 +934,7 @@ export default function PreviewPanel({
         {kind === 'piece' ? (
           <Input label="Type" className="flex-1">
             <div className="relative">
-              <select defaultValue={source.type} className="w-full h-9 pl-3 pr-8 bg-white border border-border rounded-lg shadow-xs text-[14px] text-foreground outline-none appearance-none focus:border-stone-400">
+              <select defaultValue={source.type} className="w-full h-9 pl-3 pr-8 bg-white border border-border rounded-lg shadow-xs text-body text-foreground outline-none appearance-none focus:border-foreground-muted">
                 {['Rapport', 'Correspondance', 'Facture', 'Certificat médical', 'Autre'].map((t) => <option key={t}>{t}</option>)}
               </select>
               <ChevronDown className="w-4 h-4 text-foreground-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -600,9 +944,9 @@ export default function PreviewPanel({
           <Input label="Catégorie" className="flex-1" defaultValue={source.category} />
         )}
         <Input label={kind === 'piece' ? 'Date du document' : 'Mise à jour'} aiGenerated={kind === 'piece'} className="flex-1">
-          <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-stone-400 focus-within:ring-1 focus-within:ring-stone-200">
+          <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted focus-within:ring-1 focus-within:ring-border-alt">
             <Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
-            <input defaultValue={source.date} placeholder="jj/mm/aaaa" className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground" />
+            <input defaultValue={source.date} placeholder="jj/mm/aaaa" className="flex-1 min-w-0 bg-transparent outline-none text-body text-foreground" />
           </div>
         </Input>
       </div>
@@ -621,41 +965,6 @@ export default function PreviewPanel({
     </div>
   );
 
-  const docSidePanel = () => (
-    <div className="w-[320px] border-l border-border bg-white flex flex-col flex-shrink-0 overflow-y-auto">
-      <div className="p-5 flex flex-col gap-4">
-        <FieldLabel>Informations du document</FieldLabel>
-        <Field label={<>Nom du document<AiMark /></>} value={source.name} />
-        {source.split && <SplitCallout split={source.split} />}
-        {source.provenance && <ProvenanceCallout prov={source.provenance} onOpen={openSource} />}
-        {source.summary && <p className="px-0.5 text-[12px] leading-5 text-foreground-secondary">{source.summary}</p>}
-        {kind === 'piece' ? (
-          <>
-            <Field label="Type" value={source.type} />
-            <Field label={<>Date du document<AiMark /></>} value={source.date} icon={<Calendar className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />} />
-          </>
-        ) : (
-          <>
-            {source.category && <Field label="Catégorie" value={source.category} />}
-            <Field label="Mise à jour" value={source.date} icon={<Calendar className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />} />
-          </>
-        )}
-      </div>
-      {kind === 'piece' && (
-        <>
-          <div className="h-px bg-border mx-5" />
-          <div className="p-5 flex flex-col gap-4">
-            <FieldLabel>Numérotation de la pièce</FieldLabel>
-            <div className="flex gap-4">
-              <div className="flex-1"><Field label="Section" value={source.section} /></div>
-              <div className="flex-1"><Field label="Numéro" value={source.numero} /></div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-
   // ── Métadonnées non-doc (jp / email / loi / ligne) : chips par type ──
   const otherMeta = () => {
     if (kind === 'jp') {
@@ -663,9 +972,9 @@ export default function PreviewPanel({
       return (
         <div className="flex items-center gap-2 flex-wrap">
           <MetaChip label="Juridiction" value={s.juridiction} />
-          <MetaChip icon={<Calendar className="w-3.5 h-3.5" strokeWidth={1.75} />} label="Date" value={s.date} />
-          <MetaChip icon={<Hash className="w-3.5 h-3.5" strokeWidth={1.75} />} value={`n° ${s.numero}`} />
-          {s.quantum && <span className="inline-flex items-center h-7 px-2.5 rounded-md text-[13px] font-medium" style={{ background: '#eff6ff', color: '#1e3a8a' }}>{s.quantum}</span>}
+          <MetaChip icon={Calendar} label="Date" value={s.date} />
+          <MetaChip icon={Hash} value={`n° ${s.numero}`} />
+          {s.quantum && <Badge variant="info" size="md" label={s.quantum} />}
         </div>
       );
     }
@@ -676,7 +985,7 @@ export default function PreviewPanel({
         <div className="flex items-center gap-2 flex-wrap">
           <MetaChip label="Objet" value={e.subject} />
           <MetaChip label="Messages" value={e.messages?.length} />
-          {attCount > 0 && <MetaChip icon={<Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />} label="Pièces jointes" value={attCount} />}
+          {attCount > 0 && <MetaChip icon={Paperclip} label="Pièces jointes" value={attCount} />}
         </div>
       );
     }
@@ -685,7 +994,7 @@ export default function PreviewPanel({
       return (
         <div className="flex items-center gap-2 flex-wrap">
           <MetaChip label="Code" value={l.code} />
-          <MetaChip icon={<Calendar className="w-3.5 h-3.5" strokeWidth={1.75} />} label="En vigueur au" value={l.enVigueur} />
+          <MetaChip icon={Calendar} label="En vigueur au" value={l.enVigueur} />
         </div>
       );
     }
@@ -702,14 +1011,7 @@ export default function PreviewPanel({
   };
 
   const renderBody = () => {
-    if (cfg.body === 'doc') {
-      return (
-        <>
-          <DocBody source={source} pageWidth={pageWidth} scrollRef={scrollRef} onScroll={onScroll} />
-          {showSide && docSidePanel()}
-        </>
-      );
-    }
+    if (cfg.body === 'doc') return <DocBody source={source} pageWidth={pageWidth} scrollRef={scrollRef} onScroll={onScroll} />;
     if (cfg.body === 'jp') return <JpBody source={source} scrollRef={scrollRef} />;
     if (cfg.body === 'email') return <EmailBody source={source} scrollRef={scrollRef} onOpen={openSource} />;
     if (cfg.body === 'loi') return <LoiBody source={source} scrollRef={scrollRef} />;
@@ -720,117 +1022,159 @@ export default function PreviewPanel({
   return (
     <div
       className={`bg-background-canvas flex flex-col overflow-hidden ${
-        fullscreen ? 'fixed inset-0 z-50' : embedded ? 'relative rounded-xl border border-border shadow-sm h-[720px]' : 'relative h-full w-full'
+        fullscreen ? 'fixed inset-0 z-50' : embedded ? 'relative rounded-xl border border-border shadow-sm h-[520px] sm:h-[640px] lg:h-[720px]' : 'relative h-full w-full'
       }`}
       style={{ animation: fullscreen ? 'fadeIn 0.15s ease-out' : undefined }}
     >
       {/* ── Barre de titre ── */}
-      <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0 bg-white">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0" style={{ background: cfg.accent.bg, color: cfg.accent.fg }}>
             <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
           </span>
-          <span className="text-[11px] font-medium uppercase tracking-wide flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", color: cfg.accent.fg }}>{cfg.label}</span>
-          <span className="text-body-medium text-foreground-strong truncate">{source.name}</span>
+          {/* Label du kind : masqué sur mobile - l'icône teintée le porte déjà */}
+          <span className="hidden sm:inline text-[11px] font-medium uppercase tracking-wide flex-shrink-0" style={{ fontFamily: MONO, color: cfg.accent.fg }}>{cfg.label}</span>
+          <span className="text-body-medium text-foreground-strong truncate min-w-0">{source.name}</span>
         </div>
         <div className="flex items-center flex-shrink-0">
           {navTotal > 1 && (
             <>
               <div className="flex items-center gap-1 pr-2">
-                <button onClick={onPrev} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors" aria-label="Précédent">
+                <button type="button" onClick={onPrev} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Pièce précédente">
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-caption text-foreground-muted min-w-[38px] text-center tabular-nums">{navIndex} / {navTotal}</span>
-                <button onClick={onNext} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors" aria-label="Suivant">
+                <span className="text-caption text-foreground-muted min-w-[38px] text-center tabular-nums" aria-label={`Pièce ${navIndex} sur ${navTotal}`}>{navIndex} / {navTotal}</span>
+                <button type="button" onClick={onNext} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Pièce suivante">
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
               <span className="w-px h-5 bg-border" />
             </>
           )}
-          <div className="flex items-center gap-1.5 px-2">
+          {/* Actions - une seule pastille par famille :
+                · lien externe (jp/loi/ligne) → icône seule, tooltip = nom
+                · overflow ⋯ (docs)          → Télécharger + Supprimer
+              Le bouton Fermer ferme la ligne. */}
+          <div className="flex items-center gap-0.5 px-1.5">
             {cfg.link && (
-              <button type="button" className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors">
-                <ExternalLink className="w-3.5 h-3.5" strokeWidth={1.75} /> {cfg.link}
-              </button>
-            )}
-            {isDoc && showHeader && (
               <button
-                onClick={() => setEditing((v) => !v)}
-                className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[13px] font-medium transition-colors ${editing ? 'bg-cream text-foreground' : 'text-foreground-secondary hover:text-foreground hover:bg-cream'}`}
+                type="button"
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`}
+                aria-label={`Ouvrir dans ${cfg.link}`}
+                title={`Ouvrir dans ${cfg.link}`}
               >
-                {editing ? <><Check className="w-3.5 h-3.5" strokeWidth={2} /> Terminé</> : <><Pencil className="w-3.5 h-3.5" strokeWidth={1.75} /> Modifier</>}
+                <ExternalLink className="w-4 h-4" strokeWidth={1.75} />
               </button>
             )}
             {isDoc && (
               <>
+                {/* Télécharger : action primaire, VISIBLE.
+                    Sur mobile / tablette étroite le libellé est coupé pour économiser
+                    de la place ; l'icône + le tooltip suffisent. */}
+                <button
+                  type="button"
+                  title="Télécharger"
+                  aria-label="Télécharger"
+                  className={`inline-flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-md bg-foreground text-white hover:bg-foreground-tertiary transition-colors text-[13px] font-medium ${FOCUS_RING}`}
+                >
+                  <Download className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  <span className="hidden sm:inline">Télécharger</span>
+                </button>
+                {/* ⋯ : Supprimer et autres actions secondaires (moins prioritaires) */}
                 <div className="relative">
-                  <button onClick={() => setDownloadOpen((o) => !o)} className="h-8 px-3 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors flex items-center gap-1.5 text-[13px] font-medium">
-                    <Download className="w-3.5 h-3.5" strokeWidth={1.75} /> Télécharger
-                    <ChevronDown className={`w-3 h-3 opacity-70 transition-transform ${downloadOpen ? 'rotate-180' : ''}`} />
+                  <button
+                    type="button"
+                    onClick={() => setDownloadOpen((o) => !o)}
+                    aria-haspopup="menu"
+                    aria-expanded={downloadOpen}
+                    aria-label="Plus d'actions"
+                    className={`inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors ${FOCUS_RING} ${downloadOpen ? 'bg-cream text-foreground' : 'text-foreground-secondary hover:text-foreground hover:bg-cream'}`}
+                  >
+                    <MoreHorizontal className="w-4 h-4" strokeWidth={1.75} />
                   </button>
                   {downloadOpen && (
-                    <div className="absolute right-0 top-full mt-1.5 min-w-[210px] bg-white border border-border rounded-lg shadow-lg py-1 z-20">
-                      <button onClick={() => setDownloadOpen(false)} className="w-full text-left px-3 py-1.5 text-body text-foreground-tertiary hover:bg-background transition-colors flex items-center gap-2">
-                        <FileText className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} /> Document original
-                      </button>
-                    </div>
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setDownloadOpen(false)} />
+                      <div role="menu" className="absolute right-0 top-full mt-1.5 min-w-[200px] bg-white border border-border rounded-lg shadow-lg py-1 z-20" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => setDownloadOpen(false)}
+                          className="w-full text-left px-3 py-1.5 text-body text-danger hover:bg-danger-subtle transition-colors flex items-center gap-2.5"
+                        >
+                          <Trash2 className="w-4 h-4" strokeWidth={1.75} />
+                          Supprimer
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
-                <button className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-foreground-muted hover:text-[#7f1d1d] hover:bg-[#fee2e2] transition-colors" aria-label="Supprimer" title="Supprimer">
-                  <Trash2 className="w-4 h-4" strokeWidth={1.75} />
-                </button>
               </>
             )}
           </div>
           <span className="w-px h-5 bg-border" />
-          <button onClick={onClose} className="ml-2 p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors" aria-label="Fermer">
+          <button type="button" onClick={onClose} className={`ml-1 p-1.5 text-foreground-secondary hover:text-foreground hover:bg-cream rounded-md transition-colors ${FOCUS_RING}`} aria-label="Fermer">
             <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* ── Header métadonnées (docs: header layout ; autres types: toujours) ── */}
-      {showHeader && (
-        <div className="px-4 py-3 border-b border-border bg-white flex-shrink-0">
+      {/* ── Barre de métadonnées : chips (docs en lecture, autres kinds
+           toujours) ou Inputs (docs en édition). Le bouton « Modifier » vit
+           en top-right du bloc, aligné aux chips qu'il pilote. ── */}
+      <div className="px-4 py-3 border-b border-border bg-white flex-shrink-0 flex items-start gap-3">
+        <div className="flex-1 min-w-0">
           {isDoc ? (editing ? docEditInputs() : docReadChips()) : otherMeta()}
         </div>
-      )}
+        {isDoc && (
+          <button
+            type="button"
+            onClick={() => setEditing((v) => !v)}
+            aria-pressed={editing}
+            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[13px] font-medium transition-colors flex-shrink-0 ${FOCUS_RING} ${editing ? 'bg-cream text-foreground' : 'text-foreground-secondary hover:text-foreground hover:bg-cream'}`}
+          >
+            {editing ? <><Check className="w-3.5 h-3.5" strokeWidth={2} /> Terminé</> : <><Pencil className="w-3.5 h-3.5" strokeWidth={1.75} /> Modifier</>}
+          </button>
+        )}
+      </div>
 
-      {/* ── Corps (+ side panel métadonnées pour la variante side des docs) ── */}
-      <div className="flex flex-1 min-h-0">{renderBody()}</div>
+      {/* ── Corps + rail droit des citations quand la source en porte ── */}
+      <div className="flex flex-1 min-h-0">
+        {renderBody()}
+        <CitesPanel items={citeItems} active={activeCite} onGo={goToCite} />
+      </div>
 
       {/* ── Pied ── */}
       {cfg.footer === 'doc' && (
-        <div className="px-3 py-2 border-t border-border bg-white flex-shrink-0 flex items-center justify-between gap-3">
+        <div className="px-3 py-2 border-t border-border bg-white flex-shrink-0 flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-1">
-            <button onClick={() => stepZoom(-1)} className="p-1.5 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors" aria-label="Dézoomer">
+            <button type="button" onClick={() => stepZoom(-1)} className={`p-1.5 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Dézoomer">
               <ZoomOut className="w-4 h-4" strokeWidth={1.75} />
             </button>
-            <button onClick={() => setFitWidth((f) => !f)} className="px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors min-w-[62px] text-center tabular-nums">
+            <button type="button" onClick={() => setFitWidth((f) => !f)} aria-pressed={fitWidth} className={`px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors min-w-[62px] text-center tabular-nums ${FOCUS_RING}`}>
               {fitWidth ? 'Ajusté' : `${zoom}%`}
             </button>
-            <button onClick={() => stepZoom(1)} className="p-1.5 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors" aria-label="Zoomer">
+            <button type="button" onClick={() => stepZoom(1)} className={`p-1.5 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Zoomer">
               <ZoomIn className="w-4 h-4" strokeWidth={1.75} />
             </button>
             <span className="w-px h-4 bg-border mx-1" />
-            <button onClick={() => setFullscreen((f) => !f)} className="inline-flex items-center gap-1.5 px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors">
+            <button type="button" onClick={() => setFullscreen((f) => !f)} aria-pressed={fullscreen} className={`inline-flex items-center gap-1.5 px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`}>
               {fullscreen ? <Minimize2 className="w-3.5 h-3.5" strokeWidth={1.75} /> : <Maximize2 className="w-3.5 h-3.5" strokeWidth={1.75} />}
               {fullscreen ? 'Réduire' : 'Plein écran'}
             </button>
             {citeCount > 0 && (
               <>
                 <span className="w-px h-4 bg-border mx-1" />
-                <CiteNav count={citeCount} active={activeCite} onGo={goToCite} onStep={(d) => goToCite(activeCite + d)} />
+                <CiteNav count={citeCount} active={activeCite} items={citeItems} onGo={goToCite} onStep={(d) => goToCite(activeCite + d)} />
               </>
             )}
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={() => goToPage(Math.max(1, currentPage - 1))} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors" aria-label="Page précédente">
+            <button type="button" onClick={() => goToPage(Math.max(1, currentPage - 1))} disabled={currentPage <= 1} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none ${FOCUS_RING}`} aria-label="Page précédente">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="text-caption text-foreground-muted tabular-nums min-w-[54px] text-center">page {currentPage} / {source.pages}</span>
-            <button onClick={() => goToPage(Math.min(source.pages, currentPage + 1))} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors" aria-label="Page suivante">
+            <button type="button" onClick={() => goToPage(Math.min(source.pages, currentPage + 1))} disabled={currentPage >= source.pages} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none ${FOCUS_RING}`} aria-label="Page suivante">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -838,13 +1182,13 @@ export default function PreviewPanel({
       )}
 
       {cfg.footer === 'passage' && (
-        <div className="px-3 py-2 border-t border-border bg-white flex-shrink-0 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 flex-1 min-w-0 max-w-[320px] h-8 px-2.5 rounded-lg border border-border bg-background-canvas text-foreground-muted">
+        <div className="px-3 py-2 border-t border-border bg-white flex-shrink-0 flex items-center justify-between gap-2 flex-wrap">
+          <button type="button" className="flex items-center gap-2 flex-1 min-w-0 max-w-[320px] h-8 px-2.5 rounded-lg border border-border bg-background-canvas text-foreground-muted text-left transition-colors hover:border-border-strong hover:text-foreground-secondary">
             <Search className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} />
             <span className="text-[13px] truncate">Rechercher dans le texte</span>
-          </div>
+          </button>
           {citeCount > 0 && (
-            <CiteNav count={citeCount} active={activeCite} onGo={goToCite} onStep={(d) => goToCite(activeCite + d)} />
+            <CiteNav count={citeCount} active={activeCite} items={citeItems} onGo={goToCite} onStep={(d) => goToCite(activeCite + d)} />
           )}
         </div>
       )}
