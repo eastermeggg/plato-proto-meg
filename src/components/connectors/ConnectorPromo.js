@@ -10,8 +10,9 @@
 // (connectorData), déclinée par surface.
 
 import React from 'react';
-import { Lock, Plug2, RotateCcw, ShieldCheck, X } from 'lucide-react';
-import { ConnectorMiniLink } from './ConnectorArt';
+import { ArrowRight, ChevronRight, Lock, Mail, Plug2, RotateCcw, ShieldCheck, X } from 'lucide-react';
+import { ConnectorMiniLink, ProviderMark } from './ConnectorArt';
+import { CONNECTOR_PROVIDERS } from './connectorData';
 
 const MONO = "'IBM Plex Mono', monospace";
 
@@ -74,6 +75,145 @@ export function ConnectorPromoBanner({ onConnect, onDismiss }) {
           <X className="w-3.5 h-3.5" strokeWidth={2} />
         </button>
       )}
+    </div>
+  );
+}
+
+// ── Carte nav « Nouveau » - l'annonce du connecteur là où l'avocat passe
+//    chaque jour (sidebar). Même grammaire que la carte Parrainage (eyebrow
+//    mono + hairline, titre sans, CTA fléché, rail accent), déclinée dans le
+//    vert « lecture seule » des garanties. Congédiable d'une croix. ──────────
+export function MailNavPromoCard({ onOpen, onDismiss }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen?.(); } }}
+      className="group relative block w-full text-left cursor-pointer"
+      style={{
+        borderTop: '1px solid #e7e5e3',
+        padding: '12px 16px',
+        background: 'linear-gradient(90deg, #cce6d9 0%, rgba(204,230,217,0) 59.5%)',
+        boxShadow: 'inset 2px 0 0 0 #064e3b',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      {/* Eyebrow - Mail + « Nouveau » + hairline fondu */}
+      <div className="flex items-center" style={{ gap: 6 }}>
+        <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#78716c' }} />
+        <span
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 11, fontWeight: 500,
+            color: '#78716c',
+            textTransform: 'uppercase',
+            lineHeight: 1,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Nouveau
+        </span>
+        <span
+          aria-hidden
+          className="flex-1"
+          style={{ height: 1, background: 'linear-gradient(90deg, #e7e5e3 0%, rgba(231,229,227,0) 100%)' }}
+        />
+      </div>
+
+      <div className="flex flex-col mt-2" style={{ gap: 4 }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: '#18181b', lineHeight: '20px' }}>
+          Vos emails deviennent des pièces
+        </div>
+        <div className="inline-flex items-center" style={{ gap: 8, fontSize: 14, fontWeight: 500, color: '#064e3b', lineHeight: '20px' }}>
+          Connecter ma boîte
+          <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
+        </div>
+      </div>
+
+      {onDismiss && (
+        <button
+          type="button"
+          aria-label="Masquer"
+          onClick={(e) => { e.stopPropagation(); onDismiss(); }}
+          className="absolute flex items-center justify-center w-6 h-6 rounded-md text-foreground-muted hover:text-foreground hover:bg-white/70 opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ top: 8, right: 8 }}
+        >
+          <X className="w-3.5 h-3.5" strokeWidth={2} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ── Interstitiel de connexion - quand une entrée « importer des emails » est
+//    actionnée sans aucune boîte connectée, on remplace le picker par la
+//    promesse + le choix du fournisseur. Un seul écran, un seul geste. ───────
+export function MailConnectDialog({ open, onClose, providers, onPick }) {
+  if (!open) return null;
+  const list = providers && providers.length ? providers : Object.values(CONNECTOR_PROVIDERS);
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative bg-white rounded-xl border border-border flex flex-col overflow-hidden"
+        style={{ width: 460, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}
+      >
+        <button
+          type="button"
+          aria-label="Fermer"
+          onClick={onClose}
+          className="absolute flex items-center justify-center w-7 h-7 rounded-md text-foreground-muted hover:text-foreground hover:bg-cream transition-colors"
+          style={{ top: 12, right: 12 }}
+        >
+          <X className="w-4 h-4" strokeWidth={2} />
+        </button>
+
+        {/* La promesse - même vocabulaire que la modale et les réglages */}
+        <div className="flex flex-col items-center text-center px-8 pt-8 pb-5 gap-4">
+          <ConnectorMiniLink both tileSize={44} />
+          <div className="flex flex-col gap-1.5" style={{ maxWidth: 340 }}>
+            <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 21, fontWeight: 500, color: '#292524', letterSpacing: '-0.2px', lineHeight: '27px' }}>
+              Versez vos emails dans vos dossiers
+            </h2>
+            <p className="text-[13px] text-foreground-secondary leading-5">
+              Connectez votre boîte : Norma vous propose vos échanges dossier par dossier,
+              avec leurs pièces jointes - sans export manuel. Rien n'est versé sans votre geste.
+            </p>
+          </div>
+          <GuaranteeChips compact />
+        </div>
+
+        {/* Le geste - un fournisseur, un clic */}
+        <div className="px-5 pb-3 flex flex-col gap-1.5">
+          {list.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => onPick?.(p.id)}
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 bg-white border border-border rounded-lg hover:bg-background transition-colors text-left group"
+            >
+              <ProviderMark provider={p.id} size={20} />
+              <span className="flex-1 min-w-0 flex flex-col">
+                <span className="text-[13.5px] font-medium text-foreground leading-5">{p.name}</span>
+                <span className="text-[12px] text-foreground-muted leading-4 truncate">{p.desc}</span>
+              </span>
+              <ChevronRight className="w-4 h-4 text-foreground-muted group-hover:text-foreground-secondary transition-colors flex-shrink-0" strokeWidth={1.75} />
+            </button>
+          ))}
+        </div>
+
+        <p
+          className="text-center pb-5 pt-1"
+          style={{ fontFamily: MONO, fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#78716c' }}
+        >
+          2 minutes, réversible
+        </p>
+      </div>
     </div>
   );
 }

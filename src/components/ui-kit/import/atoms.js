@@ -270,7 +270,7 @@ export function Droppable({ onFiles, className, style, children, ...rest }) {
       onDragEnter={(e) => { if (e.dataTransfer?.types?.includes('Files')) { e.preventDefault(); setDrag(true); } }}
       onDragOver={(e) => { if (drag) e.preventDefault(); }}
       onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDrag(false); }}
-      onDrop={(e) => { e.preventDefault(); setDrag(false); onFiles?.(); }}
+      onDrop={(e) => { e.preventDefault(); setDrag(false); onFiles?.(e.dataTransfer.files); }}
     >
       {children}
       {drag && <DropOverlay />}

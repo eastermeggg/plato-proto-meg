@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Globe, ExternalLink, Check, Minus, Calendar, Hash, Scissors, Mail, Paperclip, FileText, FileType2, Image as ImageIcon, Search as SearchIcon } from 'lucide-react';
-import PreviewPanel, { PREVIEW_KINDS, MetaChip } from '../preview/PreviewPanel';
+import PreviewPanel, { PREVIEW_KINDS, MetaChip, META_CHIP_TYPES } from '../preview/PreviewPanel';
 import { colors } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,21 +53,53 @@ const SAMPLES = {
     email: {
       subject: 'Indemnisation dossier Martin',
       messages: [
-        { from: 'M. Martin', to: 'Cabinet', date: '03/02/2024', body: "Bonjour Maître,\nJe vous transmets le rapport d'expertise reçu ce matin." },
-        { from: 'Cabinet', to: 'M. Martin', date: '04/02/2024', body: "Bien reçu, je regarde cela et reviens vers vous rapidement." },
-        { from: 'M. Martin', to: 'Cabinet', date: '06/02/2024', cite: true,
-          body: "Pour information, l'assureur propose une offre de 28 000 € au titre du DFP, ce qui me semble insuffisant au regard du taux de 12 % retenu par l'expert.",
-          // PJ prévisualisable : un clic ouvre la pièce dans le même panneau.
+        { from: 'M. Martin', to: 'Cabinet', date: '03/02/2024',
+          body: "Bonjour Maître,\nJe vous transmets le rapport d'expertise reçu ce matin, ainsi que la photo de mon arrêt de travail.",
+          // PJ image (photo / scan) : prévisualisée en corps « image ».
           attachments: [{
-            name: 'Offre transactionnelle assureur',
+            name: 'arret_travail.jpg',
             source: {
-              name: 'Offre transactionnelle assureur', type: 'Correspondance', date: '06/02/2024',
-              pages: 2, section: 'II - CORRESPONDANCE', numero: '7',
-              summary: "Offre d'indemnisation amiable de l'assureur au titre du déficit fonctionnel permanent.",
-              provenance: { subject: 'Indemnisation dossier Martin', from: 'M. Martin', date: '06/02/2024', open: { kind: 'email' } },
-              passages: [{ page: 1, quote: "Offre au titre du déficit fonctionnel permanent : 28 000 €." }],
+              name: 'Arrêt de travail (photo)', docType: 'image', type: 'Certificat médical', date: '02/02/2024',
+              section: 'I - MEDICAL', numero: '3',
+              summary: "Photographie de l'avis d'arrêt de travail transmis par le client. Durée prescrite lisible sur le cliché.",
+              provenance: { subject: 'Indemnisation dossier Martin', from: 'M. Martin', date: '03/02/2024', open: { kind: 'email' } },
+              passages: [{ page: 1, quote: "Arrêt de travail prescrit pour une durée de 30 jours.", rect: { x: 16, y: 30, w: 62, h: 9 } }],
             },
           }] },
+        { from: 'Cabinet', to: 'M. Martin', date: '04/02/2024', body: "Bien reçu, je regarde cela et reviens vers vous rapidement." },
+        { from: 'M. Martin', to: 'Cabinet', date: '06/02/2024', cite: true,
+          body: "Pour information, l'assureur propose une offre de 28 000 € au titre du DFP, ce qui me semble insuffisant au regard du taux de 12 % retenu par l'expert. Je vous joins mon projet de courrier de contestation.",
+          // Deux PJ : un PDF (offre) et un Word (projet de courrier).
+          attachments: [
+            {
+              name: 'Offre transactionnelle assureur',
+              source: {
+                name: 'Offre transactionnelle assureur', docType: 'pdf', type: 'Correspondance', date: '06/02/2024',
+                pages: 2, section: 'II - CORRESPONDANCE', numero: '7',
+                summary: "Offre d'indemnisation amiable de l'assureur au titre du déficit fonctionnel permanent.",
+                provenance: { subject: 'Indemnisation dossier Martin', from: 'M. Martin', date: '06/02/2024', open: { kind: 'email' } },
+                passages: [{ page: 1, quote: "Offre au titre du déficit fonctionnel permanent : 28 000 €." }],
+              },
+            },
+            {
+              name: 'contestation_offre.docx',
+              source: {
+                name: 'Projet de courrier de contestation', docType: 'word', type: 'Correspondance', date: '06/02/2024',
+                pages: 1, section: 'II - CORRESPONDANCE', numero: '8',
+                summary: "Projet de courrier contestant l'offre de l'assureur au regard du taux de DFP retenu par l'expert.",
+                provenance: { subject: 'Indemnisation dossier Martin', from: 'M. Martin', date: '06/02/2024', open: { kind: 'email' } },
+                wordBody: [
+                  { heading: true, text: "Objet : Contestation de l'offre d'indemnisation" },
+                  { text: "Maître,\n\nJe fais suite au courrier du 6 février 2024 par lequel la compagnie propose une indemnisation de 28 000 € au titre du déficit fonctionnel permanent." },
+                  { text: "Cette proposition ne saurait être acceptée en l'état." },
+                  { text: "L'expert judiciaire a retenu un taux de déficit fonctionnel permanent de 12 %, sensiblement supérieur à celui sur lequel repose l'offre. Le principe de la réparation intégrale impose une réévaluation du montant proposé.", cite: true, page: 1 },
+                  { text: "Je vous saurais gré de bien vouloir me faire parvenir une offre révisée dans un délai de quinze jours." },
+                  { text: "Je vous prie d'agréer, Maître, l'expression de mes salutations distinguées." },
+                ],
+                passages: [{ page: 1, quote: "L'expert judiciaire a retenu un taux de déficit fonctionnel permanent de 12 %." }],
+              },
+            },
+          ] },
       ],
     },
     passage: { anchor: true },
@@ -273,6 +305,9 @@ export default function PreviewPanelLab() {
         {/* MetaChip - variants matrix ─────────────────────────────────────── */}
         <MetaChipCatalog />
 
+        {/* MetaChip - un chip par type (date, pièce, découpage, source…) ────── */}
+        <MetaChipTypes />
+
         {/* Librairies de rendu recommandées ──────────────────────────────── */}
         <RendererStack />
       </div>
@@ -383,6 +418,75 @@ function MetaChipCatalog() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── MetaChip : un chip canonique par TYPE ──────────────────────────────────
+//
+// La matrice ci-dessus montre les AXES de variation (composition / variant /
+// interaction). Ici on montre l'autre lecture : un chip prêt à l'emploi par
+// TYPE de métadonnée. Chaque type porte son icône + label depuis
+// META_CHIP_TYPES ; on ne passe que la value (ou l'aside). Les deux colonnes
+// Default / Strong reprennent les deux `Style` de l'atome Figma.
+function MetaChipTypes() {
+  const sep = <span className="text-foreground-muted mx-1" aria-hidden>·</span>;
+  const rows = [
+    { type: 'piece', hint: 'identité de la pièce', value: <>I - MEDICAL {sep}<span className="tabular-nums">n° 2</span></> },
+    { type: 'date', hint: 'date du document', value: '15/03/2023' },
+    { type: 'type', hint: 'nature du document', value: "Rapport d'expertise" },
+    { type: 'decoupage', hint: 'issu d\'un découpage', aside: 'rapport_expertise.pdf' },
+    { type: 'source', hint: 'provenance (email, dépôt…)', aside: 'Indemnisation dossier Martin' },
+    { type: 'juridiction', hint: 'jurisprudence', value: 'Cour de cassation, 2e civ.' },
+    { type: 'numero', hint: 'n° de dossier / pourvoi', value: '18-21.234' },
+    { type: 'objet', hint: 'email', value: 'Notification expertise' },
+    { type: 'messages', hint: 'fil de discussion', value: 4 },
+    { type: 'piecesJointes', hint: 'pièces jointes email', value: 3 },
+    { type: 'code', hint: 'texte de loi', value: 'Code civil' },
+    { type: 'enVigueur', hint: 'version en vigueur', value: '29/07/2026' },
+    { type: 'periode', hint: 'ligne structurée (cotisations…)', value: 'Janv. - Mars 2024' },
+    { type: 'web', hint: 'source web', aside: 'legifrance.gouv.fr' },
+  ];
+
+  return (
+    <div className="mt-10">
+      <div className="flex items-baseline justify-between gap-3 mb-3">
+        <div>
+          <h2 className="text-[15px] font-semibold text-foreground">MetaChip - un chip par type</h2>
+          <p className="text-caption text-foreground-muted mt-1 max-w-[720px] leading-relaxed">
+            Chaque type de métadonnée (Date, Pièce, Découpage, Source, Juridiction, Objet, Code…) a son
+            icône et son label canoniques dans <code className="text-foreground-secondary">META_CHIP_TYPES</code> :
+            au point d'appel on ne passe que la valeur. Les deux colonnes reprennent les deux <em>Style</em> de
+            l'atome Figma - Default (fond canvas) et Strong (fond cream, valeur medium).
+          </p>
+        </div>
+      </div>
+      <div className="rounded-xl border border-border bg-white overflow-hidden">
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] border-b border-border bg-background-canvas">
+          <div className="p-3 sm:px-5 text-caption font-semibold text-foreground-secondary border-r border-border">Default</div>
+          <div className="p-3 sm:px-5 text-caption font-semibold text-foreground-secondary">Strong</div>
+        </div>
+        {rows.map((r, i) => (
+          <div key={r.type} className={`grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] ${i > 0 ? 'border-t border-border' : ''}`}>
+            <div className="p-4 sm:px-5 flex flex-col gap-2 border-r border-border min-w-0">
+              <div className="flex items-baseline gap-2">
+                <span className="text-caption text-foreground-muted" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{r.type}</span>
+                <span className="text-caption text-foreground-muted">· {r.hint}</span>
+              </div>
+              <MetaChip type={r.type} variant="default" value={r.value} aside={r.aside} />
+            </div>
+            <div className="p-4 sm:px-5 flex items-center min-w-0">
+              <MetaChip type={r.type} variant="strong" value={r.value} aside={r.aside} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-caption text-foreground-muted mt-3 leading-relaxed max-w-[720px]">
+        Ces presets restent surchargeables : <code className="text-foreground-secondary">icon</code>,{' '}
+        <code className="text-foreground-secondary">label</code> et <code className="text-foreground-secondary">variant</code>{' '}
+        passés explicitement priment sur le type. On peut aussi ajouter <code className="text-foreground-secondary">ai</code>,{' '}
+        <code className="text-foreground-secondary">action</code> ou <code className="text-foreground-secondary">onClick</code> sur n'importe quel type.
+      </p>
     </div>
   );
 }

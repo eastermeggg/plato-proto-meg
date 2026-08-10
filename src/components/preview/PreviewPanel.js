@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  FileText, LayoutTemplate, Gavel, Mail, Stamp, Globe,
+  FileText, FileType2, Image as ImageIcon, LayoutTemplate, Gavel, Mail, Stamp, Globe,
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X, Calendar, Hash,
   Sparkles, Scissors, Download, Trash2, ZoomIn, ZoomOut, Maximize2, Minimize2,
   ExternalLink, Search, ArrowDownToLine, Paperclip, Pencil, Check, MoreHorizontal,
@@ -139,21 +139,54 @@ function TexteGlyph({ className, style, strokeWidth: _sw, ...rest }) {
 //
 // `value` accepte un ReactNode : on compose librement une valeur multi-parties
 // (« I - MEDICAL · n° 2 ») sans multiplier les variants.
+//
+// TYPES — chaque « type » de métadonnée (date, pièce, découpage, source…) a son
+// icône + label + variant canoniques, définis UNE seule fois dans META_CHIP_TYPES.
+// Passer `type="date"` suffit ; icon / label / variant restent surchargeables au
+// cas par cas. C'est le même langage partout : un type = une forme.
+export const META_CHIP_TYPES = {
+  // — métadonnées d'un document (pièce / modèle) —
+  piece:         { icon: Hash,      label: 'Pièce', variant: 'strong' }, // chip d'identité
+  date:          { icon: Calendar,  label: 'Date' },
+  type:          { icon: null,      label: 'Type' },
+  decoupage:     { icon: Scissors,  label: 'Document découpé' },
+  source:        { icon: Mail,      label: 'Source' },        // provenance (email, dépôt…)
+  // — jurisprudence —
+  juridiction:   { icon: Gavel,     label: 'Juridiction' },
+  numero:        { icon: Hash,      label: 'n°' },
+  // — email —
+  objet:         { icon: Mail,      label: 'Objet' },
+  messages:      { icon: null,      label: 'Messages' },
+  piecesJointes: { icon: Paperclip, label: 'Pièces jointes' },
+  // — loi / texte —
+  code:          { icon: Stamp,     label: 'Code' },
+  enVigueur:     { icon: Calendar,  label: 'En vigueur au' },
+  // — ligne structurée (cotisations…) —
+  periode:       { icon: Calendar,  label: 'Période' },
+  // — web —
+  web:           { icon: Globe,     label: 'Source web' },
+};
+
 export function MetaChip({
-  icon: Icon,
+  type,                // clé de META_CHIP_TYPES - fournit icon/label/variant par défaut
+  icon,
   label,
   value,
   aside,
   ai,
-  variant = 'default', // 'default' | 'strong'
+  variant,             // 'default' | 'strong' - surcharge le variant du type
   action,              // { label, onClick } - lien texte à droite (span uniquement)
   onClick,             // rend le chip entier cliquable (button)
   disabled,
   title,
   className,
 }) {
+  const preset = (type && META_CHIP_TYPES[type]) || null;
+  const Icon = icon !== undefined ? icon : preset?.icon;
+  const resolvedLabel = label !== undefined ? label : preset?.label;
+  const resolvedVariant = variant || preset?.variant || 'default';
   const clickable = !!onClick;
-  const strong = variant === 'strong';
+  const strong = resolvedVariant === 'strong';
 
   const chrome = [
     'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border text-[13px] text-foreground-secondary min-w-0 max-w-full',
@@ -172,7 +205,7 @@ export function MetaChip({
   const inner = (
     <>
       {Icon && <Icon className="w-3.5 h-3.5 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />}
-      {label && <span className="text-foreground-secondary flex-shrink-0 whitespace-nowrap">{label}</span>}
+      {resolvedLabel && <span className="text-foreground-secondary flex-shrink-0 whitespace-nowrap">{resolvedLabel}</span>}
       {value != null && (
         <span className={`text-foreground flex-shrink-0 whitespace-nowrap ${strong ? 'font-medium' : ''}`}>{value}</span>
       )}
@@ -336,7 +369,23 @@ function DocPage({ title, date, pageNo, totalPages, width, quotes = [] }) {
   );
 }
 
-function DocBody({ source, pageWidth, scrollRef, onScroll }) {
+// Type de rendu d'une pièce. Explicite via `source.docType`, sinon déduit de
+// l'extension du nom de fichier. Défaut = « pdf » (le rendu paginé historique).
+// Les trois familles partagent le même châssis (titre bleu PIECE, zoom, nav
+// pages, contrat « aller à la citation ») - seul le CORPS change.
+const DOC_ICON = { pdf: FileText, image: ImageIcon, word: FileType2 };
+
+function docTypeOf(src) {
+  if (!src) return 'pdf';
+  if (src.docType) return src.docType;
+  const n = (src.name || src.split?.source || '').toLowerCase();
+  if (/\.(png|jpe?g|gif|webp|tiff?|heic|bmp|svg)$/.test(n)) return 'image';
+  if (/\.(docx?|odt|rtf|pages)$/.test(n)) return 'word';
+  return 'pdf';
+}
+
+// ── Corps « PDF » : pages skeleton paginées ─────────────────────────────────
+function PdfDoc({ source, pageWidth, scrollRef, onScroll }) {
   const passages = source.passages || (source.passage ? [source.passage] : []);
   const byPage = {};
   passages.forEach((p) => { (byPage[p.page] || (byPage[p.page] = [])).push(p.quote); });
@@ -357,6 +406,154 @@ function DocBody({ source, pageWidth, scrollRef, onScroll }) {
       </div>
     </div>
   );
+}
+
+// ── Corps « image » : la pièce est une photo / un scan ───────────────────────
+// Placeholder honnête (pas d'asset) : une feuille photographiée, légèrement
+// inclinée, sur un fond « bureau ». Les extraits cités (issus de l'OCR) sont des
+// zones surlignées sur l'image, ancrées data-cite + reprises en légende.
+function ImagePage({ source, pageNo, totalPages, width, quotes }) {
+  const seed = (source.name || '').length + pageNo * 7;
+  const lines = Array.from({ length: 15 }, (_, i) => 0.42 + ((seed + i * 13) % 48) / 100);
+  return (
+    <div
+      data-page={pageNo}
+      className="relative bg-white rounded-md shadow-md border border-border shrink-0 overflow-hidden"
+      style={{ width, containerType: 'inline-size' }}
+    >
+      <div className="relative overflow-hidden" style={{ aspectRatio: '4 / 3', background: 'linear-gradient(135deg,#e9e4dc,#d9d3c8 58%,#cec7ba)' }}>
+        {/* La feuille photographiée */}
+        <div
+          className="absolute bg-white"
+          style={{ left: '11%', top: '7%', width: '78%', height: '88%', transform: 'rotate(-1.4deg)', padding: '6cqw 7cqw', borderRadius: '0.6cqw', boxShadow: '0 4cqw 8cqw rgba(41,37,32,0.22)' }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2cqw' }}>
+            {lines.map((w, i) => (
+              <div key={i} className={`rounded-full ${i % 6 === 5 ? '' : 'bg-border'}`} style={{ height: '1.4cqw', width: `${Math.round(w * 100)}%` }} />
+            ))}
+          </div>
+        </div>
+        {/* Zones citées (OCR) */}
+        {quotes.map((q, k) => {
+          const r = q.rect || { x: 15, y: 32 + k * 15, w: 60, h: 8 };
+          return (
+            <div
+              key={k}
+              data-cite="1"
+              className="absolute rounded-sm scroll-mt-6"
+              style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%`, background: 'rgba(253,230,138,0.42)', boxShadow: `0 0 0 2px ${HL_EDGE}`, transform: 'rotate(-1.4deg)' }}
+            >
+              <span data-cite-text className="sr-only">{q.quote}</span>
+            </div>
+          );
+        })}
+        <div className="absolute left-2 top-2 inline-flex items-center gap-1 h-6 px-2 rounded-md bg-black/45 text-white text-[11px] font-medium" style={{ backdropFilter: 'blur(2px)' }}>
+          <ImageIcon className="w-3 h-3" strokeWidth={2} /> Image
+        </div>
+      </div>
+      {/* Légende : nom + extraits cités lisibles */}
+      <div className="px-3 py-2.5 border-t border-border bg-white">
+        <div className="text-[12px] text-foreground-muted tabular-nums">{source.name} · {pageNo}/{totalPages}</div>
+        {quotes.length > 0 && (
+          <div className="mt-1.5 flex flex-col gap-1">
+            {quotes.map((q, k) => (
+              <div key={k} className="text-[12px] leading-5 text-foreground-secondary flex items-start gap-1.5">
+                <span className="mt-[3px] w-2 h-2 rounded-sm flex-shrink-0" style={{ background: HL, boxShadow: `inset 2px 0 0 ${HL_EDGE}` }} />
+                <span className="min-w-0">« {q.quote} »</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ImageDoc({ source, pageWidth, scrollRef, onScroll }) {
+  const passages = source.passages || (source.passage ? [source.passage] : []);
+  const byPage = {};
+  passages.forEach((p) => { const pg = p.page || 1; (byPage[pg] || (byPage[pg] = [])).push(p); });
+  const total = source.pages || 1;
+  return (
+    <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
+      <div className="flex flex-col items-center gap-5 py-8 px-8">
+        {Array.from({ length: total }, (_, i) => (
+          <ImagePage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} quotes={byPage[i + 1] || []} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Corps « Word » : document texte continu, marges généreuses ───────────────
+// Contrairement au PDF (lignes grises), le Word rend du VRAI texte (source.wordBody :
+// suite de { text, heading?, cite?, page? }). Les paragraphes cités reçoivent le
+// même surlignage inline que les autres corps prose.
+function WordPage({ source, pageNo, totalPages, width, paras }) {
+  return (
+    <div
+      data-page={pageNo}
+      className="relative bg-white rounded-md shadow-md border border-border shrink-0 overflow-hidden"
+      style={{ width, aspectRatio: '1 / 1.414', containerType: 'inline-size' }}
+    >
+      <div style={{ padding: '9cqw 10cqw 7cqw' }}>
+        {pageNo === 1 && (
+          <>
+            <div className="font-semibold text-foreground leading-snug" style={{ fontSize: '4cqw' }}>{source.name}</div>
+            {source.date && <div className="text-foreground-muted mt-1 tabular-nums" style={{ fontSize: '2.3cqw' }}>{source.date}</div>}
+            <div className="bg-border-subtle" style={{ height: '1px', margin: '4cqw 0 1cqw' }} />
+          </>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '3cqw', marginTop: pageNo === 1 ? '3cqw' : 0 }}>
+          {paras.map((p, i) =>
+            p.cite ? (
+              <p
+                key={i}
+                data-cite="1"
+                data-cite-text
+                className="scroll-mt-6 text-foreground rounded-sm whitespace-pre-line"
+                style={{ background: HL, boxShadow: `inset 3px 0 0 ${HL_EDGE}`, padding: '2cqw 2.5cqw', margin: '0.5cqw 0', fontSize: '2.9cqw', lineHeight: 1.7 }}
+              >
+                {p.text}
+              </p>
+            ) : p.heading ? (
+              <div key={i} className="font-semibold text-foreground" style={{ fontSize: '3.2cqw', lineHeight: 1.4 }}>{p.text}</div>
+            ) : (
+              <p key={i} className="text-foreground-secondary whitespace-pre-line" style={{ fontSize: '2.9cqw', lineHeight: 1.7, textAlign: 'justify' }}>{p.text}</p>
+            )
+          )}
+        </div>
+      </div>
+      <div className="absolute left-0 right-0 text-center text-foreground-muted tabular-nums" style={{ bottom: '3cqw', fontSize: '2cqw' }}>
+        {pageNo} / {totalPages}
+      </div>
+    </div>
+  );
+}
+
+function WordDoc({ source, pageWidth, scrollRef, onScroll }) {
+  const body = source.wordBody || [];
+  const byPage = {};
+  body.forEach((p) => { const pg = p.page || 1; (byPage[pg] || (byPage[pg] = [])).push(p); });
+  const total = source.pages || Math.max(1, ...Object.keys(byPage).map(Number));
+  return (
+    <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
+      <div className="flex flex-col items-center gap-5 py-8 px-8">
+        {Array.from({ length: total }, (_, i) => (
+          <WordPage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} paras={byPage[i + 1] || []} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Dispatcher : choisit le corps selon le type de la pièce.
+function DocBody({ source, pageWidth, scrollRef, onScroll }) {
+  const props = { source, pageWidth, scrollRef, onScroll };
+  const t = docTypeOf(source);
+  if (t === 'image') return <ImageDoc {...props} />;
+  if (t === 'word') return <WordDoc {...props} />;
+  return <PdfDoc {...props} />;
 }
 
 // ── Corps « décision de justice » ────────────────────────────────────────────
@@ -400,16 +597,19 @@ function EmailBody({ source, scrollRef, onOpen }) {
   // Toutes les PJ du fil, à plat, pour la liste consolidée en tête.
   const allAtts = msgs.flatMap((m) => (m.attachments || []).map((a) => ({ ...normAtt(a), from: m.from, date: m.date })));
 
-  const AttButton = ({ att, className }) => (
-    <button
-      onClick={() => att.source && onOpen({ kind: 'piece', source: att.source })}
-      disabled={!att.source}
-      className={className}
-      title={att.source ? 'Prévisualiser' : att.name}
-    >
-      <Paperclip className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.75} /> {att.name}
-    </button>
-  );
+  const AttButton = ({ att, className }) => {
+    const AIcon = DOC_ICON[docTypeOf(att.source || att)];
+    return (
+      <button
+        onClick={() => att.source && onOpen({ kind: 'piece', source: att.source })}
+        disabled={!att.source}
+        className={className}
+        title={att.source ? 'Prévisualiser' : att.name}
+      >
+        <AIcon className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.75} /> {att.name}
+      </button>
+    );
+  };
 
   return (
     <div ref={scrollRef} className="flex-1 overflow-auto min-w-0 bg-background-canvas">
@@ -419,7 +619,9 @@ function EmailBody({ source, scrollRef, onOpen }) {
           <div className="rounded-xl border border-border bg-white p-4">
             <FieldLabel>Pièces jointes du fil ({allAtts.length})</FieldLabel>
             <div className="mt-2.5 flex flex-col gap-1.5">
-              {allAtts.map((a, i) => (
+              {allAtts.map((a, i) => {
+                const AIcon = DOC_ICON[docTypeOf(a.source || a)];
+                return (
                 <button
                   key={i}
                   onClick={() => a.source && onOpen({ kind: 'piece', source: a.source })}
@@ -427,7 +629,7 @@ function EmailBody({ source, scrollRef, onOpen }) {
                   className="flex items-center gap-2.5 rounded-lg border border-border px-3 py-2 text-left transition-colors hover:bg-cream disabled:opacity-60 disabled:hover:bg-transparent"
                 >
                   <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-cream text-foreground-tertiary flex-shrink-0">
-                    <FileText className="w-4 h-4" strokeWidth={1.75} />
+                    <AIcon className="w-4 h-4" strokeWidth={1.75} />
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] font-medium text-foreground truncate">{a.name}</div>
@@ -435,7 +637,8 @@ function EmailBody({ source, scrollRef, onOpen }) {
                   </div>
                   {a.source && <ChevronRight className="w-4 h-4 text-foreground-muted flex-shrink-0" />}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -755,7 +958,9 @@ export default function PreviewPanel({
   onOpenSource, // (target { kind, source }) => void - navigation croisée
 }) {
   const cfg = PREVIEW_KINDS[kind] || PREVIEW_KINDS.piece;
-  const Icon = cfg.icon;
+  // Pour une pièce, l'icône du titre suit le type de fichier (pdf/image/word) ;
+  // la teinte reste bleue (famille PIECE). Les autres kinds gardent leur icône.
+  const Icon = kind === 'piece' ? DOC_ICON[docTypeOf(source)] : cfg.icon;
   const isDoc = cfg.body === 'doc';
   const openSource = (t) => { if (t && onOpenSource) onOpenSource(t); };
 
