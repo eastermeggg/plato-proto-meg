@@ -562,7 +562,7 @@ export default function BordereauTable({
         position={addMenu}
         items={[
           { icon: FilePlus2,  label: 'Nouveau fichier', onClick: () => onAddFiles?.() },
-          ...(onImportEmails ? [{ icon: Mail, label: 'Importer depuis Outlook', onClick: () => onImportEmails() }] : []),
+          ...(onImportEmails ? [{ icon: Mail, label: 'Importer depuis mes emails', onClick: () => onImportEmails() }] : []),
           { icon: FolderPlus, label: 'Nouveau dossier', onClick: () => setCreateFolderOpen(true) },
         ]}
         onClose={() => setAddMenu(null)}

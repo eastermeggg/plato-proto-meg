@@ -35,7 +35,7 @@ import ImportV2Lab from './components/ui-kit/ImportV2Lab';
 import ConnecteursLab from './components/ui-kit/ConnecteursLab';
 import MailConnectorModal from './components/connectors/MailConnectorModal';
 import { ProviderMark } from './components/connectors/ConnectorArt';
-import { GuaranteeChips } from './components/connectors/ConnectorPromo';
+import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel, MailNavPromoCard, MailConnectDialog } from './components/connectors/ConnectorPromo';
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
@@ -47,8 +47,13 @@ import { BASELINE_DSA_LIGNES, BASELINE_DFT_LIGNES, BASELINE_PGPA_DATA, BASELINE_
 import { NATURE_CREANCE, NATURE_TO_POSTE, NATURE_LABELS } from './data/tpScenarios';
 import PiecesTab from './components/pieces/PiecesTab';
 import BordereauTable from './components/pieces/BordereauTable';
-import ImportEmailDialog from './components/pieces/ImportEmailDialog';
-import { OUTLOOK_THREADS, OUTLOOK_FOLDERS } from './data/emailSeed';
+// Import V2 « Récolte & Bordereau » (lab /ui-kit/import-v2, porté dans l'app) :
+// la modale unique de création / versement - colonne récolte email + bordereau.
+import HarvestColumn from './components/ui-kit/import-v2/HarvestColumn';
+import BordereauV2 from './components/ui-kit/import-v2/Bordereau';
+import { useBordereau } from './components/ui-kit/import-v2/useBordereau';
+import { Droppable as DroppableV2, monoLabel as monoLabelV2 } from './components/ui-kit/import/atoms';
+import { detectionFor as detectionForV2, threadById as labThreadById, treeLeaves as labTreeLeaves } from './components/ui-kit/import/labData';
 import FullCanvasDropZone from './components/pieces/FullCanvasDropZone';
 import { BORDEREAU_PIECES, BORDEREAU_CATEGORIES, BORDEREAU_PIECES_SOCIAL, BORDEREAU_CATEGORIES_SOCIAL } from './data/piecesSeed';
 import { dropFirstAsBordereauPieces, classifyDropFirstPiece, buildTreeViewRows } from './data/piecesModel';
@@ -416,7 +421,7 @@ function buildStagedProcessingItems(files, rapportFileId, idPrefix, pool = DROP_
   });
 }
 
-// Turn Outlook threads (échanges) picked in the ImportEmailDialog into staged
+// Turn Outlook threads (échanges) retenus au bordereau V2 into staged
 // file objects. Each thread yields one item for the thread body - the email
 // text itself is a pièce, typed Correspondance - plus one item per attachment,
 // classified by its own type. `emailPool` mirrors the DROP_FIRST_DOCUMENT_POOL
@@ -1408,14 +1413,10 @@ export default function App() {
   // setCurrentPage(page) calls navigate() so the URL stays the source of truth.
   const { page: currentPage, section: componentsSection, componentId: detailComponentId } = pathToPage(location.pathname);
   const setCurrentPage = (page) => navigate(pageToPath(page));
-  // TEMP CAPTURE - drives Figma capture of matter-creation screens via ?capture=<mode>. Remove after capture.
+  // TEMP CAPTURE - ?capture=<mode> skips the localStorage restore for Figma
+  // captures (l'ancienne SAS drop-first et ses fichiers d'exemple ont été
+  // remplacés par la modale Import V2).
   const captureMode = new URLSearchParams(location.search).get('capture');
-  const CAPTURE_SAMPLE_FILES = [
-    { id: 'cf-1', name: 'Rapport expertise médicale - Dr Lefèvre.pdf', fakeSize: '2.4 Mo', status: 'ready', guessedType: 'Expertise', splitEnabled: false },
-    { id: 'cf-2', name: 'Pièces communiquées - partie adverse.pdf', fakeSize: '5.1 Mo', status: 'ready', guessedType: 'Pièces adverses', splitEnabled: true },
-    { id: 'cf-3', name: 'Constat amiable.pdf', fakeSize: '0.8 Mo', status: 'ready', guessedType: 'Constat', splitEnabled: false },
-    { id: 'cf-4', name: 'Décompte CPAM 2023.pdf', fakeSize: '1.2 Mo', status: 'ready', guessedType: 'Décompte', splitEnabled: true },
-  ];
   const [activeDossierId, setActiveDossierId] = useState(null);
 
   // ========== SETTINGS ==========
@@ -1528,6 +1529,11 @@ export default function App() {
   const [mailDisconnectAsk, setMailDisconnectAsk] = useState(null); // null | mailbox id
   const [mailAddPick, setMailAddPick] = useState(null); // null | 'add' - menu d'ajout d'adresse ouvert
   const [mailAddAnchor, setMailAddAnchor] = useState(null); // { left, top } - ancre écran du menu (position fixed pour échapper aux overflow des réglages)
+  // Feature-awareness du connecteur email : tant qu'AUCUNE boîte n'est
+  // connectée, des touchpoints congédiables l'annoncent (carte nav, bandeau
+  // pièces). Dismissal par surface, en session seulement - le prototype
+  // repart propre à chaque rechargement pour la démo.
+  const [mailPromoHidden, setMailPromoHidden] = useState({}); // { nav?: true, pieces?: true }
   const [preferenceDocs, setPreferenceDocs] = useState([]);
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
@@ -1583,21 +1589,25 @@ export default function App() {
       : null
   ); // null | { step: 'infos', formData: {...} }
 
-  // ========== DROP FIRST STATE ==========
-  const [dropModal, setDropModal] = useState(() => {
-    if (captureMode === 'create') return { files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create' };
-    if (captureMode === 'split') return { files: CAPTURE_SAMPLE_FILES, rapportFileId: null, rapportDismissed: true, renamePattern: DEFAULT_SPLIT_PROMPT, reference: 'Dossier Leblanc c/ AXA', splitDocsEnabled: true, docSearch: '', mode: 'create' };
-    if (captureMode === 'addfiles') return { files: CAPTURE_SAMPLE_FILES, rapportFileId: null, rapportDismissed: true, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'add' };
-    return null;
-  }); // null | { files: [...], rapportFileId: null|string, rapportDismissed: false }
+  // ========== IMPORT V2 « RÉCOLTE & BORDEREAU » ==========
+  // La modale unique de versement (lab /ui-kit/import-v2, porté dans l'app) :
+  // 'create' = nouveau dossier (référence + type en tête), 'add' = verser dans
+  // le dossier ouvert. Les lignes/blocs du bordereau vivent dans useBordereau ;
+  // la colonne récolte n'apparaît qu'avec une boîte connectée (sinon promo).
+  const [importV2, setImportV2] = useState(null); // null | { mode: 'create'|'add', reference, matterType, mailOpen }
+  const bordereau = useBordereau();
+  const importV2FileInput = useRef(null);
+  // Signal d'exposition (spec boîtes mail) : UNE fois par session de modale,
+  // quand la première pièce issue de la boîte personnelle entre au bordereau.
+  const importV2ExposureSignaled = useRef(false);
+  // Interstitiel de connexion boîte mail (promesse + choix du fournisseur) -
+  // ouvert par les touchpoints quand aucune boîte n'est connectée.
+  const [mailConnectAsk, setMailConnectAsk] = useState(false);
   const [socialDetail, setSocialDetail] = useState(null); // droit social: null | 'salaire' | 'releve' — intrant detail sub-view inside the chiffrage
   const [socialSalaireBasis, setSocialSalaireBasis] = useState('12'); // '12' | '3' — reference-salary basis
   const [socialResultPanel, setSocialResultPanel] = useState(null); // bloc de résultats: ligne résolue auditée dans le panneau latéral
   const [socialAssiettesOpen, setSocialAssiettesOpen] = useState(false); // total brut: replie/déplie la répartition en assiettes
   const [dropFirstPieces, setDropFirstPieces] = useState([]); // array of { id, originalName, cleanName, type, date, postesLies, summary, extractedInfo, pages, status, sourceFile?, pageRange?, siblings?, poolRef }
-  // « Importer depuis Outlook » picker - null (closed) | 'dossier' (import
-  // straight into the open dossier) | 'staging' (feed the drop/SAS modal).
-  const [emailImportTarget, setEmailImportTarget] = useState(null);
   const [dropFirstHasRapport, setDropFirstHasRapport] = useState(false);
   const [dropFirstProcessingDone, setDropFirstProcessingDone] = useState(false);
   const [dropFirstActive, setDropFirstActive] = useState(false); // true → render new (drop-first) info dossier layout
@@ -11364,7 +11374,15 @@ export default function App() {
             setPieces={isSoc ? setSocialPieces : setPieces}
             setCategories={isSoc ? setSocialCategories : setBordereauCategories}
             onAddFiles={handleAddMorePieces}
-            onImportEmails={() => setEmailImportTarget('dossier')}
+            banner={mailboxes.length === 0 && !mailPromoHidden.pieces ? (
+              <div style={{ marginBottom: 14 }}>
+                <ConnectorPromoBanner
+                  onConnect={() => setMailConnectAsk(true)}
+                  onDismiss={() => setMailPromoHidden(h => ({ ...h, pieces: true }))}
+                />
+              </div>
+            ) : null}
+            onImportEmails={() => openImportV2('add')}
             onAskChato={askChatoAboutSelection}
             onGenerateBordereau={() => {
               redaction.playScenario('redaction-bordereau');
@@ -14502,21 +14520,21 @@ export default function App() {
   };
 
   // ========== DROP FIRST - HANDLERS ==========
-  const handleDropFirstCreate = () => {
-    if (!dropModal || dropModal.files.length === 0) return;
-    const files = [...dropModal.files];
-    const hasRapport = !!dropModal.rapportFileId;
-    const userReference = (dropModal.reference || '').trim();
+  // Création depuis la modale V2 « Récolte & Bordereau » : les fichiers stagés
+  // (locaux + échanges email, splitEnabled par pièce) arrivent en paramètre.
+  // Un dossier peut naître VIDE (seule la référence est requise) - dans ce cas
+  // aucune ingestion ne démarre, le chat accueille au lieu d'analyser.
+  const handleDropFirstCreate = (stagedFiles, { reference = '', matterType = 'corporel' } = {}) => {
+    const files = [...(stagedFiles || [])];
+    const hasRapport = false;
+    const userReference = (reference || '').trim();
     // Documents are renamed to clean, understandable names (the matched type's
     // cleanName, e.g. « Rapport d'expertise médicale… »). The raw filename is
     // kept as the row's subtitle, shown only where it differs (i.e. renamed).
     const renameOpts = null;
-    // Matter-level découpage default, committed in the first modal before any
-    // ingestion. Off = keep documents as-is (no surprise splitting); on = split
-    // multi-part documents automatically. Overridable per-doc / in bulk later.
-    const splitDocs = !!dropModal.splitDocsEnabled;
-    // Matter type chosen in the drop-first modal — drives the dossier layout (chiffrage postes, dossier content).
-    const matterType = dropModal.matterType || 'corporel';
+    // La découpe est décidée pièce par pièce dans le bordereau (splitEnabled
+    // par fichier stagé) - plus de bascule globale de modale.
+    const splitDocs = false;
 
     // Save current dossier if any
     if (activeDossierId) saveDossierData(activeDossierId);
@@ -14570,21 +14588,22 @@ export default function App() {
 
     // One processing item per dropped document - matched to its name's type,
     // split per the per-document choice (see buildStagedProcessingItems).
-    const processingItems = buildStagedProcessingItems(files, dropModal.rapportFileId, 'dfp', matterType === 'social' ? DROP_FIRST_DOCUMENT_POOL_SOCIAL : DROP_FIRST_DOCUMENT_POOL);
+    const processingItems = buildStagedProcessingItems(files, null, 'dfp', matterType === 'social' ? DROP_FIRST_DOCUMENT_POOL_SOCIAL : DROP_FIRST_DOCUMENT_POOL);
 
     setDropFirstPieces(processingItems);
     setDropFirstHasRapport(hasRapport);
-    setDropFirstProcessingDone(false);
+    setDropFirstProcessingDone(processingItems.length === 0);
     setDropFirstActive(true);
     setPieceOverviewPanel(null);
     setPiecesFilter({ type: null, search: '' });
     setRapportBannerDismissed(false);
     setInfoDossierStreaming(null);
 
-    // Reset chat state for new dossier
-    setChatBlocked(true);
+    // Reset chat state for new dossier. Un dossier né vide n'a rien à
+    // analyser : le chat accueille (état vide), pas de message d'analyse.
+    setChatBlocked(processingItems.length > 0);
     setChatSidebarOpen(true);
-    setChatMessages([{
+    setChatMessages(processingItems.length === 0 ? [] : [{
       type: 'ai-thinking',
       label: 'Analyse de vos documents...',
       steps: [
@@ -14601,13 +14620,14 @@ export default function App() {
     setNavStack([{ id: newId, type: 'dossier', title: refName, activeTab: 'pièces' }]);
     setActiveDossierId(newId);
     setCurrentPage('dossier');
-    setDropModal(null);
 
     // Start processing simulation after render (allow doublon detection so the
     // duplicate state is demoable on the creation drop, not just on "add").
     // allowDetections, but NOT forced - so we don't inject a guaranteed fake
     // doublon on every drop; the processed pièces reflect the dropped files.
-    setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs, matterType), 300);
+    if (processingItems.length > 0) {
+      setTimeout(() => startProcessingSimulation(processingItems, hasRapport, renameOpts, true, false, splitDocs, matterType), 300);
+    }
   };
 
   const startProcessingSimulation = (items, hasRapport, renameOpts = null, allowDetections = false, forceDetections = false, splitDocs = false, matterType = 'corporel') => {
@@ -15033,85 +15053,138 @@ export default function App() {
     setTimeout(() => chatTextareaRef.current?.focus(), 50);
   };
 
-  // « Importer depuis Outlook » - courriel as a document source. Échanges
-  // picked in the ImportEmailDialog become pièces: one per thread body (the
-  // email text itself, typed Correspondance) + one per parsed attachment.
-  // target 'staging' feeds the open drop/SAS modal (matter creation); target
-  // 'dossier' imports straight into the current dossier with background
-  // processing - no re-staging, matching the démo flow.
-  const handleEmailImport = (threads, opts = {}) => {
-    const staged = buildEmailStagedFiles(threads, opts);
-    if (emailImportTarget === 'staging') {
-      // Append to the staging modal list with a short upload shimmer.
-      setDropModal(prev => prev ? {
-        ...prev,
-        files: [...prev.files, ...staged.map(f => ({ ...f, status: 'uploading' }))],
-      } : prev);
-      staged.forEach((f, i) => {
-        setTimeout(() => {
-          setDropModal(prev => prev ? {
-            ...prev,
-            files: prev.files.map(x => x.id === f.id ? { ...x, status: 'ready' } : x),
-          } : prev);
-        }, 600 + i * 250 + Math.random() * 300);
-      });
-    } else {
-      // Détections (erreur/doublon) stay off: the échange is already parsed
-      // into body + attachments, nothing to re-découper.
-      const newItems = buildStagedProcessingItems(staged, null, 'dfp-mail');
-      setDropFirstPieces(prev => [...prev, ...newItems]);
-      setDropFirstProcessingDone(false);
-      setShowAddPiecesZone(false);
-      setTimeout(() => startProcessingSimulation(newItems, false, null, false, false), 300);
-      const text = `${threads.length} échange${threads.length > 1 ? 's' : ''} importé${threads.length > 1 ? 's' : ''}`;
-      setToastMessage(text);
-      setTimeout(() => setToastMessage(curr => (curr === text ? null : curr)), 4000);
-    }
+  // ── Import V2 : ouverture, commit, mapping ─────────────────────────────────
+  // La modale « Récolte & Bordereau » remplace l'ancienne SAS drop-first ET le
+  // picker « Importer depuis Outlook » : une seule scène, la colonne récolte
+  // (si une boîte est connectée) + le bordereau qui se construit en direct.
+  const openImportV2 = (mode, opts = {}) => {
+    bordereau.reset();
+    importV2ExposureSignaled.current = false;
+    setImportV2({ mode, reference: '', matterType: 'corporel', mailOpen: true, ...opts });
   };
+  const closeImportV2 = () => { setImportV2(null); bordereau.reset(); };
 
-  // Adding pièces to an open dossier goes through the same split-staging SAS as
-  // matter creation: dropped files are staged (default: split ON), the avocat
-  // reviews per-document choices, then validates → confirmAddPieces.
-  const handleAddMorePieces = (fileList) => {
-    const accepted = fileList ? Array.from(fileList).filter(f => /\.(pdf|png|jpe?g|docx?)$/i.test(f.name)) : [];
+  // Lignes + blocs du bordereau → fichiers stagés (la forme que
+  // buildStagedProcessingItems attend). Les échanges passent par
+  // buildEmailStagedFiles (corps + PJ, emailPool complet, provenance) ; les
+  // fichiers locaux gardent leur NOM D'ORIGINE. La découpe décidée par
+  // ligne/PJ devient le splitEnabled du document stagé.
+  const v2StagedFiles = () => {
+    const staged = [];
+    const active = bordereau.lines.filter(l => l.included && l.status === 'ready');
     const stamp = Date.now();
-    const staged = accepted.map((f, i) => ({
-      id: `addfile-${stamp}-${i}`,
-      name: f.name,
-      fakeSize: (Math.random() * 4 + 0.2).toFixed(1) + ' Mo',
-      status: 'ready',
-      guessedType: guessFileType(f.name),
-      splitEnabled: true, // add-files default: split enabled for all documents
-    }));
-    setShowAddPiecesZone(false);
-    // Open the SAS staging modal in add mode - same as matter creation but
-    // without the dossier-name field. Empty when launched from « Nouveau
-    // fichier » (the modal's own drop zone takes over), or pre-filled when files
-    // were dropped onto the Pièces tab.
-    setDropModal({
-      files: staged,
-      rapportFileId: null,
-      rapportDismissed: true,
-      renamePattern: DEFAULT_SPLIT_PROMPT,
-      reference: '',
-      splitDocsEnabled: true,
-      docSearch: '',
-      mode: 'add',
+
+    // 1. Fichiers locaux (déposés / parcourus)
+    active.filter(l => l.kind === 'file').forEach((l, i) => {
+      staged.push({
+        id: `v2file-${stamp}-${i}`,
+        name: l.title,
+        fakeSize: (Math.random() * 4 + 0.2).toFixed(1) + ' Mo',
+        status: 'ready',
+        guessedType: guessFileType(l.title),
+        splitEnabled: !!l.decoupe,
+      });
     });
+
+    // 2. Échanges : lignes à plat (par fil) + feuilles retenues des blocs
+    // dossier. wantBody / pièces retenues / découpes par fil, puis UN SEUL
+    // passage par buildEmailStagedFiles (ids uniques par index de fil).
+    const perThread = new Map(); // tid → { keys:Set, decoupe:Set }
+    const takeKey = (tid, key, decoupe) => {
+      if (!perThread.has(tid)) perThread.set(tid, { keys: new Set(), decoupe: new Set() });
+      const e = perThread.get(tid);
+      e.keys.add(key);
+      if (decoupe) e.decoupe.add(key);
+    };
+    active.filter(l => l.threadId).forEach(l => takeKey(l.threadId, l.key, !!l.decoupe));
+    bordereau.folders.forEach(f => {
+      labTreeLeaves(f.tree).filter(l => l.included).forEach(l => {
+        const tid = l.key.split('::')[0];
+        takeKey(tid, l.key, bordereau.folderDecoupe.has(l.key));
+      });
+    });
+
+    const emailThreads = [];
+    perThread.forEach((e, tid) => {
+      const raw = labThreadById(tid);
+      if (!raw) return;
+      emailThreads.push({
+        ...raw,
+        attachments: (raw.attachments || []).filter(a => e.keys.has(`${tid}::${a.name}`)),
+      });
+    });
+    const built = buildEmailStagedFiles(emailThreads, { includeAttachments: true });
+    built.forEach(f => {
+      const tid = f.emailMeta.threadId;
+      const e = perThread.get(tid);
+      if (!e) return;
+      if (f.emailMeta.kind === 'body' && !e.keys.has(`${tid}::body`)) return;
+      if (f.emailMeta.kind === 'attachment') f.splitEnabled = e.decoupe.has(`${tid}::${f.emailMeta.attName}`);
+      staged.push(f);
+    });
+
+    return staged;
   };
 
-  // Validate the add-files staging: append one processing item per staged file
-  // to the current dossier (no reset), split per the per-document choices.
-  const confirmAddPieces = () => {
-    const files = [...((dropModal && dropModal.files) || [])];
-    if (files.length === 0) { setDropModal(null); return; }
-    const newItems = buildStagedProcessingItems(files, null, 'dfp-add');
+  // Ajout au dossier ouvert : mêmes items de processing que l'ancienne SAS
+  // (dfp-add), ingestion en arrière-plan - la zone « À vérifier » et le chat
+  // disent la suite.
+  const handleImportV2Add = (stagedFiles) => {
+    if (!stagedFiles || stagedFiles.length === 0) return;
+    const newItems = buildStagedProcessingItems(stagedFiles, null, 'dfp-add');
     setDropFirstPieces(prev => [...prev, ...newItems]);
     setDropFirstProcessingDone(false);
     setShowAddPiecesZone(false);
-    setDropModal(null);
     setTimeout(() => startProcessingSimulation(newItems, false, null, true, false), 300);
   };
+
+  const commitImportV2 = () => {
+    if (!importV2) return;
+    const creating = importV2.mode === 'create';
+    const stagedFiles = v2StagedFiles();
+    const n = bordereau.approx;
+    const d = bordereau.decoupeCount;
+    const say = (text) => {
+      setToastMessage(text);
+      setTimeout(() => setToastMessage(curr => (curr === text ? null : curr)), 4500);
+    };
+    setImportV2(null);
+    if (creating) {
+      const reference = importV2.reference.trim() || 'Nouveau dossier';
+      handleDropFirstCreate(stagedFiles, { reference, matterType: importV2.matterType || 'corporel' });
+      const suffix = n > 0
+        ? ` avec ≈ ${n} pièce${n > 1 ? 's' : ''}${d > 0 ? ` · ${d} découpe${d > 1 ? 's' : ''}` : ''}`
+        : ' - vide pour l\'instant';
+      say(`Dossier « ${reference} » créé${suffix}`);
+    } else {
+      handleImportV2Add(stagedFiles);
+      say(`≈ ${n} pièce${n > 1 ? 's' : ''} ajoutée${n > 1 ? 's' : ''} au dossier${d > 0 ? ` · ${d} découpe${d > 1 ? 's' : ''}` : ''}`);
+    }
+    bordereau.reset();
+  };
+
+  // Ajouter des pièces à un dossier ouvert : la modale V2 en mode « ajout »,
+  // pré-remplie quand des fichiers ont été déposés sur l'onglet Pièces.
+  const handleAddMorePieces = (fileList) => {
+    setShowAddPiecesZone(false);
+    openImportV2('add');
+    if (fileList && fileList.length) bordereau.addFiles(fileList);
+  };
+
+  // Signal d'exposition (spec boîtes mail) : la PREMIÈRE pièce issue de la
+  // boîte personnelle qui entre au bordereau déclenche un toast discret - une
+  // fois par session de modale, pas à chaque pièce. La provenance pérenne
+  // reste sur le chapeau du groupe (« Depuis votre boîte »).
+  useEffect(() => {
+    if (!importV2 || importV2ExposureSignaled.current) return;
+    if (bordereau.lines.some(l => l.threadMailbox === 'personal')) {
+      importV2ExposureSignaled.current = true;
+      const text = 'Versé depuis votre boîte - visible par le cabinet une fois dans le dossier.';
+      setToastMessage(text);
+      setTimeout(() => setToastMessage(curr => (curr === text ? null : curr)), 5200);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bordereau.lines, importV2]);
 
   // ── Pile mode toggle (bundle ⇄ exploded) + Undo toast ─────────────────
   const togglePileMode = (pileId, nextMode, opts = {}) => {
@@ -15852,6 +15925,18 @@ export default function App() {
           {/* Content - more horizontal padding than the (full-width) search bar above */}
           <div className="px-8 py-4 flex-1 overflow-y-auto">
 
+            {/* Connecteur email - engagement sur la page pièces tant qu'aucune
+                boîte n'est connectée. Le CTA rejoint le même funnel que les
+                autres entrées email : l'interstitiel de connexion. */}
+            {mailboxes.length === 0 && !mailPromoHidden.pieces && (
+              <div className="mb-3">
+                <ConnectorPromoBanner
+                  onConnect={() => setMailConnectAsk(true)}
+                  onDismiss={() => setMailPromoHidden(h => ({ ...h, pieces: true }))}
+                />
+              </div>
+            )}
+
             {/* Reorder hint banner */}
             {showReorderHint && !manualReorder && (
               <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
@@ -15892,7 +15977,7 @@ export default function App() {
                 setPieceOverviewPanel(pid);
               }}
               onAddFiles={handleAddMorePieces}
-              onImportEmails={() => setEmailImportTarget('dossier')}
+              onImportEmails={() => openImportV2('add')}
               onAskChato={askChatoAboutSelection}
               onFusePieces={openFusionModal}
               onToggleDocSplit={toggleDocSplit}
@@ -16654,427 +16739,148 @@ export default function App() {
     return renderPieceOverviewPanel(piece, ctx);
   };
 
-  // ========== DROP FIRST - MODAL ==========
-  const renderDropFirstModal = () => {
-    if (!dropModal) return null;
-
-    const { files, rapportFileId, rapportDismissed, renamePattern, reference, splitDocsEnabled } = dropModal;
-    const hasFiles = files.length > 0;
-
-    const handleFileDrop = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const droppedFiles = Array.from(e.dataTransfer?.files || []);
-      addFilesToModal(droppedFiles);
+  // ========== IMPORT V2 - MODALE « RÉCOLTE & BORDEREAU » ==========
+  // La scène unique de versement (lab /ui-kit/import-v2 porté ici) : en-tête
+  // création (titre serif · filet · champ Référence + type de dossier) ou
+  // ajout (titre figé), colonne récolte email repliable + bordereau qui se
+  // construit en direct, pied honnête. Sans boîte connectée, la colonne porte
+  // la promesse du connecteur - le point de bascule vers la connexion.
+  const renderImportV2Modal = () => {
+    if (!importV2) return null;
+    const creating = importV2.mode === 'create';
+    const mailConnected = mailboxes.length > 0;
+    // Le clic « Ajouter depuis l'ordinateur » du bordereau ouvre le VRAI
+    // sélecteur de fichiers - l'api du lab, elle, cycle ses fichiers simulés.
+    const bApi = { ...bordereau, addLocalFile: () => importV2FileInput.current?.click() };
+    const dossierTitle = navStack[0]?.title || dossierIntitule || 'ce dossier';
+    // Étiquettes des boîtes réellement connectées (sections de la recherche).
+    const v2Mailboxes = {
+      shared: sharedMailboxes[0]
+        ? { label: 'Boîte cabinet', address: sharedMailboxes[0].address }
+        : { label: 'Boîte cabinet', address: 'cabinet@hexa.com' },
+      personal: myMailboxes[0]
+        ? { label: 'Ma boîte', address: myMailboxes[0].address }
+        : { label: 'Ma boîte', address: currentUser?.email || 'ma boîte' },
     };
-
-    const handleFileSelect = (e) => {
-      const selected = Array.from(e.target.files || []);
-      addFilesToModal(selected);
-      e.target.value = '';
-    };
-
-    const handleRapportFileSelect = (e) => {
-      const selected = Array.from(e.target.files || []);
-      if (selected.length > 0) {
-        const file = selected[0];
-        const fileObj = {
-          id: `file-${Date.now()}-rapport`,
-          name: file.name,
-          fakeSize: (Math.random() * 4 + 0.5).toFixed(1) + ' Mo',
-          isRapport: true,
-          status: 'uploading',
-          guessedType: null,
-        };
-        setDropModal(prev => ({
-          ...prev,
-          files: [...prev.files, { ...fileObj, splitEnabled: !!prev.splitDocsEnabled }],
-          rapportFileId: fileObj.id,
-        }));
-        setTimeout(() => {
-          setDropModal(prev => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              files: prev.files.map(f =>
-                f.id === fileObj.id ? { ...f, status: 'ready', guessedType: 'Expertise' } : f
-              ),
-            };
-          });
-        }, 1000 + Math.random() * 500);
-      }
-      e.target.value = '';
-    };
-
-    const addFilesToModal = (fileList) => {
-      const accepted = fileList.filter(f => /\.(pdf|png|jpe?g|docx?)$/i.test(f.name));
-      if (accepted.length === 0) return;
-
-      const newFiles = accepted.map((f, i) => ({
-        id: `file-${Date.now()}-${i}`,
-        name: f.name,
-        fakeSize: (Math.random() * 4 + 0.2).toFixed(1) + ' Mo',
-        status: 'uploading',
-        guessedType: null,
-      }));
-
-      setDropModal(prev => {
-        // New rows inherit the current matter-level découpage default; each can
-        // be overridden individually in the list.
-        const updatedFiles = [...prev.files, ...newFiles.map(nf => ({ ...nf, splitEnabled: !!prev.splitDocsEnabled }))];
-        // Auto-detect rapport
-        let newRapportId = prev.rapportFileId;
-        if (!newRapportId && !prev.rapportDismissed) {
-          const rapportFile = updatedFiles.find(f => {
-            const ln = f.name.toLowerCase();
-            return ln.includes('expertise') || ln.includes('rapport');
-          });
-          if (rapportFile) newRapportId = rapportFile.id;
-        }
-        return { ...prev, files: updatedFiles, rapportFileId: newRapportId };
-      });
-
-      // Simulate upload + categorization per file with staggered delays
-      newFiles.forEach((fileObj, i) => {
-        const delay = 800 + i * 400 + Math.random() * 600;
-        setTimeout(() => {
-          setDropModal(prev => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              files: prev.files.map(f =>
-                f.id === fileObj.id
-                  ? { ...f, status: 'ready', guessedType: guessFileType(fileObj.name) }
-                  : f
-              ),
-            };
-          });
-        }, delay);
-      });
-    };
-
-    const removeFile = (fileId) => {
-      setDropModal(prev => {
-        const newFiles = prev.files.filter(f => f.id !== fileId);
-        return {
-          ...prev,
-          files: newFiles,
-          rapportFileId: prev.rapportFileId === fileId ? null : prev.rapportFileId,
-        };
-      });
-    };
-
-    const rapportFile = rapportFileId ? files.find(f => f.id === rapportFileId) : null;
-    const showRapportCard = hasFiles && !rapportDismissed;
-    // The global "Découper" switch reflects the rows: on only when every
-    // document is set to split. With no files yet it shows the stored default.
-    // Tri-state "Tout découper": checked (all split) / indeterminate (mixed) /
-    // unchecked (none). Header ⇄ rows stay in sync (see toggleSplitAll).
-    const splitState = !hasFiles
-      ? 'unchecked'
-      : files.every(f => f.splitEnabled) ? 'checked'
-      : files.some(f => f.splitEnabled) ? 'indeterminate'
-      : 'unchecked';
-    // Label varies with state: « Tout découper » when all or none are set; in the
-    // mixed (indeterminate) state → « Découper (N doc.) », where N is how many
-    // documents are currently set to be split (e.g. select 1 → « Découper (1 doc.) »).
-    const splitSelected = files.filter(f => f.splitEnabled).length;
-    const splitAllLabel = splitState === 'indeterminate'
-      ? `Découper (${splitSelected} doc${splitSelected > 1 ? 's' : ''}.)`
-      : 'Tout découper';
-    const toggleSplitAll = () => setDropModal(prev => {
-      const allOn = prev.files.length > 0 && prev.files.every(f => f.splitEnabled);
-      const next = !allOn; // checked → all Don't split; otherwise → all Split
-      return { ...prev, splitDocsEnabled: next, files: prev.files.map(f => ({ ...f, splitEnabled: next })) };
-    });
-    // At least one document set to split → show the split naming preferences.
-    const anySplit = hasFiles && files.some(f => !!f.splitEnabled);
-    // 'add' mode = staging area opened from the Pièces tab (adds to the current
-    // dossier); default 'create' = the matter-creation modal.
-    const isAdd = dropModal.mode === 'add';
-    // Filter the added-documents list by filename or detected type. Accent- and
-    // case-insensitive so « decoupe » matches « Découpé ». Purely visual - the
-    // global toggle and ingestion always operate on the full `files` list.
-    const normalizeSearch = (s) => (s == null ? '' : String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const docQuery = normalizeSearch((dropModal.docSearch || '').trim());
-    const visibleFiles = docQuery
-      ? files.filter(f => normalizeSearch(f.name).includes(docQuery) || normalizeSearch(f.guessedType).includes(docQuery))
-      : files;
+    const setMailOpen = (v) => setImportV2(prev => (prev ? { ...prev, mailOpen: typeof v === 'function' ? v(prev.mailOpen) : v } : prev));
+    const commitDisabled = (creating ? importV2.reference.trim() === '' : bordereau.approx === 0)
+      || bordereau.pendingDoublons > 0 || bordereau.uploadingCount > 0;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1000px] h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 pt-6 pb-4">
-            <h2 className="text-display-sm text-foreground" style={{ fontFamily: 'Georgia, serif' }}>{isAdd ? 'Ajouter des pièces' : 'Nouveau dossier'}</h2>
-            <button onClick={() => setDropModal(null)} className="p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-lg transition-colors">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1200px] flex flex-col overflow-hidden" style={{ height: '90vh', minHeight: 560 }} onClick={(e) => e.stopPropagation()}>
+          <input ref={importV2FileInput} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={(e) => { bordereau.addFiles(e.target.files); e.target.value = ''; }} />
 
-          {/* Body */}
-          <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
-            {/* Matter reference + type - creation only; the type drives the layout (chiffrage postes, dossier content) */}
-            {!isAdd && (
-              <div className="mb-4 flex-shrink-0 flex items-end gap-3">
-                <div className="flex-1 min-w-0">
-                  <label className="block text-sm font-medium text-foreground mb-1.5">Référence du dossier</label>
-                  <input
-                    type="text"
-                    value={reference}
-                    onChange={(e) => setDropModal(prev => ({ ...prev, reference: e.target.value }))}
-                    placeholder="Dossier Leblanc..."
-                    className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
-                  />
-                </div>
-                <div className="flex-shrink-0" style={{ width: 220 }}>
-                  <label className="block text-sm font-medium text-foreground mb-1.5">Type de dossier</label>
-                  <select
-                    value={dropModal.matterType || 'corporel'}
-                    onChange={(e) => setDropModal(prev => ({ ...prev, matterType: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm cursor-pointer"
-                  >
-                    <option value="corporel">Dommages corporels</option>
-                    <option value="social">Droit social</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* Document sources - two distinct zones side by side: the file
-                drop zone and the Outlook import zone (its own click target). */}
-            <div className={`flex items-stretch gap-3 ${hasFiles ? 'flex-shrink-0' : 'flex-1 min-h-0'}`}>
-            <div
-              className={`dropzone-container border border-dashed rounded-lg transition-all cursor-pointer ${hasFiles ? 'flex-1 min-w-0' : 'basis-1/2 grow-0 shrink min-w-0 flex flex-col'}`}
-              style={{ borderColor: '#d6d3d1' }}
-              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dropzone-drop'); }}
-              onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('dropzone-drop'); }}
-              onDrop={(e) => { e.currentTarget.classList.remove('dropzone-drop'); handleFileDrop(e); }}
-              onClick={() => document.getElementById('drop-first-file-input')?.click()}
-            >
-              {!hasFiles ? (
-                <>
-                  {/* Default/hover state - start context */}
-                  <div className="dropzone-default-content flex flex-col items-center justify-center rounded-lg flex-1 min-h-0" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 0%, #f8f7f5 100%)' }}>
-                    <div className="pt-8 pb-8 px-8 flex flex-col items-center gap-8 w-full max-w-[576px] mx-auto">
-                      <div className="bg-cream border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
-                        <Upload className="w-6 h-6 text-stone-500" />
-                      </div>
-                      <div className="text-center space-y-2">
-                        <p className="text-heading-lg-medium text-stone-800 leading-7">Déposez l'ensemble des pièces du dossier</p>
-                        <p className="text-body text-stone-500">PDF, Images, Word - Vous pourrez en ajouter d'autres plus tard.</p>
-                      </div>
-                      <span className="h-10 px-6 bg-stone-800 text-white text-body-medium rounded-lg hover:bg-stone-900 transition-colors inline-flex items-center gap-2 shadow-sm">
-                        <Upload className="w-4 h-4" /> Importer des pièces
-                      </span>
-                    </div>
-                  </div>
-                  {/* Drop state */}
-                  <div className="dropzone-drop-content hidden flex-col items-center rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 0%, #eeece6 100%)' }}>
-                    <div className="pt-8 pb-8 px-8 flex flex-col items-center gap-8 w-full max-w-[576px] mx-auto">
-                      <div className="bg-cream border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
-                        <ArrowDown className="w-6 h-6 text-stone-600" />
-                      </div>
-                      <div className="text-center space-y-2">
-                        <p className="text-heading-lg-medium text-stone-800 leading-7">Déposez vos documents ici, l'extraction commencera</p>
-                        <p className="text-body text-stone-500">Déposez un ou plusieurs documents.</p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Default/hover - panel context */}
-                  <div className="dropzone-default-content flex items-center justify-center gap-2.5 py-4 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}>
-                    <Upload className="w-5 h-5 text-stone-400" />
-                    <p className="text-body text-stone-500">Déposez ou <span className="font-medium text-link">cliquez</span> pour ajouter un justificatif</p>
-                  </div>
-                  {/* Drop state */}
-                  <div className="dropzone-drop-content hidden flex items-center justify-center gap-2.5 py-4 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #eeece6 100%)' }}>
-                    <ArrowDown className="w-5 h-5 text-stone-600" />
-                    <p className="text-body-medium text-foreground">Déposez vos fichiers ici</p>
-                  </div>
-                </>
-              )}
-              <input id="drop-first-file-input" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" className="hidden" onChange={handleFileSelect} />
-            </div>
-
-            {/* Outlook import zone - distinct from the drop zone */}
-            {!hasFiles ? (
-              <button
-                type="button"
-                onClick={() => setEmailImportTarget('staging')}
-                className="basis-1/2 grow-0 shrink min-w-0 border border-dashed rounded-lg flex flex-col items-center justify-center gap-5 px-6 py-8 text-center transition-colors hover:bg-background-canvas"
-                style={{ borderColor: '#d6d3d1' }}
-              >
-                <span className="inline-flex items-center justify-center rounded-full p-4 border shadow-sm" style={{ backgroundColor: '#dfe8f5', borderColor: '#c7d4ea' }}>
-                  <Mail className="w-6 h-6" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
-                </span>
-                <span className="flex flex-col gap-2">
-                  <span className="text-body-medium text-stone-800">Importer depuis Outlook</span>
-                  <span className="text-sm text-stone-500 leading-5">Vos échanges deviennent des pièces, avec ou sans leurs pièces jointes.</span>
-                </span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setEmailImportTarget('staging')}
-                className="flex-shrink-0 border border-dashed rounded-lg flex items-center justify-center gap-2.5 px-5 transition-colors hover:bg-background-canvas"
-                style={{ borderColor: '#d6d3d1' }}
-              >
-                <Mail className="w-5 h-5" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
-                <span className="text-body text-stone-600 whitespace-nowrap">Importer depuis <span className="font-medium text-foreground">Outlook</span></span>
-              </button>
-            )}
-            </div>
-
-            {/* File list */}
-            {hasFiles && (
-              <div className="mt-4 flex-1 min-h-0 flex flex-col">
-                {/* List toolbar - anchored as a header above the rows: title on
-                    the left, search + « Tout découper » master grouped on the
-                    right (divider between), so nothing floats. */}
-                <div className="flex items-center justify-between gap-4 mb-3 pb-2.5 border-b border-border flex-shrink-0">
-                  <p className="text-sm font-medium text-foreground-tertiary whitespace-nowrap">{files.length} document{files.length > 1 ? 's' : ''} ajouté{files.length > 1 ? 's' : ''}</p>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    {files.length > 1 && (
-                      <>
-                        <div className="relative" style={{ width: 220 }}>
-                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted pointer-events-none" strokeWidth={1.75} />
-                          <input
-                            type="text"
-                            value={dropModal.docSearch || ''}
-                            onChange={(e) => setDropModal(prev => ({ ...prev, docSearch: e.target.value }))}
-                            placeholder="Rechercher un document..."
-                            className="w-full h-8 pl-8 pr-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors"
-                          />
-                        </div>
-                        <span className="w-px h-5 bg-border flex-shrink-0" />
-                      </>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <TriStateCheckbox state={splitState} onClick={toggleSplitAll} label={splitAllLabel} />
-                      <InfoTip
-                        icon={Info}
-                        align="right"
-                        label="À propos du découpage"
-                        iconClassName="w-[18px] h-[18px] text-foreground-muted hover:text-foreground-secondary transition-colors flex-shrink-0"
-                      >
-                        Active ou désactive le découpage pour tous les documents à la fois. Réglez-le ensuite document par document dans la liste.
-                      </InfoTip>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto">
-                  {visibleFiles.length === 0 ? (
-                    <div className="flex items-center justify-center py-8 text-center text-sm text-foreground-muted">Aucun document ne correspond à votre recherche.</div>
-                  ) : visibleFiles.map((f, idx) => {
-                    const isUploading = f.status === 'uploading';
-                    return (
-                      <div key={f.id} className={`flex items-center justify-between px-3 py-2.5 rounded-lg group transition-all ${isUploading ? '' : 'hover:bg-background-canvas'}`}>
-                        <div className="flex items-center gap-3 min-w-0">
-                          {/* Icon: spinner while loading, paperclip when ready */}
-                          <div className="flex items-center justify-center w-[22px] h-[22px] flex-shrink-0">
-                            {isUploading ? (
-                              <Loader2 className="w-4 h-4 text-foreground-secondary animate-spin" />
-                            ) : (
-                              <>
-                                {f.emailMeta?.kind === 'body' ? (
-                                  <Mail className="w-4 h-4 text-foreground-secondary group-hover:hidden" />
-                                ) : (
-                                  <Paperclip className="w-4 h-4 text-foreground-secondary group-hover:hidden" />
-                                )}
-                                <Trash2
-                                  className="w-4 h-4 text-foreground-secondary hover:text-red-500 hidden group-hover:block cursor-pointer"
-                                  onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}
-                                />
-                              </>
-                            )}
-                          </div>
-                          {/* Filename */}
-                          <span className={`text-sm truncate ${isUploading ? 'italic opacity-40 text-foreground' : 'text-foreground'}`}>{f.name}</span>
-                        </div>
-                        {/* Right side - per-document split choice (segmented).
-                            An email body is one échange - nothing to découper. */}
-                        {!isUploading && f.emailMeta?.kind === 'body' ? (
-                          <span className="text-xs text-foreground-muted flex-shrink-0">Échange courriel</span>
-                        ) : !isUploading && (
-                          <SplitSegmentedControl
-                            value={!!f.splitEnabled}
-                            onChange={(v) => setDropModal(prev => ({
-                              ...prev,
-                              files: prev.files.map(x => x.id === f.id ? { ...x, splitEnabled: v } : x),
-                            }))}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Split naming preferences - shown once at least one document is set
-                to be split. Smooth fade + slide (max-height) instead of an abrupt
-                layout shift. Naming the resulting pieces is optional. */}
-            <div
-              className="flex-shrink-0"
-              aria-hidden={!anySplit}
-              style={{
-                overflow: 'hidden',
-                maxHeight: anySplit ? 320 : 0,
-                opacity: anySplit ? 1 : 0,
-                transform: anySplit ? 'translateY(0)' : 'translateY(-8px)',
-                pointerEvents: anySplit ? 'auto' : 'none',
-                transition: 'max-height 300ms cubic-bezier(0.4,0,0.2,1), opacity 220ms ease, transform 280ms cubic-bezier(0.4,0,0.2,1)',
-              }}
-            >
-              <div className="mt-4 rounded-xl bg-background-canvas p-4 flex flex-col gap-3">
-                <span className="text-sm font-medium text-foreground">Préférences de nommage des pièces découpées</span>
-                <textarea
-                  value={renamePattern}
-                  onChange={(e) => setDropModal(prev => ({ ...prev, renamePattern: e.target.value }))}
-                  placeholder="ex. Nature de la pièce - Auteur - Date"
-                  className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
-                  style={{ minHeight: 72, maxHeight: 140, resize: 'vertical', fontFamily: 'inherit' }}
+          {/* En-tête - création : parti pris C (titre serif · filet · champ
+              Référence focalisé, anneau brand) + type de dossier discret. */}
+          {creating ? (
+            <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
+              <h2 className="text-foreground flex-shrink-0" style={{ fontFamily: 'Georgia, serif', fontSize: 18, lineHeight: '20px', letterSpacing: '-0.5px' }}>Nouveau dossier</h2>
+              <div className="w-px h-5 bg-border flex-shrink-0 self-center" />
+              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                <label htmlFor="dossier-ref" className="text-[11px] font-medium uppercase tracking-[0.06em] text-foreground-muted flex-shrink-0">Référence</label>
+                <input
+                  id="dossier-ref"
+                  autoFocus
+                  value={importV2.reference}
+                  onChange={(e) => setImportV2(prev => ({ ...prev, reference: e.target.value }))}
+                  placeholder="ex. Leblanc c/ AXA"
+                  className="flex-1 min-w-0 max-w-[380px] h-9 px-3 rounded-lg border border-[#b9703f] bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:shadow-[0_0_0_3px_rgba(185,112,63,0.18)] transition-shadow"
                 />
-                <p className="text-xs text-foreground-secondary leading-relaxed">Les pièces issues d'un découpage doivent être renommées. Plato applique la consigne ci-dessus par défaut - modifiez-la si besoin, ou renommez chaque pièce individuellement après l'import.</p>
               </div>
-            </div>
-
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            {(hasFiles || isAdd) ? (
-              <button
-                onClick={() => setDropModal(null)}
-                className="h-10 px-4 text-sm font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background-canvas transition-colors shadow-sm"
+              <select
+                value={importV2.matterType || 'corporel'}
+                onChange={(e) => setImportV2(prev => ({ ...prev, matterType: e.target.value }))}
+                className="h-9 px-2.5 text-[13px] text-foreground-secondary bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors cursor-pointer flex-shrink-0"
+                title="Type de dossier"
               >
-                Annuler
+                <option value="corporel">Dommages corporels</option>
+                <option value="social">Droit social</option>
+              </select>
+              <button type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
-            ) : (
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
+              <p className="text-[14px] leading-5 font-medium text-foreground flex-1 min-w-0 truncate">Ajouter des pièces - {dossierTitle}</p>
+              <button type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+            </div>
+          )}
+
+          <DroppableV2 onFiles={(files) => bordereau.addFiles(files)} className="flex-1 min-h-0 flex">
+            {/* Colonne récolte - repliée par la largeur, jamais démontée. Sans
+                boîte connectée : la promesse du connecteur, même largeur. */}
+            <div
+              className="flex-shrink-0 h-full overflow-hidden"
+              style={{ width: importV2.mailOpen ? 456 : 0, transition: 'width 240ms ease', visibility: importV2.mailOpen ? 'visible' : 'hidden' }}
+              aria-hidden={!importV2.mailOpen}
+            >
+              {mailConnected ? (
+                <HarvestColumn
+                  threadState={bordereau.threadState}
+                  coveredTids={bordereau.coveredTids}
+                  addedFolderIds={bordereau.addedFolderIds}
+                  lineKeys={bordereau.lineKeys}
+                  onAddThread={bordereau.addThread}
+                  onAddPiece={bordereau.addPiece}
+                  onTogglePiece={bordereau.togglePieceIncluded}
+                  onAddThreadDelta={bordereau.addThreadDelta}
+                  onRemoveThread={bordereau.removeThread}
+                  onAddFolder={bordereau.addFolder}
+                  onAddFolderDelta={bordereau.addFolderDelta}
+                  onRemoveFolder={bordereau.removeFolder}
+                  onCollapse={() => setMailOpen(false)}
+                  mailboxes={v2Mailboxes}
+                />
+              ) : (
+                <div className="h-full flex flex-col bg-white border-r border-border" style={{ width: 456 }}>
+                  <div className="flex items-center justify-between pl-3.5 pr-2 pt-2.5 pb-1 flex-shrink-0">
+                    <p style={monoLabelV2}>Vos emails</p>
+                    <button type="button" onClick={() => setMailOpen(false)} aria-label="Replier" title="Replier"
+                      className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors">
+                      <ChevronLeft className="w-4 h-4" strokeWidth={1.75} />
+                    </button>
+                  </div>
+                  <ConnectorPromoPanel compact vendorLabel="ma boîte" onConnect={() => setMailConnectAsk(true)} />
+                </div>
+              )}
+            </div>
+            <BordereauV2 api={bApi} mailOpen={importV2.mailOpen} onToggleMail={() => setMailOpen(o => !o)} detectionFor={detectionForV2} creating={creating} />
+          </DroppableV2>
+
+          {/* Pied - constat honnête, Annuler, CTA qui ne ment jamais.
+              « Créer manuellement » (wizard) reste accessible en création. */}
+          <div className="flex items-center gap-4 px-5 border-t border-border flex-shrink-0 bg-white" style={{ height: 62 }}>
+            {creating && (
               <button
-                onClick={() => {
-                  setDropModal(null);
-                  setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } });
-                }}
-                className="inline-flex items-center gap-2 text-sm font-medium text-link hover:opacity-80 transition-opacity"
+                type="button"
+                onClick={() => { closeImportV2(); setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } }); }}
+                className="inline-flex items-center gap-1.5 text-[13px] font-medium text-link hover:opacity-80 transition-opacity flex-shrink-0"
               >
-                <Pencil className="w-4 h-4" strokeWidth={1.75} />
-                Créer manuellement
+                <Pencil className="w-3.5 h-3.5" strokeWidth={1.75} /> Créer manuellement
               </button>
             )}
+            <p className="text-[12px] leading-4 text-foreground-secondary flex-shrink-0">
+              {bordereau.approx > 0
+                ? `≈ ${bordereau.approx} pièce${bordereau.approx > 1 ? 's' : ''}${bordereau.decoupeCount > 0 ? ` · ${bordereau.decoupeCount} découpe${bordereau.decoupeCount > 1 ? 's' : ''}` : ''}`
+                : creating ? 'Déposez des pièces pour nourrir le dossier - vous pourrez toujours en ajouter plus tard' : 'Aucune pièce sélectionnée'}
+              {bordereau.pendingDoublons > 0 && <span className="ml-2" style={{ color: '#855b31' }}>{bordereau.pendingDoublons} doublon{bordereau.pendingDoublons > 1 ? 's' : ''} à trancher</span>}
+            </p>
+            <div className="flex-1 h-px bg-border" />
+            <button type="button" onClick={closeImportV2} className="h-9 px-4 rounded-lg border border-border bg-white text-[13px] font-medium text-foreground hover:bg-cream transition-colors flex-shrink-0">
+              Annuler
+            </button>
             <button
-              onClick={isAdd ? confirmAddPieces : handleDropFirstCreate}
-              disabled={!hasFiles}
-              className={`h-10 px-6 text-sm font-medium text-white bg-foreground rounded-lg transition-opacity shadow-sm ${
-                hasFiles
-                  ? 'hover:bg-foreground-strong'
-                  : 'opacity-50 cursor-not-allowed'
-              }`}
+              type="button"
+              disabled={commitDisabled}
+              onClick={commitImportV2}
+              className="h-9 px-4 rounded-lg text-[13px] font-medium text-white transition-opacity disabled:opacity-40 flex-shrink-0"
+              style={{ backgroundColor: '#292524' }}
             >
-              {isAdd ? 'Ajouter les pièces' : 'Créer le dossier'}
+              {bordereau.uploadingCount > 0 ? 'Réception des fichiers…' : creating ? 'Créer le dossier' : 'Ajouter au dossier'}
             </button>
           </div>
         </div>
@@ -17368,6 +17174,18 @@ export default function App() {
 
           </div>
         </div>
+
+        {/* Connecteur email - feature-awareness tant qu'aucune boîte n'est
+            connectée. Même grammaire que la carte Parrainage, monde vert
+            « lecture seule » ; la croix la congédie pour la session. */}
+        {!collapsed && mailboxes.length === 0 && !mailPromoHidden.nav && (
+          <div className="flex-shrink-0">
+            <MailNavPromoCard
+              onOpen={() => { setSettingsSection('maboite'); setCurrentPage('settings'); }}
+              onDismiss={() => setMailPromoHidden(h => ({ ...h, nav: true }))}
+            />
+          </div>
+        )}
 
         {/* Parrainage - Figma section component (info-blue gradient + accent rail).
             The card carries its own top border, so the wrapper stays borderless. */}
@@ -17795,7 +17613,7 @@ export default function App() {
             </h1>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDropModal({ files: [], rapportFileId: null, rapportDismissed: false, renamePattern: DEFAULT_SPLIT_PROMPT, reference: '', splitDocsEnabled: true, docSearch: '', mode: 'create', matterType: 'corporel' })}
+                onClick={() => openImportV2('create')}
                 className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors"
               >
                 <Plus className="w-4 h-4" />
@@ -21849,7 +21667,9 @@ export default function App() {
             </div>
           </div>
         </div>
-        {renderMailModals()}
+        {/* Modale connecteur + déconnexion : montées GLOBALEMENT dans
+            renderGlobalOverlays (les touchpoints hors réglages ouvrent le
+            même flow) - plus de mount local ici. */}
       </>
     );
   };
@@ -25117,19 +24937,23 @@ export default function App() {
       {/* Weekly-quota exhausted - member asks admin for an upgrade */}
       {renderAskUpgradeModal()}
 
-      {/* Document staging modal (matter creation + add-files SAS) - mounted
-          globally so it overlays whichever page is active (e.g. the Pièces tab),
-          not only the dossiers list. */}
-      {renderDropFirstModal()}
+      {/* Modale Import V2 « Récolte & Bordereau » (création + ajout) - montée
+          globalement pour couvrir n'importe quelle page active. */}
+      {renderImportV2Modal()}
 
-      {/* « Importer depuis Outlook » picker - z-[60] so it overlays the
-          staging modal when opened from matter creation. */}
-      <ImportEmailDialog
-        open={!!emailImportTarget}
-        onClose={() => setEmailImportTarget(null)}
-        threads={OUTLOOK_THREADS}
-        folders={OUTLOOK_FOLDERS}
-        onImport={handleEmailImport}
+      {/* Modale connecteur + dialog de déconnexion - montés globalement
+          (après la modale d'import, même z-50 : l'ordre DOM les place dessus)
+          pour que les touchpoints nav / récolte / pièces ouvrent le flow
+          de connexion depuis n'importe quelle page. */}
+      {renderMailModals()}
+
+      {/* Interstitiel de connexion boîte mail - z-[60], au-dessus de la modale
+          d'import : la promesse, les garanties, le choix du fournisseur. */}
+      <MailConnectDialog
+        open={mailConnectAsk}
+        onClose={() => setMailConnectAsk(false)}
+        providers={MAIL_PROVIDERS}
+        onPick={(pid) => { setMailConnectAsk(false); startMailConnect(pid, 'personal'); }}
       />
 
       {/* Toast notification */}

@@ -158,6 +158,30 @@ export function useBordereau() {
     timers.current.push(t);
   };
 
+  // Fichiers RÉELS déposés dans l'app (le lab garde addLocalFile et ses specs
+  // simulées). Une ligne par fichier accepté, NOM D'ORIGINE conservé ; upload
+  // simulé court. La détection de découpe ne joue que sur les noms connus du
+  // pool démo - un fichier inconnu reste découpable manuellement (verrou V1).
+  const addFiles = (fileList) => {
+    const accepted = fileList ? Array.from(fileList).filter(f => /\.(pdf|png|jpe?g|docx?|eml|msg|zip)$/i.test(f.name)) : [];
+    accepted.forEach((f) => {
+      const decoupable = /\.(pdf|docx?)$/i.test(f.name);
+      const spec = {
+        key: `file-${fileCursor.current++}-${f.name}`, threadId: null, kind: 'file',
+        title: f.name,
+        provenance: 'Déposé depuis l\'ordinateur',
+        suggestedNodeId: null,
+        decoupable,
+        detection: decoupable ? detectionFor(f.name) : null,
+        doublon: null,
+      };
+      const line = { ...mkLine(spec), status: 'uploading' };
+      setLines(prev => [...prev, line]);
+      const t = setTimeout(() => setLines(prev => prev.map(l => (l.id === line.id ? { ...l, status: 'ready' } : l))), 900 + Math.random() * 700);
+      timers.current.push(t);
+    });
+  };
+
   // Réessayer un échec : repasse en téléversement, aboutit (démo).
   const retryLine = (id) => {
     setLines(prev => prev.map(l => (l.id === id ? { ...l, status: 'uploading', fail: false } : l)));
@@ -220,7 +244,7 @@ export function useBordereau() {
   const pendingDoublons = useMemo(() => activeLines.filter(l => l.doublonStatus === 'pending').length, [activeLines]);
 
   return {
-    lines, folders, addThread, addPiece, togglePieceIncluded, addThreadDelta, removeThread, addLocalFile,
+    lines, folders, addThread, addPiece, togglePieceIncluded, addThreadDelta, removeThread, addLocalFile, addFiles,
     addFolder, addFolderDelta, removeFolder, toggleFolderNode,
     folderDecoupe, toggleFolderDecoupe, setFolderDecoupeMany,
     anyDecoupable, allDecoupe, setAllDecoupe,

@@ -268,7 +268,10 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
 // chemin. La recherche, elle, reste GLOBALE : taper sort du dossier (l'en-tête
 // redevient « Vos boîtes ») et un bandeau au-dessus des résultats offre le
 // retour ; effacer la requête rend le dossier tel quel.
-export default function HarvestColumn({ threadState, coveredTids, addedFolderIds, lineKeys, onAddThread, onAddPiece, onTogglePiece, onAddThreadDelta, onRemoveThread, onAddFolder, onAddFolderDelta, onRemoveFolder, onCollapse, drillNav }) {
+// `mailboxes` : étiquettes des boîtes du user courant ({ shared, personal } de
+// forme { label, address }). Le lab garde sa persona (MAILBOXES par défaut) ;
+// l'app passe les adresses réellement connectées.
+export default function HarvestColumn({ threadState, coveredTids, addedFolderIds, lineKeys, onAddThread, onAddPiece, onTogglePiece, onAddThreadDelta, onRemoveThread, onAddFolder, onAddFolderDelta, onRemoveFolder, onCollapse, drillNav, mailboxes = MAILBOXES }) {
   const [query, setQuery] = useState('');
   const [drill, setDrill] = useState(null); // fid ouvert (drill), ou null = racine
   const q = normalize(query.trim());
@@ -568,7 +571,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
 
         {!showDrill && !results && (
           <section>
-            <p style={monoLabel} className="mb-1 px-3.5" title={`Dossiers de la ${MAILBOXES.shared.label.toLowerCase()} · ${MAILBOXES.shared.address}`}>Dossiers Outlook</p>
+            <p style={monoLabel} className="mb-1 px-3.5" title={`Dossiers de la ${mailboxes.shared.label.toLowerCase()} · ${mailboxes.shared.address}`}>Dossiers Outlook</p>
             <Rows>
               {FOLDER_CANDIDATE_IDS.map(fid => (
                 <FolderCandidateCard
@@ -609,7 +612,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
                 d'un autre membre. */}
             {results.cabinet.length > 0 && (
               <section>
-                <p style={monoLabel} className="mb-1 px-3.5">{MAILBOXES.shared.label} · {MAILBOXES.shared.address}</p>
+                <p style={monoLabel} className="mb-1 px-3.5">{mailboxes.shared.label} · {mailboxes.shared.address}</p>
                 <Rows>
                   {results.cabinet.map(tid => card(tid, { mailboxNote: mailboxOf(tid) === 'both' ? 'aussi dans votre boîte' : undefined }))}
                 </Rows>
@@ -617,7 +620,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
             )}
             {results.personal.length > 0 && (
               <section>
-                <p style={monoLabel} className="mb-1 px-3.5">{MAILBOXES.personal.label} · {MAILBOXES.personal.address}</p>
+                <p style={monoLabel} className="mb-1 px-3.5">{mailboxes.personal.label} · {mailboxes.personal.address}</p>
                 <Rows>
                   {results.personal.map(tid => card(tid))}
                 </Rows>
