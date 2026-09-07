@@ -17,12 +17,13 @@ import { CONNECTOR_PROVIDERS } from './connectorData';
 const MONO = "'IBM Plex Mono', monospace";
 
 // Chips de garanties - la réassurance en trois mots, jamais un paragraphe.
-export function GuaranteeChips({ compact = false }) {
-  const items = [
+export function GuaranteeChips({ compact = false, only = null }) {
+  const all = [
     { Icon: Lock, label: 'Lecture seule' },
     { Icon: ShieldCheck, label: 'Hébergé en UE' },
     { Icon: RotateCcw, label: 'Réversible' },
   ];
+  const items = only ? all.filter(i => only.includes(i.label)) : all;
   return (
     <span className={`inline-flex items-center flex-wrap justify-center ${compact ? 'gap-1' : 'gap-1.5'}`}>
       {items.map(({ Icon, label }) => (
