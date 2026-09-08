@@ -1,48 +1,127 @@
 // Norma design system — single source of truth for tokens.
 //
-// PHASE A: this module consolidates the tokens currently scattered across
-// src/index.css, src/App.js, src/components/ReasoningStepper.js, and
-// src/components/AlertDialog.js. No existing component is refactored to
-// consume it yet — it serves as the canonical reference that the
-// /ui-kit/tokens validation interface reads from.
+// Re-synced against Figma "Plato — System" (file 0eKtlRkT1Hbjh8Nqd47Woy):
+//   • Colors        node 37373:4712  (Plato Theme documentation, 255 tokens)
+//   • Typescale     node 35720:35541 (Typescale)
+//   • Non-color     node 37383:2     (Plato Token documentation)
 //
-// PHASE B (next conversation, after the user validates the inventory):
-// scattered hex/CSS values across the codebase will be replaced with
-// references into this module, and Tailwind config will be extended to
-// expose these tokens as utilities.
+// Structure mirrors Figma's own layering so design->code maps 1:1:
+//   primitives      raw scales (font size/weight/line-height/icon/radius + color ramps)
+//   colors.semantic app-surface tokens (background, foreground, border, primary…)
+//   colors.feedback destructive / success / warning / info / ai families
+//   colors.accents  indigo / violet / emerald / sand / slate / stone + chart
+//   colors.brand    brand orange set
+//   colors.badge…   component-level maps kept for existing consumers
+//
+// Where the app had drifted from Figma, values below now follow Figma.
 
+// ─────────────────────────────────────────────────────────────────────────
+// PRIMITIVES — Plato "Token documentation" (node 37383:2)
+// ─────────────────────────────────────────────────────────────────────────
+export const primitives = {
+  fontSize: {
+    xs:   12, sm:  14, base: 16, lg:  18, xl:  20,
+    '2xl':24, '3xl':30, '4xl':36, '5xl':48, '6xl':60,
+    '7xl':72, '8xl':96, '9xl':128,
+  },
+  fontWeight: {
+    thin: 100, extralight: 200, light: 300, normal: 400, medium: 500,
+    semibold: 600, bold: 700, extrabold: 800, black: 900,
+  },
+  // Figma "leading-N" line-height scale (px)
+  lineHeight: {
+    3: 12, 4: 16, 5: 20, 6: 24, 7: 24, 8: 28, 9: 32, 10: 36, 11: 40,
+  },
+  iconSize: { xs: 12, sm: 14, md: 16, lg: 20, xl: 24 },
+};
+
+// ─────────────────────────────────────────────────────────────────────────
+// COLORS
+// ─────────────────────────────────────────────────────────────────────────
 export const colors = {
-  // Semantic foreground/background/border + Plato neutrals
+  // Semantic surface tokens — Figma "Plato Theme documentation" (light mode).
+  // NOTE: `background` is now Figma cream/50 (#f8f7f5), not the old #fafaf9.
   semantic: {
-    foreground: '#292524',
-    foregroundSecondary: '#78716c',
-    foregroundMuted: '#a8a29e',
-    foregroundTertiary: '#44403c',
+    // Figma-named canonical tokens
+    background:          '#f8f7f5', // cream/50 — default page background
+    foreground:          '#292524', // stone/800 — primary text
+    muted:               '#eeece6', // cream/100 — muted background
+    mutedForeground:     '#78716c', // stone/500 — muted text
+    card:                '#ffffff',
+    cardForeground:      '#292524',
+    popover:             '#ffffff',
+    popoverForeground:   '#292524',
+    border:              '#e7e5e3', // stone/200
+    borderStrong:        '#d6d3d1', // stone/300
+    borderHover:         '#a8a29e', // stone/400
+    input:               '#e7e5e3',
+    ring:                '#292524',
+    primary:             '#292524',
+    primaryForeground:   '#ffffff',
+    secondary:           '#eeece6', // cream/100
+    secondaryForeground: '#44403c', // stone/700
+    accent:              '#f8f7f5', // cream/50 — hover/focus accent
+    accentForeground:    '#292524',
+    white:               '#ffffff',
+
+    // Legacy aliases kept so existing consumers keep resolving.
+    foregroundSecondary:  '#78716c',
+    foregroundMuted:      '#a8a29e',
+    foregroundTertiary:   '#44403c',
     foregroundQuaternary: '#57534e',
-    border: '#e7e5e3',
-    borderAlt: '#e7e5e4',
-    background: '#fafaf9',
-    backgroundCanvas: '#F8F7F5',
-    backgroundHover: '#f8f7f5',
-    backgroundSubtle: '#f5f5f4',
-    cream: '#eeece6',
-    white: '#ffffff',
+    borderAlt:            '#e7e5e4',
+    backgroundCanvas:     '#f8f7f5',
+    backgroundHover:      '#f8f7f5',
+    backgroundSubtle:     '#f5f5f4',
+    cream:                '#eeece6',
   },
 
-  // Badge variants — sourced from src/index.css lines 184-193
+  // Feedback families — each: base / foreground / subtle / border / text.
+  // Values from Figma DESTRUCTIVE / SUCCESS / WARNING / INFO / AI sections.
+  feedback: {
+    destructive: { base: '#991b1b', foreground: '#ffffff', subtle: '#f2e3e3', border: '#dbc7c7', text: '#7f1d1d' },
+    success:     { base: '#059669', foreground: '#ffffff', subtle: '#e3f2ee', border: '#c7dbd6', text: '#064e3b' },
+    warning:     { base: '#bd6c1a', foreground: '#ffffff', subtle: '#f2ebe3', border: '#dbd1c7', text: '#855b31' },
+    info:        { base: '#5593ea', foreground: '#ffffff', subtle: '#e3e7f2', border: '#c7ccdb', text: '#1e3a8a' },
+    ai:          { base: '#9333ea', foreground: '#ffffff', subtle: '#ebe3f2', border: '#d2c7db', text: '#581c87' },
+  },
+
+  // Accent families — Figma INDIGO / VIOLET / EMERALD / SAND / SLATE / STONE.
+  // Same shape as feedback (base / foreground / subtle / border / text).
+  accents: {
+    indigo:  { base: '#3b5bdb', foreground: '#ffffff', subtle: '#e3e6f2', border: '#c7cbdb', text: '#2143cc' },
+    violet:  { base: '#6d46c8', foreground: '#ffffff', subtle: '#e8e3f2', border: '#cdc7db', text: '#5931b4' },
+    emerald: { base: '#3f7350', foreground: '#ffffff', subtle: '#e3f2e8', border: '#c7dbce', text: '#346344' },
+    sand:    { base: '#7a6244', foreground: '#ffffff', subtle: '#f2ebe3', border: '#dbd2c7', text: '#695339' },
+    slate:   { base: '#52657d', foreground: '#ffffff', subtle: '#e3eaf2', border: '#c7d0db', text: '#45566b' },
+    stone:   { base: '#78716c', foreground: '#ffffff', subtle: '#edeae9', border: '#d5d0cd', text: '#66605c' },
+  },
+
+  // Chart series — Figma CHART (blue ramp).
+  chart: ['#8fc6ff', '#297eff', '#155dfc', '#1447e6', '#193cb8'],
+
+  // Brand — Figma BRAND (vivid orange). Replaces the old muted #b9703f.
+  brand: {
+    DEFAULT:         '#ff6d04',
+    subtle:          '#fff0e0',
+    border:          '#ffbf80',
+    mutedForeground: '#cc5700',
+  },
+
+  // Badge variants — subtle tints re-aligned to Figma feedback families.
   badge: {
     default:           { bg: '#292524', fg: '#ffffff' },
     secondary:         { bg: '#eeece6', fg: '#44403c' },
     outline:           { bg: 'transparent', border: '#e7e5e3', fg: '#292524' },
     destructive:       { bg: '#991b1b', fg: '#ffffff' },
-    destructiveSubtle: { bg: '#fef2f2', fg: '#991b1b' },
-    ai:                { bg: '#f3e8ff', fg: '#581c87' },
-    success:           { bg: '#cce6d9', fg: '#064e3b' },
-    info:              { bg: '#dfe8f5', fg: '#1e3a8a' },
-    warning:           { bg: '#f9ecd6', fg: '#855b31' },
+    destructiveSubtle: { bg: '#f2e3e3', fg: '#7f1d1d' },
+    ai:                { bg: '#ebe3f2', fg: '#581c87' },
+    success:           { bg: '#e3f2ee', fg: '#064e3b' },
+    info:              { bg: '#e3e7f2', fg: '#1e3a8a' },
+    warning:           { bg: '#f2ebe3', fg: '#855b31' },
   },
 
-  // Banner accents — sourced from src/index.css banner-* variants
+  // Banner accents — app-specific gradients (not defined in the Figma color doc).
   banner: {
     ai:      { accent: '#9333ea', accentHover: '#7e22ce', bgFrom: '#faf5ff', border: '#e9d5ff' },
     info:    { accent: '#2563eb', accentHover: '#1d4ed8', bgFrom: '#eff6ff', border: '#bfdbfe' },
@@ -101,7 +180,9 @@ export const colors = {
   },
 };
 
-// Typography — sourced from src/index.css TYPESCALE SYSTEM (lines 152-176)
+// ─────────────────────────────────────────────────────────────────────────
+// TYPOGRAPHY — Figma "Typescale" (node 35720:35541)
+// ─────────────────────────────────────────────────────────────────────────
 export const typography = {
   fontFamily: {
     sans:  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
@@ -109,28 +190,35 @@ export const typography = {
     mono:  "'IBM Plex Mono', monospace",
   },
   scale: {
-    'display-lg':         { size: 30, lineHeight: 28, letterSpacing: -0.6, weight: 400 },
-    'display-sm':         { size: 24, lineHeight: 28, letterSpacing: -0.6, weight: 500 },
-    'display-xs':         { size: 18, lineHeight: 20, letterSpacing: -0.5, weight: 500 },
-    'heading-xl':         { size: 24, lineHeight: 28, letterSpacing: -0.6, weight: 600 },
-    'heading-xl-medium':  { size: 24, lineHeight: 32, letterSpacing: -0.6, weight: 500 },
-    'heading-lg':         { size: 20, lineHeight: 28, letterSpacing: -0.6, weight: 600 },
-    'heading-lg-medium':  { size: 20, lineHeight: 28, letterSpacing: -0.6, weight: 500 },
-    'heading-md':         { size: 18, lineHeight: 28, letterSpacing: 0,    weight: 600 },
-    'heading-md-medium':  { size: 18, lineHeight: 28, letterSpacing: 0,    weight: 500 },
-    'heading-sm':         { size: 16, lineHeight: 24, letterSpacing: 0,    weight: 600 },
-    'heading-sm-medium':  { size: 16, lineHeight: 24, letterSpacing: 0,    weight: 500 },
-    'body':               { size: 14, lineHeight: 20, letterSpacing: 0,    weight: 400 },
-    'body-medium':        { size: 14, lineHeight: 20, letterSpacing: 0,    weight: 500 },
-    'caption':            { size: 12, lineHeight: 16, letterSpacing: 0.12, weight: 400 },
-    'caption-medium':     { size: 12, lineHeight: 16, letterSpacing: 0,    weight: 500 },
-    'counter':            { size: 10, lineHeight: 'normal', letterSpacing: 0, weight: 500 },
+    // family: serif = RL Para Trial Central, sans = Inter, mono = IBM Plex Mono
+    'display-lg':         { family: 'serif', size: 30, lineHeight: 28, letterSpacing: -0.6, weight: 400 },
+    'display-sm':         { family: 'serif', size: 24, lineHeight: 28, letterSpacing: -0.6, weight: 500 },
+    'display-xs':         { family: 'serif', size: 18, lineHeight: 20, letterSpacing: -0.5, weight: 500 },
+    'heading-xl':         { family: 'sans',  size: 24, lineHeight: 28, letterSpacing: -0.6, weight: 600 },
+    'heading-xl-medium':  { family: 'sans',  size: 24, lineHeight: 32, letterSpacing: -0.6, weight: 500 },
+    'heading-lg':         { family: 'sans',  size: 20, lineHeight: 28, letterSpacing: -0.6, weight: 600 },
+    'heading-lg-medium':  { family: 'sans',  size: 20, lineHeight: 28, letterSpacing: -0.6, weight: 500 },
+    'heading-md':         { family: 'sans',  size: 18, lineHeight: 28, letterSpacing: 0,    weight: 600 },
+    'heading-md-medium':  { family: 'sans',  size: 18, lineHeight: 28, letterSpacing: 0,    weight: 500 },
+    'heading-sm':         { family: 'sans',  size: 16, lineHeight: 24, letterSpacing: 0,    weight: 600 },
+    'heading-sm-medium':  { family: 'sans',  size: 16, lineHeight: 24, letterSpacing: 0,    weight: 500 },
+    'body':               { family: 'sans',  size: 14, lineHeight: 20, letterSpacing: 0,    weight: 400 },
+    'body-medium':        { family: 'sans',  size: 14, lineHeight: 20, letterSpacing: 0,    weight: 500 },
+    // caption/normal in Figma carries letterSpacing 1; kept at 0.12 pending a
+    // visual check across the app (see re-sync notes). caption/medium = 0.
+    'caption':            { family: 'sans',  size: 12, lineHeight: 16, letterSpacing: 0.12, weight: 400 },
+    'caption-medium':     { family: 'sans',  size: 12, lineHeight: 16, letterSpacing: 0,    weight: 500 },
+    // detail: Inter Medium 12/18 — tertiary text, tooltips, help text.
+    'detail':             { family: 'sans',  size: 12, lineHeight: 18, letterSpacing: 0,    weight: 500 },
+    'counter':            { family: 'sans',  size: 10, lineHeight: 'normal', letterSpacing: 0, weight: 500 },
+    // header-cols: IBM Plex Mono Medium 11 — table/column header labels.
+    'caption-header-cols':{ family: 'mono',  size: 11, lineHeight: 'normal', letterSpacing: 0, weight: 500 },
   },
 };
 
-// Spacing scale — observed values across src/index.css and inline styles.
-// Tailwind config is currently default (no extension); these document the
-// scale actually used by components today.
+// ─────────────────────────────────────────────────────────────────────────
+// SPACING — observed values across src/index.css and inline styles.
+// ─────────────────────────────────────────────────────────────────────────
 export const spacing = {
   '0.5': '2px',
   '1':   '4px',
@@ -145,18 +233,21 @@ export const spacing = {
   '5':   '20px',
 };
 
-// Border radius — observed values across src/index.css
+// ─────────────────────────────────────────────────────────────────────────
+// BORDER RADIUS — Figma base --radius = 12; rounded-full = 9999.
+// ─────────────────────────────────────────────────────────────────────────
 export const radius = {
   sm:   '4px',    // is-highlighted
   xs:   '5px',    // is-zone-highlighted
   md:   '6px',    // badge label, banner-minimal button
   lg:   '8px',    // banner button primary
-  xl:   '12px',   // banner
+  xl:   '12px',   // banner / card (Figma --radius)
   full: '9999px', // badge number / icon-only (pill)
 };
 
-// Shadows — sourced from src/index.css banner button + glow pulse, plus
-// `xs` matched to the Figma "shadows/xs" effect used by inputs.
+// ─────────────────────────────────────────────────────────────────────────
+// SHADOWS — src/index.css banner button + glow pulse; `xs` matches Figma.
+// ─────────────────────────────────────────────────────────────────────────
 export const shadows = {
   xs:                '0 1px 2px rgba(26,26,26,0.05)',
   bannerButton:      '0 1px 2px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05), inset 0 -1px 2px rgba(0,0,0,0.04)',
@@ -165,7 +256,9 @@ export const shadows = {
   glowPulseEnd:      '0 0 20px rgba(99, 102, 241, 0.5)',
 };
 
-// Motion — durations + named animations from src/index.css
+// ─────────────────────────────────────────────────────────────────────────
+// MOTION — durations + named animations from src/index.css
+// ─────────────────────────────────────────────────────────────────────────
 export const motion = {
   duration: {
     instant: '100ms',
@@ -202,5 +295,5 @@ export const motion = {
   },
 };
 
-const tokens = { colors, typography, spacing, radius, shadows, motion };
+const tokens = { primitives, colors, typography, spacing, radius, shadows, motion };
 export default tokens;

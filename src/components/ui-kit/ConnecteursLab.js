@@ -11,7 +11,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Plug2 } from 'lucide-react';
-import MailConnectorModal from '../connectors/MailConnectorModal';
+import { MailConnectRun } from '../connectors/MailConnect';
 import { ConnectorPromoBanner, ConnectorPromoPanel, GuaranteeChips } from '../connectors/ConnectorPromo';
 import { ConnectorHero, ConnectorMiniLink, OAuthWindow, ProviderMark } from '../connectors/ConnectorArt';
 import { CONNECTOR_PROVIDERS } from '../connectors/connectorData';
@@ -54,7 +54,6 @@ export default function ConnecteursLab() {
   // personal = Ma boîte, visible par son owner seul · shared = boîte du
   // cabinet, geste admin. Deep-link : ?scope=shared.
   const [modalScope, setModalScope] = useState(params.get('scope') === 'shared' ? 'shared' : 'personal');
-  const initialTab = params.get('tab') === 'sync' ? 'sync' : 'import';
   const [connected, setConnected] = useState(null); // provider id une fois « Terminer »
   const [bannerGone, setBannerGone] = useState(false);
   const [toast, setToast] = useState(null);
@@ -233,13 +232,14 @@ export default function ConnecteursLab() {
         </Section>
       </div>
 
+      {/* Le parcours de connexion est lui-même une MODALE (le geste se passe
+          hors Plato) - on le monte directement. */}
       {modal && (
-        <MailConnectorModal
+        <MailConnectRun
           provider={modal}
           account={modalScope === 'shared' ? 'cabinet@durand-avocats.fr' : 'marie@durand-avocats.fr'}
           scope={modalScope}
-          initialTab={initialTab}
-          onClose={() => setModal(null)}
+          onCancel={() => setModal(null)}
           onFinish={finish}
         />
       )}
