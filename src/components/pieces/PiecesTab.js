@@ -1,17 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { Search, ListOrdered } from 'lucide-react';
+import { FolderPlus, Plus, Search } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import BordereauTable from './BordereauTable';
+import CreateFolderModal from './CreateFolderModal';
 import FullCanvasDropZone from './FullCanvasDropZone';
 
 // GED container: search + folder tree. The drop zone is invisible — the
 // whole canvas accepts file drops via the container handlers.
+// Barre d'outils (09/09) : nombre de fichiers + recherche + Nouveau dossier +
+// Ajouter des documents. Le bordereau n'a plus d'entrée ici (il vit dans les
+// actes / le chat).
 
 // `banner` : slot optionnel rendu au-dessus de l'arborescence (ex. promo
 // connecteur email quand aucune boîte n'est connectée).
-export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onImportEmails, onAskChato, onGenerateBordereau, onQuickGenerateBordereau, banner = null }) {
+export default function PiecesTab({ pieces, categories, setPieces, setCategories, onAddFiles, onImportEmails, onAskChato, banner = null }) {
   const [query, setQuery] = useState('');
   const [dragOver, setDragOver] = useState(false);
+  const [createFolderOpen, setCreateFolderOpen] = useState(false);
 
   const filteredPieces = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -21,6 +26,24 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
       return fields.some(f => f.includes(q));
     });
   }, [pieces, query]);
+
+  // Même création qu'au menu « + » de l'arborescence : dossier de premier niveau.
+  const createFolder = (name) => {
+    setCategories?.(prev => {
+      const siblings = prev.filter(c => c.parentId === null);
+      const nextOrder = siblings.length
+        ? Math.max(...siblings.map(c => c.order)) + 1
+        : 0;
+      return [...prev, {
+        id: `cat-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        name,
+        parentId: null,
+        order: nextOrder,
+      }];
+    });
+  };
+
+  const fileCount = pieces.length;
 
   return (
     <div
@@ -46,7 +69,7 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
         <FullCanvasDropZone />
       ) : (
         <>
-          {/* Search + actions */}
+          {/* Compteur + recherche + actions */}
           <div style={{
             padding: '16px 20px',
             borderBottom: `1px solid ${colors.semantic.border}`,
@@ -55,6 +78,20 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
             alignItems: 'center',
             gap: 12,
           }}>
+            <span
+              className="flex-shrink-0"
+              style={{
+                fontFamily: typography.fontFamily.mono,
+                fontSize: 11,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                color: colors.semantic.foregroundTertiary,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {fileCount} fichier{fileCount > 1 ? 's' : ''}
+            </span>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -82,24 +119,20 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
                 }}
               />
             </div>
-            {onGenerateBordereau && (
-              <button
-                onClick={onGenerateBordereau}
-                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-foreground-tertiary bg-cream rounded-md hover:bg-border transition-colors flex-shrink-0"
-              >
-                <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
-                Nouveau bordereau
-              </button>
-            )}
-            {onQuickGenerateBordereau && (
-              <button
-                onClick={onQuickGenerateBordereau}
-                className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
-              >
-                <ListOrdered className="w-4 h-4" strokeWidth={1.5} />
-                Générer un bordereau
-              </button>
-            )}
+            <button
+              onClick={() => setCreateFolderOpen(true)}
+              className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-foreground-tertiary bg-cream rounded-md hover:bg-border transition-colors flex-shrink-0"
+            >
+              <FolderPlus className="w-4 h-4" strokeWidth={1.5} />
+              Nouveau dossier
+            </button>
+            <button
+              onClick={() => onAddFiles?.()}
+              className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
+            >
+              <Plus className="w-4 h-4" strokeWidth={1.5} />
+              Ajouter des documents
+            </button>
           </div>
 
           {/* Folder tree */}
@@ -116,9 +149,15 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
               forceExpandAll={query.trim() !== ''}
             />
           </div>
+
+          <CreateFolderModal
+            open={createFolderOpen}
+            onOpenChange={setCreateFolderOpen}
+            parentLabel="Pièces"
+            onConfirm={createFolder}
+          />
         </>
       )}
     </div>
   );
 }
-

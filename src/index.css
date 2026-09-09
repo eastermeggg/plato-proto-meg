@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* App light-only : opt-out de l'auto-dark du navigateur/OS (double sécurité
+   avec la meta color-scheme). Empêche l'inversion des boutons primaires et des
+   champs natifs quand l'OS est en dark mode. */
+:root { color-scheme: light; }
+
+html, body, #root {
+  /* Canvas beige painted on the root, not just per-page. Page switches tear
+     down one page's beige divs and mount the next; without this the white
+     default body flashes through for a frame between them (the « blink »). */
+  background-color: #F8F7F5;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

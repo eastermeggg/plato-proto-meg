@@ -100,12 +100,23 @@ export const colors = {
   // Chart series — Figma CHART (blue ramp).
   chart: ['#8fc6ff', '#297eff', '#155dfc', '#1447e6', '#193cb8'],
 
-  // Brand — Figma BRAND (vivid orange). Replaces the old muted #b9703f.
+  // Brand — « Vif atténué » #f47a2c. Orange de DÉTAIL (surtitres, glow, liseré
+  // actif, icônes) - jamais un aplat plein. Deux familles : full + darker
+  // (liens / texte, contraste AA sur blanc).
   brand: {
-    DEFAULT:         '#ff6d04',
-    subtle:          '#fff0e0',
-    border:          '#ffbf80',
-    mutedForeground: '#cc5700',
+    DEFAULT:          '#f47a2c',
+    foreground:       '#ffffff',
+    subtle:           '#fff1e6',
+    subtleForeground: '#b8560f',
+    border:           '#f9c79b',
+    mutedForeground:  '#b8560f',   // alias hérité → darker
+    darker: {
+      DEFAULT:          '#b8560f',
+      foreground:       '#ffffff',
+      subtle:           '#fbeadd',
+      subtleForeground: '#8f430c',
+      border:           '#e7b184',
+    },
   },
 
   // Badge variants — subtle tints re-aligned to Figma feedback families.

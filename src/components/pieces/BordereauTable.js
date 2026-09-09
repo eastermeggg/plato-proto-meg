@@ -33,9 +33,6 @@ export default function BordereauTable({
   forceExpandAll = false,
   initialExpandedIds = null,
 }) {
-  const fileInputRef = useRef(null);
-  const addButtonRef = useRef(null);
-  const [addMenu, setAddMenu] = useState(null); // { x, y }
   const [expandedIds, setExpandedIds] = useState(() => new Set(initialExpandedIds || []));
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [menu, setMenu] = useState(null);
@@ -296,8 +293,8 @@ export default function BordereauTable({
 
   return (
     <div>
+      {hasSelection && (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 56, paddingTop: 8 }}>
-        {hasSelection ? (
           <SelectionActionBar
             count={selectedIds.size}
             showAskChato={!selectionHasFolder}
@@ -338,66 +335,8 @@ export default function BordereauTable({
               // button or unchecking) when they're done.
             }}
           />
-        ) : (
-          <>
-            <div style={{
-              flex: 1,
-              minWidth: 0,
-              display: 'flex',
-              alignItems: 'center',
-              fontFamily: typography.fontFamily.sans,
-              fontSize: 14,
-              fontWeight: 500,
-              color: colors.semantic.foreground,
-            }}>
-              {totalPieceCount} pièce{totalPieceCount > 1 ? 's' : ''}
-            </div>
-            <button
-              ref={addButtonRef}
-              type="button"
-              onClick={() => {
-                const rect = addButtonRef.current?.getBoundingClientRect();
-                if (rect) setAddMenu({ x: rect.right - 220, y: rect.bottom + 4 });
-              }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                height: 36,
-                padding: '0 14px',
-                border: 'none',
-                borderRadius: 6,
-                background: colors.semantic.foreground,
-                color: colors.semantic.white,
-                cursor: 'pointer',
-                fontFamily: typography.fontFamily.sans,
-                fontSize: 13,
-                fontWeight: 500,
-                flexShrink: 0,
-                transition: 'background-color 100ms',
-                boxShadow: '0px 1px 2px rgba(26,26,26,0.06)',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.semantic.foregroundTertiary; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.semantic.foreground; }}
-            >
-              <Plus style={{ width: 14, height: 14 }} strokeWidth={2} />
-              Ajouter
-              <ChevronDown style={{ width: 14, height: 14, marginLeft: 2, opacity: 0.8 }} strokeWidth={2} />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) onAddFiles?.(e.target.files);
-                e.target.value = '';
-              }}
-            />
-          </>
-        )}
       </div>
+      )}
 
       {/* "À vérifier" zone - sits between the count/Ajouter header and the table. */}
       {reviewZone}
@@ -557,16 +496,6 @@ export default function BordereauTable({
         onConfirm={createFolder}
       />
 
-      <RowContextMenu
-        open={!!addMenu}
-        position={addMenu}
-        items={[
-          { icon: FilePlus2,  label: 'Nouveau fichier', onClick: () => onAddFiles?.() },
-          ...(onImportEmails ? [{ icon: Mail, label: 'Importer depuis mes emails', onClick: () => onImportEmails() }] : []),
-          { icon: FolderPlus, label: 'Nouveau dossier', onClick: () => setCreateFolderOpen(true) },
-        ]}
-        onClose={() => setAddMenu(null)}
-      />
     </div>
   );
 }
