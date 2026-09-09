@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, PanelRight, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal, MessageCircle, CornerDownRight, FolderPlus, MessageCirclePlus, ChevronsUpDown } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import ParallelTasks, { ParallelTasksLine } from './components/ParallelTasks';
 import ChatComposerNotice, { NOTICE_WRAP_BG } from './components/ChatComposerNotice';
@@ -8,6 +8,30 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { JPPill, DecisionDrawer, JPRow, JPListingChat, JPListingPosteDetail, JPMemoryRow, JPAddStepper, SlashCommandPalette, JPSearchView, FicheCabinetModal, JPRationaleModal } from './components/jp';
 import useDemoCommands from './hooks/useDemoCommands';
+import useThreads, { deriveThreadTitle, isThreadArchived, formatThreadActivity } from './hooks/useThreads';
+import assistantAgent from './services/assistantAgent';
+import AssistantComposer from './components/assistant/AssistantComposer';
+import TypewriterPlaceholder from './components/assistant/TypewriterPlaceholder';
+import ComposerLab from './components/assistant/ComposerLab';
+import Niveau3Lab from './components/ui-kit/Niveau3Lab';
+import BrandOrangeLab from './components/ui-kit/BrandOrangeLab';
+import BreadcrumbBarLab from './components/ui-kit/BreadcrumbBarLab';
+import DossierFlagLab from './components/ui-kit/DossierFlagLab';
+import ConversationSwitcher from './components/shell/ConversationSwitcher';
+import DossierSwitcher from './components/shell/DossierSwitcher';
+import PanelToggleIcon from './components/shell/PanelToggleIcon';
+import NavItem from './components/shell/NavItem';
+import NavSectionHeader from './components/shell/NavSectionHeader';
+import NavPromoBanner from './components/shell/NavPromoBanner';
+import NavExpandControl from './components/shell/NavExpandControl';
+import SuggestionPill from './components/assistant/SuggestionPill';
+import PlatoIcon from './components/shell/PlatoIcon';
+import PlatoAssistantButton from './components/shell/PlatoAssistantButton';
+import BreadcrumbBand from './components/shell/BreadcrumbBand';
+import DossierTab from './components/shell/DossierTab';
+import ConversationTopBar from './components/shell/ConversationTopBar';
+import ConversationsIndexPage from './components/shell/ConversationsIndexPage';
+import { Niveau3Strip, BreadcrumbReturn, SiblingNav, CodeBadge, StripDivider } from './components/shell/Niveau3Strip';
 import mockDecisionsAll, { getDecisionById, formatDateShort } from './data/mockDecisions';
 import { parseJPReferences, customFirmIdFor } from './utils/parseJPReferences';
 import { getTPScenario, TP_COMMAND_LIST, TP_COMMAND_MAP } from './data/tpScenarios';
@@ -16,6 +40,7 @@ import { REDACTION_SCENARIOS, REDACTION_COMMAND_LIST, REDACTION_COMMAND_MAP, RED
 import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import Input from './components/ui/Input';
+import Button from './components/ui/Button';
 import PairTabs from './components/redaction/PairTabs';
 import ExportBordereauMenu from './components/redaction/ExportBordereauMenu';
 import { extractCitations, buildEntriesFromCitations, addPieceToEntries, removeEntryAt, countCitationsForIntitule, stripCitationsForIntitule, numberEntries } from './data/bordereauModel';
@@ -35,7 +60,7 @@ import ImportV2Lab from './components/ui-kit/ImportV2Lab';
 import ConnecteursLab from './components/ui-kit/ConnecteursLab';
 import { MailConnectIntro, MailConnectRun } from './components/connectors/MailConnect';
 import { ProviderMark } from './components/connectors/ConnectorArt';
-import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel, MailNavPromoCard } from './components/connectors/ConnectorPromo';
+import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel } from './components/connectors/ConnectorPromo';
 import MailValueModal from './components/connectors/MailValueModal';
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
 import OnboardingFlow from './components/OnboardingFlow';
@@ -1282,6 +1307,67 @@ if (window.location.search.includes('reset')) {
 let DEMO_SOCIAL = false;
 try { DEMO_SOCIAL = new URLSearchParams(window.location.search).get('demo') === 'social'; } catch (e) {}
 
+// ========== SEED DE DÉMONSTRATION (premier lancement) ==========
+// Le proto démarre vide (onboarding). Pour que la navigation reflète la frame
+// Figma « Sidebar Plato » (sections Dossiers récents / Conv. récentes peuplées)
+// dès l'ouverture, on sème au tout premier lancement un petit jeu de démo :
+// quelques dossiers (ouvrables - ils chargent les données baseline) et quelques
+// conversations libres déjà titrées. Vider le localStorage réinitialise à cet état.
+function buildDemoSeed() {
+  const now = Date.now();
+  const iso = (minsAgo) => new Date(now - minsAgo * 60000).toISOString();
+  const frDate = (minsAgo) => new Date(now - minsAgo * 60000).toLocaleDateString('fr-FR');
+  const dossiers = [
+    { reference: 'Martel / AXA', typeFait: 'Accident de la circulation', matterType: 'corporel', mins: 40 },
+    { reference: 'Lefèvre / MAIF', typeFait: 'Accident de la circulation', matterType: 'corporel', mins: 180 },
+    { reference: 'SCI Aurore / Generali', typeFait: 'Accident de la circulation', matterType: 'corporel', mins: 1500 },
+    { reference: 'Nguyen / Allianz', typeFait: 'Accident de la circulation', matterType: 'corporel', mins: 3000 },
+  ].map((d, i) => ({
+    id: `dossier-seed-${i + 1}`,
+    reference: d.reference,
+    typeFait: d.typeFait,
+    date: frDate(d.mins),
+    lastEditBy: 'Meghan R.',
+    lastEditDate: frDate(d.mins),
+    statut: 'ouvert',
+    matterType: d.matterType,
+    domaine: d.matterType === 'social' ? 'Droit social' : 'Dommage corporel',
+    stade: 'En cours',
+    lastActivity: iso(d.mins),
+    nextAction: null,
+  }));
+  // dossierId optionnel : rattache la conversation à un dossier (le flag « ↳ Réf »
+  // apparaît alors dans les listes de conv. récentes).
+  const conv = (i, title, vertical, mins, userText, aiText, dossierId = null) => ({
+    id: `th-seed-${i}`,
+    title,
+    isUntitled: false,
+    scope: { dossierId, vertical },
+    createdAt: iso(mins),
+    lastActivity: iso(mins),
+    messages: [
+      { type: 'user', text: userText },
+      { type: 'ai', text: aiText, sources: [] },
+    ],
+  });
+  // Mix réaliste : deux conversations RATTACHÉES à des dossiers (corporel) + une
+  // conversation LIBRE (droit social) pour montrer les deux cas côte à côte.
+  const threads = [
+    conv(1, 'Prescription de l\'action en indemnisation', 'Dommage corporel', 25,
+      "Quel est le délai pour agir en indemnisation du préjudice corporel de Mme Martel ?",
+      "L'action en réparation du dommage corporel se prescrit par dix ans à compter de la consolidation (art. 2226 C. civ.). Tant que l'état n'est pas consolidé, le délai ne court pas - le certificat de consolidation fixe donc le point de départ.",
+      'dossier-seed-1'),
+    conv(2, 'Préavis - fin de contrat de travail', 'Droit social', 90,
+      "Comment calculer la durée du préavis pour un cadre ayant 3 ans d'ancienneté ?",
+      "À défaut de disposition conventionnelle plus favorable, le préavis légal est de deux mois au-delà de deux ans d'ancienneté (art. L1234-1 C. trav.). La convention collective applicable prévoit souvent trois mois pour les cadres - vérifiez la grille."),
+    conv(3, 'Barème Mornet - DFP à 12 %', 'Dommage corporel', 240,
+      "Quelle fourchette d'indemnisation pour un DFP de 12 % chez un homme de 45 ans ?",
+      "Le référentiel Mornet retient, pour un DFP de 12 % à 45 ans, une valeur du point de l'ordre de 1 700 à 1 900 EUR, soit une indemnisation indicative d'environ 20 000 à 23 000 EUR - à ajuster selon la juridiction et les circonstances.",
+      'dossier-seed-2'),
+  ];
+  return { dossiers, threads };
+}
+
 // Small hover-triggered info tooltip - renders a peach-tinted popover above
 // the icon with a short explanation. Used in PlanCard footer rows to explain
 // what each metric means.
@@ -1348,7 +1434,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag'];
 const UI_KIT_SUBSECTION_SLUGS = [
   'tokens',
   'inventory',
@@ -1370,7 +1456,13 @@ const UI_KIT_SUBSECTION_SLUGS = [
 
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
-  if (clean === '/' || clean === '') return { page: 'list', section: null };
+  if (clean === '/' || clean === '') return { page: 'home', section: null };
+  if (clean === '/dossiers') return { page: 'dossiers', section: null };
+  if (clean === '/conversations') return { page: 'conversations', section: null };
+  if (clean.startsWith('/conversations/')) {
+    const threadId = clean.slice('/conversations/'.length);
+    return { page: 'conversation', section: null, threadId };
+  }
   if (clean === '/settings') return { page: 'settings', section: null };
   if (clean === '/welcome') return { page: 'welcome', section: null };
   if (clean === '/dossier') return { page: 'dossier', section: null };
@@ -1385,11 +1477,14 @@ function pathToPage(pathname) {
     if (UI_KIT_SUBSECTION_SLUGS.includes(slug)) return { page: 'components', section: slug };
     return { page: 'components', section: null };
   }
-  return { page: 'list', section: null };
+  return { page: 'home', section: null };
 }
 
 function pageToPath(page) {
-  if (page === 'list') return '/';
+  if (page === 'home') return '/';
+  // Compat : « list » (ancienne home « Mes dossiers ») vit désormais sur /dossiers.
+  if (page === 'list' || page === 'dossiers') return '/dossiers';
+  if (page === 'conversations') return '/conversations';
   if (page === 'settings') return '/settings';
   if (page === 'welcome') return '/welcome';
   if (page === 'dossier') return '/dossier';
@@ -1412,13 +1507,103 @@ export default function App() {
   // ========== STATE ==========
   // currentPage and componentsSection are derived from the URL.
   // setCurrentPage(page) calls navigate() so the URL stays the source of truth.
-  const { page: currentPage, section: componentsSection, componentId: detailComponentId } = pathToPage(location.pathname);
+  const { page: currentPage, section: componentsSection, componentId: detailComponentId, threadId: routeThreadId } = pathToPage(location.pathname);
   const setCurrentPage = (page) => navigate(pageToPath(page));
   // TEMP CAPTURE - ?capture=<mode> skips the localStorage restore for Figma
   // captures (l'ancienne SAS drop-first et ses fichiers d'exemple ont été
   // remplacés par la modale Import V2).
   const captureMode = new URLSearchParams(location.search).get('capture');
   const [activeDossierId, setActiveDossierId] = useState(null);
+
+  // ========== CONVERSATIONS (fils) ==========
+  // Store des threads (persistant) + fil actif. chatMessages (plus bas) reste la
+  // variable de travail de toutes les surfaces de chat : le pont thread actif ↔
+  // chatMessages vit à côté de sa déclaration.
+  const threadsStore = useThreads();
+  const threadsRef = useRef(threadsStore);
+  threadsRef.current = threadsStore;
+  const [activeThreadId, setActiveThreadId] = useState(null);
+  const activeThreadIdRef = useRef(activeThreadId);
+  activeThreadIdRef.current = activeThreadId;
+  const freeComposerApi = useRef(null); // { insertText, focus } du composer d'accueil/central
+  // Réponse agent en cours (surface centrale / home)
+  const [assistantThinking, setAssistantThinking] = useState(false);
+  // Titre en cours d'édition dans la barre « Conversations / <titre> » (null = pas d'édition)
+  const [threadTitleDraft, setThreadTitleDraft] = useState(null);
+  // ========== NAV : COLLAPSE & PEEK (spec 5-nav-collapse-and-peek.md) ==========
+  // La nav est OUVERTE (pleine largeur, en flux) ou DISPARUE (0px, rien - pas
+  // de rail d'icônes). Disparue, elle revient en PEEK : overlay 80vh au survol
+  // du contrôle d'expansion ou du bord gauche. `open` vaut pour la session ;
+  // le peek et son verrou ne sont jamais persistés.
+  const NAV_WIDTH = 264;
+  const [navHidden, setNavHidden] = useState(false);
+  const [peekOpen, setPeekOpen] = useState(false);
+  const peekOpenRef = useRef(false);
+  peekOpenRef.current = peekOpen;
+  const peekLockUntilRef = useRef(0);   // verrou 600ms post-masquage
+  const peekCloseTimerRef = useRef(null);
+  const finePointerRef = useRef(true);
+  useEffect(() => {
+    try { finePointerRef.current = window.matchMedia('(pointer: fine)').matches; } catch (e) { /* garde */ }
+  }, []);
+
+  const closePeekNow = () => { clearTimeout(peekCloseTimerRef.current); setPeekOpen(false); };
+  const hideNav = () => {
+    closePeekNow();
+    peekLockUntilRef.current = Date.now() + 600;
+    setNavHidden(true);
+  };
+  const expandNav = () => { closePeekNow(); setNavHidden(false); };
+  const toggleNav = () => { if (navHidden) expandNav(); else hideNav(); };
+  const openPeek = () => {
+    // Jamais au tactile, jamais pendant le verrou, jamais nav ouverte.
+    if (!finePointerRef.current) return;
+    if (Date.now() < peekLockUntilRef.current) return;
+    clearTimeout(peekCloseTimerRef.current);
+    setPeekOpen(true);
+  };
+  const cancelPeekClose = () => clearTimeout(peekCloseTimerRef.current);
+  const schedulePeekClose = () => {
+    clearTimeout(peekCloseTimerRef.current);
+    peekCloseTimerRef.current = setTimeout(() => setPeekOpen(false), 220);
+  };
+
+  // Surfaces qui portent la nav (la peek n'existe nulle part ailleurs)
+  const NAV_SURFACES = ['home', 'conversation', 'conversations', 'dossiers', 'list', 'dossier'];
+  const onNavSurface = NAV_SURFACES.includes(currentPage);
+
+  // Bord gauche : ≤ 6px pendant 180ms → peek ; repasser au-delà de 28px avant
+  // l'échéance annule l'intention. Un simple passage ne l'ouvre jamais.
+  useEffect(() => {
+    if (!navHidden || !onNavSurface) return undefined;
+    let timer = null;
+    let armed = false;
+    const onMove = (e) => {
+      if (peekOpenRef.current) return;
+      if (e.clientX <= 6) {
+        if (!armed && Date.now() >= peekLockUntilRef.current) {
+          armed = true;
+          timer = setTimeout(() => { armed = false; openPeek(); }, 180);
+        }
+      } else if (armed && e.clientX > 28) {
+        armed = false;
+        clearTimeout(timer);
+      }
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => { window.removeEventListener('mousemove', onMove); clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navHidden, onNavSurface]);
+  // TODO(question) : verticale par défaut des fils libres - héritée du workspace ?
+  // Le proto n'en montre qu'une ; on fixe Dommage corporel en attendant.
+  const DEFAULT_FREE_VERTICAL = 'Dommage corporel';
+  // Picker de rattachement (modale centrée) : threadId en attente de dossier
+  const [attachPickerThreadId, setAttachPickerThreadId] = useState(null);
+  // Chip du composer : flash une fois après rattachement
+  const [scopeFlash, setScopeFlash] = useState(false);
+  // Dépôt hors dossier - documents de travail minimaux (chips au-dessus de l'input).
+  // Le modèle complet (panneau, plafond 5, expiration 30 j) = étape 5 du port.
+  const [freeStagedDocs, setFreeStagedDocs] = useState([]);
 
   // ========== SETTINGS ==========
   const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'maboite' | 'connecteurs' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
@@ -1435,6 +1620,7 @@ export default function App() {
   const [billingState, setBillingState] = useState('active'); // 'trial' | 'active' | 'none' (Ø licence → lecture seule)
   const [quotaFill, setQuotaFill] = useState('mid');          // 'fresh' | 'mid' | 'full'
   const [demoPersona, setDemoPersona] = useState('admin');    // 'admin' (u-1) | 'member' (u-2)
+  const [demoControlsOpen, setDemoControlsOpen] = useState(false); // panneau démo (vue/état/quota) replié par défaut
   // A licence exists only when held by a collaborator - created at invite time
   // or by assigning a plan to a member. There is no standalone "buy seats" pool,
   // hence no purchased-vs-assigned counter (X/X licences).
@@ -1541,6 +1727,8 @@ export default function App() {
   // session seulement (le prototype repart propre à chaque rechargement).
   const [mailValueOpen, setMailValueOpen] = useState(false);
   const [mailValueSeen, setMailValueSeen] = useState(false);
+  const [parrainagePromoHidden, setParrainagePromoHidden] = useState(false); // slot promo sidebar (session)
+  const [homeAssistantPromoHidden, setHomeAssistantPromoHidden] = useState(false); // encart découverte « Plato hors dossier » de la home (session)
   const [preferenceDocs, setPreferenceDocs] = useState([]);
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
@@ -2005,11 +2193,12 @@ export default function App() {
   // every drawer (+ its backdrop) anchors its right edge to it. 0 → no chat,
   // so the drawer reverts to the screen's right edge.
   useEffect(() => {
-    const chatVisible = chatSidebarOpen && dossierStatut !== 'fermé' && !editPanel;
+    // Le rail n'existe que dans l'état dossier - hors dossier, l'offset retombe à 0.
+    const chatVisible = currentPage === 'dossier' && chatSidebarOpen && dossierStatut !== 'fermé' && !editPanel;
     // +6px so the drawer stops at the chat's resize divider (6px wide), leaving it
     // visible and draggable rather than tucked under the drawer.
     document.documentElement.style.setProperty('--chat-offset', chatVisible ? `${chatWidth + 6}px` : '0px');
-  }, [chatSidebarOpen, dossierStatut, editPanel, chatWidth]);
+  }, [currentPage, chatSidebarOpen, dossierStatut, editPanel, chatWidth]);
 
   const [dossierRef, setDossierRef] = useState('DOS-2024-001');
   const [dossierIntitule, setDossierIntitule] = useState('Dossier Dupont');
@@ -2224,8 +2413,8 @@ export default function App() {
 
   // Init: restore from localStorage on mount
   useEffect(() => {
-    if (captureMode) { isInitialLoad.current = false; return; } // TEMP CAPTURE: skip restore so we stay on the captured screen
-    if (DEMO_SOCIAL) { isInitialLoad.current = false; return; } // « ?demo=social » — skip restore so the seeded demo matter isn't reverted
+    if (captureMode) return; // TEMP CAPTURE: skip restore so we stay on the captured screen
+    if (DEMO_SOCIAL) return; // « ?demo=social » — skip restore so the seeded demo matter isn't reverted
     // A bare /dossier URL (bookmark, stale link) carries no dossier ID - there's no
     // valid dossier to open, so it can only land on a stale/broken view. Always send
     // such direct loads home to "Mes dossiers" instead of restoring stale state.
@@ -2234,35 +2423,59 @@ export default function App() {
 
     const savedGlobal = lsLoad(LS_GLOBAL);
     if (savedGlobal) {
-      setDossiers((savedGlobal.dossiers || []).map(d => ({ ...d, statut: d.statut ?? 'ouvert' })));
-      // URL is the source of truth - only restore page from storage when user landed at root
-      if (!landedOnBareDossier && window.location.pathname === '/' && savedGlobal.currentPage && savedGlobal.currentPage !== 'list') {
+      const restoredDossiers = (savedGlobal.dossiers || []).map(d => ({
+        ...d,
+        statut: d.statut ?? 'ouvert',
+        // Champs pilotage (port Plato) - normalisés pour les anciens enregistrements.
+        domaine: d.domaine ?? (d.matterType === 'social' ? 'Droit social' : 'Dommage corporel'),
+        stade: d.stade ?? 'En cours', // ⚠ seam (data contract §1) : stade rédigé, pas dérivé
+        lastActivity: d.lastActivity ?? d.lastEditDate ?? null,
+        nextAction: d.nextAction ?? null,
+      }));
+      setDossiers(restoredDossiers);
+      // Seed premier lancement du store threads : un fil vide par dossier.
+      threadsRef.current.seedFromDossiers(restoredDossiers);
+      // URL is the source of truth - only restore an active dossier session when
+      // the user landed at root. Index pages ('list'/'dossiers') restore to home.
+      if (!landedOnBareDossier && window.location.pathname === '/' && savedGlobal.currentPage === 'dossier') {
         setCurrentPage(savedGlobal.currentPage);
       }
       // Migration: rename 'détail' → 'info dossier' in saved navStack
       if (savedGlobal.navStack) setNavStack(savedGlobal.navStack.map(n => ({ ...n, activeTab: n.activeTab === 'détail' || n.activeTab === 'info dossier' ? 'dossier' : n.activeTab })));
       if (!landedOnBareDossier) {
         setActiveDossierId(savedGlobal.activeDossierId);
+        if (savedGlobal.activeThreadId) setActiveThreadId(savedGlobal.activeThreadId);
         if (savedGlobal.activeDossierId && savedGlobal.currentPage === 'dossier') {
           loadDossierData(savedGlobal.activeDossierId);
         }
       }
     } else {
-      // First-ever load: start with empty list
-      lsSave(LS_GLOBAL, { dossiers: [], activeDossierId: null, currentPage: 'list', navStack: [] });
+      // Premier lancement : semer un jeu de démonstration pour que la navigation
+      // (Dossiers récents + Conv. récentes) reflète la frame Figma dès l'ouverture.
+      // Les dossiers sont ouvrables (ils chargent les données baseline) ; les fils
+      // sont titrés. Idempotent au niveau du store threads.
+      const seed = buildDemoSeed();
+      setDossiers(seed.dossiers);
+      threadsRef.current.seedThreads(seed.threads);
+      lsSave(LS_GLOBAL, { dossiers: seed.dossiers, activeDossierId: null, activeThreadId: null, currentPage: 'home', navStack: [] });
     }
-    isInitialLoad.current = false;
+    // NOTE : ne PAS basculer isInitialLoad ici. Les effets d'autosave déclarés
+    // plus bas tournent dans le même passage de montage avec l'état INITIAL en
+    // closure : basculer le drapeau de façon synchrone leur faisait écraser le
+    // localStorage restauré (et le second passage d'effets de StrictMode
+    // relisait alors ces données écrasées → liste des dossiers vidée au
+    // rechargement). Le drapeau bascule dans un effet dédié après les autosaves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Retour dans Plato : au premier atterrissage sur l'accueil dossiers, si
+  // Retour dans Plato : au premier atterrissage sur l'accueil (Home), si
   // aucune boîte n'est connectée, on présente la modale de valeur du connecteur
   // email (une fois par session, après un court battement « bienvenue »). On
   // s'efface si un flow de connexion est déjà ouvert, en capture, ou en démo.
   useEffect(() => {
     if (captureMode || DEMO_SOCIAL) return undefined;
     if (mailValueSeen) return undefined;
-    if (currentPage !== 'list') return undefined;
+    if (currentPage !== 'home') return undefined;
     if (mailboxes.length > 0) return undefined;
     if (mailFlow) return undefined;
     const t = setTimeout(() => { setMailValueOpen(true); setMailValueSeen(true); }, 700);
@@ -2285,9 +2498,14 @@ export default function App() {
   // Auto-save global state
   useEffect(() => {
     if (isInitialLoad.current) return;
-    lsSave(LS_GLOBAL, { dossiers, activeDossierId, currentPage, navStack });
+    lsSave(LS_GLOBAL, { dossiers, activeDossierId, activeThreadId, currentPage, navStack });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dossiers, activeDossierId, currentPage, navStack]);
+  }, [dossiers, activeDossierId, activeThreadId, currentPage, navStack]);
+
+  // Fin d'hydratation - déclaré APRÈS les effets d'autosave pour que, sur le
+  // passage d'effets du montage, ceux-ci voient encore isInitialLoad=true et
+  // n'écrasent pas le localStorage avec l'état initial vide.
+  useEffect(() => { isInitialLoad.current = false; }, []);
 
   // ========== CHAT: proactive announcements after extraction ==========
 
@@ -3790,7 +4008,12 @@ export default function App() {
       lastEditBy: 'Meghan R.',
       lastEditDate: new Date().toLocaleDateString('fr-FR'),
       statut: 'ouvert',
-      matterType: formData.matterType || 'corporel'
+      matterType: formData.matterType || 'corporel',
+      // Champs pilotage (port Plato, data contract §1)
+      domaine: (formData.matterType || 'corporel') === 'social' ? 'Droit social' : 'Dommage corporel',
+      stade: 'En cours', // ⚠ seam : stade rédigé, pas dérivé
+      lastActivity: new Date().toISOString(),
+      nextAction: null,
     }, ...prev]);
 
     setVictimeData({
@@ -3842,7 +4065,12 @@ export default function App() {
     setRapportBannerDismissed(false);
     setInfoDossierStreaming(null);
 
-    // Reset chat state for new dossier
+    // Nouveau dossier → sa première conversation devient le fil actif du rail.
+    // (setChatMessages([]) n'est plus nécessaire : le pont charge le fil vide.)
+    const firstThread = threadsRef.current.createThread({
+      scope: { dossierId: newId, vertical: (formData.matterType || 'corporel') === 'social' ? 'Droit social' : 'Dommage corporel' },
+    });
+    setActiveThreadId(firstThread.id);
     setChatMessages([]);
     setChatBlocked(false);
     chatExtractionAnnounced.current = false;
@@ -4220,8 +4448,24 @@ export default function App() {
   };
 
   // ========== CHAT SEND - handles user messages + intent detection ==========
-  const handleChatSend = () => {
-    const text = chatInputValue.trim();
+  // Envoi du rail. `payload` vient du nouveau composer ({ body, tokens }) ;
+  // sans payload, on lit l'ancien état chatInputValue (compat). Les tokens
+  // inline (pièces / modèles) redeviennent des docs attachés pour que les
+  // flows aval (rédaction, modèles) continuent de fonctionner tels quels.
+  const handleChatSend = (payload = null) => {
+    const text = (payload?.body ?? chatInputValue).trim();
+    const tokenDocs = (payload?.tokens || [])
+      .filter(t => t.type === 'piece' || t.type === 'modele')
+      .map(t => ({ id: t.id, name: t.label, source: t.type === 'piece' ? 'piece' : 'template' }));
+
+    // Nommage de la conversation du dossier au 1er message (comme le fil central,
+    // cf. sendAssistantMessage) : un fil encore « Nouvelle conversation » prend le
+    // titre dérivé du premier message texte. On ignore les commandes /… et la
+    // capture de motivation (pendingRationale répond à une invite, pas au sujet).
+    if (text && !text.startsWith('/') && !pendingRationale && activeThreadId) {
+      const at = threadsRef.current.getThread(activeThreadId);
+      if (at?.isUntitled) threadsRef.current.renameThread(activeThreadId, deriveThreadTitle(text));
+    }
 
     // Rationale capture: if there's a pending rationale prompt and the user typed
     // plain text (not a slash command), persist it on the matching attachment(s),
@@ -4254,7 +4498,7 @@ export default function App() {
       setPendingRationale(null);
       return;
     }
-    if (!text && stagedDocs.length === 0) return;
+    if (!text && stagedDocs.length === 0 && tokenDocs.length === 0) return;
 
     // Slash command detection - TP commands first, then demo scenarios
     if (text.startsWith('/')) {
@@ -4356,7 +4600,7 @@ export default function App() {
     }
 
     // Push user message
-    const attachedDocs = stagedDocs.length > 0 ? [...stagedDocs] : null;
+    const attachedDocs = (stagedDocs.length > 0 || tokenDocs.length > 0) ? [...stagedDocs, ...tokenDocs] : null;
     const userMsg = { type: 'user', text: text || 'Documents ajoutés', attachments: attachedDocs || undefined };
     setChatMessages(prev => [...prev, userMsg]);
     setChatInputValue('');
@@ -4845,97 +5089,60 @@ export default function App() {
     setEditPanel({ type, title: titles[type] || 'Édition', data: ligne });
   };
 
-  // ========== TOP BAR ==========
-  const renderTopBar = () => {
-    const dossierTabs = tabsConfig.dossier;
+  // ========== EN-TÊTE WORKSPACE DU DOSSIER ==========
+  // Décision (08/09, capture du proto) : la sidebar org RESTE dans le dossier ;
+  // les cinq vues vivent en RANGÉE D'ONGLETS sous le nom du dossier
+  // (« Informations · Chiffrage · Pièces n · Actes · JP »). L'en-tête porte le
+  // nom (switcher), le statut, le menu terminé/reprendre, la réouverture du
+  // rail - puis les onglets. Il n'y a plus de nav latérale de dossier.
+  const renderDossierWorkspaceHeader = () => {
     const isClosed = dossierStatut === 'fermé';
+    const activeDossier = dossiers.find(d => d.id === activeDossierId) || null;
+    const displayName = `${victimeData.prenom || ''} ${victimeData.nom || ''}`.trim() || activeDossier?.reference || 'Dossier';
+    // Niveau 3 (poste / poste-IV / acte / cascade) : le cran dossier se COMPACTE
+    // au lieu de fusionner avec le strip de l'objet (décision 09/09 : un cran
+    // par barre - l'objet reste dans son strip, la nav dans les onglets). Le nom
+    // reste (switcher), le badge d'état et la note de création s'effacent, les
+    // paddings se resserrent pour rapprocher l'objet du contenu.
+    const isSubLevel = !!currentLevel?.type && currentLevel.type !== 'dossier';
     return (
-      <div className="w-full h-14 bg-white border-b border-stone-200/60 flex items-center justify-between px-4 flex-shrink-0 relative">
-        {/* Left: Home + victim name + status */}
-        <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
-          <button
-            onClick={() => { if (jp.jpState.drawerDecisionId) jp.closeDrawer(); backToList(); }}
-            title="Retour à la liste des dossiers"
-            className="w-8 h-8 flex items-center justify-center bg-cream rounded-[6px] hover:bg-border transition-colors flex-shrink-0"
-          >
-            <Home className="w-4 h-4 text-foreground-tertiary" strokeWidth={1.75} />
-          </button>
-          <span className="truncate" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: '16px', fontWeight: 500, color: '#292524', letterSpacing: '-0.3px' }}>
-            {victimeData.prenom} {victimeData.nom}
-          </span>
-          <span className={`badge badge-sm ${isClosed ? 'badge-warning' : 'badge-success'}`}>
-            {isClosed ? 'Terminé' : 'En cours'}
-          </span>
+      <div className="w-full flex-shrink-0">
+      {/* Bande de tête : contrôle « Menu » (nav masquée) + fil de RETOUR vers
+          « Mes dossiers ». Le dossier n'avait aucun retour, contrairement à la
+          conversation centrale (« Mes conversations / … ») ; on l'aligne dessus.
+          La bande « Menu » de la frame Figma 3757:30888 est fusionnée ici. */}
+      <BreadcrumbBand
+        leading={navHidden ? renderNavExpandControl() : null}
+        backLabel="Mes dossiers"
+        title="Retour à mes dossiers"
+        onBack={backToList}
+      />
+      <div className={`w-full flex items-center justify-between gap-3 px-8 ${isSubLevel ? 'pt-1.5 pb-0.5' : 'pt-3 pb-1'}`}>
+        <div className="flex items-center gap-3 min-w-0">
+          <DossierSwitcher
+            dossiers={dossiers}
+            activeDossierId={activeDossierId}
+            onSelect={(d) => openDossier(d)}
+            onCreate={() => openImportV2('create')}
+            trigger="title"
+            label={displayName}
+          />
+          {!isSubLevel && (
+            <span className={`badge badge-sm ${isClosed ? 'badge-warning' : 'badge-success'}`}>
+              {isClosed ? 'Terminé' : 'En cours'}
+            </span>
+          )}
+          {!isSubLevel && activeDossier?.createdFrom === 'conversation' && (
+            <span className="text-[12px] text-foreground-tertiary">Créé depuis une conversation</span>
+          )}
         </div>
 
-        {/* Center: Tabs - absolutely centered so they never shift.
-            items-stretch + h-full on the tab buttons puts the active underline
-            flush with the bar's bottom border (no gap below the tabs). */}
-        <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 flex items-stretch pointer-events-none">
-          <div className="pointer-events-auto flex gap-1 h-full">
-          <div className="flex gap-1 h-full">
-            {dossierTabs.map(tab => {
-              const tabKey = tabLabelToKey(tab);
-              const isActive = currentLevel?.type === 'dossier'
-                ? currentLevel.activeTab === tabKey
-                : navStack[0]?.activeTab === tabKey;
-
-              // Diff diamond: check activeDiffs for pending diffs in this tab's zone.
-              // Hidden in closed dossiers - no edits possible, so no diff signals.
-              const tabZoneMap = { dossier: 'infos_dossier', chiffrage: 'postes', 'pièces': 'pieces' };
-              const tabZone = tabZoneMap[tabKey];
-              const zoneDiffs = tabZone && !isClosed ? activeDiffs.filter(d => d.zone === tabZone && !d.approved && !d.rejected) : [];
-              // Determine dominant diff type for color
-              const hasAdds = zoneDiffs.some(d => d.type === 'add');
-              const hasEdits = zoneDiffs.some(d => d.type === 'edit');
-              const hasDeletes = zoneDiffs.some(d => d.type === 'delete');
-              const diffDiamondColor = hasEdits ? ROW_DIFF_COLORS.edit : hasDeletes ? ROW_DIFF_COLORS.delete : hasAdds ? ROW_DIFF_COLORS.add : null;
-              const showDiffDiamond = zoneDiffs.length > 0;
-
-              // Legacy streaming dot (only if no diff diamond and dossier is open)
-              const hasExtracted = tab === 'Dossier' && infoDossierStreaming?.fieldsRevealed?.length > 0;
-              const showStreamingDot = hasExtracted && !isActive && !showDiffDiamond && !isClosed;
-
-              return (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    // Tab nav while the JP page is open → close the drawer first
-                    // so the click lands on the new tab, not on the inline JP view.
-                    if (jp.jpState.drawerDecisionId) jp.closeDrawer();
-                    if (currentLevel?.type === 'poste') {
-                      navigateToStackLevel(0);
-                      setTimeout(() => setActiveTab(tab), 0);
-                    } else {
-                      setActiveTab(tab);
-                    }
-                  }}
-                  className={`px-4 h-full flex items-center text-body-medium relative transition-colors ${isActive ? 'text-stone-800' : 'text-stone-400 hover:text-stone-600'}`}
-                >
-                  <span className="flex items-center gap-1.5">
-                    {showDiffDiamond && (
-                      <span className="inline-flex items-center justify-center w-3 h-3 flex-shrink-0">
-                        <span className="w-[6px] h-[6px] flex-shrink-0" style={{
-                          background: diffDiamondColor,
-                          transform: 'rotate(45deg)',
-                          borderRadius: '0.5px',
-                          border: '1px solid rgba(0,0,0,0.1)',
-                          boxShadow: `0 0 0 3px ${diffDiamondColor}20, 0 1px 2px 0 rgba(26,26,26,0.05)`,
-                        }} />
-                      </span>
-                    )}
-                    {tab}
-                    {showStreamingDot && <span className="w-1.5 h-1.5 animate-pulse-scale" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />}
-                  </span>
-                  {isActive && <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-stone-800 rounded-full" />}
-                </button>
-              );
-            })}
-          </div>
-        </div></div>
-
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 justify-end">
+        <div className="flex items-center gap-2 justify-end flex-shrink-0">
+          {/* Réouverture du rail - à GAUCHE du menu ⋮ (l'affordance de repli vit
+              dans le header du rail). */}
+          {!isClosed && !chatSidebarOpen && (
+            <PlatoAssistantButton onClick={() => setChatSidebarOpen(true)} />
+          )}
           {/* Overflow menu */}
           <div className="relative" ref={dossierMenuRef}>
             <button
@@ -4969,30 +5176,57 @@ export default function App() {
               </div>
             )}
           </div>
-          {/* Re-open Plato button - only shown when chat is collapsed.
-              The collapse-chat affordance lives inside the chat sidebar header,
-              next to PLATO MASTER (see renderChatSidebar). */}
-          {!isClosed && !chatSidebarOpen && (
-            <>
-              <div className="w-px h-5 bg-border" />
-              <button
-                onClick={() => setChatSidebarOpen(true)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all hover:shadow-md"
-                title="Ouvrir Plato Assistant"
-                style={{
-                  border: '1px solid #aabcd5',
-                  boxShadow: '0px 1px 2px 0px rgba(0,0,0,0.05)',
-                  backgroundImage: `url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 36' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='0.2'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(0 -3.29 7.6 -0.48 100 18)'><stop stop-color='rgba(185,112,63,1)' offset='0'/><stop stop-color='rgba(203,148,111,0.75)' offset='0.25'/><stop stop-color='rgba(220,183,159,0.5)' offset='0.5'/><stop stop-color='rgba(255,255,255,0)' offset='1'/></radialGradient></defs></svg>"), linear-gradient(90deg, #f8f7f5 0%, #f8f7f5 100%)`,
-                }}
-              >
-                <PlatoIcon size={16} />
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '12px', color: '#50443e', whiteSpace: 'nowrap' }}>
-                  PLATO ASSISTANT
-                </span>
-              </button>
-            </>
-          )}
         </div>
+      </div>
+
+      {/* Rangée d'onglets - les cinq vues du dossier (« Pièces » porte son compteur).
+          Cliquer un onglet pendant que la page JP est ouverte ferme le drawer. */}
+      <div className={`px-8 border-b border-border ${isSubLevel ? 'mt-0.5' : 'mt-1'}`}>
+        <div className="flex items-end gap-6">
+          {tabsConfig.dossier.map(tab => {
+            const tabKey = tabLabelToKey(tab);
+            const isActive = currentLevel?.type === 'dossier'
+              ? currentLevel.activeTab === tabKey
+              : navStack[0]?.activeTab === tabKey;
+            const label = tab === 'Dossier' ? 'Informations' : tab === 'Jurisprudence' ? 'JP' : tab;
+            const count = tab === 'Pièces' ? (activeMatterType === 'social' ? socialPieces.length : pieces.length) : null;
+
+            // Diamant de diff (porté de l'ancienne top bar) - masqué dossier fermé.
+            const tabZoneMap = { dossier: 'infos_dossier', chiffrage: 'postes', 'pièces': 'pieces' };
+            const tabZone = tabZoneMap[tabKey];
+            const zoneDiffs = tabZone && !isClosed ? activeDiffs.filter(d => d.zone === tabZone && !d.approved && !d.rejected) : [];
+            const hasAdds = zoneDiffs.some(d => d.type === 'add');
+            const hasEdits = zoneDiffs.some(d => d.type === 'edit');
+            const hasDeletes = zoneDiffs.some(d => d.type === 'delete');
+            const diffDiamondColor = hasEdits ? ROW_DIFF_COLORS.edit : hasDeletes ? ROW_DIFF_COLORS.delete : hasAdds ? ROW_DIFF_COLORS.add : null;
+            const showDiffDiamond = zoneDiffs.length > 0;
+            const hasExtracted = tab === 'Dossier' && infoDossierStreaming?.fieldsRevealed?.length > 0;
+            const showStreamingDot = hasExtracted && !isActive && !showDiffDiamond && !isClosed;
+
+            const handleClick = () => {
+              if (jp.jpState.drawerDecisionId) jp.closeDrawer();
+              if (currentLevel?.type === 'poste') {
+                navigateToStackLevel(0);
+                setTimeout(() => setActiveTab(tab), 0);
+              } else {
+                setActiveTab(tab);
+              }
+            };
+
+            return (
+              <DossierTab
+                key={tab}
+                label={label}
+                active={isActive}
+                count={count}
+                diamondColor={showDiffDiamond ? diffDiamondColor : null}
+                streamingDot={showStreamingDot}
+                onClick={handleClick}
+              />
+            );
+          })}
+        </div>
+      </div>
       </div>
     );
   };
@@ -5020,12 +5254,9 @@ export default function App() {
     document.addEventListener('mouseup', onUp);
   };
 
-  // Plato logo icon (orange P) - reusable
-  const PlatoIcon = ({ size = 16, color = '#292524' }) => (
-    <svg width={size} height={size} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-      <path d="M73.5996 0C75.8398 0 76.9608 -0.000427067 77.8164 0.435547C78.5689 0.819016 79.181 1.43109 79.5645 2.18359C80.0004 3.03924 80 4.16018 80 6.40039V73.5996C80 75.8398 80.0004 76.9608 79.5645 77.8164C79.181 78.5689 78.5689 79.181 77.8164 79.5645C76.9608 80.0004 75.8398 80 73.5996 80H55L53 70H57V62H23V70H27L25 80H6.40039C4.16018 80 3.03924 80.0004 2.18359 79.5645C1.43109 79.181 0.819016 78.5689 0.435547 77.8164C-0.000427067 76.9608 0 75.8398 0 73.5996V6.40039C0 4.16018 -0.000427067 3.03924 0.435547 2.18359C0.819016 1.43109 1.43109 0.819016 2.18359 0.435547C3.03924 -0.000427067 4.16018 0 6.40039 0H73.5996ZM28.916 39.083L21 32L15 36L26 56H54L65 36L59 32L51.083 39.083L40 28L28.916 39.083ZM33 17L40 24L47 17L40 10L33 17Z" fill={color} />
-    </svg>
-  );
+  // PlatoIcon is now imported from ./components/shell/PlatoIcon
+
+  // PanelToggleIcon is now imported from ./components/shell/PanelToggleIcon
 
   // PlatoDotGrid is now imported from ./components/ReasoningStepper
 
@@ -5063,6 +5294,43 @@ export default function App() {
   const prevChatCountRef = useRef(0);
   const chatAnalyzedPostes = useRef(new Set()); // track which postes chat has already analyzed
   const chatJustInvitedPoste = useRef(null); // posteId set by canvas "+ poste" trigger; suppresses greeting in welcome useEffect
+
+  // ========== PONT FIL ACTIF ↔ chatMessages ==========
+  // chatMessages reste LA variable de travail (tous les flows scriptés la lisent
+  // et l'écrivent) ; elle devient « les messages du fil actif ». Deux effets la
+  // synchronisent avec le store, gardés contre la boucle par threadSyncRef.
+  const threadSyncRef = useRef(false);
+  const chatMessagesLive = useRef(chatMessages);
+  chatMessagesLive.current = chatMessages;
+
+  // URL /conversations/:id → fil actif (fil inconnu → retour à l'index)
+  useEffect(() => {
+    if (currentPage !== 'conversation' || !routeThreadId) return;
+    if (routeThreadId === activeThreadId) return;
+    if (threadsRef.current.getThread(routeThreadId)) setActiveThreadId(routeThreadId);
+    else navigate('/conversations', { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, routeThreadId]);
+
+  // Fil actif → charger ses messages. Si le store référence déjà le tableau
+  // courant (cas re-activation), ne rien faire : poser le drapeau sans que
+  // l'effet de persistance ne tourne le laisserait bloqué à true.
+  useEffect(() => {
+    if (!activeThreadId) return;
+    const msgs = threadsRef.current.getThread(activeThreadId)?.messages ?? [];
+    if (msgs === chatMessagesLive.current) return;
+    threadSyncRef.current = true;
+    setChatMessages(msgs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeThreadId]);
+
+  // chatMessages → persister dans le fil actif
+  useEffect(() => {
+    if (threadSyncRef.current) { threadSyncRef.current = false; return; }
+    if (!activeThreadId) return;
+    threadsRef.current.setThreadMessages(activeThreadId, chatMessages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatMessages]);
 
   // Close attach menu on click outside
   useEffect(() => {
@@ -5240,19 +5508,30 @@ export default function App() {
           <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-stone-300/30 transition-colors" />
         </div>
         <div className="flex-shrink-0 flex flex-col h-full" style={{ width: chatWidth, backgroundColor: '#F8F7F5' }}>
-          {/* Header - collapse · Plato logo · PLATO MASTER */}
+          {/* Header - collapse · Plato logo · switcher des conversations DU dossier.
+              Le switcher ne liste que les fils de ce dossier (jamais de pièces,
+              d'actes ni d'ancres), chaque entrée est ouvrable, + création. */}
           <div className="px-3 h-12 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: '#e7e5e3' }}>
             <button
               onClick={() => setChatSidebarOpen(false)}
               className="p-1.5 hover:bg-stone-100 rounded-md transition-colors flex-shrink-0"
               title="Masquer le chat"
             >
-              <PanelRightClose className="w-4 h-4 text-stone-500" strokeWidth={1.75} />
+              <PanelRight className="w-4 h-4 text-stone-500" strokeWidth={1.75} />
             </button>
             <PlatoIcon />
-            <span className="flex-1" style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '12px', color: '#78716c', lineHeight: '32px' }}>
-              PLATO MASTER
-            </span>
+            <ConversationSwitcher
+              threads={threadsStore.threadsForDossier(activeDossierId)}
+              activeThreadId={activeThreadId}
+              onSelect={(id) => setActiveThreadId(id)}
+              onCreate={() => {
+                const d = dossiers.find(x => x.id === activeDossierId);
+                const t = threadsRef.current.createThread({
+                  scope: { dossierId: activeDossierId, vertical: d?.domaine ?? (d?.matterType === 'social' ? 'Droit social' : 'Dommage corporel') },
+                });
+                setActiveThreadId(t.id);
+              }}
+            />
           </div>
 
           {/* Chat messages area */}
@@ -5406,6 +5685,32 @@ export default function App() {
               // Artifact cards - removed, reasoning stepper handles diffs
               if (msg.type === 'artifact-cards') {
                 return null;
+              }
+
+              // Marqueur de rattachement - preuve positionnelle, jamais retirable
+              if (msg.type === 'marker') {
+                const at = msg.at ? new Date(msg.at) : null;
+                const markerTime = at ? `${at.getHours()}h${String(at.getMinutes()).padStart(2, '0')}` : '';
+                return (
+                  <div key={i} className="flex items-center gap-2 py-3">
+                    <span className="flex-1 h-px bg-border" />
+                    <span className="text-[10.5px] text-foreground-tertiary flex items-center gap-1.5 min-w-0" style={{ fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <Folder className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />
+                      <span className="truncate">Rattaché · {msg.dossierLabel ?? msg.dossierId}{markerTime ? ` · ${markerTime}` : ''}</span>
+                    </span>
+                    <span className="flex-1 h-px bg-border" />
+                  </div>
+                );
+              }
+
+              // Ligne système - énoncé factuel court, jamais d'action
+              if (msg.type === 'system') {
+                return (
+                  <div key={i} className="flex items-center gap-2 pb-2 text-[12px] text-foreground-tertiary">
+                    <span className="w-1 h-1 rounded-full bg-border-strong flex-shrink-0" />
+                    <span className="min-w-0">{msg.text}</span>
+                  </div>
+                );
               }
 
 
@@ -5619,126 +5924,31 @@ export default function App() {
             }}
           >
             <div style={{ position: 'relative' }}>
-            {/* Slash command palette */}
-            {chatInputValue.startsWith('/') && (
-              <SlashCommandPalette
-                query={chatInputValue.slice(1).trim()}
-                scenarios={[...require('./data/demoScenarios').SCENARIO_LIST, ...TP_COMMAND_LIST, ...PRP_COMMAND_LIST, ...REDACTION_COMMAND_LIST]}
-                onSelect={(cmd) => {
-                  setChatInputValue('');
-                  // Bordereau-prefixed commands (don't start with `redaction`)
-                  if (cmd === 'bordereau-modify-section') {
-                    redaction.playScenario(cmd);
-                    return;
-                  }
-                  if (cmd.startsWith('redaction')) {
-                    const actTypeFromCmd = cmd.replace('redaction-', '');
-                    // Direct scenarios (modif, user-ask, onboarding, etc.)
-                    if (REDACTION_SCENARIOS[cmd]) {
-                      redaction.playScenario(cmd);
-                    } else {
-                      // Act-type → 5-step flow
-                      const actTypeDef = REDACTION_ACT_TYPES.find(t => t.id === actTypeFromCmd);
-                      if (actTypeDef) {
-                        const label = actTypeDef.label;
-                        setChatMessages(prev => [...prev, { type: 'user', text: `Rédige ${['a','e','i','o','u'].includes(label[0]?.toLowerCase()) ? 'un ' : 'une '}${label.toLowerCase()}` }]);
-                        const matchingTemplates = templatesLibrary.filter(t => t.actType === actTypeFromCmd || (t.label && t.label.toLowerCase().includes(actTypeFromCmd)));
-                        redaction.startRedaction(actTypeFromCmd, { templates: matchingTemplates, attachments: [] });
-                      }
-                    }
-                    return;
-                  } else if (cmd.startsWith('tp-')) {
-                    if (cmd === 'tp-help') {
-                      setChatMessages(prev => [...prev, { type: 'ai', text: "Commandes Tiers payeurs disponibles :\n\n/tp-simple - Récap multi-postes (CPAM + Harmonie + SNCF)\n/tp-cascade - Cascade AT/MP (rente capitalisée PGPF → IP → DFP)\n/tp-reset - Revenir au scénario de base" }]);
-                    } else {
-                      const newKey = TP_COMMAND_MAP[cmd];
-                      if (newKey) {
-                        setTpScenarioKey(newKey);
-                        const sc = getTPScenario(newKey);
-                        setChatMessages(prev => [...prev, { type: 'ai', text: sc.agentMessage }]);
-                      }
-                    }
-                  } else if (cmd === 'prp' || cmd === 'prp-compute' || cmd === 'prp-alerts') {
-                    runPrpCommand(cmd);
-                  } else {
-                    jp.playScenario(cmd);
-                  }
-                }}
-                onDismiss={() => setChatInputValue('')}
-              />
-            )}
-            {/* Englobing wrapper (Figma "ChatInput" Processing/Limit/Quota states):
-                when a notice caps the composer, a tinted 1px frame wraps the white
-                input and the notice row sits on top of that tint. */}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: composerNotice ? 10 : 0,
-                backgroundColor: composerNotice ? NOTICE_WRAP_BG[composerNotice] : 'transparent',
-                padding: composerNotice ? '0 1px 1px 1px' : 0,
-              }}
-            >
-              {composerNotice && (
-                <ChatComposerNotice
-                  variant={composerNotice}
-                  pct={myQuotaPct}
-                  onOpenUsage={openMyUsage}
-                  onRequestUpgrade={() => setAskUpgradeOpen(true)}
-                />
-              )}
-              <div
-                style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: 6,
-                  border: composerNotice ? '1px solid transparent' : hasContent ? '2px solid #aabcd5' : '2px solid white',
-                  boxShadow: composerNotice
-                    ? '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)'
-                    : hasContent
-                    ? '0px 0px 0px 0px transparent, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)'
-                    : '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-              {/* CONTEXT bar - only when a zone is selected in the acte */}
+              {/* Zone de contexte acte - dockée au-dessus du composer */}
               {currentLevel.type === 'acte' && selectedActeZone && (
-                <div className="border-b border-border flex flex-wrap gap-y-[7px] items-start p-[6px] w-full">
-                  <div
-                    className={`rounded-[6px] px-2 py-1.5 flex items-center gap-1.5 max-w-[320px] overflow-hidden transition-colors ${
-                      selectedActeZone
-                        ? 'bg-[#dbeafe] border border-[#93c5fd]'
-                        : 'border border-border'
-                    }`}
-                  >
-                    <Focus className={`w-3 h-3 flex-shrink-0 ${selectedActeZone ? 'text-[#3b82f6]' : 'text-foreground-secondary'}`} />
-                    <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: selectedActeZone ? '#1d4ed8' : '#78716c', textTransform: 'uppercase' }}>
-                      {selectedActeZone ? `ACTE · ${selectedActeZone}` : `ACTE · ${currentLevel.title}`}
+                <div className="mb-1.5 flex flex-wrap gap-y-[7px] items-start">
+                  <div className="rounded-[6px] px-2 py-1.5 flex items-center gap-1.5 max-w-[320px] overflow-hidden bg-[#dbeafe] border border-[#93c5fd]">
+                    <Focus className="w-3 h-3 flex-shrink-0 text-[#3b82f6]" />
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#1d4ed8', textTransform: 'uppercase' }}>
+                      ACTE · {selectedActeZone}
                     </span>
-                    {selectedActeZone && (
-                      <button
-                        onClick={() => setSelectedActeZone(null)}
-                        className="flex-shrink-0 w-4 h-4 rounded flex items-center justify-center hover:bg-[#bfdbfe] transition-colors"
-                      >
-                        <X className="w-3 h-3 text-[#3b82f6]" strokeWidth={2.5} />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setSelectedActeZone(null)}
+                      className="flex-shrink-0 w-4 h-4 rounded flex items-center justify-center hover:bg-[#bfdbfe] transition-colors"
+                    >
+                      <X className="w-3 h-3 text-[#3b82f6]" strokeWidth={2.5} />
+                    </button>
                   </div>
                 </div>
               )}
 
-              {/* Drop zone - visible when dragging files over the chat */}
+              {/* Indication de dépôt pendant un drag au-dessus du rail */}
               {isDraggingFile && (
-                <div className="pt-3 px-3">
+                <div className="mb-1.5">
                   <div
                     style={{
-                      border: '1px dashed #a8a29e',
-                      borderRadius: 8,
-                      height: 64,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 10,
+                      border: '1px dashed #a8a29e', borderRadius: 8, height: 64,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                       background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #eeece6 100%)',
                       pointerEvents: 'none',
                     }}
@@ -5751,24 +5961,13 @@ export default function App() {
                 </div>
               )}
 
-              {/* Staged document chips */}
-              {stagedDocs.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-3 px-3">
-                  {stagedDocs.map((doc, di) => (
-                    <span key={di} className="inline-flex items-center gap-1 px-2 py-1 rounded-[6px] text-[12px] font-medium" style={{ backgroundColor: '#eeece6', color: '#44403c' }}>
-                      {doc.source === 'template'
-                        ? <LayoutTemplate className="w-3 h-3 text-foreground-secondary" />
-                        : <Paperclip className="w-3 h-3 text-foreground-secondary" />}
-                      <span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[140px]">{doc.name}</span>
-                      <button onClick={() => setStagedDocs(prev => prev.filter((_, i) => i !== di))} className="ml-0.5 hover:text-red-500 transition-colors">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-              {/* ────── UserAsk mode ────── */}
-              {userAskState.active ? (() => {
+              {/* Demande dockée (userAsk) : une seule à la fois, elle remplace le
+                  composer tant qu'elle attend une réponse - jamais deux demandes
+                  simultanées. Sinon : LE composer (même composant que la home,
+                  périmètre dossier - seul le catalogue change). */}
+              {userAskState.active ? (
+                <div className="bg-white rounded-[8px] border border-border px-3 pt-3 pb-3" style={{ boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)' }}>
+                  {(() => {
                 const { questions, currentIdx, selectedProposal, customText, answers } = userAskState;
                 const q = questions[currentIdx];
                 if (!q) return null;
@@ -5951,540 +6150,60 @@ export default function App() {
                     </div>
                   </>
                 );
-              })() : (
-              <>
-              {/* Text area + @mention dropdown */}
-              <div style={{ padding: '12px 12px 32px 12px', position: 'relative' }}>
-                <textarea
-                  ref={chatTextareaRef}
-                  className="w-full text-[14px] resize-none focus:outline-none"
-                  style={{ color: chatInputValue ? '#11181c' : '#78716c', lineHeight: '20px', minHeight: 20, maxHeight: 120, opacity: chatLocked ? 0.5 : 1, cursor: chatLocked ? 'not-allowed' : undefined }}
-                  placeholder={isDossierClosed ? 'Dossier terminé - Plato indisponible' : outOfQuota ? 'Quota hebdomadaire atteint - revient lundi' : chatBlocked ? 'Plato analyse vos documents...' : selectedActeZone ? 'Demandez une modification sur cette partie…' : 'Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...'}
-                  value={chatInputValue}
-                  onChange={(e) => {
-                    if (chatLocked) return;
-                    const val = e.target.value;
-                    setChatInputValue(val);
-                    // Detect @mention
-                    const cursor = e.target.selectionStart;
-                    const before = val.slice(0, cursor);
-                    const atMatch = before.match(/@([^\s@]*)$/);
-                    if (atMatch) {
-                      if (mentionQuery === null) setMentionScope('all'); // reset scope on a fresh @
-                      setMentionQuery({ query: atMatch[1], startIdx: before.length - atMatch[0].length });
-                      setMentionIdx(0);
-                    } else {
-                      setMentionQuery(null);
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    // @mention keyboard nav
-                    if (mentionQuery !== null) {
-                      const filtered = buildMentionList(mentionQuery.query, mentionScope).flat;
-                      if (filtered.length > 0) {
-                        if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIdx(prev => Math.min(prev + 1, filtered.length - 1)); return; }
-                        if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIdx(prev => Math.max(prev - 1, 0)); return; }
-                        if (e.key === 'Enter' || e.key === 'Tab') {
-                          e.preventDefault();
-                          const doc = filtered[mentionIdx] || filtered[0];
-                          // Replace @query with empty string and stage the doc
-                          const before = chatInputValue.slice(0, mentionQuery.startIdx);
-                          const after = chatInputValue.slice(mentionQuery.startIdx + mentionQuery.query.length + 1); // +1 for @
-                          setChatInputValue(before + after);
-                          setStagedDocs(prev => {
-                            if (prev.some(d => d.id === doc.id && d.source === doc.source)) return prev;
-                            return [...prev, doc];
-                          });
-                          setMentionQuery(null);
-                          return;
-                        }
-                      }
-                      if (e.key === 'Escape') { e.preventDefault(); setMentionQuery(null); return; }
-                    }
-                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!chatLocked) handleChatSend(); }
-                  }}
-                  onFocus={() => setChatInputFocused(true)}
-                  onBlur={() => { setChatInputFocused(false); setTimeout(() => setMentionQuery(null), 150); }}
-                  rows={1}
-                  disabled={chatLocked}
-                />
-                {/* @mention dropdown - two distinct worlds (pièces du dossier /
-                    modèles d'actes) kept visually separate, with a scope filter
-                    on top so "you can mention both kinds" reads at a glance. */}
-                {mentionQuery !== null && (() => {
-                  const { groups, counts } = buildMentionList(mentionQuery.query, mentionScope);
-                  if (counts.pieces === 0 && counts.templates === 0) return null;
-
-                  let globalIdx = 0;
-                  const selectDoc = (doc) => {
-                    const before = chatInputValue.slice(0, mentionQuery.startIdx);
-                    const after = chatInputValue.slice(mentionQuery.startIdx + mentionQuery.query.length + 1);
-                    setChatInputValue(before + after);
-                    setStagedDocs(prev => {
-                      if (prev.some(d => d.id === doc.id && d.source === doc.source)) return prev;
-                      return [...prev, doc];
-                    });
-                    setMentionQuery(null);
-                    chatTextareaRef.current?.focus();
-                  };
-                  const setScope = (s) => { setMentionScope(s); setMentionIdx(0); };
-
-                  const SCOPES = [
-                    { key: 'all', label: 'Tout' },
-                    { key: 'pieces', label: `Pièces${counts.pieces ? ` ${counts.pieces}` : ''}` },
-                    { key: 'templates', label: `Modèles${counts.templates ? ` ${counts.templates}` : ''}` },
-                  ];
-                  const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' };
-
-                  return (
-                    <div className="absolute bottom-full left-0 mb-1 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                      {/* Scope filter - doubles as a legend for the two mentionable kinds */}
-                      <div className="flex items-center gap-1 p-1 border-b border-border">
-                        {SCOPES.map((s) => {
-                          const active = mentionScope === s.key;
-                          return (
-                            <button
-                              key={s.key}
-                              onMouseDown={(e) => { e.preventDefault(); setScope(s.key); }}
-                              className={`px-2 py-1 rounded-[6px] transition-colors ${active ? '' : 'text-foreground-muted hover:bg-background'}`}
-                              style={{ ...monoLabel, ...(active ? { backgroundColor: '#292524', color: '#fff' } : {}) }}
-                            >
-                              {s.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <div className="overflow-y-auto p-1" style={{ maxHeight: 260 }}>
-                        {groups.map((group) => {
-                          const isTpl = group.key === 'templates';
-                          const GroupIcon = isTpl ? LayoutTemplate : Files;
-                          const RowIcon = isTpl ? LayoutTemplate : FileText;
-                          return (
-                            <div key={group.key} className="mb-0.5">
-                              {/* Super-header - the two worlds */}
-                              <div className="flex items-center gap-1.5 px-2 pt-1.5 pb-1">
-                                <GroupIcon className="w-3 h-3 text-foreground flex-shrink-0" strokeWidth={1.75} />
-                                <span style={{ ...monoLabel, fontWeight: 600, color: '#44403c' }}>{group.label}</span>
-                                <span className="ml-auto" style={{ ...monoLabel, color: '#a8a29e' }}>{group.total}</span>
-                              </div>
-                              {group.subsections.map((sub, si) => (
-                                <React.Fragment key={`${group.key}-sub-${si}`}>
-                                  {sub.label && (
-                                    <div className="flex items-center gap-1.5 py-0.5" style={{ paddingLeft: 20, paddingRight: 8 }}>
-                                      <Folder className="w-3 h-3 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                                      <span className="truncate opacity-80" style={{ ...monoLabel, color: '#78716c' }}>{sub.label}</span>
-                                    </div>
-                                  )}
-                                  {sub.docs.map((doc) => {
-                                    const idx = globalIdx++;
-                                    return (
-                                      <button
-                                        key={`${doc.source}-${doc.id}`}
-                                        className={`w-full flex items-center gap-2 py-1.5 pr-2 text-left rounded-[6px] transition-colors ${idx === mentionIdx ? 'bg-background' : 'hover:bg-background'}`}
-                                        style={{ paddingLeft: sub.label ? 32 : 20 }}
-                                        onMouseDown={(e) => { e.preventDefault(); selectDoc(doc); }}
-                                        onMouseEnter={() => setMentionIdx(idx)}
-                                      >
-                                        <RowIcon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                                        <span className="truncate text-[13px] text-foreground">{doc.name}</span>
-                                      </button>
-                                    );
-                                  })}
-                                </React.Fragment>
-                              ))}
-                              {group.hidden > 0 && (
-                                <button
-                                  onMouseDown={(e) => { e.preventDefault(); setScope('pieces'); }}
-                                  className="w-full text-left py-1 pr-2 rounded-[6px] hover:bg-background transition-colors"
-                                  style={{ paddingLeft: 20 }}
-                                >
-                                  <span style={{ ...monoLabel, color: '#a8a29e' }}>+ {group.hidden} autre{group.hidden > 1 ? 's' : ''} · voir tout</span>
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Bottom bar with actions */}
-              <div
-                className="flex items-center justify-between px-3 py-3"
-                style={{
-                  background: (hasContent && !chatLocked) ? 'linear-gradient(to bottom, white 44.66%, #eeece6 100%)' : 'transparent',
-                  borderBottomLeftRadius: 5,
-                  borderBottomRightRadius: 5,
-                }}
-              >
-                <div className="flex items-center gap-1 relative" ref={attachMenuRef}>
-                  {/* Two explicit labeled buttons instead of a trombone: in the
-                      chat the user can only *link* existing documents (never
-                      upload), so an upload-flavoured paperclip was misleading.
-                      Pièces = matter documents ; Modèles = org-wide act templates. */}
-                  <button
-                    className={`h-8 flex items-center gap-1.5 px-2.5 rounded-lg hover:bg-stone-100 transition-colors ${attachMenuOpen === 'pieces' ? 'bg-stone-100' : ''}`}
-                    disabled={chatLocked}
-                    style={{ opacity: chatLocked ? 0.4 : 1 }}
-                    onClick={() => {
-                      if (chatLocked) return;
-                      if (attachMenuOpen === 'pieces') { setAttachMenuOpen(false); return; }
-                      setAttachSearch('');
-                      setAttachExpanded(new Set(bordereauCategories.map(c => c.id)));
-                      setAttachSelected(new Set());
-                      setAttachMenuOpen('pieces');
-                    }}
-                  >
-                    <Files className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
-                    <span className="text-[13px] text-foreground-secondary">Pièces</span>
-                  </button>
-
-                  <button
-                    className={`h-8 flex items-center gap-1.5 px-2.5 rounded-lg hover:bg-stone-100 transition-colors ${attachMenuOpen === 'templates' ? 'bg-stone-100' : ''}`}
-                    disabled={chatLocked}
-                    style={{ opacity: chatLocked ? 0.4 : 1 }}
-                    onClick={() => {
-                      if (chatLocked) return;
-                      setAttachSearch('');
-                      setAttachMenuOpen(attachMenuOpen === 'templates' ? false : 'templates');
-                    }}
-                  >
-                    <LayoutTemplate className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
-                    <span className="text-[13px] text-foreground-secondary">Modèles</span>
-                  </button>
-
-                  {/* Pièces popover (matter documents - folder tree + search + multi-select) */}
-                  {attachMenuOpen === 'pieces' && (() => {
-                    // Compact folder-tree browser - mirrors the GED structure
-                    // (folders + files) using the shared buildTreeViewRows
-                    // engine. Search prunes empty branches; multi-select stages
-                    // the chosen files together.
-                    const q = attachSearch.trim().toLowerCase();
-                    const filtered = q
-                      ? pieces.filter(p => [p.nom, p.intitule, p.type, p.nomOriginal].filter(Boolean).some(s => String(s).toLowerCase().includes(q)))
-                      : pieces;
-                    // Prune categories to branches containing a match (+ ancestors).
-                    let treeCategories = bordereauCategories;
-                    let expandedForTree = attachExpanded;
-                    if (q) {
-                      const byId = new Map(bordereauCategories.map(c => [c.id, c]));
-                      const keep = new Set();
-                      filtered.forEach(p => {
-                        let cid = p.categoryId;
-                        while (cid != null && !keep.has(cid)) { keep.add(cid); cid = byId.get(cid)?.parentId ?? null; }
-                      });
-                      treeCategories = bordereauCategories.filter(c => keep.has(c.id));
-                      expandedForTree = new Set(treeCategories.map(c => c.id));
-                    }
-                    const treeRows = buildTreeViewRows(filtered, treeCategories, expandedForTree);
-                    const isStaged = (id) => stagedDocs.some(d => d.id === id && d.source === 'piece');
-                    const INDENT = 14;
-
-                    const toggleExpand = (catId) => setAttachExpanded(prev => {
-                      const next = new Set(prev);
-                      if (next.has(catId)) next.delete(catId); else next.add(catId);
-                      return next;
-                    });
-                    const toggleSelect = (id) => setAttachSelected(prev => {
-                      const next = new Set(prev);
-                      if (next.has(id)) next.delete(id); else next.add(id);
-                      return next;
-                    });
-                    // All (search-visible) piece ids inside a folder's subtree -
-                    // lets the user select / deselect a whole folder at once.
-                    const folderPieceIds = (catId) => {
-                      const ids = new Set([catId]);
-                      const stack = [catId];
-                      while (stack.length) {
-                        const x = stack.pop();
-                        bordereauCategories.forEach(c => { if (c.parentId === x && !ids.has(c.id)) { ids.add(c.id); stack.push(c.id); } });
-                      }
-                      return filtered.filter(p => ids.has(p.categoryId)).map(p => p.id);
-                    };
-                    const toggleFolder = (catId) => {
-                      const ids = folderPieceIds(catId).filter(id => !isStaged(id));
-                      if (ids.length === 0) return;
-                      setAttachSelected(prev => {
-                        const next = new Set(prev);
-                        const allOn = ids.every(id => next.has(id));
-                        ids.forEach(id => allOn ? next.delete(id) : next.add(id));
-                        return next;
-                      });
-                    };
-                    const confirmAttach = () => {
-                      const chosen = pieces.filter(p => attachSelected.has(p.id) && !isStaged(p.id));
-                      if (chosen.length > 0) {
-                        setStagedDocs(prev => [...prev, ...chosen.map(p => ({ id: p.id, name: p.intitule || p.nom, source: 'piece' }))]);
-                      }
-                      setAttachMenuOpen(false);
-                      setAttachSearch('');
-                      setAttachSelected(new Set());
-                    };
-
-                    // Row indentation: base 12px + one step per depth level
-                    // (mirrors the Figma "Select Menu" component 12 → 32 → 56).
-                    const ROW_PAD = (depth) => 12 + depth * 20;
-                    // Shared checkbox mark - checked (all) / dash (partial).
-                    const CheckMark = ({ mode }) => (
-                      <span style={{
-                        width: 16, height: 16, borderRadius: 4,
-                        border: `1px solid ${mode ? '#292524' : '#e7e5e3'}`,
-                        backgroundColor: mode ? '#292524' : 'white',
-                        boxShadow: '0px 1px 1px rgba(26,26,26,0.05)',
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        {mode === 'all' && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-                        {mode === 'some' && <Minus className="w-3 h-3 text-white" strokeWidth={3} />}
-                      </span>
-                    );
-                    return (
-                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden flex flex-col" style={{ width: 320, maxHeight: 460, boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)' }}>
-                        {/* Header */}
-                        <div className="flex items-center gap-2 bg-background px-2.5 border-b border-border flex-shrink-0" style={{ height: 32 }}>
-                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
-                            Mentionnez des pièces
-                          </span>
-                        </div>
-                        {/* Search */}
-                        <div className="flex items-center gap-2 p-3 border-b border-border flex-shrink-0">
-                          <Search className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
-                          <input
-                            type="text"
-                            value={attachSearch}
-                            onChange={(e) => setAttachSearch(e.target.value)}
-                            placeholder="Rechercher..."
-                            className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-secondary placeholder:opacity-70 focus:outline-none"
-                            autoFocus
-                          />
-                        </div>
-                        {/* Tree */}
-                        <div className="overflow-y-auto flex-1" style={{ minHeight: 80 }}>
-                          {treeRows.length === 0 ? (
-                            <div className="px-3 py-6 text-center text-[12px] text-foreground-muted">Aucune pièce trouvée</div>
-                          ) : treeRows.map((row, ri) => {
-                            if (row.kind === 'sansCategorieHeader') {
-                              return (
-                                <div key="sc-head" className="px-3 py-1.5 border-b border-border">
-                                  <span className="opacity-70" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sans catégorie</span>
-                                </div>
-                              );
-                            }
-                            if (row.kind === 'category') {
-                              const Chevron = row.expanded ? ChevronDown : ChevronRight;
-                              const FolderIcon = row.expanded ? FolderOpen : Folder;
-                              // Folder-level selection: tri-state from its subtree.
-                              const subIds = folderPieceIds(row.category.id);
-                              const subTotal = subIds.length;
-                              const subSelected = subIds.filter(id => attachSelected.has(id) || isStaged(id)).length;
-                              const mode = subTotal > 0 && subSelected === subTotal ? 'all' : (subSelected > 0 ? 'some' : null);
-                              return (
-                                <div
-                                  key={`cat-${row.category.id}`}
-                                  className="group w-full flex items-center gap-2 pr-3 border-b border-border hover:bg-background transition-colors"
-                                  style={{ height: 40, paddingLeft: ROW_PAD(row.depth) }}
-                                >
-                                  {/* Leading cluster: chevron + folder-icon / checkbox */}
-                                  <div className="flex items-center gap-1 flex-shrink-0">
-                                    <button
-                                      onClick={() => toggleExpand(row.category.id)}
-                                      disabled={!row.hasChildren}
-                                      className="w-4 h-4 flex items-center justify-center"
-                                      style={{ opacity: row.hasChildren ? 0.7 : 0, cursor: row.hasChildren ? 'pointer' : 'default' }}
-                                    >
-                                      <Chevron className="w-4 h-4 text-foreground-secondary" strokeWidth={2} />
-                                    </button>
-                                    <button
-                                      onClick={() => toggleFolder(row.category.id)}
-                                      disabled={subTotal === 0}
-                                      className="w-4 h-4 flex items-center justify-center relative"
-                                      style={{ cursor: subTotal === 0 ? 'default' : 'pointer' }}
-                                      title={subTotal === 0 ? 'Dossier vide' : (mode === 'all' ? 'Tout désélectionner' : 'Tout sélectionner')}
-                                    >
-                                      <FolderIcon className={`w-4 h-4 text-foreground-tertiary ${mode ? 'hidden' : (subTotal === 0 ? '' : 'group-hover:hidden')}`} strokeWidth={1.5} />
-                                      {subTotal > 0 && (
-                                        <span className={mode ? 'flex' : 'hidden group-hover:flex'}>
-                                          <CheckMark mode={mode} />
-                                        </span>
-                                      )}
-                                    </button>
-                                  </div>
-                                  <button onClick={() => toggleExpand(row.category.id)} className="flex-1 min-w-0 text-left">
-                                    <span className="block truncate text-[14px] font-medium text-foreground">{row.category.name}</span>
-                                  </button>
-                                  {subTotal > 0 && (
-                                    <span className="flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c' }}>{subTotal}</span>
-                                  )}
-                                </div>
-                              );
-                            }
-                            // piece or sansCategoriePiece
-                            const p = row.piece;
-                            const staged = isStaged(p.id);
-                            const selected = attachSelected.has(p.id) || staged;
-                            return (
-                              <button
-                                key={`p-${p.id}-${ri}`}
-                                disabled={staged}
-                                onClick={() => toggleSelect(p.id)}
-                                className={`group w-full flex items-center gap-2 pr-3 text-left border-b border-border transition-colors ${staged ? 'opacity-50' : 'hover:bg-background'}`}
-                                style={{ height: 40, paddingLeft: ROW_PAD(row.depth) }}
-                              >
-                                {/* Leading cluster: phantom chevron + file-icon / checkbox */}
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                  <span className="w-4 h-4 flex-shrink-0" />
-                                  <span className="w-4 h-4 flex items-center justify-center relative flex-shrink-0">
-                                    <FileText className={`w-4 h-4 text-foreground-tertiary ${selected ? 'hidden' : 'group-hover:hidden'}`} strokeWidth={1.5} />
-                                    <span className={selected ? 'flex' : 'hidden group-hover:flex'}>
-                                      <CheckMark mode={selected ? 'all' : null} />
-                                    </span>
-                                  </span>
-                                </div>
-                                <span className="flex-1 truncate text-[14px] text-foreground">{p.intitule || p.nom}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {/* Footer */}
-                        <div className="flex items-center justify-between p-3 border-t border-border bg-white flex-shrink-0">
-                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#78716c', letterSpacing: '0.12px' }}>
-                            {attachSelected.size === 0 ? 'Sélectionnez des pièces' : `${attachSelected.size} doc${attachSelected.size > 1 ? 's' : ''}. sélectionné${attachSelected.size > 1 ? 's' : ''}`}
-                          </span>
-                          <button
-                            onClick={confirmAttach}
-                            disabled={attachSelected.size === 0}
-                            className="inline-flex items-center justify-center rounded-[4px] text-[12px] font-medium text-white transition-colors"
-                            style={{ height: 24, padding: '4px 8px', backgroundColor: attachSelected.size === 0 ? '#d6d3d1' : '#292524', cursor: attachSelected.size === 0 ? 'not-allowed' : 'pointer', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}
-                          >
-                            Ajouter au chat
-                          </button>
-                        </div>
-                      </div>
-                    );
                   })()}
-
-                  {/* Templates sub-menu */}
-                  {attachMenuOpen === 'templates' && (() => {
-                    const q = attachSearch.toLowerCase();
-                    const filteredTemplates = q ? templatesLibrary.filter(t => t.label.toLowerCase().includes(q) || t.fileName.toLowerCase().includes(q) || (t.actType && t.actType.toLowerCase().includes(q))) : templatesLibrary;
-                    return (
-                      <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 300, maxHeight: 400, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                        {/* Header */}
-                        <div className="flex items-center gap-2 bg-background-canvas px-2.5 py-2 border-b border-border">
-                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
-                            Modèles d'actes
-                          </span>
-                        </div>
-                        {/* Search */}
-                        <button className="w-full flex items-center gap-2 p-3 border-b border-border text-left">
-                          <Search className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
-                          <input
-                            type="text"
-                            value={attachSearch}
-                            onChange={(e) => setAttachSearch(e.target.value)}
-                            placeholder="Rechercher un élément..."
-                            className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-secondary placeholder:opacity-70 focus:outline-none"
-                            autoFocus
-                          />
-                        </button>
-                        <div className="overflow-y-auto p-1" style={{ maxHeight: 300 }}>
-                          <div className="p-1">
-                            {filteredTemplates.length === 0 ? (
-                              <div className="px-2 py-4 text-center text-[12px] text-foreground-muted">{templatesLibrary.length === 0 ? 'Aucun modèle disponible' : 'Aucun modèle trouvé'}</div>
-                            ) : filteredTemplates.map(tpl => {
-                              const alreadyStaged = stagedDocs.some(d => d.id === tpl.id && d.source === 'template');
-                              return (
-                                <button
-                                  key={tpl.id}
-                                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] transition-colors ${alreadyStaged ? 'opacity-40' : 'hover:bg-background'}`}
-                                  disabled={alreadyStaged}
-                                  onClick={() => {
-                                    setStagedDocs(prev => [...prev, { id: tpl.id, name: tpl.label, source: 'template' }]);
-                                    setAttachMenuOpen(false);
-                                    setAttachSearch('');
-                                  }}
-                                >
-                                  <FileText className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                                  <span className="truncate text-[13px] text-foreground">{tpl.fileName}</span>
-                                  {!alreadyStaged && tpl.actType && <span className="ml-auto text-[10px] text-foreground-muted flex-shrink-0">{tpl.actType}</span>}
-                                  {alreadyStaged && <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 ml-auto" />}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  <div className="relative" ref={suggestionsRef}>
-                    <button
-                      className={`w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors ${suggestionsOpen ? 'bg-stone-100' : ''}`}
-                      disabled={chatLocked}
-                      style={{ opacity: chatLocked ? 0.4 : 1 }}
-                      onClick={() => { if (!chatLocked) setSuggestionsOpen(o => !o); }}
-                    >
-                      <Lightbulb className="w-4 h-4 text-foreground-secondary" />
-                    </button>
-                    {suggestionsOpen && (() => {
-                      const CHAT_SUGGESTIONS = [
-                        { icon: Sparkles, text: 'Complète les informations du dossier' },
-                        { icon: Calculator, text: 'Chiffrons les préjudices de ce dossier' },
-                        { icon: HelpCircle, text: 'Quels sont les préjudices à chiffrer sur ce dossier' },
-                        { icon: Pencil, text: 'Rédiger un acte' },
-                        { icon: BookOpen, text: 'Rédiger un historique des faits' },
-                        { icon: Landmark, text: 'Chercher une JP' },
-                      ];
-                      return (
-                        <div className="absolute bottom-10 left-0 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 320, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                          <div className="bg-background-canvas px-2.5 py-2 border-b border-border">
-                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                              Suggestions
-                            </span>
-                          </div>
-                          <div className="p-1">
-                            {CHAT_SUGGESTIONS.map((s) => {
-                              const Icon = s.icon;
-                              return (
-                                <button
-                                  key={s.text}
-                                  className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
-                                  onClick={() => {
-                                    setChatInputValue(s.text);
-                                    setSuggestionsOpen(false);
-                                    setTimeout(() => chatTextareaRef.current?.focus(), 0);
-                                  }}
-                                >
-                                  <Icon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                                  <span className="text-[13px] text-foreground">{s.text}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
                 </div>
-                <button
-                  className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
-                  style={{
-                    backgroundColor: (hasContent && !chatLocked) ? '#b9703f' : '#eeece6',
-                    boxShadow: (hasContent && !chatLocked) ? '0px 1px 2px 0px rgba(26,26,26,0.05)' : 'none',
-                    opacity: (hasContent && !chatLocked) ? 1 : 0.5,
-                    cursor: (hasContent && !chatLocked) ? 'pointer' : 'default',
-                  }}
-                  onClick={(hasContent && !chatLocked) ? handleChatSend : undefined}
-                >
-                  <ArrowUp className="w-4 h-4" style={{ color: (hasContent && !chatLocked) ? 'white' : '#78716c' }} />
-                </button>
-              </div>
-            </>
-            )}
+              ) : (() => {
+                const activeDossier = dossiers.find(d => d.id === activeDossierId) || null;
+                const railVertical = activeMatterType === 'social' ? 'Droit social' : 'Dommage corporel';
+                const railCatalog = assistantAgent.getCatalog(
+                  { dossierId: activeDossierId, vertical: railVertical },
+                  {
+                    dossiers,
+                    pieces: activeMatterType === 'social' ? socialPieces : pieces,
+                    pieceFolders: activeMatterType === 'social' ? socialCategories : bordereauCategories,
+                    templates: templatesLibrary,
+                    referentiels: DEFAULT_BAREMES,
+                  }
+                );
+                const railSystemState = outOfQuota
+                  ? { kind: 'blocked', label: 'Quota hebdomadaire atteint - revient lundi', onOpen: openMyUsage }
+                  : chatBlocked
+                  ? { kind: 'inProgress', label: 'Plato analyse vos documents…', disables: true }
+                  : nearQuota
+                  ? { kind: 'warning', label: `Quota hebdomadaire à ${myQuotaPct}%`, onOpen: openMyUsage }
+                  : null;
+                return (
+                  <AssistantComposer
+                    variant="standard"
+                    elevated
+                    scope={{ dossierId: activeDossierId, vertical: railVertical }}
+                    dossierLabel={activeDossier?.reference ?? 'Dossier'}
+                    systemState={railSystemState}
+                    scopeFlash={scopeFlash}
+                    onScopeFlashEnd={() => setScopeFlash(false)}
+                    catalog={railCatalog}
+                    onSend={(payload) => { if (!chatLocked) handleChatSend(payload); }}
+                    onCreateDossier={() => openImportV2('create')}
+                    onRunIntention={(intention) => { if (!chatLocked) handleChatSend({ body: intention?.label ?? '', tokens: [] }); }}
+                    onDropFiles={(files) => {
+                      if (chatLocked) return;
+                      setStagedDocs(prev => [...prev, ...files.map((f, i) => ({ id: `up-${Date.now()}-${i}`, name: f.name, size: f.size, file: f, source: 'upload' }))]);
+                    }}
+                    stagedDocs={stagedDocs}
+                    onRemoveStagedDoc={(doc) => setStagedDocs(prev => prev.filter(d => d !== doc))}
+                    suggestions={[
+                      { icon: Sparkles, label: 'Complète les informations du dossier' },
+                      { icon: Calculator, label: 'Chiffrons les préjudices de ce dossier' },
+                      { icon: HelpCircle, label: 'Quels sont les préjudices à chiffrer sur ce dossier' },
+                      { icon: Pencil, label: 'Rédiger un acte' },
+                      { icon: BookOpen, label: 'Rédiger un historique des faits' },
+                      { icon: Landmark, label: 'Chercher une JP' },
+                    ]}
+                    placeholder={isDossierClosed ? 'Dossier terminé - Plato indisponible' : selectedActeZone ? 'Demandez une modification sur cette partie…' : 'Demander à Plato de calculer, chercher des JP, rédiger des actes…'}
+                  />
+                );
+              })()}
             </div>
-            </div>{/* close relative wrapper */}
-            </div>{/* close englobing notice wrapper */}
           </div>
         </div>
       </>
@@ -6508,51 +6227,79 @@ export default function App() {
   const renderContentSubHeader = () => {
     if (!currentLevel) return null;
 
-    // Poste level: back arrow + badge + title + CTA
+    // ── En-tête d'objet (niveau 3) - behaviour map §1.4 ────────────────
+    // L'objet EST l'en-tête de page : retour NOMMÉ vers la vue parente, code +
+    // libellé, valeur, action primaire, précédent/suivant avec compteur de
+    // position. Posé sur le canvas (plus de bande blanche) ; le retour de
+    // l'en-tête est l'unique retour de ce cran - les onglets restent le saut
+    // de vue.
+    const replaceCurrentLevel = (entry) => setNavStack(prev => (
+      prev.length === 0 ? prev : [...prev.slice(0, -1), { ...prev[prev.length - 1], ...entry }]
+    ));
+    // Briques componentisées : src/components/shell/Niveau3Strip.js
+    // (Niveau3Strip, BreadcrumbReturn, SiblingNav, CodeBadge, StripDivider).
+    const breadcrumbReturn = (label, onClick) => <BreadcrumbReturn label={label} onClick={onClick} />;
+    const siblingNav = (props) => <SiblingNav {...props} />;
+
+    // Poste (chiffrage) : retour « Chiffrage » + code + libellé + montant +
+    // précédent/suivant parmi les postes du dossier + action primaire.
     if (currentLevel.type === 'poste' && !currentLevel.subSection) {
+      const siblings = effectivePostes;
+      const idx = siblings.indexOf(currentLevel.id);
+      const goSibling = (delta) => {
+        const nid = siblings[idx + delta];
+        if (!nid) return;
+        const taxo = allTaxoPostes.find(p => p.id === nid);
+        replaceCurrentLevel({ id: nid, title: taxo?.acronym || nid.toUpperCase(), fullTitle: taxo?.label || nid });
+      };
+      const montant = getPosteMontant(currentLevel.id);
       return (
-        <div className="border-b border-border bg-white flex-shrink-0">
-          <div className="h-[52px] px-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors">
-                <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
-              </button>
-              <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-border text-foreground rounded-[6px]">
-                {currentLevel.title}
-              </span>
-              <span className="text-[14px] font-medium text-foreground">{currentLevel.fullTitle || currentLevel.title}</span>
-            </div>
+        <Niveau3Strip justify="between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}
+            <StripDivider />
+            <CodeBadge>{currentLevel.title}</CodeBadge>
+            <span className="text-[14px] font-medium text-foreground truncate">{currentLevel.fullTitle || currentLevel.title}</span>
+          </div>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {siblings.length > 1 && idx >= 0 && siblingNav({ index: idx, total: siblings.length, onPrev: () => goSibling(-1), onNext: () => goSibling(1) })}
+            {montant > 0 && <span style={serifAmountStyle} className="text-foreground">{fmt(montant)}</span>}
             {dossierStatut !== 'fermé' && (
-              <button onClick={() => setShowExportModal(true)} className="h-8 flex items-center gap-2 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-                Copier chiffrage
-              </button>
+              <>
+                <StripDivider tall />
+                <button onClick={() => setShowExportModal(true)} className="h-8 flex items-center gap-2 px-3 text-[14px] font-medium text-white bg-foreground rounded-[6px] hover:bg-foreground-tertiary transition-colors" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                  Copier chiffrage
+                </button>
+              </>
             )}
           </div>
-        </div>
+        </Niveau3Strip>
       );
     }
 
-    // IV poste sub-header
+    // Poste IV : même en-tête, frères = postes de victimes indirectes.
     if (currentLevel.type === 'poste-iv') {
       const ivPosteTotal = getIvPosteMontant(currentLevel.id);
+      const idx = allIvPostes.findIndex(p => p.id === currentLevel.id);
+      const goSibling = (delta) => {
+        const target = allIvPostes[idx + delta];
+        if (!target) return;
+        replaceCurrentLevel({ id: target.id, title: target.title, fullTitle: target.fullTitle, montant: target.montant, category: target.category });
+      };
       return (
-        <div className="border-b border-border bg-white flex-shrink-0">
-          <div className="h-[52px] px-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors">
-                <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
-              </button>
-              <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-border text-foreground rounded-[6px]">
-                {currentLevel.title}
-              </span>
-              <span className="text-[14px] font-medium text-foreground">{currentLevel.fullTitle || currentLevel.title}</span>
-              <span className="inline-flex items-center px-2 py-0.5 text-caption bg-cream text-foreground-secondary rounded-full">Victimes indirectes</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span style={serifAmountStyle} className="text-foreground">{fmt(ivPosteTotal)}</span>
-            </div>
+        <Niveau3Strip justify="between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}
+            <StripDivider />
+            <CodeBadge>{currentLevel.title}</CodeBadge>
+            <span className="text-[14px] font-medium text-foreground truncate">{currentLevel.fullTitle || currentLevel.title}</span>
+            <span className="inline-flex items-center px-2 py-0.5 text-caption bg-cream text-foreground-secondary rounded-full flex-shrink-0">Victimes indirectes</span>
           </div>
-        </div>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {allIvPostes.length > 1 && idx >= 0 && siblingNav({ index: idx, total: allIvPostes.length, onPrev: () => goSibling(-1), onNext: () => goSibling(1) })}
+            <span style={serifAmountStyle} className="text-foreground">{fmt(ivPosteTotal)}</span>
+          </div>
+        </Niveau3Strip>
       );
     }
 
@@ -6582,14 +6329,27 @@ export default function App() {
           return next;
         });
       };
+      // Frères pour précédent/suivant : les actes tels que la liste Actes les
+      // présente (les bordereaux appairés se rejoignent via PairTabs).
+      const acteSiblings = redaction.redactionState.dossierActes.filter(a => a.kind !== 'bordereau' || !a.pairId);
+      const currentForIndex = (isBordereau && sibling) ? sibling : acte;
+      const acteIdx = acteSiblings.findIndex(a => a.id === currentForIndex?.id);
+      const goActeSibling = (delta) => {
+        const target = acteSiblings[acteIdx + delta];
+        if (!target) return;
+        redaction.dispatch({ type: 'REOPEN_CANVAS', acteId: target.id });
+        setNavStack(prev => prev.length === 0 ? prev : [
+          ...prev.slice(0, -1),
+          { ...prev[prev.length - 1], id: target.id, title: target.title, fullTitle: target.title },
+        ]);
+      };
       return (
-        <div className="border-b border-border bg-white flex-shrink-0">
-          <div className="h-[52px] px-4 flex items-center gap-3">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <button onClick={backToActesList} className="p-1 hover:bg-stone-100 rounded transition-colors flex-shrink-0">
-                <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
-              </button>
+        <Niveau3Strip justify="start">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              {breadcrumbReturn('Retour aux actes', backToActesList)}
+              <StripDivider />
               <span className="text-[14px] font-medium text-foreground truncate">{currentLevel.fullTitle || currentLevel.title}</span>
+              {acteSiblings.length > 1 && acteIdx >= 0 && siblingNav({ index: acteIdx, total: acteSiblings.length, onPrev: () => goActeSibling(-1), onNext: () => goActeSibling(1) })}
               {acte?.templateName && (
                 <span className="text-[12px] text-foreground-muted truncate flex-shrink-0">{acte.templateName}</span>
               )}
@@ -6649,8 +6409,7 @@ export default function App() {
                 }}
               />
             </div>
-          </div>
-        </div>
+        </Niveau3Strip>
       );
     }
 
@@ -10151,8 +9910,8 @@ export default function App() {
     if (currentLevel.type === 'dossier') {
       if (currentLevel.activeTab === 'dossier') {
         if (activeMatterType === 'social') return renderSocialDossier();
-        // Drop-First Info Dossier (new layout with streaming)
-        if (dropFirstActive || dropFirstPieces.length > 0) {
+        // Info Dossier — layout unique. L'ancien « legacy grid » (grid-cols-3,
+        // cartes + encart Chiffrage) a été supprimé : layout streaming partout.
           const streaming = infoDossierStreaming;
           const isStreaming = streaming?.active;
           const revealed = streaming?.fieldsRevealed || [];
@@ -10497,260 +10256,6 @@ export default function App() {
 
             </div>
           );
-        }
-
-        // Legacy Info Dossier (existing form-based layout)
-        const isDossierInfoEmpty =
-          !victimeData.nom && !victimeData.prenom && !victimeData.dateNaissance &&
-          !faitGenerateur.type && !faitGenerateur.dateAccident && !faitGenerateur.resume &&
-          victimesIndirectes.length === 0;
-        return (
-          <div className="space-y-4">
-            {isDossierInfoEmpty && (
-              <div className="banner banner-minimal banner-ai">
-                <div className="banner-body">
-                  <Sparkles className="w-4 h-4 banner-icon flex-shrink-0" fill="currentColor" />
-                  <p className="banner-title">Le dossier est vide.</p>
-                  <button
-                    type="button"
-                    className="banner-btn-primary"
-                    onClick={() => fireCanvasPrompt('Complète les informations du dossier', { scenarioKey: 'canvas-dossier-info' })}
-                  >
-                    <Sparkles className="w-3.5 h-3.5" /> Remplir les informations dossier
-                  </button>
-                </div>
-              </div>
-            )}
-            <div className="grid grid-cols-3 gap-4 items-start">
-            {/* Colonne gauche */}
-            <div className="col-span-2 space-y-4">
-              {/* Infos Victime */}
-              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
-                <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-foreground-muted">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                    </svg>
-                    <span className="text-body-medium">Informations victime</span>
-                  </div>
-                  <button onClick={() => setEditPanel({ type: 'victime', title: 'Informations victime' })} className="p-1 text-border-strong hover:text-foreground-secondary hover:bg-cream rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
-                </div>
-                <div className="p-4">
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Nom</div>
-                      <div className="text-body text-foreground-tertiary">{victimeData.nom}</div>
-                    </div>
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Prénom</div>
-                      <div className="text-body text-foreground-tertiary">{victimeData.prenom}</div>
-                    </div>
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Sexe</div>
-                      <div className="text-body text-foreground-tertiary">{victimeData.sexe}</div>
-                    </div>
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Date de naissance</div>
-                      <div className="text-body text-foreground-tertiary">{victimeData.dateNaissance} <span className="text-foreground-muted">({calcAge(victimeData.dateNaissance)} ans)</span></div>
-                    </div>
-                    {victimeData.dateDeces && (
-                      <div>
-                        <div className="text-caption text-foreground-muted mb-0.5">Date de décès</div>
-                        <div className="text-body text-foreground-tertiary">{victimeData.dateDeces} <span className="text-foreground-muted">({calcAge(victimeData.dateNaissance, victimeData.dateDeces)} ans)</span></div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Infos Accident */}
-              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
-                <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-foreground-muted">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                    <span className="text-body-medium">Fait générateur</span>
-                  </div>
-                  <button onClick={() => setEditPanel({ type: 'fait-generateur', title: 'Fait générateur' })} className="p-1 text-border-strong hover:text-foreground-secondary hover:bg-cream rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
-                </div>
-                <div className="p-4">
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-4">
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Type</div>
-                      <div className="text-body text-foreground-tertiary">{faitGenerateur.type}</div>
-                    </div>
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Date de l'accident</div>
-                      <div className="text-body text-foreground-tertiary">{faitGenerateur.dateAccident}</div>
-                    </div>
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Première constatation</div>
-                      <div className="text-body text-foreground-tertiary">{faitGenerateur.datePremiereConstatation}</div>
-                    </div>
-                    <div>
-                      <div className="text-caption text-foreground-muted mb-0.5">Consolidation</div>
-                      <div className="text-body text-foreground-tertiary">{faitGenerateur.dateConsolidation}</div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="text-caption text-foreground-muted">Résumé des faits</div>
-                      {!faitGenerateur.resume && (
-                        <button
-                          onClick={() => fireCanvasPrompt('Complète les informations du dossier', { scenarioKey: 'canvas-dossier-info' })}
-                          className="flex items-center gap-1 text-caption-medium text-violet-500 hover:text-violet-700 transition-colors"
-                        >
-                          <Sparkles className="w-3 h-3" strokeWidth={2} />
-                          Compléter les informations du dossier
-                        </button>
-                      )}
-                    </div>
-                    <div className="text-body text-foreground-secondary leading-relaxed">
-                      {faitGenerateur.resume || <span className="text-border-strong italic">Aucun résumé renseigné.</span>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Commentaire d'expertise */}
-              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
-                <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-foreground-muted">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                    </svg>
-                    <span className="text-body-medium">Commentaire d'expertise</span>
-                  </div>
-                  <button onClick={() => setEditPanel({ type: 'dossier-expertise', title: "Commentaire d'expertise" })} className="p-1 text-border-strong hover:text-foreground-secondary hover:bg-cream rounded transition-colors"><Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /></button>
-                </div>
-                <div className="p-4">
-                  <div className="text-body text-foreground-secondary leading-relaxed">
-                    {commentaireExpertise || <span className="text-border-strong italic">Aucun commentaire d'expertise renseigné.</span>}
-                  </div>
-                  {!commentaireExpertise && (
-                    <button
-                      onClick={handleGenerateExpertise}
-                      disabled={aiGenerating === 'expertise'}
-                      className="mt-3 flex items-center gap-1.5 text-caption-medium text-violet-500 hover:text-violet-700 transition-colors disabled:opacity-50"
-                    >
-                      {aiGenerating === 'expertise' ? (
-                        <><Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} />Génération en cours...</>
-                      ) : (
-                        <><Sparkles className="w-3.5 h-3.5" strokeWidth={2} />Générer avec l'IA</>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Victimes indirectes */}
-              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
-                <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-foreground-muted">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                    </svg>
-                    <span className="text-body-medium">Victimes indirectes</span>
-                  </div>
-                  {dossierStatut !== 'fermé' && (
-                    <button
-                      onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Nouvelle victime indirecte', data: null })}
-                      className="flex items-center gap-1 px-2 py-1 text-caption text-foreground-secondary hover:bg-cream rounded transition-colors"
-                    >
-                      <Plus className="w-3 h-3" strokeWidth={1.5} />Ajouter
-                    </button>
-                  )}
-                </div>
-                {victimesIndirectes.length > 0 ? (
-                  <div className="divide-y divide-border">
-                    {victimesIndirectes.map(vi => (
-                      <div key={vi.id} className="flex items-center justify-between p-3 hover:bg-background group transition-colors">
-                        <div className="flex items-center gap-2.5">
-                          {viAvatar(vi, 32)}
-                          <div>
-                            <div className="text-body text-foreground-tertiary">{vi.prenom} {vi.nom}</div>
-                            <div className="text-caption text-foreground-muted">{vi.lien} • {calcAge(vi.dateNaissance)} ans</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                          <button
-                            onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Modifier victime indirecte', data: vi })}
-                            className="p-1 text-border-strong hover:text-foreground-secondary rounded transition-colors"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const affectedPostes = ivDossierPostes.filter(pid =>
-                                (ivPosteData[pid]?.lignes || []).some(l => l.victimeId === vi.id && l.montant > 0)
-                              );
-                              const msg = affectedPostes.length > 0
-                                ? `${vi.prenom} ${vi.nom} a des montants chiffrés sur ${affectedPostes.length} poste(s). Supprimer ?`
-                                : `Supprimer ${vi.prenom} ${vi.nom} ?`;
-                              if (!window.confirm(msg)) return;
-                              setVictimesIndirectes(prev => prev.filter(v => v.id !== vi.id));
-                              setIvPosteData(prev => {
-                                const next = { ...prev };
-                                for (const pid of Object.keys(next)) {
-                                  if (next[pid]?.lignes) {
-                                    next[pid] = { ...next[pid], lignes: next[pid].lignes.filter(l => l.victimeId !== vi.id) };
-                                  }
-                                }
-                                return next;
-                              });
-                            }}
-                            className="p-1 text-border-strong hover:text-red-500 rounded transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4 text-center">
-                    <div className="text-body text-foreground-muted">Aucune victime indirecte</div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Colonne droite - Encart Chiffrage (sticky) */}
-            <div className="col-span-1 sticky top-0">
-              <div className="bg-white rounded-lg border border-border/60 shadow-sm">
-                <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-foreground-muted">
-                    <Calculator className="w-4 h-4" strokeWidth={1.5} />
-                    <span className="text-body-medium">Chiffrage</span>
-                  </div>
-                  <button
-                    onClick={() => setActiveTab('Chiffrage')}
-                    className="flex items-center gap-1 text-caption text-foreground-muted hover:text-foreground-secondary transition-colors"
-                  >
-                    Voir le détail
-                    <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
-                  </button>
-                </div>
-                <div className="p-5">
-                  <div className="text-center">
-                    <div className="text-[36px] font-semibold text-foreground tabular-nums leading-none">{fmt(totalChiffrage)}</div>
-                    <div className="text-body text-foreground-muted mt-1.5">{allPostes.filter(p => !p.disabled).length} postes de préjudice chiffrés</div>
-                    <button
-                      onClick={() => setActiveTab('Chiffrage')}
-                      className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 text-white text-body-medium rounded-lg hover:bg-zinc-700 transition-colors"
-                    >
-                      Voir le chiffrage
-                      <ChevronRight className="w-4 h-4" strokeWidth={2} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            </div>
-          </div>
-        );
       }
       if (currentLevel.activeTab === 'chiffrage') {
         if (activeMatterType === 'social') return socialDetail ? renderSocialDetail() : renderSocialChiffrage();
@@ -11405,13 +10910,6 @@ export default function App() {
             ) : null}
             onImportEmails={() => openImportV2('add')}
             onAskChato={askChatoAboutSelection}
-            onGenerateBordereau={() => {
-              redaction.playScenario('redaction-bordereau');
-            }}
-            onQuickGenerateBordereau={() => {
-              setChatMessages(prev => [...prev, { type: 'user', text: 'Génère-moi un bordereau pour ce dossier' }]);
-              setTimeout(() => redaction.playScenario('bordereau-standalone'), 300);
-            }}
           />
         );
       }
@@ -14367,18 +13865,106 @@ export default function App() {
   };
 
   // ========== NAVIGATION DOSSIER LIST ==========
-  const openDossier = (dossier) => {
+  const openDossier = (dossier, threadId = null) => {
     if (activeDossierId) saveDossierData(activeDossierId);
     loadDossierData(dossier.id);
     setActiveDossierId(dossier.id);
+    // Le rail montre toujours exactement une conversation du dossier : la
+    // demandée (confiance à l'appelant - un rattachement vient de migrer le fil
+    // et le store n'a pas encore commité), sinon la plus récente, sinon une nouvelle.
+    if (threadId) {
+      setActiveThreadId(threadId);
+    } else {
+      const existing = threadsRef.current.threadsForDossier(dossier.id);
+      const target = existing[0]
+        || threadsRef.current.createThread({ scope: { dossierId: dossier.id, vertical: dossier.domaine ?? (dossier.matterType === 'social' ? 'Droit social' : 'Dommage corporel') } });
+      setActiveThreadId(target.id);
+    }
+    setDossiers(prev => prev.map(d => (d.id === dossier.id ? { ...d, lastActivity: new Date().toISOString() } : d)));
     setNavStack([{ id: dossier.id, type: 'dossier', title: dossier.reference, activeTab: 'dossier' }]);
+    // NB : le « force open » du §5 de la spec nav était motivé par le modèle B
+    // (la nav du dossier vivait dans la sidebar). Avec les vues en onglets, la
+    // préférence ouverte/masquée vaut pour la session, écran compris (§1).
     setCurrentPage('dossier');
   };
 
   const backToList = () => {
     if (activeDossierId) saveDossierData(activeDossierId);
-    setCurrentPage('list');
+    setCurrentPage('dossiers');
     setActiveDossierId(null);
+  };
+
+  // ========== CONVERSATIONS LIBRES (surface centrale) ==========
+
+  // ⌘O / action de création : fil vide à l'état brouillon, titré au premier envoi.
+  const startNewConversation = () => {
+    if (activeDossierId) saveDossierData(activeDossierId);
+    setActiveDossierId(null);
+    const t = threadsRef.current.createThread({ scope: { dossierId: null, vertical: DEFAULT_FREE_VERTICAL } });
+    setActiveThreadId(t.id);
+    setThreadTitleDraft(null);
+    navigate(`/conversations/${t.id}`);
+  };
+
+  // Envoi depuis la home ou la conversation centrale. Depuis la home : le fil est
+  // créé, titré depuis la question, sans étape de nommage - le composer ne bouge
+  // pas, la salutation cède la place au fil dans le même conteneur.
+  const sendAssistantMessage = async ({ body, tokens = [], segments }) => {
+    const text = (body || '').trim();
+    if (!text && freeStagedDocs.length === 0) return;
+    const userMsg = { type: 'user', text, tokens, attachments: freeStagedDocs.length ? freeStagedDocs : undefined };
+    if (freeStagedDocs.length) setFreeStagedDocs([]);
+    let thread;
+    if (currentPage === 'home' || !activeThreadId) {
+      thread = threadsRef.current.createThread({
+        scope: { dossierId: null, vertical: DEFAULT_FREE_VERTICAL },
+        title: deriveThreadTitle(text),
+      });
+      // Écrire le message dans le store AVANT d'activer le fil : l'effet de
+      // chargement du pont le lira tel quel (sinon il chargerait un fil vide).
+      threadsRef.current.setThreadMessages(thread.id, [userMsg]);
+      setActiveThreadId(thread.id);
+      navigate(`/conversations/${thread.id}`);
+    } else {
+      thread = threadsRef.current.getThread(activeThreadId);
+      if (thread?.isUntitled) threadsRef.current.renameThread(activeThreadId, deriveThreadTitle(text));
+      setChatMessages(prev => [...prev, userMsg]);
+    }
+    const threadId = thread?.id ?? activeThreadId;
+    setAssistantThinking(true);
+    try {
+      const replies = await assistantAgent.respond(thread, userMsg, { dossiers });
+      const mapped = (replies || []).map(m => (
+        m.kind === 'agent'
+          ? { type: 'ai', text: m.body, sources: m.sources || [], readStatement: m.readStatement || null }
+          : { type: 'system', text: m.body }
+      ));
+      if (activeThreadIdRef.current === threadId) {
+        setChatMessages(prev => [...prev, ...mapped]);
+      } else {
+        // L'utilisateur a changé de fil pendant la réponse : écrire directement au store.
+        const cur = threadsRef.current.getThread(threadId);
+        threadsRef.current.setThreadMessages(threadId, [...(cur?.messages ?? []), ...mapped]);
+      }
+    } finally {
+      setAssistantThinking(false);
+    }
+  };
+
+  // Rattachement (transition 3.2, version minimale du shell) : le fil MIGRE
+  // (marqueur posté au point exact), le chip flashe, le workspace se remplit à
+  // côté. Reçu persistant : movedFrom est posé par le store et lu par l'index.
+  const doAttachThread = (threadId, dossier) => {
+    threadsRef.current.attachThreadToDossier(threadId, dossier.id, dossier.reference, dossier.domaine ?? (dossier.matterType === 'social' ? 'Droit social' : 'Dommage corporel'));
+    // Si le fil rattaché est déjà le fil actif, l'effet de chargement du pont ne
+    // se redéclenche pas (même id) : poser le marqueur aussi dans la copie de
+    // travail, sinon la prochaine persistance l'écraserait.
+    if (threadId === activeThreadIdRef.current) {
+      setChatMessages(prev => [...prev, { type: 'marker', dossierId: dossier.id, dossierLabel: dossier.reference, at: new Date().toISOString() }]);
+    }
+    setAttachPickerThreadId(null);
+    setScopeFlash(true);
+    openDossier(dossier, threadId);
   };
 
   const handleCloseDossier = () => {
@@ -14533,7 +14119,13 @@ export default function App() {
             className="rounded-lg border border-border bg-white overflow-hidden mt-1"
             onClickCapture={() => setReopenConfirmOpen(false)}
           >
-            {renderDossierIndicator()}
+            <button
+              onClick={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
+              className="block w-full text-left overflow-hidden transition-colors hover:bg-background"
+              style={{ backgroundColor: 'transparent', fontFamily: "'Inter', system-ui, sans-serif" }}
+            >
+              {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, variant: 'compact' })}
+            </button>
           </div>
         )}
       </AlertDialog>
@@ -15084,6 +14676,38 @@ export default function App() {
     setImportV2({ mode, reference: '', matterType: 'corporel', mailOpen: true, ...opts });
   };
   const closeImportV2 = () => { setImportV2(null); bordereau.reset(); };
+
+  // ========== CLAVIER GLOBAL (behaviour map §4) ==========
+  // ⌘O nouvelle conversation · ⌘⇧O nouveau dossier · ⌘\ replier la sidebar.
+  // Les handlers passent par un ref pour éviter les closures périmées ;
+  // Escape reste géré par chaque modale. ⌘← (remonter d'un cran) : TODO.
+  const keyboardHandlersRef = useRef({});
+  keyboardHandlersRef.current = {
+    newConversation: startNewConversation,
+    newDossier: () => openImportV2('create'),
+    toggleNav,
+    closePeek: closePeekNow,
+  };
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      // Escape ferme le peek immédiatement (spec 5 §3) - sans gêner les modales.
+      if (e.key === 'Escape' && peekOpenRef.current) {
+        keyboardHandlersRef.current.closePeek();
+        return;
+      }
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        if (e.shiftKey) keyboardHandlersRef.current.newDossier();
+        else keyboardHandlersRef.current.newConversation();
+      } else if (e.key === '\\') {
+        e.preventDefault();
+        keyboardHandlersRef.current.toggleNav();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   // Lignes + blocs du bordereau → fichiers stagés (la forme que
   // buildStagedProcessingItems attend). Les échanges passent par
@@ -17132,99 +16756,194 @@ export default function App() {
   // and collapsed (48px). When collapsed, labels fade out and only icons remain.
   // Both the dossier list page and the settings page render this at the same
   // JSX position so React reconciles the DOM and the width transition fires.
-  const renderUnifiedSidebar = ({ collapsed }) => {
+  // Sidebar org (port Plato, behaviour map §1.1) : actions de création, destinations
+  // org, dossiers récents, conversations récentes, compte. Elle ne montre JAMAIS
+  // Sidebar org - alignée sur la frame Figma « Sidebar Plato » (3735:32022) :
+  // 264px sur fond canvas, créations en vrais boutons (Nouveau dossier primaire
+  // d'abord), destinations Accueil / Mes dossiers / Mes conversations, sections
+  // Dossiers récents et Conv. récentes (en-têtes mono), quota, compte. Pas de
+  // pile de promos. Elle ne montre jamais les vues internes d'un dossier - dans
+  // un dossier, elle est remplacée par la nav du dossier (modèle B).
+  const renderUnifiedSidebar = ({ collapsed, inPeek = false }) => {
     const ITEMS = [
-      { id: 'list', label: 'Mes dossiers', icon: Folder, onClick: () => setCurrentPage('list'), active: currentPage === 'list' },
+      { id: 'home', label: 'Accueil', icon: Home, onClick: () => setCurrentPage('home'), active: currentPage === 'home' },
+      { id: 'dossiers', label: 'Mes dossiers', icon: FolderOpen, onClick: () => setCurrentPage('dossiers'), active: currentPage === 'dossiers' },
+      // Sur une surface conversation, c'est la LIGNE du fil (Conv. récentes) qui
+      // s'allume - pas la destination index en plus (jamais deux items actifs).
+      { id: 'conversations', label: 'Mes conversations', icon: MessageCircle, onClick: () => setCurrentPage('conversations'), active: currentPage === 'conversations' },
       { id: 'settings', label: 'Paramètres', icon: Settings, onClick: () => setCurrentPage('settings'), active: currentPage === 'settings' },
-      { id: 'components', label: 'UI Components', icon: LayoutGrid, onClick: () => setCurrentPage('components'), active: currentPage === 'components' },
     ];
+    const CREATIONS_COLLAPSED = [
+      { id: 'new-dossier', label: 'Nouveau dossier', icon: Plus, onClick: () => openImportV2('create') },
+      { id: 'new-conversation', label: 'Nouvelle conversation', icon: PencilLine, onClick: () => startNewConversation() },
+    ];
+    // Récence tolérante aux anciens enregistrements (dates françaises jj/mm/aaaa)
+    const whenTs = (v) => {
+      if (!v) return 0;
+      const t = Date.parse(v);
+      if (!Number.isNaN(t)) return t;
+      const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(v).trim());
+      return m ? new Date(+m[3], +m[2] - 1, +m[1]).getTime() : 0;
+    };
+    const recentDossiers = [...dossiers]
+      .filter(d => d.statut !== 'fermé')
+      .sort((a, b) => whenTs(b.lastActivity ?? b.lastEditDate) - whenTs(a.lastActivity ?? a.lastEditDate))
+      .slice(0, 4);
+    const recentConvs = threadsStore.recentThreads(4);
+
+    // Les lignes de la nav sont componentisées : src/components/shell/NavItem.js
+    // (variants destination / recent / create / see-all) + NavSectionHeader.
+    const navBtn = (item) => (
+      <NavItem
+        key={item.id}
+        variant="destination"
+        icon={item.icon}
+        label={item.label}
+        onClick={item.onClick}
+        active={item.active}
+        collapsed={collapsed}
+      />
+    );
+    const sectionHeader = (label, action = null) => <NavSectionHeader label={label} action={action} />;
+    const recentRow = ({ key, icon, label, onClick, title, active = false, dossierRef = null }) => (
+      <NavItem key={key} variant="recent" icon={icon} label={label} trail={dossierRef} onClick={onClick} title={title} active={active} />
+    );
+    const createRow = ({ key, icon, label, onClick, title }) => (
+      <NavItem key={key} variant="create" icon={icon} label={label} onClick={onClick} title={title} />
+    );
+
     return (
       <div
-        className="bg-white border-r border-border flex flex-col flex-shrink-0 overflow-hidden"
+        className="border-r border-border flex flex-col flex-shrink-0 overflow-hidden h-full"
         style={{
-          width: collapsed ? 48 : 244,
-          transition: 'width 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+          width: collapsed ? 48 : NAV_WIDTH,
+          // Nav finale (Plato---System 37416:1376) : fond plat #f8f7f5, bord #e7e5e3.
+          background: '#f8f7f5',
         }}
       >
-        {/* Header - logo (always) + wordmark (expanded only) */}
+        {/* Header - wordmark vectorisé (→ accueil) + contrôle de masquage (spec 5 §2) */}
         <div
-          className={`h-12 border-b border-border flex items-center flex-shrink-0 ${collapsed ? 'justify-center' : 'pl-3 pr-4 gap-2'}`}
+          className={`h-12 border-b border-border flex items-center flex-shrink-0 ${collapsed ? 'justify-center' : 'pl-4 pr-3 gap-2'}`}
         >
-          <img src="/logo-plato.png" alt="Plato" className="w-6 h-6 flex-shrink-0" />
+          <button
+            onClick={() => setCurrentPage('home')}
+            className={`flex items-center hover:opacity-80 transition-opacity ${collapsed ? '' : 'flex-1 min-w-0 gap-2'}`}
+            title="Accueil"
+          >
+            {collapsed ? (
+              <img src="/logo-plato.png" alt="Plato" className="w-6 h-6 flex-shrink-0" />
+            ) : (
+              <img src="/logo-plato-wordmark.svg" alt="Plato" className="h-6 flex-shrink-0" style={{ width: 75 }} />
+            )}
+          </button>
           {!collapsed && (
-            <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', lineHeight: '20px' }}>
-              Plato
-            </span>
+            <button
+              onClick={inPeek ? expandNav : hideNav}
+              className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+              title={inPeek ? 'Épingler la navigation (⌘\\)' : 'Masquer la navigation (⌘\\)'}
+            >
+              <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
+            </button>
           )}
         </div>
 
-        {/* Connecteur email - feature-awareness tant qu'aucune boîte n'est
-            connectée, posée EN HAUT de la nav (au-dessus des entrées). Même
-            grammaire que la carte Parrainage, monde vert « lecture seule » ;
-            la croix la congédie pour la session. */}
-        {!collapsed && mailboxes.length === 0 && !mailPromoHidden.nav && (
-          <div className="flex-shrink-0">
-            <MailNavPromoCard
-              onOpen={() => { setSettingsSection('maboite'); setCurrentPage('settings'); }}
-              onDismiss={() => setMailPromoHidden(h => ({ ...h, nav: true }))}
-            />
+        {/* Bannière « Connectez votre boîte mail » (frame Plato-Design 3757:24847) -
+            dégradé bleu horizontal, sous le header, tant qu'aucune boîte n'est
+            connectée. Touchpoint feature-awareness du connecteur email. */}
+        {!collapsed && mailboxes.length === 0 && (
+          <NavPromoBanner
+            icon={Mail}
+            label="Connectez votre boîte mail"
+            edge="top"
+            onClick={() => { setSettingsSection('maboite'); setCurrentPage('settings'); }}
+          />
+        )}
+
+        {/* Créations - déplacées dans les en-têtes de sections (09/09) : le « + »
+            de « Dossiers récents » crée un dossier, celui de « Conv. récentes »
+            une conversation. Plus de bloc CTA en tête de nav. Repliée : icônes
+            seules (les sections de récents n'existent pas dans ce mode).
+            Raccourcis ⌘⇧O / ⌘O toujours câblés, rappelés dans les tooltips. */}
+        {collapsed && (
+          <div className="flex-shrink-0 px-2 pt-3 pb-3">
+            <div className="flex flex-col gap-1.5 items-center">
+              {CREATIONS_COLLAPSED.map(navBtn)}
+            </div>
           </div>
         )}
 
-        {/* Nav items */}
-        <div className="flex-1 overflow-y-auto p-2">
-          <div className="flex flex-col gap-1">
-            {ITEMS.map(item => {
-              const Icon = item.icon;
-              const btn = (
-                <button
-                  onClick={item.onClick}
-                  className={`h-8 flex items-center transition-colors text-left ${
-                    collapsed ? 'w-8 justify-center px-0' : 'gap-2 w-full px-2'
-                  } ${
-                    item.active
-                      ? 'bg-cream text-foreground font-medium'
-                      : 'text-foreground-secondary hover:bg-background hover:text-foreground'
-                  }`}
-                  style={{ borderRadius: 8, fontSize: '14px' }}
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={item.active ? 2 : 1.5} />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
-                </button>
-              );
-              if (!collapsed) return <div key={item.id}>{btn}</div>;
-              return (
-                <div key={item.id} className="relative group">
-                  {btn}
-                  <span
-                    role="tooltip"
-                    className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[12px] font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
-                  >
-                    {item.label}
-                  </span>
-                </div>
-              );
-            })}
-
+        {/* Milieu défilant : destinations + récents - sans filets internes,
+            regroupés par les en-têtes mono et l'espace (essai « moins de séparateurs »).
+            Sections titrées : 20px au-dessus du titre pour les détacher. */}
+        <div className="flex-1 overflow-y-auto min-h-0 pb-2">
+          <div className={`px-2 flex flex-col gap-0.5 ${collapsed ? 'items-center' : 'pt-3'}`}>
+            {ITEMS.map(navBtn)}
           </div>
+          {/* Sections toujours rendues (même sans récents) : leur « + » est
+              désormais LE point de création de la nav dépliée. */}
+          {!collapsed && (
+            <div className="px-2 pt-5 flex flex-col">
+              {sectionHeader('Dossiers récents')}
+              <div className="flex flex-col gap-0.5">
+                {createRow({ key: 'new-dossier-row', icon: FolderPlus, label: 'Nouveau dossier', onClick: () => openImportV2('create'), title: 'Nouveau dossier (⌘⇧O)' })}
+                {recentDossiers.map(d => recentRow({
+                  key: d.id,
+                  icon: FolderOpen,
+                  label: d.reference,
+                  onClick: () => openDossier(d),
+                  active: currentPage === 'dossier' && d.id === activeDossierId,
+                }))}
+                {recentDossiers.length > 0 && (
+                  <NavItem variant="see-all" label="Voir tout" onClick={() => setCurrentPage('dossiers')} />
+                )}
+              </div>
+            </div>
+          )}
+          {!collapsed && (
+            <div className="px-2 pt-5 flex flex-col">
+              {sectionHeader('Conv. récentes')}
+              <div className="flex flex-col gap-0.5">
+                {createRow({ key: 'new-conv-row', icon: MessageCirclePlus, label: 'Nouvelle conversation', onClick: () => startNewConversation(), title: 'Nouvelle conversation (⌘O)' })}
+                {recentConvs.map(t => recentRow({
+                  key: t.id,
+                  icon: MessageCircle,
+                  label: t.title,
+                  dossierRef: t.scope?.dossierId ? (dossiers.find(x => x.id === t.scope.dossierId)?.reference ?? null) : null,
+                  title: t.scope?.dossierId ? `${t.title} - ${dossiers.find(x => x.id === t.scope.dossierId)?.reference ?? ''}` : t.title,
+                  onClick: () => {
+                    if (t.scope?.dossierId) {
+                      const d = dossiers.find(x => x.id === t.scope.dossierId);
+                      if (d) { openDossier(d, t.id); return; }
+                    }
+                    setActiveThreadId(t.id);
+                    navigate(`/conversations/${t.id}`);
+                  },
+                  // Dans un dossier (« matter »), seul le dossier est sélectionné :
+                  // sa conversation ne s'allume pas en même temps. Une conv. récente
+                  // n'est active que sur la surface conversation autonome.
+                  active: currentPage === 'conversation' && t.id === activeThreadId,
+                }))}
+                {recentConvs.length > 0 && (
+                  <NavItem variant="see-all" label="Voir tout" onClick={() => setCurrentPage('conversations')} />
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Parrainage - Figma section component (info-blue gradient + accent rail).
-            The card carries its own top border, so the wrapper stays borderless. */}
-        {!collapsed && (
-          <div className="flex-shrink-0">
-            {renderParrainageCard()}
-          </div>
+        {/* Pied du rail - nav FINALE (37416:1376) : bannière parrainage puis
+            compte, RIEN d'autre (le quota hebdomadaire vit dans Mon usage). */}
+        {!collapsed && !parrainagePromoHidden && (
+          <NavPromoBanner
+            icon={Gift}
+            label="-10% à chaque parrainage"
+            edge="bottom"
+            title="Programme de parrainage"
+            onClick={() => setParrainageModalOpen(true)}
+          />
         )}
 
-        {/* Workspace dossier indicator - hidden when collapsed */}
-        {!collapsed && (
-          <div className="border-t border-border flex-shrink-0">
-            {renderDossierIndicator()}
-          </div>
-        )}
-
-        {/* Avatar footer - full pill expanded, single-tap initials when collapsed */}
+        {/* Avatar footer - compact : avatar 24px · prénom / cabinet · chevrons */}
         <div className={`border-t border-border flex-shrink-0 ${collapsed ? 'p-2 flex justify-center' : 'p-2'}`}>
           <div className="relative group">
             <button
@@ -17232,18 +16951,18 @@ export default function App() {
               className={
                 collapsed
                   ? 'flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity'
-                  : 'w-full flex items-center gap-3 p-2 hover:bg-background transition-colors text-left group'
+                  : 'w-full flex items-center gap-3 px-2 py-2 hover:bg-cream/60 transition-colors text-left group'
               }
               style={collapsed ? undefined : { borderRadius: 6 }}
             >
               {collapsed ? userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 32) : (
                 <>
-                  {userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 32)}
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-medium text-foreground truncate leading-5">{currentUser?.name || 'Mon compte'}</div>
-                    <div className="text-[12px] text-foreground-muted truncate leading-4">{orgName}</div>
+                  {userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 24)}
+                  <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
+                    <span className="text-[14px] font-medium text-foreground truncate leading-[20px]">{currentUser?.name?.split(' ')[0] || 'Mon compte'}</span>
+                    <span className="text-[12px] text-foreground-secondary truncate leading-[16px]" style={{ letterSpacing: '0.12px' }}>{orgName}</span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-foreground-muted group-hover:text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
+                  <ChevronsUpDown className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
                 </>
               )}
             </button>
@@ -17262,7 +16981,78 @@ export default function App() {
     );
   };
 
-  const renderCollapsedRail = () => renderUnifiedSidebar({ collapsed: true });
+  // ========== SLOT DE NAV, CONTRÔLE D'EXPANSION, PEEK (spec 5) ==========
+
+  // Le slot anime la nav en flux : 264 → 0 en 300ms cubic-bezier(.22,1,.36,1)
+  // avec un fondu de 200ms. À 0, rien ne subsiste - ni liseré, ni colonne de
+  // glyphes. L'intérieur reste à largeur fixe pour ne pas s'écraser pendant
+  // l'animation ; le workspace et le rail refluent naturellement.
+  const renderNavSlot = (navContent) => (
+    <div
+      className="flex-shrink-0 overflow-hidden h-full"
+      style={{
+        width: navHidden ? 0 : NAV_WIDTH,
+        opacity: navHidden ? 0 : 1,
+        // visibility bascule APRÈS l'animation de largeur : plus rien n'est
+        // focusable ni cliquable une fois la nav disparue (« rien ne subsiste »).
+        visibility: navHidden ? 'hidden' : 'visible',
+        transition: navHidden
+          ? 'width 300ms cubic-bezier(.22,1,.36,1), opacity 200ms ease, visibility 0s linear 300ms'
+          : 'width 300ms cubic-bezier(.22,1,.36,1), opacity 200ms ease, visibility 0s',
+      }}
+      aria-hidden={navHidden}
+    >
+      <div className="h-full" style={{ width: NAV_WIDTH }}>{navContent}</div>
+    </div>
+  );
+
+  // Contrôle d'expansion - le logo Plato garde une ancre de marque à l'extrême
+  // gauche quand la nav est masquée, suivi du glyphe (miroir du masquage).
+  // Survol → peek immédiat ; clic → réouverture (depuis le peek : le panneau se
+  // cale en place, pas de fermer-rouvrir). Au tactile, le tap rouvre la nav.
+  const renderNavExpandControl = ({ absolute = false } = {}) => {
+    if (!navHidden) return null;
+    return (
+      <NavExpandControl
+        absolute={absolute}
+        onExpand={expandNav}
+        onPeekEnter={openPeek}
+        onPeekLeave={schedulePeekClose}
+      />
+    );
+  };
+
+  // Peek - la nav complète en OVERLAY, ancrée en HAUT à gauche (elle sort de
+  // là où vit son contrôle : le logo + glyphe du header collapsé). Son propre
+  // logo retombe exactement sur celui du header → la nav se déplie du coin. Le
+  // workspace ne reflue jamais. La seule ombre que la nav porte. La sidebar org
+  // est LA nav partout (les vues du dossier sont des onglets). Toute navigation
+  // ferme le peek.
+  const renderNavPeek = () => {
+    if (!navHidden || !peekOpen || !onNavSurface) return null;
+    return (
+      <div
+        className="fixed left-0 top-0 z-[70] flex"
+        style={{ height: '100vh', width: NAV_WIDTH }}
+        onMouseEnter={cancelPeekClose}
+        onMouseLeave={schedulePeekClose}
+        onClick={() => { setTimeout(closePeekNow, 0); }}
+      >
+        <style>{`
+          @keyframes nav-peek-slide { from { transform: translateX(-24px); opacity: 0.4; } to { transform: translateX(0); opacity: 1; } }
+        `}</style>
+        <div
+          className="flex-1 min-w-0 flex"
+          style={{
+            boxShadow: '14px 0 34px rgba(41,37,36,.16)',
+            animation: 'nav-peek-slide 240ms cubic-bezier(.32,.72,0,1)',
+          }}
+        >
+          {renderUnifiedSidebar({ collapsed: false, inPeek: true })}
+        </div>
+      </div>
+    );
+  };
 
   // Parrainage promo - matches Figma node 36867:2516 (Plato system).
   // Info-subtle blue gradient bg + 2px info-text accent rail on the left,
@@ -17600,19 +17390,512 @@ export default function App() {
     );
   };
 
-  // Sidebar bottom slot - the weekly quota gauge (active / trial) or the
-  // read-only card (none). The trial strip lives below the logo, not here.
-  const renderDossierIndicator = () => (
-    <button
-      onClick={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
-      className="block w-full text-left overflow-hidden transition-colors hover:bg-background"
-      style={{ backgroundColor: 'transparent', fontFamily: "'Inter', system-ui, sans-serif" }}
-    >
-      {renderWeeklyQuotaCard({ plan: myPlan, pct: myQuotaPct, variant: 'compact' })}
-    </button>
-  );
+  // (l'ancien slot quota pleine carte de la sidebar est remplacé par la ligne
+  // compacte du pied - la grande carte vit sur la page Mon usage)
 
   const renderHomeSidebar = () => renderUnifiedSidebar({ collapsed: false });
+
+  // ========== SURFACE ASSISTANT (home + conversation centrale) ==========
+  // Un seul render pour les deux états : même conteneur, le composer ne se
+  // remonte pas quand la salutation cède la place au fil (behaviour map §3.1).
+
+  // Modale de renommage de la conversation (remplace l'édition en place + le
+  // bouton « Renommer »). Ouverte quand threadTitleDraft !== null.
+  const renderRenameConvModal = (thread) => {
+    if (threadTitleDraft === null) return null;
+    const commit = () => {
+      const v = (threadTitleDraft || '').trim();
+      if (v && thread) threadsRef.current.renameThread(thread.id, v);
+      setThreadTitleDraft(null);
+    };
+    return (
+      <div
+        className="fixed inset-0 z-[80] flex items-center justify-center"
+        style={{ backgroundColor: 'rgba(26,26,26,0.4)' }}
+        onClick={() => setThreadTitleDraft(null)}
+      >
+        <div
+          className="bg-white rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]"
+          style={{ boxShadow: '0 12px 40px rgba(26,26,26,0.18)' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="px-5 pt-5 pb-3">
+            <h2 className="text-[16px] font-medium text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif" }}>Renommer la conversation</h2>
+          </div>
+          <div className="px-5 pb-2">
+            <input
+              autoFocus
+              value={threadTitleDraft}
+              onChange={(e) => setThreadTitleDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commit();
+                if (e.key === 'Escape') setThreadTitleDraft(null);
+              }}
+              className="w-full h-9 px-3 rounded-lg border border-border focus:border-foreground-tertiary outline-none text-[14px] text-foreground"
+              placeholder="Nom de la conversation"
+            />
+          </div>
+          <div className="px-5 py-3 flex items-center justify-end gap-2">
+            <button
+              onClick={() => setThreadTitleDraft(null)}
+              className="px-3 py-1.5 rounded-lg text-[13px] text-foreground-secondary hover:bg-background transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={commit}
+              className="px-3 py-1.5 rounded-lg text-[13px] font-medium text-white bg-foreground hover:bg-foreground-tertiary transition-colors"
+            >
+              Enregistrer
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Barre de contexte de la conversation centrale : « Mes conversations / <titre> ».
+  // Pas de bouton d'action : le nom porte un crayon au survol qui ouvre la modale
+  // de renommage - CET état seulement (§1.2).
+  const renderConversationTopBar = (thread) => (
+    <ConversationTopBar
+      title={thread?.title}
+      onOpenIndex={() => setCurrentPage('conversations')}
+      onRename={() => setThreadTitleDraft(thread?.title ?? '')}
+      // Nav masquée : contrôle d'expansion à l'extrême gauche de la barre
+      leading={renderNavExpandControl()}
+    >
+      {renderRenameConvModal(thread)}
+    </ConversationTopBar>
+  );
+
+  // Renderer des messages de la conversation centrale - sous-ensemble du rail :
+  // user (bulle sombre + tokens), ai (texte + sources + « ce que j'ai lu »),
+  // system (ligne factuelle), marker (marqueur de rattachement, positionnel).
+  const renderCentralMessage = (msg, i) => {
+    if (msg.type === 'user') {
+      return (
+        <div key={i} className="flex flex-col items-end" style={{ paddingLeft: 48, paddingBottom: 20, gap: 8 }}>
+          {msg.attachments?.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-end">
+              {msg.attachments.map((doc, di) => (
+                <span key={di} className="inline-flex items-center gap-1 px-2 py-1" style={{ backgroundColor: '#eeece6', borderRadius: 6 }}>
+                  <FileText className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={1.75} />
+                  <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>{doc.name}</span>
+                  <span style={{ fontSize: 10.5, color: '#a8a29e' }}>Document de travail</span>
+                </span>
+              ))}
+            </div>
+          )}
+          {msg.text && (
+            <div
+              style={{
+                backgroundColor: '#292524', borderRadius: 2, padding: '10px 12px',
+                boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)', position: 'relative', maxWidth: '80%', overflow: 'hidden',
+              }}
+            >
+              <p style={{ fontSize: 14, lineHeight: '20px', color: 'white', margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', boxShadow: 'inset 0px -5px 8px 0px rgba(255,255,255,0.12)', pointerEvents: 'none' }} />
+            </div>
+          )}
+        </div>
+      );
+    }
+    if (msg.type === 'ai') {
+      return (
+        <div key={i} className="pb-6" style={{ paddingRight: 48 }}>
+          <p style={{ fontSize: 14, lineHeight: '22px', color: '#27272a', margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+          {msg.sources?.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {msg.sources.map((s, si) => (
+                <span key={si} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-white text-[12px] text-foreground-secondary">
+                  <BookOpen className="w-3 h-3 text-foreground-tertiary" strokeWidth={1.75} />
+                  {s.label}
+                </span>
+              ))}
+            </div>
+          )}
+          {msg.readStatement && (
+            <p className="mt-3 text-[12.5px] text-foreground-tertiary" style={{ lineHeight: '18px' }}>
+              {msg.readStatement}
+            </p>
+          )}
+        </div>
+      );
+    }
+    if (msg.type === 'system') {
+      return (
+        <div key={i} className="flex items-center gap-2 pb-5 text-[12px] text-foreground-tertiary">
+          <span className="w-1 h-1 rounded-full bg-border-strong flex-shrink-0" />
+          {msg.text}
+        </div>
+      );
+    }
+    if (msg.type === 'marker') {
+      const at = msg.at ? new Date(msg.at) : null;
+      const time = at ? `${at.getHours()}h${String(at.getMinutes()).padStart(2, '0')}` : '';
+      return (
+        <div key={i} className="flex items-center gap-3 py-4">
+          <span className="flex-1 h-px bg-border" />
+          <span className="text-[11.5px] text-foreground-tertiary flex items-center gap-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <Folder className="w-3 h-3" strokeWidth={1.75} />
+            Rattaché · {msg.dossierLabel ?? msg.dossierId}{time ? ` · ${time}` : ''}
+          </span>
+          <span className="flex-1 h-px bg-border" />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Idées de démarrage hors dossier - source unique partagée par l'ampoule ET
+  // les pills sous le composer d'accueil. Périmètre hors dossier = connaissance,
+  // recherche, info portefeuille (jamais chiffrer / rédiger, verrouillés). Le
+  // dossier a son propre set (travail) dans le rail.
+  const FREE_SUGGESTIONS = [
+    { icon: Landmark, label: 'Chercher une jurisprudence' },
+    { icon: BookOpen, label: 'Vérifier un délai de prescription' },
+    { icon: HelpCircle, label: 'Poser une question de droit' },
+    { icon: Scale, label: 'Expliquer une règle applicable' },
+    { icon: FolderOpen, label: 'Où en est un dossier ?' },
+  ];
+
+  const renderAssistantSurface = () => {
+    const isHome = currentPage === 'home';
+    const thread = !isHome && activeThreadId ? threadsStore.getThread(activeThreadId) : null;
+    // Fil vide (nouvelle conversation) : même composer que la home (variant
+    // hero + placeholder machine à écrire) - il repasse en standard au premier
+    // message, quand il s'ancre en bas.
+    const isEmptyThread = !isHome && chatMessages.length === 0;
+    const heroLike = isHome || isEmptyThread;
+    const catalog = assistantAgent.getCatalog(
+      { dossierId: null, vertical: DEFAULT_FREE_VERTICAL },
+      { dossiers, templates: templatesLibrary, referentiels: DEFAULT_BAREMES }
+    );
+    const composer = (
+      <AssistantComposer
+        variant={heroLike ? 'hero' : 'standard'}
+        scope={{ dossierId: null, vertical: thread?.scope?.vertical ?? DEFAULT_FREE_VERTICAL }}
+        dossierLabel={null}
+        systemState={null}
+        scopeFlash={false}
+        catalog={catalog}
+        onSend={sendAssistantMessage}
+        onAttach={thread ? () => setAttachPickerThreadId(thread.id) : undefined}
+        // Popover de rattachement disponible AUSSI sur la home (« pour le futur ») :
+        // sans fil actif, choisir un dossier ouvre ce dossier (démarrer la
+        // conversation dedans) ; avec un fil, rattachement réel du fil.
+        attachDossiers={dossiers.filter(d => d.statut !== 'fermé')}
+        onAttachToDossier={thread ? (d) => doAttachThread(thread.id, d) : (d) => openDossier(d)}
+        onCreateDossier={() => openImportV2('create')}
+        onRunIntention={(intention) => {
+          if (intention?.id === 'creer-dossier') { openImportV2('create'); return; }
+          if (intention?.id === 'rattacher') { if (thread) setAttachPickerThreadId(thread.id); return; }
+          sendAssistantMessage({ body: intention?.label ?? '', tokens: [] });
+        }}
+        onDropFiles={(files) => {
+          // Hors dossier : le fichier devient un document de travail (lecture
+          // seule) - version minimale : chip au-dessus de l'input, jamais « pièce ».
+          setFreeStagedDocs(prev => [...prev, ...Array.from(files || []).map((f, i) => ({ id: `wd-${Date.now()}-${i}`, name: f.name }))]);
+        }}
+        stagedDocs={freeStagedDocs}
+        onRemoveStagedDoc={(doc) => setFreeStagedDocs(prev => prev.filter(d => d !== doc))}
+        suggestions={FREE_SUGGESTIONS}
+        composerApiRef={freeComposerApi}
+        placeholder={heroLike ? 'Posez une question de droit…' : 'Répondre à Plato…'}
+        placeholderNode={heroLike ? <TypewriterPlaceholder /> : null}
+        autoFocus
+      />
+    );
+
+    return (
+      <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
+        {renderTrialBanner()}
+        <div className="flex-1 flex relative overflow-hidden">
+          {renderNavSlot(renderUnifiedSidebar({ collapsed: false }))}
+          <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative" style={{ backgroundColor: '#F8F7F5' }}>
+            {/* Nav masquée : bande « Menu » en tête (Plato + Menu), alignée sur
+                les index. Pas de fil d'Ariane sur une surface de 1er niveau : la
+                grande question/le grand titre porte déjà le « où suis-je ». */}
+            {isHome && navHidden && (
+              <div className="px-6 pt-3 pb-1 flex-shrink-0">
+                {renderNavExpandControl()}
+              </div>
+            )}
+            {/* Barre de contexte : uniquement en conversation centrale - une barre vide ne s'affiche pas */}
+            {!isHome && renderConversationTopBar(thread)}
+            {isHome ? (
+              /* Home - frame Figma 3736:32537 : eyebrow mono orange, question
+                 serif, composer halo (max 690), puis dossiers / conversations
+                 récents en deux colonnes sous un filet. */
+              (() => {
+                const whenTs = (v) => {
+                  if (!v) return 0;
+                  const t = Date.parse(v);
+                  if (!Number.isNaN(t)) return t;
+                  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(v).trim());
+                  return m ? new Date(+m[3], +m[2] - 1, +m[1]).getTime() : 0;
+                };
+                const homeDossiers = [...dossiers]
+                  .filter(d => d.statut !== 'fermé')
+                  .sort((a, b) => whenTs(b.lastActivity ?? b.lastEditDate) - whenTs(a.lastActivity ?? a.lastEditDate))
+                  .slice(0, 3);
+                const homeConvs = threadsStore.recentThreads(3);
+                const homeRow = ({ key, icon: Icon, label, onClick, dossierRef = null }) => (
+                  <button
+                    key={key}
+                    onClick={onClick}
+                    className={`group/hrow flex items-center gap-2 w-full px-2 text-left text-foreground hover:bg-cream/60 transition-colors ${dossierRef ? 'h-11' : 'h-8'}`}
+                    style={{ borderRadius: 4, fontSize: 14 }}
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0 text-foreground-secondary" strokeWidth={1.75} />
+                    {/* Titre + (marqueur dossier en sous-titre). */}
+                    <span className="flex-1 min-w-0 flex flex-col justify-center">
+                      <span className="truncate" style={{ lineHeight: '17px' }}>{label}</span>
+                      {dossierRef && (
+                        <span className="flex items-center gap-1 min-w-0">
+                          <CornerDownRight className="w-2.5 h-2.5 flex-shrink-0" strokeWidth={1.75} style={{ color: '#a8a29e' }} />
+                          <span className="truncate text-[11px] text-foreground-muted" style={{ lineHeight: '14px' }}>{dossierRef}</span>
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                );
+                const homeSectionHeader = (label) => (
+                  <div className="px-2 py-1">
+                    <span className="opacity-50" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                      {label}
+                    </span>
+                  </div>
+                );
+                const seeAll = (label, onClick) => (
+                  <button
+                    onClick={onClick}
+                    className="h-8 flex items-center w-full p-2 text-left text-foreground-secondary hover:text-foreground transition-colors"
+                    style={{ borderRadius: 4, fontSize: 14 }}
+                  >
+                    {label}
+                  </button>
+                );
+                return (
+                  <div className="flex-1 overflow-y-auto relative">
+                  {/* Enfant min-h-full : centre le héros quand il y a de la place,
+                      laisse défiler (et les récents rester atteignables) sinon -
+                      corrige le clip du flex justify-center sur conteneur scrollable. */}
+                  <div className="min-h-full flex flex-col items-center justify-start px-6 pt-[10vh] pb-10 relative">
+                    {/* Illustration gravée « accueillir » (monde Plato) ancrée en
+                        BAS à DROITE, filigrane 30 %, débordant du bord. Décorative,
+                        masquée sous 1100px pour ne pas gêner. */}
+                    <img
+                      src="/home-hand-right.png"
+                      alt=""
+                      aria-hidden="true"
+                      className="hidden [@media(min-width:1100px)]:block select-none pointer-events-none absolute"
+                      style={{ right: -72, bottom: 0, width: 320, height: 'auto', opacity: 0.3, zIndex: 0 }}
+                    />
+                    <div className="w-full flex flex-col items-center relative" style={{ maxWidth: 690, gap: 32, zIndex: 1 }}>
+                      {/* Salutation - eyebrow mono, question serif, ligne pédagogique
+                          (l'illustration est passée sur les côtés). */}
+                      <div className="flex flex-col items-center" style={{ gap: 14 }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#b8560f', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                          Bonjour {currentUser?.name?.split(' ')[0] ?? ''}
+                        </span>
+                        <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 400, color: '#000000', letterSpacing: '-0.6px', lineHeight: '34px', textAlign: 'center' }}>
+                          Que puis-je faire pour vous aujourd'hui ?
+                        </h1>
+                        <p className="text-center" style={{ fontSize: 14, lineHeight: '20px', color: '#78716c', maxWidth: 440 }}>
+                          Une question de droit, une jurisprudence, l'état d'un dossier - je réponds avant même d'ouvrir un dossier.
+                        </p>
+                      </div>
+                      {/* Le composer - halo crème, carte blanche (variant hero) */}
+                      <div className="w-full">
+                        {composer}
+                        {/* Pills de démarrage - un extrait des mêmes idées que
+                            l'ampoule ; cliquer remplit le composer (l'utilisateur
+                            complète puis envoie). Indentées de 10px (px-2.5) pour
+                            aligner leur bord gauche sur la carte blanche du composer
+                            (le halo crème fait 10px), pas sur le bord du halo. */}
+                        <div className="flex flex-wrap justify-start gap-2 mt-3 px-2.5">
+                          {FREE_SUGGESTIONS.slice(0, 4).map(s => (
+                            <SuggestionPill
+                              key={s.label}
+                              icon={s.icon}
+                              label={s.label}
+                              onClick={() => {
+                                if (s.onPick) { s.onPick(); return; }
+                                freeComposerApi.current?.insertText(s.label);
+                                freeComposerApi.current?.focus();
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {/* Encart découverte « Plato hors dossier » - même grammaire
+                          que le bandeau connecteur (carte arrondie, visuel à gauche,
+                          CTA sombre, croix). Slot promo de session, comme les autres.
+                          Placé au-dessus des récents : la découverte prime sur
+                          l'historique. */}
+                      {!homeAssistantPromoHidden && (
+                        <div
+                          className="relative flex items-center gap-4 rounded-xl overflow-hidden w-full"
+                          style={{
+                            padding: '14px 18px',
+                            border: '1px solid #e0ddd6',
+                            background: 'linear-gradient(105deg, #f1efe9 0%, #faf9f7 55%, #fdf0e4 130%)',
+                          }}
+                        >
+                          <div className="flex items-center justify-center flex-shrink-0 bg-white rounded-lg" style={{ width: 40, height: 40, border: '1px solid #e0ddd6' }}>
+                            <img src="/logo-plato.png" alt="" className="w-6 h-6" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13.5px] font-medium text-foreground leading-5">
+                              <span className="mr-2 align-middle" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, fontWeight: 500, color: '#b8560f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Nouveau</span>
+                              Plato vous répond aussi hors dossier
+                            </p>
+                            <p className="text-[12.5px] leading-[18px] mt-0.5" style={{ color: '#57534e' }}>
+                              Jurisprudence, délais, questions de droit : ouvrez une conversation libre, sans créer de dossier.{' '}
+                              <span className="whitespace-nowrap">Rattachez-la à un dossier quand vous voulez.</span>
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setHomeAssistantPromoHidden(true)}
+                            aria-label="Masquer"
+                            className="flex items-center justify-center w-7 h-7 rounded-md text-foreground-muted hover:text-foreground hover:bg-white/70 transition-colors flex-shrink-0 -mr-1.5"
+                          >
+                            <X className="w-3.5 h-3.5" strokeWidth={2} />
+                          </button>
+                        </div>
+                      )}
+                      {/* Récents - deux colonnes sous un filet */}
+                      {(homeDossiers.length > 0 || homeConvs.length > 0) && (
+                        <div className="w-full px-0.5">
+                          <div className="h-px w-full bg-border" />
+                          <div className="flex items-start" style={{ gap: 16 }}>
+                            <div className="flex-1 min-w-0 flex flex-col gap-2 px-2 py-3.5">
+                              {homeSectionHeader('Dossiers récents')}
+                              <div className="flex flex-col gap-0.5">
+                                {homeDossiers.map(d => homeRow({ key: d.id, icon: FolderOpen, label: d.reference, onClick: () => openDossier(d) }))}
+                                {seeAll('Voir tout →', () => setCurrentPage('dossiers'))}
+                              </div>
+                            </div>
+                            <div className="w-px self-stretch bg-border" />
+                            <div className="flex-1 min-w-0 flex flex-col gap-2 px-2 py-3.5">
+                              {homeSectionHeader('Conv. récentes')}
+                              <div className="flex flex-col gap-0.5">
+                                {homeConvs.map(t => homeRow({
+                                  key: t.id,
+                                  icon: MessageCircle,
+                                  label: t.title,
+                                  dossierRef: t.scope?.dossierId ? (dossiers.find(x => x.id === t.scope.dossierId)?.reference ?? null) : null,
+                                  onClick: () => {
+                                    if (t.scope?.dossierId) {
+                                      const d = dossiers.find(x => x.id === t.scope.dossierId);
+                                      if (d) { openDossier(d, t.id); return; }
+                                    }
+                                    setActiveThreadId(t.id);
+                                    navigate(`/conversations/${t.id}`);
+                                  },
+                                }))}
+                                {seeAll('Voir tout →', () => setCurrentPage('conversations'))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  </div>
+                );
+              })()
+            ) : chatMessages.length === 0 ? (
+              /* Nouvelle conversation (fil vide) : kicker + grand titre au-dessus
+                 du composer CENTRÉ (même grammaire que la home) ; le composer
+                 s'ancre en bas dès le premier message. */
+              <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 pb-16">
+                <div className="w-full flex flex-col items-center" style={{ maxWidth: 690, gap: 32 }}>
+                  <div className="flex flex-col items-center" style={{ gap: 14 }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#b8560f', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                      Nouvelle conversation
+                    </span>
+                    <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 400, color: '#000000', letterSpacing: '-0.6px', lineHeight: '34px', textAlign: 'center' }}>
+                      Par où commençons-nous ?
+                    </h1>
+                  </div>
+                  <div className="w-full">
+                    {composer}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex-1 overflow-y-auto">
+                  <div className="mx-auto w-full px-6 py-8" style={{ maxWidth: 690 }}>
+                    {chatMessages.map(renderCentralMessage)}
+                    {assistantThinking && (
+                      <div className="pb-6"><ThinkingDots /></div>
+                    )}
+                  </div>
+                </div>
+                <div className="px-6 pb-6 flex-shrink-0">
+                  <div className="mx-auto w-full" style={{ maxWidth: 690 }}>
+                    {composer}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Modale centrée de choix du dossier de rattachement (les dialogs d'action
+  // restent des modales centrées ; seuls les drawers de contenu s'ancrent au chat).
+  const renderAttachPickerModal = () => {
+    if (!attachPickerThreadId) return null;
+    const openDossiers = dossiers.filter(d => d.statut !== 'fermé');
+    return (
+      <div className="fixed inset-0 z-[80] flex items-center justify-center" style={{ backgroundColor: 'rgba(26,26,26,0.4)' }} onClick={() => setAttachPickerThreadId(null)}>
+        <div className="bg-white rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]" style={{ boxShadow: '0 12px 40px rgba(26,26,26,0.18)' }} onClick={(e) => e.stopPropagation()}>
+          <div className="px-5 pt-5 pb-3">
+            <h2 className="text-[16px] font-medium text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif" }}>Rattacher la conversation</h2>
+            <p className="mt-1 text-[13px] text-foreground-secondary">Le fil migre dans le dossier choisi - un marqueur garde le point exact du rattachement.</p>
+          </div>
+          <div className="px-3 pb-3 max-h-[320px] overflow-y-auto">
+            {openDossiers.map(d => (
+              <button
+                key={d.id}
+                onClick={() => doAttachThread(attachPickerThreadId, d)}
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-background transition-colors"
+              >
+                <Folder className="w-4 h-4 text-foreground-tertiary flex-shrink-0" strokeWidth={1.75} />
+                <span className="flex-1 min-w-0 text-[14px] text-foreground truncate">{d.reference}</span>
+                <span className="text-[12px] text-foreground-tertiary flex-shrink-0">{d.domaine ?? ''}</span>
+              </button>
+            ))}
+            {openDossiers.length === 0 && (
+              <div className="px-2.5 py-4 text-[13px] text-foreground-tertiary">Aucun dossier ouvert. Créez-en un pour rattacher ce fil.</div>
+            )}
+          </div>
+          <div className="px-5 py-3 border-t border-border flex items-center justify-between">
+            <button
+              onClick={() => { setAttachPickerThreadId(null); openImportV2('create'); }}
+              className="text-[13px] text-foreground-secondary hover:text-foreground transition-colors"
+            >
+              Nouveau dossier
+            </button>
+            <button
+              onClick={() => setAttachPickerThreadId(null)}
+              className="px-3 py-1.5 rounded-lg text-[13px] text-foreground-secondary hover:bg-background transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderDossierListPage = () => {
     const enCoursCount = dossiers.filter(d => (d.statut ?? 'ouvert') !== 'fermé').length;
@@ -17623,12 +17906,19 @@ export default function App() {
     <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
       {renderTrialBanner()}
       <div className="flex-1 flex relative overflow-hidden">
-      {renderHomeSidebar()}
+      {renderNavSlot(renderHomeSidebar())}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#F8F7F5' }}>
+      <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: '#F8F7F5' }}>
+        {/* Nav masquée : bande « Menu » en tête, au-dessus du titre (jamais en
+            overlay sur le titre). */}
+        {navHidden && (
+          <div className="px-8 pt-3 pb-1 flex-shrink-0">
+            {renderNavExpandControl()}
+          </div>
+        )}
         {/* Header */}
-        <div className="px-8 pt-8 pb-4">
+        <div className={`px-8 ${navHidden ? 'pt-3' : 'pt-8'} pb-4`}>
           <div className="flex items-center justify-between">
             <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '28px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.01em' }}>
               Mes dossiers
@@ -17663,7 +17953,7 @@ export default function App() {
                     {tab.label}
                     <span className={`tabular-nums text-caption-medium px-1.5 py-0.5 rounded ${isActive ? 'bg-cream text-foreground-tertiary' : 'bg-transparent text-foreground-muted'}`}>{tab.count}</span>
                   </span>
-                  {isActive && <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-stone-800 rounded-full" />}
+                  {isActive && <div className="absolute bottom-0 left-4 right-4 h-[2px] bg-stone-800 rounded-full" />}
                 </button>
               );
             })}
@@ -17691,11 +17981,11 @@ export default function App() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-zinc-100">
-                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Référence</th>
-                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Type de fait</th>
-                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Date</th>
-                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Statut</th>
-                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Dernier édit</th>
+                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Dossier</th>
+                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Domaine</th>
+                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Stade</th>
+                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Dernière activité</th>
+                  <th className="px-5 py-3 text-left" style={colHeaderStyle}>Prochaine action</th>
                   <th className="px-5 py-3 w-10"></th>
                 </tr>
               </thead>
@@ -17716,20 +18006,17 @@ export default function App() {
                         <span className="text-body-medium text-foreground">{dossier.reference}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-body text-foreground-secondary">{dossier.typeFait}</td>
-                    <td className="px-5 py-4 text-body text-foreground-secondary tabular-nums">{dossier.date}</td>
+                    <td className="px-5 py-4 text-body text-foreground-secondary">{dossier.domaine ?? (dossier.matterType === 'social' ? 'Droit social' : 'Dommage corporel')}</td>
                     <td className="px-5 py-4">
                       <span className={`badge badge-sm ${isClosed ? 'badge-warning' : 'badge-success'}`}>
-                        {isClosed ? 'Terminé' : 'En cours'}
+                        {isClosed ? 'Terminé' : (dossier.stade ?? 'En cours')}
                       </span>
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        {userAvatar(0, 'Admin', 20)}
-                        <span className="text-body text-foreground">{dossier.lastEditBy}</span>
-                        <span className="text-body text-foreground-muted">·</span>
-                        <span className="text-body text-foreground-secondary">{dossier.lastEditDate}</span>
-                      </div>
+                    <td className="px-5 py-4 text-body text-foreground-secondary">
+                      {dossier.lastActivity ? formatThreadActivity(dossier.lastActivity) : (dossier.lastEditDate ?? '—')}
+                    </td>
+                    <td className="px-5 py-4 text-body text-foreground-secondary">
+                      {dossier.nextAction?.label ?? '—'}
                     </td>
                     <td className="px-5 py-4">
                       <button
@@ -17753,6 +18040,29 @@ export default function App() {
     </div>
     );
   };
+
+  // ========== INDEX CONVERSATIONS ==========
+  // Surface de récupération, pas de gestion : filtrer, ouvrir, rattacher.
+  // Jamais de renommage, d'épinglage, de dossiers ni de favoris ici. Les fils
+  // inactifs 30 j sont marqués archivés et restent listés ; aucun fil n'est
+  // jamais supprimé. Un fil rattaché laisse un reçu persistant dans la liste
+  // « sans dossier » d'origine (une disparition muette se lirait comme une perte).
+  const renderConversationsIndexPage = () => (
+    <ConversationsIndexPage
+      threads={threadsStore.threads}
+      dossiers={dossiers}
+      navHidden={navHidden}
+      trialBanner={renderTrialBanner()}
+      navSlot={renderNavSlot(renderUnifiedSidebar({ collapsed: false }))}
+      expandControl={navHidden ? renderNavExpandControl() : null}
+      onNewConversation={() => startNewConversation()}
+      onOpenThread={(t, d) => {
+        if (t.scope?.dossierId && d) { openDossier(d, t.id); return; }
+        setActiveThreadId(t.id);
+        navigate(`/conversations/${t.id}`);
+      }}
+    />
+  );
 
   // ========== MAIN ==========
   // Obtenir le parent pour le bouton back
@@ -18051,7 +18361,7 @@ export default function App() {
       <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
         <div className="w-[220px] flex-shrink-0 border-r border-border bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button onClick={() => setCurrentPage('list')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
+          <button onClick={() => setCurrentPage('home')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 10 }}>
@@ -18133,6 +18443,9 @@ export default function App() {
             </button>
             <button onClick={() => navigate('/ui-kit/cotisations')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Calculator className="w-3.5 h-3.5" /> Cotisations et impôts - social
+            </button>
+            <button onClick={() => navigate('/ui-kit/dossier-flag')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <Folder className="w-3.5 h-3.5" /> Flag dossier - variantes
             </button>
             <button onClick={() => navigate('/welcome')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <UserRound className="w-3.5 h-3.5" /> Première connexion - onboarding
@@ -22746,99 +23059,54 @@ export default function App() {
           { id: 'preferences', label: 'Mémoire et préférences', icon: Brain },
         ],
       },
+      {
+        // Outillage interne - sorti de la sidebar org (Figma 3735:32022),
+        // accessible ici sans encombrer la navigation quotidienne.
+        label: 'Développement',
+        items: [
+          { id: 'ui-kit', label: 'UI Components', icon: LayoutGrid, onClick: () => setCurrentPage('components') },
+        ],
+      },
     ];
     return (
       <div className="h-screen flex relative" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
-        {renderCollapsedRail()}
+        {/* Pas de rail d'icônes (spec 5) : le sous-rail des paramètres EST la
+            nav de cette surface ; son bouton retour remonte à l'accueil. */}
 
-        {/* Settings sub-rail */}
-        <div className="w-[244px] bg-white border-r border-border flex flex-col flex-shrink-0">
-          {/* Header with gradient + back chevron + serif title */}
-          <button
-            onClick={() => setCurrentPage('list')}
-            className="h-12 px-3 border-b border-border flex items-center gap-2 hover:bg-background transition-colors group"
-            style={{ background: 'linear-gradient(to left, transparent 40.865%, #f8f7f5 100%)' }}
-          >
-            <ChevronLeft className="w-4 h-4 text-foreground-secondary group-hover:text-foreground" strokeWidth={2} />
-            <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', lineHeight: '20px' }}>
-              Paramètres
-            </span>
-          </button>
-
-          {/* Demo controls - persona + billing state + quota */}
-          <div className="px-3 py-2.5 border-b border-border flex flex-col gap-2.5">
-            <div>
-              <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
-                Vue
-              </div>
-              <div className="flex items-center gap-1.5">
-                {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
-                    className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
-                État
-              </div>
-              <div className="flex items-center gap-1">
-                {[{ id: 'trial', label: 'Essai' }, { id: 'active', label: 'Actif' }, { id: 'none', label: 'Ø' }].map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => setBillingState(s.id)}
-                    className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${billingState === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {isTrialing && (
-              <div>
-                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
-                  Jour
-                </div>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5, 6, 7].map(d => (
-                    <button
-                      key={d}
-                      onClick={() => setDemoTrialDay(d)}
-                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${demoTrialDay === d ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div>
-              <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
-                Quota
-              </div>
-              <div className="flex items-center gap-1">
-                {[{ id: 'fresh', label: '16%' }, { id: 'mid', label: '63%' }, { id: 'high', label: '92%' }, { id: 'full', label: '100%' }].map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => setQuotaFill(s.id)}
-                    className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${quotaFill === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* Settings sub-rail - même fond beige (#f8f7f5) que la nav org + même
+            masquage (renderNavSlot / navHidden partagé) : le sous-rail des
+            paramètres se replie comme la nav principale. */}
+        {renderNavSlot(
+        <div className="w-full h-full bg-[#f8f7f5] border-r border-border-strong flex flex-col">
+          {/* Header - logo Plato = home ; glyphe de repli à droite (comme la nav). */}
+          <div className="h-12 border-b border-border-strong flex items-center flex-shrink-0 pl-4 pr-3 gap-2">
+            <button
+              onClick={() => setCurrentPage('home')}
+              className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity text-left"
+              title="Accueil"
+            >
+              <img src="/logo-plato.png" alt="Plato" className="w-6 h-6 flex-shrink-0" />
+              <span className="flex-1" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', lineHeight: '20px' }}>
+                Plato
+              </span>
+            </button>
+            <button
+              onClick={hideNav}
+              className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+              title="Masquer la navigation (⌘\)"
+            >
+              <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
+            </button>
           </div>
+
+          {/* (« Retour à Plato » a migré dans la barre de tête du CONTENU -
+              même grammaire que « ‹ Mes dossiers » du dossier ; le logo du
+              header du sous-rail renvoie aussi à l'accueil.) */}
 
           {/* Section groups */}
           <div className="flex-1 overflow-y-auto">
             {SECTION_GROUPS.map((group, gIdx) => (
-              <div key={group.label} className={`px-2 py-2.5 ${gIdx < SECTION_GROUPS.length - 1 ? 'border-b border-border' : ''}`}>
+              <div key={group.label} className={`px-2 py-2.5 ${gIdx < SECTION_GROUPS.length - 1 ? 'border-b border-border-strong' : ''}`}>
                 <div className="px-2 py-1.5">
                   <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', opacity: 0.7 }}>
                     {group.label}
@@ -22848,14 +23116,23 @@ export default function App() {
                   {group.items.map(item => {
                     const Icon = item.icon;
                     const active = settingsSection === item.id;
+                    // Aligné sur navBtn de la nav principale : liseré orange +
+                    // icône brand sur l'actif, radius 7, mêmes transitions d'icône.
                     return (
                       <button
                         key={item.id}
-                        onClick={() => setSettingsSection(item.id)}
-                        className={`h-8 w-full flex items-center gap-2 px-2 transition-colors text-left ${active ? 'bg-cream text-foreground font-medium' : 'text-foreground-secondary hover:bg-background hover:text-foreground'}`}
-                        style={{ borderRadius: 8, fontSize: '14px' }}
+                        onClick={() => (item.onClick ? item.onClick() : setSettingsSection(item.id))}
+                        className={`group/nav relative h-8 w-full flex items-center gap-2 px-2.5 transition-all duration-200 ease-out text-left ${active ? 'bg-cream text-foreground font-medium border border-border-strong' : 'text-foreground-secondary hover:bg-cream/60 hover:text-foreground border border-transparent'}`}
+                        style={{ borderRadius: 7, fontSize: '14px' }}
                       >
-                        <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={active ? 2 : 1.5} />
+                        {active && (
+                          <span
+                            aria-hidden
+                            className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full"
+                            style={{ width: 3, height: 15, backgroundColor: '#f47a2c', boxShadow: '0 0 6px rgba(244,122,44,0.38)' }}
+                          />
+                        )}
+                        <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${active ? 'text-brand' : 'text-foreground-muted group-hover/nav:text-foreground-secondary'}`} strokeWidth={active ? 2 : 1.75} />
                         <span className="truncate">{item.label}</span>
                       </button>
                     );
@@ -22864,10 +23141,112 @@ export default function App() {
               </div>
             ))}
           </div>
+
+          <div className="flex-shrink-0 border-t border-border-strong">
+            {/* Contrôles démo - repliables, repliés par défaut (outillage interne). */}
+            <button
+              onClick={() => setDemoControlsOpen(o => !o)}
+              className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-cream/60 transition-colors"
+              title={demoControlsOpen ? 'Replier les contrôles démo' : 'Déplier les contrôles démo'}
+            >
+              <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>Démo</span>
+              <ChevronDown className="w-3.5 h-3.5 text-foreground-muted transition-transform" strokeWidth={2} style={{ transform: demoControlsOpen ? 'rotate(180deg)' : 'none' }} />
+            </button>
+            {demoControlsOpen && (
+            <div className="px-3 pt-2.5 pb-2.5 border-t border-border-strong flex flex-col gap-2.5">
+              <div>
+                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                  Vue
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
+                      className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                  État
+                </div>
+                <div className="flex items-center gap-1">
+                  {[{ id: 'trial', label: 'Essai' }, { id: 'active', label: 'Actif' }, { id: 'none', label: 'Ø' }].map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => setBillingState(s.id)}
+                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${billingState === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {isTrialing && (
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                    Jour
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5, 6, 7].map(d => (
+                      <button
+                        key={d}
+                        onClick={() => setDemoTrialDay(d)}
+                        className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${demoTrialDay === d ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                  Quota
+                </div>
+                <div className="flex items-center gap-1">
+                  {[{ id: 'fresh', label: '16%' }, { id: 'mid', label: '63%' }, { id: 'high', label: '92%' }, { id: 'full', label: '100%' }].map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => setQuotaFill(s.id)}
+                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${quotaFill === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            )}
+          </div>
         </div>
+        )}
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#F8F7F5' }}>
+        <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: '#F8F7F5' }}>
+          {/* Barre de tête du contenu : retour à Plato (+ contrôle « Menu » et
+              filet vertical quand la nav est masquée) - alignée sur la bande du
+              dossier (h-12, filet bas). */}
+          <div className="w-full px-8 h-12 border-b border-border flex items-center gap-2 flex-shrink-0">
+            {navHidden && (
+              <>
+                {renderNavExpandControl()}
+                <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0 mx-1" />
+              </>
+            )}
+            <button
+              onClick={() => setCurrentPage('home')}
+              className="inline-flex items-center gap-1 text-[13px] text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0"
+              title="Retour à Plato"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} />
+              Retour à Plato
+            </button>
+          </div>
           {settingsSection === 'users' && renderSettingsUsers()}
           {settingsSection === 'general' && renderSettingsGeneral()}
           {/* Org settings are admin-only; non-admins fall back to their account page. */}
@@ -24774,6 +25153,12 @@ export default function App() {
   // from Settings, the dossier list, and the matter views alike.
   const renderGlobalOverlays = () => (
     <>
+      {/* Peek de navigation (nav masquée, survol du bord ou du contrôle) */}
+      {renderNavPeek()}
+
+      {/* Rattachement d'une conversation à un dossier (modale centrée) */}
+      {renderAttachPickerModal()}
+
       {/* Cancel trial modals (reason -> confirm deletion) */}
       {renderCancelTrialModals()}
 
@@ -25228,6 +25613,21 @@ export default function App() {
   if (currentPage === 'preview-panel') {
     return (<><PreviewPanelLab />{renderGlobalOverlays()}</>);
   }
+  if (currentPage === 'assistant-composer') {
+    return (<><ComposerLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'nav-niveau3') {
+    return (<><Niveau3Lab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'brand-orange') {
+    return (<><BrandOrangeLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'breadcrumb-bar') {
+    return (<><BreadcrumbBarLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'dossier-flag') {
+    return (<><DossierFlagLab />{renderGlobalOverlays()}</>);
+  }
   if (currentPage === 'cotisations') {
     return (<><CotisationsLab />{renderGlobalOverlays()}</>);
   }
@@ -25235,7 +25635,13 @@ export default function App() {
   if (currentPage === 'sommaire-acte') {
     return (<><SommaireActeLab />{renderGlobalOverlays()}</>);
   }
-  if (currentPage === 'list') {
+  if (currentPage === 'home' || currentPage === 'conversation') {
+    return (<>{renderAssistantSurface()}{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'conversations') {
+    return (<>{renderConversationsIndexPage()}{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'list' || currentPage === 'dossiers') {
     return (<>{renderDossierListPage()}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'settings') {
@@ -25245,7 +25651,7 @@ export default function App() {
   return (
     <div
       key={activeDossierId}
-      className="h-screen flex flex-col animate-fade-up"
+      className="h-screen flex flex-col"
       style={{
         backgroundColor: '#F8F7F5',
         fontFamily: "'Inter', system-ui, sans-serif",
@@ -25280,19 +25686,20 @@ export default function App() {
       )}
 
 
-      {/* Horizontal split: left content column + right chat sidebar */}
+      {/* Horizontal split: sidebar org + content column + conversation rail.
+          Les vues du dossier sont des onglets dans l'en-tête workspace. */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left: Top Bar + Content */}
+        {renderNavSlot(renderUnifiedSidebar({ collapsed: false }))}
+        {/* Left: workspace header + content (plus de barre du haut) */}
         <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#F8F7F5' }}>
           {jp.jpState.drawerDecisionId ? (
             /* JP detail page - entered "into the canvas" when a JP is clicked.
-               Keep the dossier top bar so tab nav still works (clicking a tab
-               closes the drawer - see renderTopBar). Skip the parent sub-header
-               entirely: the drawer carries its own identity (title · date · n°
-               + back/close + prev/next), so the poste/cascade/acte chrome is
-               redundant here and crowds the JP detail. */
+               The dossier nav (left) still switches views - clicking a view
+               closes the drawer (see the tab row in renderDossierWorkspaceHeader). Skip the parent
+               sub-header entirely: the drawer carries its own identity (title ·
+               date · n° + back/close + prev/next). */
             <>
-              {renderTopBar()}
+              {renderDossierWorkspaceHeader()}
               <DecisionDrawer
                 inline
                 decisionId={jp.jpState.drawerDecisionId}
@@ -25409,7 +25816,7 @@ export default function App() {
             </>
           ) : (
             <>
-              {renderTopBar()}
+              {renderDossierWorkspaceHeader()}
               {renderContentSubHeader()}
               <div className={`flex-1 ${currentLevel.activeTab === 'jp' || currentLevel.type === 'acte' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
                 <div

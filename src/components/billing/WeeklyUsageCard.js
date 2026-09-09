@@ -13,7 +13,8 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
   const isNone = !plan;
   const tone = quotaTone(pct);
   const shell = {
-    borderRadius: 4,
+    // Pas d'arrondi en variante sidebar : la carte touche le bord de l'app.
+    borderRadius: compact ? 0 : 4,
     border: compact ? 'none' : (tone.warn ? '1px solid rgba(238,185,126,0.5)' : '1px solid #e7e5e3'),
     boxShadow: compact ? 'none' : '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)',
     backgroundColor: compact ? 'transparent' : '#ffffff',
@@ -80,8 +81,12 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
             </span>
             <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: compact ? 16 : 24, fontWeight: 500, color: '#78716c', opacity: 0.5 }}>%</span>
           </div>
-          <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>
-            {pct >= 100 ? 'Quota atteint - se recharge lundi, 9h' : 'utilisé cette semaine - se recharge lundi, 9h'}
+          <div className={compact ? 'whitespace-nowrap' : undefined} style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>
+            {/* Compact (nav) : libellé court tenant sur UNE ligne (« hebdomadaire »
+                dans l'en-tête rend « cette semaine » redondant). Full : phrase complète. */}
+            {pct >= 100
+              ? (compact ? 'Atteint - recharge lundi 9h' : 'Quota atteint - se recharge lundi, 9h')
+              : (compact ? 'utilisé - recharge lundi 9h' : 'utilisé cette semaine - se recharge lundi, 9h')}
           </div>
         </div>
         <div style={{ height: 4, width: '100%', borderRadius: 999, overflow: 'hidden', backgroundColor: tone.warn ? tone.fill : tone.track }}>

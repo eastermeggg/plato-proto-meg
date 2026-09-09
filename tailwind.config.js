@@ -79,12 +79,24 @@ module.exports = {
           text: '#581c87',
         },
 
-        // ── Brand (Figma orange) ──
+        // ── Brand (« Vif atténué » #f47a2c) ──
+        // Orange réservé aux DÉTAILS : surtitres, points à glow, liseré actif,
+        // icônes. Jamais un aplat plein de grande surface (effet « warning »).
+        // Deux familles : full (accents) + darker (liens / texte, AA sur blanc).
         brand: {
-          DEFAULT: '#ff6d04',   // was #b9703f
-          subtle: '#fff0e0',
-          border: '#ffbf80',
-          muted: '#cc5700',
+          DEFAULT: '#f47a2c',
+          foreground: '#ffffff',
+          subtle: '#fff1e6',
+          'subtle-foreground': '#b8560f',
+          border: '#f9c79b',
+          muted: '#b8560f',            // alias hérité → darker (text-brand-muted)
+          darker: {
+            DEFAULT: '#b8560f',
+            foreground: '#ffffff',
+            subtle: '#fbeadd',
+            'subtle-foreground': '#8f430c',
+            border: '#e7b184',
+          },
         },
 
         // ── Accent families (base / subtle / border / text) ──
