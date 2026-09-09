@@ -14,7 +14,7 @@ import {
 } from './labData';
 import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel } from './atoms';
 
-const CARD = { border: '1px solid #e7e5e3', borderRadius: 12, backgroundColor: '#ffffff' };
+const CARD = { border: '1px solid #dfdcd9', borderRadius: 12, backgroundColor: '#ffffff' };
 
 function SectionHeader({ children }) {
   return <p className="pt-1 pb-2" style={monoLabel}>{children}</p>;

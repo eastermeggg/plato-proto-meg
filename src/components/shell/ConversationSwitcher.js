@@ -114,7 +114,7 @@ export default function ConversationSwitcher({ threads = [], activeThreadId, onS
         >
           <div
             className="flex items-center justify-between px-[10px]"
-            style={{ height: 32, backgroundColor: '#f8f7f5', borderBottom: '1px solid #e7e5e3' }}
+            style={{ height: 32, backgroundColor: '#f8f7f5', borderBottom: '1px solid #dfdcd9' }}
           >
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Conversations du dossier

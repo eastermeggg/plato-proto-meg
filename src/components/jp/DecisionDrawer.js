@@ -409,7 +409,7 @@ export default function DecisionDrawer({
                     backgroundColor: '#eeece6', color: '#44403c',
                     border: 'none', fontSize: 13, fontWeight: 500,
                   }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#e7e5e3'; }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#dfdcd9'; }}
                   onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#eeece6'; }}
                 >
                   <Download className="w-4 h-4" strokeWidth={1.75} />
@@ -432,7 +432,7 @@ export default function DecisionDrawer({
                     : {
                         height: 32, padding: '0 10px', borderRadius: 8,
                         backgroundColor: 'transparent', color: '#44403c',
-                        border: '1px solid #d6d3d1', fontSize: 13, fontWeight: 500,
+                        border: '1px solid #cbc7c4', fontSize: 13, fontWeight: 500,
                       }}
                   onMouseOver={(e) => {
                     if (isPinned || workspacePinned) {
@@ -576,7 +576,7 @@ export default function DecisionDrawer({
                         <div
                           style={{
                             height: 2, width: '100%',
-                            backgroundColor: isActive ? '#292524' : '#d6d3d1',
+                            backgroundColor: isActive ? '#292524' : '#cbc7c4',
                             opacity: isActive ? 1 : 0,
                             borderTopLeftRadius: 30, borderTopRightRadius: 30,
                             transition: 'opacity 0.15s, background-color 0.15s',
@@ -747,12 +747,12 @@ export default function DecisionDrawer({
                       Filtré sur le{filtered.length > 1 ? 's' : ''} poste{filtered.length > 1 ? 's' : ''} demandé{filtered.length > 1 ? 's' : ''}
                     </p>
                   )}
-                  <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #e7e5e3', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
+                  <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #dfdcd9', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
                     {visible.map((amt, i) => {
                       const { num, unit } = splitValue(amt.displayValue);
                       return (
                         <div key={i} className="flex items-center justify-between"
-                          style={{ padding: '8px 12px', borderBottom: i < visible.length - 1 ? '1px solid #e7e5e3' : 'none' }}>
+                          style={{ padding: '8px 12px', borderBottom: i < visible.length - 1 ? '1px solid #dfdcd9' : 'none' }}>
                           <span title={amt.label} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
                             {amt.poste}
                           </span>
@@ -771,13 +771,13 @@ export default function DecisionDrawer({
             <div className="border-b border-border" style={{ padding: '21px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               <SidebarSectionHeader label="Profil victime" />
               {victime ? (
-                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #e7e5e3', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
-                  <div className="flex items-center justify-between" style={{ padding: '8px 12px 9px 12px', borderBottom: '1px solid #e7e5e3' }}>
+                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #dfdcd9', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
+                  <div className="flex items-center justify-between" style={{ padding: '8px 12px 9px 12px', borderBottom: '1px solid #dfdcd9' }}>
                     <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px' }}>Victime</span>
                     <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{victime}</span>
                   </div>
                   {decision.category && (
-                    <div className="flex items-center justify-between" style={{ padding: '8px 12px 9px 12px', borderBottom: decision.status ? '1px solid #e7e5e3' : 'none' }}>
+                    <div className="flex items-center justify-between" style={{ padding: '8px 12px 9px 12px', borderBottom: decision.status ? '1px solid #dfdcd9' : 'none' }}>
                       <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px' }}>Catégorie</span>
                       <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{decision.category}</span>
                     </div>
@@ -798,17 +798,17 @@ export default function DecisionDrawer({
             {(med?.consolidation || med?.items?.length > 0) && (
               <div className="border-b border-border" style={{ padding: '21px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <SidebarSectionHeader label="Données médicales" />
-                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #e7e5e3', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
+                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #dfdcd9', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
                   {med?.consolidation && (
                     <div className="flex items-center justify-between"
-                      style={{ padding: '8px 12px 9px 12px', borderBottom: med?.items?.length > 0 ? '1px solid #e7e5e3' : 'none' }}>
+                      style={{ padding: '8px 12px 9px 12px', borderBottom: med?.items?.length > 0 ? '1px solid #dfdcd9' : 'none' }}>
                       <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px' }}>Consolidation</span>
                       <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{med.consolidation}</span>
                     </div>
                   )}
                   {med?.items?.map((item, i) => (
                     <div key={i}
-                      style={{ padding: '8px 12px 9px 12px', borderBottom: i < med.items.length - 1 ? '1px solid #e7e5e3' : 'none' }}>
+                      style={{ padding: '8px 12px 9px 12px', borderBottom: i < med.items.length - 1 ? '1px solid #dfdcd9' : 'none' }}>
                       <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{item.label}</div>
                       <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', marginTop: 2 }}>{item.detail}</div>
                     </div>
@@ -821,10 +821,10 @@ export default function DecisionDrawer({
             {prejudices?.temporaires?.length > 0 && (
               <div className="border-b border-border" style={{ padding: '21px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <SidebarSectionHeader label="Extra-patrim. temporaires" />
-                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #e7e5e3', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
+                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #dfdcd9', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
                   {prejudices.temporaires.map((p, i) => (
                     <div key={i} className="flex items-center justify-between"
-                      style={{ padding: '8px 12px 9px 12px', borderBottom: '1px solid #e7e5e3' }}>
+                      style={{ padding: '8px 12px 9px 12px', borderBottom: '1px solid #dfdcd9' }}>
                       <span title={p.label} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
                         {p.label.split(' — ')[0]}
                       </span>
@@ -845,10 +845,10 @@ export default function DecisionDrawer({
             {prejudices?.permanents?.length > 0 && (
               <div className="border-b border-border" style={{ padding: '21px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <SidebarSectionHeader label="Extra-patrim. permanents" />
-                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #e7e5e3', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
+                <div className="bg-white rounded-md overflow-hidden" style={{ border: '1px solid #dfdcd9', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
                   {prejudices.permanents.map((p, i) => (
                     <div key={i} className="flex items-center justify-between"
-                      style={{ padding: '8px 12px 9px 12px', borderBottom: '1px solid #e7e5e3' }}>
+                      style={{ padding: '8px 12px 9px 12px', borderBottom: '1px solid #dfdcd9' }}>
                       <span title={p.label} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
                         {p.label.split(' — ')[0]}
                       </span>

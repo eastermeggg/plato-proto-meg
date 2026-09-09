@@ -42,7 +42,7 @@ const INK    = '#292524';
 const INK2   = '#44403c';
 const MUTE   = '#78716c';
 const FAINT  = '#a8a29e';
-const LINE   = '#e7e5e3';
+const LINE   = '#dfdcd9';
 const PAPER  = '#F8F7F5';
 const SUBTLE = '#fafaf9';
 const CREAM  = '#eeece6';
@@ -561,7 +561,7 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
         {/* discreet « jour non travaillé » toggle — sits just under the declare-hours action */}
         <button role="switch" aria-checked={day.rest} onClick={() => ops.setDayStatus(wi, di, day.rest ? 'todo' : 'rest')}
           className="inline-flex items-center gap-2.5" style={{ marginTop: day.rest ? 0 : 16, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}>
-          <span className="relative flex-shrink-0" style={{ width: 34, height: 20, borderRadius: 99, background: day.rest ? INK : '#d6d3d1', transition: 'background .15s' }}>
+          <span className="relative flex-shrink-0" style={{ width: 34, height: 20, borderRadius: 99, background: day.rest ? INK : '#cbc7c4', transition: 'background .15s' }}>
             <span className="absolute" style={{ top: 2, left: day.rest ? 16 : 2, width: 16, height: 16, borderRadius: 99, background: WHITE, transition: 'left .15s ease', boxShadow: '0 1px 2px rgba(26,26,26,0.25)' }} />
           </span>
           <span className="inline-flex items-center gap-1.5" style={{ fontSize: 13, fontWeight: day.rest ? 600 : 500, color: day.rest ? INK : MUTE }}>
@@ -1338,7 +1338,7 @@ function ChatPanel({ ctx, onClose }) {
               <Paperclip className="w-4 h-4" style={{ color: MUTE }} />
             </button>
             <button onClick={() => send(input)} disabled={!input.trim()} className="ml-auto flex items-center justify-center rounded-full transition-all"
-              style={{ width: 30, height: 30, background: input.trim() ? INK : '#e7e5e3', cursor: input.trim() ? 'pointer' : 'default' }}>
+              style={{ width: 30, height: 30, background: input.trim() ? INK : '#dfdcd9', cursor: input.trim() ? 'pointer' : 'default' }}>
               <ArrowUp className="w-4 h-4" style={{ color: input.trim() ? WHITE : FAINT }} strokeWidth={2.25} />
             </button>
           </div>
@@ -1386,7 +1386,7 @@ function ClientAccessBackdrop() {
       <div className="flex items-center justify-center" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 45, gap: 8, borderTop: `1px solid ${LINE}`, fontSize: 12, color: MUTE }}>
         <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: FAINT }} />
         <span>Vos données sont protégées et confidentielles</span>
-        <span style={{ color: '#d6d3d1' }}>·</span>
+        <span style={{ color: '#cbc7c4' }}>·</span>
         <span style={{ color: FAINT }}>Interface par</span>
         <span className="inline-flex items-center gap-1"><PlatoMark size={12} color={INK} /><span style={{ fontWeight: 600, color: INK2 }}>Plato</span></span>
       </div>
@@ -1821,7 +1821,7 @@ function ReleveNotesJP() {
 // value. Default = outlined; emphasized = cream-filled (« Total période »).
 function TotalsPill({ label, value, emphasized }) {
   return (
-    <div className="inline-flex items-center flex-shrink-0" style={{ height: 36, gap: emphasized ? 8 : 10, padding: '0 12px', borderRadius: 8, background: emphasized ? CREAM : WHITE, border: `1px solid ${emphasized ? LINE : '#d6d3d1'}` }}>
+    <div className="inline-flex items-center flex-shrink-0" style={{ height: 36, gap: emphasized ? 8 : 10, padding: '0 12px', borderRadius: 8, background: emphasized ? CREAM : WHITE, border: `1px solid ${emphasized ? LINE : '#cbc7c4'}` }}>
       <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.02em', color: emphasized ? INK : MUTE, whiteSpace: 'nowrap' }}>{label}</span>
       <span style={{ fontSize: 14, fontWeight: 500, color: emphasized ? INK : INK2, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{value}</span>
     </div>
@@ -1924,7 +1924,7 @@ export function ReleveEditor({ onBack, demo, inset = { x: 32, top: 24 } } = {}) 
             <div className="flex flex-col items-start" style={{ gap: 8 }}>
               <span style={{ fontSize: 14, fontWeight: 500, color: INK }}>Période</span>
               <button onClick={() => setPeriodModal('log')} title="Modifier la période" className="inline-flex items-center gap-2 transition-colors" style={{ height: 36, padding: '0 12px', background: WHITE, fontSize: 14, border: `1px solid ${LINE}`, borderRadius: 8, cursor: 'pointer', boxShadow: '0px 1px 2px rgba(26,26,26,0.05)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#d6d3d1'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = LINE; }}>
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#cbc7c4'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = LINE; }}>
                 <CalendarRange className="w-4 h-4" style={{ color: MUTE }} />
                 <span style={{ color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(period.start)} <span style={{ color: MUTE }}>→</span> {fmtDateNum(period.end)}</span>
                 <Pencil className="w-3.5 h-3.5" style={{ color: MUTE, marginLeft: 2 }} />
@@ -2182,7 +2182,7 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
               ) : (
                 <div className="flex-1 flex items-center justify-center rh-fade" style={{ padding: 40 }}>
                   <div className="flex flex-col items-center text-center" style={{ gap: 22, maxWidth: 460 }}>
-                    <span className="flex items-center justify-center" style={{ width: 56, height: 56, borderRadius: 9999, background: '#eeece6', border: '1px solid #d6d3d1', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                    <span className="flex items-center justify-center" style={{ width: 56, height: 56, borderRadius: 9999, background: '#eeece6', border: '1px solid #cbc7c4', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
                       <CalendarClock className="w-6 h-6" style={{ color: '#78716c' }} strokeWidth={1.5} />
                     </span>
                     <div className="flex flex-col items-center" style={{ gap: 5 }}>
@@ -2542,7 +2542,7 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
         ) : (
           <div className="flex-1 flex items-center justify-center rh-fade" style={{ padding: 40 }}>
             <div className="flex flex-col items-center text-center" style={{ gap: 14, maxWidth: 380 }}>
-              <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: '#eeece6', border: '1px solid #d6d3d1' }}>
+              <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: '#eeece6', border: '1px solid #cbc7c4' }}>
                 {tab === 'pieces' ? <FileText className="w-6 h-6" style={{ color: '#78716c' }} strokeWidth={1.5} /> : <Pencil className="w-6 h-6" style={{ color: '#78716c' }} strokeWidth={1.5} />}
               </span>
               <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: INK, margin: 0 }}>{tab === 'pieces' ? 'Pièces' : 'Actes'}</p>
@@ -3203,7 +3203,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
           ) : (
             <div className="flex-1 flex items-center justify-center rh-fade" style={{ padding: 40 }}>
               <div className="flex flex-col items-center text-center" style={{ gap: 12, maxWidth: 380 }}>
-                <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: '#eeece6', border: '1px solid #d6d3d1' }}>
+                <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: '#eeece6', border: '1px solid #cbc7c4' }}>
                   {(PL_TABS.find((t) => t.id === tab) || {}).Icon && React.createElement((PL_TABS.find((t) => t.id === tab)).Icon, { className: 'w-6 h-6', style: { color: '#78716c' }, strokeWidth: 1.5 })}
                 </span>
                 <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: INK, margin: 0 }}>{(PL_TABS.find((t) => t.id === tab) || {}).label}</p>

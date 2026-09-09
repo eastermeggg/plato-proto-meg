@@ -75,7 +75,7 @@ export function MarkTile({ children, size = 56, radius = 14 }) {
   return (
     <span
       className="inline-flex items-center justify-center flex-shrink-0 bg-white"
-      style={{ width: size, height: size, borderRadius: radius, border: '1px solid #e7e5e3', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.10), 0 1px 2px rgba(28,25,23,0.06)' }}
+      style={{ width: size, height: size, borderRadius: radius, border: '1px solid #dfdcd9', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.10), 0 1px 2px rgba(28,25,23,0.06)' }}
     >
       {children}
     </span>
@@ -106,7 +106,7 @@ const Cote = ({ n }) => (
 // Coude d'indentation d'une PJ - le même dessin que le vrai bordereau.
 const MiniElbow = () => (
   <span aria-hidden style={{ width: 13, height: 13, flexShrink: 0, marginLeft: 2 }}>
-    <span style={{ display: 'block', width: 10, height: 12, marginLeft: 3, borderLeft: '1px solid #d6d3d1', borderBottom: '1px solid #d6d3d1', borderBottomLeftRadius: 4 }} />
+    <span style={{ display: 'block', width: 10, height: 12, marginLeft: 3, borderLeft: '1px solid #cbc7c4', borderBottom: '1px solid #cbc7c4', borderBottomLeftRadius: 4 }} />
   </span>
 );
 
@@ -122,7 +122,7 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
     <div
       aria-hidden
       className="relative overflow-hidden select-none"
-      style={{ height, borderRadius: 12, border: '1px solid #e7e5e3', backgroundColor: '#f7f6f3' }}
+      style={{ height, borderRadius: 12, border: '1px solid #dfdcd9', backgroundColor: '#f7f6f3' }}
     >
       <style>{`
         @keyframes nconn-dot { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
@@ -162,7 +162,7 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
             />
           ))}
           {kind === 'sync' && (
-            <span className="inline-flex items-center justify-center bg-white" style={{ width: 24, height: 24, borderRadius: 99, border: '1px solid #e7e5e3', boxShadow: '0 1px 3px rgba(28,25,23,0.08)' }}>
+            <span className="inline-flex items-center justify-center bg-white" style={{ width: 24, height: 24, borderRadius: 99, border: '1px solid #dfdcd9', boxShadow: '0 1px 3px rgba(28,25,23,0.08)' }}>
               <RefreshCw className="nconn-anim" style={{ width: 12, height: 12, color: '#1e3a8a', animation: 'nconn-spin 14s linear infinite' }} strokeWidth={1.75} />
             </span>
           )}
@@ -174,7 +174,7 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
             className="nconn-anim absolute inline-flex items-center gap-1.5 bg-white"
             style={{
               left: '30%', top: '50%',
-              padding: '4px 8px', borderRadius: 99, border: '1px solid #e7e5e3',
+              padding: '4px 8px', borderRadius: 99, border: '1px solid #dfdcd9',
               boxShadow: '0 3px 8px -2px rgba(28,25,23,0.16)',
               ...(freezeChip
                 ? { transform: 'translateX(118px) translateY(-50%)', opacity: 1 }
@@ -189,7 +189,7 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
         {/* Carte Norma - déborde du cadre à droite, comme la référence. */}
         <div
           className="ml-auto bg-white flex-shrink-0"
-          style={{ width: 316, marginRight: -34, borderRadius: '12px 0 0 12px', border: '1px solid #e7e5e3', borderRight: 'none', boxShadow: '0 14px 34px -10px rgba(28,25,23,0.18)' }}
+          style={{ width: 316, marginRight: -34, borderRadius: '12px 0 0 12px', border: '1px solid #dfdcd9', borderRight: 'none', boxShadow: '0 14px 34px -10px rgba(28,25,23,0.18)' }}
         >
           {/* Le débord droit (-34px) est compensé par le padding : les cotes
               restent entières dans la zone visible. */}
@@ -294,8 +294,8 @@ export function ConnectorMiniLink({ provider = 'outlook', both = false, tileSize
 export function OAuthWindow({ provider = 'outlook', children }) {
   const p = CONNECTOR_PROVIDERS[provider] || CONNECTOR_PROVIDERS.outlook;
   return (
-    <div className="bg-white overflow-hidden" style={{ width: 360, borderRadius: 12, border: '1px solid #e7e5e3', boxShadow: '0 18px 44px -12px rgba(28,25,23,0.22)' }}>
-      <div className="flex items-center" style={{ gap: 6, padding: '9px 12px', backgroundColor: '#f6f5f2', borderBottom: '1px solid #e7e5e3' }}>
+    <div className="bg-white overflow-hidden" style={{ width: 360, borderRadius: 12, border: '1px solid #dfdcd9', boxShadow: '0 18px 44px -12px rgba(28,25,23,0.22)' }}>
+      <div className="flex items-center" style={{ gap: 6, padding: '9px 12px', backgroundColor: '#f6f5f2', borderBottom: '1px solid #dfdcd9' }}>
         {['#e0ddd6', '#e0ddd6', '#e0ddd6'].map((c, i) => (
           <span key={i} style={{ width: 8, height: 8, borderRadius: 99, backgroundColor: c }} />
         ))}

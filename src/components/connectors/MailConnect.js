@@ -142,7 +142,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
               </p>
             </div>
           </OAuthWindow>
-          <p className="flex items-center gap-1.5 text-[11.5px]" style={{ color: '#e7e5e3' }}>
+          <p className="flex items-center gap-1.5 text-[11.5px]" style={{ color: '#dfdcd9' }}>
             <Lock className="w-3 h-3" strokeWidth={2} /> Connexion chiffrée (TLS) - hébergement dans l'Union européenne
           </p>
           <button onClick={onCancel} className="text-[12.5px] font-medium text-white/70 hover:text-white transition-colors">
@@ -208,7 +208,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
                     </span>
                   </label>
 
-                  <div className="rounded-lg" style={{ backgroundColor: '#f6f5f2', border: '1px solid #e7e5e3', padding: '10px 12px' }}>
+                  <div className="rounded-lg" style={{ backgroundColor: '#f6f5f2', border: '1px solid #dfdcd9', padding: '10px 12px' }}>
                     <div className="flex items-center gap-2">
                       <p className="flex-1 text-[12px] leading-[17px]" style={{ color: '#57534e' }}>
                         Serveur détecté : <span className="font-medium text-foreground" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11.5 }}>{imapHost}</span> · port 993 · SSL

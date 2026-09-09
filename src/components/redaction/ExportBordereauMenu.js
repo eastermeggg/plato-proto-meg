@@ -72,7 +72,7 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
             </span>
           </div>
 
-          <div style={{ height: 1, backgroundColor: '#e7e5e3' }} />
+          <div style={{ height: 1, backgroundColor: '#dfdcd9' }} />
 
           {/* Tamponnage */}
           <div className="px-3 pt-3 pb-1">
@@ -132,7 +132,7 @@ function TamponnageToggle({ on, disabled, onToggle }) {
           width: 28,
           height: 16,
           borderRadius: 999,
-          backgroundColor: disabled ? '#e7e5e3' : on ? '#292524' : '#d6d3d1',
+          backgroundColor: disabled ? '#dfdcd9' : on ? '#292524' : '#cbc7c4',
           position: 'relative',
           transition: 'background-color 120ms',
           flexShrink: 0,

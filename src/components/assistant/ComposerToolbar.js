@@ -164,7 +164,7 @@ export default function ComposerToolbar({
               onClick={() => { if (usePopover) setAttachOpen(o => !o); else onAttach(); }}
               disabled={disabled}
               className={`inline-flex items-center gap-1.5 h-[26px] px-2.5 rounded-[6px] text-[12.5px] font-medium transition-colors ${attachOpen ? 'text-foreground bg-stone-50' : 'text-foreground-secondary hover:text-foreground hover:bg-stone-50'}`}
-              style={{ border: '1px dashed #d6d3d1' }}
+              style={{ border: '1px dashed #cbc7c4' }}
             >
               <Link2 className="w-3 h-3" strokeWidth={1.75} />
               Rattacher à un dossier
@@ -177,7 +177,7 @@ export default function ComposerToolbar({
               >
                 <div
                   className="flex items-center px-[10px]"
-                  style={{ height: 32, backgroundColor: '#f8f7f5', borderBottom: '1px solid #e7e5e3' }}
+                  style={{ height: 32, backgroundColor: '#f8f7f5', borderBottom: '1px solid #dfdcd9' }}
                 >
                   <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Rattacher à un dossier

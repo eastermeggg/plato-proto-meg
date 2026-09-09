@@ -12,7 +12,7 @@ import {
 // survol. Tout dossier est importable - aucun état bloquant.
 
 const INK = '#1c1917', SEC = '#57534e', MUT = '#78716c', FAINT = '#a8a29e';
-const BORDER = '#e7e5e3', CREAM = '#f8f7f5';
+const BORDER = '#dfdcd9', CREAM = '#f8f7f5';
 
 // ── Case à cocher tri-état ──────────────────────────────────────────────────
 function TriCheck({ state, onToggle }) {

@@ -13,7 +13,7 @@ const INK = '#292524';
 const INK_SOFT = '#57534e';
 const INK_TERT = '#78716c';
 const INK_QUAT = '#a8a29e';
-const HAIR = '#e7e5e3';
+const HAIR = '#dfdcd9';
 const CREAM = '#eeece6';
 const CANVAS = '#f8f7f5';
 

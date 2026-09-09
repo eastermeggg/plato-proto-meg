@@ -8,9 +8,9 @@ import React, { useState } from 'react';
 // Sizes:    sm · md · lg
 const VARIANTS = {
   primary:     { bg: '#292524', bgHover: '#44403c', fg: '#ffffff', border: 'transparent' },
-  secondary:   { bg: '#eeece6', bgHover: '#e7e5e3', fg: '#44403c', border: 'transparent' },
+  secondary:   { bg: '#eeece6', bgHover: '#dfdcd9', fg: '#44403c', border: 'transparent' },
   ghost:       { bg: 'transparent', bgHover: '#fafaf9', fg: '#44403c', border: 'transparent' },
-  outline:     { bg: '#ffffff', bgHover: '#fafaf9', fg: '#292524', border: '#e7e5e3' },
+  outline:     { bg: '#ffffff', bgHover: '#fafaf9', fg: '#292524', border: '#dfdcd9' },
   destructive: { bg: '#7f1d1d', bgHover: '#641515', fg: '#ffffff', border: 'transparent' },
 };
 const SIZES = {

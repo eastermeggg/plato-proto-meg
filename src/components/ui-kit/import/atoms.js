@@ -123,7 +123,7 @@ export function AjouterChip({ onAdd, label = 'Ajouter', title }) {
       type="button"
       onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
       className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-opacity"
-      style={{ backgroundColor: '#ffffff', border: '1px solid #d6d3d1', color: '#292524', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.16), 0 1px 2px rgba(28,25,23,0.10)' }}
+      style={{ backgroundColor: '#ffffff', border: '1px solid #cbc7c4', color: '#292524', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.16), 0 1px 2px rgba(28,25,23,0.10)' }}
       title={title}
       aria-label={title || label}
     >
@@ -250,7 +250,7 @@ export function ModalOverlay({ onClose, children }) {
 export function DropOverlay() {
   return (
     <div className="absolute inset-2 z-30 rounded-xl flex flex-col items-center justify-center gap-4 pointer-events-none" style={{ backgroundColor: 'rgba(238,236,230,0.94)', border: '2px dashed #a8a29e' }}>
-      <div className="bg-white border shadow-sm rounded-full p-4" style={{ borderColor: '#d6d3d1' }}>
+      <div className="bg-white border shadow-sm rounded-full p-4" style={{ borderColor: '#cbc7c4' }}>
         <ArrowDown className="w-6 h-6 text-stone-600" strokeWidth={1.75} />
       </div>
       <p className="text-base font-medium text-stone-800">Déposer pour ajouter au dossier</p>
@@ -301,7 +301,7 @@ export function ConnectScreen({ onConnect, compact = false }) {
 export function Elbow() {
   return (
     <span className="flex-shrink-0" aria-hidden style={{ width: 18, height: 18 }}>
-      <span className="block" style={{ width: 15, height: 18, marginLeft: 3, borderLeft: '1.11px solid #d6d3d1', borderBottom: '1.11px solid #d6d3d1', borderBottomLeftRadius: 5 }} />
+      <span className="block" style={{ width: 15, height: 18, marginLeft: 3, borderLeft: '1.11px solid #cbc7c4', borderBottom: '1.11px solid #cbc7c4', borderBottomLeftRadius: 5 }} />
     </span>
   );
 }

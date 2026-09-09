@@ -120,7 +120,7 @@ const TaskSection = ({ task, defaultOpen, card }) => {
 
   const trace = open && (
     <div style={card
-      ? { padding: '8px 12px 12px 34px', backgroundColor: '#fcfbfa', borderTop: '1px solid #e7e5e4' }
+      ? { padding: '8px 12px 12px 34px', backgroundColor: '#fcfbfa', borderTop: '1px solid #dfdcda' }
       : { paddingLeft: 24, paddingBottom: 4 }}>
       <ReasoningStepper status="streaming" steps={task.steps} loadingIndicator="dot" onToggle={() => {}} />
     </div>
@@ -140,7 +140,7 @@ const TaskSection = ({ task, defaultOpen, card }) => {
 // ── Inline expansion (unfolds in the chat) ───────────────────────────
 
 const InlineTasks = ({ tasks = [] }) => (
-  <div className="reasoning-children-expand" style={{ marginLeft: 8, paddingLeft: 12, borderLeft: '1px solid #e7e5e4' }}>
+  <div className="reasoning-children-expand" style={{ marginLeft: 8, paddingLeft: 12, borderLeft: '1px solid #dfdcda' }}>
     {tasks.map((task, i) => (
       <TaskSection
         key={task.id != null ? task.id : i}

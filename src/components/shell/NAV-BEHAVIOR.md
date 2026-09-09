@@ -9,7 +9,7 @@ Composants : `NavItem`, `NavSectionHeader`, `NavPromoBanner`, `NavExpandControl`
 
 | État | Description |
 |---|---|
-| **Ouverte** | Rail 264px en flux (`NAV_WIDTH`), fond plat `#f8f7f5`, bord droit `border` `#e7e5e3` (nav finale 37416:1376 - le dégradé vertical est abandonné). Le contenu (workspace, rail chat) reflue à côté. |
+| **Ouverte** | Rail 264px en flux (`NAV_WIDTH`), fond plat `#f8f7f5`, bord droit `border` `#dfdcd9` (nav finale 37416:1376 - le dégradé vertical est abandonné). Le contenu (workspace, rail chat) reflue à côté. |
 | **Masquée** | Largeur 0, **rien ne subsiste** (ni rail d'icônes, ni liseré). Le contrôle « Menu » (`NavExpandControl` : logo Plato + glyphe panel + libellé) apparaît à l'extrême gauche de la barre de la surface - ou en absolu `left-3 top-3` sur les surfaces sans barre. |
 | **Peek** | La nav complète en **overlay** plein-hauteur (100vh, 264px), ancrée en haut à gauche - son logo retombe exactement sur celui du contrôle « Menu » : la nav « se déplie du coin ». Le workspace ne reflue jamais. Seule situation où la nav porte une ombre : `14px 0 34px rgba(41,37,36,.16)`. |
 

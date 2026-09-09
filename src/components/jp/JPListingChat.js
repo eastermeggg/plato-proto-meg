@@ -62,7 +62,7 @@ export default function JPListingChat({
       className={className}
       style={{
         backgroundColor: 'white',
-        border: '1px solid #e7e5e3',
+        border: '1px solid #dfdcd9',
         borderRadius: 4,
         overflow: 'hidden',
         boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
@@ -71,7 +71,7 @@ export default function JPListingChat({
       {showHeader && (
         <div
           className="flex items-center px-3 py-2"
-          style={{ backgroundColor: 'white', borderBottom: '1px solid #e7e5e3' }}
+          style={{ backgroundColor: 'white', borderBottom: '1px solid #dfdcd9' }}
         >
           <span style={COL_HEADER}>{headerLabel}</span>
         </div>

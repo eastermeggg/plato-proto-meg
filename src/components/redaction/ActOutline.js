@@ -13,7 +13,7 @@ import { Pin } from 'lucide-react';
 const INK = '#292524';        // active — encre
 const ON_PATH = '#78716c';    // ancestor of the current section
 const MUTED = '#a8a29e';      // default label
-const TICK = '#d6d3d1';       // default tick
+const TICK = '#cbc7c4';       // default tick
 const TICK_ON = '#a8a29e';    // on-path tick
 
 // Tick width per display-rank. Ranks are derived from the levels actually
@@ -155,7 +155,7 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
             maxHeight: availH ? availH - 48 : 'calc(100vh - 200px)',
             overflowY: 'auto',
             backgroundColor: '#ffffff',
-            border: '1px solid #e7e5e3',
+            border: '1px solid #dfdcd9',
             borderRadius: 12,
             boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08)',
             padding: '8px',

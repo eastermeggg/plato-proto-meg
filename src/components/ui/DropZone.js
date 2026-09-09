@@ -21,7 +21,7 @@ export default function DropZone({
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '8px 12px',
-          border: '1px dashed #d6d3d1',
+          border: '1px dashed #cbc7c4',
           borderRadius: 8, background: '#fff',
           fontSize: 13, color: colors.semantic.foregroundSecondary,
           cursor: 'pointer',
@@ -39,7 +39,7 @@ export default function DropZone({
       style={{
         position: 'relative',
         padding: 32,
-        border: '2px dashed #d6d3d1',
+        border: '2px dashed #cbc7c4',
         borderRadius: 12,
         background: '#fff',
         textAlign: 'center',

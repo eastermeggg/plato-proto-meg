@@ -1094,7 +1094,7 @@ const MOCK_DIFF_STORE = {
  *
  *  Pill background/border = TARGET STATE of the parameter (where it's going):
  *    • ON  → info (blue)   - bg #eef3fa, border #aabcd5, text #1e3a8a
- *    • OFF → neutral (gray) - bg transparent, border #d6d3d1, text #78716c
+ *    • OFF → neutral (gray) - bg transparent, border #cbc7c4, text #78716c
  *
  *  Diamond color = DIFF TYPE (what kind of change):
  *    • add    → green  #059669   (param was OFF, turning ON)
@@ -1116,7 +1116,7 @@ const MOCK_DIFF_STORE = {
  * ── ACCEPT / REJECT BUTTONS ─────────────────────────────────────────────────
  *
  *  Neutral by default to avoid "christmas tree" effect alongside colored pills.
- *  • Rest: white bg, border #d6d3d1, icon #78716c (stone)
+ *  • Rest: white bg, border #cbc7c4, icon #78716c (stone)
  *  • Hover accept: bg #ecfdf5, border #a5c9b7 (subtle green hint)
  *  • Hover reject: bg #fef2f2, border #cf9d9d (subtle red hint)
  *  Same design used in artifact card diff rows for consistency.
@@ -1166,7 +1166,7 @@ const MOCK_DIFF_STORE = {
  * ========================================================================= */
 const PILL_SCHEMES = {
   info:        { bg: '#eef3fa', border: '#aabcd5', text: '#1e3a8a' },
-  neutral:     { bg: 'transparent', border: '#d6d3d1', text: '#78716c' },
+  neutral:     { bg: 'transparent', border: '#cbc7c4', text: '#78716c' },
   success:     { bg: '#dcfce7', border: '#a7f3d0', text: '#064e3b' },
   warning:     { bg: '#f9ecd6', border: '#eeb97e', text: '#855b31' },
   destructive: { bg: 'transparent', border: '#fecaca', text: '#7f1d1d' },
@@ -1218,12 +1218,12 @@ const DIAMOND_COLORS = { add: '#059669', edit: '#bd6c1a', delete: '#991b1b' };
  * ── DOC ICON ─────────────────────────────────────────────────────────────────
  *
  *  Normal:  Blue bg (#DFE8F5), counter badge (#1e3a8a bg)
- *  Empty:   Dashed border #e7e5e3, gray icon
+ *  Empty:   Dashed border #dfdcd9, gray icon
  *  Deleted: Dashed border #a8a29e, white bg, icon at 0.4 opacity
  *
  * ── ACCEPT / REJECT ──────────────────────────────────────────────────────────
  *
- *  20×20 rounded-full, neutral at rest (white bg, #d6d3d1 border).
+ *  20×20 rounded-full, neutral at rest (white bg, #cbc7c4 border).
  *  Hover: accept → #ecfdf5 bg + #a5c9b7 border
  *         reject → #fef2f2 bg + #cf9d9d border
  *  Appear on row hover (opacity 0→1 transition).
@@ -5511,7 +5511,7 @@ export default function App() {
           {/* Header - collapse · Plato logo · switcher des conversations DU dossier.
               Le switcher ne liste que les fils de ce dossier (jamais de pièces,
               d'actes ni d'ancres), chaque entrée est ouvrable, + création. */}
-          <div className="px-3 h-12 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: '#e7e5e3' }}>
+          <div className="px-3 h-12 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: '#dfdcd9' }}>
             <button
               onClick={() => setChatSidebarOpen(false)}
               className="p-1.5 hover:bg-stone-100 rounded-md transition-colors flex-shrink-0"
@@ -5673,7 +5673,7 @@ export default function App() {
                     <p style={{ fontSize: 14, lineHeight: '20px', color: '#292524', margin: 0 }}>{msg.text}</p>
                     <button
                       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-stone-100"
-                      style={{ backgroundColor: '#f5f5f4', color: '#44403c', border: '1px solid #e7e5e3' }}
+                      style={{ backgroundColor: '#f5f5f4', color: '#44403c', border: '1px solid #dfdcd9' }}
                     >
                       <Upload className="w-3.5 h-3.5" />
                       Ajouter des pièces
@@ -5751,7 +5751,7 @@ export default function App() {
                         return (
                           <React.Fragment key={`ln-${li}`}>
                             {showDividerAbove && (
-                              <div style={{ height: 1, backgroundColor: '#e7e5e3', margin: '12px 0' }} />
+                              <div style={{ height: 1, backgroundColor: '#dfdcd9', margin: '12px 0' }} />
                             )}
                             <div style={{
                               marginTop: li > 0 && !showDividerAbove ? 2 : 0,
@@ -6012,7 +6012,7 @@ export default function App() {
                 return (
                   <>
                     {/* Question header */}
-                    <div style={{ borderBottom: '1px solid #e7e5e3', padding: 16, background: 'linear-gradient(to bottom, white 0%, #f8f7f5 100%)' }}>
+                    <div style={{ borderBottom: '1px solid #dfdcd9', padding: 16, background: 'linear-gradient(to bottom, white 0%, #f8f7f5 100%)' }}>
                       <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
                         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#9c8973', textTransform: 'uppercase' }}>
                           USER ASK - {currentIdx + 1}/{total}
@@ -6849,7 +6849,7 @@ export default function App() {
         </div>
         <div className="flex-shrink-0 flex flex-col h-full bg-white" style={{ width: chatWidth }}>
           {/* Header */}
-          <div className="px-4 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#e7e5e3' }}>
+          <div className="px-4 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#dfdcd9' }}>
             <div className="flex items-center gap-2 min-w-0">
               {isPieceDetail && <span className="px-2 py-0.5 bg-zinc-800 text-white text-caption-medium rounded flex-shrink-0">P{data.index}</span>}
               <h3 className="text-body-medium text-foreground truncate">{isPieceDetail ? (data.intitule || data.nom) : (editPanel.title || 'Édition')}</h3>
@@ -9311,7 +9311,7 @@ export default function App() {
                   <div key={etape.posteId} className="px-5 py-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: isEpuise ? '#eeece6' : '#fafaf9', border: isEpuise ? 'none' : '1px solid #e7e5e3' }}>
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: isEpuise ? '#eeece6' : '#fafaf9', border: isEpuise ? 'none' : '1px solid #dfdcd9' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: isEpuise ? '#292524' : '#78716c' }}>{i + 1}</span>
                         </span>
                         <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>{etape.label}</span>
@@ -9353,7 +9353,7 @@ export default function App() {
                     )}
                     {/* Progress bar */}
                     <div className="mt-2 h-1.5 rounded-full bg-border-subtle overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: isEpuise ? '#a8a29e' : '#d6d3d1' }} />
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: isEpuise ? '#a8a29e' : '#cbc7c4' }} />
                     </div>
                   </div>
                 );
@@ -9417,7 +9417,7 @@ export default function App() {
       note: REGIMES[r].note,
     }));
     const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
-    const cardChrome = { border: '1px solid #e7e5e3', borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+    const cardChrome = { border: '1px solid #dfdcd9', borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
     const intrants = [
       { key: 'salaire', name: 'Salaire de référence', Icon: Wallet, value: `${fmt(salaire)} /mois` },
       { key: 'releve', name: 'Heures supplémentaires cumulées', Icon: Clock, value: `${hours} h` },
@@ -9426,12 +9426,12 @@ export default function App() {
       <div className="space-y-6" data-zone-id="postes">
         {/* toolbar */}
         <div className="flex items-center gap-2 px-px">
-          <div className="h-8 px-2.5 flex items-center gap-1.5 border border-[#e7e5e3] rounded-lg whitespace-nowrap" style={{ backgroundColor: '#eeece6' }}>
+          <div className="h-8 px-2.5 flex items-center gap-1.5 border border-[#dfdcd9] rounded-lg whitespace-nowrap" style={{ backgroundColor: '#eeece6' }}>
             <span style={{ fontSize: 11, fontWeight: 500, color: '#292524', letterSpacing: 0.1 }}>Total demandé</span>
             <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, color: '#292524' }}>{fmt(total)}</span>
           </div>
           <div className="flex-1" />
-          <button className="h-9 px-3 flex items-center gap-2 border border-[#d6d3d1] rounded-lg hover:bg-stone-50 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#44403c' }}>
+          <button className="h-9 px-3 flex items-center gap-2 border border-[#cbc7c4] rounded-lg hover:bg-stone-50 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#44403c' }}>
             <Download className="w-3.5 h-3.5 text-[#78716c]" /> Exporter
           </button>
           <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: 'white', backgroundColor: '#292524' }}>
@@ -9583,7 +9583,7 @@ export default function App() {
 
   // ===== DROIT SOCIAL — native Dossier (salarié / relation de travail / contract timeline / employeur / procédure) =====
   const renderSocialDossier = () => {
-    const LINE = '#e7e5e3', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', WHITE = 'white', SUBTLE = '#fafaf9', INFO = '#1e3a8a';
+    const LINE = '#dfdcd9', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', WHITE = 'white', SUBTLE = '#fafaf9', INFO = '#1e3a8a';
     const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
     const monoHead = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' };
     const dHead = (Icon, title, right) => (
@@ -9691,7 +9691,7 @@ export default function App() {
         </div>
       );
     }
-    const LINE = '#e7e5e3', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', WHITE = 'white', SUBTLE = '#fafaf9', PAPER = '#f8f7f5', INFO = '#1e3a8a', INFO_BG = '#dfe8f5';
+    const LINE = '#dfdcd9', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', WHITE = 'white', SUBTLE = '#fafaf9', PAPER = '#f8f7f5', INFO = '#1e3a8a', INFO_BG = '#dfe8f5';
     const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
     const back = (
       <button onClick={() => setSocialDetail(null)} className="inline-flex items-center gap-1.5 rounded-md transition-colors" style={{ height: 32, padding: '0 10px 0 7px', fontSize: 13, color: INK2, border: `1px solid ${LINE}`, background: 'transparent', cursor: 'pointer' }}
@@ -10703,24 +10703,24 @@ export default function App() {
                   <div className="px-5 pt-4 pb-2 space-y-1">
                     <div className="flex items-center justify-between">
                       <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Victime directe</span>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: '#d6d3d1' }}>{fmt(totalVd)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{fmt(totalVd)}</span>
                     </div>
                     {totalIv > 0 && (
                       <div className="flex items-center justify-between">
                         <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Victimes indirectes</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#d6d3d1' }}>{fmt(totalIv)}</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{fmt(totalIv)}</span>
                       </div>
                     )}
                     {totalTiers > 0 && (
                       <div className="flex items-center justify-between">
                         <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Tiers payeurs</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#d6d3d1' }}>{fmt(totalTiers)}</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{fmt(totalTiers)}</span>
                       </div>
                     )}
                     {tauxRatio < 1 && (
                       <div className="flex items-center justify-between mt-1">
                         <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Responsabilité appliquée</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#d6d3d1' }}>{tauxFinal} %</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{tauxFinal} %</span>
                       </div>
                     )}
                   </div>
@@ -15548,7 +15548,7 @@ export default function App() {
         {!piecesTabDragOver && (
         <div className="flex-1 flex flex-col min-w-0">
           {/* Sub-header bar - edge-to-edge */}
-          <div className="flex items-center gap-2 px-4 py-3.5 border-b border-border">
+          <div className="flex items-center gap-2 px-8 py-3.5 border-b border-border">
             <Search className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
             <input
               type="text"
@@ -16817,7 +16817,7 @@ export default function App() {
         className="border-r border-border flex flex-col flex-shrink-0 overflow-hidden h-full"
         style={{
           width: collapsed ? 48 : NAV_WIDTH,
-          // Nav finale (Plato---System 37416:1376) : fond plat #f8f7f5, bord #e7e5e3.
+          // Nav finale (Plato---System 37416:1376) : fond plat #f8f7f5, bord #dfdcd9.
           background: '#f8f7f5',
         }}
       >
@@ -17062,7 +17062,7 @@ export default function App() {
       onClick={() => setParrainageModalOpen(true)}
       className="group relative block w-full text-left"
       style={{
-        borderTop: '1px solid #e7e5e3',
+        borderTop: '1px solid #dfdcd9',
         padding: '12px 16px',
         background:
           'linear-gradient(90deg, #dfe8f5 0%, rgba(223,232,245,0) 59.5%)',
@@ -17096,7 +17096,7 @@ export default function App() {
           style={{
             height: 1,
             background:
-              'linear-gradient(90deg, #e7e5e3 0%, rgba(231,229,227,0) 100%)',
+              'linear-gradient(90deg, #dfdcd9 0%, rgba(231,229,227,0) 100%)',
           }}
         />
       </div>
@@ -18140,8 +18140,8 @@ export default function App() {
 
     const renderBtns = (id) => (
       <span className="absolute right-[-20px] top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/diff:opacity-100 transition-opacity z-10">
-        <button onClick={() => accept(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-        <button onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+        <button onClick={() => accept(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+        <button onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
       </span>
     );
 
@@ -18173,7 +18173,7 @@ export default function App() {
           <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-[#1e40af]"><RotateCcw className="w-3 h-3" /> Reset</button>
         </div>
         <div className="border border-border rounded-lg bg-white overflow-visible">
-          <div className="flex items-center" style={{ borderBottom: '1px solid #e7e5e3', background: '#fafaf9', padding: '8px 0' }}>
+          <div className="flex items-center" style={{ borderBottom: '1px solid #dfdcd9', background: '#fafaf9', padding: '8px 0' }}>
             <div className="w-[52px] flex-shrink-0" style={{ ...thStyle, paddingLeft: 14 }}>Doc</div>
             <div className="flex-1 min-w-0" style={thStyle}>Libellé</div>
             <div className="flex-1 min-w-0" style={thStyle}>Taux</div>
@@ -18261,7 +18261,7 @@ export default function App() {
                   <div className="w-10 flex items-center justify-center flex-shrink-0" style={{ background: allResolved ? (resType === 'all-approved' ? '#ecfdf5' : resType === 'all-rejected' ? '#fef2f2' : '#f5f5f4') : '#f5f5f4' }}><card.Icon className="w-3.5 h-3.5" style={{ color: allResolved ? (resType === 'all-approved' ? ROW_DIFF_COLORS.add : resType === 'all-rejected' ? ROW_DIFF_COLORS.delete : '#78716c') : '#78716c' }} /></div>
                   <div className="flex items-center gap-3 flex-1 min-w-0" style={{ padding: '12px 14px 12px 12px' }}>
                     <div className="flex-1 min-w-0">
-                      <div className="group-hover/header:underline" style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px', textDecorationColor: '#d6d3d1' }}>{card.title}</div>
+                      <div className="group-hover/header:underline" style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px', textDecorationColor: '#cbc7c4' }}>{card.title}</div>
                       {allResolved ? (
                         <div className="flex items-center gap-1 mt-0.5">
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, lineHeight: '14px', color: resType === 'all-approved' ? ROW_DIFF_COLORS.add : resType === 'all-rejected' ? ROW_DIFF_COLORS.delete : '#78716c' }}>
@@ -18290,8 +18290,8 @@ export default function App() {
                             <span style={{ color: (diff.approved || diff.rejected) ? '#a8a29e' : diff.type === 'delete' ? '#a8a29e' : '#44403c', fontWeight: 500, flex: 1, textDecoration: (diff.type === 'delete' && !diff.rejected) || (diff.rejected && diff.type !== 'delete') ? 'line-through' : 'none' }}>{diff.entityLabel}</span>
                             {!diff.approved && !diff.rejected && (
                               <span className="flex items-center gap-1.5 opacity-0 group-hover/diff:opacity-100 transition-opacity flex-shrink-0">
-                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-[#ecfdf5] hover:border-[#a5c9b7]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, approved: true } : d))}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-danger-subtle hover:border-[#cf9d9d]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-[#ecfdf5] hover:border-[#a5c9b7]" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, approved: true } : d))}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-danger-subtle hover:border-[#cf9d9d]" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
                               </span>
                             )}
                           </div>
@@ -18312,7 +18312,7 @@ export default function App() {
                                   {f.variants && f.variants.length > 1 && !diff.approved && !diff.rejected && (
                                     <span className="inline-flex items-center gap-1 ml-1.5" style={{ position: 'relative' }}>
                                       {f.variants.map((v, vi) => (
-                                        <span key={vi} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded" style={{ fontSize: 10, fontWeight: 500, background: vi === 0 ? '#eef3fa' : '#f5f5f4', border: `1px solid ${vi === 0 ? '#aabcd5' : '#e7e5e3'}`, color: vi === 0 ? '#1e3a8a' : '#78716c', boxShadow: vi === 0 ? '0 1px 2px rgba(0,0,0,0.06)' : 'none' }}>
+                                        <span key={vi} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded" style={{ fontSize: 10, fontWeight: 500, background: vi === 0 ? '#eef3fa' : '#f5f5f4', border: `1px solid ${vi === 0 ? '#aabcd5' : '#dfdcd9'}`, color: vi === 0 ? '#1e3a8a' : '#78716c', boxShadow: vi === 0 ? '0 1px 2px rgba(0,0,0,0.06)' : 'none' }}>
                                           <CircleArrowUp className="w-2.5 h-2.5" />{v.source}: {v.value}
                                         </span>
                                       ))}
@@ -18330,7 +18330,7 @@ export default function App() {
                 {cardDiffs.length > 0 && !allResolved && (
                   <div style={{ borderTop: '1px solid #f0efed' }} className="flex items-center">
                     <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, approved: true } : d))}><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter</button>
-                    <div style={{ width: 1, height: 16, background: '#e7e5e3' }} />
+                    <div style={{ width: 1, height: 16, background: '#dfdcd9' }} />
                     <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, rejected: true } : d))}><RotateCcw className="w-3 h-3" /> Tout annuler</button>
                   </div>
                 )}
@@ -18346,7 +18346,7 @@ export default function App() {
   // ========== COMPONENTS SHOWCASE ==========
   const renderComponentsPage = () => {
     const sectionClass = "mb-10";
-    const sectionTitle = (title) => <h2 style={{ fontSize: 18, fontWeight: 600, color: '#292524', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>{title}</h2>;
+    const sectionTitle = (title) => <h2 style={{ fontSize: 18, fontWeight: 600, color: '#292524', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>{title}</h2>;
     const subTitle = (title) => <h3 style={{ fontSize: 14, fontWeight: 600, color: '#78716c', marginBottom: 8, marginTop: 16, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</h3>;
     const row = (children) => <div className="flex items-start gap-4 flex-wrap mb-4">{children}</div>;
 
@@ -18499,7 +18499,7 @@ export default function App() {
                   width: '100%',
                   maxWidth: 960,
                   borderRadius: 10,
-                  border: '1px solid #e7e5e3',
+                  border: '1px solid #dfdcd9',
                   boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05), 0px 1px 1px 0px rgba(26,26,26,0.05)',
                   background: '#292524',
                   display: 'block',
@@ -18752,8 +18752,8 @@ export default function App() {
                   <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.add, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
                   <CircleArrowUp className="w-3.5 h-3.5" /> Revaloriser <span style={{ fontWeight: 400 }}>On · IPC Annuel</span>
                   <span className="inline-flex items-center gap-1 ml-0.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
                   </span>
                 </span>
                 {/* Edit diff (blue ON + orange diamond) */}
@@ -18761,8 +18761,8 @@ export default function App() {
                   <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.edit, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
                   <CircleArrowUp className="w-3.5 h-3.5" /> Revalorisation <span style={{ fontWeight: 400 }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>IPC Mensuel</span> → Annuel</span>
                   <span className="inline-flex items-center gap-1 ml-0.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
                   </span>
                 </span>
                 {/* Delete diff (gray OFF + red diamond) */}
@@ -18770,8 +18770,8 @@ export default function App() {
                   <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.delete, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
                   <CircleArrowUp className="w-3.5 h-3.5" /> Capitaliser <span style={{ fontWeight: 400 }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>On</span> → Off</span>
                   <span className="inline-flex items-center gap-1 ml-0.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
                   </span>
                 </span>
               </div>
@@ -18792,8 +18792,8 @@ export default function App() {
                     <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.edit, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
                     <CircleArrowUp className="w-3.5 h-3.5" /> Revalorisation <span style={{ fontWeight: 400 }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>IPC Mensuel</span> → Annuel</span>
                     <span className="inline-flex items-center gap-1 ml-0.5">
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
                     </span>
                   </span>
                   {/* Delete diff */}
@@ -18848,7 +18848,7 @@ export default function App() {
                         <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
                           <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter
                         </button>
-                        <div style={{ width: 1, height: 14, background: '#e7e5e3' }} />
+                        <div style={{ width: 1, height: 14, background: '#dfdcd9' }} />
                         <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }}>
                           <RotateCcw className="w-3 h-3" /> Tout annuler
                         </button>
@@ -19061,7 +19061,7 @@ export default function App() {
 
               {subTitle('Chat blocked indicator')}
               <div style={{ maxWidth: 380 }} className="border border-border rounded-lg bg-white overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-1.5" style={{ borderBottom: '1px solid #e7e5e3' }}>
+                <div className="flex items-center gap-2 px-3 py-1.5" style={{ borderBottom: '1px solid #dfdcd9' }}>
                   <ThinkingDots />
                   <span style={{ fontSize: 11, color: '#a8a29e' }}>Plato analyse vos documents...</span>
                 </div>
@@ -19083,7 +19083,7 @@ export default function App() {
               <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720 }}>
                 Minimal density (jurisdiction · n° pourvoi). Reserved for inline citation inside generated actes/documents. <strong>Not used in chat anymore</strong> - chat surfaces a list of <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPCard</code>s instead.
               </p>
-              <div style={{ maxWidth: 720, padding: 16, backgroundColor: 'white', border: '1px solid #e7e5e3', borderRadius: 8 }}>
+              <div style={{ maxWidth: 720, padding: 16, backgroundColor: 'white', border: '1px solid #dfdcd9', borderRadius: 8 }}>
                 <div style={{ fontSize: 14, lineHeight: '24px', color: '#292524' }}>
                   Pour un étudiant à Paris intra-muros, le taux de 28&nbsp;€/h retenu par la{' '}
                   {(() => {
@@ -19522,7 +19522,7 @@ export default function App() {
 
               {subTitle('API')}
               <div className="border border-border rounded-md overflow-hidden mb-8" style={{ maxWidth: 760 }}>
-                <div className="flex" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
+                <div className="flex" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
                   {['Prop', 'Type', 'Default', 'Description'].map((h, i) => (
                     <div
                       key={h}
@@ -19532,7 +19532,7 @@ export default function App() {
                         color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em',
                         width: i === 0 ? 110 : i === 1 ? 220 : i === 2 ? 130 : undefined,
                         flex: i === 3 ? 1 : 'none',
-                        borderRight: i < 3 ? '1px solid #e7e5e3' : 'none',
+                        borderRight: i < 3 ? '1px solid #dfdcd9' : 'none',
                       }}
                     >
                       {h}
@@ -19548,11 +19548,11 @@ export default function App() {
                   <div
                     key={prop}
                     className="flex bg-white"
-                    style={{ borderBottom: ri < 3 ? '1px solid #e7e5e3' : 'none' }}
+                    style={{ borderBottom: ri < 3 ? '1px solid #dfdcd9' : 'none' }}
                   >
-                    <div className="px-3 py-2.5" style={{ width: 110, borderRight: '1px solid #e7e5e3', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#292524' }}>{prop}</div>
-                    <div className="px-3 py-2.5" style={{ width: 220, borderRight: '1px solid #e7e5e3', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>{type}</div>
-                    <div className="px-3 py-2.5" style={{ width: 130, borderRight: '1px solid #e7e5e3', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#a8a29e' }}>{def}</div>
+                    <div className="px-3 py-2.5" style={{ width: 110, borderRight: '1px solid #dfdcd9', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#292524' }}>{prop}</div>
+                    <div className="px-3 py-2.5" style={{ width: 220, borderRight: '1px solid #dfdcd9', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>{type}</div>
+                    <div className="px-3 py-2.5" style={{ width: 130, borderRight: '1px solid #dfdcd9', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#a8a29e' }}>{def}</div>
                     <div className="flex-1 px-3 py-2.5" style={{ fontSize: 13, color: '#44403c', lineHeight: '18px' }}>{desc}</div>
                   </div>
                 ))}
@@ -19772,7 +19772,7 @@ export default function App() {
     const sectionClass = "mb-16";
     const heading = (title) => <h2 style={{ fontSize: 20, fontWeight: 700, color: '#292524', marginBottom: 8 }}>{title}</h2>;
     const prose = (text) => <p style={{ fontSize: 14, lineHeight: '24px', color: '#57534e', marginBottom: 20, maxWidth: 720 }}>{text}</p>;
-    const quote = (text) => <blockquote style={{ borderLeft: '3px solid #e7e5e3', paddingLeft: 16, margin: '16px 0 24px', fontSize: 14, lineHeight: '22px', color: '#78716c', fontStyle: 'italic', maxWidth: 720 }}>{text}</blockquote>;
+    const quote = (text) => <blockquote style={{ borderLeft: '3px solid #dfdcd9', paddingLeft: 16, margin: '16px 0 24px', fontSize: 14, lineHeight: '22px', color: '#78716c', fontStyle: 'italic', maxWidth: 720 }}>{text}</blockquote>;
     const sandboxLabel = () => <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Sandbox</div>;
 
     /* ── S1: The Problem Today ── */
@@ -19812,8 +19812,8 @@ export default function App() {
                   <div className="text-body-medium text-foreground-tertiary">500 €</div>
                 </div>
                 <span className="flex items-center gap-1 opacity-0 group-hover/diff:opacity-100 transition-opacity">
-                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
                 </span>
               </div>
             )}
@@ -19840,7 +19840,7 @@ export default function App() {
           {diffColor && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
           <label style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>{label}</label>
         </div>
-        <input type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-foreground" style={{ borderColor: diffColor ? diffColor : '#e7e5e3', background: diffColor ? `${diffColor}08` : 'white' }} />
+        <input type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-foreground" style={{ borderColor: diffColor ? diffColor : '#dfdcd9', background: diffColor ? `${diffColor}08` : 'white' }} />
         {oldValue && <div style={{ fontSize: 11, color: '#a8a29e', marginTop: 2 }}>Ancien : {oldValue}</div>}
       </div>
     );
@@ -19922,10 +19922,10 @@ export default function App() {
             {resolved && resolvedValueContent && <span style={{ fontWeight: 400 }}>{resolvedValueContent}</span>}
             {hasDiff && !resolved && (
               <span className="inline-flex items-center gap-1 ml-0.5 flex-shrink-0">
-                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'accepted' } : pp))}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'accepted' } : pp))}>
                   <Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} />
                 </span>
-                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'rejected' } : pp))}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'rejected' } : pp))}>
                   <X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} />
                 </span>
               </span>
@@ -19986,8 +19986,8 @@ export default function App() {
               )}
               {step === 'pending' && (
                 <span className="flex items-center gap-1">
-                  <button className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5]" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-                  <button onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle" style={{ background: 'white', border: '1px solid #d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                  <button className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5]" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                  <button onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
                 </span>
               )}
             </div>
@@ -21011,7 +21011,7 @@ export default function App() {
                       style={{
                         borderRadius: 8,
                         backgroundColor: active ? '#292524' : '#f8f7f5',
-                        border: active ? '1px solid #292524' : '1px solid #e7e5e3',
+                        border: active ? '1px solid #292524' : '1px solid #dfdcd9',
                         color: active ? 'white' : '#292524',
                         minWidth: 36,
                       }}
@@ -21303,7 +21303,7 @@ export default function App() {
                     onClick={() => setPlanPickerChoice(id)}
                     className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${active ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
                   >
-                    <span className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0" style={{ borderColor: active ? '#292524' : '#d6d3d1' }}>
+                    <span className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0" style={{ borderColor: active ? '#292524' : '#cbc7c4' }}>
                       {active && <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#292524' }} />}
                     </span>
                     <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
@@ -21542,7 +21542,7 @@ export default function App() {
                       style={{
                         borderRadius: 8,
                         backgroundColor: active ? '#292524' : '#f8f7f5',
-                        border: active ? '1px solid #292524' : '1px solid #e7e5e3',
+                        border: active ? '1px solid #292524' : '1px solid #dfdcd9',
                         color: active ? 'white' : '#292524',
                         cursor: isSelf ? 'not-allowed' : 'pointer',
                         opacity: isSelf && !active ? 0.5 : 1,
@@ -22201,7 +22201,7 @@ export default function App() {
                       fontSize: 14, lineHeight: '20px',
                       color: '#292524',
                       background: '#ffffff',
-                      border: '1px solid #e7e5e3',
+                      border: '1px solid #dfdcd9',
                       borderRadius: 8,
                       boxShadow: '0 1px 2px 0 rgba(26,26,26,0.05)',
                       outline: 'none',
@@ -22503,7 +22503,7 @@ export default function App() {
                         className="inline-flex items-center gap-1"
                         style={{
                           height: 28, padding: '0 12px', borderRadius: 8,
-                          border: '1px solid #d6d3d1',
+                          border: '1px solid #cbc7c4',
                           fontFamily: "'Inter', system-ui, sans-serif",
                           fontSize: 13, fontWeight: 500, color: '#78716c',
                           backgroundColor: 'transparent',
@@ -23378,7 +23378,7 @@ export default function App() {
 
             {/* ====== VUE D'ENSEMBLE ====== */}
             <div id="iv-vue-d-ensemble" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Vue d'ensemble</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Vue d'ensemble</h2>
               {prose('Les postes de victimes indirectes utilisent 4 structures de table, chacune adaptée à un type de données. La structure est définie par IV_POSTE_CONFIG et détermine le rendu, les colonnes, et les interactions.')}
               <div className={cardBlockClass + ' mb-6'} style={{ maxWidth: 680 }}>
                 <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
@@ -23404,7 +23404,7 @@ export default function App() {
 
             {/* ====== TYPE A - LIVE TABLE ====== */}
             <div id="iv-type-a---simple" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type A - Simple</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type A - Simple</h2>
               {prose('Une ligne par victime indirecte. Le montant est saisi individuellement. Utilisé pour les postes où chaque VI a une indemnisation distincte (PAI, PAFV, PEPE).')}
 
               <div className={cardBlockClass} style={{ maxWidth: 680 }}>
@@ -23436,7 +23436,7 @@ export default function App() {
 
             {/* ====== TYPE B - LIVE TABLE ====== */}
             <div id="iv-type-b---group-" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type B - Frais divers (FDP)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type B - Frais divers (FDP)</h2>
               {prose('Plusieurs lignes de dépenses par victime indirecte. Même table plate que les autres types, triée par victime puis par dépense.')}
 
               {(() => {
@@ -23477,7 +23477,7 @@ export default function App() {
 
             {/* ====== TYPE C - FLAT LIST ====== */}
             <div id="iv-type-c---frais-partag-s" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type C - Frais partagés (Obsèques)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type C - Frais partagés (Obsèques)</h2>
               {prose('Les frais d\'obsèques sont des dépenses communes réparties entre plusieurs VI. Chaque ligne = une attribution VI, triée par victime puis par dépense.')}
 
               {(() => {
@@ -23517,7 +23517,7 @@ export default function App() {
 
             {/* ====== TYPE D - LIVE PRP TABLES ====== */}
             <div id="iv-type-d---foyer--prp-" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Type D - Foyer (PRP)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type D - Foyer (PRP)</h2>
               {prose('Le poste Pertes de Revenus des Proches suit une logique économique en 3 étapes : établir le revenu de référence, calculer la perte, puis la répartir entre bénéficiaires.')}
 
               {/* Table 1 - Revenu de référence */}
@@ -23674,7 +23674,7 @@ export default function App() {
                           {amounts.mode === 'capitalisation' ? (
                             <span style={{ fontSize: 13, color: '#292524' }}>{amounts.coeff}</span>
                           ) : (
-                            <span style={{ fontSize: 13, color: '#d6d3d1' }}>—</span>
+                            <span style={{ fontSize: 13, color: '#cbc7c4' }}>—</span>
                           )}
                         </div>
                         <div className="w-[110px] px-2 text-right">
@@ -23752,7 +23752,7 @@ export default function App() {
 
             {/* ====== SCÉNARIOS PRP ====== */}
             <div id="iv-sc-narios-prp" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Scénarios PRP</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Scénarios PRP</h2>
               {prose('Le sélecteur « Scénario » en haut du poste PRP applique des presets de données pour tester les 6 combinaisons possibles. Il met à jour victimeDecedee, mode par ligne, et anneesEchues.')}
 
               <div className="grid grid-cols-2 gap-4 mb-6" style={{ maxWidth: 680 }}>
@@ -23800,7 +23800,7 @@ export default function App() {
             {/* ====== AFFICHAGE OBSÈQUES ====== */}
             {/* ====== ADAPTATION IA ====== */}
             <div id="iv-adaptation-ia" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Adaptation aux requêtes IA</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Adaptation aux requêtes IA</h2>
               {prose('Le chat IA peut naviguer vers un poste IV et adapter la visualisation en fonction du contexte de la question. Exemples de mapping intention → action :')}
 
               <div className="space-y-3 mb-8" style={{ maxWidth: 680 }}>
@@ -23843,11 +23843,11 @@ export default function App() {
     // Spec doc styles & components
     const specPara = { fontSize: 15, color: '#292524', lineHeight: '26px', maxWidth: 680, marginBottom: 16 };
     const subSectionTitle = { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: '#292524', letterSpacing: '-0.2px', marginBottom: 8, marginTop: 8 };
-    const chipCode = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, backgroundColor: '#fafaf9', border: '1px solid #e7e5e3', padding: '2px 7px', borderRadius: 4, color: '#292524', whiteSpace: 'nowrap' };
+    const chipCode = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, backgroundColor: '#fafaf9', border: '1px solid #dfdcd9', padding: '2px 7px', borderRadius: 4, color: '#292524', whiteSpace: 'nowrap' };
 
     const SpecTable = ({ head, rows, colWidths = [] }) => (
-      <div className="mb-6 overflow-hidden rounded-md border" style={{ borderColor: '#e7e5e3', maxWidth: 760 }}>
-        <div className="flex" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
+      <div className="mb-6 overflow-hidden rounded-md border" style={{ borderColor: '#dfdcd9', maxWidth: 760 }}>
+        <div className="flex" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
           {head.map((h, i) => (
             <div
               key={i}
@@ -23856,7 +23856,7 @@ export default function App() {
                 fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500,
                 color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em',
                 width: colWidths[i], flex: colWidths[i] ? 'none' : 1,
-                borderRight: i < head.length - 1 ? '1px solid #e7e5e3' : 'none',
+                borderRight: i < head.length - 1 ? '1px solid #dfdcd9' : 'none',
               }}
             >
               {h}
@@ -23867,7 +23867,7 @@ export default function App() {
           <div
             key={ri}
             className="flex bg-white"
-            style={{ borderBottom: ri < rows.length - 1 ? '1px solid #e7e5e3' : 'none' }}
+            style={{ borderBottom: ri < rows.length - 1 ? '1px solid #dfdcd9' : 'none' }}
           >
             {row.map((cell, ci) => (
               <div
@@ -23876,7 +23876,7 @@ export default function App() {
                 style={{
                   fontSize: 13, color: '#292524', lineHeight: '20px',
                   width: colWidths[ci], flex: colWidths[ci] ? 'none' : 1,
-                  borderRight: ci < row.length - 1 ? '1px solid #e7e5e3' : 'none',
+                  borderRight: ci < row.length - 1 ? '1px solid #dfdcd9' : 'none',
                   display: 'flex', alignItems: 'center',
                 }}
               >
@@ -23894,7 +23894,7 @@ export default function App() {
         <blockquote
           className="mb-6 px-4 py-3"
           style={{
-            borderLeft: `3px solid ${isWarning ? '#f59e0b' : '#d6d3d1'}`,
+            borderLeft: `3px solid ${isWarning ? '#f59e0b' : '#cbc7c4'}`,
             backgroundColor: isWarning ? '#fffbeb' : '#fafaf9',
             color: isWarning ? '#78350f' : '#44403c',
             fontSize: 14,
@@ -23919,7 +23919,7 @@ export default function App() {
           className="border border-border rounded-lg overflow-hidden flex flex-col"
           style={{ width: 360, height: 540, backgroundColor: '#F8F7F5' }}
         >
-          <div className="px-4 h-12 border-b flex items-center gap-2.5 flex-shrink-0 bg-white" style={{ borderColor: '#e7e5e3' }}>
+          <div className="px-4 h-12 border-b flex items-center gap-2.5 flex-shrink-0 bg-white" style={{ borderColor: '#dfdcd9' }}>
             <PlatoIcon />
             <span className="flex-1" style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '12px', color: '#78716c', lineHeight: '32px' }}>
               PLATO MASTER
@@ -23974,7 +23974,7 @@ export default function App() {
           className="border border-border rounded-lg overflow-hidden flex flex-col bg-white"
           style={{ width: 640, height: 420 }}
         >
-          <div className="px-5 h-12 border-b flex items-center gap-3 flex-shrink-0" style={{ borderColor: '#e7e5e3', backgroundColor: '#fafaf9' }}>
+          <div className="px-5 h-12 border-b flex items-center gap-3 flex-shrink-0" style={{ borderColor: '#dfdcd9', backgroundColor: '#fafaf9' }}>
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {title.replace(/^Canvas - /, '')}
             </span>
@@ -24008,7 +24008,7 @@ export default function App() {
         </div>
         <div
           className="rounded-lg flex flex-col justify-end relative overflow-visible"
-          style={{ width: 380, height: 460, backgroundColor: '#F8F7F5', padding: 16, border: '1px solid #e7e5e3' }}
+          style={{ width: 380, height: 460, backgroundColor: '#F8F7F5', padding: 16, border: '1px solid #dfdcd9' }}
         >
           {/* Production chat input box - exact replica */}
           <div
@@ -24016,7 +24016,7 @@ export default function App() {
               backgroundColor: '#ffffff',
               borderRadius: 2,
               border: '2px solid white',
-              boxShadow: '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
+              boxShadow: '0px 0px 0px 1px #cbc7c4, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -24171,7 +24171,7 @@ export default function App() {
 
             {/* ================ SCOPE ================ */}
             <section id="ps-scope" className="mb-12">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>Scope</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Scope</h2>
               <p style={specPara}><strong>Problèmes.</strong></p>
               <ul style={{ ...specPara, paddingLeft: 20, listStyle: 'disc' }}>
                 <li><strong>Au drop first (création dossier).</strong> L'agent ne montre pas son reasoning sur les docs déposés et ne propose pas d'actions. L'utilisateur doit deviner quoi demander.</li>
@@ -24183,7 +24183,7 @@ export default function App() {
 
             {/* ================ TL;DR ================ */}
             <section id="ps-tldr" className="mb-12">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>TL;DR</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>TL;DR</h2>
               <SpecTable
                 head={['Surface', 'Quand', 'Au clic']}
                 rows={[
@@ -24196,7 +24196,7 @@ export default function App() {
 
             {/* ================ A. CHAT EMPTY STATE ================ */}
             <section id="ps-chat" className="mb-16">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>A. Chat empty state - 3 chips</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>A. Chat empty state - 3 chips</h2>
               <p style={specPara}><strong>Affichage.</strong> <em>"Bonjour {codeInline('{user.firstName}')}, je suis Plato. Par où voulez-vous commencer ?"</em> + 3 chips.</p>
               <Specimen title="Variant - 3 chips" condition="aucun message dans le chat">
                 {variantEmptyState}
@@ -24216,7 +24216,7 @@ export default function App() {
 
             {/* ================ B. TRIGGERS CANVAS ================ */}
             <section className="mb-12">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3' }}>B. Triggers canvas</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>B. Triggers canvas</h2>
               <p style={specPara}>Clic → message envoyé immédiatement comme bulle <code style={chipCode}>user</code>. Flux chat standard ensuite.</p>
 
               <article id="ps-canvas-chiffrage" className="mb-10">
@@ -24247,7 +24247,7 @@ export default function App() {
 
             {/* ================ C. AMPOULE ================ */}
             <section id="ps-lightbulb" className="mb-16">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e7e5e3', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9', display: 'flex', alignItems: 'center', gap: 8 }}>
                 C. Ampoule <Lightbulb className="w-5 h-5 text-foreground-secondary" strokeWidth={1.75} />
               </h2>
               <p style={specPara}>
@@ -24469,7 +24469,7 @@ export default function App() {
     const [expanded, setExpanded] = React.useState(false);
     return (
       <div className="border border-border rounded-lg bg-white overflow-hidden">
-        <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
+        <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning finished inspectable</span>
         </div>
         <div className="p-4">
@@ -24532,7 +24532,7 @@ export default function App() {
 
     return (
       <div className="border border-border rounded-lg bg-white overflow-hidden">
-        <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
+        <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
           <div className="flex items-center gap-1.5">
             {phase === 'idle' ? (
@@ -24711,7 +24711,7 @@ export default function App() {
           <button onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors" style={{ fontSize: 13 }}>
             <ChevronRight className="w-4 h-4 rotate-180" /> UI Kit
           </button>
-          <span style={{ color: '#d6d3d1' }}>/</span>
+          <span style={{ color: '#cbc7c4' }}>/</span>
           <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>Reasoning Stepper</span>
         </div>
 
@@ -24777,7 +24777,7 @@ export default function App() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* V1 Processing */}
               <div className="border border-border rounded-lg bg-white overflow-hidden">
-                <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
+                <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
                   <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning (processing)</span>
                 </div>
                 <div className="p-4 flex items-center gap-2">
@@ -24813,7 +24813,7 @@ export default function App() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* Left: Icon type table */}
               <div className="flex flex-col gap-0 border border-border rounded-lg bg-white overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
+                <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
                   <span style={{ ...sLabel, marginBottom: 0, width: 16 }}></span>
                   <span style={{ ...sLabel, marginBottom: 0, width: 110 }}>Type</span>
                   <span style={{ ...sLabel, marginBottom: 0, flex: 1 }}>Label utilisateur</span>
@@ -24890,7 +24890,7 @@ export default function App() {
 
                 {/* Backend tool mapping */}
                 <div className="flex flex-col gap-0 border border-border rounded-lg bg-white overflow-hidden">
-                  <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #e7e5e3' }}>
+                  <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
                     <span style={{ ...sLabel, marginBottom: 0, flex: 1 }}>Backend tool</span>
                     <span style={{ ...sLabel, marginBottom: 0, width: 80 }}>Map to</span>
                     <span style={{ ...sLabel, marginBottom: 0, flex: 1 }}>Label FR</span>
@@ -24927,7 +24927,7 @@ export default function App() {
                   <CrudPill type="delete_row" />
                 </div>
               </div>
-              <div style={{ width: 1, height: 32, backgroundColor: '#e7e5e3' }} />
+              <div style={{ width: 1, height: 32, backgroundColor: '#dfdcd9' }} />
               <div>
                 <p style={{ ...sLabel, marginBottom: 6 }}>Counters</p>
                 <div className="flex items-center gap-3">
@@ -24941,7 +24941,7 @@ export default function App() {
             {/* ── Tree / Tree zones ── */}
             <h2 style={sH2}>Tree / Tree zones (planning for deeper levels)</h2>
             <p style={sP}>
-              Tree = connecteur vertical (1px, <span style={sCode}>#e7e5e4</span>) dans un gutter de 16px, branche horizontale par child row.<br/>
+              Tree = connecteur vertical (1px, <span style={sCode}>#dfdcda</span>) dans un gutter de 16px, branche horizontale par child row.<br/>
               Tree zone: Level 1 only for now.
             </p>
 
@@ -24953,10 +24953,10 @@ export default function App() {
                   {[0, 1, 2].map((i) => (
                     <div key={i} className="flex items-stretch" style={{ height: 24 }}>
                       <div className="relative" style={{ width: 20 }}>
-                        <div className="absolute" style={{ left: 12, top: 0, bottom: i === 2 ? '50%' : 0, width: 1, backgroundColor: '#e7e5e4' }} />
+                        <div className="absolute" style={{ left: 12, top: 0, bottom: i === 2 ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
                       </div>
                       <div className="relative" style={{ width: 20 }}>
-                        <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: '#e7e5e4' }} />
+                        <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: '#dfdcda' }} />
                       </div>
                       <div style={{ width: 40 }} />
                     </div>
@@ -24973,7 +24973,7 @@ export default function App() {
                     {[0, 1].map((i) => (
                       <div key={i} className="flex items-stretch" style={{ height: 24 }}>
                         <div className="relative" style={{ width: 20 }}>
-                          <div className="absolute" style={{ left: 12, top: 0, bottom: i === 1 ? '50%' : 0, width: 1, backgroundColor: '#e7e5e4' }} />
+                          <div className="absolute" style={{ left: 12, top: 0, bottom: i === 1 ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
                         </div>
                       </div>
                     ))}
@@ -25366,7 +25366,7 @@ export default function App() {
               onRequestUpgrade={() => setAskUpgradeOpen(true)}
             />
           )}
-          <div style={{ backgroundColor: '#ffffff', borderRadius: 6, boxShadow: '0px 0px 0px 1px #d6d3d1, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: 6, boxShadow: '0px 0px 0px 1px #cbc7c4, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '12px 12px 28px', color: '#78716c', fontSize: 14, lineHeight: '20px', opacity: dim ? 0.4 : 1 }}>
               Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...
             </div>
@@ -25456,7 +25456,7 @@ export default function App() {
     const pillCls = (on) => `px-2.5 py-1 rounded-md text-[11px] transition-colors ${on ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
     const flowChip = ({ eyebrow, text, tone = 'stone' }) => {
       const tones = {
-        stone: { border: '#e7e5e3', eyebrow: '#78716c', bg: '#ffffff' },
+        stone: { border: '#dfdcd9', eyebrow: '#78716c', bg: '#ffffff' },
         blue: { border: '#d7e2f2', eyebrow: '#1e3a8a', bg: 'linear-gradient(180deg, #eef3fa 0%, #ffffff 60%)' },
       };
       const t = tones[tone];
@@ -25467,7 +25467,7 @@ export default function App() {
         </div>
       );
     };
-    const flowArrow = <ArrowRight className="w-4 h-4 flex-shrink-0 self-center" style={{ color: '#d6d3d1' }} strokeWidth={2} />;
+    const flowArrow = <ArrowRight className="w-4 h-4 flex-shrink-0 self-center" style={{ color: '#cbc7c4' }} strokeWidth={2} />;
     return (
       <>
         <div className="min-h-screen" style={{ backgroundColor: '#f8f7f5', padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
@@ -25851,7 +25851,7 @@ export default function App() {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-5 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#e7e5e3' }}>
+            <div className="px-5 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#dfdcd9' }}>
               <div className="flex items-center gap-2.5 min-w-0">
                 {chatPreviewPiece.index > 0 && <span className="px-2 py-0.5 bg-zinc-800 text-white text-[11px] font-medium rounded flex-shrink-0">P{chatPreviewPiece.index}</span>}
                 <span className="text-[14px] font-medium text-foreground truncate">{chatPreviewPiece.intitule || chatPreviewPiece.nom}</span>

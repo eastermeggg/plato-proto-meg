@@ -78,7 +78,7 @@ function BordereauTable({ rows, onExclude, onPieceClick, shimmer = false }) {
   return (
     <div
       style={{
-        border: '1px solid #e7e5e3',
+        border: '1px solid #dfdcd9',
         borderRadius: 6,
         overflow: 'hidden',
         backgroundColor: 'white',
@@ -130,7 +130,7 @@ function ColumnHeader() {
         display: 'flex',
         alignItems: 'center',
         height: 36,
-        borderBottom: '1px solid #e7e5e3',
+        borderBottom: '1px solid #dfdcd9',
         backgroundColor: '#f8f7f5',
       }}
     >
@@ -153,8 +153,8 @@ function SectionHeader({ number, name }) {
         alignItems: 'center',
         height: 40,
         backgroundColor: 'white',
-        borderBottom: '1px solid #e7e5e3',
-        borderTop: '1px solid #e7e5e3',
+        borderBottom: '1px solid #dfdcd9',
+        borderTop: '1px solid #dfdcd9',
       }}
     >
       {/* Number + name in a single cell: "I - Médical" */}
@@ -239,7 +239,7 @@ function PieceRow({
         alignItems: 'center',
         minHeight: 52,
         backgroundColor: hover && clickable ? '#f5f4f0' : (alternate ? '#fafaf9' : 'white'),
-        borderBottom: isLast ? 'none' : '1px solid #e7e5e3',
+        borderBottom: isLast ? 'none' : '1px solid #dfdcd9',
         cursor: clickable ? 'pointer' : 'default',
         transition: 'background-color 120ms',
       }}
@@ -412,7 +412,7 @@ function EmptyState({ onGenerate, source }) {
   return (
     <div
       style={{
-        border: '1px solid #e7e5e3',
+        border: '1px solid #dfdcd9',
         borderRadius: 6,
         backgroundColor: 'white',
         padding: '56px 24px',
@@ -488,7 +488,7 @@ function SkeletonRow({ alternate, isLast, delayMs = 0 }) {
         alignItems: 'center',
         minHeight: 52,
         backgroundColor: alternate ? '#fafaf9' : 'white',
-        borderBottom: isLast ? 'none' : '1px solid #e7e5e3',
+        borderBottom: isLast ? 'none' : '1px solid #dfdcd9',
       }}
     >
       <div style={{ width: COL_NUM_W, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>

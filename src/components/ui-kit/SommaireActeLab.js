@@ -130,7 +130,7 @@ function CaseFrame({ index, title, caption, content }) {
         style={{
           height: 620,
           borderRadius: 14,
-          border: '1px solid #e7e5e3',
+          border: '1px solid #dfdcd9',
           overflow: 'hidden',
           backgroundColor: '#f8f7f5',
         }}

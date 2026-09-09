@@ -93,7 +93,7 @@ export function MailNavPromoCard({ onOpen, onDismiss }) {
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen?.(); } }}
       className="group relative block w-full text-left cursor-pointer"
       style={{
-        borderTop: '1px solid #e7e5e3',
+        borderTop: '1px solid #dfdcd9',
         padding: '12px 16px',
         background: 'linear-gradient(90deg, #cce6d9 0%, rgba(204,230,217,0) 59.5%)',
         boxShadow: 'inset 2px 0 0 0 #064e3b',
@@ -118,7 +118,7 @@ export function MailNavPromoCard({ onOpen, onDismiss }) {
         <span
           aria-hidden
           className="flex-1"
-          style={{ height: 1, background: 'linear-gradient(90deg, #e7e5e3 0%, rgba(231,229,227,0) 100%)' }}
+          style={{ height: 1, background: 'linear-gradient(90deg, #dfdcd9 0%, rgba(231,229,227,0) 100%)' }}
         />
       </div>
 

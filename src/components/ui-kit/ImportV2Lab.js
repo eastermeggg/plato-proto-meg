@@ -58,7 +58,7 @@ const DOUBLON_NOTE = { note: 'Semble identique à « Certificat de prolongation 
 function Spec({ label, note, children }) {
   return (
     <div className="flex flex-col gap-1.5 min-w-0">
-      <div className="rounded-lg p-3 flex-1" style={{ backgroundColor: '#f8f7f5', border: '1px solid #e7e5e3' }}>
+      <div className="rounded-lg p-3 flex-1" style={{ backgroundColor: '#f8f7f5', border: '1px solid #dfdcd9' }}>
         {children}
       </div>
       <p style={monoLabel}>{label}</p>

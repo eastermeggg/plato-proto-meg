@@ -18,9 +18,9 @@ import InputReal from '../ui/Input';
 // ============== BUTTON ==============
 const BUTTON_VARIANTS = {
   primary:     { bg: '#292524', bgHover: '#44403c', fg: '#ffffff', border: 'transparent' },
-  secondary:   { bg: '#eeece6', bgHover: '#e7e5e3', fg: '#44403c', border: 'transparent' },
+  secondary:   { bg: '#eeece6', bgHover: '#dfdcd9', fg: '#44403c', border: 'transparent' },
   ghost:       { bg: 'transparent', bgHover: '#fafaf9', fg: '#44403c', border: 'transparent' },
-  outline:     { bg: '#ffffff', bgHover: '#fafaf9', fg: '#292524', border: '#e7e5e3' },
+  outline:     { bg: '#ffffff', bgHover: '#fafaf9', fg: '#292524', border: '#dfdcd9' },
   destructive: { bg: '#7f1d1d', bgHover: '#641515', fg: '#ffffff', border: 'transparent' },
 };
 const BUTTON_SIZES = {
@@ -422,7 +422,7 @@ export function DropZone({ variant = 'container', label = 'Drop a file here or c
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '8px 12px',
-          border: '1px dashed #d6d3d1',
+          border: '1px dashed #cbc7c4',
           borderRadius: 6, background: '#fff',
           fontSize: 13, color: colors.semantic.foregroundSecondary,
           cursor: 'pointer',
@@ -439,7 +439,7 @@ export function DropZone({ variant = 'container', label = 'Drop a file here or c
       style={{
         position: 'relative',
         padding: 32,
-        border: '2px dashed #d6d3d1',
+        border: '2px dashed #cbc7c4',
         borderRadius: 12,
         background: '#fff',
         textAlign: 'center',

@@ -516,7 +516,7 @@ function SegBadge({ active, children }) {
       className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-[12px] leading-[16px] font-medium tabular-nums whitespace-nowrap"
       style={active
         ? { background: '#eeece6', color: '#44403c', fontFamily: SANS }
-        : { border: '1px solid #e7e5e3', color: '#44403c', fontFamily: SANS }}
+        : { border: '1px solid #dfdcd9', color: '#44403c', fontFamily: SANS }}
     >
       {children}
     </span>

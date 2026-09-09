@@ -21,13 +21,13 @@ function CheckRow({ checked, onClick, icon: Icon, label, sublabel }) {
       className="w-full text-left px-3 py-2 rounded-md text-[14px] flex items-center gap-2 transition-colors"
       style={{
         backgroundColor: checked ? '#fdf8f4' : '#fafaf9',
-        border: checked ? '1px solid #b9703f' : '1px solid #e7e5e3',
+        border: checked ? '1px solid #b9703f' : '1px solid #dfdcd9',
         color: '#44403c',
       }}
     >
       <div
         className="w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0"
-        style={{ borderColor: checked ? '#b9703f' : '#d6d3d1', backgroundColor: checked ? '#b9703f' : 'white' }}
+        style={{ borderColor: checked ? '#b9703f' : '#cbc7c4', backgroundColor: checked ? '#b9703f' : 'white' }}
       >
         {checked && <Checkmark />}
       </div>
@@ -169,7 +169,7 @@ export default function JPAddStepper({
               const isDone = step > s.num;
               return (
                 <React.Fragment key={s.num}>
-                  {i > 0 && <div className="w-6 h-px mx-1" style={{ backgroundColor: isDone ? '#b9703f' : '#e7e5e3' }} />}
+                  {i > 0 && <div className="w-6 h-px mx-1" style={{ backgroundColor: isDone ? '#b9703f' : '#dfdcd9' }} />}
                   <div className="flex items-center gap-1.5">
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center"
@@ -207,7 +207,7 @@ export default function JPAddStepper({
                       className="flex items-start gap-2 px-3 py-2.5 rounded-md text-left transition-all"
                       style={{
                         backgroundColor: active ? '#fdf8f4' : '#fafaf9',
-                        border: active ? '1px solid #b9703f' : '1px solid #e7e5e3',
+                        border: active ? '1px solid #b9703f' : '1px solid #dfdcd9',
                       }}
                     >
                       <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: active ? '#b9703f' : '#78716c' }} strokeWidth={1.75} />
@@ -299,7 +299,7 @@ export default function JPAddStepper({
                   </label>
                   <label
                     className="flex items-center justify-center gap-2 w-full h-16 rounded-md border border-dashed cursor-pointer transition-colors"
-                    style={{ borderColor: pdfFile ? '#b9703f' : '#e7e5e3', backgroundColor: pdfFile ? '#fdf8f4' : '#fafaf9' }}
+                    style={{ borderColor: pdfFile ? '#b9703f' : '#dfdcd9', backgroundColor: pdfFile ? '#fdf8f4' : '#fafaf9' }}
                   >
                     <FileUp className="w-4 h-4" style={{ color: pdfFile ? '#b9703f' : '#78716c' }} />
                     <span className="text-[14px]" style={{ color: pdfFile ? '#b9703f' : '#78716c' }}>
@@ -355,7 +355,7 @@ export default function JPAddStepper({
                         >
                           <div
                             className="w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0"
-                            style={{ borderColor: isChecked ? '#b9703f' : '#d6d3d1', backgroundColor: isChecked ? '#b9703f' : 'white' }}
+                            style={{ borderColor: isChecked ? '#b9703f' : '#cbc7c4', backgroundColor: isChecked ? '#b9703f' : 'white' }}
                           >
                             {isChecked && <Checkmark />}
                           </div>

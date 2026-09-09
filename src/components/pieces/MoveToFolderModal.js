@@ -136,7 +136,7 @@ export default function MoveToFolderModal({
         className="relative w-full max-w-[640px] bg-white rounded-[12px] overflow-hidden"
         style={{
           boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
-          border: '1px solid #e7e5e3',
+          border: '1px solid #dfdcd9',
         }}
       >
         {/* Header */}
@@ -164,7 +164,7 @@ export default function MoveToFolderModal({
         <div className="px-4 pb-3">
           <div
             className="flex items-center gap-2 px-3 h-10 rounded-[8px]"
-            style={{ border: '1px solid #e7e5e3', backgroundColor: '#fafaf9' }}
+            style={{ border: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
           >
             <Search className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />
             <input
@@ -191,7 +191,7 @@ export default function MoveToFolderModal({
         </div>
 
         {/* Folder tree */}
-        <div style={{ maxHeight: '60vh', overflowY: 'auto', borderTop: '1px solid #e7e5e3' }}>
+        <div style={{ maxHeight: '60vh', overflowY: 'auto', borderTop: '1px solid #dfdcd9' }}>
           {nothingToShow ? (
             <div className="py-14 px-4 text-center" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: '#a8a29e' }}>
               Aucun dossier ne correspond à votre recherche.
@@ -217,7 +217,7 @@ export default function MoveToFolderModal({
         {/* Footer */}
         <div
           className="flex items-center justify-between px-4 py-3"
-          style={{ borderTop: '1px solid #e7e5e3', backgroundColor: '#fafaf9' }}
+          style={{ borderTop: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
         >
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>
             {selectedId ? 'Destination sélectionnée' : 'Choisissez un dossier'}
@@ -233,7 +233,7 @@ export default function MoveToFolderModal({
               onClick={() => { if (selectedId) { onConfirm?.(selectedId); onOpenChange?.(false); } }}
               disabled={!selectedId}
               className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-[8px] text-[13px] font-medium text-white transition-colors"
-              style={{ backgroundColor: selectedId ? '#292524' : '#d6d3d1', cursor: selectedId ? 'pointer' : 'not-allowed' }}
+              style={{ backgroundColor: selectedId ? '#292524' : '#cbc7c4', cursor: selectedId ? 'pointer' : 'not-allowed' }}
             >
               Déplacer
             </button>

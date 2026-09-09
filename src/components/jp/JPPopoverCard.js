@@ -57,7 +57,7 @@ export default function JPPopoverCard({
         borderRadius: 8,
         overflow: 'hidden',
         backgroundColor: 'white',
-        border: '1px solid #e7e5e3',
+        border: '1px solid #dfdcd9',
         boxShadow: '0 8px 24px rgba(41, 37, 36, 0.08), 0 2px 8px rgba(41, 37, 36, 0.04)',
       }}>
 

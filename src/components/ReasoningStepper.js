@@ -238,11 +238,11 @@ const ChildrenTree = ({ children, className = '' }) => (
         <div key={ci} className="flex items-stretch">
           {/* Tree gutter — vertical line segment */}
           <div className="flex-shrink-0 relative" style={{ width: 20 }}>
-            <div className="absolute" style={{ left: 12, top: 0, bottom: isLast ? '50%' : 0, width: 1, backgroundColor: '#e7e5e4' }} />
+            <div className="absolute" style={{ left: 12, top: 0, bottom: isLast ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
           </div>
           {/* Tree branch — horizontal connector */}
           <div className="flex-shrink-0 relative" style={{ width: 20 }}>
-            <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: '#e7e5e4' }} />
+            <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: '#dfdcda' }} />
           </div>
           {/* Content */}
           <div className="flex-1 min-w-0" style={{
@@ -387,10 +387,10 @@ const SubAgentBlock = ({ step, isStreaming }) => {
               <div key={ci} className="flex items-stretch">
                 {/* Tree gutter — vertical line through sub-agent children */}
                 <div className="flex-shrink-0 relative" style={{ width: 20 }}>
-                  <div className="absolute" style={{ left: 12, top: 0, bottom: isLastChild ? '50%' : 0, width: 1, backgroundColor: '#e7e5e4' }} />
+                  <div className="absolute" style={{ left: 12, top: 0, bottom: isLastChild ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
                 </div>
                 <div className="flex-shrink-0 relative" style={{ width: 4 }}>
-                  <div className="absolute" style={{ left: 0, top: '50%', width: 4, height: 1, backgroundColor: '#e7e5e4' }} />
+                  <div className="absolute" style={{ left: 0, top: '50%', width: 4, height: 1, backgroundColor: '#dfdcda' }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <StepRow step={cs} isLast={ci === childSteps.length - 1} isStreaming={isStreaming} />

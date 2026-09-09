@@ -15,7 +15,7 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
   const shell = {
     // Pas d'arrondi en variante sidebar : la carte touche le bord de l'app.
     borderRadius: compact ? 0 : 4,
-    border: compact ? 'none' : (tone.warn ? '1px solid rgba(238,185,126,0.5)' : '1px solid #e7e5e3'),
+    border: compact ? 'none' : (tone.warn ? '1px solid rgba(238,185,126,0.5)' : '1px solid #dfdcd9'),
     boxShadow: compact ? 'none' : '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)',
     backgroundColor: compact ? 'transparent' : '#ffffff',
   };

@@ -40,7 +40,7 @@ const PosteFooterChip = ({ acronym }) => (
       alignItems: 'center',
       padding: '2px 8px',
       borderRadius: 999,
-      border: '1px solid #e7e5e3',
+      border: '1px solid #dfdcd9',
       backgroundColor: 'white',
       fontFamily: "'Inter', system-ui, sans-serif",
       fontSize: 11,
@@ -131,12 +131,12 @@ export default function JPRow({
         backgroundColor: isSelected ? '#fdf3ec' : 'white',
         ...(asCard
           ? {
-              border: '1px solid #e7e5e3',
+              border: '1px solid #dfdcd9',
               borderRadius: 4,
               boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
             }
           : {
-              borderBottom: isLast ? 'none' : '1px solid #e7e5e3',
+              borderBottom: isLast ? 'none' : '1px solid #dfdcd9',
             }
         ),
         transition: 'background-color 0.12s ease',
@@ -169,7 +169,7 @@ export default function JPRow({
               )}
               {onRemove && (
                 <>
-                  {hasDate && <span style={{ width: 1, height: 12, backgroundColor: '#d6d3d1' }} />}
+                  {hasDate && <span style={{ width: 1, height: 12, backgroundColor: '#cbc7c4' }} />}
                   <button
                     onClick={(e) => { e.stopPropagation(); onRemove(d); }}
                     title={removeTitle}

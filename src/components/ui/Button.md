@@ -30,4 +30,4 @@ import Button from '../ui/Button';
 ```
 
 Colors come from the Plato palette: primary `#292524`, secondary/cream `#eeece6`,
-outline border `#e7e5e3`. Do not re-roll buttons inline — import this.
+outline border `#dfdcd9`. Do not re-roll buttons inline — import this.

@@ -29,17 +29,17 @@ import {
 //   Chiffrage → PrelevementPage (remplace l'écran) → LinePanel (latéral).
 // ─────────────────────────────────────────────────────────────────────────────
 
-const LINE = '#e7e5e3', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', PAPER = '#f8f7f5', SUBTLE = '#fafaf9';
+const LINE = '#dfdcd9', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', PAPER = '#f8f7f5', SUBTLE = '#fafaf9';
 const MONO = "'IBM Plex Mono', monospace";
 // Filet de séparation entre lignes : la bordure système - les rangées de
 // 52 px aérées suffisent à faire lire chaque ligne (métrique Plato).
-export const ROW_DIVIDER = '#e7e5e3';
+export const ROW_DIVIDER = '#dfdcd9';
 // Fond du résultat du tableau : le bleu très clair Plato - c'est LE chiffre
 // que la page produit, il porte la seule teinte du tableau.
 const RESULT_TABLEAU_BG = '#eaf1ff', RESULT_TABLEAU_HOVER = '#dfe9fb';
 // Filet de la règle : une structure, pas un contenu - il ne s'atténue JAMAIS,
 // même sur une ligne écartée.
-const RULE_RAIL = '#d6d3d1';
+const RULE_RAIL = '#cbc7c4';
 const colHeaderStyle = { fontFamily: MONO, fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' };
 // Carte Plato : rayon 10, ombre sm à deux couches.
 export const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 10, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05), 0px 1px 1px 0px rgba(26,26,26,0.05)', background: 'white' };
@@ -410,7 +410,7 @@ export function SectionHeader({ titre, description, libelleColonne, showPieceCel
         <span style={{ fontSize: 14, fontWeight: 500, color: INK, lineHeight: '20px' }}>{titre}</span>
         {description && (
           <>
-            <span aria-hidden className="flex-shrink-0" style={{ width: 4, height: 4, borderRadius: 4, background: '#d6d3d1', margin: '0 2px' }} />
+            <span aria-hidden className="flex-shrink-0" style={{ width: 4, height: 4, borderRadius: 4, background: '#cbc7c4', margin: '0 2px' }} />
             <span style={{ fontSize: 12, color: MUTE, letterSpacing: '0.12px', lineHeight: '16px' }}>{description}</span>
           </>
         )}

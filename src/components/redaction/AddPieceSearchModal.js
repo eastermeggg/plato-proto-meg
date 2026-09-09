@@ -133,7 +133,7 @@ export default function AddPieceSearchModal({
         className="relative w-full max-w-[640px] bg-white rounded-[12px] overflow-hidden"
         style={{
           boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
-          border: '1px solid #e7e5e3',
+          border: '1px solid #dfdcd9',
         }}
       >
         {/* Header */}
@@ -159,7 +159,7 @@ export default function AddPieceSearchModal({
         <div className="px-4 pb-3">
           <div
             className="flex items-center gap-2 px-3 h-10 rounded-[8px]"
-            style={{ border: '1px solid #e7e5e3', backgroundColor: '#fafaf9' }}
+            style={{ border: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
           >
             <Search className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />
             <input
@@ -195,7 +195,7 @@ export default function AddPieceSearchModal({
           style={{
             maxHeight: '60vh',
             overflowY: 'auto',
-            borderTop: '1px solid #e7e5e3',
+            borderTop: '1px solid #dfdcd9',
           }}
         >
           {totalPieces === 0 ? (
@@ -243,7 +243,7 @@ export default function AddPieceSearchModal({
         {/* Footer — selection count + confirm */}
         <div
           className="flex items-center justify-between px-4 py-3"
-          style={{ borderTop: '1px solid #e7e5e3', backgroundColor: '#fafaf9' }}
+          style={{ borderTop: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
         >
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>
             {selectedIds.size === 0
@@ -262,7 +262,7 @@ export default function AddPieceSearchModal({
               disabled={selectedIds.size === 0}
               className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-[8px] text-[13px] font-medium text-white transition-colors"
               style={{
-                backgroundColor: selectedIds.size === 0 ? '#d6d3d1' : '#292524',
+                backgroundColor: selectedIds.size === 0 ? '#cbc7c4' : '#292524',
                 cursor: selectedIds.size === 0 ? 'not-allowed' : 'pointer',
               }}
             >
