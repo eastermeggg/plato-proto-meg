@@ -16,7 +16,7 @@ const ICON_COLORS = {
 const ACTION_VARIANTS = {
   primary: {
     actionBg: '#292524', actionBgHover: '#44403c', actionFg: 'white',
-    cancelBg: '#eeece6', cancelBgHover: '#e7e5e3', cancelFg: '#44403c',
+    cancelBg: '#eeece6', cancelBgHover: '#dfdcd9', cancelFg: '#44403c',
   },
   destructive: {
     actionBg: '#7f1d1d', actionBgHover: '#641515', actionFg: 'white',

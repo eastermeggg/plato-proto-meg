@@ -160,7 +160,7 @@ Consecutive steps with the same `type` + same `poste` are automatically merged b
 
 ### Tree connectors
 
-Vertical line: 1px `#e7e5e4`, positioned in a 20px gutter centered under the parent icon (left: 12px). Horizontal branch: 10px per child row. Last child cuts the vertical line at 50%.
+Vertical line: 1px `#dfdcda`, positioned in a 20px gutter centered under the parent icon (left: 12px). Horizontal branch: 10px per child row. Last child cuts the vertical line at 50%.
 
 ### Tree zones (leveling)
 
@@ -266,7 +266,7 @@ Additional UI colors (not in STEP_COLORS):
 | Color | Usage |
 |---|---|
 | `#f8f7f5` | Hover background on expandable rows |
-| `#e7e5e4` | Tree connector lines |
+| `#dfdcda` | Tree connector lines |
 
 ---
 

@@ -57,7 +57,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
         className="relative w-full max-w-[500px] bg-white rounded-[12px] overflow-hidden"
         style={{
           boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
-          border: '1px solid #e7e5e3',
+          border: '1px solid #dfdcd9',
         }}
       >
         {/* Header — serif title only */}
@@ -92,7 +92,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
 
           {/* Documents being merged */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center pb-4" style={{ borderBottom: '1px solid #e7e5e3' }}>
+            <div className="flex items-center pb-4" style={{ borderBottom: '1px solid #dfdcd9' }}>
               <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
                 Documents fusionnés
               </span>
@@ -105,7 +105,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
                 <li
                   key={s.rowId}
                   className="flex items-center gap-2 px-3 py-2.5"
-                  style={{ borderBottom: i < sources.length - 1 ? '1px solid #e7e5e3' : 'none' }}
+                  style={{ borderBottom: i < sources.length - 1 ? '1px solid #dfdcd9' : 'none' }}
                 >
                   <span className="inline-flex items-center justify-center w-[22px] h-[22px] flex-shrink-0">
                     <Paperclip className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
@@ -136,7 +136,7 @@ export default function FusePiecesModal({ open, onOpenChange, sources = [], defa
             onClick={commit}
             disabled={!clean}
             className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-[8px] text-white transition-colors"
-            style={{ fontFamily: SANS, fontSize: 14, fontWeight: 500, backgroundColor: clean ? '#292524' : '#d6d3d1', cursor: clean ? 'pointer' : 'not-allowed', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}
+            style={{ fontFamily: SANS, fontSize: 14, fontWeight: 500, backgroundColor: clean ? '#292524' : '#cbc7c4', cursor: clean ? 'pointer' : 'not-allowed', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}
           >
             <FoldHorizontal className="w-4 h-4" strokeWidth={1.75} />
             Fusionner ({count} doc{count > 1 ? 's' : ''})

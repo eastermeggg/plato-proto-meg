@@ -74,7 +74,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
               }}
               className="flex items-center justify-center cursor-pointer"
               style={{
-                border: `1px dashed ${dragOver ? '#b9703f' : (pdfFileName ? '#b9703f' : '#d6d3d1')}`,
+                border: `1px dashed ${dragOver ? '#b9703f' : (pdfFileName ? '#b9703f' : '#cbc7c4')}`,
                 borderRadius: 8,
                 padding: 6,
               }}
@@ -128,7 +128,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
             <div
               className="flex items-center gap-1 px-3 py-2 bg-white"
               style={{
-                border: '1px solid #e7e5e3',
+                border: '1px solid #dfdcd9',
                 borderRadius: 8,
                 boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
               }}
@@ -164,7 +164,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 lineHeight: '20px',
-                border: '1px solid #e7e5e3',
+                border: '1px solid #dfdcd9',
                 borderRadius: 8,
                 boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
               }}

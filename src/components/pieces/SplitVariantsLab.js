@@ -234,7 +234,7 @@ function PaperEdgeRow({ count, totalLabel, onExplode }) {
             position: 'absolute',
             inset: 0,
             background: 'white',
-            border: '1px solid #e7e5e3',
+            border: '1px solid #dfdcd9',
             borderRadius: 8,
             transform: `translate(${hover ? o * 3 : o * 2}px, ${hover ? -o * 3 : -o * 2}px)`,
             transition: 'transform 200ms cubic-bezier(0.34, 1.3, 0.5, 1)',
@@ -304,7 +304,7 @@ function VariantALiasse() {
                 onMouseLeave={() => setHoverSide(null)}
                 onClick={() => setPhase('grouped')}
                 className="h-9 px-4 text-[13px] font-medium rounded-md border bg-white transition-all"
-                style={{ borderColor: hoverSide === 'keep' ? ACCENT : '#d6d3d1', color: hoverSide === 'keep' ? ACCENT : '#292524' }}
+                style={{ borderColor: hoverSide === 'keep' ? ACCENT : '#cbc7c4', color: hoverSide === 'keep' ? ACCENT : '#292524' }}
               >
                 Garder en une pièce
               </button>
@@ -313,7 +313,7 @@ function VariantALiasse() {
                 onMouseLeave={() => setHoverSide(null)}
                 onClick={() => setPhase('exploded')}
                 className="h-9 px-4 text-[13px] font-medium rounded-md border bg-white transition-all"
-                style={{ borderColor: hoverSide === 'explode' ? ACCENT : '#d6d3d1', color: hoverSide === 'explode' ? ACCENT : '#292524' }}
+                style={{ borderColor: hoverSide === 'explode' ? ACCENT : '#cbc7c4', color: hoverSide === 'explode' ? ACCENT : '#292524' }}
               >
                 Éclater en {count} pièces
               </button>
@@ -812,7 +812,7 @@ function VariantCCurseur() {
                 key={i}
                 onClick={() => applyFromFrac(i / 2)}
                 className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 bg-white"
-                style={{ left: `${(i / 2) * 100}%`, borderColor: i <= stopIdx ? ACCENT : '#d6d3d1', transition: 'border-color 200ms' }}
+                style={{ left: `${(i / 2) * 100}%`, borderColor: i <= stopIdx ? ACCENT : '#cbc7c4', transition: 'border-color 200ms' }}
               />
             ))}
             {/* thumb */}

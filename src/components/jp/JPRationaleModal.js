@@ -63,7 +63,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
           {/* JP card preview */}
           <div
             style={{
-              border: '1px solid #e7e5e3',
+              border: '1px solid #dfdcd9',
               borderRadius: 8,
               overflow: 'hidden',
             }}
@@ -86,7 +86,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 lineHeight: '24px',
-                border: '1px solid #e7e5e3',
+                border: '1px solid #dfdcd9',
                 borderRadius: 8,
                 boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
                 minHeight: 140,

@@ -21,9 +21,9 @@ module.exports = {
         },
         // Borders / dividers (tokens.semantic.border*)
         border: {
-          DEFAULT: '#e7e5e3',   // stone/200
-          alt: '#e7e5e4',
-          strong: '#d6d3d1',    // stone/300
+          DEFAULT: '#dfdcd9',   // stone/200 assombri d'un demi-cran
+          alt: '#dfdcda',
+          strong: '#cbc7c4',    // stone/300 assombri d'un demi-cran
           hover: '#a8a29e',     // stone/400
           subtle: '#f0efed',
         },

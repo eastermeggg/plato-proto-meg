@@ -233,12 +233,12 @@ export default function AssistantComposer({
     : elevated
       // Standard élevé (rail dossier) : la petite carte FLOTTE au-dessus du fil -
       // bord + ombre portée franche (14px/28px) pour la détacher.
-      ? '0px 0px 0px 1px #d6d3d1, 0px 2px 4px -1px rgba(26,26,26,0.08), 0px 12px 24px -8px rgba(26,26,26,0.16)'
+      ? '0px 0px 0px 1px #cbc7c4, 0px 2px 4px -1px rgba(26,26,26,0.08), 0px 12px 24px -8px rgba(26,26,26,0.16)'
       // Standard : la carte est nettement élevée (bord + ombre douce à deux
       // couches) - elle flotte au-dessus du fil de la conversation centrale.
-      : '0px 0px 0px 1px #d6d3d1, 0px 2px 4px -1px rgba(26,26,26,0.06), 0px 10px 22px -6px rgba(26,26,26,0.13)';
+      : '0px 0px 0px 1px #cbc7c4, 0px 2px 4px -1px rgba(26,26,26,0.06), 0px 10px 22px -6px rgba(26,26,26,0.13)';
   // Sans glow (hero), garder le ring statique 1px ; avec glow, le dégradé fait la bordure.
-  const heroStaticRing = showGlow ? '' : ', 0px 0px 0px 1px #d6d3d1';
+  const heroStaticRing = showGlow ? '' : ', 0px 0px 0px 1px #cbc7c4';
 
   return (
     <div
@@ -251,7 +251,7 @@ export default function AssistantComposer({
           @keyframes plato-glow-spin { to { --plato-glow-angle: 360deg; } }
           /* « Bordure à glow mobile · Vif atténué » (BrandOrangeLab MovingBorderGlow) :
              une COMÈTE orange (arc unique sur transparent) qui tourne sur le bord,
-             sur un anneau de base #d6d3d1, doublée d'un jumeau flou (bloom).
+             sur un anneau de base #cbc7c4, doublée d'un jumeau flou (bloom).
              Jamais un aplat - doctrine « détail ». */
           .plato-glow-ring, .plato-glow-bloom {
             position: absolute;
@@ -268,7 +268,7 @@ export default function AssistantComposer({
             z-index: 1;
             background:
               conic-gradient(from var(--plato-glow-angle), transparent 0deg, #f47a2c 46deg, transparent 92deg),
-              linear-gradient(#d6d3d1, #d6d3d1);
+              linear-gradient(#cbc7c4, #cbc7c4);
             -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             -webkit-mask-composite: xor;
             mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -287,11 +287,11 @@ export default function AssistantComposer({
             mask-composite: exclude;
           }
           @supports not (background: conic-gradient(from 0deg, red, blue)) {
-            .plato-glow-ring { background: #d6d3d1; }
+            .plato-glow-ring { background: #cbc7c4; }
             .plato-glow-bloom { display: none; }
           }
           @media (prefers-reduced-motion: reduce) {
-            .plato-glow-ring { animation: none; background: #d6d3d1; }
+            .plato-glow-ring { animation: none; background: #cbc7c4; }
             .plato-glow-bloom { display: none; }
           }
         `}</style>

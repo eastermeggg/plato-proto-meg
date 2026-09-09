@@ -47,8 +47,8 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
 
   return (
     <div
-      className="flex flex-col -mx-4 -mt-4"
-      style={{ backgroundColor: colors.semantic.backgroundCanvas, flex: 1, minHeight: '100vh', position: 'relative' }}
+      className="flex flex-col -mx-8 -mt-6"
+      style={{ flex: 1, minHeight: '100vh', position: 'relative' }}
       onDragOver={(e) => {
         if (!e.dataTransfer.types.includes('Files')) return;
         e.preventDefault();
@@ -69,15 +69,24 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
         <FullCanvasDropZone />
       ) : (
         <>
-          {/* Compteur + recherche + actions */}
-          <div style={{
-            padding: '16px 20px',
-            borderBottom: `1px solid ${colors.semantic.border}`,
-            backgroundColor: colors.semantic.white,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}>
+          {/* Barre discrète bord à bord : recherche sans cadre + hairline,
+              compteur + actions à droite (même pattern que l'onglet pièces
+              drop-first - jamais de bande blanche sur le canvas). */}
+          <div className="flex items-center gap-2 px-8 py-2.5 border-b border-border">
+            <Search className="w-4 h-4 flex-shrink-0" style={{ color: colors.semantic.foregroundMuted }} strokeWidth={1.5} />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Rechercher une pièce…"
+              className="flex-1 bg-transparent focus:outline-none"
+              style={{
+                border: 'none',
+                fontFamily: typography.fontFamily.sans,
+                fontSize: 14,
+                color: colors.semantic.foreground,
+              }}
+            />
             <span
               className="flex-shrink-0"
               style={{
@@ -92,51 +101,24 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
             >
               {fileCount} fichier{fileCount > 1 ? 's' : ''}
             </span>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 12px',
-              border: `1px solid ${colors.semantic.border}`,
-              borderRadius: 6,
-              backgroundColor: colors.semantic.background,
-              flex: 1,
-            }}>
-              <Search style={{ width: 16, height: 16, color: colors.semantic.foregroundMuted }} strokeWidth={1.75} />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Rechercher une pièce…"
-                style={{
-                  flex: 1,
-                  border: 'none',
-                  outline: 'none',
-                  background: 'transparent',
-                  fontFamily: typography.fontFamily.sans,
-                  fontSize: 14,
-                  color: colors.semantic.foreground,
-                }}
-              />
-            </div>
             <button
               onClick={() => setCreateFolderOpen(true)}
-              className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-foreground-tertiary bg-cream rounded-md hover:bg-border transition-colors flex-shrink-0"
+              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-foreground-secondary bg-white border border-border rounded-md hover:bg-cream transition-colors flex-shrink-0"
             >
               <FolderPlus className="w-4 h-4" strokeWidth={1.5} />
               Nouveau dossier
             </button>
             <button
               onClick={() => onAddFiles?.()}
-              className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
+              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
             >
               <Plus className="w-4 h-4" strokeWidth={1.5} />
               Ajouter des documents
             </button>
           </div>
 
-          {/* Folder tree */}
-          <div style={{ padding: '20px' }}>
+          {/* Folder tree - re-padé sur la gouttière du workspace */}
+          <div className="px-8 py-4">
             {banner}
             <BordereauTable
               pieces={filteredPieces}

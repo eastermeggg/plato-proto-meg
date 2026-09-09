@@ -38,7 +38,7 @@ export default function SuggestionsMenu({
         style={{
           height: 32,
           backgroundColor: '#f8f7f5',
-          borderBottom: '1px solid #e7e5e3',
+          borderBottom: '1px solid #dfdcd9',
         }}
       >
         <span

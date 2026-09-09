@@ -177,7 +177,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
 
       // Horizontal rule
       if (/^[—─\-]{3,}$/.test(trimmed)) {
-        return <hr key={i} style={{ border: 'none', borderTop: '1px solid #e7e5e3', margin: '20px 0' }} />;
+        return <hr key={i} style={{ border: 'none', borderTop: '1px solid #dfdcd9', margin: '20px 0' }} />;
       }
 
       // Regular paragraph
@@ -211,7 +211,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
           style={{
             backgroundColor: 'white',
             borderRadius: 3,
-            border: '1px solid #e7e5e3',
+            border: '1px solid #dfdcd9',
             boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.025)',
             padding: '48px 64px',
             minHeight: 600,

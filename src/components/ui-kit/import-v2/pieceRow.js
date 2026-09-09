@@ -14,7 +14,7 @@ import { FileText, FolderOpen, Mail, Paperclip } from 'lucide-react';
 export const V2 = {
   foreground: '#292524',
   muted: '#78716c',
-  border: '#e7e5e3',
+  border: '#dfdcd9',
   accent: '#f8f7f5',
   secondary: '#eeece6',
   secondaryText: '#44403c',

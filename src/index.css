@@ -213,7 +213,7 @@ body {
 /* Type variants */
 .badge-default { background: #292524; color: white; }
 .badge-secondary { background: #eeece6; color: #44403c; }
-.badge-outline { background: transparent; border: 1px solid #e7e5e3; color: #292524; }
+.badge-outline { background: transparent; border: 1px solid #dfdcd9; color: #292524; }
 .badge-destructive { background: #991b1b; color: white; }
 .badge-destructive-subtle { background: #f2e3e3; color: #7f1d1d; }
 .badge-ai { background: #ebe3f2; color: #581c87; }
@@ -371,5 +371,5 @@ body {
   --banner-accent: #57534e;
   --banner-accent-hover: #44403c;
   background: linear-gradient(135deg, #fafaf9 0%, rgba(250,250,249,0.4) 100%);
-  border-color: #e7e5e4;
+  border-color: #dfdcda;
 }

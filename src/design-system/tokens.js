@@ -51,10 +51,10 @@ export const colors = {
     cardForeground:      '#292524',
     popover:             '#ffffff',
     popoverForeground:   '#292524',
-    border:              '#e7e5e3', // stone/200
-    borderStrong:        '#d6d3d1', // stone/300
+    border:              '#dfdcd9', // stone/200 assombri d'un demi-cran (contraste nav)
+    borderStrong:        '#cbc7c4', // stone/300 assombri d'un demi-cran
     borderHover:         '#a8a29e', // stone/400
-    input:               '#e7e5e3',
+    input:               '#dfdcd9',
     ring:                '#292524',
     primary:             '#292524',
     primaryForeground:   '#ffffff',
@@ -69,7 +69,7 @@ export const colors = {
     foregroundMuted:      '#a8a29e',
     foregroundTertiary:   '#44403c',
     foregroundQuaternary: '#57534e',
-    borderAlt:            '#e7e5e4',
+    borderAlt:            '#dfdcda',
     backgroundCanvas:     '#f8f7f5',
     backgroundHover:      '#f8f7f5',
     backgroundSubtle:     '#f5f5f4',
@@ -123,7 +123,7 @@ export const colors = {
   badge: {
     default:           { bg: '#292524', fg: '#ffffff' },
     secondary:         { bg: '#eeece6', fg: '#44403c' },
-    outline:           { bg: 'transparent', border: '#e7e5e3', fg: '#292524' },
+    outline:           { bg: 'transparent', border: '#dfdcd9', fg: '#292524' },
     destructive:       { bg: '#991b1b', fg: '#ffffff' },
     destructiveSubtle: { bg: '#f2e3e3', fg: '#7f1d1d' },
     ai:                { bg: '#ebe3f2', fg: '#581c87' },
@@ -139,7 +139,7 @@ export const colors = {
     success: { accent: '#059669', accentHover: '#047857', bgFrom: '#ecfdf5', border: '#a7f3d0' },
     warning: { accent: '#d97706', accentHover: '#b45309', bgFrom: '#fffbeb', border: '#fde68a' },
     error:   { accent: '#dc2626', accentHover: '#b91c1c', bgFrom: '#fef2f2', border: '#fecaca' },
-    neutral: { accent: '#57534e', accentHover: '#44403c', bgFrom: '#fafaf9', border: '#e7e5e4' },
+    neutral: { accent: '#57534e', accentHover: '#44403c', bgFrom: '#fafaf9', border: '#dfdcda' },
   },
 
   // Reasoning step colors — sourced from src/components/ReasoningStepper.js

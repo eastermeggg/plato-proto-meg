@@ -376,7 +376,7 @@ export default function MailColumn({
     return (
       <div
         className="group relative mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
-        style={{ borderColor: '#e7e5e3', opacity: inert ? 0.55 : 1 }}
+        style={{ borderColor: '#dfdcd9', opacity: inert ? 0.55 : 1 }}
       >
         <span className="flex-1 min-w-0">
           <span className="text-[13px] font-medium text-foreground truncate block">Ajouter « {f.name} » en entier</span>

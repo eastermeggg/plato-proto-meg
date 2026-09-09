@@ -15,7 +15,7 @@ import { approxPieces, composerRecap, folderById } from './labData';
 
 const MAIL_W = 440;
 
-const inputStyle = { border: '1px solid #e7e5e3', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' };
+const inputStyle = { border: '1px solid #dfdcd9', boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' };
 
 // Pas de « Déjà suivi » ni d'habituels ici : ces états sont relatifs à UN
 // dossier Plato, or on est en train de le créer. Seul « Déjà lié à … »

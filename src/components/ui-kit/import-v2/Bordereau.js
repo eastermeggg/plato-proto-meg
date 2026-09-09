@@ -350,7 +350,7 @@ function DropStrip({ onClick, creating }) {
       type="button"
       onClick={onClick}
       className="w-full h-10 rounded-lg border border-dashed flex items-center justify-center gap-2 text-[12px] transition-colors hover:bg-cream flex-shrink-0"
-      style={{ borderColor: '#d6d3d1', color: V2.muted }}
+      style={{ borderColor: '#cbc7c4', color: V2.muted }}
     >
       <Upload className="w-3.5 h-3.5" strokeWidth={1.75} />
       {creating
@@ -366,9 +366,9 @@ function DropZoneLarge({ onClick, creating }) {
       type="button"
       onClick={onClick}
       className="w-full flex-1 min-h-0 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors hover:bg-cream/40"
-      style={{ borderColor: '#d6d3d1', background: 'linear-gradient(180deg, rgba(238,236,230,0.35) 0%, rgba(238,236,230,0) 30%)' }}
+      style={{ borderColor: '#cbc7c4', background: 'linear-gradient(180deg, rgba(238,236,230,0.35) 0%, rgba(238,236,230,0) 30%)' }}
     >
-      <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border" style={{ borderColor: '#d6d3d1', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
+      <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border" style={{ borderColor: '#cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
         <Upload className="w-5 h-5" strokeWidth={1.75} style={{ color: V2.foreground }} />
       </span>
       <span className="text-[14px] font-medium" style={{ color: V2.foreground }}>

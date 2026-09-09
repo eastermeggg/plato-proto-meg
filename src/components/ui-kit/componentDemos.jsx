@@ -47,9 +47,9 @@ function ScopedDialogFrame({ width = 640, height = 360, children, onReopen, isOp
         height,
         overflow: 'hidden',
         borderRadius: 12,
-        border: '1px dashed #d6d3d1',
+        border: '1px dashed #cbc7c4',
         background: '#ffffff',
-        backgroundImage: 'radial-gradient(#e7e5e3 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(#dfdcd9 1px, transparent 1px)',
         backgroundSize: '12px 12px',
         transform: 'translateZ(0)',
       }}
@@ -794,7 +794,7 @@ export const componentDemos = {
       diff: { type: 'select', default: 'none', options: ['none', 'add', 'edit', 'delete'], description: 'Diff type — colors the 4px left strip.' },
     },
     render: v => (
-      <div style={{ width: 480, border: '1px solid #e7e5e3', borderRadius: 8, overflow: 'hidden', background: '#fff' }}>
+      <div style={{ width: 480, border: '1px solid #dfdcd9', borderRadius: 8, overflow: 'hidden', background: '#fff' }}>
         <P.TableRow
           diff={v.diff === 'none' ? undefined : v.diff}
           cells={['12/03/2024', 'Expertise médicale', 'Expertise', '4 500 €']}

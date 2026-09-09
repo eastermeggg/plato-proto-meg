@@ -56,7 +56,7 @@ export default function SlashCommandPalette({ query, onSelect, onDismiss, scenar
         marginBottom: 4,
         backgroundColor: 'white',
         borderRadius: 8,
-        border: '1px solid #e7e5e3',
+        border: '1px solid #dfdcd9',
         boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
         overflow: 'hidden',
         zIndex: 40,

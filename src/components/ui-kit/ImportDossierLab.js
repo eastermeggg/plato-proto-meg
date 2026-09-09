@@ -739,11 +739,11 @@ function FilmSection() {
                 onClick={() => seek(i)}
                 className="inline-flex items-baseline gap-1.5 h-7 px-2.5 rounded-lg transition-colors"
                 style={{
-                  border: `1px solid ${on ? '#292524' : '#e7e5e3'}`,
+                  border: `1px solid ${on ? '#292524' : '#dfdcd9'}`,
                   backgroundColor: on ? '#292524' : c.act ? '#f5f4f1' : '#ffffff',
                 }}
               >
-                <span className="text-[10px] font-medium uppercase tracking-wide" style={{ fontFamily: "'IBM Plex Mono', monospace", color: on ? '#d6d3d1' : '#a8a29e' }}>{c.step}</span>
+                <span className="text-[10px] font-medium uppercase tracking-wide" style={{ fontFamily: "'IBM Plex Mono', monospace", color: on ? '#cbc7c4' : '#a8a29e' }}>{c.step}</span>
                 <span className="text-[12px] font-medium" style={{ color: on ? '#ffffff' : c.act ? '#292524' : '#57534e' }}>{c.label}</span>
               </button>
             );
@@ -846,7 +846,7 @@ function GestureDetail({ gest, title, when, lead, steps, rule, onOpen }) {
 
 function PhaseCard({ n, title, body, accent }) {
   return (
-    <div className="rounded-xl border p-4" style={accent ? { borderColor: '#dfe8f5', backgroundColor: '#f8fafd' } : { borderColor: '#e7e5e3', backgroundColor: '#ffffff' }}>
+    <div className="rounded-xl border p-4" style={accent ? { borderColor: '#dfe8f5', backgroundColor: '#f8fafd' } : { borderColor: '#dfdcd9', backgroundColor: '#ffffff' }}>
       <div className="text-[11px] font-medium uppercase tracking-wider mb-1" style={{ ...EXPLAIN_MONO, color: accent ? '#1e3a8a' : '#a8a29e' }}>{n}</div>
       <div className="text-[14px] font-semibold text-foreground mb-1">{title}</div>
       <p className="text-[13px] text-foreground-secondary leading-relaxed">{body}</p>

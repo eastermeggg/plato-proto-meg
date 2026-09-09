@@ -25,7 +25,7 @@ export default function EmptyState({ icon: Icon, title, description, primaryActi
               height: 56,
               borderRadius: 9999,
               backgroundColor: '#eeece6',
-              border: '1px solid #d6d3d1',
+              border: '1px solid #cbc7c4',
               boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
             }}
           >
@@ -85,7 +85,7 @@ export default function EmptyState({ icon: Icon, title, description, primaryActi
                   color: '#78716c',
                   fontSize: 14,
                   lineHeight: '20px',
-                  border: '1px solid #e7e5e3',
+                  border: '1px solid #dfdcd9',
                   cursor: 'pointer',
                   boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
                 }}

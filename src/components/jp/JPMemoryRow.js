@@ -49,7 +49,7 @@ function Badge({ children, tone = 'secondary' }) {
     info:        { backgroundColor: '#dfe8f5', color: '#1e3a8a' },
     accent:      { backgroundColor: '#fdf3ec', color: '#b9703f' },
     destructive: { backgroundColor: '#991b1b', color: '#ffffff' },
-    outlined:    { backgroundColor: 'transparent', color: '#44403c', border: '1px solid #e7e5e3' },
+    outlined:    { backgroundColor: 'transparent', color: '#44403c', border: '1px solid #dfdcd9' },
   }[tone] || { backgroundColor: '#eeece6', color: '#44403c' };
   return (
     <span
@@ -95,13 +95,13 @@ export default function JPMemoryRow({
 
   const containerStyle = bordered
     ? {
-        border: '1px solid #e7e5e3',
+        border: '1px solid #dfdcd9',
         borderRadius: 8,
         padding: 13,
         boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.04)',
       }
     : {
-        borderBottom: '1px solid #e7e5e3',
+        borderBottom: '1px solid #dfdcd9',
         padding: '12px 12px 13px 12px',
       };
 
@@ -249,7 +249,7 @@ export default function JPMemoryRow({
         <div
           className="flex items-center justify-between"
           style={{
-            borderTop: '1px solid #e7e5e3',
+            borderTop: '1px solid #dfdcd9',
             marginTop: 14,
             paddingTop: 10,
             paddingLeft: 2,

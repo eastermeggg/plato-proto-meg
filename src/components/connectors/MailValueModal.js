@@ -111,7 +111,7 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
             <div key={title} className="flex items-start" style={{ gap: 12 }}>
               <span
                 className="inline-flex items-center justify-center flex-shrink-0"
-                style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#f1efeb', border: '1px solid #e7e5e3' }}
+                style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#f1efeb', border: '1px solid #dfdcd9' }}
               >
                 <Icon style={{ width: 16, height: 16, color: '#44403c' }} strokeWidth={1.75} />
               </span>

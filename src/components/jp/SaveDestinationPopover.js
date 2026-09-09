@@ -11,7 +11,7 @@ function Checkbox({ checked }) {
   return (
     <div
       className="w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0"
-      style={{ borderColor: checked ? '#b9703f' : '#d6d3d1', backgroundColor: checked ? '#b9703f' : 'white' }}
+      style={{ borderColor: checked ? '#b9703f' : '#cbc7c4', backgroundColor: checked ? '#b9703f' : 'white' }}
     >
       {checked && <Checkmark />}
     </div>

@@ -32,7 +32,7 @@ export default function RedactionStepper({ onClose, onSelectType }) {
                   key={t.id}
                   onClick={() => onSelectType?.(t.id)}
                   className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all hover:bg-background"
-                  style={{ border: '1px solid #e7e5e3' }}
+                  style={{ border: '1px solid #dfdcd9' }}
                 >
                   <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#78716c' }} />
                   <div>

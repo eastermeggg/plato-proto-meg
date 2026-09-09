@@ -206,7 +206,7 @@ export default function PiecesPage({ onClose, onToast, onOpenGesteC, pieces, sou
             {/* Corps */}
             {shownPieces.length === 0 ? (
               <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-4 text-center px-8">
-                <span className="inline-flex items-center justify-center rounded-full p-4" style={{ backgroundColor: '#eeece6', border: '1px solid #d6d3d1' }}>
+                <span className="inline-flex items-center justify-center rounded-full p-4" style={{ backgroundColor: '#eeece6', border: '1px solid #cbc7c4' }}>
                   <FileText className="w-6 h-6 text-foreground" strokeWidth={1.75} />
                 </span>
                 <div className="flex flex-col gap-1">
