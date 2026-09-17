@@ -17,6 +17,7 @@ import Niveau3Lab from './components/ui-kit/Niveau3Lab';
 import BrandOrangeLab from './components/ui-kit/BrandOrangeLab';
 import BreadcrumbBarLab from './components/ui-kit/BreadcrumbBarLab';
 import DossierFlagLab from './components/ui-kit/DossierFlagLab';
+import HeroMotionLab from './components/ui-kit/HeroMotionLab';
 import ConversationSwitcher from './components/shell/ConversationSwitcher';
 import DossierSwitcher from './components/shell/DossierSwitcher';
 import PanelToggleIcon from './components/shell/PanelToggleIcon';
@@ -1434,7 +1435,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'hero-motion'];
 const UI_KIT_SUBSECTION_SLUGS = [
   'tokens',
   'inventory',
@@ -18447,6 +18448,9 @@ export default function App() {
             <button onClick={() => navigate('/ui-kit/dossier-flag')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Folder className="w-3.5 h-3.5" /> Flag dossier - variantes
             </button>
+            <button onClick={() => navigate('/ui-kit/hero-motion')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5" /> Hero motion - 3 key screens
+            </button>
             <button onClick={() => navigate('/welcome')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <UserRound className="w-3.5 h-3.5" /> Première connexion - onboarding
             </button>
@@ -25627,6 +25631,9 @@ export default function App() {
   }
   if (currentPage === 'dossier-flag') {
     return (<><DossierFlagLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'hero-motion') {
+    return (<><HeroMotionLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'cotisations') {
     return (<><CotisationsLab />{renderGlobalOverlays()}</>);
