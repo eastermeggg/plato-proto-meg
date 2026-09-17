@@ -17,6 +17,8 @@ import React, { useEffect, useState } from 'react';
 import { Loader2, Lock, ShieldCheck, X } from 'lucide-react';
 import { CONNECTOR_PROVIDERS, SCOPE_READS } from './connectorData';
 import { ConnectorHero, ProviderMark, OAuthWindow } from './ConnectorArt';
+import { BENEFITS } from './MailValueModal';
+import { SyncSoonTeaser } from './ConnectorPromo';
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
 const serifTitle = { fontFamily: SERIF, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', lineHeight: 1.25 };
@@ -46,39 +48,97 @@ function ConsentBlock({ scope, label = 'Accès demandé : lecture seule' }) {
   );
 }
 
-// ── Accueil (état vide) : héros + promesse + réassurance + chips + le choix du
-//    fournisseur + ligne de sortie. INLINE dans la carte de la page. ──────────
-export function MailConnectIntro({ onPick }) {
-  const providers = Object.values(CONNECTOR_PROVIDERS);
+// ── Le choix du fournisseur, partagé (Réglages + onboarding). ────────────────
+// Le problème résolu ici : des avocats sur messagerie de cabinet cliquent
+// « Outlook » parce qu'ils LISENT leurs mails dans Outlook - alors qu'il leur
+// faut la 3e voie. La correction n'est pas d'auto-router (l'avocat perd la
+// main) mais de rendre le bon bouton ÉVIDENT : une phrase de cadrage qui dit de
+// choisir d'après son ADRESSE, puis un repère concret sous chaque option. Les
+// trois options restent des vrais choix ; « Mon adresse de cabinet » nomme ce
+// que l'avocat reconnaît (pas « IMAP »), la détection tranche le protocole.
+export function ProviderChoice({ onPick, compact = false }) {
+  // Cabinet EN PREMIER : c'est le cas majoritaire (la plupart des avocats sont
+  // sur messagerie de cabinet), donc la prominence nudge vers le bon bouton et
+  // réduit les clics « Outlook » à tort.
+  const providers = ['imap', 'outlook', 'gmail'].map(k => CONNECTOR_PROVIDERS[k]);
   return (
-    <div className="border-t border-border px-6 py-6 flex flex-col gap-5">
-      <ConnectorHero provider="outlook" kind="import" height={210} />
-
-      <div className="flex flex-col gap-1">
-        <h3 style={{ ...serifTitle, fontSize: 20 }}>Fini l'ajout manuel des pièces</h3>
-        <p className="text-[13px] text-foreground-secondary leading-5" style={{ maxWidth: 520 }}>
-          Choisissez les échanges d'un dossier : Plato en extrait les pièces jointes, prêtes à verser.
-          Vous validez, Plato classe.
-        </p>
-      </div>
-
-      {/* Le geste : un bouton par fournisseur. Toute la réassurance (lecture
-          seule, UE, réversible, ce que Plato peut / ne peut) est RÉUNIE dans le
-          tableau de confiance en bas de page - aucun micro-élément ici. */}
-      <div className="flex flex-wrap gap-2">
+    <div className="flex flex-col" style={{ gap: 10 }}>
+      {/* La phrase de cadrage - règle la confusion d'un coup. */}
+      <p className="text-[12.5px] leading-[17px]" style={{ color: '#78716c' }}>
+        Choisissez d'après votre <span className="font-medium" style={{ color: '#44403c' }}>adresse email</span>, pas d'après l'application que vous ouvrez.
+      </p>
+      <div className="flex flex-col" style={{ gap: 8 }}>
         {providers.map(p => (
           <button
             key={p.id}
             type="button"
             onClick={() => onPick?.(p.id)}
-            className="inline-flex items-center gap-2 h-10 px-4 text-[14px] font-medium text-foreground bg-white border border-border rounded-lg hover:bg-background transition-colors"
-            style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+            className="group flex items-center text-left bg-white border border-border rounded-xl hover:border-border-strong transition-colors"
+            style={{ gap: 12, padding: compact ? '11px 13px' : '13px 15px', boxShadow: '0 1px 2px rgba(26,26,26,0.04)' }}
           >
-            <ProviderMark provider={p.id} size={18} />
-            {p.id === 'imap' ? 'Autre boîte (IMAP)' : `Se connecter avec ${p.short}`}
+            <ProviderMark provider={p.id} size={26} />
+            <span className="flex flex-col flex-1 min-w-0" style={{ gap: 1 }}>
+              <span className="text-[13.5px] font-medium text-foreground leading-[18px]">{p.pick}</span>
+              <span className="text-[12px] leading-[16px]" style={{ color: '#78716c' }}>{p.hint}</span>
+            </span>
+            <span
+              className="flex-shrink-0 inline-flex items-center justify-center rounded-lg text-[12.5px] font-medium text-foreground-secondary group-hover:text-foreground transition-colors"
+              style={{ height: 30, padding: '0 12px', border: '1px solid #e0ddd6' }}
+            >
+              Connecter
+            </span>
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── Accueil (état vide) : héros + promesse + réassurance + chips + le choix du
+//    fournisseur + ligne de sortie. INLINE dans la carte de la page. ──────────
+export function MailConnectIntro({ onPick }) {
+  return (
+    <div className="px-6 py-6 flex flex-col gap-5">
+      <ConnectorHero provider="outlook" kind="import" height={210} />
+
+      <div className="flex flex-col gap-1">
+        <h3 style={{ ...serifTitle, fontSize: 20 }}>Ne cherchez plus vos pièces : connectez votre boîte mail.</h3>
+        <p className="text-[13px] text-foreground-secondary leading-5" style={{ maxWidth: 520 }}>
+          Choisissez les échanges d'une affaire : Plato en extrait les pièces, prêtes à verser. Vous validez.
+        </p>
+      </div>
+
+      {/* Le PUSH product-marketing sur l'empty state : les bénéfices (dont le
+          découpage, l'argument qu'un dossier Outlook ne sait pas tenir) AVANT le
+          geste. La réassurance défensive, elle, vit dans le tableau de confiance
+          plus bas - deux registres distincts : ici on VEND, là on rassure. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-7 gap-y-3.5" style={{ maxWidth: 640 }}>
+        {BENEFITS.map(({ Icon, title, sub }) => (
+          <div key={title} className="flex items-start" style={{ gap: 11 }}>
+            <span
+              className="inline-flex items-center justify-center flex-shrink-0"
+              style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#f1efeb', border: '1px solid #dfdcd9' }}
+            >
+              <Icon style={{ width: 15, height: 15, color: '#44403c' }} strokeWidth={1.75} />
+            </span>
+            <div className="flex flex-col" style={{ gap: 1, paddingTop: 1 }}>
+              <p className="text-[13px] font-medium text-foreground leading-[18px]">{title}</p>
+              <p className="text-[12px] leading-[16px]" style={{ color: '#78716c' }}>{sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Le geste : le choix du fournisseur, cadré par l'adresse (règle la
+          confusion Outlook-vs-cabinet). Toute la réassurance (lecture seule, UE,
+          réversible, peut / ne peut) est RÉUNIE dans le tableau de confiance en
+          bas de page - aucun micro-élément ici. */}
+      <div style={{ maxWidth: 520 }}>
+        <ProviderChoice onPick={onPick} />
+      </div>
+
+      {/* La suite annoncée - synchronisation automatique « à venir ». */}
+      <SyncSoonTeaser />
     </div>
   );
 }
@@ -137,7 +197,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
               <Loader2 className="w-5 h-5 animate-spin" style={{ color: p.fg }} strokeWidth={1.75} />
               <p className="text-[13px] font-medium text-foreground">Autorisation chez {p.vendor}…</p>
               <p className="text-[12px] text-foreground-secondary leading-[18px]" style={{ maxWidth: 260 }}>
-                Validez la lecture seule dans cette fenêtre. Norma ne voit ni votre mot de passe,
+                Validez la lecture seule dans cette fenêtre. Plato ne voit ni votre mot de passe,
                 ni rien d'autre que ce que vous acceptez.
               </p>
             </div>
@@ -178,7 +238,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
                 </div>
                 <p className="text-[13px] text-foreground-secondary leading-[20px] mt-2">
                   Pour une adresse @avocats.fr ou une messagerie d'hébergeur (OVH, Infomaniak…).
-                  Norma s'y connecte en lecture seule, avec un mot de passe d'application.
+                  Plato s'y connecte en lecture seule, avec un mot de passe d'application.
                 </p>
 
                 <div className="flex flex-col gap-3.5 mt-5">
@@ -251,7 +311,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
               </>
             )}
 
-            {/* ── IMAP : vérification serveur (travail in-app de Norma) ── */}
+            {/* ── IMAP : vérification serveur (travail in-app de Plato) ── */}
             {step === 'connecting' && isImap && (
               <div className="flex flex-col items-center justify-center gap-3.5 text-center" style={{ padding: '28px 0' }}>
                 <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#57534e' }} strokeWidth={1.75} />

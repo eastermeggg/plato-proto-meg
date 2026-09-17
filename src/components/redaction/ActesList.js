@@ -43,9 +43,11 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
 
   return (
     <div className="flex flex-col -mx-4 -mt-4">
-      {/* Sub-header bar */}
+      {/* Sub-header bar - titre serif « N actes » + actions (maquette 37604:16398) */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-        <div />
+        <span className="text-foreground" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>
+          {rows.length} acte{rows.length > 1 ? 's' : ''}
+        </span>
         <div className="flex items-center gap-2">
           {onNewBordereau && (
             <button

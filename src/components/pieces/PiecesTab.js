@@ -43,8 +43,6 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
     });
   };
 
-  const fileCount = pieces.length;
-
   return (
     <div
       className="flex flex-col -mx-8 -mt-6"
@@ -87,20 +85,6 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
                 color: colors.semantic.foreground,
               }}
             />
-            <span
-              className="flex-shrink-0"
-              style={{
-                fontFamily: typography.fontFamily.mono,
-                fontSize: 11,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                color: colors.semantic.foregroundTertiary,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {fileCount} fichier{fileCount > 1 ? 's' : ''}
-            </span>
             <button
               onClick={() => setCreateFolderOpen(true)}
               className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-foreground-secondary bg-white border border-border rounded-md hover:bg-cream transition-colors flex-shrink-0"

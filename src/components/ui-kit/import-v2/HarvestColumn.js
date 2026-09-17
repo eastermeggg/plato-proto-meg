@@ -211,6 +211,18 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
           {excerpt && (
             <p className="text-[12px] leading-4 line-clamp-2 pl-2 border-l-2" style={{ color: V2.muted, letterSpacing: 0.12, borderColor: V2.ai }}>{excerpt}</p>
           )}
+          {/* Titres des pièces jointes - visibles sans déplier, pour repérer et
+              importer la bonne pièce. Le détail (case à cocher) reste au déplié. */}
+          {!open && tv.pj > 0 && (
+            <div className="flex flex-col gap-1">
+              {tv.attachments.map(a => (
+                <span key={a.name} className="inline-flex items-center gap-1.5 min-w-0 text-[12px] leading-4" style={{ color: V2.foreground }}>
+                  <Paperclip className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} style={{ color: V2.pj }} />
+                  <span className="truncate">{a.name}</span>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         {badge}
         {hoverBtn && (
@@ -300,7 +312,10 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
     if (!q) return null;
     const match = (t) => {
       const tv = threadView(t);
-      return normalize(`${t.subject} ${tv.sender} ${tv.summary || ''}`).includes(q);
+      // On cherche aussi dans les NOMS DE PIÈCES JOINTES : taper un nom de
+      // document fait remonter l'échange qui le porte.
+      const pj = tv.attachments.map(a => a.name).join(' ');
+      return normalize(`${t.subject} ${tv.sender} ${tv.summary || ''} ${pj}`).includes(q);
     };
     const hits = LAB_THREADS.filter(match).map(t => t.id);
     const others = hits.filter(id => !PROPOSED_TIDS.has(id));
@@ -511,7 +526,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher un dossier ou un échange…"
+            placeholder="Rechercher un échange ou une pièce jointe…"
             className="w-full h-9 pl-9 pr-8 rounded-lg border border-border bg-white text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
           />
           {query !== '' && (

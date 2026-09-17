@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Globe, ExternalLink, Check, Minus, Calendar, Hash, Scissors, Mail, Paperclip, FileText, FileType2, Image as ImageIcon, Search as SearchIcon } from 'lucide-react';
-import PreviewPanel, { PREVIEW_KINDS, MetaChip, META_CHIP_TYPES } from '../preview/PreviewPanel';
+import { ArrowLeft, Globe, ExternalLink, Check, Minus, FileText, Pencil, Plus, ArrowLeftRight } from 'lucide-react';
+import PreviewPanel, { PREVIEW_KINDS } from '../preview/PreviewPanel';
 import { colors } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Preview panel systématisé - lab
+// Preview panel - lab
 //
-// Un seul shell (barre de titre · header méta · corps · pied), dérivé du lab
-// preview-doc, décliné pour TOUS les types de source citables. Le sélecteur de
-// gauche change le `kind` ; le panneau se reconfigure (méta, corps, pied) tout
-// en gardant le même châssis et le même contrat « aller à la citation ».
+// Un seul châssis décliné par type de source (kind) et par sujet (pièce / ligne).
+// Les variants (kind + sujet) sont au-dessus ; la sandbox prend toute la largeur.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SAMPLES = {
@@ -137,12 +135,230 @@ const SAMPLES = {
 
 const ORDER = ['piece', 'modele', 'jp', 'email', 'loi', 'ligne', 'web'];
 
+// Sujet = LIGNE de poste : le doc devient la pièce attachée, un rail édite les
+// valeurs de la ligne (schéma générique, marche pour tout poste). La pièce garde
+// son édition de métadonnées (bouton « Modifier la pièce » dans la barre méta).
+// Ici : de vraies lignes de postes cliquables → le panneau s'ouvre en drawer
+// aux vraies proportions (PreviewPanel non-embedded).
+const POSTE_TINT = {
+  PGPA:   { bg: '#eef2ff', fg: '#4f46e5' },
+  DFT:    { bg: '#fef2f2', fg: '#c2410c' },
+  DSA:    { bg: '#ecfdf5', fg: '#047857' },
+  SOCIAL: { bg: '#fffbeb', fg: '#b45309' },
+};
+const POSTE_LIGNES = [
+  {
+    ligne: {
+      poste: 'PGPA', titre: 'Technimat Ouest - Juin 2022',
+      fields: [
+        { label: 'Libellé', type: 'text', value: 'Technimat Ouest - Juin 2022', full: true },
+        { label: 'Début', type: 'date', value: '01/06/2022', sourced: true, docHint: { page: 1, rect: { x: 49, y: 10.5, w: 47, h: 4 } } },
+        { label: 'Fin', type: 'date', value: '30/06/2022', sourced: true, docHint: { page: 1, rect: { x: 49, y: 14, w: 47, h: 4 } } },
+        { label: 'Revenu net', type: 'money', value: '2 874,88', full: true, sourced: true, docHint: { page: 1, rect: { x: 57, y: 29, w: 39, h: 4 } } },
+      ],
+      summary: [
+        { label: 'Coefficient', value: '1,097096' },
+        { label: 'Revenu net revalorisé', value: '3 154,02 €', strong: true },
+      ],
+      pieces: ['Bulletin de paie - juin 2022', 'Bulletin de paie - juillet 2022'],
+      pieceSources: [
+        { name: 'Bulletin de paie - juin 2022', docType: 'pdf', type: 'Bulletin', date: '30/06/2022', section: 'III - REVENUS', numero: '12', pages: 4, split: { source: 'bulletins_technimat_2022.pdf' }, summary: 'Bulletin de paie de juin 2022 - Technimat Ouest, net 2 874,88 €.' },
+        { name: 'Bulletin de paie - juillet 2022', docType: 'pdf', type: 'Bulletin', date: '31/07/2022', section: 'III - REVENUS', numero: '13', pages: 4, summary: 'Bulletin de paie de juillet 2022 - Technimat Ouest.' },
+      ],
+    },
+    piece: { name: 'Bulletin de paie - juin 2022', docType: 'pdf', type: 'Bulletin', date: '30/06/2022', section: 'III - REVENUS', numero: '12', pages: 4, split: { source: 'bulletins_technimat_2022.pdf' }, summary: 'Bulletin de paie de juin 2022 - Technimat Ouest, salaire net 2 874,88 €.' },
+  },
+  {
+    ligne: {
+      poste: 'SOCIAL', titre: 'Heures supplémentaires majorées 2023',
+      fields: [
+        { label: 'Libellé', type: 'text', value: 'Heures supplémentaires majorées', full: true },
+        { label: 'Période', type: 'text', value: 'Janv. → Déc. 2023', sourced: true },
+        { label: "Nombre d'heures", type: 'number', value: '156', suffix: 'h', sourced: true },
+        { label: 'Taux horaire', type: 'money', value: '18,95', sourced: true },
+        { label: 'Majoration', type: 'percent', value: '25' },
+      ],
+      summary: [
+        { label: 'Montant brut', value: '3 695,25 €' },
+        { label: 'Rappel de salaire dû', value: '4 619,06 €', strong: true },
+      ],
+      pieces: ['Contrat de travail', 'Relevé des heures 2023'],
+      pieceSources: [
+        { name: 'Contrat de travail', docType: 'word', type: 'Contrat', date: '02/01/2020', section: 'I - SOCIAL', numero: '3', pages: 3, summary: 'Contrat de travail Technimat - durée du travail et rémunération.' },
+        { name: 'Relevé des heures 2023', docType: 'pdf', type: 'Relevé', date: '31/12/2023', section: 'I - SOCIAL', numero: '4', pages: 2, summary: 'Relevé des heures supplémentaires 2023.' },
+      ],
+    },
+    piece: { name: 'Contrat de travail', docType: 'word', type: 'Contrat', date: '02/01/2020', section: 'I - SOCIAL', numero: '3', pages: 3, summary: 'Contrat de travail Technimat - clause de durée du travail et rémunération.' },
+  },
+  {
+    ligne: {
+      poste: 'DFT', titre: 'DFT partiel classe II',
+      fields: [
+        { label: 'Libellé', type: 'text', value: 'DFT partiel - classe II', full: true },
+        { label: 'Début', type: 'date', value: '15/03/2023', sourced: true },
+        { label: 'Fin', type: 'date', value: '12/07/2023', sourced: true },
+        { label: 'Classe', type: 'select', value: 'Classe II (25 %)', options: ['Classe I (10 %)', 'Classe II (25 %)', 'Classe III (50 %)', 'Classe IV (75 %)'], sourced: true },
+        { label: 'Indemnité / jour', type: 'money', value: '23,00' },
+      ],
+      summary: [
+        { label: 'Durée', value: '120 jours' },
+        { label: 'Indemnisation DFT', value: '690,00 €', strong: true },
+      ],
+      pieces: ["Rapport d'expertise médicale"],
+    },
+    piece: { name: "Rapport d'expertise médicale Dr. Dubois", docType: 'pdf', type: 'Expertise', date: '15/01/2024', section: 'I - MEDICAL', numero: '2', pages: 6, split: { source: 'rapport_expertise.pdf' }, summary: 'Rapport définitif Dr. Dubois - consolidation 15/01/2024, AIPP 8 %, DFT 120 jours.' },
+  },
+  {
+    ligne: {
+      poste: 'DSA', titre: 'Hospitalisation CHU Bordeaux',
+      fields: [
+        { label: 'Libellé', type: 'text', value: 'Hospitalisation CHU Bordeaux', full: true },
+        { label: 'Date des soins', type: 'date', value: '18/03/2023', sourced: true },
+        { label: 'Montant facturé', type: 'money', value: '4 250,00', sourced: true },
+        { label: 'Pris en charge (CPAM)', type: 'money', value: '3 900,00', sourced: true },
+        { label: 'Organisme', type: 'select', value: 'CPAM Gironde', options: ['CPAM Gironde', 'Mutuelle', 'Aucun'] },
+      ],
+      summary: [
+        { label: 'Reste à charge', value: '350,00 €', strong: true },
+      ],
+      pieces: ['Facture CHU Bordeaux', 'Décompte CPAM'],
+      pieceSources: [
+        { name: 'Facture CHU Bordeaux', docType: 'pdf', type: 'Facture', date: '18/03/2023', section: 'II - FRAIS', numero: '9', pages: 2, summary: 'Facture hospitalière CHU Bordeaux - total 4 250,00 € TTC.' },
+        { name: 'Décompte CPAM', docType: 'pdf', type: 'Décompte', date: '02/04/2023', section: 'II - FRAIS', numero: '10', pages: 1, summary: 'Décompte CPAM - prise en charge des frais.' },
+      ],
+    },
+    piece: { name: 'Facture CHU Bordeaux', docType: 'pdf', type: 'Facture', date: '18/03/2023', section: 'II - FRAIS', numero: '9', pages: 2, summary: 'Facture hospitalière CHU Bordeaux - total 4 250,00 € TTC.' },
+  },
+];
+const strongOf = (l) => (l.summary.find((s) => s.strong) || l.summary[l.summary.length - 1] || {}).value || '—';
+
+// Table des vraies lignes de postes - chaque row ouvre le panneau en drawer.
+function PosteLignesTable({ onOpen }) {
+  return (
+    <div className="rounded-xl border border-border bg-white overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-cream/50">
+        <div>
+          <h3 className="text-[14px] font-semibold text-foreground">Postes du dossier</h3>
+          <p className="text-[12px] text-foreground-muted mt-0.5">Clique une ligne - le panneau s'ouvre en drawer, aux vraies proportions</p>
+        </div>
+        <button className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border text-[13px] font-medium text-foreground-secondary hover:bg-cream transition-colors"><Plus className="w-4 h-4" strokeWidth={1.75} /> Ajouter</button>
+      </div>
+      <div className="grid grid-cols-[88px_1fr_130px_44px] px-4 py-2 text-[11px] font-medium uppercase tracking-wide text-foreground-muted border-b border-border" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+        <div>Poste</div><div>Ligne</div><div className="text-right">Montant</div><div />
+      </div>
+      {POSTE_LIGNES.map((e, i) => {
+        const tint = POSTE_TINT[e.ligne.poste] || POSTE_TINT.PGPA;
+        return (
+          <button key={i} onClick={() => onOpen(i)} className="w-full grid grid-cols-[88px_1fr_130px_44px] items-center px-4 py-3 text-left border-b border-border last:border-0 hover:bg-cream/60 transition-colors group">
+            <div><span className="inline-flex items-center h-6 px-2 rounded-md text-[11px] font-semibold" style={{ background: tint.bg, color: tint.fg }}>{e.ligne.poste}</span></div>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-info-bg text-link flex-shrink-0"><FileText className="w-3.5 h-3.5" strokeWidth={1.75} /></span>
+              <div className="min-w-0"><div className="text-[13.5px] text-foreground truncate">{e.ligne.titre}</div><div className="text-[11.5px] text-foreground-muted truncate">{e.piece.name}</div></div>
+            </div>
+            <div className="text-[13px] font-medium text-foreground tabular-nums text-right">{strongOf(e.ligne)}</div>
+            <div className="flex justify-end"><span className="inline-flex items-center justify-center w-8 h-8 rounded-md text-foreground-muted group-hover:text-foreground group-hover:bg-white transition-colors" title="Modifier"><Pencil className="w-4 h-4" strokeWidth={1.75} /></span></div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// Dans l'app, le chat vit à droite en permanence et il est REDIMENSIONNABLE
+// (grip sur son bord gauche). Les drawers de contenu s'ouvrent FLUSH À GAUCHE
+// du chat via --chat-offset, qui suit sa largeur variable. Le lab reproduit ça :
+// chat mock resizable + panneau borné par `right: chatWidth` en live.
+const CHAT_W_DEFAULT = 384;
+const CHAT_W_MIN = 320;
+const CHAT_W_MAX = 640;
+
+function MockChat({ width, onGripDown }) {
+  return (
+    <div className="fixed top-0 right-0 bottom-0 z-[55] bg-white border-l border-border flex flex-col" style={{ width }}>
+      {/* Grip de redimensionnement (bord gauche du chat) */}
+      <div onMouseDown={onGripDown} className="absolute top-0 left-0 bottom-0 w-2 -translate-x-1/2 cursor-col-resize group z-10" aria-hidden>
+        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-border group-hover:bg-foreground-muted transition-colors" />
+      </div>
+      <div className="h-12 px-4 border-b border-border flex items-center gap-2 flex-shrink-0">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-foreground text-white text-[11px] font-semibold">N</span>
+        <span className="text-[13px] font-medium text-foreground">Assistant</span>
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        <div className="max-w-[85%] ml-auto rounded-2xl rounded-br-md bg-cream px-3 py-2 text-[13px] text-foreground">Vérifie le revenu net de juin sur le bulletin.</div>
+        <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-background-canvas border border-border px-3 py-2 text-[13px] text-foreground-secondary leading-relaxed">
+          Le net de juin 2022 est <span className="font-medium text-foreground">2 874,88 €</span>, cohérent avec la ligne PGPA. J'ai ouvert le bulletin à gauche.
+        </div>
+      </div>
+      <div className="p-3 border-t border-border flex-shrink-0">
+        <div className="h-10 rounded-xl border border-border bg-background-canvas flex items-center px-3 text-[13px] text-foreground-muted">Message à l'assistant…</div>
+      </div>
+    </div>
+  );
+}
+
+// Plein écran (pas d'overlay) : le panneau occupe tout le canvas à gauche du
+// chat, edge-to-edge, sans backdrop assombri. Fermeture par ✕ ou Esc. La largeur
+// du panneau suit en live celle du chat (grip redimensionnable).
+function LigneDrawer({ entry, idx, total, onClose, onPrev, onNext }) {
+  const [chatWidth, setChatWidth] = useState(CHAT_W_DEFAULT);
+  const [railLeft, setRailLeft] = useState(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('invert') === '1'); // rail d'édition à gauche ?
+  useEffect(() => {
+    const onKey = (ev) => { if (ev.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  const onGripDown = useCallback((e) => {
+    e.preventDefault();
+    const onMove = (ev) => setChatWidth(Math.min(CHAT_W_MAX, Math.max(CHAT_W_MIN, window.innerWidth - ev.clientX)));
+    const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); document.body.style.userSelect = ''; };
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, []);
+  return (
+    <>
+      {/* Conteneur unique (chat + panneau) - cible propre pour la capture Figma. */}
+      <div id="ligne-capture" className="fixed inset-0 z-50">
+        <MockChat width={chatWidth} onGripDown={onGripDown} />
+        <div className="fixed top-0 left-0 bottom-0 z-50" style={{ right: chatWidth, animation: 'fadeIn 0.15s ease-out' }}>
+          <PreviewPanel
+            kind="piece"
+            source={entry.piece}
+            ligne={entry.ligne}
+            railLeft={railLeft}
+            onClose={onClose}
+            onPrev={onPrev}
+            onNext={onNext}
+            navIndex={idx + 1}
+            navTotal={total}
+            onOpenSource={() => {}}
+          />
+        </div>
+      </div>
+      {/* Contrôle de lab : comparer doc/édition à gauche ou à droite */}
+      <button
+        type="button"
+        onClick={() => setRailLeft((v) => !v)}
+        className="fixed bottom-4 left-4 z-[60] inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-foreground text-white text-[12px] font-medium shadow-lg hover:bg-foreground-tertiary transition-colors"
+      >
+        <ArrowLeftRight className="w-3.5 h-3.5" strokeWidth={1.75} /> {railLeft ? 'Édition à gauche' : 'Édition à droite'}
+      </button>
+    </>
+  );
+}
+
 export default function PreviewPanelLab() {
   const navigate = useNavigate();
   const [kind, setKind] = useState('piece');
   // Navigation croisée : une PJ d'email, ou « voir l'email » depuis une pièce,
   // ouvre une source dans le même panneau. `preview` surcharge le type sélectionné.
   const [preview, setPreview] = useState(null); // { kind, source } | null
+  const _params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const [subject, setSubject] = useState(_params.get('subject') === 'ligne' ? 'ligne' : 'piece'); // 'piece' | 'ligne'
+  const [openLigne, setOpenLigne] = useState(_params.get('open') != null ? Number(_params.get('open')) : null);
+  const closeLigne = useCallback(() => setOpenLigne(null), []);
+  const prevLigne = useCallback(() => setOpenLigne((i) => (i == null ? i : (i - 1 + POSTE_LIGNES.length) % POSTE_LIGNES.length)), []);
+  const nextLigne = useCallback(() => setOpenLigne((i) => (i == null ? i : (i + 1) % POSTE_LIGNES.length)), []);
   const openSource = (t) => { if (t) setPreview({ kind: t.kind, source: t.source || SAMPLES[t.kind] }); };
   const selectKind = (k) => { setPreview(null); setKind(k); };
 
@@ -161,60 +377,65 @@ export default function PreviewPanelLab() {
         </button>
 
         <div className="mb-6">
-          <h1 className="text-[19px] sm:text-[22px] font-semibold text-foreground mb-1.5 leading-tight">Preview panel - un seul panneau, tous les types</h1>
-          <p className="text-body text-foreground-secondary max-w-[840px] leading-relaxed">
-            Un seul châssis (barre de titre · métadonnées · corps · pied) qui se
-            reconfigure par type de source. Viewer confortable pour les documents (zoom, plein écran,
-            nav fluide), <span className="font-medium text-foreground">lecture / édition</span> des métadonnées
-            avec résumé IA, et contrat commun <span className="font-medium text-foreground">« aller à la citation »</span> :
-            un même document peut porter <span className="font-medium text-foreground">plusieurs passages</span>,
-            tous surlignés, listés dans le rail droit et enchaînables via le stepper du pied.
+          <h1 className="text-[19px] sm:text-[22px] font-semibold text-foreground mb-1.5 leading-tight">Preview panel</h1>
+          <p className="text-body text-foreground-secondary max-w-[720px] leading-relaxed">
+            Un seul châssis qui se reconfigure selon la source. Deux sujets :
+            une <span className="font-medium text-foreground">pièce</span> (métadonnées éditables) ou une{' '}
+            <span className="font-medium text-foreground">ligne de poste</span> (valeurs éditables, sa pièce en lecture).
+            Contrat commun : ouvrir sur le passage cité.
           </p>
         </div>
 
-        {/* Layout : selecteur au-dessus (mobile & tablette), à gauche à partir de lg.
-             Sur mobile le sélecteur devient une barre horizontale scrollable pour
-             que les 7 types tiennent sans dérouler la page. */}
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 lg:gap-6 items-start">
-          {/* Sélecteur de type */}
-          <div className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 lg:pb-0">
-            {ORDER.map((k) => {
-              const c = PREVIEW_KINDS[k];
-              const Icon = c.icon;
-              const active = k === kind;
-              return (
-                <button
-                  key={k}
-                  onClick={() => selectKind(k)}
-                  className={`flex-shrink-0 lg:flex-shrink text-left rounded-lg border px-3 py-2.5 transition-colors ${active ? 'bg-white border-border-strong shadow-sm' : 'bg-transparent border-border hover:bg-white/60'}`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0" style={{ background: c.accent.bg, color: c.accent.fg }}>
-                      <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
-                    </span>
-                    <span className="text-[13.5px] font-medium text-foreground whitespace-nowrap">{c.label}</span>
-                  </div>
-                  {/* La description sous chaque type n'est utile que dans la colonne verticale */}
-                  <p className="hidden lg:block text-[11.5px] text-foreground-muted mt-1.5 leading-snug pl-[38px]">{c.opens}</p>
-                </button>
-              );
-            })}
+        {/* Barre de contrôles labellisée au-dessus, sandbox pleine largeur en dessous. */}
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-4 rounded-xl border border-border bg-background-canvas px-4 py-3.5">
+            {/* Type de source */}
+            <div className="min-w-0">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-foreground-muted mb-2" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Type de source</div>
+              <div className="flex flex-wrap gap-1.5">
+                {ORDER.map((k) => {
+                  const c = PREVIEW_KINDS[k];
+                  const Icon = c.icon;
+                  const active = k === kind;
+                  return (
+                    <button
+                      key={k}
+                      onClick={() => selectKind(k)}
+                      className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 transition-colors ${active ? 'bg-white border-border-strong shadow-sm' : 'bg-white/70 border-border hover:bg-white'}`}
+                    >
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0" style={{ background: c.accent.bg, color: c.accent.fg }}>
+                        <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                      </span>
+                      <span className="text-[13px] font-medium text-foreground whitespace-nowrap">{c.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Sujet du panneau */}
+            <div>
+              <div className="text-[11px] font-medium uppercase tracking-wide text-foreground-muted mb-2" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Sujet</div>
+              <div className="inline-flex rounded-lg border border-border bg-white p-1">
+                {[{ id: 'piece', label: 'Pièce' }, { id: 'ligne', label: 'Ligne (poste)' }].map((s) => (
+                  <button key={s.id} type="button" onClick={() => { setSubject(s.id); setPreview(null); }} className={`h-8 px-3 rounded-md text-[13px] font-medium transition-colors ${subject === s.id ? 'bg-foreground text-white' : 'text-foreground-secondary hover:bg-cream'}`}>{s.label}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Retour navigation croisée */}
+            {preview && (
+              <button type="button" onClick={() => setPreview(null)} className="ml-auto self-end inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors">
+                <ArrowLeft className="w-3.5 h-3.5" /> Revenir à {PREVIEW_KINDS[kind].label}
+              </button>
+            )}
           </div>
 
-          {/* Panneau */}
+          {/* Sandbox pleine largeur */}
           <div>
-            {preview && (
-              <div className="flex justify-end mb-4 min-h-8">
-                <button
-                  type="button"
-                  onClick={() => setPreview(null)}
-                  className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" /> Revenir à {PREVIEW_KINDS[kind].label}
-                </button>
-              </div>
-            )}
-            {cfg.body === 'external' ? (
+            {subject === 'ligne' ? (
+              <PosteLignesTable onOpen={setOpenLigne} />
+            ) : cfg.body === 'external' ? (
               <ExternalCard source={SAMPLES.web} />
             ) : (
               <PreviewPanel
@@ -233,7 +454,7 @@ export default function PreviewPanelLab() {
 
         {/* Légende / matrice de décision - scrollable horizontalement en mobile */}
         <div className="mt-8">
-          <h2 className="text-[15px] font-semibold text-foreground-strong mb-3">Ce qu'on ouvre, et quand on défile jusqu'au passage</h2>
+          <h2 className="text-[15px] font-semibold text-foreground-strong mb-3">Ce qu'on ouvre</h2>
           <div className="rounded-xl border border-border bg-white overflow-hidden">
             <div className="overflow-x-auto">
               <div className="min-w-[640px]">
@@ -274,392 +495,28 @@ export default function PreviewPanelLab() {
               </div>
             </div>
           </div>
-          <p className="text-[12px] text-foreground-muted mt-2 leading-relaxed max-w-[820px]">
-            Règle : tout ce que Norma a ingéré ou rédigé s'ouvre en interne ; ce qui vit sur le web
-            ouvre un onglet. La JP et l'article de loi s'ouvrent en interne car on les enrichit (quantum,
-            version à la date). Le défilement jusqu'au passage n'est requis que pour les sources
-            <span className="font-medium text-foreground"> longues</span> appuyant une affirmation à vérifier -
-            l'article court, lui, est déjà le passage.
-          </p>
-        </div>
-
-        {/* Ce que la fusion apporte (hérité de preview-doc) */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Note title="Zoom & plein écran">
-            Boutons - / + par paliers (50 → 200 %), mode « Ajusté » sur la largeur, et
-            passage en <span className="font-medium text-foreground">inset-0</span> pour la lecture immersive.
-            Réservé aux docs (piece, modele).
-          </Note>
-          <Note title="Lecture / édition">
-            « Modifier » dans la barre méta remplace les chips par les vrais composants
-            {' '}<span className="font-medium text-foreground">Input</span> du design system (Nom, Type, Date IA,
-            Section, Numéro) + le callout de découpage. Résumé IA dépliable en lecture.
-          </Note>
-          <Note title="Aller à la citation">
-            Commun à tous les types : à l'ouverture le panneau surligne le(s) passage(s) et défile
-            jusqu'au chunk actif. Le rail droit liste tous les extraits ; le stepper du pied cycle
-            entre eux.
-          </Note>
-        </div>
-
-        {/* MetaChip - variants matrix ─────────────────────────────────────── */}
-        <MetaChipCatalog />
-
-        {/* MetaChip - un chip par type (date, pièce, découpage, source…) ────── */}
-        <MetaChipTypes />
-
-        {/* Librairies de rendu recommandées ──────────────────────────────── */}
-        <RendererStack />
-      </div>
-    </div>
-  );
-}
-
-// ── MetaChip : matrice complète des variantes + états ──────────────────────
-//
-// La forme UNIQUE des atomes de métadonnées du header. Tout chip du header
-// (Date, Type, Pièce X n° Y, Découpé, Issu de l'email, Objet, Code…) passe
-// par ce composant.
-function MetaChipCatalog() {
-  const rows = [
-    {
-      title: 'Composition',
-      subtitle: 'les briques : icon · label · value · aside · ai · action',
-      items: [
-        { name: 'value seul', node: <MetaChip value="Rapport" /> },
-        { name: 'label + value', node: <MetaChip label="Type" value="Rapport" /> },
-        { name: 'icon + label + value', node: <MetaChip icon={Calendar} label="Date" value="15/03/2023" /> },
-        { name: 'icon + value', node: <MetaChip icon={Hash} value="n° 12" /> },
-        { name: '+ marqueur IA', node: <MetaChip icon={Calendar} label="Date" value="15/03/2023" ai /> },
-        {
-          name: 'value composé (ReactNode)',
-          node: (
-            <MetaChip
-              icon={Hash}
-              label="Pièce"
-              value={<>I - MEDICAL <span className="text-foreground-muted mx-1">·</span><span className="tabular-nums">n° 2</span></>}
-            />
-          ),
-        },
-        { name: '+ aside truncable', node: <MetaChip icon={Scissors} label="Document découpé" aside="rapport_expertise_médicale_final_v3.pdf" /> },
-      ],
-    },
-    {
-      title: 'Variant',
-      subtitle: 'fond canvas (défaut) vs fond cream (identité / chip primaire du doc)',
-      items: [
-        { name: 'default', node: <MetaChip icon={Calendar} label="Date" value="15/03/2023" /> },
-        { name: 'strong', node: <MetaChip variant="strong" icon={Hash} label="Pièce" value={<>I - MEDICAL <span className="text-foreground-muted mx-1">·</span><span className="tabular-nums">n° 2</span></>} /> },
-      ],
-    },
-    {
-      title: 'Interactif — action',
-      subtitle: 'chip statique + lien texte à droite (le chip lui-même n\'est pas cliquable)',
-      items: [
-        {
-          name: 'action simple',
-          node: <MetaChip icon={Scissors} label="Document découpé" aside="rapport_expertise.pdf" action={{ label: 'Ajuster', onClick: () => {} }} />,
-        },
-      ],
-    },
-    {
-      title: 'Interactif — chip cliquable',
-      subtitle: 'tout le chip est un bouton ; hover renforce contour + texte',
-      items: [
-        {
-          name: 'default (clickable)',
-          node: <MetaChip icon={Mail} label="Issu de l'email" aside="Indemnisation dossier Martin" onClick={() => {}} />,
-        },
-        {
-          name: 'disabled',
-          node: <MetaChip icon={Mail} label="Issu de l'email" aside="Indemnisation dossier Martin" onClick={() => {}} disabled />,
-        },
-      ],
-    },
-    {
-      title: 'Usages hors doc',
-      subtitle: 'les autres kinds passent aussi par MetaChip - un langage, un composant',
-      items: [
-        { name: 'jp · Juridiction', node: <MetaChip label="Juridiction" value="Cour de cassation, 2e civ." /> },
-        { name: 'jp · n° dossier', node: <MetaChip icon={Hash} value="n° 18-21.234" /> },
-        { name: 'email · PJ', node: <MetaChip icon={Paperclip} label="Pièces jointes" value={3} /> },
-        { name: 'loi · en vigueur', node: <MetaChip icon={Calendar} label="En vigueur au" value="29/07/2026" /> },
-      ],
-    },
-  ];
-
-  return (
-    <div className="mt-10">
-      <div className="flex items-baseline justify-between gap-3 mb-3">
-        <div>
-          <h2 className="text-[15px] font-semibold text-foreground">MetaChip - la forme unique des métadonnées</h2>
-          <p className="text-caption text-foreground-muted mt-1 max-w-[720px] leading-relaxed">
-            Toute donnée du header (Pièce X n° Y, Date IA, Découpé, Issu de l'email, Objet, Code…) passe
-            par un seul composant. Trois vecteurs de variation : COMPOSITION (icon / label / value / aside / ai),
-            VARIANT (default vs strong), INTERACTION (statique · action inline · chip cliquable).
+          <p className="text-[12px] text-foreground-muted mt-2 leading-relaxed max-w-[720px]">
+            Ingéré ou rédigé par Norma → interne ; web → onglet. Le défilement au passage ne sert
+            qu'aux sources longues appuyant une affirmation à vérifier.
           </p>
         </div>
       </div>
-      <div className="rounded-xl border border-border bg-white overflow-hidden">
-        {rows.map((row, i) => (
-          <div key={i} className={`grid grid-cols-1 md:grid-cols-[220px_1fr] ${i > 0 ? 'border-t border-border' : ''}`}>
-            <div className="p-4 sm:p-5 md:border-r border-b md:border-b-0 border-border bg-background-canvas">
-              <div className="text-[13px] font-semibold text-foreground">{row.title}</div>
-              <div className="text-caption text-foreground-muted mt-1 leading-relaxed">{row.subtitle}</div>
-            </div>
-            <div className="p-4 sm:p-5 flex flex-col gap-3">
-              {row.items.map((it, j) => (
-                <div key={j} className="grid grid-cols-1 sm:grid-cols-[180px_1fr] lg:grid-cols-[220px_1fr] items-start sm:items-center gap-1.5 sm:gap-4">
-                  <div className="text-caption text-foreground-muted" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{it.name}</div>
-                  <div className="min-w-0">{it.node}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+
+      {/* Drawer aux vraies proportions, ouvert depuis une ligne du poste */}
+      {subject === 'ligne' && openLigne != null && POSTE_LIGNES[openLigne] && (
+        <LigneDrawer
+          entry={POSTE_LIGNES[openLigne]}
+          idx={openLigne}
+          total={POSTE_LIGNES.length}
+          onClose={closeLigne}
+          onPrev={prevLigne}
+          onNext={nextLigne}
+        />
+      )}
     </div>
   );
 }
 
-// ── MetaChip : un chip canonique par TYPE ──────────────────────────────────
-//
-// La matrice ci-dessus montre les AXES de variation (composition / variant /
-// interaction). Ici on montre l'autre lecture : un chip prêt à l'emploi par
-// TYPE de métadonnée. Chaque type porte son icône + label depuis
-// META_CHIP_TYPES ; on ne passe que la value (ou l'aside). Les deux colonnes
-// Default / Strong reprennent les deux `Style` de l'atome Figma.
-function MetaChipTypes() {
-  const sep = <span className="text-foreground-muted mx-1" aria-hidden>·</span>;
-  const rows = [
-    { type: 'piece', hint: 'identité de la pièce', value: <>I - MEDICAL {sep}<span className="tabular-nums">n° 2</span></> },
-    { type: 'date', hint: 'date du document', value: '15/03/2023' },
-    { type: 'type', hint: 'nature du document', value: "Rapport d'expertise" },
-    { type: 'decoupage', hint: 'issu d\'un découpage', aside: 'rapport_expertise.pdf' },
-    { type: 'source', hint: 'provenance (email, dépôt…)', aside: 'Indemnisation dossier Martin' },
-    { type: 'juridiction', hint: 'jurisprudence', value: 'Cour de cassation, 2e civ.' },
-    { type: 'numero', hint: 'n° de dossier / pourvoi', value: '18-21.234' },
-    { type: 'objet', hint: 'email', value: 'Notification expertise' },
-    { type: 'messages', hint: 'fil de discussion', value: 4 },
-    { type: 'piecesJointes', hint: 'pièces jointes email', value: 3 },
-    { type: 'code', hint: 'texte de loi', value: 'Code civil' },
-    { type: 'enVigueur', hint: 'version en vigueur', value: '29/07/2026' },
-    { type: 'periode', hint: 'ligne structurée (cotisations…)', value: 'Janv. - Mars 2024' },
-    { type: 'web', hint: 'source web', aside: 'legifrance.gouv.fr' },
-  ];
-
-  return (
-    <div className="mt-10">
-      <div className="flex items-baseline justify-between gap-3 mb-3">
-        <div>
-          <h2 className="text-[15px] font-semibold text-foreground">MetaChip - un chip par type</h2>
-          <p className="text-caption text-foreground-muted mt-1 max-w-[720px] leading-relaxed">
-            Chaque type de métadonnée (Date, Pièce, Découpage, Source, Juridiction, Objet, Code…) a son
-            icône et son label canoniques dans <code className="text-foreground-secondary">META_CHIP_TYPES</code> :
-            au point d'appel on ne passe que la valeur. Les deux colonnes reprennent les deux <em>Style</em> de
-            l'atome Figma - Default (fond canvas) et Strong (fond cream, valeur medium).
-          </p>
-        </div>
-      </div>
-      <div className="rounded-xl border border-border bg-white overflow-hidden">
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] border-b border-border bg-background-canvas">
-          <div className="p-3 sm:px-5 text-caption font-semibold text-foreground-secondary border-r border-border">Default</div>
-          <div className="p-3 sm:px-5 text-caption font-semibold text-foreground-secondary">Strong</div>
-        </div>
-        {rows.map((r, i) => (
-          <div key={r.type} className={`grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] ${i > 0 ? 'border-t border-border' : ''}`}>
-            <div className="p-4 sm:px-5 flex flex-col gap-2 border-r border-border min-w-0">
-              <div className="flex items-baseline gap-2">
-                <span className="text-caption text-foreground-muted" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{r.type}</span>
-                <span className="text-caption text-foreground-muted">· {r.hint}</span>
-              </div>
-              <MetaChip type={r.type} variant="default" value={r.value} aside={r.aside} />
-            </div>
-            <div className="p-4 sm:px-5 flex items-center min-w-0">
-              <MetaChip type={r.type} variant="strong" value={r.value} aside={r.aside} />
-            </div>
-          </div>
-        ))}
-      </div>
-      <p className="text-caption text-foreground-muted mt-3 leading-relaxed max-w-[720px]">
-        Ces presets restent surchargeables : <code className="text-foreground-secondary">icon</code>,{' '}
-        <code className="text-foreground-secondary">label</code> et <code className="text-foreground-secondary">variant</code>{' '}
-        passés explicitement priment sur le type. On peut aussi ajouter <code className="text-foreground-secondary">ai</code>,{' '}
-        <code className="text-foreground-secondary">action</code> ou <code className="text-foreground-secondary">onClick</code> sur n'importe quel type.
-      </p>
-    </div>
-  );
-}
-
-function Note({ title, children }) {
-  return (
-    <div className="rounded-lg border border-border bg-white p-4">
-      <div className="text-[13px] font-semibold text-foreground mb-1">{title}</div>
-      <p className="text-[12.5px] text-foreground-secondary leading-relaxed">{children}</p>
-    </div>
-  );
-}
-
-// ── Librairies de rendu ─────────────────────────────────────────────────────
-// La coque du PreviewPanel est prête à recevoir un vrai moteur de rendu ; les
-// bodies actuels sont des skeletons. Ce bloc documente le stack retenu, quand
-// venir chercher chaque lib et le contrat de citation qu'elle doit respecter.
-//
-// Règle : la coque, le contrat `passages: [{page, quote}]`, le scroll-vers-
-// citation et le stepper « Citation i / N » sont AGNOSTIQUES du moteur. Un
-// switch de lib ne touche que le body du kind concerné.
-function RendererStack() {
-  const stack = [
-    {
-      key: 'pdf',
-      icon: FileText,
-      kinds: ['piece', 'modele'],
-      lib: 'react-pdf',
-      pkg: '@wojtekmaj/react-pdf',
-      npm: 'react-pdf',
-      underlying: 'Mozilla pdf.js',
-      version: '~9.x',
-      license: 'MIT',
-      why: "Le wrapper React canonique autour de pdf.js. Expose un textLayer réel : on parcourt les spans du calque, on retrouve la quote, on l'entoure de data-cite - le contrat de citation existant continue de marcher sans modification.",
-      integrate: [
-        'Remplace DocPage.js par <Page /> de react-pdf',
-        'Garde le container [data-page] pour que goToPage/onScroll continuent',
-        'Après renderTextLayer, walker le DOM pour marquer les quotes en [data-cite]',
-      ],
-      caveat: 'Le worker pdfjs doit être servi statiquement (public/pdf.worker.min.js).',
-    },
-    {
-      key: 'docx',
-      icon: FileType2,
-      kinds: ['piece (docx)', 'modele'],
-      lib: 'docx-preview',
-      pkg: 'docx-preview',
-      npm: 'docx-preview',
-      underlying: 'JSZip + DOM natif',
-      version: '~0.3.x',
-      license: 'Apache-2.0',
-      why: "Rend un .docx en HTML DANS le container de scroll, ce qui préserve la sélection de texte, mark.js et le contrat data-cite. Alternative mammoth.js si l'objectif est un HTML propre plutôt qu'une mise en page fidèle (perd le layout).",
-      integrate: [
-        "renderAsync(buffer, containerEl) puis walker le DOM comme pour le PDF",
-        'La pagination est logique (par saut de page) - on peut la lire via CSS pour émettre les [data-page]',
-      ],
-      caveat: 'Rendu bureau uniquement (pas de fallback texte accessible).',
-    },
-    {
-      key: 'image',
-      icon: ImageIcon,
-      kinds: ['piece (jpg/png)'],
-      lib: 'react-medium-image-zoom',
-      pkg: 'react-medium-image-zoom',
-      npm: 'react-medium-image-zoom',
-      underlying: '<img> natif + lightbox',
-      version: '~5.x',
-      license: 'MIT',
-      why: "Une pièce photo (constat, scan) ouvre en zoom plein-écran à un clic. Pour les évidences très haute résolution (plans, scans médicaux gigapixel), remplacer par OpenSeadragon (rendu en tuiles). Le highlight n'a pas d'équivalent - une overlay <mark> absolute-positionnée sert de citation.",
-      integrate: [
-        'body.image = <Zoom><img/></Zoom>',
-        'Overlay <div data-cite style={{ position:absolute, inset:passage.rect }} /> pour marquer une zone citée',
-      ],
-      caveat: 'Le contrat quote → text-match ne marche pas sur image. La citation devient un rectangle (rect) ou une page.',
-    },
-    {
-      key: 'search',
-      icon: SearchIcon,
-      kinds: ['tous'],
-      lib: 'mark.js',
-      pkg: 'mark.js',
-      npm: 'mark.js',
-      underlying: 'DOM walker',
-      version: '~8.x',
-      license: 'MIT',
-      why: 'Le walker que le body du panneau utilise déjà logiquement : trouver la quote dans le texte rendu, entourer le noeud d\'un <mark data-cite>. Marche uniformément sur PDF (textLayer), DOCX (HTML), et sur les corps JP/loi/email/ligne existants.',
-      integrate: [
-        'new Mark(bodyEl).mark(passage.quote, { className: "data-cite", each: n => n.dataset.cite = "1" })',
-        'La logique de scroll/stepper dans PreviewPanel.js est inchangée',
-      ],
-      caveat: 'Sur PDF, mark.js opère sur le textLayer une fois rendu - attendre onRenderSuccess de react-pdf avant de marquer.',
-    },
-  ];
-
-  return (
-    <div className="mt-10">
-      <div className="flex items-baseline justify-between gap-3 mb-3">
-        <div>
-          <h2 className="text-[15px] font-semibold text-foreground">Librairies de rendu - le stack pour brancher le vrai contenu</h2>
-          <p className="text-caption text-foreground-muted mt-1 max-w-[820px] leading-relaxed">
-            Aujourd'hui les bodies « doc » sont des skeletons. Voici les 4 briques open-source retenues pour
-            porter le vrai rendu, avec l'endroit précis où chacune se branche dans la coque du PreviewPanel.
-            La coque, le contrat <code className="text-[11.5px] px-1 rounded bg-background-subtle">passages</code>,
-            le scroll-vers-citation et le stepper restent inchangés.
-          </p>
-        </div>
-      </div>
-      <div className="rounded-xl border border-border bg-white overflow-hidden">
-        {stack.map((r, i) => {
-          const Icon = r.icon;
-          return (
-            <div key={r.key} className={`grid grid-cols-1 md:grid-cols-[220px_1fr] ${i > 0 ? 'border-t border-border' : ''}`}>
-              <div className="p-4 sm:p-5 md:border-r border-b md:border-b-0 border-border bg-background-canvas flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-white border border-border text-foreground-secondary flex-shrink-0">
-                    <Icon className="w-4 h-4" strokeWidth={1.75} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-[13px] font-semibold text-foreground truncate">{r.lib}</div>
-                    <div className="text-[11px] text-foreground-muted truncate" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{r.npm}</div>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-col gap-1 text-[11.5px] text-foreground-secondary">
-                  <div><span className="text-foreground-muted">Kind</span> <span className="text-foreground">{r.kinds.join(', ')}</span></div>
-                  <div><span className="text-foreground-muted">Base</span> <span className="text-foreground">{r.underlying}</span></div>
-                  <div><span className="text-foreground-muted">Version</span> <span className="text-foreground tabular-nums">{r.version}</span></div>
-                  <div><span className="text-foreground-muted">Licence</span> <span className="text-foreground">{r.license}</span></div>
-                </div>
-              </div>
-              <div className="p-4 sm:p-5 flex flex-col gap-3">
-                <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-foreground-muted mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.04em' }}>Pourquoi ce choix</div>
-                  <p className="text-[13px] leading-6 text-foreground-secondary">{r.why}</p>
-                </div>
-                <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-foreground-muted mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.04em' }}>Intégration dans la coque</div>
-                  <ul className="text-[13px] leading-6 text-foreground-secondary space-y-1">
-                    {r.integrate.map((step, j) => (
-                      <li key={j} className="flex gap-2">
-                        <span className="text-foreground-muted flex-shrink-0" aria-hidden>·</span>
-                        <span className="min-w-0"><code className="text-[12px] px-1 rounded bg-background-subtle">{step.split(' ')[0]}</code> {step.split(' ').slice(1).join(' ')}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {r.caveat && (
-                  <div>
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-foreground-muted mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.04em' }}>Attention</div>
-                    <p className="text-[13px] leading-6 text-foreground-secondary">{r.caveat}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-4 rounded-lg border border-border bg-background-canvas p-4">
-        <div className="text-[13px] font-semibold text-foreground mb-1.5">Alternative commerciale (unifiée)</div>
-        <p className="text-[12.5px] leading-6 text-foreground-secondary">
-          <span className="font-medium text-foreground">Apryse WebViewer</span> (ex-PDFTron) ou{' '}
-          <span className="font-medium text-foreground">Nutrient</span> (ex-PSPDFKit) rendent PDF, .docx, .xlsx,
-          .pptx et images derrière une seule API, avec annotation et rédaction en standard. À reconsidérer si
-          l'annotation devient centrale à tous les kinds. Licence entreprise (~4 - 10 k€/an) et moins de
-          contrôle sur la coque - on l'enveloppe au lieu de coller au DS Plato pixel-à-pixel. Le stack
-          open-source ci-dessus reste la voie par défaut : l'architecture actuelle (dispatch{' '}
-          <code className="text-[11.5px] px-1 rounded bg-background-subtle">cfg.body === 'doc'</code>,
-          contrat <code className="text-[11.5px] px-1 rounded bg-background-subtle">data-cite</code>) est
-          conçue pour rendre le swap chirurgical.
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function ExternalCard({ source }) {
   return (

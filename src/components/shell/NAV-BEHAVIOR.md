@@ -5,6 +5,62 @@ Composants : `NavItem`, `NavSectionHeader`, `NavPromoBanner`, `NavExpandControl`
 `PanelToggleIcon` (ce dossier) ; composition + état dans `App.js`
 (`renderUnifiedSidebar`, `renderNavSlot`, `renderNavPeek`).
 
+## 0. Nav du dossier (V2, 14/09)
+
+Refonte de la nav à l'intérieur d'un dossier. Code : `renderDossierWorkspaceHeader`
+(la barre du haut) + `Niveau3Strip` (poste/acte). Réf : lab `/ui-kit/nav-system`,
+Figma System 37497.
+
+### Le problème
+
+L'en-tête d'un dossier faisait quatre bandes empilées : « ‹ Mes dossiers », puis
+le nom + le statut + les outils, puis les onglets, puis (dans un poste) le strip
+de l'objet. Deux vrais soucis :
+
+- On traversait trois ou quatre lignes de chrome avant de voir le contenu.
+- Deux retours cohabitaient, « ‹ Mes dossiers » et « ← Retour au chiffrage »,
+  souvent l'un sous l'autre. Deux flèches, et on ne savait pas laquelle menait où.
+
+### Ce qu'on fait
+
+Une seule barre en haut (48px) : `Mes dossiers / Nom du dossier | onglets … Plato
+Assistant · ⋮`. Le nom du dossier est en serif : c'est l'ancre, ce qui dit « tu es
+dans ce dossier ». Les onglets restent là à tous les niveaux.
+
+Le reste - le titre de la page et ses actions - descend dans le contenu, pas dans
+le chrome. En racine d'onglet : les actions de l'onglet (Chiffrage = totaux +
+Exporter/Ajouter, Pièces = recherche + Ajouter, etc.). Dans un poste ou un acte :
+deux lignes, le retour puis le titre en serif + le montant + les boutons. Cet
+en-tête reste collé en haut quand on scrolle.
+
+### Le retour
+
+Deux retours, jamais au même endroit :
+
+- **« Mes dossiers »** (dans la barre du haut) = quitter le dossier.
+- **« ← Retour au chiffrage / aux actes »** (dans la page) = revenir d'un cran.
+
+Comme ils sont sur deux plans différents - la barre contre le contenu - on ne les
+confond plus.
+
+### Pourquoi c'est mieux
+
+- Une barre au lieu de quatre : on se repère d'un coup d'œil, et on récupère ~80px
+  de hauteur pour le contenu.
+- Chaque chose a sa forme : nom du dossier en serif, onglets en gris, actions en
+  boutons. On trie sans y penser.
+- Un seul retour visible à la fois : fini le « deux flèches, laquelle ? ».
+- On change d'onglet ou on agit (les CTA restent sticky) sans jamais remonter.
+
+### Détails
+
+- Barre à 48px partout (même hauteur que la sidebar et le rail chat).
+- Onglet actif : le trait touche le filet du bas de la barre ; il reste allumé
+  dans un poste.
+- Serif pour les titres (dossier, page, objet), Georgia pour les montants, Inter
+  pour le reste. Pas de compteur en double : si l'onglet dit « Pièces 26 », la
+  barre d'action ne répète pas « 26 fichiers ».
+
 ## 1. Les trois états de la nav
 
 | État | Description |
@@ -61,7 +117,8 @@ et **jamais au tactile** (`pointer: fine` requis).
 
 ## 5. Raccourcis & accessibilité
 
-- **⌘\** : bascule ouverte ↔ masquée (partout). Rappelé dans les tooltips et en footer du peek (« ⌘\ pour rouvrir »).
+- **Logo Plato** : ramène **toujours** à l'accueil - dans la nav (ouverte ou peek) comme dans le contrôle « Menu » (nav masquée). C'est le raccourci d'accueil partout où le logo apparaît, pas une simple ancre de marque.
+- **Pas de raccourci clavier de nav** : masquer / rouvrir passe uniquement par le glyphe du header (nav ouverte) et par le contrôle « Menu » (nav masquée). Le clavier ne garde que ⌘O / ⌘⇧O (créations).
 - Slot masqué : `aria-hidden`, `visibility: hidden` (aucun focus piégé).
 - Item actif : `aria-current="true"` ; tooltip `role="tooltip"` en mode collapsed.
 - Glow/anim : `prefers-reduced-motion` respecté sur le glow du composer hero (pas d'équivalent nécessaire côté nav, les transitions sont courtes).

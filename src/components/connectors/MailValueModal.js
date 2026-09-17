@@ -3,7 +3,7 @@
 // dossiers) tant qu'aucune boîte n'est connectée, congédiable d'un geste.
 //
 // Le parti pris : un seul écran qui VEND. Le héros animé rejoue le versement
-// (l'argument EST le visuel : boîte -> dossier, jamais l'inverse), puis trois
+// (l'argument EST le visuel : boîte -> dossier, jamais l'inverse), puis quatre
 // bénéfices concrets, les garanties invariables, un seul geste.
 //
 // Même vérité que le reste du dispositif (connectorData) : lecture seule, rien
@@ -11,30 +11,38 @@
 // le choix du fournisseur (MailConnectDialog), pas vers un formulaire.
 
 import React, { useEffect } from 'react';
-import { ArrowRight, ListChecks, Paperclip, Plug2, ShieldCheck, X } from 'lucide-react';
+import { ArrowRight, Mail, Paperclip, Plug2, Search, ShieldCheck, X } from 'lucide-react';
 import { ConnectorHero } from './ConnectorArt';
-import { GuaranteeChips } from './ConnectorPromo';
+import { GuaranteeChips, SyncSoonTeaser } from './ConnectorPromo';
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
 const MONO = "'IBM Plex Mono', monospace";
 
-// Trois bénéfices - la valeur avant la technique, un geste que l'avocat
-// reconnaît. Icône en tuile pierre, titre + une ligne, jamais un paragraphe.
-const BENEFITS = [
-  {
-    Icon: ListChecks,
-    title: 'Vous choisissez les échanges',
-    sub: 'Sélectionnez les messages ou fils liés au dossier, directement depuis Plato.',
-  },
+// Quatre bénéfices - cadrage PLEIN (ce que vous obtenez), pas creux (ce que
+// vous ne ferez plus). Strictement vrai : Plato extrait des échanges, aide à
+// retrouver, conserve la provenance, reste en lecture seule - vous validez.
+// Jamais de promesse de nommage/numérotage automatique. Icône en tuile pierre,
+// titre gras + une ligne.
+export const BENEFITS = [
   {
     Icon: Paperclip,
-    title: 'Les pièces en sortent toutes seules',
-    sub: 'Chaque pièce jointe est extraite, nommée, et prête à être versée au dossier.',
+    title: 'Extraction directe',
+    sub: 'Les pièces jointes rejoignent le dossier depuis vos emails, sans téléchargement.',
+  },
+  {
+    Icon: Mail,
+    title: 'L\'échange entier',
+    sub: 'Le fil et ses pièces arrivent ensemble, pas fichier par fichier.',
+  },
+  {
+    Icon: Search,
+    title: 'Navigation facile',
+    sub: 'Parcourez vos emails et retrouvez les bons échanges sans quitter Plato.',
   },
   {
     Icon: ShieldCheck,
-    title: 'Rien ne se verse sans vous',
-    sub: 'Chaque pièce garde son email d\'origine comme preuve.',
+    title: 'Vous gardez la main',
+    sub: 'Lecture seule : rien n\'entre au dossier sans votre validation.',
   },
 ];
 
@@ -83,7 +91,7 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
                 letterSpacing: '0.08em', lineHeight: 1,
               }}
             >
-              Nouveau · Connecteur email
+              Nouveau · Boîte mail
             </span>
           </div>
           <div className="flex flex-col" style={{ gap: 6, maxWidth: 500 }}>
@@ -91,11 +99,10 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
               id="mail-value-title"
               style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: '#292524', letterSpacing: '-0.4px', lineHeight: '32px' }}
             >
-              Fini l'extraction manuelle des pièces
+              Ne cherchez plus vos pièces : connectez votre boîte mail.
             </h2>
             <p className="text-[13.5px] text-foreground-secondary leading-[20px]">
-              Connectez votre boîte, choisissez les échanges d'un dossier : Plato en extrait les pièces
-              jointes et les verse au dossier. Plus de téléchargement, plus de renommage, plus de glisser-déposer.
+              Choisissez les échanges d'une affaire : Plato en extrait les pièces, prêtes à verser. Vous validez.
             </p>
           </div>
         </div>
@@ -128,8 +135,14 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
           <GuaranteeChips />
         </div>
 
-        {/* Le geste - CTA plein + sortie douce. */}
-        <div className="flex flex-col items-center px-8 pt-6 pb-7" style={{ gap: 12 }}>
+        {/* La suite annoncée - synchronisation automatique « à venir ». */}
+        <div className="px-8 pt-5">
+          <SyncSoonTeaser />
+        </div>
+
+        {/* Le geste - CTA plein + sortie en rendez-vous (pas un abandon), ce
+            qui autorise à re-solliciter sans être insistant. */}
+        <div className="flex flex-col items-center px-8 pt-6 pb-7" style={{ gap: 10 }}>
           <button
             type="button"
             onClick={onConnect}
@@ -139,7 +152,7 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#292524'; }}
           >
             <Plug2 className="w-4 h-4" strokeWidth={1.75} />
-            Connecter ma boîte
+            Connecter ma boîte · 2 min
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
           </button>
           <button
@@ -149,6 +162,9 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
           >
             Plus tard
           </button>
+          <p className="text-[12px] italic text-center leading-4" style={{ color: '#a8a29e' }}>
+            On vous le reproposera à la prochaine pièce ajoutée à la main.
+          </p>
         </div>
       </div>
     </div>

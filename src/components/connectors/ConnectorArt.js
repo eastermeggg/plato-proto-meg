@@ -145,11 +145,17 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
       <span className="absolute inset-0" style={{ background: 'radial-gradient(380px 280px at 96% 55%, #eeece6 0%, rgba(255,255,255,0) 60%)' }} />
 
       <div className="absolute inset-0 flex items-center">
-        {/* Tuile fournisseur */}
+        {/* Les deux boîtes sur le même écran : Gmail + Outlook, tuiles
+            superposées et légèrement inclinées (comme le mini-lien). */}
         <div className="flex items-center justify-center" style={{ width: '34%' }}>
-          <MarkTile size={64} radius={16}>
-            <ProviderMark provider={provider} size={34} />
-          </MarkTile>
+          <span className="relative inline-flex flex-shrink-0" style={{ width: 100, height: 64 }}>
+            <span style={{ position: 'absolute', left: 0, top: 5, transform: 'rotate(-7deg)' }}>
+              <MarkTile size={58} radius={15}><GmailMark size={27} /></MarkTile>
+            </span>
+            <span style={{ position: 'absolute', left: 38, top: 0, transform: 'rotate(6deg)' }}>
+              <MarkTile size={58} radius={15}><OutlookMark size={29} /></MarkTile>
+            </span>
+          </span>
         </div>
 
         {/* Pointillé animé - le canal, jamais un tuyau plein. */}
@@ -207,19 +213,16 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
                 <CheckTile />
                 <Mail style={{ width: 13, height: 13, color: '#1e3a8a', flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={132} />
-                <span className="ml-auto"><Cote n={12} /></span>
               </div>
               <div className="flex items-center" style={{ gap: 8, paddingLeft: 6 }}>
                 <MiniElbow />
                 <Paperclip style={{ width: 12, height: 12, color: '#b4483c', flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={96} />
-                <span className="ml-auto"><Cote n={13} /></span>
               </div>
               <div className="flex items-center" style={{ gap: 8 }}>
                 <CheckTile />
                 <FileText style={{ width: 13, height: 13, color: '#b4483c', flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={110} />
-                <span className="ml-auto"><Cote n={14} /></span>
               </div>
             </div>
           ) : (
@@ -239,13 +242,11 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
                 <CheckTile />
                 <Mail style={{ width: 13, height: 13, color: '#a8a29e', flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={128} />
-                <span className="ml-auto"><Cote n={12} /></span>
               </div>
               <div className="flex items-center" style={{ gap: 8 }}>
                 <CheckTile />
                 <FileText style={{ width: 13, height: 13, color: '#a8a29e', flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={102} />
-                <span className="ml-auto"><Cote n={13} /></span>
               </div>
             </div>
           )}
@@ -284,6 +285,72 @@ export function ConnectorMiniLink({ provider = 'outlook', both = false, tileSize
         <PlatoMark size={tileSize * 0.5} />
       </MarkTile>
     </span>
+  );
+}
+
+// ── Image custom de l'encart flottant (format bandeau large et court) ───────
+// Dessinée POUR ce ratio : tuile source à gauche (halo bleu), canal pointillé
+// animé avec une pièce qui voyage, puis DEUX pièces cotées à droite - le
+// résultat du découpage/classement, l'argument en une image. Compact, un seul
+// moment animé, prefers-reduced-motion géré.
+export function MailPromoArt({ height = 72 }) {
+  return (
+    <div
+      aria-hidden
+      className="relative overflow-hidden select-none"
+      style={{ height, borderRadius: 10, border: '1px solid #e7e4de', background: 'linear-gradient(118deg, #f4f2ee 0%, #faf9f7 48%, #eef3fa 122%)' }}
+    >
+      <style>{`
+        @keyframes mpa-dot { 0%,100%{opacity:.25} 50%{opacity:.9} }
+        @keyframes mpa-travel {
+          0%   { transform: translate(0,-50%);   opacity: 0; }
+          14%  { transform: translate(6px,-50%); opacity: 1; }
+          56%  { transform: translate(84px,-50%);opacity: 1; }
+          70%  { transform: translate(104px,-50%);opacity: 0; }
+          100% { transform: translate(104px,-50%);opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) { .mpa-anim { animation: none !important; } }
+      `}</style>
+
+      {/* Halo bleu doux côté source. */}
+      <span className="absolute inset-0" style={{ background: 'radial-gradient(150px 92px at 15% 50%, rgba(30,58,138,0.13), rgba(255,255,255,0) 66%)' }} />
+
+      <div className="absolute inset-0 flex items-center" style={{ padding: '0 12px' }}>
+        {/* Source : tuile fournisseur sur un halo. */}
+        <span className="relative inline-flex items-center justify-center flex-shrink-0" style={{ width: 42, height: 42 }}>
+          <span className="absolute inset-0 rounded-full blur-md" style={{ background: 'radial-gradient(circle, rgba(30,58,138,0.20), rgba(30,58,138,0) 70%)' }} />
+          <MarkTile size={38} radius={11}><ProviderMark provider="outlook" size={21} /></MarkTile>
+        </span>
+
+        {/* Canal pointillé. */}
+        <span className="inline-flex items-center flex-shrink-0" style={{ gap: 5, margin: '0 9px' }}>
+          {[0, 1, 2].map(i => (
+            <span key={i} className="mpa-anim" style={{ width: 4, height: 4, borderRadius: 99, backgroundColor: '#a8a29e', animation: `mpa-dot 2.4s ease-in-out ${i * 0.3}s infinite` }} />
+          ))}
+        </span>
+
+        {/* Résultat : deux pièces extraites de l'échange (jamais de numéro -
+            pas de numérotation automatique). */}
+        <div className="flex flex-col flex-1 min-w-0" style={{ gap: 5 }}>
+          {[{ Icon: Mail, tone: '#1e3a8a' }, { Icon: Paperclip, tone: '#b4483c' }].map(({ Icon, tone }, i) => (
+            <div key={i} className="flex items-center bg-white" style={{ gap: 7, padding: '5px 7px', borderRadius: 7, border: '1px solid #ece9e3', boxShadow: '0 1px 2px rgba(28,25,23,0.05)' }}>
+              <CheckTile />
+              <Icon style={{ width: 11, height: 11, color: tone, flexShrink: 0 }} strokeWidth={1.75} />
+              <span aria-hidden style={{ flex: 1, height: 5, borderRadius: 2.5, backgroundColor: '#e9e6e0' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* La pièce qui voyage - l'unique moment animé. */}
+        <span
+          className="mpa-anim absolute inline-flex items-center gap-1 bg-white"
+          style={{ left: 42, top: '50%', padding: '3px 6px', borderRadius: 99, border: '1px solid #dfdcd9', boxShadow: '0 2px 6px -2px rgba(28,25,23,0.16)', transform: 'translate(0,-50%)', opacity: 0, animation: 'mpa-travel 5s ease-in-out 0.7s infinite' }}
+        >
+          <FileText style={{ width: 10, height: 10, color: '#b4483c' }} strokeWidth={1.75} />
+          <Bar w={20} tone="#e2dfd8" />
+        </span>
+      </div>
+    </div>
   );
 }
 

@@ -10,20 +10,50 @@
 // (connectorData), déclinée par surface.
 
 import React from 'react';
-import { ArrowRight, ChevronRight, Lock, Mail, Plug2, RotateCcw, ShieldCheck, X } from 'lucide-react';
+import { ArrowRight, ChevronRight, Eye, Lock, Mail, Plug2, RefreshCw, RotateCcw, ShieldCheck, X } from 'lucide-react';
 import { ConnectorMiniLink, ProviderMark } from './ConnectorArt';
 import { CONNECTOR_PROVIDERS } from './connectorData';
 
 const MONO = "'IBM Plex Mono', monospace";
 
+// ── Teaser « à venir : synchronisation automatique » ────────────────────────
+// La suite du connecteur, annoncée sans sur-promettre : on prépare le terrain
+// (spec §09 - la proactivité passera comme continuité) en gardant « vous
+// validez » invariant. Teinte bleue (info/à venir), jamais l'orange du
+// « nouveau » de maintenant. Compact = une ligne serrée.
+export function SyncSoonTeaser({ compact = false }) {
+  return (
+    <div
+      className="flex items-start rounded-lg"
+      style={{ gap: 10, backgroundColor: '#eef1f8', border: '1px solid #dde3f0', padding: compact ? '9px 11px' : '11px 13px' }}
+    >
+      <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 26, height: 26, borderRadius: 7, backgroundColor: '#dbe3f5' }}>
+        <RefreshCw style={{ width: 14, height: 14, color: '#1e3a8a' }} strokeWidth={1.75} />
+      </span>
+      <div className="flex flex-col min-w-0" style={{ gap: 1 }}>
+        <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 500, color: '#1e3a8a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          À venir · Synchronisation automatique
+        </span>
+        <p className="text-[12.5px] leading-[17px]" style={{ color: '#44506b' }}>
+          Les nouveaux emails d'un dossier s'y verseront tout seuls - vous validerez toujours.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // Chips de garanties - la réassurance en trois mots, jamais un paragraphe.
+// « Visible de vous seul » remonte des réglages (où personne ne va) au moment
+// de la décision : c'est l'objection « mes associés vont voir mes mails », qui
+// décide en cabinet de la moitié des refus.
 export function GuaranteeChips({ compact = false, only = null }) {
   const all = [
     { Icon: Lock, label: 'Lecture seule' },
+    { Icon: Eye, label: 'Visible de vous seul' },
     { Icon: ShieldCheck, label: 'Hébergé en UE' },
     { Icon: RotateCcw, label: 'Réversible' },
   ];
-  const items = only ? all.filter(i => only.includes(i.label)) : all;
+  const items = only ? only.map(l => all.find(i => i.label === l)).filter(Boolean) : all;
   return (
     <span className={`inline-flex items-center flex-wrap justify-center ${compact ? 'gap-1' : 'gap-1.5'}`}>
       {items.map(({ Icon, label }) => (
@@ -41,41 +71,136 @@ export function GuaranteeChips({ compact = false, only = null }) {
 }
 
 // ── Bandeau promo (pages pièces, import, accueil dossier) ───────────────────
+// Une seule version : la promesse. CTA en verbe (« Ajouter depuis mes emails »),
+// jamais de titre interrogatif.
 export function ConnectorPromoBanner({ onConnect, onDismiss }) {
   return (
     <div
-      className="relative flex items-center gap-4 rounded-xl overflow-hidden"
+      className="relative flex flex-wrap items-center gap-x-4 gap-y-2.5 rounded-xl overflow-hidden"
       style={{
-        padding: '14px 18px',
+        padding: '14px 16px',
+        paddingRight: onDismiss ? 40 : 16, // place réservée à la croix (absolue)
         border: '1px solid #e0ddd6',
         background: 'linear-gradient(105deg, #f1efe9 0%, #faf9f7 55%, #eef3fa 130%)',
       }}
     >
       <ConnectorMiniLink both tileSize={40} />
-      <div className="flex-1 min-w-0">
-        <p className="text-[13.5px] font-medium text-foreground leading-5">Vos pièces arrivent par email ?</p>
+      {/* Largeur mini pour ne jamais tomber à un mot par ligne ; flex-1 sinon. */}
+      <div className="flex-1" style={{ minWidth: 160 }}>
+        <p className="text-[13.5px] font-medium text-foreground leading-5">Ne cherchez plus vos pièces dans vos emails.</p>
         <p className="text-[12.5px] leading-[18px] mt-0.5" style={{ color: '#57534e' }}>
-          Connectez votre boîte et versez emails et pièces jointes directement dans vos dossiers.{' '}
-          <span className="whitespace-nowrap">Lecture seule, rien ne sort sans votre geste.</span>
+          Choisissez les échanges, Plato en extrait les pièces.
         </p>
       </div>
+      {/* CTA secondaire - passe SOUS le texte quand la place manque (flex-wrap). */}
       <button
         type="button"
         onClick={onConnect}
-        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
+        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-foreground bg-white border border-border rounded-lg hover:bg-background transition-colors flex-shrink-0"
+        style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
       >
-        <Plug2 className="w-3.5 h-3.5" strokeWidth={1.75} /> Connecter ma boîte
+        <Mail className="w-3.5 h-3.5" strokeWidth={1.75} /> Ajouter depuis mes emails
       </button>
       {onDismiss && (
         <button
           type="button"
           onClick={onDismiss}
           aria-label="Masquer"
-          className="flex items-center justify-center w-7 h-7 rounded-md text-foreground-muted hover:text-foreground hover:bg-white/70 transition-colors flex-shrink-0 -mr-1.5"
+          className="absolute flex items-center justify-center w-7 h-7 rounded-md text-foreground-muted hover:text-foreground hover:bg-white/70 transition-colors"
+          style={{ top: 8, right: 8 }}
         >
           <X className="w-3.5 h-3.5" strokeWidth={2} />
         </button>
       )}
+    </div>
+  );
+}
+
+// ── Encart flottant « Nouveauté » (coin de l'accueil) - le nudge passif à la
+//    Linear / Intercom : mini visuel + titre, appelant, congédiable, qui attire
+//    l'œil sans bloquer. Deux portes : le corps ouvre la modale de valeur (le
+//    pitch complet), le CTA va droit aux réglages. Surface PASSIVE - elle
+//    remplace l'ouverture automatique de la modale sur l'accueil (jamais deux
+//    sollicitations sur le même écran). ─────────────────────────────────────
+export function MailFloatingPromo({ onOpen, onConnect, onDismiss }) {
+  // Bas-droite, mais JAMAIS par-dessus le chat : `right` suit la largeur du
+  // panneau de chat (--chat-offset, global) - l'encart glisse à sa gauche quand
+  // il est ouvert, et revient au coin quand il est fermé.
+  return (
+    <div className="fixed z-40 animate-fade-up" style={{ right: 'calc(var(--chat-offset, 0px) + 24px)', bottom: 24, width: 288 }}>
+      <div className="relative">
+        {/* Halo qui respire - blur derrière la carte, attire l'œil sans crier. */}
+        <div
+          aria-hidden
+          className="absolute -inset-2 rounded-2xl blur-xl animate-conn-halo pointer-events-none"
+          style={{ background: 'radial-gradient(60% 60% at 78% 12%, rgba(234,122,46,0.26), rgba(234,122,46,0) 70%), radial-gradient(70% 70% at 20% 90%, rgba(201,138,63,0.16), rgba(201,138,63,0) 72%)' }}
+        />
+
+        {/* Bord animé (signal « nouveau ») : un arc bleu qui fait le tour d'un
+            liseré crème. Le liseré fait office de bordure ; la carte blanche
+            couvre le centre. */}
+        <div
+          className="relative overflow-hidden"
+          style={{ borderRadius: 13, padding: 1.5, boxShadow: '0 18px 40px -14px rgba(28,25,23,0.32)' }}
+        >
+          <div
+            aria-hidden
+            className="absolute animate-conn-border pointer-events-none"
+            style={{ inset: '-60%', background: 'conic-gradient(from 0deg, #e5e2db 0deg, #e5e2db 200deg, rgba(234,122,46,0.28) 262deg, #e8792b 312deg, #f6b378 338deg, #e5e2db 360deg)' }}
+          />
+
+          <div className="relative bg-white overflow-hidden" style={{ borderRadius: 11.5 }}>
+          <button
+            type="button"
+            aria-label="Masquer"
+            onClick={onDismiss}
+            className="absolute z-10 flex items-center justify-center w-6 h-6 rounded-md text-foreground-muted hover:text-foreground hover:bg-cream transition-colors"
+            style={{ top: 7, right: 7 }}
+          >
+            <X className="w-3.5 h-3.5" strokeWidth={2} />
+          </button>
+
+          {/* Corps cliquable -> réglages. Mini-visuel + eyebrow orange + titre
+              serif + sous-ligne, et un bouton rond fléché pour le geste. */}
+          <div
+            role="button" tabIndex={0}
+            onClick={onOpen}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen?.(); } }}
+            className="group block w-full text-left cursor-pointer"
+            style={{ padding: '13px 14px 14px' }}
+          >
+            <ConnectorMiniLink both tileSize={30} />
+            <div className="pt-3">
+              <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Nouveau
+              </span>
+              <h3
+                className="group-hover:text-foreground-tertiary transition-colors"
+                style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 16, fontWeight: 500, color: '#292524', letterSpacing: '-0.2px', lineHeight: '20px', marginTop: 3 }}
+              >
+                Ne cherchez plus vos pièces, connectez votre boîte mail.
+              </h3>
+            </div>
+            <div className="flex items-end justify-between mt-2.5" style={{ gap: 12 }}>
+              <p className="text-[11.5px] leading-[16px] flex-1 min-w-0" style={{ color: '#78716c' }}>
+                Choisissez les échanges à ajouter, Plato extrait les pièces.
+              </p>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onConnect(); }}
+                aria-label="Connecter ma boîte mail"
+                className="inline-flex items-center justify-center rounded-full text-white flex-shrink-0 transition-colors"
+                style={{ width: 38, height: 38, backgroundColor: '#292524' }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#44403c'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#292524'; }}
+              >
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -95,8 +220,8 @@ export function MailNavPromoCard({ onOpen, onDismiss }) {
       style={{
         borderTop: '1px solid #dfdcd9',
         padding: '12px 16px',
-        background: 'linear-gradient(90deg, #cce6d9 0%, rgba(204,230,217,0) 59.5%)',
-        boxShadow: 'inset 2px 0 0 0 #064e3b',
+        background: 'linear-gradient(90deg, #f7e3d2 0%, rgba(247,227,210,0) 59.5%)',
+        boxShadow: 'inset 2px 0 0 0 #d9772e',
         fontFamily: "'Inter', system-ui, sans-serif",
       }}
     >
@@ -124,9 +249,9 @@ export function MailNavPromoCard({ onOpen, onDismiss }) {
 
       <div className="flex flex-col mt-2" style={{ gap: 4 }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: '#18181b', lineHeight: '20px' }}>
-          Vos emails deviennent des pièces
+          Ne cherchez plus vos pièces
         </div>
-        <div className="inline-flex items-center" style={{ gap: 8, fontSize: 14, fontWeight: 500, color: '#064e3b', lineHeight: '20px' }}>
+        <div className="inline-flex items-center" style={{ gap: 8, fontSize: 14, fontWeight: 500, color: '#b45309', lineHeight: '20px' }}>
           Connecter ma boîte
           <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
         </div>
@@ -179,11 +304,10 @@ export function MailConnectDialog({ open, onClose, providers, onPick }) {
           <ConnectorMiniLink both tileSize={44} />
           <div className="flex flex-col gap-1.5" style={{ maxWidth: 340 }}>
             <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 21, fontWeight: 500, color: '#292524', letterSpacing: '-0.2px', lineHeight: '27px' }}>
-              Versez vos emails dans vos dossiers
+              Ne cherchez plus vos pièces : connectez votre boîte mail.
             </h2>
             <p className="text-[13px] text-foreground-secondary leading-5">
-              Connectez votre boîte : Norma vous propose vos échanges dossier par dossier,
-              avec leurs pièces jointes - sans export manuel. Rien n'est versé sans votre geste.
+              Choisissez les échanges, Plato en extrait les pièces.
             </p>
           </div>
           <GuaranteeChips compact />
@@ -224,14 +348,13 @@ export function ConnectorPromoPanel({ provider = 'outlook', onConnect, compact =
   return (
     <div className={`flex-1 min-h-0 flex flex-col items-center justify-center text-center ${compact ? 'px-6 py-8 gap-4' : 'px-10 py-12 gap-5'}`}>
       <ConnectorMiniLink provider={provider} tileSize={compact ? 44 : 50} />
-      <div className="flex flex-col gap-1" style={{ maxWidth: 340 }}>
-        <p className="text-sm font-medium text-foreground">Vos échanges deviennent des pièces</p>
+      <div className="flex flex-col gap-1" style={{ maxWidth: 360 }}>
+        <p className="text-sm font-medium text-foreground">Ne cherchez plus vos pièces : connectez votre boîte mail.</p>
         <p className="text-[13px] text-foreground-secondary leading-5">
-          Connectez votre boîte pour verser emails et pièces jointes directement dans vos
-          dossiers - sans export manuel. Norma propose, vous décidez.
+          Choisissez les échanges, Plato en extrait les pièces.
         </p>
       </div>
-      <GuaranteeChips compact={compact} />
+      <GuaranteeChips compact={compact} only={['Lecture seule', 'Visible de vous seul', 'Réversible']} />
       <div className="flex flex-col items-center gap-2">
         <button
           type="button"
@@ -244,6 +367,9 @@ export function ConnectorPromoPanel({ provider = 'outlook', onConnect, compact =
         <p style={{ fontFamily: MONO, fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#78716c' }}>
           2 minutes, réversible
         </p>
+      </div>
+      <div style={{ maxWidth: 360, width: '100%' }}>
+        <SyncSoonTeaser compact />
       </div>
     </div>
   );

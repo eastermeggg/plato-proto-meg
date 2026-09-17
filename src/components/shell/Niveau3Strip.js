@@ -18,7 +18,20 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 //   CodeBadge         badge code fond secondaire #eeece6 / #44403c r-6
 //                     (remplace l'ancien pill blanc bordé).
 
-export function Niveau3Strip({ justify = 'between', children }) {
+// `back` (facultatif) = le retour nommé, placé sur une PREMIÈRE ligne au-dessus
+// (maquette Figma 37447 Poste/Acte : ~86px, deux lignes - retour puis
+// badge + titre serif + actions). Sans `back`, layout une ligne (Pièces/JP).
+export function Niveau3Strip({ justify = 'between', back = null, children }) {
+  if (back) {
+    return (
+      <div className="flex-shrink-0 border-b border-border px-8 py-2.5">
+        {back}
+        <div className={`mt-1 flex items-center gap-3 ${justify === 'between' ? 'justify-between' : ''}`}>
+          {children}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex-shrink-0 border-b border-border px-8">
       <div className={`min-h-[54px] py-3 flex items-center gap-3 ${justify === 'between' ? 'justify-between' : ''}`}>

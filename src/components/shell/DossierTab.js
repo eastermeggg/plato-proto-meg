@@ -13,7 +13,7 @@ export default function DossierTab({ label, active, count = null, diamondColor =
   return (
     <button
       onClick={onClick}
-      className={`relative pb-2.5 pt-1 flex items-center gap-1.5 text-[14px] transition-colors ${
+      className={`relative py-2 flex items-center gap-1.5 text-[14px] transition-colors ${
         active ? 'text-foreground font-medium' : 'text-foreground-secondary hover:text-foreground'
       }`}
     >
