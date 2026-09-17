@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, X, ExternalLink, Percent, FileText, Gavel, Stamp, ArrowUpRight, SlidersHorizontal, Globe, Diamond, Plus, Minus, Equal } from 'lucide-react';
+import { ChevronRight, X, ExternalLink, Percent, FileText, Gavel, Stamp, ArrowUpRight, SlidersHorizontal, Globe, Diamond, Plus, Minus, Equal } from 'lucide-react';
+import { BreadcrumbReturn, CodeBadge } from '../shell/Niveau3Strip';
 import {
   CHIFFRAGE_PRELEVEMENTS, COTISATIONS_PAGES, RESULTATS_BLOC, COTISATIONS_SOURCES,
   resolveCotLigne, fmtCot, fmtCotValeur, fmtCotManque, getCotValeur,
@@ -545,15 +546,19 @@ export function LinePanel({ resolved, onClose, onNavigateValue, onNavigatePage }
   );
 }
 
-// ── en-tête de page — bande flush, bordée, collante ─────────────────────────
-// La structure Plato d'un en-tête de détail (Figma « Row / sub-header ») :
-// une bande pleine largeur, bordée en bas, qui porte le retour, le titre et le
-// total à gauche→droite, et l'action « Copier chiffrage » au bout. Elle est
-// COLLANTE : le calcul est long, le titre et le total doivent rester sous les
-// yeux quand on descend. Le tableau, lui, n'a pas d'en-tête — ce serait le même
-// chiffre une troisième fois. Le total reste positif : la direction vit sur la
-// page Chiffrage (« Montant prélevé »).
-export function PrelevementHeader({ title, amount, badge, onBack, onCopy, sticky = false }) {
+// ── en-tête de page — en-tête d'objet niveau 3 (nav dossier V2) ──────────────
+// MÊME grammaire que le strip poste/acte du dossier (Niveau3Strip) : deux
+// lignes — le retour NOMMÉ « Retour au chiffrage » (l'unique retour du cran),
+// puis, en dessous, le badge + le titre SERIF + le total + l'action « Copier
+// chiffrage ». Bande pleine largeur, bordée en bas, COLLANTE : le calcul est
+// long, le titre et le total restent sous les yeux quand on descend. Le
+// tableau, lui, n'a pas d'en-tête — ce serait le même chiffre une troisième
+// fois. `amount` absent (undefined) = pas de total dans l'en-tête (pages sans
+// chiffre de tête, ex. « Salaire de référence »).
+const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
+const SERIF_AMOUNT = { fontFamily: "Georgia, 'Times New Roman', serif", fontWeight: 400, letterSpacing: '-0.5px', fontSize: 18 };
+export function PrelevementHeader({ title, amount, badge, onBack, onCopy, sticky = false, flush = false }) {
+  const showAmount = amount !== undefined;
   return (
     <div
       style={{
@@ -561,34 +566,30 @@ export function PrelevementHeader({ title, amount, badge, onBack, onCopy, sticky
         background: 'white', borderBottom: `1px solid ${LINE}`,
       }}
     >
-      <div className="flex items-center" style={{ height: 52, padding: '0 16px', gap: 12 }}>
-        <button
-          onClick={onBack}
-          aria-label="Retour au chiffrage"
-          title="Retour au chiffrage"
-          className="inline-flex items-center justify-center rounded-md transition-colors flex-shrink-0"
-          style={{ width: 28, height: 28, border: 'none', background: 'transparent', color: MUTE, cursor: 'pointer' }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        {badge && (
-          <span className="inline-flex items-center flex-shrink-0" style={{ padding: '2px 8px', borderRadius: 6, border: `1px solid ${LINE}`, fontFamily: MONO, fontSize: 10.5, fontWeight: 600, color: INK2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{badge}</span>
-        )}
-        <span className="min-w-0 truncate" style={{ fontSize: 15, fontWeight: 600, color: INK }}>{title}</span>
-        <span className="ml-auto flex-shrink-0" style={{ fontSize: 15, fontWeight: 600, color: amount?.value == null ? FAINT : INK, fontVariantNumeric: 'tabular-nums' }}>
-          {fmtCotValeur(amount)}
-        </span>
-        {onCopy && (
-          <button
-            onClick={onCopy}
-            className="inline-flex items-center transition-opacity hover:opacity-90 flex-shrink-0"
-            style={{ height: 32, padding: '0 12px', borderRadius: 6, background: INK, color: 'white', border: 'none', boxShadow: '0px 1px 2px rgba(26,26,26,0.05)', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
-          >
-            Copier chiffrage
-          </button>
-        )}
+      <div style={{ padding: flush ? '10px 32px 12px' : '10px 16px 12px' }}>
+        <BreadcrumbReturn label="Retour au chiffrage" onClick={onBack} />
+        <div className="mt-1 flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {badge && <CodeBadge>{badge}</CodeBadge>}
+            <span className="min-w-0 truncate" style={{ fontFamily: SERIF, fontSize: 20, fontWeight: 500, color: INK, letterSpacing: '-0.01em' }}>{title}</span>
+          </div>
+          <div className="ml-auto flex items-center gap-3 flex-shrink-0">
+            {showAmount && (
+              <span className="flex-shrink-0" style={{ ...SERIF_AMOUNT, color: amount?.value == null ? FAINT : INK }}>
+                {fmtCotValeur(amount)}
+              </span>
+            )}
+            {onCopy && (
+              <button
+                onClick={onCopy}
+                className="inline-flex items-center transition-opacity hover:opacity-90 flex-shrink-0"
+                style={{ height: 32, padding: '0 12px', borderRadius: 6, background: INK, color: 'white', border: 'none', boxShadow: '0px 1px 2px rgba(26,26,26,0.05)', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
+              >
+                Copier chiffrage
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -630,6 +631,7 @@ export function PrelevementPage({ pageKey, onBack, onNavigatePage, sticky = fals
         onBack={onBack}
         onCopy={onCopy}
         sticky={sticky}
+        flush={flush}
       />
       {/* les deux sections — chacune nomme ce qu'elle produit ; les cartes
           s'étalent sur toute la largeur de la page (comme l'en-tête flush),
