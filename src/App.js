@@ -89,7 +89,7 @@ import PileAdjustSheet from './components/pieces/PileAdjustSheet';
 import FusePiecesModal from './components/pieces/FusePiecesModal';
 import SplitVariantsLab from './components/pieces/SplitVariantsLab';
 import { ReleveEditor } from './components/social/ReleveHeuresLab';
-import CotisationsSection, { PrelevementPage, ResultatsBloc, LinePanel, ValuePill, ROW_DIVIDER } from './components/social/CotisationsSection';
+import CotisationsSection, { PrelevementPage, PrelevementHeader, ResultatsBloc, LinePanel, ValuePill, ROW_DIVIDER } from './components/social/CotisationsSection';
 import CotisationsLab from './components/ui-kit/CotisationsLab';
 import { COTISATIONS_PAGES } from './data/cotisationsSocial';
 import {
@@ -9661,14 +9661,8 @@ export default function App() {
         </div>
       );
     }
-    const LINE = '#dfdcd9', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', WHITE = 'white', SUBTLE = '#fafaf9', PAPER = '#f8f7f5', INFO = '#1e3a8a', INFO_BG = '#dfe8f5';
+    const LINE = '#dfdcd9', INK = '#292524', MUTE = '#78716c', WHITE = 'white', PAPER = '#f8f7f5', INFO = '#1e3a8a', INFO_BG = '#dfe8f5';
     const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
-    const back = (
-      <button onClick={() => setSocialDetail(null)} className="inline-flex items-center gap-1.5 rounded-md transition-colors" style={{ height: 32, padding: '0 10px 0 7px', fontSize: 13, color: INK2, border: `1px solid ${LINE}`, background: 'transparent', cursor: 'pointer' }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
-        <ChevronLeft className="w-4 h-4" /> Chiffrage
-      </button>
-    );
     if (socialDetail === 'salaire') {
       const BULLETINS = [
         { m: 'Juil. 2022', brut: 2300 }, { m: 'Août 2022', brut: 2300 }, { m: 'Sept. 2022', brut: 2300 },
@@ -9681,8 +9675,14 @@ export default function App() {
       const fav = moy12 >= moy3 ? '12' : '3';
       const salaireRef = Math.round(socialSalaireBasis === '3' ? moy3 : moy12);
       return (
-        <div className="space-y-5" style={{ maxWidth: 920, margin: '0 auto' }}>
-          <div className="flex items-center gap-3">{back}<span style={{ fontSize: 15, fontWeight: 600, color: INK }}>Salaire de référence</span></div>
+        // En-tête d'objet niveau 3 (nav dossier V2) : bande flush + collante,
+        // retour NOMMÉ « Retour au chiffrage » + titre serif. On annule le
+        // padding du conteneur de chiffrage pour aller de bord à bord, la page
+        // réintroduit son propre padding sous l'en-tête.
+        <div style={{ margin: '-24px -32px -32px' }}>
+          <PrelevementHeader title="Salaire de référence" onBack={() => setSocialDetail(null)} sticky flush />
+          <div style={{ padding: '20px 32px 28px' }}>
+          <div className="space-y-5" style={{ maxWidth: 920 }}>
           <div style={{ ...cardChrome, background: WHITE }}>
             <div className="flex items-center" style={{ height: 40, padding: '0 16px', background: PAPER, borderBottom: `1px solid ${LINE}` }}>
               <span className="flex-1" style={colHeaderStyle}>Salaire de référence retenu</span>
@@ -9723,6 +9723,8 @@ export default function App() {
             ))}
           </div>
           <p style={{ fontSize: 12, color: MUTE, margin: 0, lineHeight: '17px' }}>La moyenne sur 12 mois intègre les primes (13e mois, prime annuelle) au prorata. Le salaire de référence retenu est la moyenne la plus favorable au salarié (art. R. 1234-4 du Code du travail).</p>
+          </div>
+          </div>
         </div>
       );
     }
