@@ -1,10 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   FileText, FileType2, Image as ImageIcon, LayoutTemplate, Gavel, Mail, Stamp, Globe,
-  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X, Calendar, Hash,
-  Sparkles, Sparkle, Scissors, Download, Trash2, ZoomIn, ZoomOut, Maximize2, Minimize2,
-  ExternalLink, Search, ArrowDownToLine, Paperclip, Pencil, PencilLine, Check,
-  Rows3,
+  ChevronRight, ChevronDown, X, Calendar, Hash,
+  Sparkles, Sparkle, Scissors, Download, Trash2,
+  ExternalLink, Search, Paperclip, PencilLine, Check,
+  Table, Calculator,
 } from 'lucide-react';
 import Input from '../ui/Input';
 import Badge from '../ui/Badge';
@@ -15,12 +15,13 @@ import { DOC_SAMPLE_IMAGES, docSampleIndex } from './docSamples';
 // ─────────────────────────────────────────────────────────────────────────────
 // PreviewPanel - le panneau de preview systématisé (fusion preview-doc + panel)
 //
-// Un seul « shell » (barre de titre · métadonnées · corps · pied) dont TROIS
-// zones sont pluggables selon le type de source citée. Il réunit :
-//   · du lab preview-doc  → le viewer confortable (zoom, plein écran, nav fluide),
-//     les métadonnées en HEADER vs SIDE, le mode lecture/édition, le résumé IA.
-//   · du lab preview-panel → la déclinaison par type (piece, modele, jp, email,
-//     loi, ligne, web) et le contrat « aller à la citation ».
+// Un seul « shell » (barre de titre · barre méta · corps · rail citations) dont
+// les zones sont pluggables selon le type de source citée. Aligné pixel-perfect
+// sur Figma « Plato — System » › PreviewPanel 37375:9324 (états Default /
+// LineEdit / Editing) : header 56px (titre serif, nav ‹ i/N ›, Télécharger
+// primaire + Supprimer destructive-subtle + Fermer secondary), barre méta 52px
+// (chips 12px + Modifier), PAS de footer (le doc est fit-width permanent), rail
+// « Extraits cités » à l'actif stone (pastille foreground + dégradé cream).
 //
 // Contrat commun : `source.passages` (ou `passage`) décrit le/les endroit(s) que
 // la citation vise. À l'ouverture, le panneau surligne tous les passages, défile
@@ -41,6 +42,10 @@ const HL = colors.banner.warning.border;        // #fde68a
 const HL_EDGE = colors.banner.warning.accent;   // #d97706 - liseré + outline du chunk actif
 const AI_ACCENT = colors.banner.ai.accent;      // #9333ea - marqueur « généré par IA »
 const MONO = typography.fontFamily.mono;
+const SERIF = typography.fontFamily.serif;
+
+// Titre serif du panneau (Figma « display-xs » : serif 16 / 20, tracking -0.5).
+const SERIF_TITLE = { fontFamily: SERIF, fontSize: 16, lineHeight: '20px', letterSpacing: '-0.5px', fontWeight: 500 };
 
 // Ring de focus keyboard-only cohérent, appliqué aux contrôles interactifs
 // principaux du panneau. Reste discret (foreground @ 40%, offset 1px) mais
@@ -191,7 +196,7 @@ export function MetaChip({
   const strong = resolvedVariant === 'strong';
 
   const chrome = [
-    'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border text-[13px] text-foreground-secondary min-w-0 max-w-full',
+    'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border text-[12px] leading-4 text-foreground-secondary min-w-0 max-w-full',
     strong ? 'bg-cream' : 'bg-background-canvas',
     clickable
       ? 'transition-colors hover:border-border-strong disabled:hover:border-border disabled:cursor-not-allowed disabled:opacity-60'
@@ -207,9 +212,9 @@ export function MetaChip({
   const inner = (
     <>
       {Icon && <Icon className="w-3.5 h-3.5 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />}
-      {resolvedLabel && <span className="text-foreground-secondary flex-shrink-0 whitespace-nowrap">{resolvedLabel}</span>}
+      {resolvedLabel && <span className="text-foreground-secondary flex-shrink-0 whitespace-nowrap" style={{ letterSpacing: '0.12px' }}>{resolvedLabel}</span>}
       {value != null && (
-        <span className={`text-foreground flex-shrink-0 whitespace-nowrap ${strong ? 'font-medium' : ''}`}>{value}</span>
+        <span className="text-foreground font-medium flex-shrink-0 whitespace-nowrap">{value}</span>
       )}
       {aside && (
         <span
@@ -219,7 +224,7 @@ export function MetaChip({
           <span className="text-foreground-muted mr-1" aria-hidden>·</span>{aside}
         </span>
       )}
-      {ai && <Sparkles className="w-3 h-3 flex-shrink-0" strokeWidth={2} style={{ color: AI_ACCENT }} />}
+      {ai && <Sparkles className="w-2.5 h-2.5 flex-shrink-0" strokeWidth={2} style={{ color: AI_ACCENT }} />}
     </>
   );
 
@@ -391,7 +396,7 @@ function PdfDoc({ source, pageWidth, scrollRef, onScroll, highlight }) {
   const start = docSampleIndex(source.name || '');
   return (
     <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
-      <div className="flex flex-col items-center gap-5 py-5 px-5">
+      <div className="flex flex-col items-center gap-6 p-6">
         {Array.from({ length: source.pages }, (_, i) => (
           <DocPage
             key={i}
@@ -476,7 +481,7 @@ function ImageDoc({ source, pageWidth, scrollRef, onScroll }) {
   const total = source.pages || 1;
   return (
     <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
-      <div className="flex flex-col items-center gap-5 py-5 px-5">
+      <div className="flex flex-col items-center gap-6 p-6">
         {Array.from({ length: total }, (_, i) => (
           <ImagePage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} quotes={byPage[i + 1] || []} />
         ))}
@@ -538,7 +543,7 @@ function WordDoc({ source, pageWidth, scrollRef, onScroll }) {
   const total = source.pages || Math.max(1, ...Object.keys(byPage).map(Number));
   return (
     <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
-      <div className="flex flex-col items-center gap-5 py-5 px-5">
+      <div className="flex flex-col items-center gap-6 p-6">
         {Array.from({ length: total }, (_, i) => (
           <WordPage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} paras={byPage[i + 1] || []} />
         ))}
@@ -744,7 +749,7 @@ function LigneBody({ source, scrollRef }) {
 //
 // La liste lit `items` (dérivés du DOM) donc marche uniformément pour tous
 // les kinds sans logique spécifique par corps.
-function CitesPanel({ items, active, onGo }) {
+function CitesPanel({ items, active, onGo, width }) {
   const activeRef = useRef(null);
   // Suit le stepper : quand la citation active change (clic dans le doc,
   // flèches du pied, popover), on ramène la ligne dans le rail. Nearest
@@ -753,22 +758,23 @@ function CitesPanel({ items, active, onGo }) {
     if (activeRef.current) activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [active]);
   if (!items || items.length === 0) return null;
-  // Sur mobile / tablette étroite, le rail vole trop de largeur au doc. On le
-  // masque : la liste reste accessible via le popover du stepper dans le pied.
+  // Largeur pilotée par le parent (mesure de la largeur RÉELLE du panneau, pas
+  // du viewport - le chat mange de la place à droite). Le parent masque aussi
+  // le rail quand le panneau est trop étroit ; la liste reste alors accessible
+  // depuis les surlignages du corps.
   //
-  // Traitement typographique inbox-like : PAGE tient lieu d'objet (mono
-  // uppercase, bold quand actif = « non lu ») ; l'extrait tient lieu de snippet
-  // (deux lignes claires, pas de fioritures). Le numéro à gauche reprend la
-  // logique du stepper. L'état actif se déclare via une barre amber pleine à
-  // gauche (3px) + un fond cream - rappel visuel du surlignage dans le corps.
+  // Traitement typographique inbox-like (Figma 37375:9168) : PAGE tient lieu
+  // d'objet (mono uppercase), l'extrait tient lieu de snippet (deux lignes).
+  // L'état actif se déclare en STONE : pastille pleine foreground, dégradé
+  // cream→blanc sur la ligne, liseré 2px foreground à gauche.
   return (
-    <aside className="hidden md:flex w-[240px] lg:w-[300px] max-w-[38%] border-l border-border bg-white flex-col flex-shrink-0 min-h-0">
-      {/* Header : eyebrow mono + compteur en pastille discrète */}
-      <div className="px-4 pt-4 pb-3 border-b border-border-subtle flex-shrink-0 flex items-baseline justify-between gap-3">
-        <span className="uppercase tracking-wide text-foreground-secondary" style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, letterSpacing: '0.06em' }}>
+    <aside className="flex border-l border-border bg-white flex-col flex-shrink-0 min-h-0" style={{ width }}>
+      {/* Header : label semibold + compteur en pastille discrète */}
+      <div className="h-12 px-4 border-b border-border-subtle flex-shrink-0 flex items-center justify-between gap-3">
+        <span className="uppercase text-[11px] font-semibold text-foreground-secondary" style={{ letterSpacing: '0.5px' }}>
           Extraits cités
         </span>
-        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-background-subtle text-[11px] font-medium text-foreground-secondary tabular-nums">
+        <span className="inline-flex items-center justify-center min-w-[20px] px-1.5 py-0.5 rounded-[10px] bg-background-subtle text-[11px] font-semibold text-foreground-secondary tabular-nums">
           {items.length}
         </span>
       </div>
@@ -784,35 +790,26 @@ function CitesPanel({ items, active, onGo }) {
               onClick={() => onGo(i)}
               aria-current={isActive ? 'true' : undefined}
               aria-label={`Citation ${i + 1}${it.page ? `, page ${it.page}` : ''}${it.text ? `. ${it.text.slice(0, 80)}${it.text.length > 80 ? '…' : ''}` : ''}`}
-              className={`group relative w-full text-left px-4 py-3.5 flex items-start gap-3 transition-colors ${FOCUS_RING} focus-visible:ring-inset ${i > 0 ? 'border-t border-border-subtle' : ''} ${isActive ? 'bg-cream' : 'hover:bg-background-canvas'}`}
+              className={`group relative w-full text-left px-4 py-3.5 flex items-start gap-3 transition-colors ${FOCUS_RING} focus-visible:ring-inset ${i > 0 ? 'border-t border-border-subtle' : ''} ${isActive ? 'bg-gradient-to-r from-cream to-white' : 'hover:bg-background-canvas'}`}
             >
-              {/* Barre amber pleine à gauche quand actif - rappelle le liseré
-                  du chunk dans le doc */}
+              {/* Liseré stone plein à gauche quand actif */}
               {isActive && (
-                <span
-                  aria-hidden
-                  className="absolute left-0 top-0 bottom-0 w-[3px]"
-                  style={{ background: HL_EDGE }}
-                />
+                <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[2px] bg-foreground" />
               )}
-              {/* Numéro dans une pastille carrée douce, amber quand actif */}
+              {/* Numéro en pastille ronde : foreground plein quand actif, cream sinon */}
               <span
-                className={`inline-flex items-center justify-center flex-shrink-0 w-[22px] h-[22px] rounded text-[11px] font-medium tabular-nums transition-colors ${
-                  isActive ? 'text-foreground' : 'text-foreground-secondary bg-background-subtle group-hover:bg-white group-hover:text-foreground'
+                className={`inline-flex items-center justify-center flex-shrink-0 h-5 min-w-[20px] px-1 rounded-full text-[12px] font-medium tabular-nums transition-colors ${
+                  isActive ? 'bg-foreground text-white' : 'bg-cream text-foreground-tertiary'
                 }`}
-                style={isActive ? { background: HL, boxShadow: `0 1px 2px ${HL_EDGE}33` } : undefined}
               >
                 {i + 1}
               </span>
-              {/* Contenu : eyebrow page + extrait sobre.
-                  Traitement inbox-like : la page tient lieu d'objet (bold quand
-                  actif, comme un mail non-lu), l'extrait tient lieu de snippet
-                  (deux lignes claires, pas de fioritures typographiques). */}
-              <span className="min-w-0 flex-1">
+              {/* Contenu : eyebrow page (mono) + extrait deux lignes */}
+              <span className="min-w-0 flex-1 flex flex-col gap-1">
                 {it.page && (
                   <span
-                    className={`block uppercase tabular-nums mb-1 ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`}
-                    style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: isActive ? 600 : 500, letterSpacing: '0.06em' }}
+                    className={`block uppercase tabular-nums ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`}
+                    style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500 }}
                   >
                     page {it.page}
                   </span>
@@ -820,8 +817,9 @@ function CitesPanel({ items, active, onGo }) {
                 <span
                   className={`block ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`}
                   style={{
-                    fontSize: 13,
-                    lineHeight: '19px',
+                    fontSize: 12,
+                    lineHeight: '16px',
+                    letterSpacing: '0.12px',
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
@@ -869,81 +867,6 @@ export const PREVIEW_KINDS = {
   web:    { label: 'Lien web',           icon: Globe,          accent: BADGE_ACCENT('WEB'),       footer: 'none',    opens: 'Lien externe (nouvel onglet) - pas de panneau',          body: 'external' },
 };
 
-// Enchaîne les passages cités d'un même document. 1 chunk → bouton simple ;
-// plusieurs → stepper avec flèches, dont le compteur ouvre la LISTE complète
-// (page + extrait) - un clic pour sauter à n'importe quelle citation.
-function CiteNav({ count, active, items, onGo, onStep }) {
-  const [open, setOpen] = useState(false);
-  if (count <= 0) return null;
-  if (count === 1) {
-    return (
-      <button type="button" onClick={() => onGo(0)} className="inline-flex items-center gap-1.5 px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors">
-        <ArrowDownToLine className="w-3.5 h-3.5" strokeWidth={1.75} /> Aller à la citation
-      </button>
-    );
-  }
-  return (
-    <div className="inline-flex items-center gap-0.5 relative">
-      <button type="button" onClick={() => onStep(-1)} disabled={active <= 0} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none" aria-label="Citation précédente">
-        <ChevronLeft className="w-4 h-4" />
-      </button>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors tabular-nums whitespace-nowrap"
-        title="Voir toutes les citations"
-      >
-        Citation <span className="font-medium text-foreground">{active + 1}</span> / {count}
-        <ChevronDown className={`w-3 h-3 opacity-70 transition-transform ${open ? 'rotate-180' : ''}`} strokeWidth={1.75} />
-      </button>
-      <button type="button" onClick={() => onStep(1)} disabled={active >= count - 1} className="p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none" aria-label="Citation suivante">
-        <ChevronRight className="w-4 h-4" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div
-            role="menu"
-            className="absolute bottom-full mb-2 right-0 z-20 w-[380px] max-h-[340px] overflow-auto bg-white border border-border rounded-lg shadow-lg py-1"
-            style={{ animation: 'fadeIn 0.15s ease-out' }}
-          >
-            <div className="px-3 pt-2 pb-1.5 sticky top-0 bg-white border-b border-border-subtle">
-              <FieldLabel>Citations dans ce document ({count})</FieldLabel>
-            </div>
-            {items.map((it, i) => {
-              const isActive = i === active;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => { onGo(i); setOpen(false); }}
-                  className={`w-full text-left px-3 py-2 flex items-start gap-2.5 transition-colors border-l-2 ${isActive ? 'bg-cream border-l-[color:var(--cite-edge)]' : 'border-l-transparent hover:bg-background'}`}
-                  style={{ '--cite-edge': HL_EDGE }}
-                >
-                  <span className={`inline-flex items-center justify-center flex-shrink-0 w-5 h-5 rounded text-[11px] font-medium tabular-nums mt-0.5 ${isActive ? 'text-foreground' : 'text-foreground-secondary bg-background-subtle'}`} style={isActive ? { background: HL, boxShadow: `inset 2px 0 0 ${HL_EDGE}` } : undefined}>
-                    {i + 1}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    {it.page && <span className="block text-[11px] text-foreground-muted tabular-nums mb-0.5">page {it.page}</span>}
-                    <span className={`block text-[12.5px] leading-5 ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`} style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {it.text || <span className="italic text-foreground-muted">Extrait indisponible</span>}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-const ZOOM_STEPS = [50, 67, 80, 100, 125, 150, 200];
-
 // ── Rail d'édition « valeurs de la ligne » ────────────────────────────────────
 // Quand le SUJET du panneau est une ligne de poste (déclenché depuis un poste /
 // une ligne de chiffrage), le doc devient sa pièce attachée et ce rail édite les
@@ -952,14 +875,14 @@ const ZOOM_STEPS = [50, 67, 80, 100, 125, 150, 200];
 // (+ `summary` dérivé), donc il sert n'importe quel poste (PGPA, DFT, DSA,
 // social…). L'édition des MÉTADONNÉES de la pièce reste, elle, dans la barre méta
 // (bouton « Modifier la pièce »).
-const LIGNE_INPUT = 'w-full h-9 px-3 text-[13.5px] text-foreground bg-white border border-border rounded-lg shadow-xs outline-none focus:border-foreground-muted transition-colors';
+const LIGNE_INPUT = 'w-full h-9 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg shadow-xs outline-none focus:border-foreground-muted transition-colors';
 
 function LigneField({ f }) {
   // Repère « sourcé » : signale que la valeur a été extraite du document ouvert
   // à gauche (date / montant). Rappelle que la donnée vient de la pièce.
   const label = (
-    <div className="flex items-center gap-1.5 mb-1.5">
-      <label className="text-[12px] font-medium text-foreground-secondary">{f.label}</label>
+    <div className="flex items-center gap-1 mb-1.5">
+      <label className="text-[14px] leading-5 font-medium text-foreground">{f.label}</label>
       {f.sourced && (
         // State « sourcé » du DS : une sparkle discrète à côté du label. Survoler
         // le champ surligne l'emplacement dans le document.
@@ -969,112 +892,149 @@ function LigneField({ f }) {
       )}
     </div>
   );
+  const helper = f.helper ? (
+    <p className="mt-1.5 text-[12px] leading-4 text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>{f.helper}</p>
+  ) : null;
   if (f.type === 'date') {
-    return (<div>{label}<div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors"><Calendar className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} /><input defaultValue={f.value} className="flex-1 min-w-0 bg-transparent outline-none text-[13.5px] text-foreground" /></div></div>);
+    return (<div>{label}<div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors"><Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} /><input defaultValue={f.value} className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground" /></div>{helper}</div>);
   }
   if (f.type === 'money') {
-    return (<div>{label}<div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-muted text-[13.5px]">€</span><input defaultValue={f.value} className={`${LIGNE_INPUT} pl-7 tabular-nums`} /></div></div>);
+    return (<div>{label}<div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors"><span className="text-foreground-muted text-[14px] flex-shrink-0">€</span><input defaultValue={f.value} className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground tabular-nums" /></div>{helper}</div>);
   }
   if (f.type === 'number' || f.type === 'percent') {
     const suffix = f.type === 'percent' ? '%' : (f.suffix || '');
-    return (<div>{label}<div className="relative"><input defaultValue={f.value} className={`${LIGNE_INPUT} tabular-nums ${suffix ? 'pr-8' : ''}`} />{suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-[13.5px]">{suffix}</span>}</div></div>);
+    return (<div>{label}<div className="relative"><input defaultValue={f.value} className={`${LIGNE_INPUT} tabular-nums ${suffix ? 'pr-8' : ''}`} />{suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-[14px]">{suffix}</span>}</div>{helper}</div>);
   }
   if (f.type === 'select') {
-    return (<div>{label}<div className="relative"><select defaultValue={f.value} className={`${LIGNE_INPUT} appearance-none pr-8`}>{(f.options || [f.value]).map((o) => <option key={o}>{o}</option>)}</select><ChevronDown className="w-4 h-4 text-foreground-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" /></div></div>);
+    return (<div>{label}<div className="relative"><select defaultValue={f.value} className={`${LIGNE_INPUT} appearance-none pr-8`}>{(f.options || [f.value]).map((o) => <option key={o}>{o}</option>)}</select><ChevronDown className="w-4 h-4 text-foreground-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" /></div>{helper}</div>);
   }
-  return (<div>{label}<input defaultValue={f.value} className={LIGNE_INPUT} /></div>);
+  return (<div>{label}<input defaultValue={f.value} className={LIGNE_INPUT} />{helper}</div>);
 }
 
-// Une ligne porte une ou plusieurs pièces justificatives. Chaque ligne = la
-// pièce + ses actions PROPRES : voir en contexte (œil → affiche la pièce dans le
-// doc), télécharger, retirer. La pièce active (affichée dans le doc) est mise en
-// avant. C'est ici que vivent télécharger/supprimer (plus dans le header).
+// Pièces justificatives de la ligne : un champ de recherche pour EN AJOUTER +
+// la liste des pièces déjà liées, rendue par le composant « Doc List »
+// (Figma 37634:12714, états Default / Hover / Active). Chaque ligne = trombone
+// + nom + actions Télécharger / Retirer ; la pièce active (affichée dans le
+// document) porte le liseré brand orange à glow + un fond canvas encadré.
+function DocListItem({ name, active, onView }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onView}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onView && onView(); } }}
+      title="Voir la pièce"
+      aria-pressed={active}
+      className={`group relative flex items-center gap-2.5 pr-3 rounded-md cursor-pointer transition-colors ${FOCUS_RING} focus-visible:ring-inset ${active ? 'bg-background-canvas border border-border shadow-xs' : 'border border-transparent hover:bg-background-canvas'}`}
+    >
+      {/* Liseré actif brand orange (à glow) - langage « détail » du DS. */}
+      {active && (
+        <span aria-hidden className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[26px] rounded-r-sm bg-brand" style={{ boxShadow: '0 0 6px rgba(244,122,44,0.38)' }} />
+      )}
+      <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-2.5">
+        <span className="inline-flex items-center justify-center w-[22px] h-[22px] flex-shrink-0">
+          <Paperclip className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
+        </span>
+        <span className={`min-w-0 truncate text-[14px] leading-5 text-foreground ${active ? 'font-medium' : ''}`}>{name}</span>
+      </div>
+      <button type="button" onClick={(e) => e.stopPropagation()} title="Télécharger" aria-label="Télécharger la pièce" className="p-0.5 rounded text-foreground-muted hover:text-foreground transition-colors flex-shrink-0"><Download className="w-4 h-4" strokeWidth={1.75} /></button>
+      <button type="button" onClick={(e) => e.stopPropagation()} title="Retirer" aria-label="Retirer la pièce" className="p-0.5 rounded text-foreground-muted hover:text-danger transition-colors flex-shrink-0"><Trash2 className="w-4 h-4" strokeWidth={1.75} /></button>
+    </div>
+  );
+}
+
 function LignePieces({ pieces, activePiece = 0, onView }) {
   return (
-    <div>
-      <label className="block text-[12px] font-medium text-foreground-secondary mb-1.5">Pièces justificatives</label>
-      <div className="space-y-2">
-        {pieces.map((p, i) => {
-          const active = i === activePiece;
-          return (
-            <div
-              key={i}
-              role="button"
-              tabIndex={0}
-              onClick={() => onView && onView(i)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onView && onView(i); } }}
-              title="Voir la pièce"
-              aria-pressed={active}
-              className={`group flex items-center gap-2.5 p-2 rounded-lg border cursor-pointer transition-colors ${FOCUS_RING} ${active ? 'bg-cream border-border-strong' : 'bg-white border-border hover:bg-cream/50 hover:border-border-strong'}`}
-            >
-              <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 transition-colors ${active ? 'bg-foreground text-white' : 'bg-cream text-foreground-tertiary'}`}><FileText className="w-3.5 h-3.5" strokeWidth={1.75} /></span>
-              <span className={`flex-1 min-w-0 text-[13px] truncate text-foreground ${active ? 'font-medium' : ''}`}>{p}</span>
-              <div className="flex items-center gap-0.5 flex-shrink-0">
-                <button type="button" onClick={(e) => e.stopPropagation()} title="Télécharger" aria-label="Télécharger la pièce" className="p-1 rounded text-foreground-muted hover:text-foreground hover:bg-white transition-colors"><Download className="w-4 h-4" strokeWidth={1.75} /></button>
-                <button type="button" onClick={(e) => e.stopPropagation()} title="Retirer" aria-label="Retirer la pièce" className="p-1 rounded text-foreground-muted hover:text-danger hover:bg-danger-subtle transition-colors"><Trash2 className="w-4 h-4" strokeWidth={1.75} /></button>
-              </div>
-            </div>
-          );
-        })}
-        <button type="button" className="w-full flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background-canvas text-foreground-muted text-left hover:border-border-strong transition-colors">
-          <Search className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} /><span className="text-[13px] flex-1 truncate">Rechercher une pièce…</span><ChevronDown className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
-        </button>
+    <div className="flex flex-col gap-3">
+      <div>
+        <label className="block text-[14px] leading-5 font-medium text-foreground mb-1.5">Ajouter des pièces justificatives</label>
+        <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors">
+          <Search className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
+          <input placeholder="Recherchez une pièce..." className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground placeholder:text-foreground-secondary" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        {pieces.map((p, i) => (
+          <DocListItem key={i} name={p} active={i === activePiece} onView={() => onView && onView(i)} />
+        ))}
       </div>
     </div>
   );
 }
 
-function LigneEditRail({ ligne, onClose, pieceNames, activePiece, onView, onSourceHover = () => {} }) {
+// Rail « Éditer la ligne » (Figma 37614:20252) : titre serif + champs pleine
+// largeur, pièces justificatives, grille de champs, puis le bloc Total calculé
+// (dégradé canvas) et les actions Supprimer / Enregistrer.
+function LigneEditRail({ ligne, onClose, pieceNames, activePiece, onView, onSourceHover = () => {}, width }) {
+  const fields = ligne.fields || [];
+  const fullFields = fields.filter((f) => f.full);
+  const gridFields = fields.filter((f) => !f.full);
+  const hoverProps = (f) => (f.sourced && f.docHint ? {
+    onMouseEnter: () => onSourceHover(f.docHint),
+    onMouseLeave: () => onSourceHover(null),
+    onFocusCapture: () => onSourceHover(f.docHint),
+    onBlurCapture: () => onSourceHover(null),
+  } : {});
+  const summary = ligne.summary || [];
+  const totalRow = summary.find((s) => s.strong);
+  const detailRows = summary.filter((s) => !s.strong);
   return (
-    <aside className="w-[360px] max-w-[42%] flex-shrink-0 bg-white flex flex-col min-h-0">
-      <div className="min-h-[44px] px-4 border-b border-border flex items-center gap-2 flex-shrink-0">
-        <Pencil className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.75} />
-        <span className="text-[13px] font-semibold text-foreground">Modifier la ligne</span>
-      </div>
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {/* Cadre mental : les valeurs viennent du document (à gauche) ; on ajuste
-            la ligne, pas le document. */}
-        <p className="flex items-start gap-1.5 text-[12px] leading-snug text-foreground-secondary">
-          <Sparkle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: AI_ACCENT }} strokeWidth={2} fill="currentColor" />
-          <span>Valeurs extraites du document.</span>
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          {(ligne.fields || []).map((f, i) => {
-            const hov = f.sourced && f.docHint;
-            return (
-              <div
-                key={i}
-                className={f.full ? 'col-span-2' : ''}
-                onMouseEnter={hov ? () => onSourceHover(f.docHint) : undefined}
-                onMouseLeave={hov ? () => onSourceHover(null) : undefined}
-                onFocusCapture={hov ? () => onSourceHover(f.docHint) : undefined}
-                onBlurCapture={hov ? () => onSourceHover(null) : undefined}
-              >
-                <LigneField f={f} />
-              </div>
-            );
-          })}
+    <aside className="flex-shrink-0 bg-white flex flex-col min-h-0" style={{ width }}>
+      <div className="flex-1 overflow-y-auto overflow-x-clip py-5 flex flex-col gap-4 min-h-0">
+        {/* Titre serif + champs pleine largeur (libellé…) */}
+        <div className="px-5 flex flex-col gap-4">
+          <h3 className="m-0 text-foreground-strong" style={{ fontFamily: SERIF, fontSize: 20, lineHeight: '28px', letterSpacing: '-0.6px', fontWeight: 500 }}>
+            Éditer la ligne
+          </h3>
+          {fullFields.map((f, i) => (
+            <div key={i} {...hoverProps(f)}><LigneField f={f} /></div>
+          ))}
         </div>
-        {pieceNames?.length > 0 && <LignePieces pieces={pieceNames} activePiece={activePiece} onView={onView} />}
-        {ligne.summary?.length > 0 && (
+        {pieceNames?.length > 0 && (
           <>
-            <div className="h-px bg-border -mx-4" />
-            <div className="space-y-2.5 pt-1">
-              {ligne.summary.map((s, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <span className="text-[12.5px] text-foreground-muted">{s.label}</span>
-                  <span className={s.strong ? 'text-[14px] font-semibold text-foreground tabular-nums' : 'text-[13px] text-foreground-secondary tabular-nums'}>{s.value}</span>
-                </div>
+            <div className="h-px bg-border flex-shrink-0" />
+            <div className="px-5">
+              <LignePieces pieces={pieceNames} activePiece={activePiece} onView={onView} />
+            </div>
+          </>
+        )}
+        {gridFields.length > 0 && (
+          <>
+            <div className="h-px bg-border flex-shrink-0" />
+            <div className="px-5 grid grid-cols-2 gap-4">
+              {gridFields.map((f, i) => (
+                <div key={i} {...hoverProps(f)}><LigneField f={f} /></div>
               ))}
             </div>
           </>
         )}
       </div>
-      <div className="px-4 h-[52px] border-t border-border flex items-center justify-between gap-2 flex-shrink-0">
-        <button type="button" onClick={onClose} className="inline-flex items-center justify-center h-9 w-9 rounded-lg text-danger hover:bg-danger-subtle transition-colors" aria-label="Supprimer la ligne"><Trash2 className="w-4 h-4" strokeWidth={1.75} /></button>
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={onClose} className="h-9 px-3.5 rounded-lg text-[13px] font-medium text-foreground-secondary hover:bg-cream transition-colors">Annuler</button>
-          <button type="button" onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-medium text-white bg-foreground hover:bg-foreground-tertiary transition-colors">Enregistrer</button>
+      {/* Total calculé (dégradé canvas → transparent) + actions */}
+      <div className="border-t border-border flex-shrink-0">
+        {summary.length > 0 && (
+          <div className="p-5 flex flex-col gap-3.5" style={{ background: `linear-gradient(180deg, ${colors.semantic.background} 50%, rgba(248,247,245,0) 100%)` }}>
+            {detailRows.map((s, i) => (
+              <div key={i} className="flex items-center justify-between gap-3">
+                <span className="text-[12px] leading-4 text-foreground-secondary">{s.label}</span>
+                <span className="text-[13px] text-foreground-secondary tabular-nums">{s.value}</span>
+              </div>
+            ))}
+            {totalRow && (
+              <div className="flex items-end justify-between gap-3">
+                <span className="inline-flex items-start gap-[7px]">
+                  <span className="text-[14px] leading-5 font-medium text-foreground">{totalRow.label}</span>
+                  <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-cream flex-shrink-0" title="Montant calculé">
+                    <Calculator className="w-3 h-3 text-foreground-tertiary" strokeWidth={2} />
+                  </span>
+                </span>
+                <span className="text-[20px] leading-7 font-semibold text-foreground tabular-nums" style={{ letterSpacing: '-0.6px' }}>{totalRow.value}</span>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="p-5 bg-white border-t border-border flex items-center justify-between gap-2">
+          <button type="button" onClick={onClose} className={`h-9 px-4 rounded-lg bg-danger-subtle text-danger-text text-[14px] font-medium hover:brightness-95 transition-all ${FOCUS_RING}`}>Supprimer</button>
+          <button type="button" onClick={onClose} className={`h-9 px-4 rounded-lg bg-foreground text-white text-[14px] font-medium hover:bg-foreground-tertiary transition-colors shadow-2xs ${FOCUS_RING}`}>Enregistrer</button>
         </div>
       </div>
     </aside>
@@ -1112,51 +1072,65 @@ export default function PreviewPanel({
   // Le titre porte la ligne (icône neutre + eyebrow poste), un rail édite ses
   // valeurs, et l'édition des métadonnées de la pièce reste dans la barre méta.
   const subjectIsLigne = !!ligne;
-  const TitleIcon = subjectIsLigne ? Rows3 : Icon;
+  const TitleIcon = subjectIsLigne ? Table : Icon;
   const titleEyebrow = subjectIsLigne ? (ligne.poste || 'Ligne') : cfg.label;
   const titleName = subjectIsLigne ? ligne.titre : source.name;
   const openSource = (t) => { if (t && onOpenSource) onOpenSource(t); };
 
-  const [zoom, setZoom] = useState(100);
-  const [fitWidth, setFitWidth] = useState(true);
-  const [fullscreen, setFullscreen] = useState(false);
-  // ESC ferme les menus ouverts ; si plein écran, ferme d'abord le plein écran.
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key !== 'Escape') return;
-      if (fullscreen) { setFullscreen(false); return; }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [fullscreen]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [editing, setEditing] = useState(false);
-  const [metaExpanded, setMetaExpanded] = useState(false);
   const [docHi, setDocHi] = useState(null); // { page, rect } - surlignage doc au survol d'un champ sourcé
   const scrollRef = useRef(null);
+  const rootRef = useRef(null);
 
-  const [fitPx, setFitPx] = useState(640);
+  // ── Adaptativité pilotée par la largeur RÉELLE du panneau ──
+  // Les avocats travaillent souvent sur de petits écrans, et le chat (à droite)
+  // ampute encore la largeur : le panneau peut tomber à ~600px alors que le
+  // viewport fait 1440. On mesure donc le panneau lui-même (pas le viewport)
+  // pour dimensionner les rails et décider d'afficher le rail citations.
+  const [panelW, setPanelW] = useState(1120);
   useEffect(() => {
-    if (!fitWidth || !isDoc) return;
-    const el = scrollRef.current;
+    const el = rootRef.current;
     if (!el) return;
-    const measure = () => setFitPx(Math.max(320, Math.min(el.clientWidth - 40, 980)));
+    const measure = () => setPanelW(el.clientWidth);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [fitWidth, fullscreen, isDoc]);
+  }, []);
+  // Rails fluides : px fixe borné (garde le formulaire / les citations lisibles),
+  // qui se réduit sur petit panneau pour que le document reste dominant.
+  const clamp = (min, val, max) => Math.round(Math.max(min, Math.min(val, max)));
+  const editRailW = clamp(320, panelW * 0.34, 360);   // « Éditer la ligne »
+  const citesRailW = clamp(220, panelW * 0.26, 300);  // « Extraits cités »
+  // Sous ce seuil, le rail citations volerait trop de largeur au doc → masqué
+  // (les surlignages du corps restent la source de vérité). Le rail d'édition,
+  // lui, est la surface d'action principale d'une ligne : jamais masqué.
+  const showCites = panelW >= 620;
+  // Header compact : sur panneau étroit, le libellé « Télécharger » passe en icône seule.
+  const compact = panelW < 720;
 
-  const pageWidth = fitWidth ? fitPx : Math.round(640 * (zoom / 100));
+  // Largeur de page ajustée en continu à la colonne document (fit-width).
+  const [fitPx, setFitPx] = useState(640);
+  useEffect(() => {
+    if (!isDoc) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const measure = () => setFitPx(Math.max(320, Math.min(el.clientWidth - 48, 980)));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isDoc]);
+
+  const pageWidth = fitPx;
 
   // ── Contrat « citation » ── Un doc peut porter plusieurs passages (chunks) :
   // tous surlignés, un stepper les enchaîne, le chunk actif reçoit un liseré.
   // Ordre = ordre du DOM (page, puis position).
   const passages = source.passages || (source.passage ? [source.passage] : []);
   const [activeCite, setActiveCite] = useState(0);
-  const [citeCount, setCiteCount] = useState(passages.length);
-  // Extraits + page dérivés de la source de vérité (le DOM rendu) : identique
-  // à la logique du stepper, donc list & flèches sont toujours en phase.
+  // Extraits + page dérivés de la source de vérité (le DOM rendu) : le rail
+  // « Extraits cités » et le surlignage du corps restent toujours en phase.
   const [citeItems, setCiteItems] = useState([]);
 
   const goToCite = useCallback((idx) => {
@@ -1178,7 +1152,6 @@ export default function PreviewPanel({
     const t = setTimeout(() => {
       const el = scrollRef.current;
       const cites = el ? el.querySelectorAll('[data-cite]') : [];
-      setCiteCount(cites.length);
       setCiteItems(Array.from(cites).map((n) => {
         const pageEl = n.closest('[data-page]');
         // Certains bodies (email, ligne) marquent une zone plus large que
@@ -1198,21 +1171,6 @@ export default function PreviewPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source, goToCite]);
 
-  const stepZoom = (dir) => {
-    setFitWidth(false);
-    setZoom((z) => {
-      const idx = ZOOM_STEPS.reduce((best, v, i) => (Math.abs(v - z) < Math.abs(ZOOM_STEPS[best] - z) ? i : best), 0);
-      return ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, Math.max(0, idx + dir))];
-    });
-  };
-  const onScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const mid = el.scrollTop + el.clientHeight / 2;
-    let cur = 1;
-    el.querySelectorAll('[data-page]').forEach((p) => { if (p.offsetTop <= mid) cur = Number(p.dataset.page); });
-    setCurrentPage(cur);
-  }, []);
   const goToPage = (n) => {
     const el = scrollRef.current;
     if (!el) return;
@@ -1220,104 +1178,101 @@ export default function PreviewPanel({
     if (target) el.scrollTo({ top: target.offsetTop - 24, behavior: 'smooth' });
   };
 
-  // ── Métadonnées documents : lecture (chips) / édition (Inputs) ──
+  // ── Métadonnées documents : lecture (une rangée de chips, Figma MetaBar) ──
   const docReadChips = () => (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 flex-wrap">
-        {kind === 'piece' ? (
-          <>
-            {/* Identité de la pièce - chip strong (fond cream + valeur medium) */}
-            <MetaChip
-              variant="strong"
-              icon={Hash}
-              label="Pièce"
-              value={
-                <>
-                  {source.section}
-                  <span className="text-foreground-muted mx-1">·</span>
-                  <span className="tabular-nums">n° {source.numero}</span>
-                </>
-              }
-            />
-            <MetaChip icon={Calendar} label="Date" value={source.date} ai />
-            <MetaChip label="Type" value={source.type} />
-          </>
-        ) : (
-          <>
-            {source.category && <MetaChip label="Catégorie" value={source.category} />}
-            <MetaChip icon={Calendar} label="Mise à jour" value={source.date} />
-            {source.variables != null && <MetaChip label="Variables" value={source.variables} />}
-          </>
-        )}
-        {source.split && (
+    <>
+      {kind === 'piece' ? (
+        <>
+          {/* Identité de la pièce - chip strong (fond cream + valeur medium) */}
           <MetaChip
-            icon={Scissors}
-            label="Document découpé"
-            aside={source.split.source}
-            action={{ label: 'Ajuster', onClick: () => {} }}
+            variant="strong"
+            icon={Hash}
+            label="Pièce"
+            value={
+              <>
+                {source.section}
+                <span className="text-foreground-muted mx-1">·</span>
+                <span className="tabular-nums">n° {source.numero}</span>
+              </>
+            }
           />
-        )}
-        {source.provenance && (
-          <MetaChip
-            icon={Mail}
-            label="Issu de l'email"
-            aside={source.provenance.subject}
-            onClick={() => openSource(source.provenance.open)}
-            disabled={!source.provenance.open}
-          />
-        )}
-      </div>
-      {/* Résumé IA : sujet Pièce uniquement. Depuis une ligne, pas besoin. */}
-      {!subjectIsLigne && source.summary && (
-        <div className="flex items-start gap-1.5">
-          <p
-            className="text-[13px] leading-5 text-foreground-secondary min-w-0 flex-1"
-            style={metaExpanded ? undefined : { display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-            title={source.summary}
-          >
-            {source.summary}
-          </p>
-          <button type="button" onClick={() => setMetaExpanded((v) => !v)} className="flex-shrink-0 inline-flex items-center gap-0.5 text-caption text-foreground-muted hover:text-foreground-secondary transition-colors mt-0.5">
-            {metaExpanded ? <>Réduire <ChevronUp className="w-3 h-3" /></> : <>Détails <ChevronDown className="w-3 h-3" /></>}
-          </button>
-        </div>
+          <MetaChip icon={Calendar} label="Date" value={source.date} ai />
+          <MetaChip label="Type" value={source.type} />
+        </>
+      ) : (
+        <>
+          {source.category && <MetaChip label="Catégorie" value={source.category} />}
+          <MetaChip icon={Calendar} label="Mise à jour" value={source.date} />
+          {source.variables != null && <MetaChip label="Variables" value={source.variables} />}
+        </>
       )}
-    </div>
+      {source.split && (
+        <MetaChip
+          icon={Scissors}
+          label="Document découpé"
+          aside={source.split.source}
+          action={{ label: 'Ajuster', onClick: () => {} }}
+        />
+      )}
+      {source.provenance && (
+        <MetaChip
+          icon={Mail}
+          label="Issu de l'email"
+          aside={source.provenance.subject}
+          onClick={() => openSource(source.provenance.open)}
+          disabled={!source.provenance.open}
+        />
+      )}
+    </>
   );
 
-  const docEditInputs = () => (
-    <div className="flex flex-col gap-3.5" style={{ animation: 'fadeIn 0.15s ease-out' }}>
-      <FieldLabel>Informations du document</FieldLabel>
-      <Input label="Nom du document" aiGenerated defaultValue={source.name} />
-      <div className="flex gap-3">
-        {kind === 'piece' ? (
-          <Input label="Type" className="flex-1">
-            <div className="relative">
-              <select defaultValue={source.type} className="w-full h-9 pl-3 pr-8 bg-white border border-border rounded-lg shadow-xs text-body text-foreground outline-none appearance-none focus:border-foreground-muted">
-                {['Rapport', 'Correspondance', 'Facture', 'Certificat médical', 'Autre'].map((t) => <option key={t}>{t}</option>)}
-              </select>
-              <ChevronDown className="w-4 h-4 text-foreground-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+  // ── Mode édition (Figma MetaBar mode=Edit, 37375:9392) : la barre méta est
+  // REMPLACÉE par la section d'édition - en-tête serif + Enregistrer primaire,
+  // « Informations générales » (nom + nom original + résumé + date), puis
+  // « Numérotation de la pièce ». Le corps du document reste visible dessous.
+  const originalName = source.originalName || source.split?.source;
+  const docEditForm = (
+    <div className="bg-white border-b border-border flex-shrink-0 flex flex-col gap-4 py-4" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+      <div className="px-4 flex items-center justify-between gap-3">
+        <span className="text-foreground truncate" style={SERIF_TITLE}>Modifier les informations du document</span>
+        <button
+          type="button"
+          onClick={() => setEditing(false)}
+          className={`inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-foreground text-white text-[14px] font-medium hover:bg-foreground-tertiary transition-colors flex-shrink-0 ${FOCUS_RING}`}
+        >
+          <Check className="w-4 h-4" strokeWidth={2} /> Enregistrer
+        </button>
+      </div>
+      <div className="px-5 flex flex-col gap-4">
+        <FieldLabel>Informations générales</FieldLabel>
+        <div className="flex flex-col gap-2">
+          <Input label="Nom du document" aiGenerated defaultValue={source.name} />
+          {(originalName || source.summary) && (
+            <div className="px-0.5 flex flex-col gap-1.5 text-[12px] text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>
+              {originalName && <p className="m-0 leading-4"><span className="font-medium">Nom original</span> - {originalName}</p>}
+              {source.summary && <p className="m-0 leading-5">{source.summary}</p>}
             </div>
-          </Input>
-        ) : (
-          <Input label="Catégorie" className="flex-1" defaultValue={source.category} />
-        )}
-        <Input label={kind === 'piece' ? 'Date du document' : 'Mise à jour'} aiGenerated={kind === 'piece'} className="flex-1">
-          <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted focus-within:ring-1 focus-within:ring-border-alt">
+          )}
+        </div>
+        <Input label={kind === 'piece' ? 'Date du document' : 'Mise à jour'} aiGenerated={kind === 'piece'}>
+          <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors">
             <Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
-            <input defaultValue={source.date} placeholder="jj/mm/aaaa" className="flex-1 min-w-0 bg-transparent outline-none text-body text-foreground" />
+            <input defaultValue={source.date} placeholder="jj/mm/aaaa" className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground" />
           </div>
         </Input>
+        {kind !== 'piece' && <Input label="Catégorie" defaultValue={source.category} />}
+        {source.split && <SplitCallout split={source.split} />}
+        {source.provenance && <ProvenanceCallout prov={source.provenance} onOpen={openSource} />}
       </div>
-      {source.split && <SplitCallout split={source.split} />}
-      {source.provenance && <ProvenanceCallout prov={source.provenance} onOpen={openSource} />}
       {kind === 'piece' && (
         <>
-          <div className="h-px bg-border -mx-4" />
-          <FieldLabel>Numérotation de la pièce</FieldLabel>
-          <div className="flex gap-3">
-            <Input label="Section" className="flex-1" defaultValue={source.section} />
-            <Input label="Numéro" className="flex-1" defaultValue={source.numero} />
+          <div className="h-px bg-border" />
+          <div className="px-5 flex flex-col gap-5">
+            <FieldLabel>Numérotation de la pièce</FieldLabel>
+            <div className="flex gap-5">
+              <Input label="Section" className="flex-1" defaultValue={source.section} />
+              <Input label="Numéro" className="flex-1" defaultValue={source.numero} />
+            </div>
           </div>
         </>
       )}
@@ -1329,48 +1284,48 @@ export default function PreviewPanel({
     if (kind === 'jp') {
       const s = source.jp || {};
       return (
-        <div className="flex items-center gap-2 flex-wrap">
+        <>
           <MetaChip label="Juridiction" value={s.juridiction} />
           <MetaChip icon={Calendar} label="Date" value={s.date} />
           <MetaChip icon={Hash} value={`n° ${s.numero}`} />
           {s.quantum && <Badge variant="info" size="md" label={s.quantum} />}
-        </div>
+        </>
       );
     }
     if (kind === 'email') {
       const e = source.email || {};
       const attCount = (e.messages || []).reduce((n, m) => n + (m.attachments?.length || 0), 0);
       return (
-        <div className="flex items-center gap-2 flex-wrap">
+        <>
           <MetaChip label="Objet" value={e.subject} />
           <MetaChip label="Messages" value={e.messages?.length} />
           {attCount > 0 && <MetaChip icon={Paperclip} label="Pièces jointes" value={attCount} />}
-        </div>
+        </>
       );
     }
     if (kind === 'loi') {
       const l = source.loi || {};
       return (
-        <div className="flex items-center gap-2 flex-wrap">
+        <>
           <MetaChip label="Code" value={l.code} />
           <MetaChip icon={Calendar} label="En vigueur au" value={l.enVigueur} />
-        </div>
+        </>
       );
     }
     if (kind === 'ligne') {
       const g = source.ligne || {};
       return (
-        <div className="flex items-center gap-2 flex-wrap">
+        <>
           <AuthorityBadge authority={g.authority} />
           {g.periode && <MetaChip label="Période" value={g.periode} />}
-        </div>
+        </>
       );
     }
     return null;
   };
 
   const renderBody = () => {
-    if (cfg.body === 'doc') return <DocBody source={source} pageWidth={pageWidth} scrollRef={scrollRef} onScroll={onScroll} highlight={docHi} />;
+    if (cfg.body === 'doc') return <DocBody source={source} pageWidth={pageWidth} scrollRef={scrollRef} highlight={docHi} />;
     if (cfg.body === 'jp') return <JpBody source={source} scrollRef={scrollRef} />;
     if (cfg.body === 'email') return <EmailBody source={source} scrollRef={scrollRef} onOpen={openSource} />;
     if (cfg.body === 'loi') return <LoiBody source={source} scrollRef={scrollRef} />;
@@ -1378,140 +1333,81 @@ export default function PreviewPanel({
     return null;
   };
 
-  // Pied extrait en variable : rendu en bas du panneau (sujet pièce/record) ou
-  // à l'intérieur de la colonne document (sujet ligne, à côté du rail de valeurs).
-  const footerBar = cfg.footer === 'doc' ? (
-    <div className="px-3 h-[52px] border-t border-border bg-white flex-shrink-0 flex items-center justify-between gap-2">
-      <div className="flex items-center gap-1">
-        <button type="button" onClick={() => stepZoom(-1)} className={`p-1.5 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Dézoomer">
-          <ZoomOut className="w-4 h-4" strokeWidth={1.75} />
-        </button>
-        <button type="button" onClick={() => setFitWidth((f) => !f)} aria-pressed={fitWidth} className={`px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors min-w-[62px] text-center tabular-nums ${FOCUS_RING}`}>
-          {fitWidth ? 'Ajusté' : `${zoom}%`}
-        </button>
-        <button type="button" onClick={() => stepZoom(1)} className={`p-1.5 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Zoomer">
-          <ZoomIn className="w-4 h-4" strokeWidth={1.75} />
-        </button>
-        <span className="w-px h-4 bg-border mx-1" />
-        <button type="button" onClick={() => setFullscreen((f) => !f)} aria-pressed={fullscreen} className={`inline-flex items-center gap-1.5 px-2 h-7 rounded-md text-caption text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`}>
-          {fullscreen ? <Minimize2 className="w-3.5 h-3.5" strokeWidth={1.75} /> : <Maximize2 className="w-3.5 h-3.5" strokeWidth={1.75} />}
-          {fullscreen ? 'Réduire' : 'Plein écran'}
-        </button>
-        {citeCount > 0 && (
-          <>
-            <span className="w-px h-4 bg-border mx-1" />
-            <CiteNav count={citeCount} active={activeCite} items={citeItems} onGo={goToCite} onStep={(d) => goToCite(activeCite + d)} />
-          </>
-        )}
-      </div>
-      <div className="flex items-center gap-1">
-        <button type="button" onClick={() => goToPage(Math.max(1, currentPage - 1))} disabled={currentPage <= 1} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none ${FOCUS_RING}`} aria-label="Page précédente">
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <span className="text-caption text-foreground-muted tabular-nums min-w-[54px] text-center">page {currentPage} / {source.pages}</span>
-        <button type="button" onClick={() => goToPage(Math.min(source.pages, currentPage + 1))} disabled={currentPage >= source.pages} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors disabled:opacity-40 disabled:pointer-events-none ${FOCUS_RING}`} aria-label="Page suivante">
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  ) : cfg.footer === 'passage' ? (
-    <div className="px-3 py-2 border-t border-border bg-white flex-shrink-0 flex items-center justify-between gap-2 flex-wrap">
-      <button type="button" className="flex items-center gap-2 flex-1 min-w-0 max-w-[320px] h-8 px-2.5 rounded-lg border border-border bg-background-canvas text-foreground-muted text-left transition-colors hover:border-border-strong hover:text-foreground-secondary">
-        <Search className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} />
-        <span className="text-[13px] truncate">Rechercher dans le texte</span>
-      </button>
-      {citeCount > 0 && (
-        <CiteNav count={citeCount} active={activeCite} items={citeItems} onGo={goToCite} onStep={(d) => goToCite(activeCite + d)} />
-      )}
-    </div>
-  ) : null;
-
-  // Barre de métadonnées de la pièce (chips lecture / Inputs édition + Modifier
-  // en sujet Pièce ; identité + select de pièce en sujet Ligne). Placée pleine
-  // largeur en sujet Pièce, mais DANS la colonne doc en sujet Ligne pour que le
-  // rail d'édition s'étende jusque sous la barre de titre.
+  // Barre de métadonnées (Figma MetaBar, h-52) : UNE rangée de chips + le
+  // bouton « Modifier » à droite (sujet Pièce). En mode édition, la barre est
+  // remplacée par docEditForm (voir plus haut).
   const metaBand = (
-    <div className={`px-4 border-b border-border bg-white flex-shrink-0 flex gap-3 ${subjectIsLigne ? 'min-h-[44px] items-center' : 'py-3 items-start'}`}>
-      <div className="flex-1 min-w-0">
-        {subjectIsLigne && isDoc && !editing ? (
-          // Ligne : identité (icône + nom, sans switch) + chips pièce, TOUT sur une
-          // seule ligne flex, séparés par un filet. Le changement de pièce se fait
-          // via les cards « Pièces justificatives » du rail, pas ici.
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="flex items-center gap-1.5 min-w-0">
-              <Icon className="w-4 h-4 flex-shrink-0" style={{ color: cfg.accent.fg }} strokeWidth={1.75} />
-              <span className="text-[13px] font-medium text-foreground truncate">{source.name}</span>
-            </span>
-            {/* Métadonnées du doc en bout de ligne (dead space à droite), à l'écart
-                du nom : visibles d'un coup d'œil sans gêner la lecture. */}
-            <div className="ml-auto flex items-center gap-2 flex-shrink-0">
-              <MetaChip variant="strong" icon={Hash} label="Pièce" value={<>{source.section}<span className="text-foreground-muted mx-1">·</span><span className="tabular-nums">n° {source.numero}</span></>} />
-              <MetaChip icon={Calendar} label="Date" value={source.date} ai />
-              <MetaChip label="Type" value={source.type} />
-            </div>
-          </div>
-        ) : (
-          isDoc ? (editing ? docEditInputs() : docReadChips()) : otherMeta()
-        )}
+    <div className="h-[52px] px-4 border-b border-border bg-white flex-shrink-0 flex items-center gap-2">
+      <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
+        {isDoc ? docReadChips() : otherMeta()}
       </div>
-      {/* Édition des métadonnées pièce : sujet Pièce uniquement. */}
       {isDoc && !subjectIsLigne && (
         <button
           type="button"
-          onClick={() => setEditing((v) => !v)}
-          aria-pressed={editing}
-          className={`inline-flex items-center gap-1.5 h-7 px-2 rounded-md text-[13px] font-medium transition-colors flex-shrink-0 ${FOCUS_RING} ${editing ? 'text-foreground hover:bg-cream' : 'text-link hover:bg-info-bg'}`}
+          onClick={() => setEditing(true)}
+          className={`inline-flex items-center gap-2 h-8 px-2 rounded-md text-[14px] font-medium text-link hover:bg-info-bg transition-colors flex-shrink-0 ${FOCUS_RING}`}
         >
-          {editing ? <><Check className="w-3.5 h-3.5" strokeWidth={2} /> Terminé</> : <><PencilLine className="w-3.5 h-3.5" strokeWidth={1.75} /> Modifier</>}
+          <PencilLine className="w-3 h-3" strokeWidth={2} /> Modifier
         </button>
       )}
     </div>
   );
 
+  // Sujet ligne : la colonne document porte son propre sous-header (Figma
+  // PanelHeader kind=PieceSmall) - icône + nom de la pièce, « Détail › » ouvre
+  // la pièce en preview pleine (métadonnées + citations).
+  const docSubHeader = (
+    <div className="h-14 pl-4 pr-3 bg-white border-b border-border flex items-center justify-between gap-3 flex-shrink-0">
+      <div className="flex items-center gap-3 min-w-0">
+        <Icon className="w-4 h-4 flex-shrink-0" style={{ color: cfg.accent.fg }} strokeWidth={1.75} />
+        <span className="text-[14px] leading-5 font-medium text-foreground-strong truncate">{source.name}</span>
+      </div>
+      <button
+        type="button"
+        onClick={() => openSource({ kind: 'piece', source })}
+        className={`inline-flex items-center gap-2 rounded-md text-[14px] font-medium text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0 ${FOCUS_RING}`}
+      >
+        Détail <ChevronRight className="w-3 h-3" strokeWidth={2} />
+      </button>
+    </div>
+  );
+
   return (
     <div
+      ref={rootRef}
       className={`bg-background-canvas flex flex-col overflow-hidden ${
-        fullscreen ? 'fixed inset-0 z-50' : embedded ? 'relative rounded-xl border border-border shadow-sm h-[520px] sm:h-[640px] lg:h-[720px]' : 'relative h-full w-full'
+        embedded ? 'relative rounded-lg border border-border shadow-sm h-[520px] sm:h-[640px] lg:h-[720px]' : 'relative h-full w-full'
       }`}
-      style={{ animation: fullscreen ? 'fadeIn 0.15s ease-out' : undefined }}
     >
-      {/* ── Barre de titre ── */}
-      <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0 bg-white">
-        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-          <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0 ${subjectIsLigne ? 'bg-cream text-foreground-tertiary' : ''}`} style={subjectIsLigne ? undefined : { background: cfg.accent.bg, color: cfg.accent.fg }}>
-            <TitleIcon className="w-3.5 h-3.5" strokeWidth={1.75} />
+      {/* ── Barre de titre (Figma PanelHeader 37375:8738, h-56) ── */}
+      <div className="h-14 pl-4 pr-3 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <span className={`inline-flex items-center justify-center p-1.5 rounded-md flex-shrink-0 ${subjectIsLigne ? 'bg-sand-subtle text-sand' : ''}`} style={subjectIsLigne ? undefined : { background: cfg.accent.bg, color: cfg.accent.fg }}>
+            <TitleIcon className="w-4 h-4" strokeWidth={1.75} />
           </span>
-          {/* Eyebrow : uniquement en sujet ligne (le poste). En sujet pièce, le
-              header du design = icône + titre, l'icône teintée porte le kind. */}
+          {/* Eyebrow : uniquement en sujet ligne - le poste, en Badge secondary. */}
           {subjectIsLigne && (
-            <span className="hidden sm:inline text-[11px] font-medium uppercase tracking-wide flex-shrink-0 text-foreground-muted" style={{ fontFamily: MONO }}>{titleEyebrow}</span>
+            <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md bg-cream text-[12px] leading-4 font-medium text-foreground-tertiary flex-shrink-0">{titleEyebrow}</span>
           )}
-          <span className="text-body-medium text-foreground-strong truncate min-w-0">{titleName}</span>
+          <span className="text-foreground-strong truncate min-w-0" style={SERIF_TITLE}>{titleName}</span>
         </div>
-        <div className="flex items-center flex-shrink-0">
+        <div className="flex items-center gap-3.5 flex-shrink-0">
+          {/* Nav entre documents : glyphes ‹ › + compteur, puis séparateur */}
           {navTotal > 1 && (
             <>
-              <div className="flex items-center gap-1 pr-2">
-                <button type="button" onClick={onPrev} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Pièce précédente">
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-caption text-foreground-muted min-w-[38px] text-center tabular-nums" aria-label={`Pièce ${navIndex} sur ${navTotal}`}>{navIndex} / {navTotal}</span>
-                <button type="button" onClick={onNext} className={`p-1 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`} aria-label="Pièce suivante">
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+              <div className="flex items-center gap-2 text-[14px] text-foreground-secondary">
+                <button type="button" onClick={onPrev} className={`px-0.5 rounded font-medium hover:text-foreground transition-colors ${FOCUS_RING}`} aria-label="Document précédent">‹</button>
+                <span className="tabular-nums" aria-label={`Document ${navIndex} sur ${navTotal}`}>{navIndex} / {navTotal}</span>
+                <button type="button" onClick={onNext} className={`px-0.5 rounded font-medium hover:text-foreground transition-colors ${FOCUS_RING}`} aria-label="Document suivant">›</button>
               </div>
-              <span className="w-px h-5 bg-border" />
+              <span className="w-px h-5 bg-border" aria-hidden />
             </>
           )}
-          {/* Actions - une seule pastille par famille :
-                · lien externe (jp/loi/ligne) → icône seule, tooltip = nom
-                · overflow ⋯ (docs)          → Télécharger + Supprimer
-              Le bouton Fermer ferme la ligne. */}
-          <div className="flex items-center gap-1.5 px-1.5">
+          <div className="flex items-center gap-[7px]">
             {cfg.link && (
               <button
                 type="button"
-                className={`inline-flex items-center justify-center w-8 h-8 rounded-md text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`}
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-foreground-secondary hover:text-foreground hover:bg-cream transition-colors ${FOCUS_RING}`}
                 aria-label={`Ouvrir dans ${cfg.link}`}
                 title={`Ouvrir dans ${cfg.link}`}
               >
@@ -1519,20 +1415,19 @@ export default function PreviewPanel({
               </button>
             )}
             {/* Télécharger + Supprimer : actions de la PIÈCE → uniquement en sujet
-                Pièce. Depuis une ligne, elles vivent par-pièce dans le rail
-                « Pièces justificatives » (le header porte la ligne, pas la pièce). */}
+                Pièce. Depuis une ligne, le header porte la ligne, pas la pièce. */}
             {isDoc && !subjectIsLigne && (
               <>
                 <button
                   type="button"
                   title="Télécharger"
                   aria-label="Télécharger"
-                  className={`inline-flex items-center gap-2 h-8 px-2 sm:px-3 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors text-[13px] font-medium ${FOCUS_RING}`}
+                  className={`inline-flex items-center gap-2 h-8 px-2 sm:px-3 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors text-[14px] font-medium ${FOCUS_RING}`}
                 >
                   <Download className="w-4 h-4" strokeWidth={1.75} />
-                  <span className="hidden sm:inline">Télécharger</span>
+                  {!compact && <span>Télécharger</span>}
                 </button>
-                {/* Supprimer : bouton dédié destructive-subtle (Figma), pas un menu */}
+                {/* Supprimer : bouton dédié destructive-subtle (Figma) */}
                 <button
                   type="button"
                   aria-label="Supprimer"
@@ -1544,7 +1439,7 @@ export default function PreviewPanel({
               </>
             )}
             {/* Fermer : bouton secondary rempli (Figma) */}
-            <button type="button" onClick={onClose} className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-cream text-foreground-secondary hover:text-foreground hover:brightness-95 transition-all ${FOCUS_RING}`} aria-label="Fermer">
+            <button type="button" onClick={onClose} className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-cream text-foreground-tertiary hover:text-foreground hover:brightness-95 transition-all ${FOCUS_RING}`} aria-label="Fermer">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -1552,16 +1447,15 @@ export default function PreviewPanel({
       </div>
 
       {/* ── Corps + zone de droite ──
-           · sujet ligne  → colonne doc (méta pièce + doc + pied) à gauche, le rail
-             de valeurs s'étend en pleine hauteur jusque sous la barre de titre.
-           · sujet pièce  → méta pleine largeur, doc + rail de citations, pied en bas */}
+           · sujet ligne  → colonne doc (sous-header pièce + doc) et rail
+             « Éditer la ligne » en pleine hauteur jusque sous la barre de titre.
+           · sujet pièce  → barre méta (ou section d'édition), doc + rail citations */}
       {subjectIsLigne ? (
         (() => {
           const docCol = (
             <div className="flex-1 min-w-0 flex flex-col">
-              {metaBand}
+              {docSubHeader}
               {renderBody()}
-              {footerBar}
             </div>
           );
           const rail = (
@@ -1572,9 +1466,10 @@ export default function PreviewPanel({
               activePiece={piecePicked}
               onView={setPiecePicked}
               onSourceHover={(h) => { setDocHi(h); if (h && h.page) goToPage(h.page); }}
+              width={editRailW}
             />
           );
-          const divider = <div className="w-px bg-border flex-shrink-0" />;
+          const divider = <div className="w-px bg-border flex-shrink-0" aria-hidden />;
           return (
             <div className="flex flex-1 min-h-0">
               {railLeft ? <>{rail}{divider}{docCol}</> : <>{docCol}{divider}{rail}</>}
@@ -1583,12 +1478,11 @@ export default function PreviewPanel({
         })()
       ) : (
         <>
-          {metaBand}
+          {isDoc && editing ? docEditForm : metaBand}
           <div className="flex flex-1 min-h-0">
             {renderBody()}
-            <CitesPanel items={citeItems} active={activeCite} onGo={goToCite} />
+            {showCites && <CitesPanel items={citeItems} active={activeCite} onGo={goToCite} width={citesRailW} />}
           </div>
-          {footerBar}
         </>
       )}
     </div>

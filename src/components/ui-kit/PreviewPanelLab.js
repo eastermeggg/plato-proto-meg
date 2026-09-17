@@ -347,6 +347,26 @@ function LigneDrawer({ entry, idx, total, onClose, onPrev, onNext }) {
   );
 }
 
+// Documentation vivante : une barre qui montre comment le CORPS du panneau
+// (colonne document + rail de droite) se répartit. `doc`/`rail` en px → % dérivé.
+function SplitBar({ doc, rail, railLabel }) {
+  const total = doc + rail;
+  const docPct = Math.round((doc / total) * 100);
+  const railPct = 100 - docPct;
+  return (
+    <div className="flex h-11 rounded-lg overflow-hidden border border-border">
+      <div style={{ width: `${docPct}%`, background: '#ffffff' }} className="flex flex-col items-center justify-center border-r border-border min-w-0 px-1">
+        <span className="text-[12px] font-medium text-foreground truncate max-w-full">Document · flex-1</span>
+        <span className="text-[10.5px] text-foreground-muted tabular-nums">{doc}px · {docPct}%</span>
+      </div>
+      <div style={{ width: `${railPct}%`, background: '#eeece6' }} className="flex flex-col items-center justify-center min-w-0 px-1">
+        <span className="text-[12px] font-medium text-foreground truncate max-w-full">{railLabel}</span>
+        <span className="text-[10.5px] text-foreground-muted tabular-nums">{rail}px · {railPct}%</span>
+      </div>
+    </div>
+  );
+}
+
 export default function PreviewPanelLab() {
   const navigate = useNavigate();
   const [kind, setKind] = useState('piece');
@@ -499,6 +519,64 @@ export default function PreviewPanelLab() {
             Ingéré ou rédigé par Norma → interne ; web → onglet. Le défilement au passage ne sert
             qu'aux sources longues appuyant une affirmation à vérifier.
           </p>
+        </div>
+
+        {/* ── Largeurs & proportions ── */}
+        <div className="mt-8">
+          <h2 className="text-[15px] font-semibold text-foreground-strong mb-1">Largeurs &amp; proportions</h2>
+          <p className="text-[13px] text-foreground-secondary mb-4 max-w-[760px] leading-relaxed">
+            Panneau = viewport − chat, à gauche du chat (suit le grip). Document en <span className="font-medium text-foreground">flex-1</span>,
+            rail de droite fluide. Les seuils se mesurent sur la largeur du panneau, pas du viewport.
+          </p>
+
+          {/* Constantes */}
+          <div className="rounded-xl border border-border bg-white overflow-hidden mb-4">
+            <div className="overflow-x-auto">
+              <div className="min-w-[600px]">
+                <div className="grid grid-cols-[1.5fr_1.3fr_1.8fr] text-[11px] font-medium uppercase tracking-wide text-foreground-muted bg-cream border-b border-border" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                  <div className="px-4 py-2.5">Zone</div>
+                  <div className="px-4 py-2.5">Largeur</div>
+                  <div className="px-4 py-2.5">Contrainte</div>
+                </div>
+                {[
+                  { zone: 'Chat (assistant)', w: '384px défaut', c: 'min 320 · max 640 · redimensionnable (grip)' },
+                  { zone: 'Panneau preview', w: 'viewport − chat', c: 'flush à gauche du chat, suit sa largeur en live' },
+                  { zone: 'Colonne document', w: 'flex-1', c: 'prend tout le reste (min-w-0)' },
+                  { zone: 'Rail « Éditer la ligne »', w: 'clamp(320 – 360)px', c: '≈ 34 % du panneau · jamais masqué (surface d\'action)' },
+                  { zone: 'Rail « Extraits cités »', w: 'clamp(220 – 300)px', c: '≈ 26 % · masqué si panneau < 620px' },
+                  { zone: 'Page document', w: 'min(colonne − 48, 980)', c: 'fit-width · plancher 320px' },
+                ].map((r, i) => (
+                  <div key={i} className="grid grid-cols-[1.5fr_1.3fr_1.8fr] text-[13px] border-b border-border last:border-0 items-center">
+                    <div className="px-4 py-2.5 font-medium text-foreground">{r.zone}</div>
+                    <div className="px-4 py-2.5 text-foreground-secondary tabular-nums">{r.w}</div>
+                    <div className="px-4 py-2.5 text-foreground-secondary">{r.c}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Breakdown proportionnel */}
+          <div className="rounded-xl border border-border bg-background-canvas p-4">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-foreground-muted mb-3" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+              Répartition du corps · grand écran, chat 384 → panneau 1056px (rails à leur cap)
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="text-[12px] font-medium text-foreground mb-1.5">Sujet Ligne — document + rail d'édition</div>
+                <SplitBar doc={697} rail={359} railLabel="Éditer la ligne" />
+              </div>
+              <div>
+                <div className="text-[12px] font-medium text-foreground mb-1.5">Sujet Pièce — document + rail citations</div>
+                <SplitBar doc={781} rail={275} railLabel="Extraits cités" />
+              </div>
+            </div>
+            <p className="text-[12px] text-foreground-muted mt-3 leading-relaxed max-w-[760px]">
+              Panneau étroit : les rails rétrécissent vers leur plancher (édition 320, citations 220).
+              Sous <span className="tabular-nums">620px</span>, le rail citations s'efface. Page = <span className="tabular-nums">min(colonne − 48, 980)</span>, plancher 320.
+              Le rail d'édition n'est jamais masqué.
+            </p>
+          </div>
         </div>
       </div>
 

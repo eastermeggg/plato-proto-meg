@@ -1,11 +1,12 @@
 # PreviewPanel
 
 One systematized preview panel for every citable source in Norma. A single shell
-(title bar · metadata header · body · footer) whose body, metadata, and footer are
+(title bar · metadata bar · body · citations rail) whose body and metadata are
 chosen by a `kind` discriminator, plus one contract shared by all kinds: a cited
 source opens scrolled to the exact passage it backs, highlighted.
 
 **File:** `src/components/preview/PreviewPanel.js` · **Lab:** `/ui-kit/preview-panel`
+**Figma:** Plato — System · `PreviewPanel` 37375:9324 (states Default / LineEdit / Editing)
 
 ## Why
 
@@ -19,19 +20,21 @@ passage" a first-class, reusable behavior.
 
 ## How it works
 
-Every source kind renders through the same shell. Three zones vary by `kind`; the
-rest - flush-left-of-chat positioning, prev/next navigation, close, zoom/fullscreen,
-and the passage contract - is shared.
+Every source kind renders through the same shell. Body and meta chips vary by
+`kind`; the rest - flush-left-of-chat positioning, the 56px header (serif title,
+‹ i / N › nav, Télécharger / Supprimer / Fermer), the fit-width doc canvas, and
+the passage contract - is shared. There is **no footer** (Figma V2): document
+nav lives in the header, citation nav lives in the rail.
 
-| Kind | Opens | Body | Footer | Passage |
-|---|---|---|---|---|
-| `piece` | internal previewer | paginated doc canvas | zoom · fullscreen · page nav | page + highlighted quote |
-| `modele` | internal previewer | paginated doc canvas | zoom · fullscreen · page nav | - (browsing) |
-| `jp` | DecisionDrawer + Légifrance link | decision prose (faits/moyens/motifs/dispositif) | search · citation | highlighted attendu |
-| `email` | thread drawer | stacked messages | search · citation | anchored/ringed message |
-| `loi` | light internal panel + Légifrance link | article (short, no pagination) | none | - (article is the passage) |
-| `ligne` | structured view + BOSS link | cotisation/relevé table | none | highlighted row |
-| `web` | external tab | none (ExternalCard explains) | none | - |
+| Kind | Opens | Body | Passage |
+|---|---|---|---|
+| `piece` | internal previewer | paginated doc canvas | page + highlighted quote |
+| `modele` | internal previewer | paginated doc canvas | - (browsing) |
+| `jp` | DecisionDrawer + Légifrance link | decision prose (faits/moyens/motifs/dispositif) | highlighted attendu |
+| `email` | thread drawer | stacked messages | anchored/ringed message |
+| `loi` | light internal panel + Légifrance link | article (short, no pagination) | - (article is the passage) |
+| `ligne` | structured view + BOSS link | cotisation/relevé table | highlighted row |
+| `web` | external tab | none (ExternalCard explains) | - |
 
 ### Entry points - what's the *subject*: a pièce, or a ligne?
 
@@ -52,16 +55,18 @@ edit surface, if any). Two things can be the subject:
 Rules that follow from this:
 
 - **Pièce-only never shows the value rail.** Editing a pièce means editing *its own
-  metadata*, inline in the meta header (the `Modifier` toggle). The doc keeps full width.
+  metadata*: the `Modifier` button swaps the meta bar for the **edit section** (serif
+  header + Enregistrer). The doc keeps full width.
 - **Ligne mode reframes the doc as "the attached pièce".** The title bar carries the
-  ligne (neutral `Rows3` icon, eyebrow = poste, title = libellé, nav = "ligne i / N");
-  a separate blue **PIÈCE** band sits above the document (name + découpé chip +
-  Télécharger). The right rail edits the *ligne's values*, never the doc's metadata.
+  ligne (sand `Table` icon, poste as a cream Badge, serif libellé, nav = "ligne i / N",
+  close only); the doc column gets its own 56px sub-header (icon + nom + **Détail ›**,
+  which opens the pièce as full subject). The right rail edits the *ligne's values*,
+  never the doc's metadata.
 - **A ligne can cite several pièces.** The document shows the primary one; the rail's
-  "Pièces justificatives" lists all of them + a search-to-attach control.
+  "Ajouter des pièces justificatives" search + attached-files card lists all of them.
 - **One shell, two right-zones.** Only the title-bar identity and the right zone change
-  (inline metadata edit for a pièce · value rail for a ligne). Body, footer, passage
-  contract, chrome, and the 44px header / 56px footer grid are identical.
+  (metadata edit section for a pièce · value rail for a ligne). Body, passage contract
+  and chrome are identical.
 
 The ligne framing is **generic across poste types** - `fields` (a per-poste schema of
 typed inputs), a derived `summary` block, and `piece.kind` (which document skeleton to
@@ -84,56 +89,73 @@ body row is two columns:
 | Zone | Width | Notes |
 |---|---|---|
 | Document | `flex-1` (fluid) | dominant, left |
-| Edit rail | **360px, `max-w-[42%]`** | right; caps on small screens so the doc keeps ≥58% |
+| Edit rail | **`clamp(320, 34%, 360)px`** | right; shrinks to a 320px floor on a narrow panel, caps at 360 |
 
-Between them, a 1px `bg-border` divider. **Small-screen rule:** the side rails are capped
-in % of the available width so the document never collapses - edit rail `max-w-[42%]`,
-citations rail `max-w-[38%]` (and hidden below `md`). (Fuller solution if needed later: the
-edit rail becomes a floating overlay under a breakpoint.) Order is **doc-left / edit-right** (a lab toggle
+Between them, a 1px `bg-border` divider. Order is **doc-left / edit-right** (a lab toggle
 can invert to compare, but this is the chosen order: the doc is what you read, the rail +
 chat are the action surfaces grouped on the right).
 
-**Why a fixed-width rail, not a fractional 2/3-1/3.** At a normal panel width 360px ≈ 1/3,
+**Adaptivity keyed to the *panel* width, not the viewport.** Lawyers often work on small
+laptops, and the chat (docked right) eats width on top of that - a 1366 viewport with the
+assistant open leaves ~980px of panel; a widened chat can drop it to ~600. So the panel
+measures **its own** width via a `ResizeObserver` on the root (`panelW`) and derives:
+
+- **Edit rail** = `clamp(320, panelW·0.34, 360)` - fluid, never hidden (it's the ligne's
+  primary action surface).
+- **Citations rail** = `clamp(220, panelW·0.26, 300)`, and **hidden when `panelW < 620`**
+  (container width, *not* Tailwind `md:` which would measure the viewport and wrongly keep
+  the rail open behind a wide chat). When hidden, the doc reclaims full width and the inline
+  highlights remain the source of truth.
+- **Header** goes compact under `panelW < 720`: the Télécharger label collapses to its icon.
+
+**Why a bounded-px rail, not a fractional 2/3-1/3.** At a normal panel width 360px ≈ 1/3,
 so the "doc gets ~2/3" intent holds; but a pure `w-1/3` crushes the form on narrow screens
-and stretches it on wide ones. A fixed rail keeps fields legible at any width and the doc
-always dominant. (An earlier arbitration also tested a top-dock form over a full-width doc -
-rejected: it costs vertical space and clips a portrait page.)
+and stretches it on wide ones. The clamp keeps fields legible at any width (px floor) and
+the doc always dominant (px cap + the % term shrinking the rail first). (An earlier
+arbitration also tested a top-dock form over a full-width doc - rejected: it costs vertical
+space and clips a portrait page.)
 
 **Pièce subject.** Meta bar full-width, document full-width + optional citations rail
-(`w-[240px] lg:w-[300px]`), footer full-width - no fixed edit rail (metadata edits inline).
+(fluid `clamp(220, 26%, 300)`, hidden under 620px panel) - no fixed edit rail (metadata
+edits inline).
 
-**Shared vertical grid** (so both columns line up across the divider):
+**Shared vertical grid** (Figma V2):
 
 | Band | Height |
 |---|---|
-| Title bar | 48px (`h-12`) |
-| Meta band / rail "Modifier la ligne" header | **44px**, `items-center` |
-| Footers (doc viewer + rail actions) | **52px** |
+| Title bar | **56px** (`h-14`) |
+| Meta bar (read) / doc sub-header (ligne) | **52px** / **56px** |
+| Citations-rail header | **48px** (`h-12`) |
 
-**Document viewer.** Paper padding `py-5 px-5`; fit-width = `min(container − 40, 980)`.
+**Document viewer.** Paper padding `p-6`; fit-width = `min(container − 48, 980)` -
+fit-width permanent, plus de zoom/plein écran (V2).
 
 **Chat.** Lives on the right, **resizable** via a left-edge grip; the panel's `right` offset
 tracks the chat width live so the panel stays flush-left of the chat at any width.
 
 ### Metadata: read vs edit (doc kinds)
 
-`piece` and `modele` carry the full metadata treatment: a **header** bar renders the
-chip row (Pièce · Date IA · Type · Découpé · Provenance) with a **Modifier** toggle
-top-right that swaps the read chips for the design-system `Input` components (Nom,
-Type, Date IA, Section, Numéro, plus the "document découpé - Ajuster" callout); the
-AI summary is a one-line clamp with a Détails/Réduire expander. Télécharger is a
-visible dark primary button; Supprimer lives in an overflow ⋯ menu. The other kinds
+`piece` and `modele` carry the full metadata treatment. **Read** = one 52px chip row
+(Pièce strong · Date IA · Type · Découpé · Provenance) + a blue **Modifier** link
+(pencil-line) at the right. **Édition** (Figma MetaBar mode=Edit) = the bar is
+replaced by a full section: serif header « Modifier les informations du document » +
+dark **Enregistrer** button, mono eyebrow « Informations générales » (Nom IA + helper
+« Nom original - fichier » + résumé IA + Date IA), divider, « Numérotation de la
+pièce » (Section / Numéro). Télécharger is a dark primary button in the title bar;
+Supprimer is the destructive-subtle square next to it. The other kinds
 (jp/email/loi/ligne) render header chips only - no edit, since they are enriched
 records, not user-owned documents.
 
 ### Citations rail
 
-When the source carries at least one passage, a 280px right rail appears listing
-every citation: page + quote preview + active state. Complements the footer stepper
-(cycle) with a scan surface (see them all, pick one). Same tokens as the inline
-highlight (warning family), so the rail row and the doc-page chunk visibly belong to
-the same signal. Absent when the source has no passages - the body reclaims the
-full width.
+When the source carries at least one passage, a right rail « EXTRAITS CITÉS » (fluid
+`clamp(220, 26%, 300)`, hidden under a 620px panel) appears listing every citation:
+numbered round badge + PAGE eyebrow (mono) + two-line quote preview. The **active** row
+goes stone (Figma V2): foreground-filled badge, cream→white gradient background, 2px
+foreground edge on the left - while the inline highlight in the doc stays on the warning
+family. Absent when the source has no passages (or the panel is too narrow) - the body
+reclaims the full width. This rail is the only citation nav (the footer stepper is gone
+with the footer).
 
 ### Cross-source navigation (provenance & attachments)
 
@@ -160,9 +182,9 @@ first). A "Aller à la citation" control re-centers it.
 
 A document routinely backs more than one claim - a rapport cites both the consolidation
 date (p.2) and the DFP rate (p.4); an acte cites the same pièce at five facts. All
-chunks are highlighted at once; the footer shows a **"Citation i / N"** stepper with
-prev/next, and the active chunk gets a stronger outline. Chunk order follows DOM order
-(page, then position). Passages on the same page render as separate highlights.
+chunks are highlighted at once; the citations rail lists them and the active chunk gets
+a stronger outline. Chunk order follows DOM order (page, then position). Passages on
+the same page render as separate highlights.
 
 ### When it scrolls - by surface, not by type
 
@@ -266,11 +288,9 @@ copy, external `link`).
 
 ## Edge cases
 
-- **No passage** (browse pills) → no scroll, no "aller à la citation", opens at page 1.
-- **Same-page multi-chunk** → each renders as its own highlight; stepper still counts both.
-- **`loi` / `ligne` with a cite but footer `none`** → still highlighted and scrolled on
-  open; no stepper (short/table sources rarely have multiple chunks).
-- **Fullscreen** → panel goes `inset-0`; passage scroll re-runs against the resized canvas.
+- **No passage** (browse pills) → no scroll, no citations rail, opens at page 1.
+- **Same-page multi-chunk** → each renders as its own highlight; the rail counts both.
+- **`loi` / `ligne` with a cite** → still highlighted and scrolled on open.
 
 ## Out of scope
 
