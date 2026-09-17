@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowRight, ArrowLeft, Check, ChevronDown, Clock, Lock, Loader2, ShieldCheck, Sparkles, CreditCard, X } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, ChevronDown, Clock, Lock, Loader2, Mail, ShieldCheck, Sparkles, CreditCard, X } from 'lucide-react';
 import { PRICING_PLANS, PLAN_BY_ID, fmtEur } from '../data/pricing';
 import LicencePicker from './billing/LicencePicker';
+import { ProviderMark } from './connectors/ConnectorArt';
+import { CONNECTOR_PROVIDERS } from './connectors/connectorData';
 
 // ───────────────────────────────────────────────────────────────────────────
 // OnboardingFlow - first-run experience for a newly provisioned account.
@@ -393,6 +395,7 @@ function TimelineRail({ billingDate, started }) {
 const STAGES = [
   { key: 'plan', label: 'Licences' },
   { key: 'pay',  label: 'Paiement' },
+  { key: 'connect', label: 'Boîte mail' },
   { key: 'done', label: 'Prêt' },
 ];
 function Stepper({ activeIndex }) {
@@ -575,6 +578,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
   const [planId, setPlanId] = useState('MAX');
   const [invites, setInvites] = useState([]); // starts empty - added via "Ajouter une licence"
   const [payOpen, setPayOpen] = useState(false);
+  const [mailConnected, setMailConnected] = useState(false); // étape « Connectez votre boîte »
   const [openSection, setOpenSection] = useState('licence'); // accordion: 'licence' | 'team' | null
   const [redirectLeft, setRedirectLeft] = useState(REDIRECT_SECONDS);
   const [barFill, setBarFill] = useState(0);
@@ -601,7 +605,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
   const passwordValid = password.length >= 8 && password === confirmPassword;
 
   // Stepper stage: licence(0) -> team(1) -> pay(2, while modal open) -> done(3)
-  const activeIndex = step === 'plan' ? (payOpen ? 1 : 0) : 2;
+  const activeIndex = step === 'plan' ? (payOpen ? 1 : 0) : (step === 'connect' ? 2 : 3);
 
   const goEnter = () => {
     onSelectPlan && onSelectPlan(planId);
@@ -841,10 +845,53 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
             )}
 
             {/* ══ DONE (payment cleared) - auto-launch into Plato ══ */}
+            {step === 'connect' && (
+              <div>
+                <div className="inline-flex items-center px-2.5 py-1 rounded-full mb-5" style={{ background: C.blueBg, border: `1px solid ${C.blueBorder}` }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>Dernière étape · optionnel</span>
+                </div>
+                <h1 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', lineHeight: '36px', marginBottom: 10, maxWidth: 460 }}>
+                  Connectez votre boîte mail
+                </h1>
+                <p style={{ fontSize: 13.5, color: C.fg2, lineHeight: '21px', marginBottom: 16, maxWidth: 420 }}>
+                  Démarrez avec vos dossiers déjà alimentés : choisissez les échanges d'une affaire, Plato en extrait les pièces. Lecture seule, vous validez.
+                </p>
+                {/* Cadrage : on choisit d'après l'ADRESSE, pas l'appli - même
+                    logique que l'écran Réglages (règle la confusion cabinet-vs-Outlook). */}
+                <p style={{ fontSize: 12.5, color: C.fg2, lineHeight: '17px', marginBottom: 12, maxWidth: 400 }}>
+                  Choisissez d'après votre <span style={{ fontWeight: 600, color: C.fgStrong }}>adresse email</span>, pas d'après l'application que vous ouvrez.
+                </p>
+                <div className="flex flex-col gap-2" style={{ maxWidth: 400 }}>
+                  {/* Cabinet en premier - cas majoritaire, nudge vers le bon bouton. */}
+                  {['imap', 'outlook', 'gmail'].map(k => CONNECTOR_PROVIDERS[k]).map(p => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => { setMailConnected(true); setStep('done'); }}
+                      className="group flex items-center text-left rounded-xl bg-white transition-colors hover:bg-black/[0.02]"
+                      style={{ gap: 12, padding: '12px 14px', border: `1px solid ${C.border}`, boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                    >
+                      <ProviderMark provider={p.id} size={24} />
+                      <span className="flex flex-col flex-1 min-w-0" style={{ gap: 1 }}>
+                        <span style={{ fontSize: 13.5, fontWeight: 600, color: C.fgStrong, lineHeight: '18px' }}>{p.pick}</span>
+                        <span style={{ fontSize: 12, color: C.fg2, lineHeight: '16px' }}>{p.hint}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setStep('done')} className="mt-5 transition-colors hover:opacity-80" style={{ fontSize: 13, fontWeight: 500, color: C.fg3 }}>
+                  Plus tard
+                </button>
+                <p className="mt-5" style={{ fontFamily: MONO, fontSize: 11, color: C.fg2, letterSpacing: '0.04em' }}>
+                  Lecture seule · visible de vous seul · hébergé en UE · réversible
+                </p>
+              </div>
+            )}
+
             {step === 'done' && (
               <div>
                 <div className="inline-flex items-center px-2.5 py-1 rounded-full mb-5" style={{ background: C.blueBg, border: `1px solid ${C.blueBorder}` }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>Paiement confirmé · Essai activé</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>{mailConnected ? 'Boîte connectée · Essai activé' : 'Paiement confirmé · Essai activé'}</span>
                 </div>
                 <h1 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', lineHeight: '36px', marginBottom: 10, maxWidth: 460 }}>
                   Votre essai sur Plato commence maintenant&nbsp;!
@@ -878,7 +925,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
       {/* Persistent dark brand panel on the RIGHT throughout: brand hero at
           login, then the trial timeline once past it. One continuous surface. */}
       {isLogin && <BrandPanel />}
-      {step === 'plan' && <TimelineRail billingDate={billingDate} started={false} />}
+      {(step === 'plan' || step === 'connect') && <TimelineRail billingDate={billingDate} started={false} />}
 
       {/* Stripe-style payment modal, layered above the flow */}
       <StripeModal
@@ -888,7 +935,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
         billingDate={billingDate}
         defaultEmail={email}
         onClose={() => setPayOpen(false)}
-        onPaid={() => { setPayOpen(false); setStep('done'); }}
+        onPaid={() => { setPayOpen(false); setStep('connect'); }}
       />
     </div>
   );

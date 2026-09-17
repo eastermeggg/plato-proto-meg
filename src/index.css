@@ -112,6 +112,26 @@ body {
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
+/* Encart flottant connecteur email - halo doux qui respire (bleu lien + crème),
+   pour attirer l'œil sans crier. Respecte prefers-reduced-motion. */
+@keyframes conn-halo {
+  0%, 100% { opacity: 0.45; transform: scale(0.98); }
+  50%      { opacity: 0.9;  transform: scale(1.03); }
+}
+.animate-conn-halo { animation: conn-halo 3.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-conn-halo { animation: none; opacity: 0.6; }
+}
+
+/* Bord animé de l'encart - un arc lumineux bleu qui fait le tour (signal
+   « nouveau »), posé sur un liseré crème. Pas de visuel animé en plus :
+   c'est le bord qui attire l'œil. */
+@keyframes conn-border-spin { to { transform: rotate(360deg); } }
+.animate-conn-border { animation: conn-border-spin 4.5s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-conn-border { animation: none; }
+}
+
 /* Drop First — slide in from right */
 @keyframes slideInRight {
   from { transform: translateX(100%); opacity: 0; }

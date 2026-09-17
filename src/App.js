@@ -16,6 +16,7 @@ import ComposerLab from './components/assistant/ComposerLab';
 import Niveau3Lab from './components/ui-kit/Niveau3Lab';
 import BrandOrangeLab from './components/ui-kit/BrandOrangeLab';
 import BreadcrumbBarLab from './components/ui-kit/BreadcrumbBarLab';
+import NavSystemLab from './components/ui-kit/NavSystemLab';
 import DossierFlagLab from './components/ui-kit/DossierFlagLab';
 import ConversationSwitcher from './components/shell/ConversationSwitcher';
 import DossierSwitcher from './components/shell/DossierSwitcher';
@@ -27,7 +28,6 @@ import NavExpandControl from './components/shell/NavExpandControl';
 import SuggestionPill from './components/assistant/SuggestionPill';
 import PlatoIcon from './components/shell/PlatoIcon';
 import PlatoAssistantButton from './components/shell/PlatoAssistantButton';
-import BreadcrumbBand from './components/shell/BreadcrumbBand';
 import DossierTab from './components/shell/DossierTab';
 import ConversationTopBar from './components/shell/ConversationTopBar';
 import ConversationsIndexPage from './components/shell/ConversationsIndexPage';
@@ -60,8 +60,7 @@ import ImportV2Lab from './components/ui-kit/ImportV2Lab';
 import ConnecteursLab from './components/ui-kit/ConnecteursLab';
 import { MailConnectIntro, MailConnectRun } from './components/connectors/MailConnect';
 import { ProviderMark } from './components/connectors/ConnectorArt';
-import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel } from './components/connectors/ConnectorPromo';
-import MailValueModal from './components/connectors/MailValueModal';
+import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel, MailFloatingPromo, MailNavPromoCard } from './components/connectors/ConnectorPromo';
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
@@ -1434,7 +1433,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system'];
 const UI_KIT_SUBSECTION_SLUGS = [
   'tokens',
   'inventory',
@@ -1554,7 +1553,6 @@ export default function App() {
     setNavHidden(true);
   };
   const expandNav = () => { closePeekNow(); setNavHidden(false); };
-  const toggleNav = () => { if (navHidden) expandNav(); else hideNav(); };
   const openPeek = () => {
     // Jamais au tactile, jamais pendant le verrou, jamais nav ouverte.
     if (!finePointerRef.current) return;
@@ -1721,12 +1719,12 @@ export default function App() {
   // pièces). Dismissal par surface, en session seulement - le prototype
   // repart propre à chaque rechargement pour la démo.
   const [mailPromoHidden, setMailPromoHidden] = useState({}); // { nav?: true, pieces?: true }
-  // Modale de valeur « connecteur email » : le touchpoint le plus visible du
-  // dispositif d'awareness. S'ouvre UNE fois au retour dans Plato (accueil
-  // dossiers) tant qu'aucune boîte n'est connectée. Congédiable ; vue en
-  // session seulement (le prototype repart propre à chaque rechargement).
-  const [mailValueOpen, setMailValueOpen] = useState(false);
-  const [mailValueSeen, setMailValueSeen] = useState(false);
+  // Surface de push quand aucune boîte n'est connectée :
+  //   'none'     = rien hors dossier - SEUL le bandeau dans un dossier pousse ;
+  //   'nav'      = carte promo riche dans la barre latérale ;
+  //   'floating' = encart flottant congédiable (coin bas-droit).
+  // Décision Meg : trop de surfaces (widget + nav) -> on ne garde que le bandeau.
+  const HOME_MAIL_PUSH = 'none';
   const [parrainagePromoHidden, setParrainagePromoHidden] = useState(false); // slot promo sidebar (session)
   const [homeAssistantPromoHidden, setHomeAssistantPromoHidden] = useState(false); // encart découverte « Plato hors dossier » de la home (session)
   const [preferenceDocs, setPreferenceDocs] = useState([]);
@@ -1790,6 +1788,7 @@ export default function App() {
   // le dossier ouvert. Les lignes/blocs du bordereau vivent dans useBordereau ;
   // la colonne récolte n'apparaît qu'avec une boîte connectée (sinon promo).
   const [importV2, setImportV2] = useState(null); // null | { mode: 'create'|'add', reference, matterType, mailOpen }
+  const [mailDropNudge, setMailDropNudge] = useState(false); // nudge « vous versez des mails à la main » DANS la modale d'import
   const bordereau = useBordereau();
   const importV2FileInput = useRef(null);
   // Signal d'exposition (spec boîtes mail) : UNE fois par session de modale,
@@ -2467,21 +2466,6 @@ export default function App() {
     // rechargement). Le drapeau bascule dans un effet dédié après les autosaves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Retour dans Plato : au premier atterrissage sur l'accueil (Home), si
-  // aucune boîte n'est connectée, on présente la modale de valeur du connecteur
-  // email (une fois par session, après un court battement « bienvenue »). On
-  // s'efface si un flow de connexion est déjà ouvert, en capture, ou en démo.
-  useEffect(() => {
-    if (captureMode || DEMO_SOCIAL) return undefined;
-    if (mailValueSeen) return undefined;
-    if (currentPage !== 'home') return undefined;
-    if (mailboxes.length > 0) return undefined;
-    if (mailFlow) return undefined;
-    const t = setTimeout(() => { setMailValueOpen(true); setMailValueSeen(true); }, 700);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, mailboxes.length, mailValueSeen]);
 
   // Auto-save current dossier data on any change
   useEffect(() => {
@@ -5099,90 +5083,41 @@ export default function App() {
     const isClosed = dossierStatut === 'fermé';
     const activeDossier = dossiers.find(d => d.id === activeDossierId) || null;
     const displayName = `${victimeData.prenom || ''} ${victimeData.nom || ''}`.trim() || activeDossier?.reference || 'Dossier';
-    // Niveau 3 (poste / poste-IV / acte / cascade) : le cran dossier se COMPACTE
-    // au lieu de fusionner avec le strip de l'objet (décision 09/09 : un cran
-    // par barre - l'objet reste dans son strip, la nav dans les onglets). Le nom
-    // reste (switcher), le badge d'état et la note de création s'effacent, les
-    // paddings se resserrent pour rapprocher l'objet du contenu.
-    const isSubLevel = !!currentLevel?.type && currentLevel.type !== 'dossier';
     return (
       <div className="w-full flex-shrink-0">
-      {/* Bande de tête : contrôle « Menu » (nav masquée) + fil de RETOUR vers
-          « Mes dossiers ». Le dossier n'avait aucun retour, contrairement à la
-          conversation centrale (« Mes conversations / … ») ; on l'aligne dessus.
-          La bande « Menu » de la frame Figma 3757:30888 est fusionnée ici. */}
-      <BreadcrumbBand
-        leading={navHidden ? renderNavExpandControl() : null}
-        backLabel="Mes dossiers"
-        title="Retour à mes dossiers"
-        onBack={backToList}
-      />
-      <div className={`w-full flex items-center justify-between gap-3 px-8 ${isSubLevel ? 'pt-1.5 pb-0.5' : 'pt-3 pb-1'}`}>
-        <div className="flex items-center gap-3 min-w-0">
-          <DossierSwitcher
-            dossiers={dossiers}
-            activeDossierId={activeDossierId}
-            onSelect={(d) => openDossier(d)}
-            onCreate={() => openImportV2('create')}
-            trigger="title"
-            label={displayName}
-          />
-          {!isSubLevel && (
-            <span className={`badge badge-sm ${isClosed ? 'badge-warning' : 'badge-success'}`}>
-              {isClosed ? 'Terminé' : 'En cours'}
-            </span>
+      {/* Top Bar V2 (Figma Plato---System 37497) : une seule bande fixe -
+          [Menu si nav masquée] · 📁 Mes dossiers │ nom du dossier (ancre serif)
+          │ onglets ┈┈ Plato Assistant · ⋮. Le breadcrumb, le nom et les onglets
+          fusionnent (fini les 3 bandes empilées). Le Niveau 3 Strip (objet)
+          reste rendu en dessous, dans le contenu. */}
+      <div className="w-full h-12 px-8 flex items-stretch justify-between gap-4 border-b border-border flex-shrink-0">
+        <div className="flex items-stretch gap-3 min-w-0">
+          {navHidden && (
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {renderNavExpandControl()}
+              <span aria-hidden className="w-px h-4 bg-border-strong" />
+            </div>
           )}
-          {!isSubLevel && activeDossier?.createdFrom === 'conversation' && (
-            <span className="text-[12px] text-foreground-tertiary">Créé depuis une conversation</span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 justify-end flex-shrink-0">
-          {/* Réouverture du rail - à GAUCHE du menu ⋮ (l'affordance de repli vit
-              dans le header du rail). */}
-          {!isClosed && !chatSidebarOpen && (
-            <PlatoAssistantButton onClick={() => setChatSidebarOpen(true)} />
-          )}
-          {/* Overflow menu */}
-          <div className="relative" ref={dossierMenuRef}>
-            <button
-              onClick={() => setDossierMenuOpen(prev => !prev)}
-              className={`p-1.5 rounded-lg transition-colors ${dossierMenuOpen ? 'bg-stone-100' : 'hover:bg-stone-100'}`}
-              title="Plus d'options"
-            >
-              <MoreVertical className="w-5 h-5 text-stone-500" strokeWidth={1.5} />
+          {/* Breadcrumb : Mes dossiers (retour) │ nom du dossier (ancre serif) */}
+          <div className="flex items-center gap-2.5 min-w-0 flex-shrink-0">
+            <button onClick={backToList} title="Retour à mes dossiers" className="flex items-center gap-1.5 text-[13.5px] text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0">
+              <FolderOpen className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} /> Mes dossiers
             </button>
-            {dossierMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                <div className="p-1">
-                  {isClosed ? (
-                    <button
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
-                      onClick={() => { setDossierMenuOpen(false); setReopenConfirmOpen(true); }}
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.5} />
-                      <span className="text-[14px] text-foreground">Reprendre le dossier</span>
-                    </button>
-                  ) : (
-                    <button
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-danger-subtle transition-colors"
-                      onClick={() => { setDossierMenuOpen(false); setCloseConfirmOpen(true); }}
-                    >
-                      <AlertTriangle className="w-3.5 h-3.5 text-danger" strokeWidth={1.5} />
-                      <span className="text-[14px] text-danger">Marquer comme terminé</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
+            <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0" />
+            <DossierSwitcher
+              dossiers={dossiers}
+              activeDossierId={activeDossierId}
+              onSelect={(d) => openDossier(d)}
+              onCreate={() => openImportV2('create')}
+              trigger="anchor"
+              label={displayName}
+            />
           </div>
-        </div>
-      </div>
-
-      {/* Rangée d'onglets - les cinq vues du dossier (« Pièces » porte son compteur).
-          Cliquer un onglet pendant que la page JP est ouverte ferme le drawer. */}
-      <div className={`px-8 border-b border-border ${isSubLevel ? 'mt-0.5' : 'mt-1'}`}>
-        <div className="flex items-end gap-6">
+          <div className="flex items-center"><span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0" /></div>
+          {/* Onglets - pleine hauteur (items-stretch) : libellé centré sur la
+              ligne du breadcrumb, soulignement de l'onglet actif au FILET DU BAS
+              de la bande. Restent allumés au niveau 3. */}
+          <div className="flex items-stretch gap-6 min-w-0">
           {tabsConfig.dossier.map(tab => {
             const tabKey = tabLabelToKey(tab);
             const isActive = currentLevel?.type === 'dossier'
@@ -5225,6 +5160,46 @@ export default function App() {
               />
             );
           })}
+          </div>
+        </div>
+
+        {/* Outils de workspace : Plato Assistant (rail fermé) + menu ⋮ */}
+        <div className="flex items-center gap-2 justify-end flex-shrink-0">
+          {!isClosed && !chatSidebarOpen && (
+            <PlatoAssistantButton onClick={() => setChatSidebarOpen(true)} />
+          )}
+          <div className="relative" ref={dossierMenuRef}>
+            <button
+              onClick={() => setDossierMenuOpen(prev => !prev)}
+              className={`p-1.5 rounded-lg transition-colors ${dossierMenuOpen ? 'bg-stone-100' : 'hover:bg-stone-100'}`}
+              title="Plus d'options"
+            >
+              <MoreVertical className="w-5 h-5 text-stone-500" strokeWidth={1.5} />
+            </button>
+            {dossierMenuOpen && (
+              <div className="absolute top-full right-0 mt-1 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                <div className="p-1">
+                  {isClosed ? (
+                    <button
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
+                      onClick={() => { setDossierMenuOpen(false); setReopenConfirmOpen(true); }}
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.5} />
+                      <span className="text-[14px] text-foreground">Reprendre le dossier</span>
+                    </button>
+                  ) : (
+                    <button
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-danger-subtle transition-colors"
+                      onClick={() => { setDossierMenuOpen(false); setCloseConfirmOpen(true); }}
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5 text-danger" strokeWidth={1.5} />
+                      <span className="text-[14px] text-danger">Marquer comme terminé</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       </div>
@@ -6254,12 +6229,10 @@ export default function App() {
       };
       const montant = getPosteMontant(currentLevel.id);
       return (
-        <Niveau3Strip justify="between">
+        <Niveau3Strip justify="between" back={breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}>
           <div className="flex items-center gap-2.5 min-w-0">
-            {breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}
-            <StripDivider />
             <CodeBadge>{currentLevel.title}</CodeBadge>
-            <span className="text-[14px] font-medium text-foreground truncate">{currentLevel.fullTitle || currentLevel.title}</span>
+            <span className="text-foreground truncate" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>{currentLevel.fullTitle || currentLevel.title}</span>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             {siblings.length > 1 && idx >= 0 && siblingNav({ index: idx, total: siblings.length, onPrev: () => goSibling(-1), onNext: () => goSibling(1) })}
@@ -6287,12 +6260,10 @@ export default function App() {
         replaceCurrentLevel({ id: target.id, title: target.title, fullTitle: target.fullTitle, montant: target.montant, category: target.category });
       };
       return (
-        <Niveau3Strip justify="between">
+        <Niveau3Strip justify="between" back={breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}>
           <div className="flex items-center gap-2.5 min-w-0">
-            {breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}
-            <StripDivider />
             <CodeBadge>{currentLevel.title}</CodeBadge>
-            <span className="text-[14px] font-medium text-foreground truncate">{currentLevel.fullTitle || currentLevel.title}</span>
+            <span className="text-foreground truncate" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>{currentLevel.fullTitle || currentLevel.title}</span>
             <span className="inline-flex items-center px-2 py-0.5 text-caption bg-cream text-foreground-secondary rounded-full flex-shrink-0">Victimes indirectes</span>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
@@ -6344,11 +6315,9 @@ export default function App() {
         ]);
       };
       return (
-        <Niveau3Strip justify="start">
+        <Niveau3Strip justify="start" back={breadcrumbReturn('Retour aux actes', backToActesList)}>
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              {breadcrumbReturn('Retour aux actes', backToActesList)}
-              <StripDivider />
-              <span className="text-[14px] font-medium text-foreground truncate">{currentLevel.fullTitle || currentLevel.title}</span>
+              <span className="text-foreground truncate flex-shrink-0" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>{currentLevel.fullTitle || currentLevel.title}</span>
               {acteSiblings.length > 1 && acteIdx >= 0 && siblingNav({ index: acteIdx, total: acteSiblings.length, onPrev: () => goActeSibling(-1), onNext: () => goActeSibling(1) })}
               {acte?.templateName && (
                 <span className="text-[12px] text-foreground-muted truncate flex-shrink-0">{acte.templateName}</span>
@@ -10019,6 +9988,16 @@ export default function App() {
 
           return (
             <div className="space-y-4" data-zone-id="infos_dossier">
+              {/* Push connecteur email dans le matter (onglet Informations) -
+                  même bandeau que l'onglet Pièces ; le « Plus tard » vaut pour
+                  tout le dossier (clé partagée). */}
+              {mailboxes.length === 0 && !mailPromoHidden.pieces && (
+                <ConnectorPromoBanner
+                  onConnect={() => goToMailSettings()}
+                  onDismiss={() => setMailPromoHidden(h => ({ ...h, pieces: true }))}
+                />
+              )}
+
               {/* Streaming in-progress banner */}
               {isStreaming && (
                 <div className="banner banner-minimal banner-ai">
@@ -10997,9 +10976,9 @@ export default function App() {
               style={{ padding: '13px 16px' }}
             >
               <h2 className="flex-1 min-w-0" style={{
-                fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
-                fontSize: 18, fontWeight: 500, color: '#292524',
-                letterSpacing: '-0.5px', lineHeight: '20px', margin: 0,
+                fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif",
+                fontSize: 20, fontWeight: 500, color: '#292524',
+                letterSpacing: '-0.01em', lineHeight: '24px', margin: 0,
               }}>
                 Jurisprudence retenues
               </h2>
@@ -14139,6 +14118,7 @@ export default function App() {
   // aucune ingestion ne démarre, le chat accueille au lieu d'analyser.
   const handleDropFirstCreate = (stagedFiles, { reference = '', matterType = 'corporel' } = {}) => {
     const files = [...(stagedFiles || [])];
+
     const hasRapport = false;
     const userReference = (reference || '').trim();
     // Documents are renamed to clean, understandable names (the matched type's
@@ -14675,17 +14655,17 @@ export default function App() {
     importV2ExposureSignaled.current = false;
     setImportV2({ mode, reference: '', matterType: 'corporel', mailOpen: true, ...opts });
   };
-  const closeImportV2 = () => { setImportV2(null); bordereau.reset(); };
+  const closeImportV2 = () => { setImportV2(null); bordereau.reset(); setMailDropNudge(false); };
 
   // ========== CLAVIER GLOBAL (behaviour map §4) ==========
-  // ⌘O nouvelle conversation · ⌘⇧O nouveau dossier · ⌘\ replier la sidebar.
+  // ⌘O nouvelle conversation · ⌘⇧O nouveau dossier. (Pas de raccourci de
+  // masquage de la nav : le geste passe uniquement par le glyphe.)
   // Les handlers passent par un ref pour éviter les closures périmées ;
   // Escape reste géré par chaque modale. ⌘← (remonter d'un cran) : TODO.
   const keyboardHandlersRef = useRef({});
   keyboardHandlersRef.current = {
     newConversation: startNewConversation,
     newDossier: () => openImportV2('create'),
-    toggleNav,
     closePeek: closePeekNow,
   };
   useEffect(() => {
@@ -14700,9 +14680,6 @@ export default function App() {
         e.preventDefault();
         if (e.shiftKey) keyboardHandlersRef.current.newDossier();
         else keyboardHandlersRef.current.newConversation();
-      } else if (e.key === '\\') {
-        e.preventDefault();
-        keyboardHandlersRef.current.toggleNav();
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -14810,10 +14787,21 @@ export default function App() {
 
   // Ajouter des pièces à un dossier ouvert : la modale V2 en mode « ajout »,
   // pré-remplie quand des fichiers ont été déposés sur l'onglet Pièces.
+  // Nudge « pile au moment de la corvée » (spec boîtes mail §06) : déposer un
+  // .eml / .msg / zip d'export Outlook = verser des mails À LA MAIN. Sans boîte
+  // connectée, on affiche un bandeau DANS la modale d'import (pas un toast) -
+  // on verse quand même le fichier, on ne punit pas le geste. Vaut à l'AJOUT et
+  // à la CRÉATION.
+  const nudgeIfMailFiles = (fileList) => {
+    const isMailFile = (f) => /\.(eml|msg|zip)$/i.test(f?.name || '');
+    if (mailboxes.length !== 0 || !fileList || !Array.from(fileList).some(isMailFile)) return;
+    setMailDropNudge(true);
+  };
   const handleAddMorePieces = (fileList) => {
     setShowAddPiecesZone(false);
     openImportV2('add');
     if (fileList && fileList.length) bordereau.addFiles(fileList);
+    nudgeIfMailFiles(fileList);
   };
 
   // Signal d'exposition (spec boîtes mail) : la PREMIÈRE pièce issue de la
@@ -15536,7 +15524,7 @@ export default function App() {
         onDrop={e => { e.preventDefault(); if (piecesTabDragOver) { setPiecesTabDragOver(false); handleAddMorePieces(e.dataTransfer.files); } }}
       >
         {/* Hidden file input */}
-        <input id="add-pieces-input" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" className="hidden" onChange={e => { handleAddMorePieces(e.target.files); e.target.value = ''; }} />
+        <input id="add-pieces-input" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={e => { handleAddMorePieces(e.target.files); e.target.value = ''; }} />
 
         {piecesTabDragOver && (
           <div className="flex-1 flex" style={{ minHeight: '100vh' }}>
@@ -16414,7 +16402,7 @@ export default function App() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1200px] flex flex-col overflow-hidden" style={{ height: '90vh', minHeight: 560 }} onClick={(e) => e.stopPropagation()}>
-          <input ref={importV2FileInput} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={(e) => { bordereau.addFiles(e.target.files); e.target.value = ''; }} />
+          <input ref={importV2FileInput} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={(e) => { bordereau.addFiles(e.target.files); nudgeIfMailFiles(e.target.files); e.target.value = ''; }} />
 
           {/* En-tête - création : parti pris C (titre serif · filet · champ
               Référence focalisé, anneau brand) + type de dossier discret. */}
@@ -16455,7 +16443,27 @@ export default function App() {
             </div>
           )}
 
-          <DroppableV2 onFiles={(files) => bordereau.addFiles(files)} className="flex-1 min-h-0 flex">
+          {/* Nudge « corvée » DANS la modale : apparaît au moment où un
+              .eml / .msg / zip est ajouté à la main, tant qu'aucune boîte n'est
+              connectée. Le fichier est versé quand même. */}
+          {mailDropNudge && mailboxes.length === 0 && (
+            <div className="flex items-center gap-3 px-5 py-2.5 border-b border-border flex-shrink-0" style={{ backgroundColor: '#eef1f8' }}>
+              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: '#dbe3f5' }}>
+                <Mail className="w-3.5 h-3.5" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+              </span>
+              <p className="flex-1 min-w-0 text-[13px] leading-[18px] text-foreground">
+                Vous versez vos mails à la main. <span className="text-foreground-secondary">Connectez votre boîte, Plato ira les chercher tout seul.</span>
+              </p>
+              <button type="button" onClick={() => { closeImportV2(); goToMailSettings(); }} className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0">
+                <Mail className="w-3.5 h-3.5" strokeWidth={1.75} /> Connecter ma boîte
+              </button>
+              <button type="button" onClick={() => setMailDropNudge(false)} aria-label="Masquer" className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-white/70 transition-colors flex-shrink-0">
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+            </div>
+          )}
+
+          <DroppableV2 onFiles={(files) => { bordereau.addFiles(files); nudgeIfMailFiles(files); }} className="flex-1 min-h-0 flex">
             {/* Colonne récolte - repliée par la largeur, jamais démontée. Sans
                 boîte connectée : la promesse du connecteur, même largeur. */}
             <div
@@ -16840,7 +16848,7 @@ export default function App() {
             <button
               onClick={inPeek ? expandNav : hideNav}
               className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
-              title={inPeek ? 'Épingler la navigation (⌘\\)' : 'Masquer la navigation (⌘\\)'}
+              title={inPeek ? 'Épingler la navigation' : 'Masquer la navigation'}
             >
               <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
             </button>
@@ -16849,14 +16857,28 @@ export default function App() {
 
         {/* Bannière « Connectez votre boîte mail » (frame Plato-Design 3757:24847) -
             dégradé bleu horizontal, sous le header, tant qu'aucune boîte n'est
-            connectée. Touchpoint feature-awareness du connecteur email. */}
-        {!collapsed && mailboxes.length === 0 && (
-          <NavPromoBanner
-            icon={Mail}
-            label="Connectez votre boîte mail"
-            edge="top"
-            onClick={() => { setSettingsSection('maboite'); setCurrentPage('settings'); }}
-          />
+            connectée. Décision Meg : masquée en mode 'none' (seul le bandeau
+            dossier pousse). */}
+        {HOME_MAIL_PUSH !== 'none' && !collapsed && mailboxes.length === 0 && (
+          HOME_MAIL_PUSH === 'nav'
+            // Exploration « dans la nav » : carte promo riche (eyebrow Nouveau,
+            // titre, CTA fléché, rail orange) qui ouvre la modale de valeur ;
+            // congédiable en session (mailPromoHidden.nav). Remplace le bandeau
+            // fin et rend l'encart flottant inutile (un seul push à la fois).
+            ? (!mailPromoHidden.nav && (
+                <MailNavPromoCard
+                  onOpen={() => goToMailSettings()}
+                  onDismiss={() => setMailPromoHidden(h => ({ ...h, nav: true }))}
+                />
+              ))
+            : (
+                <NavPromoBanner
+                  icon={Mail}
+                  label="Connectez votre boîte mail"
+                  edge="top"
+                  onClick={() => { setSettingsSection('maboite'); setCurrentPage('settings'); }}
+                />
+              )
         )}
 
         {/* Créations - déplacées dans les en-têtes de sections (09/09) : le « + »
@@ -17018,6 +17040,7 @@ export default function App() {
         onExpand={expandNav}
         onPeekEnter={openPeek}
         onPeekLeave={schedulePeekClose}
+        onHome={() => setCurrentPage('home')}
       />
     );
   };
@@ -18446,6 +18469,9 @@ export default function App() {
             </button>
             <button onClick={() => navigate('/ui-kit/dossier-flag')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Folder className="w-3.5 h-3.5" /> Flag dossier - variantes
+            </button>
+            <button onClick={() => navigate('/ui-kit/nav-system')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <PanelRight className="w-3.5 h-3.5 rotate-180" /> Navigation - shell et états
             </button>
             <button onClick={() => navigate('/welcome')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <UserRound className="w-3.5 h-3.5" /> Première connexion - onboarding
@@ -21711,17 +21737,21 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Les deux colonnes de confiance : dire aussi clairement ce que Norma ne
-  // fera JAMAIS que ce qu'elle fait.
+  // Les deux colonnes de confiance : dire aussi clairement ce que Plato ne
+  // fera JAMAIS que ce qu'il fait. La ligne de déconnexion donne un contenu
+  // vérifiable à « réversible » ; la ligne « visibles à vos associés » traite
+  // la peur qui décide, en cabinet, de la moitié des refus.
   const MAIL_CAN = [
-    'Lire un échange lorsque vous le sélectionnez pour un dossier',
-    'Extraire les pièces jointes et les préparer au versement',
-    'Rattacher chaque pièce à son email d\'origine - expéditeur et date - pour que vous puissiez en justifier la provenance',
+    'Lire un échange que vous sélectionnez',
+    'Extraire les pièces jointes et découper les PDF',
+    'Rattacher chaque pièce à son email d\'origine',
+    'Se déconnecter en un clic - les pièces versées restent',
   ];
   const MAIL_CANT = [
-    'Envoyer, modifier ou supprimer quoi que ce soit dans votre boîte',
-    'Verser une pièce dans un dossier sans votre geste',
-    'Garder une copie de vos emails : seules les pièces que vous versez sont conservées',
+    'Envoyer, répondre ou supprimer un email',
+    'Verser une pièce sans votre validation',
+    'Garder une copie de vos emails',
+    'Rendre vos mails visibles au cabinet',
   ];
 
   // Marque Plato : titres en serif RL Para, étiquettes en mono IBM Plex,
@@ -21773,7 +21803,7 @@ export default function App() {
     );
   };
 
-  // Ce que Norma peut / ne peut jamais faire + la note OAuth - la promesse
+  // Ce que Plato peut / ne peut jamais faire + la note OAuth - la promesse
   // tient dans le contraste, pas dans un paragraphe de mentions. Partagé par
   // « Ma boîte » et « Connecteurs » : la confiance se dit pareil aux deux
   // emplacements.
@@ -21924,12 +21954,14 @@ export default function App() {
               {/* overflow-hidden OK : le dropdown d'ajout est en position fixed
                   (écran), il n'est donc pas clippé par la carte. */}
               <div className="bg-white rounded-md border border-border overflow-hidden shadow-sm">
-                <div className="px-5 py-3 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
-                  <span className="text-body-medium text-foreground">{cardHeaderLabel}</span>
-                </div>
                 {allBoxes.length > 0 ? (
                   <>
+                    {/* En-tête de LISTE seulement (« N boîtes connectées… ») -
+                        inutile sur l'empty state, où le héros introduit déjà. */}
+                    <div className="px-5 py-3 flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
+                      <span className="text-body-medium text-foreground">{cardHeaderLabel}</span>
+                    </div>
                     <div className="divide-y divide-border border-t border-border">
                       {allBoxes.map(({ b, canManage }) => renderMailboxRow(b, { canManage }))}
                     </div>
@@ -23093,7 +23125,7 @@ export default function App() {
             <button
               onClick={hideNav}
               className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
-              title="Masquer la navigation (⌘\)"
+              title="Masquer la navigation"
             >
               <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
             </button>
@@ -25308,13 +25340,23 @@ export default function App() {
           de connexion depuis n'importe quelle page. */}
       {renderMailModals()}
 
-      {/* Modale de valeur « connecteur email » - le touchpoint d'awareness le
-          plus visible, au retour dans Plato. CTA -> Réglages › Boîtes mail. */}
-      <MailValueModal
-        open={mailValueOpen && mailboxes.length === 0}
-        onDismiss={() => setMailValueOpen(false)}
-        onConnect={() => { setMailValueOpen(false); goToMailSettings(); }}
-      />
+      {/* Encart flottant « Nouveauté » - le nudge passif (coin bas-droit),
+          présent sur TOUTES les pages tant qu'aucune boîte n'est connectée.
+          Corps ET CTA -> Réglages › Boîtes mail (plus de modale). Congédiable
+          en session. Supprimé sur la page Réglages › Boîtes mail (on y connecte
+          déjà). */}
+      {HOME_MAIL_PUSH === 'floating'
+        && mailboxes.length === 0
+        && !(currentPage === 'settings' && settingsSection === 'maboite')
+        && !mailFlow
+        && !mailPromoHidden.home
+        && !captureMode && !DEMO_SOCIAL && (
+        <MailFloatingPromo
+          onOpen={() => goToMailSettings()}
+          onConnect={() => goToMailSettings()}
+          onDismiss={() => setMailPromoHidden(h => ({ ...h, home: true }))}
+        />
+      )}
 
       {/* Toast notification */}
       {toastMessage && (
@@ -25624,6 +25666,9 @@ export default function App() {
   }
   if (currentPage === 'breadcrumb-bar') {
     return (<><BreadcrumbBarLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'nav-system') {
+    return (<><NavSystemLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'dossier-flag') {
     return (<><DossierFlagLab />{renderGlobalOverlays()}</>);

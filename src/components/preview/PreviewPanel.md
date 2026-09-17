@@ -33,6 +33,88 @@ and the passage contract - is shared.
 | `ligne` | structured view + BOSS link | cotisation/relevé table | none | highlighted row |
 | `web` | external tab | none (ExternalCard explains) | none | - |
 
+### Entry points - what's the *subject*: a pièce, or a ligne?
+
+The same panel is triggered from three surfaces, and the **trigger decides what the
+panel is *about*** - which in turn drives the whole framing (header identity + which
+edit surface, if any). Two things can be the subject:
+
+- a **pièce** - the document itself is the object; or
+- a **ligne** - a poste line whose value must be justified; the document is then shown
+  *as that ligne's attached pièce*, not as the subject.
+
+| Trigger surface | Subject | Title-bar identity | Edit surface | Document |
+|---|---|---|---|---|
+| **Onglet Pièces / bordereau** | pièce | **PIÈCE** (blue accent, file icon) | inline metadata - **Modifier** swaps chips → `Input`s | the doc, full width |
+| **Chat - citation** | the cited source (`piece`/`jp`/`loi`/`email`/`ligne`) | that kind's accent | read-only (verify); doc kinds keep inline metadata edit | scrolled to the passage |
+| **Poste / chiffrage row** | **ligne** | **LIGNE** (neutral, eyebrow = poste: PGPA / DFT / DSA / social…) | **value rail** on the right - schema fields + derived summary + Supprimer/Enregistrer | the attached pièce, under a distinct **PIÈCE** band |
+
+Rules that follow from this:
+
+- **Pièce-only never shows the value rail.** Editing a pièce means editing *its own
+  metadata*, inline in the meta header (the `Modifier` toggle). The doc keeps full width.
+- **Ligne mode reframes the doc as "the attached pièce".** The title bar carries the
+  ligne (neutral `Rows3` icon, eyebrow = poste, title = libellé, nav = "ligne i / N");
+  a separate blue **PIÈCE** band sits above the document (name + découpé chip +
+  Télécharger). The right rail edits the *ligne's values*, never the doc's metadata.
+- **A ligne can cite several pièces.** The document shows the primary one; the rail's
+  "Pièces justificatives" lists all of them + a search-to-attach control.
+- **One shell, two right-zones.** Only the title-bar identity and the right zone change
+  (inline metadata edit for a pièce · value rail for a ligne). Body, footer, passage
+  contract, chrome, and the 44px header / 56px footer grid are identical.
+
+The ligne framing is **generic across poste types** - `fields` (a per-poste schema of
+typed inputs), a derived `summary` block, and `piece.kind` (which document skeleton to
+render) are the only things that vary. Same panel serves PGPA (revenu → bulletin),
+social (heures supp → contrat), DFT (classe/indemnité → expertise), DSA (facture →
+reste à charge). Chosen layout: a **360px right rail**, doc `flex-1` dominant (over a
+top-dock variant). Now **merged into `PreviewPanel`**: pass a `ligne` prop (subject =
+ligne) alongside the pièce `source`; the panel swaps the title-bar identity, renders the
+value rail in place of the citations rail, and relabels the metadata edit "Modifier la
+pièce". Demoed in `/ui-kit/preview-panel` via the "Sujet : Pièce / Ligne" toggle.
+
+### Layout & ratios
+
+One full-height column. Two layouts, decided by subject.
+
+**Ligne subject - full screen, no overlay.** The panel fills the canvas edge-to-edge to
+the LEFT of the chat (`right: --chat-offset`, no dimmed backdrop; close via ✕ / Esc). The
+body row is two columns:
+
+| Zone | Width | Notes |
+|---|---|---|
+| Document | `flex-1` (fluid) | dominant, left |
+| Edit rail | **360px, `max-w-[42%]`** | right; caps on small screens so the doc keeps ≥58% |
+
+Between them, a 1px `bg-border` divider. **Small-screen rule:** the side rails are capped
+in % of the available width so the document never collapses - edit rail `max-w-[42%]`,
+citations rail `max-w-[38%]` (and hidden below `md`). (Fuller solution if needed later: the
+edit rail becomes a floating overlay under a breakpoint.) Order is **doc-left / edit-right** (a lab toggle
+can invert to compare, but this is the chosen order: the doc is what you read, the rail +
+chat are the action surfaces grouped on the right).
+
+**Why a fixed-width rail, not a fractional 2/3-1/3.** At a normal panel width 360px ≈ 1/3,
+so the "doc gets ~2/3" intent holds; but a pure `w-1/3` crushes the form on narrow screens
+and stretches it on wide ones. A fixed rail keeps fields legible at any width and the doc
+always dominant. (An earlier arbitration also tested a top-dock form over a full-width doc -
+rejected: it costs vertical space and clips a portrait page.)
+
+**Pièce subject.** Meta bar full-width, document full-width + optional citations rail
+(`w-[240px] lg:w-[300px]`), footer full-width - no fixed edit rail (metadata edits inline).
+
+**Shared vertical grid** (so both columns line up across the divider):
+
+| Band | Height |
+|---|---|
+| Title bar | 48px (`h-12`) |
+| Meta band / rail "Modifier la ligne" header | **44px**, `items-center` |
+| Footers (doc viewer + rail actions) | **52px** |
+
+**Document viewer.** Paper padding `py-5 px-5`; fit-width = `min(container − 40, 980)`.
+
+**Chat.** Lives on the right, **resizable** via a left-edge grip; the panel's `right` offset
+tracks the chat width live so the panel stays flush-left of the chat at any width.
+
 ### Metadata: read vs edit (doc kinds)
 
 `piece` and `modele` carry the full metadata treatment: a **header** bar renders the
@@ -99,6 +181,11 @@ The panel already models this: `passages` present → scroll; absent → open at
 design decision lives upstream - which surfaces emit a locus. Chat-assertions, all
 chiffrage rows, and acte-citations-in-edit do; browse surfaces don't.
 
+The trigger surface carries **two** upstream decisions, not one: the *locus* (scroll or
+open-at-top, above) **and** the *subject* (pièce vs ligne, see "Entry points"). A poste /
+chiffrage row emits both a ligne subject and a locus into its pièce; the Pièces tab emits
+a pièce subject and no locus; a chat citation emits the cited source + its locus.
+
 ## Key decisions
 
 - **One shell, pluggable zones over one component per type** - the drawers shared 80%
@@ -137,6 +224,27 @@ source = {
 email.messages[].attachments: [{ name, source /* a piece-shaped source */ }]
 // (a bare string attachment renders non-clickable)
 ```
+
+When the **subject is a ligne** (poste / chiffrage trigger), the source is wrapped by a
+ligne descriptor instead of standing alone:
+
+```js
+ligne = {
+  poste,                       // 'PGPA' | 'DFT' | 'DSA' | 'SOCIAL' | … → title-bar eyebrow + badge tint
+  titre,                       // ligne libellé, shown as the panel title
+  fields: [                    // per-poste edit schema, rendered by one FieldControl
+    { label, type, value, full?, options?, suffix? },
+    // type ∈ text | date | money | number | percent | select
+  ],
+  summary: [{ label, value, strong? }],  // derived / computed rows (coefficient, reste à charge…)
+  pieces: [name, …],           // all justificatives (rail list + search-to-attach)
+  piece: { kind, name, org, split },      // the primary doc shown in the body
+  // piece.kind ∈ bulletin | facture | contrat | expertise → which DocPaper skeleton
+}
+```
+
+The panel switches framing on whether it receives a `ligne` (subject = ligne, value
+rail) or a bare `source` (subject = pièce/record). Everything else is shared.
 
 `ligne` rows and `loi`/`jp`/`email` items mark a cited node with `cite: true`; the body
 renders it with the highlight + `data-cite` anchor. Authority badges (`urssaf`, `boss`,
@@ -182,7 +290,8 @@ copy, external `link`).
 ## Related
 
 - `src/components/ui-kit/PreviewPanelLab.js` - the lab (`/ui-kit/preview-panel`); demoes
-  every kind, edit mode, and multi-chunk
+  every kind, edit mode, multi-chunk, and the **Sujet : Pièce / Ligne** toggle (the
+  ligne-as-subject value rail, merged in from the former standalone arbitrage lab)
 - The `preview-doc` viewer (`PreviewDocLab.js`) was **merged into this component** and
   removed; its viewer + edit capabilities now live here for doc kinds
 - `src/components/jp/DecisionDrawer.js` - JP body + `highlightPosteIds` to fold in

@@ -10,12 +10,17 @@
 // pièces jointes. La synchronisation automatique est annoncée « à venir ».
 
 export const CONNECTOR_PROVIDERS = {
+  // `pick` = libellé du bouton de choix, `hint` = le repère CONCRET qui règle la
+  // confusion « quel bouton ? » : on choisit d'après son ADRESSE, pas d'après
+  // l'appli qu'on ouvre. D'où « même si vous la lisez dans Outlook » sur cabinet.
   outlook: {
     id: 'outlook',
     name: 'Microsoft Outlook',
     vendor: 'Microsoft',
     short: 'Outlook',
     desc: 'Outlook, Microsoft 365, Exchange',
+    pick: 'Outlook.com / Microsoft 365',
+    hint: '@outlook.com, @hotmail, ou compte Microsoft 365.',
     folderWord: 'dossiers Outlook',
     authDomain: 'login.microsoftonline.com',
     tint: '#dfe8f5',
@@ -27,20 +32,26 @@ export const CONNECTOR_PROVIDERS = {
     vendor: 'Google',
     short: 'Gmail',
     desc: 'Gmail, Google Workspace',
+    pick: 'Gmail / Google Workspace',
+    hint: '@gmail.com ou Google Workspace.',
     folderWord: 'libellés Gmail',
     authDomain: 'accounts.google.com',
     tint: '#fce8e6',
     fg: '#c5221f',
   },
-  // Troisième voie : toute autre boîte via IMAP (adresses @avocats.fr,
-  // hébergeurs FR type OVH / Infomaniak…). Pas d'OAuth d'un grand fournisseur -
-  // la connexion se fait par les identifiants du serveur, d'où la copie neutre.
+  // Troisième voie : l'adresse de cabinet. On ne dit plus « IMAP » (jargon) ni
+  // « Autre » (vague) - on nomme ce que l'avocat reconnaît (SON adresse), et la
+  // détection tranche le protocole derrière (M365 hébergé -> OAuth ; OVH /
+  // Infomaniak… -> IMAP pré-rempli). Le repère attrape pile la confusion : une
+  // adresse @cabinet consultée dans Outlook n'est PAS le bouton Outlook.
   imap: {
     id: 'imap',
-    name: 'Autre boîte mail',
+    name: 'Mon adresse de cabinet',
     vendor: 'votre fournisseur',
-    short: 'IMAP',
+    short: 'Adresse de cabinet',
     desc: 'IMAP - @avocats.fr, OVH, Infomaniak…',
+    pick: 'Mon adresse de cabinet',
+    hint: '@votre-cabinet.fr — même si vous la lisez dans Outlook.',
     folderWord: 'dossiers IMAP',
     authDomain: 'votre serveur IMAP',
     tint: '#eeece6',
@@ -70,7 +81,7 @@ export const CONNECTION_TYPES = [
 // geste que l'avocat reconnaît. Trois lignes maximum : chaque bloc de la
 // modale ne dit qu'une chose, une fois.
 export const importUseCases = (p) => [
-  `Parcourez vos ${p.folderWord} sans quitter le dossier Norma`,
+  `Parcourez vos ${p.folderWord} sans quitter le dossier Plato`,
   'Versez un échange, un dossier entier ou une seule pièce jointe',
   'Chaque pièce est cotée au bordereau, sous son nom d\'origine',
 ];

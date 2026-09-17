@@ -14,7 +14,8 @@ import { ChevronDown, Folder, Plus } from 'lucide-react';
  * - activeDossierId  string
  * - onSelect         (dossier) => void
  * - onCreate         () => void
- * - trigger          'title' | 'chip'    rendu du déclencheur (défaut 'title')
+ * - trigger          'title' | 'anchor' | 'chip'   rendu du déclencheur (défaut 'title')
+ *                    'anchor' = ancre serif compacte de la Top Bar V2 (RL Para 15)
  * - label            string              libellé affiché (défaut : reference du dossier actif)
  */
 export default function DossierSwitcher({ dossiers = [], activeDossierId, onSelect, onCreate, trigger = 'title', label }) {
@@ -45,19 +46,25 @@ export default function DossierSwitcher({ dossiers = [], activeDossierId, onSele
         type="button"
         onClick={() => setOpen(o => !o)}
         className={
-          trigger === 'title'
-            ? 'group flex items-center gap-1.5 min-w-0 rounded-md px-1 hover:bg-background transition-colors'
-            : 'flex items-center gap-1.5 min-w-0 px-2 py-1 rounded-md border border-border bg-white hover:bg-background transition-colors'
+          trigger === 'chip'
+            ? 'flex items-center gap-1.5 min-w-0 px-2 py-1 rounded-md border border-border bg-white hover:bg-background transition-colors'
+            : 'group flex items-center gap-1.5 min-w-0 rounded-md px-1 hover:bg-background transition-colors'
         }
         title="Changer de dossier"
       >
         <span
           className="min-w-0 truncate text-foreground whitespace-nowrap"
-          style={trigger === 'title' ? { fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 500, maxWidth: 420 } : { fontSize: 13, fontWeight: 500, maxWidth: 260 }}
+          style={
+            trigger === 'anchor'
+              ? { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 15, fontWeight: 500, maxWidth: 320 }
+              : trigger === 'title'
+                ? { fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 500, maxWidth: 420 }
+                : { fontSize: 13, fontWeight: 500, maxWidth: 260 }
+          }
         >
           {display}
         </span>
-        <ChevronDown className={`flex-shrink-0 text-foreground-tertiary ${trigger === 'title' ? 'w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity' : 'w-3.5 h-3.5'}`} strokeWidth={1.75} />
+        <ChevronDown className={`flex-shrink-0 text-foreground-tertiary ${trigger === 'chip' ? 'w-3.5 h-3.5' : 'w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity'}`} strokeWidth={1.75} />
       </button>
 
       {open && (

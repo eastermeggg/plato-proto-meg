@@ -492,7 +492,7 @@ export default function ImportV2Lab() {
 
         {/* ── La démo : la MODALE de la planche (GesteCModal 58px · contenu ·
             pied 62px avec Annuler + Ajouter au dossier). ─────────────────── */}
-        <div className="rounded-xl border border-border bg-white overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 220px)', minHeight: 560 }}>
+        <div id="import-demo-capture" className="rounded-xl border border-border bg-white overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 220px)', minHeight: 560 }}>
           {creating ? (
             <CreationHeader variant={headerVariant} reference={reference} setReference={setReference} onClose={reset} />
           ) : (

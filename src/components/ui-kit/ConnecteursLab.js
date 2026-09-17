@@ -10,11 +10,52 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Plug2 } from 'lucide-react';
-import { MailConnectRun } from '../connectors/MailConnect';
-import { ConnectorPromoBanner, ConnectorPromoPanel, GuaranteeChips } from '../connectors/ConnectorPromo';
+import { ArrowLeft, Check, Plug2, X } from 'lucide-react';
+import { MailConnectRun, MailConnectIntro } from '../connectors/MailConnect';
+import { ConnectorPromoBanner, ConnectorPromoPanel, GuaranteeChips, MailFloatingPromo, MailNavPromoCard } from '../connectors/ConnectorPromo';
+import MailValueModal from '../connectors/MailValueModal';
 import { ConnectorHero, ConnectorMiniLink, OAuthWindow, ProviderMark } from '../connectors/ConnectorArt';
 import { CONNECTOR_PROVIDERS } from '../connectors/connectorData';
+
+// Table de confiance concise (réplique de renderMailTrustBlocks de App.js) -
+// pour le specimen capturable de l'état vide des réglages.
+const CAP_CAN = [
+  'Lire un échange que vous sélectionnez',
+  'Extraire les pièces jointes et découper les PDF',
+  'Rattacher chaque pièce à son email d\'origine',
+  'Se déconnecter en un clic - les pièces versées restent',
+];
+const CAP_CANT = [
+  'Envoyer, répondre ou supprimer un email',
+  'Verser une pièce sans votre validation',
+  'Garder une copie de vos emails',
+  'Rendre vos mails visibles au cabinet',
+];
+function CaptureTrustTable() {
+  const monoHead = { fontFamily: MONO, fontWeight: 500, fontSize: 11, color: '#292524', letterSpacing: '0.1em', textTransform: 'uppercase' };
+  return (
+    <div className="bg-white rounded-md border border-border shadow-sm overflow-hidden">
+      <div className="grid grid-cols-2 divide-x divide-border">
+        {[{ head: 'Ce que Plato peut faire', items: CAP_CAN, ok: true }, { head: 'Ce que Plato ne peut jamais faire', items: CAP_CANT, ok: false }].map(col => (
+          <div key={col.head} className="px-5 py-4">
+            <div className="flex items-baseline gap-2.5 mb-3"><span style={monoHead}>{col.head}</span><span className="flex-1 h-px bg-foreground/10" /></div>
+            <ul className="flex flex-col gap-2.5">
+              {col.items.map(t => (
+                <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: col.ok ? '#e4efe8' : '#f6e7e4' }}>
+                    {col.ok ? <Check className="w-2.5 h-2.5" style={{ color: '#4a9168' }} strokeWidth={3} /> : <X className="w-2.5 h-2.5" style={{ color: '#b4483c' }} strokeWidth={3} />}
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div className="px-5 py-3 border-t border-border"><GuaranteeChips /></div>
+    </div>
+  );
+}
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
 const MONO = "'IBM Plex Mono', monospace";
@@ -57,12 +98,15 @@ export default function ConnecteursLab() {
   const [connected, setConnected] = useState(null); // provider id une fois « Terminer »
   const [bannerGone, setBannerGone] = useState(false);
   const [toast, setToast] = useState(null);
+  const openRun = (provider) => { setModalScope('personal'); setModal(provider); };
 
   // Capture : le héro seul, plein cadre - APRÈS les hooks (ordre stable).
   if (heroKind) {
     return (
-      <div style={{ position: 'fixed', inset: 0, backgroundColor: '#ffffff' }}>
-        <ConnectorHero provider={params.get('provider') || 'outlook'} kind={heroKind} height={182} freezeChip={params.get('chip') === '1'} />
+      <div style={{ position: 'fixed', inset: 0, backgroundColor: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div id="hero-capture" style={{ width: 592 }}>
+          <ConnectorHero provider={params.get('provider') || 'outlook'} kind={heroKind} height={182} freezeChip={params.get('chip') === '1'} />
+        </div>
       </div>
     );
   }
@@ -95,6 +139,63 @@ export default function ConnecteursLab() {
           la synchronisation automatique est annoncée « à venir ».
         </p>
 
+        {/* ── 0 · Nudges & product-marketing (specimens capturables Figma) ──
+            Les composants fixed (widget, modale) sont rendus dans un conteneur
+            `transform` : un ancêtre transformé fait que `position:fixed` se cale
+            sur LUI, pas sur le viewport - le specimen tient dans son cadre. */}
+        <div id="mail-mkt-capture" className="mt-10 flex flex-col gap-8" style={{ background: '#ffffff', padding: 24, borderRadius: 12, border: '1px solid #e7e5e1' }}>
+          <div className="flex flex-col gap-1">
+            <p style={monoLabel}>Emails · Nudges & product marketing (sept. 2026)</p>
+            <p className="text-[13px] text-foreground-secondary">Les composants d'incitation à connecter une boîte mail - encart flottant, carte nav, bandeaux, modale de valeur, état vide des réglages.</p>
+          </div>
+
+          <div className="flex flex-wrap gap-8 items-start">
+            {/* 1 · Encart flottant */}
+            <div className="flex flex-col gap-2">
+              <p style={monoLabel}>1 · Encart flottant</p>
+              <div className="relative overflow-hidden rounded-xl" style={{ width: 340, height: 300, background: '#f2f0ec', transform: 'translateZ(0)' }}>
+                <MailFloatingPromo onOpen={() => {}} onConnect={() => {}} onDismiss={() => {}} />
+              </div>
+            </div>
+
+            {/* 2 · Carte nav */}
+            <div className="flex flex-col gap-2">
+              <p style={monoLabel}>2 · Carte nav</p>
+              <div className="rounded-xl overflow-hidden border border-border" style={{ width: 264, background: '#f8f7f5' }}>
+                <MailNavPromoCard onOpen={() => {}} onDismiss={() => {}} />
+              </div>
+            </div>
+          </div>
+
+          {/* 3 · Bandeaux (défaut + contextuel) */}
+          <div className="flex flex-col gap-2" style={{ maxWidth: 720 }}>
+            <p style={monoLabel}>3 · Bandeau dans un dossier - défaut + contextuel</p>
+            <ConnectorPromoBanner onConnect={() => {}} onDismiss={() => {}} />
+            <ConnectorPromoBanner manualCount={14} onConnect={() => {}} onDismiss={() => {}} />
+          </div>
+
+          <div className="flex flex-wrap gap-8 items-start">
+            {/* 4 · Modale de valeur */}
+            <div className="flex flex-col gap-2">
+              <p style={monoLabel}>4 · Modale de valeur</p>
+              <div className="relative overflow-hidden rounded-xl border border-border" style={{ width: 640, height: 660, transform: 'translateZ(0)' }}>
+                <MailValueModal open onConnect={() => {}} onDismiss={() => {}} />
+              </div>
+            </div>
+          </div>
+
+          {/* 5 · État vide des réglages (héros + bénéfices + table de confiance) */}
+          <div className="flex flex-col gap-2" style={{ maxWidth: 760 }}>
+            <p style={monoLabel}>5 · Réglages · Boîtes mail - état vide</p>
+            <div className="flex flex-col gap-4">
+              <div className="bg-white rounded-md border border-border shadow-sm overflow-hidden">
+                <MailConnectIntro onPick={() => {}} />
+              </div>
+              <CaptureTrustTable />
+            </div>
+          </div>
+        </div>
+
         {/* ── 1 · Avant les réglages ── */}
         <Section
           title="1 · L'engagement avant les réglages"
@@ -108,14 +209,14 @@ export default function ConnecteursLab() {
                   <button onClick={() => setBannerGone(false)} className="text-[12.5px] font-medium text-foreground-secondary hover:text-foreground transition-colors">Réafficher</button>
                 </div>
               ) : (
-                <ConnectorPromoBanner onConnect={() => setModal('outlook')} onDismiss={() => setBannerGone(true)} />
+                <ConnectorPromoBanner onConnect={() => openRun('outlook')} onDismiss={() => setBannerGone(true)} />
               )}
             </Frame>
 
             <Frame label="État vide - colonne mail, aucune boîte connectée" pad={false}>
               <div className="flex" style={{ height: 380 }}>
                 <div className="flex flex-col border-r border-border" style={{ width: 440, backgroundColor: '#f8f7f5' }}>
-                  <ConnectorPromoPanel provider="outlook" compact onConnect={() => setModal('outlook')} />
+                  <ConnectorPromoPanel provider="outlook" compact onConnect={() => openRun('outlook')} />
                 </div>
                 <div className="flex-1 flex items-center justify-center">
                   <p className="text-[12px] text-foreground-muted px-8 text-center leading-5">Le panier reste vide tant que la boîte n'est pas connectée - la colonne porte seule l'argument.</p>
@@ -147,10 +248,10 @@ export default function ConnecteursLab() {
                     </span>
                   ) : (
                     <button
-                      onClick={() => { setModalScope('personal'); setModal(id); }}
+                      onClick={() => openRun(id)}
                       className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors"
                     >
-                      <Plug2 className="w-3.5 h-3.5" strokeWidth={1.75} /> Ouvrir la modale
+                      <Plug2 className="w-3.5 h-3.5" strokeWidth={1.75} /> Ouvrir le parcours
                     </button>
                   )}
                 </div>
