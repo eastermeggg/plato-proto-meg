@@ -1,0 +1,46 @@
+import React from 'react';
+import { colors } from '../design-system/tokens';
+
+// ── IVAvatar - port en code du composant Figma (Plato - System) ──────────
+// « Chess-piece avatar » : conteneur teinté arrondi, silhouette ChessIcons
+// posée sur le bord bas (padding haut, léger étirement vertical - c'est le
+// rendu Figma : preserveAspectRatio none, pièce ~49% de la largeur).
+// 6 palettes (Green, Blue, Plum, Orange, Cream, Default) sur les paires de
+// tokens 100/900. Vecteur : variante Default (Knight), tiré du Figma.
+
+const KNIGHT_PATH = 'M28.5071 0.252103C28.5429 0.459631 28.5267 2.07938 28.5267 2.35171L28.5247 7.36538C29.2315 7.88575 30.3261 8.5431 31.0823 9.03531L35.7942 12.1154C36.0803 13.1191 36.3062 14.1491 36.5638 15.1613C36.6685 15.5722 36.7468 16.0304 36.9114 16.4201C37.167 17.0244 40.1908 19.8707 40.8772 20.5753L32.8206 28.5334L25.6185 28.5011C25.113 28.0449 24.5421 27.4487 24.0501 26.9601C23.217 26.1367 22.3883 25.3082 21.5638 24.4757C21.6383 22.9165 21.5796 20.9 21.5804 19.3087C20.7906 19.3197 20.0001 19.3217 19.2103 19.3136C19.1461 21.2906 19.1981 23.6023 19.1888 25.6046C20.2851 26.7876 21.5158 27.9036 22.6341 29.0734C23.2243 29.6904 23.8627 30.3274 24.4798 30.9132L28.4007 30.9103C30.0924 33.3334 32.178 35.9613 33.9729 38.3507L33.9788 43.2209C34.6807 43.8626 35.7942 44.7169 36.5618 45.3439C36.5765 46.7858 36.5674 48.2684 36.5608 49.7111L24.094 49.7121L8.54326 49.7199L8.54033 45.341C9.3414 44.6283 10.2851 43.9274 11.1106 43.216L11.1038 38.3322L3.25713 38.3185C3.39111 37.7121 3.49351 36.8977 3.58916 36.2668L4.12529 32.7355C5.51938 31.6375 7.39666 30.5339 8.77568 29.3957C8.79347 29.1232 8.85127 28.748 8.88603 28.4699C7.58003 28.8843 5.86626 29.7027 4.52373 30.2111C4.75549 28.3425 5.12913 26.2599 5.41826 24.3761C6.87686 23.629 8.35646 22.9365 9.81767 22.1828C9.83524 21.8944 9.85792 21.6062 9.88506 21.3185C8.52658 21.6784 7.11021 22.0021 5.74053 22.3332C5.81272 21.9692 5.87233 21.5655 5.92217 21.1964C6.22831 18.9307 6.70285 16.6432 6.96807 14.3761C8.29672 14.8192 9.62165 15.2741 10.9417 15.7423L11.262 15.0832C10.1951 14.179 8.9868 13.3513 7.94267 12.4543L12.1585 8.27945C12.8612 7.58746 13.6045 6.82787 14.3235 6.16519C15.1279 6.10824 16.3834 6.14808 17.2063 6.14956L22.554 6.16226C22.9692 5.78094 23.4271 5.29463 23.8392 4.89175C25.4041 3.3628 26.9259 1.76213 28.5071 0.252103ZM42.6233 22.3644C42.9034 22.5086 45.8962 25.6209 46.3353 26.0587L46.2688 31.4982C45.4858 32.1608 44.6093 32.8378 43.803 33.4816C43.17 33.0832 42.5897 32.6526 41.9778 32.2267L39.2562 30.3429L38.7063 30.8712C39.2207 31.6392 39.8444 32.4756 40.386 33.2345C40.8042 33.8007 41.211 34.3761 41.6048 34.9591L36.552 34.9025C36.0857 33.468 35.2753 31.6089 34.7229 30.13C35.7265 29.0846 36.9314 27.93 37.9749 26.9162C39.5104 25.4239 41.067 23.8171 42.6233 22.3644ZM42.2825 26.7736L42.2757 27.9914L43.2884 28.0939C43.4114 28.3014 43.5354 28.5078 43.6507 28.7199C43.87 29.1175 44.0863 29.5173 44.2991 29.9181L44.2728 26.7931C44.2068 26.7374 44.2419 26.747 44.1722 26.7482C43.5453 26.7572 42.9085 26.7728 42.2825 26.7736ZM27.9515 14.3019C28.5057 14.6689 29.0861 14.9563 29.6204 15.3058C29.6339 15.7293 29.6386 16.2023 29.6712 16.6212C30.0518 16.8929 30.5325 17.144 30.9515 17.3527C31.4046 17.1608 31.8018 16.9537 32.2386 16.7287C32.6009 16.8961 32.9615 17.0695 33.3177 17.2502L33.6868 17.4396L31.9915 14.297L27.9515 14.3019Z';
+
+export const IV_PALETTES = {
+  green:   { bg: '#cce6d9', fg: colors.feedback.success.text },   // green/100 - green/900
+  blue:    { bg: colors.feedback.info.subtle,  fg: colors.feedback.info.text },
+  plum:    { bg: colors.feedback.ai.subtle,    fg: colors.feedback.ai.text },
+  orange:  { bg: colors.brand.subtle,          fg: colors.brand.mutedForeground },
+  cream:   { bg: colors.semantic.muted,        fg: colors.semantic.foregroundQuaternary },
+  default: { bg: colors.accents.stone.subtle,  fg: colors.accents.stone.text },
+};
+
+export default function IVAvatar({ size = 24, color = 'green', style }) {
+  const pal = IV_PALETTES[color] || IV_PALETTES.default;
+  const padTop = Math.round(size * 0.07);
+  return (
+    <span
+      style={{
+        width: size, height: size, flexShrink: 0, boxSizing: 'border-box',
+        background: pal.bg, borderRadius: Math.max(2, Math.round(size / 14)),
+        overflow: 'hidden', display: 'inline-flex', alignItems: 'flex-end',
+        justifyContent: 'center', paddingTop: padTop, ...style,
+      }}
+    >
+      <svg
+        width={size * 0.49}
+        height={size - padTop}
+        viewBox="0 0 49.6061 49.8775"
+        preserveAspectRatio="none"
+        fill="none"
+        style={{ display: 'block' }}
+      >
+        <path d={KNIGHT_PATH} fill={pal.fg} />
+      </svg>
+    </span>
+  );
+}

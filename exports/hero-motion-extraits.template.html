@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plato - Hero motion - 3 key screens (extraits)</title>
+<!-- Export standalone du lab /ui-kit/hero-motion (variante « Extraits motion »).
+     100 % auto-contenu, zéro réseau : icônes inlinées, polices embarquées en
+     base64 (Inter 400/500/600, IBM Plex Mono 500, RL Para Trial Central
+     regular/italic), indicateur « thinking » en CSS pur (pas de gif),
+     design tokens Norma/Plato. Séquence auto-chaînée 1 → 2 → 3, ~19 s. -->
+<style>
+__FONTS_CSS__
+</style>
+<style>
+  :root {
+    --background: #f8f7f5; --foreground: #292524; --muted: #eeece6;
+    --muted-fg: #78716c; --fg-quat: #57534e; --fg-soft: #a8a29e;
+    --card: #ffffff; --border: #dfdcd9; --border-strong: #cbc7c4;
+    --primary: #292524; --brand: #f47a2c; --brand-deep: #b8560f;
+    --success-subtle: #e3f2ee; --success-text: #064e3b;
+    --warning-subtle: #f2ebe3; --warning-text: #855b31;
+    --iv-green-bg: #cce6d9; --iv-green-fg: #064e3b;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'RL Para Trial Central', 'Albra', Georgia, serif;
+    --float-shadow: 0px 24px 40px rgba(26,26,26,0.07), 0px 6px 12px rgba(26,26,26,0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--muted); font-family: var(--sans); color: var(--foreground);
+    display: flex; flex-direction: column; align-items: center; overflow: hidden;
+  }
+
+  /* ── Contrôles (hors planche) ─────────────────────────────────────── */
+  .controls { display: flex; gap: 8px; align-items: center; padding: 18px 0 14px; }
+  .chip {
+    display: inline-flex; align-items: center; height: 28px; padding: 0 12px;
+    border-radius: 100px; cursor: pointer; font-family: var(--sans);
+    font-size: 12.5px; font-weight: 500; background: var(--card);
+    color: var(--fg-quat); border: 1px solid var(--border-strong);
+  }
+  .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .chip.replay { margin-left: 10px; color: var(--foreground); }
+
+  /* ── La planche 1232x760 ──────────────────────────────────────────── */
+  .stage-fit { flex: 1; display: flex; align-items: flex-start; justify-content: center; width: 100%; }
+  .plate-frame {
+    width: 1232px; height: 760px; transform-origin: top center;
+    border-radius: 10px; overflow: hidden; border: 1px solid var(--border-strong);
+    box-shadow: 0px 24px 60px rgba(26,26,26,0.12); position: relative;
+    background: var(--muted); flex-shrink: 0;
+  }
+  /* Zoom global du contenu (le cartouche reste à l'échelle planche) */
+  .plate-content { position: absolute; inset: 0; zoom: 1.2; }
+  .scene { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; }
+  .scene.on { display: flex; }
+
+  .plate-label {
+    position: absolute; left: 50%; top: 698px; transform: translate(-50%, -50%);
+    padding: 9px 18px; border-radius: 4px; background: var(--brand);
+    box-shadow: 0px 0px 24px rgba(244,122,44,0.55);
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: 2.4px; text-transform: uppercase; color: #fff; white-space: nowrap;
+  }
+
+  /* ── Briques ──────────────────────────────────────────────────────── */
+  .mono-cap {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted-fg);
+  }
+  .badge {
+    padding: 4px 9px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
+  }
+  .badge.warning { background: var(--warning-subtle); color: var(--warning-text); }
+  .badge.success { background: var(--success-subtle); color: var(--success-text); }
+  .btn-dark {
+    display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px;
+    border-radius: 4px; background: var(--primary); color: #fff;
+    font-size: 12.5px; font-weight: 500; letter-spacing: 0.24px; white-space: nowrap;
+    transition: transform 160ms ease, background 240ms ease;
+  }
+  .btn-dark svg { width: 14px; height: 14px; }
+  .btn-dark.pressed { transform: scale(0.94); }
+  .btn-dark.success { background: #059669; }
+  .icon { display: inline-flex; }
+  .icon svg { display: block; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes caret-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+  .rise { animation: rise 520ms cubic-bezier(0.22,1,0.36,1) both; }
+  .hidden { display: none !important; }
+
+  /* ── Scène 1 : morning brief ──────────────────────────────────────── */
+  .brief-col { width: 760px; display: flex; flex-direction: column; gap: 28px; padding-bottom: 24px; }
+  .salutation { display: flex; flex-direction: column; gap: 8px; }
+  .salutation .mono-cap { color: var(--brand-deep); letter-spacing: 0.22px; }
+  .headline {
+    font-family: var(--serif); font-size: 34px; line-height: 38px;
+    letter-spacing: -0.7px; color: #000; font-weight: 400;
+  }
+  .headline em { color: var(--fg-quat); }
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .xcard {
+    display: flex; align-items: center; gap: 18px; width: 100%; padding: 20px 24px;
+    background: var(--card); border-radius: 8px; box-shadow: var(--float-shadow);
+  }
+  .xcard .tile {
+    width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; background: var(--background); border-radius: 6px;
+    color: var(--fg-quat);
+  }
+  .xcard .tile svg { width: 20px; height: 20px; }
+  .xcard .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .xcard .title-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .xcard .title {
+    font-size: 17px; font-weight: 600; line-height: 23px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .matter-chip {
+    display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+    padding: 3px 8px; border-radius: 4px; background: rgba(238,236,230,0.75);
+    font-size: 12px; color: var(--fg-quat); white-space: nowrap;
+  }
+  .matter-chip svg { width: 12px; height: 12px; color: var(--muted-fg); }
+  .xcard .body { font-size: 14px; line-height: 19px; color: var(--muted-fg); }
+  .xcard .right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  /* entrée en cascade */
+  .scene1.play .salutation { animation: rise 600ms cubic-bezier(0.22,1,0.36,1) both; }
+  .scene1.play .xcard:nth-child(1) { animation: rise 520ms cubic-bezier(0.22,1,0.36,1) 250ms both; }
+  .scene1.play .xcard:nth-child(2) { animation: rise 520ms cubic-bezier(0.22,1,0.36,1) 400ms both; }
+  .scene1.play .xcard:nth-child(3) { animation: rise 520ms cubic-bezier(0.22,1,0.36,1) 550ms both; }
+  .scene1:not(.play) .salutation, .scene1:not(.play) .xcard { opacity: 0; }
+  .spinner { animation: spin 800ms linear infinite; }
+
+  /* ── Scène 2 : hearing prep ───────────────────────────────────────── */
+  .hearing-col { width: 740px; display: flex; flex-direction: column; gap: 18px; padding-bottom: 64px; }
+  .matter-head { display: flex; align-items: center; gap: 14px; }
+  .iv-avatar {
+    width: 44px; height: 44px; flex-shrink: 0; background: var(--iv-green-bg);
+    border-radius: 3px; overflow: hidden; display: inline-flex;
+    align-items: flex-end; justify-content: center; padding-top: 3px;
+  }
+  .matter-head .lines { display: flex; flex-direction: column; gap: 3px; }
+  .matter-head .name { font-size: 17px; font-weight: 500; }
+  /* ReasoningStepper (port fidèle, zoom 1.25 local) */
+  .stepper { max-width: 480px; zoom: 1.25; display: flex; flex-direction: column; gap: 1px; }
+  .step-row { display: flex; align-items: flex-start; gap: 8px; padding: 4px; border-radius: 4px; animation: rise 420ms cubic-bezier(0.22,1,0.36,1) both; }
+  .step-ico { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-ico svg { width: 14px; height: 14px; color: #a8a29e; }
+  /* Indicateur « thinking » en CSS pur : grille 3x3 de diamants brand qui
+     pulsent en vague diagonale (port code du gif plato-thinking / PlatoDotGrid). */
+  .dot-grid { width: 13px; height: 13px; display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
+  .dot-grid .dg-row { display: flex; gap: 1px; justify-content: center; }
+  .dot-grid i {
+    width: 3px; height: 3px; background: var(--brand); border-radius: 0.5px;
+    transform: rotate(45deg); display: block;
+    animation: dg-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes dg-pulse {
+    0%, 100% { opacity: 0.25; }
+    35% { opacity: 1; }
+    70% { opacity: 0.25; }
+  }
+  .step-label { font-size: 12px; line-height: 16px; letter-spacing: 0.12px; color: #44403c; min-height: 16px; display: flex; align-items: center; }
+  .step-row.loading .step-label { color: #78716c; }
+  /* réunions */
+  .meetings { display: flex; flex-direction: column; gap: 12px; }
+  .meeting {
+    display: flex; align-items: center; gap: 16px; padding: 16px 22px;
+    background: var(--card); border-radius: 8px; box-shadow: var(--float-shadow);
+    animation: rise 520ms cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .meeting:nth-child(2) { animation-delay: 150ms; }
+  .meeting .tile {
+    width: 42px; height: 42px; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; background: var(--background); border-radius: 6px; color: var(--fg-quat);
+  }
+  .meeting .tile svg { width: 18px; height: 18px; }
+  .meeting .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .meeting .title { font-size: 16px; font-weight: 500; }
+  .meeting .times { display: flex; align-items: center; gap: 10px; }
+  .meeting .from { font-size: 15px; color: var(--muted-fg); }
+  .meeting.moved .from { text-decoration: line-through; }
+  .meeting .arr svg { width: 15px; height: 15px; color: var(--fg-soft); }
+  .meeting .to {
+    font-size: 15px; font-weight: 500; color: var(--success-text); white-space: nowrap;
+    padding: 4px 10px; border-radius: 6px; background: var(--success-subtle);
+    opacity: 0; transform: scale(0.9);
+    transition: opacity 320ms ease, transform 320ms cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .meeting.moved .to { opacity: 1; transform: scale(1); }
+  /* la note */
+  .note {
+    position: relative; background: var(--card); border-radius: 8px;
+    box-shadow: var(--float-shadow); padding: 26px 30px 0; height: 310px;
+    overflow: hidden; animation: rise 640ms cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .note .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .note .head .l { display: flex; align-items: center; gap: 8px; }
+  .note .head svg { width: 14px; height: 14px; color: var(--muted-fg); }
+  .note h2 {
+    font-family: var(--serif); font-size: 22px; line-height: 27px;
+    letter-spacing: -0.3px; color: #000; font-weight: 400; margin-bottom: 12px;
+  }
+  .note .prose { display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 22px; color: #44403c; }
+  .note .prose strong { font-weight: 600; color: var(--foreground); }
+  .note .prose .auth { color: var(--muted-fg); }
+  .note .fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 80px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), #fff);
+  }
+
+  /* ── Scène 3 : composer ───────────────────────────────────────────── */
+  .composer {
+    position: relative; width: 860px; background: var(--card); border-radius: 10px;
+    box-shadow: var(--float-shadow); padding: 26px 28px 18px;
+    animation: rise 620ms cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .composer .text { font-size: 18px; line-height: 28px; min-height: 112px; }
+  .composer .text .ph { color: var(--muted-fg); }
+  .composer .caret {
+    display: inline-block; width: 1.5px; height: 19px; background: var(--foreground);
+    vertical-align: -3px; margin-left: 1px; animation: caret-blink 1s steps(1) infinite;
+  }
+  .composer .bar { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+  .composer .bar svg { width: 20px; height: 20px; color: var(--foreground); }
+  .composer .bar .l { display: flex; align-items: center; gap: 18px; }
+  .composer .bar .r { display: flex; align-items: center; gap: 14px; }
+  .composer .send {
+    width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; background: var(--primary); transition: box-shadow 420ms ease;
+  }
+  .composer .send svg { color: #fff; }
+  .composer.done .send { box-shadow: 0 0 0 5px #fff1e6, 0 0 18px rgba(244,122,44,0.5); }
+
+  /* Bordure à glow mobile (comète + bloom) - recette AssistantComposer */
+  @property --glow-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes glow-spin { to { --glow-angle: 360deg; } }
+  .glow-ring, .glow-bloom {
+    position: absolute; border-radius: 11px; pointer-events: none;
+    animation: glow-spin 3.4s linear infinite;
+  }
+  .glow-ring {
+    inset: -1px; padding: 1px; z-index: 1;
+    background:
+      conic-gradient(from var(--glow-angle), transparent 0deg, #f47a2c 46deg, transparent 92deg),
+      linear-gradient(#cbc7c4, #cbc7c4);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  .glow-bloom {
+    inset: -3px; padding: 4px; z-index: 0; filter: blur(7px); opacity: 0.75;
+    background: conic-gradient(from var(--glow-angle), transparent 0deg, #f47a2c 46deg, transparent 92deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  @supports not (background: conic-gradient(from 0deg, red, blue)) {
+    .glow-ring { background: #cbc7c4; } .glow-bloom { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glow-ring { animation: none; background: #cbc7c4; } .glow-bloom { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <button class="chip scene-chip active" data-scene="1">1 · Morning brief</button>
+  <button class="chip scene-chip" data-scene="2">2 · Hearing prep</button>
+  <button class="chip scene-chip" data-scene="3">3 · Settlement scenarios</button>
+  <button class="chip replay" id="replay">Rejouer la séquence</button>
+</div>
+
+<div class="stage-fit">
+  <div class="plate-frame" id="plate">
+    <div class="plate-content">
+
+      <!-- Scène 1 -->
+      <section class="scene scene1" id="scene1">
+        <div class="brief-col">
+          <div class="salutation">
+            <span class="mono-cap">Wednesday, 8:20 AM</span>
+            <span class="headline">Hey John. This is what happened <em>since yesterday.</em></span>
+          </div>
+          <div class="cards">
+            <div class="xcard">
+              <span class="tile">__ICO_FILETEXT__</span>
+              <span class="mid">
+                <span class="title-row">
+                  <span class="title">Doe case closed</span>
+                  <span class="matter-chip">__ICO_FOLDER__ Doe - Closing</span>
+                </span>
+                <span class="body" id="doe-body">The invoice is ready - can we bill?</span>
+              </span>
+              <span class="right">
+                <span class="badge success" id="doe-badge">Ready</span>
+                <span class="btn-dark" id="doe-btn">Bill __ICO_ARROWRIGHT__</span>
+              </span>
+            </div>
+            <div class="xcard">
+              <span class="tile">__ICO_SCALE__</span>
+              <span class="mid">
+                <span class="title-row">
+                  <span class="title">Siemens case lost</span>
+                  <span class="matter-chip">__ICO_FOLDER__ Siemens - Litigation</span>
+                </span>
+                <span class="body">We should appeal - analysis and client note drafted</span>
+              </span>
+              <span class="right">
+                <span class="badge warning">Needs you</span>
+                <span class="btn-dark">Review __ICO_ARROWRIGHT__</span>
+              </span>
+            </div>
+            <div class="xcard">
+              <span class="tile">__ICO_CALENDAR__</span>
+              <span class="mid">
+                <span class="title-row">
+                  <span class="title">Emergency hearing tomorrow</span>
+                  <span class="matter-chip">__ICO_FOLDER__ Marchal - Dismissal</span>
+                </span>
+                <span class="body">I can move your two meetings and brief you on the way</span>
+              </span>
+              <span class="right">
+                <span class="badge warning">Needs you</span>
+                <span class="btn-dark">Reschedule __ICO_ARROWRIGHT__</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scène 2 -->
+      <section class="scene scene2" id="scene2">
+        <div class="hearing-col">
+          <div class="matter-head rise">
+            <span class="iv-avatar">
+              <svg width="21.6" height="41" viewBox="0 0 49.6061 49.8775" preserveAspectRatio="none" fill="none">
+                <path d="__KNIGHT_PATH__" fill="var(--iv-green-fg)"></path>
+              </svg>
+            </span>
+            <span class="lines">
+              <span class="mono-cap">Matter · Summary hearing tomorrow 9:00 AM</span>
+              <span class="name">Marchal v. Optima Retail</span>
+            </span>
+          </div>
+          <div class="stepper hidden" id="stepper"></div>
+          <div class="meetings hidden" id="meetings">
+            <div class="meeting" id="meeting1">
+              <span class="tile">__ICO_CALENDAR__</span>
+              <span class="mid">
+                <span class="title">Kick-off - Doe closing</span>
+                <span class="mono-cap">Meeting · 45 min</span>
+              </span>
+              <span class="times">
+                <span class="from">Wed 9:00 AM</span>
+                <span class="arr">__ICO_ARROWRIGHT__</span>
+                <span class="to">Thu 3:00 PM</span>
+              </span>
+            </div>
+            <div class="meeting" id="meeting2">
+              <span class="tile">__ICO_CALENDAR__</span>
+              <span class="mid">
+                <span class="title">Client call - Ms Marchal</span>
+                <span class="mono-cap">Call · 30 min</span>
+              </span>
+              <span class="times">
+                <span class="from">Wed 11:30 AM</span>
+                <span class="arr">__ICO_ARROWRIGHT__</span>
+                <span class="to">Thu 5:00 PM</span>
+              </span>
+            </div>
+          </div>
+          <div class="note hidden" id="note">
+            <div class="head">
+              <span class="l">__ICO_BOOKOPEN__<span class="mono-cap">Hearing note</span></span>
+              <span class="badge warning">For review</span>
+            </div>
+            <h2>Interim proceedings - annulment of Ms Marchal's dismissal</h2>
+            <div class="prose">
+              <p><strong>Our position.</strong> Ms Marchal was dismissed nine days after testifying in the internal harassment investigation. A retaliatory dismissal is null and void (Art. L.1152-3): she is entitled to reinstatement and full back pay, not mere damages.</p>
+              <p><strong>Why summary proceedings.</strong> The nullity is blatant enough to qualify as a manifestly unlawful disturbance (Art. R.1455-6). The chronology, a spotless 11-year record and the role being reposted three weeks later leave no serious defense.</p>
+              <p><strong>Authorities.</strong> <span class="auth">Cass. soc., 30 June 2016, n°15-10.557 - nullity of retaliatory dismissal.</span></p>
+            </div>
+            <span class="fade"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scène 3 -->
+      <section class="scene scene3" id="scene3">
+        <div class="composer" id="composer">
+          <span class="glow-bloom" aria-hidden="true"></span>
+          <span class="glow-ring" aria-hidden="true"></span>
+          <div class="text" id="composer-text"><span class="ph">Ask Plato anything about your cases...</span></div>
+          <div class="bar">
+            <span class="l">__ICO_PAPERCLIP__ __ICO_LIGHTBULB__</span>
+            <span class="r">__ICO_MIC__<span class="send">__ICO_ARROWUP__</span></span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+    <span class="plate-label" id="plate-label">Morning brief</span>
+  </div>
+</div>
+
+<script>
+  // ── Icônes du stepper (port de ReasoningStepper) ─────────────────────
+  // Indicateur de chargement en CSS pur (grille de diamants brand, vague diagonale).
+  var DOT_GRID = '<span class="dot-grid">' + [0, 1, 2].map(function (r) {
+    return '<span class="dg-row">' + [0, 1, 2].map(function (c) {
+      return '<i style="animation-delay:' + ((r + c) * 120) + 'ms"></i>';
+    }).join('') + '</span>';
+  }).join('') + '</span>';
+  var ICO_DOCLINES = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="5" y1="4.5" x2="9" y2="4.5"/><line x1="5" y1="7" x2="9" y2="7"/><line x1="5" y1="9.5" x2="7.5" y2="9.5"/></svg>';
+  var ICO_ASTERISK = '__ICO_ASTERISK__';
+  var ICO_LISTCHECKS = '__ICO_LISTCHECKS__';
+  var ICO_LOADER = '<svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+  var ICO_CHECKW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  var ICO_ARROWRIGHT_W = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+
+  var STEPS = [
+    { icon: ICO_DOCLINES, label: 'Reading the summons and the 14 exhibits' },
+    { icon: ICO_ASTERISK, label: 'Moving your two morning meetings' },
+    { icon: ICO_LISTCHECKS, label: 'Drafting the hearing note with authorities' },
+  ];
+
+  var PROMPT = "That's great, once we win tomorrow I'd like to ask the company to settle on a 60k€ damage for the employee. Run several scenarios to compute unfair dismissal compensation and over-paid hours.";
+  var LABELS = { 1: 'Morning brief', 2: 'Hearing prep', 3: 'Settlement scenarios' };
+
+  var timers = [];
+  function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function $(id) { return document.getElementById(id); }
+
+  // ── Rendu du stepper selon l'avancement ─────────────────────────────
+  // states : tableau de 'done' | 'loading' (les steps absents ne sont pas rendus)
+  function renderStepper(states) {
+    var host = $('stepper');
+    host.classList.remove('hidden');
+    host.innerHTML = states.map(function (st, i) {
+      var ico = st === 'loading' ? DOT_GRID : STEPS[i].icon;
+      return '<div class="step-row ' + st + '"><span class="step-ico">' + ico + '</span><span class="step-label">' + STEPS[i].label + '</span></div>';
+    }).join('');
+  }
+
+  // ── Scène 1 ──────────────────────────────────────────────────────────
+  function playScene1(chain) {
+    var s = $('scene1');
+    s.classList.remove('play');
+    void s.offsetWidth; // rejoue les animations CSS
+    s.classList.add('play');
+    $('doe-body').textContent = 'The invoice is ready - can we bill?';
+    $('doe-badge').textContent = 'Ready';
+    var btn = $('doe-btn');
+    btn.className = 'btn-dark';
+    btn.innerHTML = 'Bill ' + ICO_ARROWRIGHT_W;
+    at(2400, function () { btn.classList.add('pressed'); });
+    at(2600, function () {
+      btn.classList.remove('pressed');
+      btn.innerHTML = ICO_LOADER + ' Billing';
+    });
+    at(3700, function () {
+      btn.classList.add('success');
+      btn.innerHTML = 'Billed ' + ICO_CHECKW;
+      $('doe-badge').textContent = 'Billing started';
+      $('doe-body').textContent = 'Invoice #2216 sent to Doe - tracked in Billing';
+    });
+    if (chain) at(5600, function () { go(2, true); });
+  }
+
+  // ── Scène 2 ──────────────────────────────────────────────────────────
+  function playScene2(chain) {
+    $('stepper').classList.add('hidden');
+    $('meetings').classList.add('hidden');
+    $('note').classList.add('hidden');
+    $('meeting1').classList.remove('moved');
+    $('meeting2').classList.remove('moved');
+    at(700, function () { renderStepper(['done', 'loading']); });
+    at(1500, function () { $('meetings').classList.remove('hidden'); });
+    at(2700, function () {
+      $('meeting1').classList.add('moved');
+      $('meeting2').classList.add('moved');
+      renderStepper(['done', 'done', 'loading']);
+    });
+    at(4300, function () {
+      renderStepper(['done', 'done', 'done']);
+      $('meetings').classList.add('hidden');
+      $('note').classList.remove('hidden');
+    });
+    if (chain) at(7600, function () { go(3, true); });
+  }
+
+  // ── Scène 3 ──────────────────────────────────────────────────────────
+  function playScene3() {
+    var box = $('composer');
+    var text = $('composer-text');
+    box.classList.remove('done');
+    text.innerHTML = '<span class="ph">Ask Plato anything about your cases...</span>';
+    var i = 0;
+    function tick() {
+      i += 1;
+      text.innerHTML = PROMPT.slice(0, i).replace(/&/g, '&amp;').replace(/</g, '&lt;') +
+        (i < PROMPT.length ? '<span class="caret"></span>' : '');
+      if (i < PROMPT.length) {
+        timers.push(setTimeout(tick, 24 + (PROMPT[i - 1] === ' ' ? 12 : 0)));
+      } else {
+        box.classList.add('done');
+      }
+    }
+    at(1000, tick);
+  }
+
+  // ── Orchestration ────────────────────────────────────────────────────
+  function go(n, chain) {
+    clearTimers();
+    document.querySelectorAll('.scene').forEach(function (el) { el.classList.remove('on'); });
+    $('scene' + n).classList.add('on');
+    $('plate-label').textContent = LABELS[n];
+    document.querySelectorAll('.scene-chip').forEach(function (c) {
+      c.classList.toggle('active', c.dataset.scene === String(n));
+    });
+    if (n === 1) playScene1(chain);
+    if (n === 2) playScene2(chain);
+    if (n === 3) playScene3();
+  }
+
+  document.querySelectorAll('.scene-chip').forEach(function (c) {
+    c.addEventListener('click', function () { go(Number(c.dataset.scene), false); });
+  });
+  $('replay').addEventListener('click', function () { go(1, true); });
+
+  // Mise à l'échelle de la planche dans la fenêtre.
+  function fit() {
+    var s = Math.min(1, (window.innerWidth - 48) / 1232, (window.innerHeight - 90) / 760);
+    $('plate').style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  go(1, true);
+</script>
+</body>
+</html>
