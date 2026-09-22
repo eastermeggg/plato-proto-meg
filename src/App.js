@@ -63,6 +63,7 @@ import { MailConnectIntro, MailConnectRun } from './components/connectors/MailCo
 import { ProviderMark } from './components/connectors/ConnectorArt';
 import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel, MailFloatingPromo, MailNavPromoCard } from './components/connectors/ConnectorPromo';
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
+import LoiHoverLab from './components/ui-kit/LoiHoverLab';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
 import WeeklyUsageCard from './components/billing/WeeklyUsageCard';
@@ -1434,7 +1435,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'loi-hover', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion'];
 const UI_KIT_SUBSECTION_SLUGS = [
   'tokens',
   'inventory',
@@ -18464,6 +18465,9 @@ export default function App() {
             <button onClick={() => navigate('/ui-kit/preview-panel')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Files className="w-3.5 h-3.5" /> Preview panel - tous les types
             </button>
+            <button onClick={() => navigate('/ui-kit/loi-hover')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
+              <BookOpen className="w-3.5 h-3.5" /> Popover article de loi
+            </button>
             <button onClick={() => navigate('/ui-kit/trial-flow')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
               <Clock className="w-3.5 h-3.5" /> Essai gratuit - le flow complet
             </button>
@@ -25660,6 +25664,9 @@ export default function App() {
   }
   if (currentPage === 'preview-panel') {
     return (<><PreviewPanelLab />{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'loi-hover') {
+    return (<><LoiHoverLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'assistant-composer') {
     return (<><ComposerLab />{renderGlobalOverlays()}</>);
