@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Input from '../ui/Input';
 import Badge from '../ui/Badge';
+import { LoiText, loiSourceOf } from '../ui/LoiHoverCard';
 import { colors, typography } from '../../design-system/tokens';
 import { COT_BADGE_TOKENS } from '../../data/cotisationsSocial';
 import { DOC_SAMPLE_IMAGES, docSampleIndex } from './docSamples';
@@ -494,7 +495,7 @@ function ImageDoc({ source, pageWidth, scrollRef, onScroll }) {
 // Contrairement au PDF (lignes grises), le Word rend du VRAI texte (source.wordBody :
 // suite de { text, heading?, cite?, page? }). Les paragraphes cités reçoivent le
 // même surlignage inline que les autres corps prose.
-function WordPage({ source, pageNo, totalPages, width, paras }) {
+function WordPage({ source, pageNo, totalPages, width, paras, onOpenArticle }) {
   return (
     <div
       data-page={pageNo}
@@ -519,12 +520,12 @@ function WordPage({ source, pageNo, totalPages, width, paras }) {
                 className="scroll-mt-6 text-foreground rounded-sm whitespace-pre-line"
                 style={{ background: HL, boxShadow: `inset 3px 0 0 ${HL_EDGE}`, padding: '2cqw 2.5cqw', margin: '0.5cqw 0', fontSize: '2.9cqw', lineHeight: 1.7 }}
               >
-                {p.text}
+                <LoiText text={p.text} onOpenArticle={onOpenArticle} />
               </p>
             ) : p.heading ? (
               <div key={i} className="font-semibold text-foreground" style={{ fontSize: '3.2cqw', lineHeight: 1.4 }}>{p.text}</div>
             ) : (
-              <p key={i} className="text-foreground-secondary whitespace-pre-line" style={{ fontSize: '2.9cqw', lineHeight: 1.7, textAlign: 'justify' }}>{p.text}</p>
+              <p key={i} className="text-foreground-secondary whitespace-pre-line" style={{ fontSize: '2.9cqw', lineHeight: 1.7, textAlign: 'justify' }}><LoiText text={p.text} onOpenArticle={onOpenArticle} /></p>
             )
           )}
         </div>
@@ -536,16 +537,17 @@ function WordPage({ source, pageNo, totalPages, width, paras }) {
   );
 }
 
-function WordDoc({ source, pageWidth, scrollRef, onScroll }) {
+function WordDoc({ source, pageWidth, scrollRef, onScroll, onOpen }) {
   const body = source.wordBody || [];
   const byPage = {};
   body.forEach((p) => { const pg = p.page || 1; (byPage[pg] || (byPage[pg] = [])).push(p); });
   const total = source.pages || Math.max(1, ...Object.keys(byPage).map(Number));
+  const openArticle = onOpen ? (a) => onOpen({ kind: 'loi', source: loiSourceOf(a) }) : undefined;
   return (
     <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
       <div className="flex flex-col items-center gap-6 p-6">
         {Array.from({ length: total }, (_, i) => (
-          <WordPage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} paras={byPage[i + 1] || []} />
+          <WordPage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} paras={byPage[i + 1] || []} onOpenArticle={openArticle} />
         ))}
       </div>
     </div>
@@ -553,8 +555,8 @@ function WordDoc({ source, pageWidth, scrollRef, onScroll }) {
 }
 
 // Dispatcher : choisit le corps selon le type de la pièce.
-function DocBody({ source, pageWidth, scrollRef, onScroll, highlight }) {
-  const props = { source, pageWidth, scrollRef, onScroll, highlight };
+function DocBody({ source, pageWidth, scrollRef, onScroll, highlight, onOpen }) {
+  const props = { source, pageWidth, scrollRef, onScroll, highlight, onOpen };
   const t = docTypeOf(source);
   if (t === 'image') return <ImageDoc {...props} />;
   if (t === 'word') return <WordDoc {...props} />;
@@ -563,8 +565,11 @@ function DocBody({ source, pageWidth, scrollRef, onScroll, highlight }) {
 
 // ── Corps « décision de justice » ────────────────────────────────────────────
 
-function JpBody({ source, scrollRef }) {
+function JpBody({ source, scrollRef, onOpen }) {
   const s = source.jp || {};
+  // Références d'articles dans la prose (LoiText) : le clic « Voir l'article »
+  // rouvre le même panneau sur la source loi.
+  const openArticle = onOpen ? (a) => onOpen({ kind: 'loi', source: loiSourceOf(a) }) : undefined;
   const Section = ({ title, children }) => (
     <div className="mb-5">
       <FieldLabel>{title}</FieldLabel>
@@ -578,12 +583,14 @@ function JpBody({ source, scrollRef }) {
           <div className="text-[15px] font-semibold text-foreground-strong">{s.juridiction}</div>
           <div className="text-[13px] text-foreground-muted mt-0.5 tabular-nums">{s.date} · n° {s.numero}</div>
         </div>
-        <Section title="Faits et procédure"><p>{s.faits}</p></Section>
-        <Section title="Moyens"><p>{s.moyens}</p></Section>
+        <Section title="Faits et procédure"><p><LoiText text={s.faits} onOpenArticle={openArticle} /></p></Section>
+        <Section title="Moyens"><p><LoiText text={s.moyens} onOpenArticle={openArticle} /></p></Section>
         <Section title="Motifs">
-          {(s.motifs || []).map((m, i) => (m.cite ? <Citation key={i}>{m.text}</Citation> : <p key={i}>{m.text}</p>))}
+          {(s.motifs || []).map((m, i) => (m.cite
+            ? <Citation key={i}><LoiText text={m.text} onOpenArticle={openArticle} /></Citation>
+            : <p key={i}><LoiText text={m.text} onOpenArticle={openArticle} /></p>))}
         </Section>
-        <Section title="Dispositif"><p>{s.dispositif}</p></Section>
+        <Section title="Dispositif"><p><LoiText text={s.dispositif} onOpenArticle={openArticle} /></p></Section>
       </div>
     </div>
   );
@@ -684,8 +691,10 @@ function EmailBody({ source, scrollRef, onOpen }) {
 
 // ── Corps « article de loi » (court, non paginé) ─────────────────────────────
 
-function LoiBody({ source, scrollRef }) {
+function LoiBody({ source, scrollRef, onOpen }) {
   const l = source.loi || {};
+  // Renvois entre articles : un alinéa peut citer un autre texte (LoiText).
+  const openArticle = onOpen ? (a) => onOpen({ kind: 'loi', source: loiSourceOf(a) }) : undefined;
   return (
     <div ref={scrollRef} className="flex-1 overflow-auto min-w-0">
       <div className="max-w-[680px] mx-auto py-8 px-8">
@@ -693,7 +702,9 @@ function LoiBody({ source, scrollRef }) {
         <div className="text-[12.5px] text-foreground-muted mt-1">{l.code} · Version en vigueur au {l.enVigueur}</div>
         <div className="h-px bg-border my-5" />
         <div className="space-y-3 text-[13.5px] leading-6 text-foreground-secondary">
-          {(l.alineas || []).map((a, i) => (a.cite ? <Citation key={i}>{a.text}</Citation> : <p key={i}>{a.text}</p>))}
+          {(l.alineas || []).map((a, i) => (a.cite
+            ? <Citation key={i}><LoiText text={a.text} onOpenArticle={openArticle} /></Citation>
+            : <p key={i}><LoiText text={a.text} onOpenArticle={openArticle} /></p>))}
         </div>
       </div>
     </div>
@@ -1325,10 +1336,10 @@ export default function PreviewPanel({
   };
 
   const renderBody = () => {
-    if (cfg.body === 'doc') return <DocBody source={source} pageWidth={pageWidth} scrollRef={scrollRef} highlight={docHi} />;
-    if (cfg.body === 'jp') return <JpBody source={source} scrollRef={scrollRef} />;
+    if (cfg.body === 'doc') return <DocBody source={source} pageWidth={pageWidth} scrollRef={scrollRef} highlight={docHi} onOpen={openSource} />;
+    if (cfg.body === 'jp') return <JpBody source={source} scrollRef={scrollRef} onOpen={openSource} />;
     if (cfg.body === 'email') return <EmailBody source={source} scrollRef={scrollRef} onOpen={openSource} />;
-    if (cfg.body === 'loi') return <LoiBody source={source} scrollRef={scrollRef} />;
+    if (cfg.body === 'loi') return <LoiBody source={source} scrollRef={scrollRef} onOpen={openSource} />;
     if (cfg.body === 'ligne') return <LigneBody source={source} scrollRef={scrollRef} />;
     return null;
   };
