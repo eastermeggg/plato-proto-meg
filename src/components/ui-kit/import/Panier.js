@@ -273,7 +273,7 @@ function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, o
       {/* Indentation par palier fixe (24px/niveau) + tête à largeur fixe :
           chevron (nœud dépliable) ou connecteur d'arbre (feuille) - hiérarchie
           lisible, cases alignées à chaque profondeur. */}
-      <div className="group/node flex gap-2 items-start rounded-lg hover:bg-cream/50 transition-colors" style={{ paddingLeft: 10 + depth * 24, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+      <div className="group/node flex gap-2 items-start rounded-lg hover:bg-background-canvas transition-colors" style={{ paddingLeft: 10 + depth * 24, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
           {hasChildren ? (
             <span className="h-5 flex items-center justify-center flex-shrink-0" style={{ width: 18 }}>
               <button type="button" onClick={() => onToggleExpand(node.key)} className="text-foreground-muted hover:text-foreground-secondary focus:outline-none" title={isOpen ? 'Replier' : 'Déplier'}>

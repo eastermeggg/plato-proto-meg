@@ -7567,7 +7567,7 @@ export default function App() {
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
@@ -7729,7 +7729,7 @@ export default function App() {
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
@@ -7920,7 +7920,7 @@ export default function App() {
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
@@ -9146,7 +9146,7 @@ export default function App() {
                 <span style={receiptRowStyle} className="flex items-center gap-1.5">
                   {tp?.sigle || tp?.nom}
                   <span
-                    className="inline-flex items-center h-[16px] px-1 rounded cursor-pointer hover:bg-border-strong/40"
+                    className="inline-flex items-center h-[16px] px-1 rounded cursor-pointer hover:bg-[color-mix(in_srgb,var(--semantic-borderStrong)_40%,transparent)]"
                     style={{ fontSize: 10, fontWeight: 500, color: dsColors.semantic.foregroundMuted, fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.02em' }}
                     onClick={() => {
                       if (imp.source === 'cascade' && tpScenario.cascade) {
@@ -10587,7 +10587,7 @@ export default function App() {
                                             <button
                                               key={vi.id}
                                               onClick={() => navigateTo({ ...p, type: 'poste-iv' })}
-                                              className={`w-full flex items-center h-14 hover:bg-background-subtle/80 transition-colors ${!isLastVi ? 'border-b border-border' : ''}`}
+                                              className={`w-full flex items-center h-14 hover:bg-background-subtle transition-colors ${!isLastVi ? 'border-b border-border' : ''}`}
                                             >
                                               {/* Indent spacers to match RowCalculation Subline */}
                                               <div className="w-[42px] flex-shrink-0" />
@@ -16909,7 +16909,7 @@ export default function App() {
           {!collapsed && (
             <button
               onClick={inPeek ? expandNav : hideNav}
-              className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+              className="group p-1.5 rounded-md hover:bg-background-subtle transition-colors flex-shrink-0"
               title={inPeek ? 'Épingler la navigation' : 'Masquer la navigation'}
             >
               <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
@@ -17730,7 +17730,7 @@ export default function App() {
                   <button
                     key={key}
                     onClick={onClick}
-                    className={`group/hrow flex items-center gap-2 w-full px-2 text-left text-foreground hover:bg-cream/60 transition-colors ${dossierRef ? 'h-11' : 'h-8'}`}
+                    className={`group/hrow flex items-center gap-2 w-full px-2 text-left text-foreground hover:bg-background-subtle transition-colors ${dossierRef ? 'h-11' : 'h-8'}`}
                     style={{ borderRadius: 4, fontSize: 14 }}
                   >
                     <Icon className="w-4 h-4 flex-shrink-0 text-foreground-secondary" strokeWidth={1.75} />
@@ -20497,7 +20497,7 @@ export default function App() {
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.foreground, letterSpacing: '0.1em' }}>
             {monoLabel}
           </span>
-          <span className="flex-1 h-px bg-foreground/20" />
+          <span className="flex-1 h-px bg-border" />
         </div>
       )}
       <div className="flex items-end justify-between gap-4">
@@ -21229,7 +21229,7 @@ export default function App() {
           <div className="px-5 py-4">
             <div className="flex items-baseline gap-2.5 mb-3">
               <span style={mailMonoLabel}>Ce que Plato peut faire</span>
-              <span className="flex-1 h-px bg-foreground/10" />
+              <span className="flex-1 h-px bg-border-subtle" />
             </div>
             <ul className="flex flex-col gap-2.5">
               {MAIL_CAN.map(t => (
@@ -21245,7 +21245,7 @@ export default function App() {
           <div className="px-5 py-4">
             <div className="flex items-baseline gap-2.5 mb-3">
               <span style={mailMonoLabel}>Ce que Plato ne peut jamais faire</span>
-              <span className="flex-1 h-px bg-foreground/10" />
+              <span className="flex-1 h-px bg-border-subtle" />
             </div>
             <ul className="flex flex-col gap-2.5">
               {MAIL_CANT.map(t => (
@@ -22531,7 +22531,7 @@ export default function App() {
             </button>
             <button
               onClick={hideNav}
-              className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+              className="group p-1.5 rounded-md hover:bg-background-subtle transition-colors flex-shrink-0"
               title="Masquer la navigation"
             >
               <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
@@ -22561,7 +22561,7 @@ export default function App() {
                       <button
                         key={item.id}
                         onClick={() => (item.onClick ? item.onClick() : setSettingsSection(item.id))}
-                        className={`group/nav relative h-8 w-full flex items-center gap-2 px-2.5 transition-all duration-200 ease-out text-left ${active ? 'bg-cream text-foreground font-medium border border-border-strong' : 'text-foreground-secondary hover:bg-cream/60 hover:text-foreground border border-transparent'}`}
+                        className={`group/nav relative h-8 w-full flex items-center gap-2 px-2.5 transition-all duration-200 ease-out text-left ${active ? 'bg-cream text-foreground font-medium border border-border-strong' : 'text-foreground-secondary hover:bg-background-subtle hover:text-foreground border border-transparent'}`}
                         style={{ borderRadius: 7, fontSize: '14px' }}
                       >
                         {active && (
@@ -22585,7 +22585,7 @@ export default function App() {
             {/* Contrôles démo - repliables, repliés par défaut (outillage interne). */}
             <button
               onClick={() => setDemoControlsOpen(o => !o)}
-              className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-cream/60 transition-colors"
+              className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-background-subtle transition-colors"
               title={demoControlsOpen ? 'Replier les contrôles démo' : 'Déplier les contrôles démo'}
             >
               <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted }}>Démo</span>

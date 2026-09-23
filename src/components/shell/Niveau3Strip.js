@@ -91,7 +91,7 @@ export function SiblingNav({ index, total, onPrev, onNext }) {
         onClick={index > 0 ? onPrev : undefined}
         disabled={index <= 0}
         aria-label="Précédent"
-        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${index <= 0 ? 'text-border-strong cursor-default' : 'text-foreground-secondary hover:bg-cream/60 hover:text-foreground'}`}
+        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${index <= 0 ? 'text-border-strong cursor-default' : 'text-foreground-secondary hover:bg-background-subtle hover:text-foreground'}`}
       >
         <ChevronLeft className="w-4 h-4" strokeWidth={1.75} />
       </button>
@@ -102,7 +102,7 @@ export function SiblingNav({ index, total, onPrev, onNext }) {
         onClick={index < total - 1 ? onNext : undefined}
         disabled={index >= total - 1}
         aria-label="Suivant"
-        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${index >= total - 1 ? 'text-border-strong cursor-default' : 'text-foreground-secondary hover:bg-cream/60 hover:text-foreground'}`}
+        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${index >= total - 1 ? 'text-border-strong cursor-default' : 'text-foreground-secondary hover:bg-background-subtle hover:text-foreground'}`}
       >
         <ChevronRight className="w-4 h-4" strokeWidth={1.75} />
       </button>

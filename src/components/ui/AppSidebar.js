@@ -40,7 +40,7 @@ export function AppSidebar({ header, footer, width = 264, children, onCollapse, 
           {onCollapse && (
             <button
               onClick={onCollapse}
-              className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+              className="group p-1.5 rounded-md hover:bg-background-subtle transition-colors flex-shrink-0"
               title="Masquer la navigation"
               aria-label="Masquer la navigation"
             >

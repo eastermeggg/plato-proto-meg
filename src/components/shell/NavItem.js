@@ -65,7 +65,7 @@ export default function NavItem({
       <button
         onClick={onClick}
         title={title ?? label}
-        className="group/new relative h-8 flex items-center gap-2 w-full px-2.5 text-left text-foreground-secondary hover:bg-cream/60 transition-all duration-150 ease-out"
+        className="group/new relative h-8 flex items-center gap-2 w-full px-2.5 text-left text-foreground-secondary hover:bg-background-subtle transition-all duration-150 ease-out"
         style={{ borderRadius: 6, fontSize: 14 }}
       >
         <CreateIcon
@@ -136,7 +136,7 @@ export default function NavItem({
       } ${
         active
           ? 'bg-cream text-foreground font-medium border border-border-strong'
-          : 'text-foreground hover:bg-cream/60 border border-transparent'
+          : 'text-foreground hover:bg-background-subtle border border-transparent'
       } ${muted && !active ? 'opacity-55' : ''}`}
       style={{ borderRadius: 6, fontSize: 14 }}
       title={collapsed ? undefined : (title ?? label)}

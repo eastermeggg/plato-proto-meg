@@ -29,7 +29,7 @@ export default function NavExpandControl({ onExpand, onPeekEnter, onPeekLeave, o
       </button>
       <button
         onClick={onExpand}
-        className="group flex items-center justify-center gap-2 h-8 px-3 rounded-lg hover:bg-cream/60 transition-colors flex-shrink-0"
+        className="group flex items-center justify-center gap-2 h-8 px-3 rounded-lg hover:bg-background-subtle transition-colors flex-shrink-0"
         title="Afficher la navigation"
         aria-label="Afficher la navigation"
       >

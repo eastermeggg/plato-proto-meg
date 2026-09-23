@@ -21,7 +21,7 @@ function CategoryRow({ label, empty, collapsed, onToggle }) {
     <button
       type="button"
       onClick={empty ? undefined : onToggle}
-      className={`w-full flex items-center border-b border-border text-left transition-colors ${empty ? 'cursor-default' : 'hover:bg-background-canvas/70'}`}
+      className={`w-full flex items-center border-b border-border text-left transition-colors ${empty ? 'cursor-default' : 'hover:bg-background-canvas'}`}
       style={{ height: 44 }}
     >
       <span style={{ width: 16 }} className="flex-shrink-0" />
@@ -36,7 +36,7 @@ function PieceRow({ piece, depth = 1, showNode = false, onFilterSource }) {
   const Icon = piece.kind === 'email' ? Mail : piece.split ? Scissors : FileText;
   const p = piece.provenance;
   return (
-    <div className="group flex items-center border-b border-border hover:bg-background-canvas/70 transition-colors" style={{ height: 58 }}>
+    <div className="group flex items-center border-b border-border hover:bg-background-canvas transition-colors" style={{ height: 58 }}>
       <span style={{ width: 16 + depth * 24 }} className="flex-shrink-0" />
       {piece.isNew && <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mr-2" style={{ backgroundColor: '#1e3a8a' }} aria-hidden />}
       <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: piece.kind === 'email' ? '#1e3a8a' : '#78716c' }} />
@@ -237,7 +237,7 @@ export default function PiecesPage({ onClose, onToast, onOpenGesteC, pieces, sou
                     <button
                       type="button"
                       onClick={() => (view === 'nouveautes' ? leaveNouveautes() : (setView('nouveautes'), setFlatCap(PAGE)))}
-                      className="w-full flex items-center border-b border-border text-left transition-colors hover:bg-background-canvas/70"
+                      className="w-full flex items-center border-b border-border text-left transition-colors hover:bg-background-canvas"
                       style={{ height: 44, backgroundColor: view === 'nouveautes' ? '#f4f7fc' : undefined }}
                     >
                       <span style={{ width: 16 }} className="flex-shrink-0" />
@@ -263,7 +263,7 @@ export default function PiecesPage({ onClose, onToast, onOpenGesteC, pieces, sou
                         <PieceRow key={p.id} piece={p} depth={1} showNode onFilterSource={filterSource} />
                       ))}
                       {flatPieces.length > flatCap && (
-                        <button type="button" onClick={() => setFlatCap(c => c + PAGE)} className="w-full text-left px-[52px] py-2.5 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-canvas/70 transition-colors">
+                        <button type="button" onClick={() => setFlatCap(c => c + PAGE)} className="w-full text-left px-[52px] py-2.5 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-canvas transition-colors">
                           + {flatPieces.length - flatCap} autres
                         </button>
                       )}
@@ -285,7 +285,7 @@ export default function PiecesPage({ onClose, onToast, onOpenGesteC, pieces, sou
                             <PieceRow key={p.id} piece={p} depth={1} onFilterSource={filterSource} />
                           ))}
                           {!isCollapsed && items.length > cap && (
-                            <button type="button" onClick={() => setCaps(prev => ({ ...prev, [node.id]: cap + PAGE }))} className="w-full text-left px-[52px] py-2.5 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-canvas/70 transition-colors border-b border-border">
+                            <button type="button" onClick={() => setCaps(prev => ({ ...prev, [node.id]: cap + PAGE }))} className="w-full text-left px-[52px] py-2.5 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-canvas transition-colors border-b border-border">
                               + {items.length - cap} autres
                             </button>
                           )}

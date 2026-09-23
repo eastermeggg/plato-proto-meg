@@ -29,7 +29,7 @@ const strongOf = (l) => (l.summary.find((s) => s.strong) || l.summary[l.summary.
 function PosteLignesTable({ onOpen }) {
   return (
     <div className="rounded-xl border border-border bg-white overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-cream/50">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-background-subtle">
         <div>
           <h3 className="text-[14px] font-semibold text-foreground">Postes du dossier</h3>
           <p className="text-[12px] text-foreground-muted mt-0.5">Clique une ligne - le panneau s'ouvre en drawer, aux vraies proportions</p>
@@ -42,7 +42,7 @@ function PosteLignesTable({ onOpen }) {
       {POSTE_LIGNES.map((e, i) => {
         const tint = POSTE_TINT[e.ligne.poste] || POSTE_TINT.PGPA;
         return (
-          <button key={i} onClick={() => onOpen(i)} className="w-full grid grid-cols-[88px_1fr_130px_44px] items-center px-4 py-3 text-left border-b border-border last:border-0 hover:bg-cream/60 transition-colors group">
+          <button key={i} onClick={() => onOpen(i)} className="w-full grid grid-cols-[88px_1fr_130px_44px] items-center px-4 py-3 text-left border-b border-border last:border-0 hover:bg-background-subtle transition-colors group">
             <div><span className="inline-flex items-center h-6 px-2 rounded-md text-[11px] font-semibold" style={{ background: tint.bg, color: tint.fg }}>{e.ligne.poste}</span></div>
             <div className="flex items-center gap-2.5 min-w-0">
               <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-info-bg text-link flex-shrink-0"><FileText className="w-3.5 h-3.5" strokeWidth={1.75} /></span>

@@ -35,7 +35,7 @@ export default function SidebarUserInfo({
           className={
             collapsed
               ? 'flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity'
-              : 'w-full flex items-center gap-3 px-2 py-2 hover:bg-cream/60 transition-colors text-left group'
+              : 'w-full flex items-center gap-3 px-2 py-2 hover:bg-background-subtle transition-colors text-left group'
           }
           style={collapsed ? undefined : { borderRadius: 6 }}
         >

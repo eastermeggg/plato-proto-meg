@@ -368,7 +368,7 @@ function DropZoneLarge({ onClick, creating }) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex-1 min-h-0 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors hover:bg-cream/40"
+      className="w-full flex-1 min-h-0 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors hover:bg-background-subtle"
       style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', background: 'linear-gradient(180deg, rgba(238,236,230,0.35) 0%, rgba(238,236,230,0) 30%)' }}
     >
       <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-surface border" style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>

@@ -99,7 +99,7 @@ function SourceRow({ source, syncing, onToggle, onSync, onOpen }) {
       tabIndex={0}
       onClick={onOpen}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
-      className="w-full flex items-center gap-2.5 px-3 py-2.5 border-b border-border last:border-b-0 hover:bg-background-canvas/70 transition-colors text-left cursor-pointer"
+      className="w-full flex items-center gap-2.5 px-3 py-2.5 border-b border-border last:border-b-0 hover:bg-background-canvas transition-colors text-left cursor-pointer"
     >
       <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: source.kind === 'sender' ? '#78716c' : '#1e3a8a' }} />
       <div className="flex-1 min-w-0">
@@ -240,7 +240,7 @@ function AddSourcePanel({ sources, api, onBack, onClose, onToast, connected, onC
               const on = selFolders.has(f.id);
               const st = statsFor(f.id);
               return (
-                <div key={f.id} className={`flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors ${on ? 'bg-cream' : already ? '' : 'hover:bg-cream/60'}`} style={already ? { opacity: 0.55 } : undefined}>
+                <div key={f.id} className={`flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors ${on ? 'bg-cream' : already ? '' : 'hover:bg-background-canvas'}`} style={already ? { opacity: 0.55 } : undefined}>
                   <Checkbox checked={on} disabled={already} onToggle={() => toggle(setSelFolders)(f.id)} />
                   <Folder className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
                   <span className="flex-1 min-w-0">
@@ -263,7 +263,7 @@ function AddSourcePanel({ sources, api, onBack, onClose, onToast, connected, onC
               const on = selThreads.has(t.id);
               const ds = displaySubject(t);
               return (
-                <div key={t.id} className={`flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors ${on ? 'bg-cream' : already ? '' : 'hover:bg-cream/60'}`} style={already ? { opacity: 0.55 } : undefined}>
+                <div key={t.id} className={`flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors ${on ? 'bg-cream' : already ? '' : 'hover:bg-background-canvas'}`} style={already ? { opacity: 0.55 } : undefined}>
                   <Checkbox checked={on} disabled={already} onToggle={() => toggle(setSelThreads)(t.id)} />
                   <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
                   <span className="flex-1 min-w-0">
@@ -284,7 +284,7 @@ function AddSourcePanel({ sources, api, onBack, onClose, onToast, connected, onC
               const on = selSenders.has(a.email);
               return (
                 <div key={a.email}>
-                  <div className={`flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors ${on ? 'bg-cream' : already ? '' : 'hover:bg-cream/60'}`} style={already ? { opacity: 0.55 } : undefined}>
+                  <div className={`flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors ${on ? 'bg-cream' : already ? '' : 'hover:bg-background-canvas'}`} style={already ? { opacity: 0.55 } : undefined}>
                     <Checkbox checked={on} disabled={already} onToggle={() => toggle(setSelSenders)(a.email)} />
                     <AtSign className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
                     <span className="flex-1 min-w-0">
