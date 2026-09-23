@@ -1,7 +1,8 @@
 ---
 name: AppSidebar
+package: plato
 type: layout
-status: pending
+status: draft
 usage: LE shell de navigation canonique (rail gauche) - composer, jamais re-rouler
 description: >
   Le rail de navigation de Plato. Le shell ne change jamais : header (logo +
@@ -10,6 +11,8 @@ description: >
   sous-rail settings) via AppSidebar / SidebarBrand / SidebarGroup / SidebarItem.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-42882
 file: src/components/ui/AppSidebar.js
+source: src/components/ui/AppSidebar.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: AppSidebar
 variants: [AppSidebar, SidebarBrand, SidebarGroup, NavItem, NavSectionHeader]
 railStates: [ouverte, masquee, peek]

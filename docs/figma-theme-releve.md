@@ -302,7 +302,7 @@ Tout mapping non trivial (opacity layers, `custom/bg-input-*`, shadows monochrom
 
 1. **Relever le dark** — le MCP ne résout que le mode courant du nœud (impossible de forcer le dark). **Décision steward 22/09** : dark **dérivé** du light (warm stone, contraste AA), pas extrait de Figma. Voir `docs/dark-mode.md`. Un vrai relevé dark reste à faire si les Variables Figma exposent un mode dark.
 2. **Vérifier les 8 lignes alias-seul** — résoudre `red/800`, `red/900`, `purple/600`, `purple/900` en hex depuis les Variables (pas depuis la mémoire).
-3. **Dérives observées Figma vs `tokens.js`** (à traiter en `ds-figma-update`, pas ici) — signalées sans être corrigées :
+3. **Dérives observées Figma vs `tokens.js`** (à traiter en `ds-figma-sync`, pas ici) — signalées sans être corrigées :
    - `border` / `input` : Figma **#E7E5E3** (stone/200) vs `tokens.js` **#dfdcd9** (« stone/200 assombri d'un demi-cran » — dérive *assumée*, cf. `tokens.js`).
    - `border-strong` : Figma **#D6D3D1** vs `tokens.js` **#cbc7c4**.
    - `brand` : Figma **#FF6D04** vs `tokens.js` **#f47a2c** (« Vif atténué »).

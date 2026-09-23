@@ -1,7 +1,8 @@
 ---
 name: PageHeader
+package: plato
 type: layout
-status: pending
+status: draft
 usage: L'en-tête de page (titre serif + action + onglets optionnels) au-dessus du contenu
 description: >
   En-tête de PAGE canonique : titre serif display-sm à gauche, cluster d'actions
@@ -10,6 +11,8 @@ description: >
   (barre de contexte niveau 3). Composé à partir des primitives (Button, Badge).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37511-1436
 file: src/components/ui/PageHeader.js
+source: src/components/ui/PageHeader.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: PageHeader
 variants: [Dossiers, Conversations, Dossier]
 sizes: [display-sm]

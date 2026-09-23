@@ -1,7 +1,8 @@
 ---
 name: PreviewPanel
+package: plato
 type: domain
-status: pending
+status: draft
 usage: One preview shell for every source kind (piece/modele/jp/email/loi/ligne/web)
 description: >
   Le panneau de prévisualisation systématisé : une coquille unique (header
@@ -12,6 +13,8 @@ description: >
   PreviewerPage (37375:8874/8876).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9330
 file: src/components/preview/PreviewPanel.js
+source: src/components/preview/PreviewPanel.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: PreviewPanel
 variants: [piece, modele, jp, email, loi, ligne, web]
 states: [embedded, drawer, editing, rail-citations, sujet-ligne]

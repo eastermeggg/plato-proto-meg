@@ -19,7 +19,7 @@ import { V2, Badge, SmallBtn, HoverReveal, kindColor } from './pieceRow';
 export function GroupChapeau({ kind = 'body', title, illegible = false, tag = null, divided = true, onRemove, removeTitle = 'Retirer' }) {
   const Icon = kind === 'folder' ? FolderOpen : kind === 'file' ? FileText : Mail;
   return (
-    <div className={`bg-white pl-4 pr-2.5 py-3 flex items-center justify-between gap-3 ${divided ? 'border-b border-border' : ''}`}>
+    <div className={`bg-surface pl-4 pr-2.5 py-3 flex items-center justify-between gap-3 ${divided ? 'border-b border-border' : ''}`}>
       <div className={`flex items-center min-w-0 ${kind === 'folder' ? 'gap-2.5' : 'gap-3'}`}>
         <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: kindColor(kind) }} />
         <p className={`text-[14px] leading-5 font-medium truncate ${illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{title}</p>
@@ -92,7 +92,7 @@ export function Line({ line, api }) {
   // nom en italique estompé - rien n'est cochable tant que le fichier arrive.
   if (isUploading) {
     return (
-      <div className="flex items-center gap-2 h-11 px-4 bg-white">
+      <div className="flex items-center gap-2 h-11 px-4 bg-surface">
         <span className="w-4 flex-shrink-0" aria-hidden />
         <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" strokeWidth={2} style={{ color: V2.muted }} />
         <p className="flex-1 min-w-0 text-[14px] leading-5 italic truncate opacity-40" style={{ color: V2.foreground }}>{line.title}</p>
@@ -104,7 +104,7 @@ export function Line({ line, api }) {
   // toujours visibles - un échec n'est jamais silencieux, rien n'est entré.
   if (isError) {
     return (
-      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-white">
+      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-surface">
         <div className="flex items-center gap-2 min-w-0">
           <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
           <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
@@ -123,7 +123,7 @@ export function Line({ line, api }) {
   // identifié », trois actions - le versement attend la décision.
   if (isDoublon) {
     return (
-      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-white">
+      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-surface">
         <div className="flex items-center gap-2 min-w-0">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
           <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
@@ -145,7 +145,7 @@ export function Line({ line, api }) {
     return (
       <div>
         <div
-          className="group relative flex items-center justify-between gap-3 h-11 px-4 bg-white transition-colors"
+          className="group relative flex items-center justify-between gap-3 h-11 px-4 bg-surface transition-colors"
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
         >
@@ -166,7 +166,7 @@ export function Line({ line, api }) {
         {line.detection && (
           <div className="flex flex-col">
             {line.detection.pieces.map((p) => (
-              <div key={p.name} className="flex items-center gap-2 h-9 pl-10 pr-4 bg-white">
+              <div key={p.name} className="flex items-center gap-2 h-9 pl-10 pr-4 bg-surface">
                 <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.docRed }} />
                 <p className="flex-1 min-w-0 text-[13px] leading-5 truncate" style={{ color: V2.foreground }}>{p.name}</p>
               </div>
@@ -182,7 +182,7 @@ export function Line({ line, api }) {
   const resolvedNote = line.doublonStatus === 'kept' ? 'Conservée' : line.doublonStatus === 'ignored' ? 'Ignorée' : null;
   return (
     <div
-      className="group relative flex items-center gap-2 h-11 px-4 bg-white transition-colors"
+      className="group relative flex items-center gap-2 h-11 px-4 bg-surface transition-colors"
       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
     >
@@ -285,7 +285,7 @@ function TreeNode({ node, depth, fid, decoupe, api, detectionFor }) {
 // Enveloppe carte d'un bloc (rounded-6, bord, ombre 2xs).
 function BlocCard({ children }) {
   return (
-    <section className="rounded-md border border-border bg-white overflow-hidden" style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
+    <section className="rounded-md border border-border bg-surface overflow-hidden" style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
       {children}
     </section>
   );
@@ -353,7 +353,7 @@ function DropStrip({ onClick, creating }) {
       type="button"
       onClick={onClick}
       className="w-full h-10 rounded-lg border border-dashed flex items-center justify-center gap-2 text-[12px] transition-colors hover:bg-cream flex-shrink-0"
-      style={{ borderColor: '#cbc7c4', color: V2.muted }}
+      style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', color: V2.muted }}
     >
       <Upload className="w-3.5 h-3.5" strokeWidth={1.75} />
       {creating
@@ -369,9 +369,9 @@ function DropZoneLarge({ onClick, creating }) {
       type="button"
       onClick={onClick}
       className="w-full flex-1 min-h-0 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors hover:bg-cream/40"
-      style={{ borderColor: '#cbc7c4', background: 'linear-gradient(180deg, rgba(238,236,230,0.35) 0%, rgba(238,236,230,0) 30%)' }}
+      style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', background: 'linear-gradient(180deg, rgba(238,236,230,0.35) 0%, rgba(238,236,230,0) 30%)' }}
     >
-      <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border" style={{ borderColor: '#cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
+      <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-surface border" style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
         <Upload className="w-5 h-5" strokeWidth={1.75} style={{ color: V2.foreground }} />
       </span>
       <span className="text-[14px] font-medium" style={{ color: V2.foreground }}>
@@ -443,7 +443,7 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
               <button
                 type="button"
                 onClick={onToggleMail}
-                className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-white text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
+                className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-surface text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
                 style={{ color: V2.foreground }}
                 title="Parcourir vos emails et la récolte proposée"
               >
@@ -454,7 +454,7 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
             <button
               type="button"
               onClick={api.addLocalFile}
-              className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-white text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-surface text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
               style={{ color: V2.foreground }}
             >
               <Plus className="w-4 h-4" strokeWidth={2} />

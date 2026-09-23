@@ -1,7 +1,8 @@
 ---
 name: NavExpandControl
+package: plato
 type: composite
-status: pending
+status: draft
 usage: Le contrôle « Menu » de réouverture du rail quand la nav est masquée
 description: >
   Contrôle présentationnel visible UNIQUEMENT nav masquée : logo Plato 28 (→
@@ -11,6 +12,8 @@ description: >
   navCollapsed (nœud 37443:5796).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37443-5724
 file: src/components/shell/NavExpandControl.js
+source: src/components/shell/NavExpandControl.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: NavExpandControl
 states: [default, hover]
 tokens: [colors.semantic.cream, colors.semantic.foregroundSecondary]

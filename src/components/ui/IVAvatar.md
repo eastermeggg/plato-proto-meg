@@ -1,7 +1,8 @@
 ---
 name: IVAvatar
+package: plato
 type: custom
-status: pending
+status: draft
 usage: Chess-piece avatar for victims (IV) and users
 description: >
   Avatar « pièce d'échecs » : conteneur teinté, silhouette posée sur le bord
@@ -9,6 +10,8 @@ description: >
   6 palettes × tailles 16-40.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36533-7935
 file: src/components/IVAvatar.js
+source: src/components/IVAvatar.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: IVAvatar
 variants: [knight, bishop, rook, pawn, king, queen]
 sizes: [16, 20, 24, 28, 32, 40]

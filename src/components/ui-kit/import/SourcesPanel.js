@@ -99,7 +99,7 @@ function SourceRow({ source, syncing, onToggle, onSync, onOpen }) {
       tabIndex={0}
       onClick={onOpen}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
-      className="w-full flex items-center gap-2.5 px-3 py-2.5 border-b border-border/60 last:border-b-0 hover:bg-background-canvas/70 transition-colors text-left cursor-pointer"
+      className="w-full flex items-center gap-2.5 px-3 py-2.5 border-b border-border last:border-b-0 hover:bg-background-canvas/70 transition-colors text-left cursor-pointer"
     >
       <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: source.kind === 'sender' ? '#78716c' : '#1e3a8a' }} />
       <div className="flex-1 min-w-0">
@@ -134,7 +134,7 @@ function SourceRow({ source, syncing, onToggle, onSync, onOpen }) {
 function HistoryRow({ entry, onResolve }) {
   if (entry.kind === 'initial') {
     return (
-      <div className="flex items-center gap-2.5 px-3 py-2 border-b border-border/60 last:border-b-0">
+      <div className="flex items-center gap-2.5 px-3 py-2 border-b border-border last:border-b-0">
         <span className="text-[11px] text-foreground-muted tabular-nums flex-shrink-0" style={{ width: 46 }}>{entry.date}</span>
         <span className="text-[12px] text-foreground-secondary">{entry.count} pièces versées à l'import initial</span>
       </div>
@@ -142,7 +142,7 @@ function HistoryRow({ entry, onResolve }) {
   }
   if (entry.kind === 'failure' && !entry.resolved) {
     return (
-      <div className="flex items-start gap-2.5 px-3 py-2 border-b border-border/60 last:border-b-0" style={{ backgroundColor: '#fdf3f2' }}>
+      <div className="flex items-start gap-2.5 px-3 py-2 border-b border-border last:border-b-0" style={{ backgroundColor: '#fdf3f2' }}>
         <span className="text-[11px] tabular-nums flex-shrink-0 pt-0.5" style={{ width: 46, color: '#b4483c' }}>{entry.date}</span>
         <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#b4483c' }} strokeWidth={1.75} />
         <span className="flex-1 min-w-0">
@@ -165,7 +165,7 @@ function HistoryRow({ entry, onResolve }) {
     : entry.kind === 'decoupe' ? <Scissors className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
     : <FileText className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />;
   return (
-    <div className="flex items-center gap-2.5 px-3 py-2 border-b border-border/60 last:border-b-0">
+    <div className="flex items-center gap-2.5 px-3 py-2 border-b border-border last:border-b-0">
       <span className="text-[11px] text-foreground-muted tabular-nums flex-shrink-0" style={{ width: 46 }}>{entry.date}</span>
       {icon}
       <span className="flex-1 min-w-0">
@@ -507,7 +507,7 @@ export default function SourcesPanel({ panel, setPanel, sources, suggestions, ap
                   <SectionLabel>Suggestions · {suggestions.length}</SectionLabel>
                   <div className="border border-border rounded-lg overflow-hidden bg-white">
                     {suggestions.map(sug => (
-                      <div key={sug.id} className="flex items-center gap-2.5 px-3 py-2.5 border-b border-border/60 last:border-b-0">
+                      <div key={sug.id} className="flex items-center gap-2.5 px-3 py-2.5 border-b border-border last:border-b-0">
                         <AtSign className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
                         <span className="flex-1 min-w-0">
                           <span className="text-[13px] text-foreground truncate block">{sug.label}</span>

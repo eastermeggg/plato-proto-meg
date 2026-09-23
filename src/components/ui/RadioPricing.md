@@ -1,7 +1,8 @@
 ---
 name: RadioPricing
+package: plato
 type: shadcn-extended
-status: pending
+status: draft
 usage: Radio card option for licence / pricing choices
 description: >
   Carte-option radio (radio shadcn étendu) : toggle 16px + icône + libellé +
@@ -9,6 +10,8 @@ description: >
   Active-selected / Disabled.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36915-6122
 file: src/components/ui/RadioPricing.js
+source: src/components/ui/RadioPricing.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: RadioPricing
 states: [default, hover, selected, disabled]
 tokens: [colors.semantic.border, colors.semantic.borderStrong, colors.semantic.background, colors.semantic.primary, radius.xl, radius.full, shadows.xs, typography.scale.body-medium, typography.scale.caption]

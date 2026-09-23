@@ -1,7 +1,8 @@
 ---
 name: ChatComposerNotice
+package: plato
 type: custom
-status: pending
+status: draft
 usage: Status banner above the chat composer (analyzing / quota)
 description: >
   Bandeau d'état posé au-dessus du composer : analyzing (Plato réfléchit,
@@ -9,6 +10,8 @@ description: >
   nœud Figma, le code est la source.
 figma: null
 file: src/components/ChatComposerNotice.js
+source: src/components/ChatComposerNotice.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: ChatComposerNotice
 variants: [analyzing, quota-warning, quota-full]
 tokens: [colors.semantic.muted, colors.avatar, colors.feedback.warning, colors.feedback.destructive]

@@ -1,7 +1,8 @@
 ---
 name: PlatoAssistantButton
+package: plato
 type: composite
-status: pending
+status: draft
 usage: Le CTA d'ouverture de l'assistant Plato (pilule blanche + halo brand)
 description: >
   Pilule blanche « Plato Assistant » : glyphe Sparkle IA, libellé Inter Medium 14,
@@ -9,6 +10,8 @@ description: >
   sans conic-gradient / en reduced-motion).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37444-5885
 file: src/components/shell/PlatoAssistantButton.js
+source: src/components/shell/PlatoAssistantButton.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: PlatoAssistantButton
 states: [default, hover]
 tokens: [colors.brand.DEFAULT, colors.semantic.foreground, colors.semantic.borderStrong]

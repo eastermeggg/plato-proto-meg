@@ -1,7 +1,8 @@
 ---
 name: JPListing
+package: plato
 type: domain
-status: pending
+status: draft
 usage: Canonical JP decision card (4 contexts) + listing stack
 description: >
   La carte de décision de jurisprudence canonique : en-tête juridiction/date/
@@ -9,6 +10,8 @@ description: >
   badges de postes. 4 contextes : detail, dropdown, added, tab.
 figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=2219-19197
 file: src/components/jp/JPListing.js
+source: src/components/jp/JPListing.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: JPListing
 variants: [detail, dropdown, added, tab]
 composes: [Badge, Button]

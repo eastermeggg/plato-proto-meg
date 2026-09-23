@@ -1,7 +1,8 @@
 ---
 name: PanelHeader
+package: plato
 type: composite
-status: pending
+status: draft
 usage: La barre de titre du Doc Preview (h-56) - puce kind + serif | nav + actions
 description: >
   Atome du Doc Preview : barre h-56 (pl-16 pr-12, fond blanc, filet bas).
@@ -11,6 +12,8 @@ description: >
   titre 14 medium + action texte (« Détail › »).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-8723
 file: src/components/preview/PreviewAtoms.js
+source: src/components/preview/PreviewAtoms.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: PanelHeader
 variants: [piece, jp, email, loi, modele, small]
 states: [nav, actions, close]

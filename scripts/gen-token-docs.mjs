@@ -97,7 +97,12 @@ const RAD_USAGE = {
   lg: '8px - boutons', xl: '12px - cartes et bannières (Figma --radius)', full: 'Pill / cercle (badges number, avatars)',
 };
 const SHADOW_USAGE = {
-  xs: 'Élévation minimale (alignée Figma shadow/xs)', bannerButton: 'Bouton de bandeau (repos)', bannerButtonHover: 'Bouton de bandeau (survol)',
+  '2xs': 'Élévation la plus légère - filets d\'appui (chips, rangées)',
+  xs: 'Élévation minimale (alignée Figma shadow/xs)',
+  sm: 'Élévation basse - cartes au repos, menus discrets',
+  xl: 'Élévation haute - popovers, panneaux flottants',
+  '3xl': 'Élévation maximale - modales et overlays',
+  bannerButton: 'Bouton de bandeau (repos)', bannerButtonHover: 'Bouton de bandeau (survol)',
   glowPulseStart: 'Début du pulse de glow (indigo)', glowPulseEnd: 'Fin du pulse de glow',
 };
 const DUR_USAGE = {
@@ -178,6 +183,28 @@ for (const [k, v] of Object.entries(P.icon))
 for (const [k, v] of Object.entries(P.diff))
   colors.push(tok(`color.diff.${k}`, `diff.${k}`, hx(v), { category: 'diff', usage: `Diff métier : ${k === 'add' ? 'ajout' : k === 'edit' ? 'modification' : 'suppression'} (rangées IV, artifacts)` }));
 P.chart.forEach((v, i) => colors.push(tok(`color.chart.${i + 1}`, `chart-${i + 1}`, hx(v), { category: 'chart', usage: `Série graphique ${i + 1} (rampe bleue)` })));
+const CREAM_USAGE = {
+  200: 'Cran cream/200 (palette CREAM IVAvatar, set 36533:7967)',
+  400: 'Cream/400 - filet du bloc « Apport » de JPListing (2219:19197)',
+  900: 'Cream/900 - cran sombre de la rampe cream (IVAvatar)',
+};
+for (const [k, v] of Object.entries(P.cream))
+  colors.push(tok(`color.cream.${k}`, `cream/${k}`, hx(v), { dark: hx(D.cream?.[k]), category: 'cream', usage: CREAM_USAGE[k] || 'Cran de la rampe cream (promu 23/09/2026)' }));
+colors.push(tok('color.doc.pdf', 'doc.pdf', hx(P.doc.pdf), { dark: hx(D.doc?.pdf), category: 'doc', usage: 'Icône fichier PDF rouge des rangées de tables (ActRow, RowDocuments, DocIcon)' }));
+const COMPOSER_USAGE = {
+  processingBg: 'Bandeau système du composer : fond analyse en cours',
+  warningBg: 'Bandeau système du composer : fond limite de quota',
+  blockedBg: 'Bandeau système du composer : fond quota atteint',
+  askHeader: 'En-tête mono « USER ASK » du composer (cream/500)',
+};
+for (const [k, v] of Object.entries(P.composer))
+  colors.push(tok(`color.composer.${k}`, `composer.${kebab(k)}`, hx(v), { dark: hx(D.composer?.[k]), category: 'composer', usage: COMPOSER_USAGE[k] || '' }));
+const DROPZONE_USAGE = {
+  extractionBorder: 'DropZone état extraction : bordure bleu pâle (alpha 50% via color-mix)',
+  extractionTint: 'DropZone état extraction : teinte de fond (alpha 60% via color-mix)',
+};
+for (const [k, v] of Object.entries(P.dropzone))
+  colors.push(tok(`color.dropzone.${k}`, `dropzone.${kebab(k)}`, hx(v), { dark: hx(D.dropzone?.[k]), category: 'dropzone', usage: DROPZONE_USAGE[k] || '' }));
 
 // ── typography ──
 const FAM_VAL = { sans: 'Inter, system fallbacks', serif: 'RL Para Trial Central, Albra, Georgia', mono: 'IBM Plex Mono' };

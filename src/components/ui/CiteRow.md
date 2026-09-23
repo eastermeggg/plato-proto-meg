@@ -1,7 +1,8 @@
 ---
 name: CiteRow
+package: plato
 type: primitive
-status: pending
+status: draft
 usage: Une ligne du rail « Extraits cités » du Doc Preview
 description: >
   Atome du Doc Preview : ligne de citation (px-16 py-14, gap-12) - pastille
@@ -11,6 +12,8 @@ description: >
   CitesPanel (37375:9168) la compose sous son header « EXTRAITS CITÉS ».
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-8836
 file: src/components/preview/PreviewAtoms.js
+source: src/components/preview/PreviewAtoms.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: CiteRow
 states: [default, hover, active]
 tokens: [colors.semantic.cream, colors.semantic.foreground, typography.fontFamily.mono]

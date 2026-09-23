@@ -1,7 +1,8 @@
 ---
 name: DataTableHeader
+package: plato
 type: composite
-status: pending
+status: draft
 usage: Column header cell of the custom Plato tables (h40, mono 11 uppercase)
 description: >
   Cellule d'en-tête de colonne des tables custom Plato. Trois types (text,
@@ -9,6 +10,8 @@ description: >
   Aussi la brique de la bande « Section Captions » des cotisations.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2768-27447
 file: src/components/ui/DataTableHeader.js
+source: src/components/ui/DataTableHeader.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: DataTableHeader
 variants: [text, button, checkbox]
 states: [default, hover, rightAlign, checked]

@@ -1,7 +1,8 @@
 ---
 name: DataTableCell
+package: plato
 type: composite
-status: pending
+status: draft
 usage: The atomic typed cell — the only building block of every Plato custom table row
 description: >
   L'unité atomique de toutes les tables Plato (div-based, pas <table> shadcn).
@@ -10,6 +11,8 @@ description: >
   faites QUE d'instances de cette cellule.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-5657
 file: src/components/ui/DataTableCell.js
+source: src/components/ui/DataTableCell.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: DataTableCell
 variants: [IV, User, DocSource, IconHolder, Folder, Text, TextEmphasis, TextMuted, TextComposed, Badge, Number, Accronym, Grip, Options, Divider, AmountRegular, AmountMuted, AmountEmphasis, AmountResult, NegativeAmount, AmountQualificatif, AmountMissing, AmountProgress, OperatorPlus, OperatorMinus, OperatorMultiply, OperatorEqual, OperatorEqualResult, Rule, SectionBandeau]
 composes: [IVAvatar, Badge, SourceBadge]

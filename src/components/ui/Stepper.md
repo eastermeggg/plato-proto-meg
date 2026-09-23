@@ -1,7 +1,8 @@
 ---
 name: Stepper
+package: plato
 type: primitive
-status: validated
+status: stable
 usage: Horizontal step indicator for multi-step flows (modal wizards)
 description: >
   Horizontal stepper: numbered 24px circles joined by 40px connector lines,
@@ -10,6 +11,8 @@ description: >
   active step is a filled primary circle. Optionally clickable backwards only.
 figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=4226-63220
 file: src/components/ui/Stepper.js
+source: src/components/ui/Stepper.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Stepper
 states: [done, active, upcoming]
 tokens: [colors.semantic.primary, colors.semantic.primaryForeground, colors.semantic.border, colors.semantic.mutedForeground, colors.semantic.foreground, colors.feedback.success.text, typography.fontFamily.mono]

@@ -1,7 +1,8 @@
 ---
 name: AssistantComposer
+package: plato
 type: domain
-status: pending
+status: draft
 usage: The rich Plato assistant composer (input + toolbar + scope + attachments)
 description: >
   Le composer riche de l'assistant Plato : textarea auto-grow, en-tête
@@ -9,6 +10,8 @@ description: >
   suggestions), docs agrafés, tokens inline. Porté du modèle Plato Nav.
 figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1081-50926
 file: src/components/assistant/AssistantComposer.js
+source: src/components/assistant/AssistantComposer.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: AssistantComposer
 variants: [standard, elevated]
 states: [scope-flash, staged-docs, suggestions-open, system-state]

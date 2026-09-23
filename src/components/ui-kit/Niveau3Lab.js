@@ -131,7 +131,7 @@ export default function Niveau3Lab() {
 
   const table = (
     <div className="px-8 py-4">
-      <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
+      <div className="bg-white rounded-lg border border-border overflow-hidden">
         {POSTES.map((p, i) => (
           <button key={p.id} onClick={() => setPosteId(p.id)}
             className={`w-full flex items-center gap-3 px-4 h-12 text-left hover:bg-background transition-colors ${i > 0 ? 'border-t border-border-subtle' : ''}`}>
@@ -146,7 +146,7 @@ export default function Niveau3Lab() {
   );
 
   const detailLines = (
-    <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
+    <div className="bg-white rounded-lg border border-border overflow-hidden">
       {LIGNES.map((l, i) => (
         <div key={i} className={`flex items-center px-4 h-11 ${i > 0 ? 'border-t border-border-subtle' : ''}`}>
           <span className="flex-1 text-[13.5px] text-foreground">{l.label}</span>

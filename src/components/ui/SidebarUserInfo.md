@@ -1,7 +1,8 @@
 ---
 name: SidebarUserInfo
+package: plato
 type: composite
-status: pending
+status: draft
 usage: Le pied « profil » du rail (avatar + prénom + cabinet + chevrons)
 description: >
   Le pied du rail (Sidebar Custom Items / Region=UserInfo) : avatar + prénom +
@@ -10,6 +11,8 @@ description: >
   affiché par le parent.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-37493
 file: src/components/shell/SidebarUserInfo.js
+source: src/components/shell/SidebarUserInfo.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: SidebarUserInfo
 states: [default, hover]
 modes: [expanded, collapsed]

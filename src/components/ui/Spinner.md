@@ -1,7 +1,8 @@
 ---
 name: Spinner
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Indicateur de chargement inline (icône loader-circle en rotation)
 description: >
   Icone lucide loader-circle en rotation continue. Cinq tailles (12 a 32 px),
@@ -9,6 +10,8 @@ description: >
   surface). Role status pour l'accessibilite.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=33609-22857
 file: src/components/ui/Spinner.js
+source: src/components/ui/Spinner.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Spinner
 sizes: [xs, sm, md, lg, xl]
 states: [spinning]

@@ -1,7 +1,8 @@
 ---
 name: TopBar
+package: plato
 type: layout
-status: pending
+status: draft
 usage: La barre de tête fixe (nav dossier V2) - chrome à slots + contrôle nav intégré
 description: >
   Chrome de barre de tête canonique (Figma « Navigation / Top bar » 37443:5796) :
@@ -12,6 +13,8 @@ description: >
   actions dans le contenu, c'est PageHeader (distinct), pas ceci.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37443-5796
 file: src/components/ui/TopBar.js
+source: src/components/ui/TopBar.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: TopBar
 variants: [navCollapsed, leading, left, right]
 tokens: [colors.semantic.background, colors.semantic.border, colors.semantic.borderStrong]

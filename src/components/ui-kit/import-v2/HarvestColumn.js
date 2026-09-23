@@ -55,7 +55,7 @@ export function FolderCandidateCard({ fid, added, deltaAdded, onAddFolder, onRem
       role="button" tabIndex={0}
       onClick={() => onEnter?.(fid)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEnter?.(fid); } }}
-      className="group relative flex items-center gap-2 p-3 bg-white cursor-pointer transition-colors"
+      className="group relative flex items-center gap-2 p-3 bg-surface cursor-pointer transition-colors"
       style={hasDelta ? { borderLeft: `3px solid ${V2.indigo}`, paddingLeft: 9 } : undefined}
       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
@@ -82,7 +82,7 @@ function ReadonlyThreadRow({ tid }) {
   if (!tv) return null;
   const excerpt = tv.illegible ? null : tv.summary;
   return (
-    <div className="flex items-start gap-2 p-3.5 bg-white">
+    <div className="flex items-start gap-2 p-3.5 bg-surface">
       <span className="flex items-center py-1 flex-shrink-0 opacity-50">
         <ChevronRight className="w-3 h-3" strokeWidth={2} style={{ color: V2.muted }} />
       </span>
@@ -161,7 +161,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
   else if (!settled) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddThread(tid)} title={partial ? 'Ajouter le reste de l\'échange' : 'Ajouter l\'échange au bordereau'}>Ajouter</SmallBtn>;
 
   return (
-    <div className="bg-white">
+    <div className="bg-surface">
       <div
         role="button" tabIndex={0}
         onClick={() => setOpen(o => !o)}
@@ -247,7 +247,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
             return (
               <div
                 key={key}
-                className="flex items-center gap-2 pl-8 pr-3.5 py-2 bg-white transition-colors"
+                className="flex items-center gap-2 pl-8 pr-3.5 py-2 bg-surface transition-colors"
                 onMouseEnter={(e) => { if (!atDossier) e.currentTarget.style.backgroundColor = V2.accent; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
               >
@@ -351,7 +351,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
         key={sf.id} role="button" tabIndex={0}
         onClick={() => setDrill(sf.id)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDrill(sf.id); } }}
-        className="flex items-center gap-2 p-3 bg-white cursor-pointer transition-colors"
+        className="flex items-center gap-2 p-3 bg-surface cursor-pointer transition-colors"
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
         title={`Ouvrir le sous-dossier · ${st.threads} échanges · ≈ ${st.pieces} pièces`}
@@ -393,7 +393,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
           onClick={onClick}
           className="w-full h-9 rounded-lg flex items-center justify-center gap-2 text-[14px] leading-5 font-medium transition-opacity hover:opacity-90"
           style={variant === 'primary'
-            ? { backgroundColor: V2.foreground, color: '#ffffff', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }
+            ? { backgroundColor: V2.foreground, color: V2.primaryForeground, boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }
             : variant === 'destructive'
               ? { backgroundColor: V2.destructiveSubtle, color: V2.destructiveText }
               : { backgroundColor: V2.secondary, color: V2.secondaryText }}
@@ -426,7 +426,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
                     return (
                       <div
                         key={tid}
-                        className="flex items-start gap-2 p-3 bg-white"
+                        className="flex items-start gap-2 p-3 bg-surface"
                         style={added ? undefined : { borderLeft: `3px solid ${V2.indigo}`, paddingLeft: 9 }}
                       >
                         <Paperclip className={`w-4 h-4 mt-[2px] flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.pj }} />
@@ -527,7 +527,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher un échange ou une pièce jointe…"
-            className="w-full h-9 pl-9 pr-8 rounded-lg border border-border bg-white text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
+            className="w-full h-9 pl-9 pr-8 rounded-lg border border-border bg-surface text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
           />
           {query !== '' && (
             <button
@@ -556,7 +556,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
           <button
             type="button"
             onClick={() => setDrill(drillParent ? drillParent.id : null)}
-            className="w-9 h-9 rounded-[10px] border border-border bg-white flex items-center justify-center hover:bg-cream transition-colors flex-shrink-0"
+            className="w-9 h-9 rounded-[10px] border border-border bg-surface flex items-center justify-center hover:bg-cream transition-colors flex-shrink-0"
             style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}
             title={drillParent ? `Revenir à « ${drillParent.name} »` : 'Revenir à la boîte de réception'}
             aria-label={drillParent ? `Revenir à « ${drillParent.name} »` : 'Revenir à la boîte de réception'}

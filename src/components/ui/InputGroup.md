@@ -1,7 +1,8 @@
 ---
 name: InputGroup
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Champ avec addons accolés dans un même conteneur bordé (icône, préfixe, Kbd, bouton)
 description: >
   Le champ à segments : un conteneur unique (h 36, radius 8, ombre xs) qui
@@ -12,6 +13,8 @@ description: >
   label + helper.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=27510-119942
 file: src/components/ui/InputGroup.js
+source: src/components/ui/InputGroup.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: InputGroup
 variants: [text, textarea]
 states: [enabled, focus, filled, disabled, error, error-focus, warning, calculated]

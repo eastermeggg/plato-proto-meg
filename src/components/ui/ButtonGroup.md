@@ -1,7 +1,8 @@
 ---
 name: ButtonGroup
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Groupe de boutons segmente (actions liees, split button)
 description: >
   Boutons accoles avec coins internes carres et filet separateur 1px. Compose
@@ -10,6 +11,8 @@ description: >
   orientations.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=28685-126219
 file: src/components/ui/ButtonGroup.js
+source: src/components/ui/ButtonGroup.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: ButtonGroup
 variants: [primary, outline, secondary]
 sizes: [xs, sm, md, lg]

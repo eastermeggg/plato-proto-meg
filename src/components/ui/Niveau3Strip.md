@@ -1,7 +1,8 @@
 ---
 name: Niveau3Strip
+package: plato
 type: layout
-status: pending
+status: draft
 usage: La barre de contexte niveau 3 (poste / acte / JP / documents) sous les onglets
 description: >
   La bande d'en-tête d'un objet niveau 3 (Figma « Navigation / Context bar »
@@ -12,6 +13,8 @@ description: >
   StripTitle, StripAmount, SiblingNav, CodeBadge, StripDivider.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37447-5922
 file: src/components/shell/Niveau3Strip.js
+source: src/components/shell/Niveau3Strip.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Niveau3Strip
 variants: [Post, ActLevel, Act, Documents, JP]
 tokens: [colors.semantic.background, colors.semantic.border, colors.semantic.muted, colors.semantic.secondaryForeground, colors.semantic.mutedForeground]

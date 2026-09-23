@@ -1542,6 +1542,111 @@
         "figmaRef": "",
         "notes": "",
         "status": "pending"
+      },
+      {
+        "id": "color.cream.200",
+        "name": "cream/200",
+        "value": "#dbd7cd",
+        "category": "cream",
+        "usage": "Cran cream/200 (palette CREAM IVAvatar, set 36533:7967)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.cream.400",
+        "name": "cream/400",
+        "value": "#ac9e8b",
+        "category": "cream",
+        "usage": "Cream/400 - filet du bloc « Apport » de JPListing (2219:19197)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.cream.900",
+        "name": "cream/900",
+        "value": "#50443e",
+        "category": "cream",
+        "usage": "Cream/900 - cran sombre de la rampe cream (IVAvatar)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.doc.pdf",
+        "name": "doc.pdf",
+        "value": "#dc2626",
+        "category": "doc",
+        "usage": "Icône fichier PDF rouge des rangées de tables (ActRow, RowDocuments, DocIcon)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.composer.processingBg",
+        "name": "composer.processing-bg",
+        "value": "#e5e3da",
+        "valueDark": "#26231f",
+        "category": "composer",
+        "usage": "Bandeau système du composer : fond analyse en cours",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.composer.warningBg",
+        "name": "composer.warning-bg",
+        "value": "#ecdbc9",
+        "valueDark": "#2a2016",
+        "category": "composer",
+        "usage": "Bandeau système du composer : fond limite de quota",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.composer.blockedBg",
+        "name": "composer.blocked-bg",
+        "value": "#e5d4d2",
+        "valueDark": "#2a1a1a",
+        "category": "composer",
+        "usage": "Bandeau système du composer : fond quota atteint",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.composer.askHeader",
+        "name": "composer.ask-header",
+        "value": "#9c8973",
+        "category": "composer",
+        "usage": "En-tête mono « USER ASK » du composer (cream/500)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.dropzone.extractionBorder",
+        "name": "dropzone.extraction-border",
+        "value": "#aabcd5",
+        "valueDark": "#35415c",
+        "category": "dropzone",
+        "usage": "DropZone état extraction : bordure bleu pâle (alpha 50% via color-mix)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.dropzone.extractionTint",
+        "name": "dropzone.extraction-tint",
+        "value": "#dfe8f5",
+        "valueDark": "#161d2b",
+        "category": "dropzone",
+        "usage": "DropZone état extraction : teinte de fond (alpha 60% via color-mix)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
       }
     ],
     "typography": [
@@ -1918,7 +2023,7 @@
         "id": "shadow.2xs",
         "name": "2xs",
         "value": "0px 1px 1px rgba(26,26,26,0.05)",
-        "usage": "",
+        "usage": "Élévation la plus légère - filets d'appui (chips, rangées)",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -1936,7 +2041,7 @@
         "id": "shadow.sm",
         "name": "sm",
         "value": "0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)",
-        "usage": "",
+        "usage": "Élévation basse - cartes au repos, menus discrets",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -1945,7 +2050,7 @@
         "id": "shadow.xl",
         "name": "xl",
         "value": "0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)",
-        "usage": "",
+        "usage": "Élévation haute - popovers, panneaux flottants",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -1954,7 +2059,7 @@
         "id": "shadow.3xl",
         "name": "3xl",
         "value": "0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)",
-        "usage": "",
+        "usage": "Élévation maximale - modales et overlays",
         "figmaRef": "",
         "notes": "",
         "status": "pending"

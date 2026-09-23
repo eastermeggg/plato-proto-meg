@@ -1,7 +1,8 @@
 ---
 name: Progress
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Barre de progression determinee (0 a 100 %)
 description: >
   Piste 8px radius full (bg secondary) + remplissage primary dont la largeur
@@ -9,6 +10,8 @@ description: >
   maquette. Transition douce sur la valeur.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-29134
 file: src/components/ui/Progress.js
+source: src/components/ui/Progress.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Progress
 variants: [determinate]
 tokens: [colors.semantic.secondary, colors.semantic.primary, radius.full, motion.duration.base]

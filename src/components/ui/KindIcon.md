@@ -1,7 +1,8 @@
 ---
 name: KindIcon
+package: plato
 type: primitive
-status: pending
+status: draft
 usage: La puce d'identité du Doc Preview - icône 16 sur fond subtle par kind
 description: >
   Atome du Doc Preview : carré arrondi 6 (28px, padding 6) portant l'icône 16
@@ -10,6 +11,8 @@ description: >
   web neutre. Rendu par PanelHeader ; jamais une puce colorée inline.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9147
 file: src/components/preview/PreviewAtoms.js
+source: src/components/preview/PreviewAtoms.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: KindIcon
 variants: [piece, modele, email, jp, loi, ligne, web]
 tokens: [colors.accents.indigo, colors.accents.emerald, colors.accents.violet, colors.accents.sand, colors.semantic.backgroundSubtle]

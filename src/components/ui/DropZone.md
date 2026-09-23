@@ -1,7 +1,8 @@
 ---
 name: DropZone
+package: plato
 type: primitive
-status: pending
+status: draft
 usage: Drag-and-drop / click-to-browse file input surface
 description: >
   Zone de dépôt de fichiers du DS (Figma « Drop Doc ») - trois contextes
@@ -10,6 +11,8 @@ description: >
   drag natif) ou forçables via `state`.
 figma: "Plato---System 35747:41445 (section 37709:904)"
 file: src/components/ui/DropZone.js
+source: src/components/ui/DropZone.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: DropZone
 variants: [panel, inline, empty]
 states: [default, hover, drop, extraction]

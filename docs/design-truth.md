@@ -18,7 +18,7 @@ Dernière mise à jour : 22/09/2026.
 
 | Élément | Vérité | Référence |
 |---|---|---|
-| Couleurs, typescale, radius, etc. | Figma → code (régime `ds-figma-update` : rapport de dérive, validation ligne à ligne, jamais automatique) | Figma « Plato - System » : couleurs 37373:4712, typescale 35720:35541, non-color 37383:2 → `src/design-system/tokens.js` (+ miroir `tailwind.config.js`) |
+| Couleurs, typescale, radius, etc. | Figma → code (régime `ds-figma-sync` : rapport de dérive, validation ligne à ligne, jamais automatique) | Figma « Plato - System » : couleurs 37373:4712, typescale 35720:35541, non-color 37383:2 → `src/design-system/tokens.js` (+ miroir `tailwind.config.js`) |
 
 ## Surfaces
 
@@ -38,3 +38,25 @@ Dernière mise à jour : 22/09/2026.
 
 Toute surface absente de ce tableau : **à qualifier par la steward avant
 d'arbitrer un écart**. Ajouter la ligne ici au moment de la qualification.
+
+## Arbitrage Figma - les 4 règles (portage « pixel-perfect » d'un nœud)
+
+1. **Le NŒUD fait foi pour la géométrie et la typo** (dimensions, paddings, gaps,
+   tailles/tracking). Les **descriptions de composants Figma** documentent
+   l'intention et l'usage - JAMAIS les mesures : elles sont souvent rédigées
+   depuis d'anciennes versions du code et dérivent (ex. vécu : description
+   « h48 px32 » quand le nœud dessine px-12/16). Nœud > description, toujours.
+2. **Les COULEURS et OMBRES viennent des tokens, jamais des hex du nœud.**
+   Les variables Figma et `tokens.js` divergent délibérément (bordures
+   assombries d'un demi-cran, cf. `DECISIONS-HEX.md`) : on mappe la variable
+   Figma vers le token de même rôle (`--border` → `colors.semantic.border`),
+   on ne transcrit pas la valeur. « Pixel-perfect » = géométrie du nœud +
+   couleurs des tokens.
+3. **Un composant du nœud = un composant du code.** Si le nœud est composé
+   d'atomes (KindIcon, MetaChip…), le code les expose aussi - jamais un
+   monolithe qui redessine les atomes inline.
+4. **Le DS en code et en prod est LA source.** Les composants naissent et
+   évoluent en code (vibecoding) ; le Figma sert de cible d'intention au moment
+   du portage, puis le DS établi (composants + tokens tels qu'ils tournent en
+   prod) fait foi. Un écart découvert APRÈS portage n'est pas un bug du code :
+   question steward.

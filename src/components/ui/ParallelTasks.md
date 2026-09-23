@@ -1,7 +1,8 @@
 ---
 name: ParallelTasks
+package: plato
 type: custom
-status: pending
+status: draft
 usage: Grouped pile for concurrent sub-agent tasks (line + inline/panel)
 description: >
   Pile groupée de sous-agents simultanés : une ligne compacte (« N tâches
@@ -9,6 +10,8 @@ description: >
   chaque tâche enveloppe un ReasoningStepper. Code-first.
 figma: null
 file: src/components/ParallelTasks.js
+source: src/components/ParallelTasks.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: ParallelTasks
 variants: [inline, panel]
 composes: [ReasoningStepper]

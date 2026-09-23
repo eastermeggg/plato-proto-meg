@@ -1,7 +1,8 @@
 ---
 name: Badge
+package: plato
 type: primitive
-status: validated
+status: stable
 usage: Inline status / tag / count label (non-interactive)
 description: >
   Compact single-line label for status, category tags, and counts. Three modes
@@ -9,6 +10,8 @@ description: >
   never wraps.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=136-1178
 file: src/components/ui/Badge.js
+source: src/components/ui/Badge.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Badge
 variants: [default, secondary, outline, destructive, ai, success, info, warning]
 sizes: [sm, md]

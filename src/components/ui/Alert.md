@@ -1,7 +1,8 @@
 ---
 name: Alert
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Bandeau de message inline non bloquant - icône + titre + description, 4 variants sémantiques
 description: >
   Alerte inline (padding 16, gap 12, radius 8) : icône 16px, titre body-medium,
@@ -10,6 +11,8 @@ description: >
   warning (fond warning.subtle). Couleurs d'icônes relevées des SVG du set.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2813-9373
 file: src/components/ui/Alert.js
+source: src/components/ui/Alert.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Alert
 variants: [default, destructive, info, warning]
 states: [default, with-action, no-icon, title-only, description-only]

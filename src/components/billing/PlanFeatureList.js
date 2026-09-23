@@ -7,7 +7,7 @@ import React from 'react';
 //   subtle - lighter border/dividers (/60), matching the "Mon usage" card.
 export default function PlanFeatureList({ features, dense = false, subtle = false }) {
   return (
-    <div className={`bg-surface rounded-lg overflow-hidden ${subtle ? 'border border-border/60 divide-y divide-border/60' : 'border border-border divide-y divide-border'}`}>
+    <div className={`bg-surface rounded-lg overflow-hidden ${subtle ? 'border border-border divide-y divide-border' : 'border border-border divide-y divide-border'}`}>
       {features.map((f, i) => {
         const Icon = f.icon;
         return (

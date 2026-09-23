@@ -48,6 +48,6 @@ compositionnel div-based, pas un tableau HTML stylé.
 2. `DataTableHeader` (Text / Button / Checkbox, tri, alignement).
 3. `DomainTableRows` par famille, au fil des besoins, en composant les cellules.
 
-Chaque brique = fiche `.md` + démo, via `ds-figma-component` sur le nœud précis.
+Chaque brique = fiche `.md` + démo, via `ds-figma-build` sur le nœud précis.
 Les tables inline actuelles du proto (chiffrage, PGP, IV, cotisations…) migreront
 vers ce système (chantier staged, comme le rail / les boutons).

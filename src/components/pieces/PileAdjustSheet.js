@@ -595,7 +595,7 @@ function SplitPromptSection({ defaultPrompt }) {
         >
           {applying ? (
             <>
-              <span className="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-foreground-muted/40 border-t-foreground-secondary animate-spin" />
+              <span className="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-border-strong border-t-foreground-secondary animate-spin" />
               Analyse…
             </>
           ) : appliedFlash ? (

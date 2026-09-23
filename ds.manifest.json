@@ -2,10 +2,16 @@
   "ds": {
     "name": "plato",
     "version": "0 (prototype, non versionné)",
+    "versioning": "lockstep",
     "registry": null,
     "repo": ".",
     "role": "producer"
   },
+  "fonts": [
+    { "token": "fontFamily.sans", "family": "Inter", "role": "UI", "licence": "validée (Open Font License)" },
+    { "token": "fontFamily.serif", "family": "RL Para Trial Central", "role": "titres (display-*)", "licence": "à valider (fonte Trial, servie en local)" },
+    { "token": "fontFamily.mono", "family": "IBM Plex Mono", "role": "caption tabulaire", "licence": "validée (Open Font License)" }
+  ],
   "owner": {
     "role": "design steward",
     "contact": "regior.meghan@gmail.com"
@@ -15,6 +21,7 @@
     "inventory": "src/data/designSystemInventory.json",
     "docs": "llms.txt",
     "docsComponents": "src/components/ui",
+    "demos": "src/components/ui-kit/componentDemos.jsx",
     "theme": "src/design-system/tokens.js",
     "kitchenSink": "/ui-kit",
     "protected": [

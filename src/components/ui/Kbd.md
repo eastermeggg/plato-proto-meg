@@ -1,7 +1,8 @@
 ---
 name: Kbd
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Raccourci clavier inline (touche seule ou combinaison)
 description: >
   Chip 20px pour afficher une touche clavier (Inter Medium 12, bg muted).
@@ -9,6 +10,8 @@ description: >
   KbdGroup pour les combinaisons (juxtaposees ou reliees par un +).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=29794-42330
 file: src/components/ui/Kbd.js
+source: src/components/ui/Kbd.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Kbd
 variants: [default, reversed]
 modes: [single, group, group-separated]

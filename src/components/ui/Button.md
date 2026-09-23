@@ -1,7 +1,8 @@
 ---
 name: Button
+package: plato
 type: primitive
-status: pending
+status: draft
 usage: The single action affordance - anything the user clicks to DO something
 description: >
   Plato action button. Five variants map to intent (primary action, secondary,
@@ -9,6 +10,8 @@ description: >
   The only sanctioned button - never re-roll one inline.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11933
 file: src/components/ui/Button.js
+source: src/components/ui/Button.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Button
 variants: [primary, secondary, ghost, outline, destructive, link, warning-link, success-link, neutral-link]
 sizes: [xs, sm, md, lg, icon-xs, icon-sm, icon, icon-lg]

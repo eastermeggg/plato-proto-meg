@@ -1,7 +1,8 @@
 ---
 name: NavSectionHeader
+package: plato
 type: composite
-status: pending
+status: draft
 usage: L'en-tête mono d'une section du rail (« DOSSIERS RÉCENTS ») + action optionnelle
 description: >
   L'en-tête de section du rail : IBM Plex Mono 11 uppercase (opacité 70) précédé
@@ -9,6 +10,8 @@ description: >
   « + » qui pivote au survol). Ré-exportée par AppSidebar / portée par SidebarGroup.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37457-4903
 file: src/components/shell/NavSectionHeader.js
+source: src/components/shell/NavSectionHeader.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: NavSectionHeader
 tokens: [colors.brand.DEFAULT, colors.semantic.mutedForeground, colors.semantic.borderStrong]
 composedBy: [AppSidebar, SidebarGroup]

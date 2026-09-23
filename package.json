@@ -24,10 +24,8 @@
     "eject": "react-scripts eject",
     "ds:doctor": "node scripts/ds-doctor.mjs",
     "ds:docs": "node scripts/gen-component-docs.mjs",
-    "ds:gaps": "node scripts/ds-gaps.mjs",
-    "ds:check": "npm run ds:doctor && node scripts/ds-gaps.mjs --ci",
-    "test:visual": "playwright test",
-    "test:visual:update": "playwright test --update-snapshots",
+    "ds:check": "npm run ds:doctor",
+    "ds:visual": "playwright test tests/visual",
     "ds:tokens": "node scripts/gen-token-docs.mjs"
   },
   "eslintConfig": {

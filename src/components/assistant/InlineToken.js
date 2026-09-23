@@ -20,7 +20,7 @@ const FAMILY_GLYPH = {
 
 const TOKEN_CLASS =
   'inline-block whitespace-nowrap max-w-full overflow-hidden text-ellipsis align-baseline ' +
-  'rounded bg-cream text-foreground text-[13px] leading-[18px] px-1.5 border border-border/70 select-none';
+  'rounded bg-cream text-foreground text-[13px] leading-[18px] px-1.5 border border-border select-none';
 
 export function createTokenSpan(token) {
   const span = document.createElement('span');

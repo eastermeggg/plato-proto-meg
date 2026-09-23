@@ -1,7 +1,8 @@
 ---
 name: MetaChip
+package: plato
 type: primitive
-status: pending
+status: draft
 usage: Le chip de métadonnée du Doc Preview (14 types canoniques)
 description: >
   Atome du Doc Preview : chip h-28 (px-10, radius 6, bord) - icône 14 + label
@@ -13,6 +14,8 @@ description: >
   = une icône + un label, partout les mêmes.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9177
 file: src/components/preview/PreviewAtoms.js
+source: src/components/preview/PreviewAtoms.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: MetaChip
 variants: [default, strong]
 states: [default, hover, disabled, ai, aside, action]

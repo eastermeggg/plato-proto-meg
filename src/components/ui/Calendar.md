@@ -1,7 +1,8 @@
 ---
 name: Calendar
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Sélection d'une date dans une grille mensuelle (formulaires, filtres, échéances)
 description: >
   Calendrier de sélection de date : grille mensuelle commençant le lundi,
@@ -11,6 +12,8 @@ description: >
   (le set Figma ne maquette pas de plage).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-19886
 file: src/components/ui/Calendar.js
+source: src/components/ui/Calendar.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Calendar
 variants: [single]
 sizes: [default, large, custom-days]

@@ -13,6 +13,8 @@
 // Règles bloquantes (error) :
 //   hex-hardcode   couleur hex en dur hors sources de tokens
 //   manifest       ds.manifest.json absent, invalide ou chemins déclarés manquants
+//   docs           constat bloquant délégué à scripts/ds-check-docs.mjs (fiches)
+//   boundaries     constat délégué à scripts/ds-check-boundaries.mjs (packages)
 // Règles informatives (warn, ne font jamais échouer) :
 //   hex-pending    hex listé dans doctor.pendingHex du manifeste : en attente
 //                  d'arbitrage steward (voir doctor.decisions, DECISIONS-HEX.md)
@@ -28,6 +30,7 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
 const REPORT = args.includes('--report');
@@ -157,16 +160,33 @@ const scan = (full, rel) => {
 
 walk(join(ROOT, 'src'));
 
+// ── 3 bis. Délégation (kit v3, CHANGEMENTS.md) : fiches + frontières ──────
+// Les constats des checks délégués sont FUSIONNÉS dans ceux du doctor : la
+// sortie --json reste un seul document valide, --report les compte, et un
+// constat bloquant délégué fait échouer le doctor hors --report.
+for (const s of ['ds-check-docs.mjs', 'ds-check-boundaries.mjs']) {
+  const r = spawnSync('node', [join(ROOT, 'scripts', s), '--report', '--json'], { encoding: 'utf8' });
+  const rule = s.includes('docs') ? 'docs' : 'boundaries';
+  try {
+    for (const f of JSON.parse(r.stdout))
+      add(f.file, 0, rule, f.severity === 'info' ? 'warn' : 'error', f.rule, f.fix);
+  } catch {
+    add(`scripts/${s}`, 0, rule, 'error',
+      `sortie illisible : ${(r.stderr || r.stdout || '(vide)').trim().slice(0, 120)}`,
+      'lancer le script seul pour le détail');
+  }
+}
+
 // ── 4. Sortie ─────────────────────────────────────────────────────────────
 const errors = findings.filter((f) => f.severity === 'error');
 const warns = findings.filter((f) => f.severity === 'warn');
 
 if (JSON_OUT) {
+  // process.exitCode (jamais process.exit) : un exit immédiat tronque le JSON
+  // à 64 Ko quand stdout est un pipe (spawnSync de ds-audit, `| python3`…).
   console.log(JSON.stringify({ errors: errors.length, warns: warns.length, findings }, null, 2));
-  process.exit(REPORT || errors.length === 0 ? 0 : 1);
-}
-
-if (REPORT) {
+  process.exitCode = REPORT || errors.length === 0 ? 0 : 1;
+} else if (REPORT) {
   const byRule = {};
   for (const f of findings) byRule[f.rule] = (byRule[f.rule] || 0) + 1;
   const byFile = {};
@@ -192,14 +212,14 @@ if (REPORT) {
       const t = knownHex.has(h) ? (knownHex.get(h) ? `= token « ${knownHex.get(h)} »` : '= dans la palette') : 'hors palette';
       console.log(`  ${String(c).padStart(5)}  ${h}  ${t}`);
     });
-  process.exit(0);
+  process.exitCode = 0;
+} else {
+  const CAP = 100;
+  for (const f of errors.slice(0, CAP)) {
+    console.log(`${f.file}:${f.line} — ${f.rule} (${f.detail}) — ${f.fix}`);
+  }
+  if (errors.length > CAP) console.log(`… + ${errors.length - CAP} autres constats — utiliser --json ou --report`);
+  if (warns.length) console.log(`\n${warns.length} avertissement(s) non bloquant(s) (emoji / em-dash / shadow-inline / infos déléguées) — détail via --json`);
+  console.log(`\n${errors.length} constat(s) bloquant(s).`);
+  process.exitCode = errors.length ? 1 : 0;
 }
-
-const CAP = 100;
-for (const f of errors.slice(0, CAP)) {
-  console.log(`${f.file}:${f.line} — ${f.rule} (${f.detail}) — ${f.fix}`);
-}
-if (errors.length > CAP) console.log(`… + ${errors.length - CAP} autres constats — utiliser --json ou --report`);
-if (warns.length) console.log(`\n${warns.length} avertissement(s) non bloquant(s) (emoji / em-dash / shadow-inline) — détail via --json`);
-console.log(`\n${errors.length} constat(s) bloquant(s).`);
-process.exit(errors.length ? 1 : 0);

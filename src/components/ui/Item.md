@@ -1,7 +1,8 @@
 ---
 name: Item
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Rangee generique de liste / menu (media + titre + description + actions)
 description: >
   Rangee radius 12 a slots - media (boite icone cadree ou node libre), titre
@@ -10,6 +11,8 @@ description: >
   interactive. Export ItemGroup pour empiler.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=32847-5869
 file: src/components/ui/Item.js
+source: src/components/ui/Item.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Item
 variants: [default, outline]
 sizes: [md, sm]

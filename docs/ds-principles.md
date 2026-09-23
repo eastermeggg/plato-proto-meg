@@ -130,7 +130,7 @@
   - *code → Figma (code fait foi ; un Figma périmé n'est pas un bug) :* relevé
     d'heures, cotisations, import email V2, connecteurs, port Assistant/Plato-Nav,
     onboarding, hero motion, tous les labs `/ui-kit/*`.
-- **Tokens de thème = régime `ds-figma-update` :** rapport de dérive → validation
+- **Tokens de thème = régime `ds-figma-sync` :** rapport de dérive → validation
   ligne à ligne du steward → application à `tokens.js` uniquement. Jamais
   automatique. Toute surface absente du registre → question, jamais de correction
   automatique.

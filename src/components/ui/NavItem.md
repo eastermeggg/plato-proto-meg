@@ -1,7 +1,8 @@
 ---
 name: NavItem
+package: plato
 type: composite
-status: pending
+status: draft
 usage: La ligne de la nav org (rail Plato) - destination / recent / create / see-all
 description: >
   LA ligne du rail de navigation. Quatre variantes (destination, recent,
@@ -10,6 +11,8 @@ description: >
   par le proto ; ré-exportée par AppSidebar (on l'importe depuis là).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37441-55015
 file: src/components/shell/NavItem.js
+source: src/components/shell/NavItem.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: NavItem
 variants: [destination, recent, recent-trail, create, see-all]
 states: [default, hover, active]

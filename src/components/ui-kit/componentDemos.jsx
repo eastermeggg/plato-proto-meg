@@ -75,6 +75,7 @@ import BordereauTableReal from '../pieces/BordereauTable';
 import KbdReal, { KbdGroup } from '../ui/Kbd';
 import SpinnerReal from '../ui/Spinner';
 import ProgressReal from '../ui/Progress';
+import StepperReal from '../ui/Stepper';
 import ButtonGroupReal from '../ui/ButtonGroup';
 import ItemReal from '../ui/Item';
 import CalendarReal from '../ui/Calendar';
@@ -1708,6 +1709,26 @@ export const componentDemos = {
       { label: '40 %',  values: { value: '40',  fluid: false, label: '' } },
       { label: '70 %',  values: { value: '70',  fluid: true,  label: 'Import des pièces' } },
       { label: '100 %', values: { value: '100', fluid: false, label: '' } },
+    ],
+  },
+
+  Stepper: {
+    description: "Stepper horizontal canonique des parcours en étapes (header de modale multi-étapes, wizards) : cercle 24 numéroté mono, connecteur 40px, états done/active/upcoming. Figma 4226:63220 · fiche Stepper.md.",
+    controls: {
+      current:   { type: 'select',  default: '1', options: ['0', '1', '2'], description: 'Étape active (index).' },
+      clickable: { type: 'boolean', default: false, description: 'Retour arrière cliquable (onStepClick).' },
+    },
+    render: v => (
+      <StepperReal
+        steps={[{ label: 'Nom du dossier' }, { label: 'Pièces client' }, { label: 'Pièces adverses' }]}
+        current={parseInt(v.current, 10)}
+        onStepClick={v.clickable ? () => {} : undefined}
+      />
+    ),
+    presets: [
+      { label: 'Début',    values: { current: '0', clickable: false } },
+      { label: 'En cours', values: { current: '1', clickable: true } },
+      { label: 'Fin',      values: { current: '2', clickable: true } },
     ],
   },
 

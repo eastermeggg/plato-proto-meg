@@ -214,6 +214,36 @@ Light par défaut ; la colonne Dark n'apparaît que si la valeur change (archite
 | `chart-4` | `#1447e6` | — | Série graphique 4 (rampe bleue) |
 | `chart-5` | `#193cb8` | — | Série graphique 5 (rampe bleue) |
 
+### cream
+
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `cream/200` | `#dbd7cd` | — | Cran cream/200 (palette CREAM IVAvatar, set 36533:7967) |
+| `cream/400` | `#ac9e8b` | — | Cream/400 - filet du bloc « Apport » de JPListing (2219:19197) |
+| `cream/900` | `#50443e` | — | Cream/900 - cran sombre de la rampe cream (IVAvatar) |
+
+### doc
+
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `doc.pdf` | `#dc2626` | — | Icône fichier PDF rouge des rangées de tables (ActRow, RowDocuments, DocIcon) |
+
+### composer
+
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `composer.processing-bg` | `#e5e3da` | `#26231f` | Bandeau système du composer : fond analyse en cours |
+| `composer.warning-bg` | `#ecdbc9` | `#2a2016` | Bandeau système du composer : fond limite de quota |
+| `composer.blocked-bg` | `#e5d4d2` | `#2a1a1a` | Bandeau système du composer : fond quota atteint |
+| `composer.ask-header` | `#9c8973` | — | En-tête mono « USER ASK » du composer (cream/500) |
+
+### dropzone
+
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `dropzone.extraction-border` | `#aabcd5` | `#35415c` | DropZone état extraction : bordure bleu pâle (alpha 50% via color-mix) |
+| `dropzone.extraction-tint` | `#dfe8f5` | `#161d2b` | DropZone état extraction : teinte de fond (alpha 60% via color-mix) |
+
 ## Typographie
 
 | Token | Définition (px / lh / ls / poids) | Usage |
@@ -271,11 +301,11 @@ Light par défaut ; la colonne Dark n'apparaît que si la valeur change (archite
 
 | Token | Valeur | Usage |
 |---|---|---|
-| `2xs` | `0px 1px 1px rgba(26,26,26,0.05)` | — |
+| `2xs` | `0px 1px 1px rgba(26,26,26,0.05)` | Élévation la plus légère - filets d'appui (chips, rangées) |
 | `xs` | `0 1px 2px rgba(26,26,26,0.05)` | Élévation minimale (alignée Figma shadow/xs) |
-| `sm` | `0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)` | — |
-| `xl` | `0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)` | — |
-| `3xl` | `0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)` | — |
+| `sm` | `0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)` | Élévation basse - cartes au repos, menus discrets |
+| `xl` | `0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)` | Élévation haute - popovers, panneaux flottants |
+| `3xl` | `0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)` | Élévation maximale - modales et overlays |
 | `bannerButton` | `0 1px 2px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05), inset 0 -1px 2px rgba(0,0,0,0.04)` | Bouton de bandeau (repos) |
 | `bannerButtonHover` | `0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(0,0,0,0.04)` | Bouton de bandeau (survol) |
 | `glowPulseStart` | `0 0 8px rgba(99, 102, 241, 0.3)` | Début du pulse de glow (indigo) |

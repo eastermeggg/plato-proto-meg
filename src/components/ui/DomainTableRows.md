@@ -1,7 +1,8 @@
 ---
 name: DomainTableRows
+package: plato
 type: composite
-status: pending
+status: draft
 usage: The domain row families of every Plato table - composed ONLY from DataTableCell instances
 description: >
   Les familles de rangées métier du système de tables Plato, portées
@@ -10,6 +11,8 @@ description: >
   sont faites que de cellules typées (DataTableCell) + DataTableHeader.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670
 file: src/components/ui/tables/
+source: src/components/ui/tables/
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: DomainTableRows
 composes: [DataTableCell, DataTableHeader, Badge, SourceBadge, IVAvatar, Button]
 tokens: [colors.semantic, colors.feedback, typography.fontFamily.serif, typography.scale.caption-header-cols]

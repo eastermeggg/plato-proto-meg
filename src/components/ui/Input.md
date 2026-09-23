@@ -1,7 +1,8 @@
 ---
 name: Input
+package: plato
 type: primitive
-status: pending
+status: draft
 usage: Labelled form control - a label + optional helper wrapping an input slot
 description: >
   The Figma "Field" component - a wrapper pairing a label and helper line with a
@@ -9,6 +10,8 @@ description: >
   etc. States (error/warning) colour the label only; the helper stays muted.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=33541-69574
 file: src/components/ui/Input.js
+source: src/components/ui/Input.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Input
 variants: [vertical, horizontal]
 states: [default, error, warning, aiGenerated]

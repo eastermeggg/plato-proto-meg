@@ -1,7 +1,8 @@
 ---
 name: NavPromoBanner
+package: plato
 type: composite
-status: pending
+status: draft
 usage: Bandeau promo contextuel du rail (mail non connecté / parrainage)
 description: >
   Bandeau plein-largeur du rail, dégradé info-blue horizontal + icône/texte
@@ -9,6 +10,8 @@ description: >
   edge=bottom (pied de nav).
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37471-1271
 file: src/components/shell/NavPromoBanner.js
+source: src/components/shell/NavPromoBanner.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: NavPromoBanner
 variants: [top, bottom]
 tokens: [colors.feedback.info.subtle, colors.feedback.info.text, colors.semantic.border]

@@ -1,7 +1,8 @@
 ---
 name: BordereauTable
+package: plato
 type: domain
-status: pending
+status: draft
 usage: The bordereau de pièces table - real instance of the custom table system
 description: >
   Table métier « bordereau de pièces » : arborescence dossiers/pièces, tri,
@@ -10,6 +11,8 @@ description: >
   vers les familles ui/tables/.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670
 file: src/components/pieces/BordereauTable.js
+source: src/components/pieces/BordereauTable.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: BordereauTable
 composes: [CategoryHeader, PieceRow, RowContextMenu, MoveToFolderModal, DeleteWarningModal]
 tokens: [colors.semantic, typography.fontFamily.mono]

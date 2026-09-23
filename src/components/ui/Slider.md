@@ -1,7 +1,8 @@
 ---
 name: Slider
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Curseur horizontal - rail, plage remplie, poignée(s) draggables ; simple ou range
 description: >
   Curseur : rail 6px (fond secondary), plage remplie (primary), poignée 16px
@@ -10,6 +11,8 @@ description: >
   complet (flèches, Home/End, PageUp/Down), focus ring 3px, disabled.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30565
 file: src/components/ui/Slider.js
+source: src/components/ui/Slider.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Slider
 variants: [single, range]
 states: [enabled, focus, dragging, disabled]

@@ -59,7 +59,7 @@ export default function ConversationsIndexPage({
                 <p className="text-body text-foreground-secondary">Posez une question depuis l'accueil pour commencer.</p>
               </div>
             ) : (
-              <div className="rounded-lg border border-border/60 overflow-hidden" style={{ backgroundColor: colors.semantic.card }}>
+              <div className="rounded-lg border border-border overflow-hidden" style={{ backgroundColor: colors.semantic.card }}>
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-background-subtle">

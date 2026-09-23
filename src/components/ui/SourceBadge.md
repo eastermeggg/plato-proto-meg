@@ -1,7 +1,8 @@
 ---
 name: SourceBadge
+package: plato
 type: primitive
-status: pending
+status: draft
 usage: Pill INTERACTIVE de source - cliquer ouvre la source (pièce, JP, loi, email…)
 description: >
   La seconde famille de pills (spec badge-rationalization) : identité par TYPE
@@ -10,6 +11,8 @@ description: >
   3 états). Le Badge générique reste pour statut/sévérité/catégorie.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11330
 file: src/components/ui/SourceBadge.js
+source: src/components/ui/SourceBadge.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: SourceBadge
 variants: [piece, jp, loi, code, modele, email, web, ligne, pass, assiette]
 sizes: [sm, md]

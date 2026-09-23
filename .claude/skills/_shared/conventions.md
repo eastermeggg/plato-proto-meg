@@ -1,130 +1,140 @@
-# Conventions communes du set `ds-*`
+# Conventions `ds-*` — référence
 
-Ce fichier est lu par toutes les skills. Il existe une fois. Une correction se
-fait ici, jamais dans une skill — le set applique à lui-même la règle qu'il
-impose au DS : pas de doublon.
+Ne pas lire en entier : chaque skill renvoie à la section utile. Une règle
+partagée vit ici une seule fois. Les règles dures sont dans le fichier de
+règles du repo (`paths.rules` du manifeste — ici `AGENTS.md`).
 
-## 1. Les skills sont génériques, le projet est décrit par `ds.manifest.json`
+## §1 Manifeste
 
-Les skills ne contiennent rien du DS ; elles le lisent dans le projet courant
-via `ds.manifest.json` à la racine (modèle : `ds.manifest.example.json`). S'il
-manque, appliquer les défauts ci-dessous **et le signaler** : un projet sans
-manifeste n'a pas choisi son mode Figma ni son steward.
+Les skills ne contiennent rien du projet. Tout se lit dans `ds.manifest.json`
+(modèle : `ds.manifest.example.json`). Manifeste absent : défauts ci-dessous,
+**et le signaler**. Fichier d'inventaire ou de règles introuvable : s'arrêter.
 
-| Clé | Rôle | Défaut |
+| Clé | Défaut |
+|---|---|
+| `ds.version`, `ds.versioning` | —, `lockstep` |
+| `ds.role` | `consumer` (app) · `producer` (repo DS) |
+| `owner` | rôle steward + contact |
+| `packages` | absent = mono-package (§4) |
+| `paths.rules` | `CLAUDE.md` |
+| `paths.inventory` | `src/app/design-system/demos/index.ts` |
+| `paths.docs` | `docs/design-system.md` (tokens, compositions, conventions) |
+| `paths.docsComponents` | `docs/components/` |
+| `paths.theme` | `ds-theme.json` |
+| `paths.kitchenSink` | `/design-system` |
+| `paths.protected` | `src/components/ui`, `src/app/globals.css`, `ds-theme.json`, `src/app/design-system/page.tsx` |
+| `commands.pm` | détecté par lockfile — écrit `<pm>` dans les skills |
+| `fonts` | token, famille, rôle, licence |
+| `figma.mode` | `none` (§6) |
+
+## §2 Écarts
+
+| Fichier | Qui écrit | Durée | Contenu |
+|---|---|---|---|
+| `SIGNALEMENTS.md` (gitignoré) | l'agent | jusqu'au merge | ce qu'il n'a pas le droit de corriger |
+| Issues `ds-gap` + `triage` | `ds-audit` | jusqu'à résolution | tout signalement qui doit survivre au merge |
+| `ECARTS.md` (committé) | le steward seul | permanent | dettes assumées |
+
+Avant le merge d'une branche avec `SIGNALEMENTS.md` non vide :
+`node scripts/ds-audit.mjs --harvest --create-issues`. Un agent n'écrit jamais
+dans `ECARTS.md` : il prépare un bloc que le steward committe.
+
+## §3 Chemins protégés
+
+`paths.protected` ne se modifie que sur `main`, par le steward. Ailleurs :
+signaler. La CI (`protected-paths`) refuse le diff, sauf labels `ui-ok` (ajout
+ou retrait délibéré d'un composant) et `page-tsx-ok`. `globals.css` ne change
+qu'avec `ds-theme.json` dans le même commit. Les divergences voulues sur le
+vanilla shadcn passent par la clé `css` de `ds-theme.json`.
+
+## §4 Packages
+
+```json
+"packages": [
+  { "name": "ui-product",   "path": "packages/ui-product",   "role": "source" },
+  { "name": "ui-marketing", "path": "packages/ui-marketing", "role": "extension", "dependsOn": ["ui-product"] }
+]
+```
+
+- Un package n'importe que son `dependsOn`. Le source n'importe jamais une extension.
+- Un seul thème, dans le source. L'extension étend en `--mkt-*`, ne redéclare rien.
+- Dans l'extension : chercher dans le source d'abord.
+- Chaque package a son inventaire, ses fiches, sa section de kitchen-sink.
+- Vérifié par `ds-check-boundaries` (délégué par `ds:doctor`).
+
+`lockstep` : une version pour tout. `independent` : décision steward dans `ECARTS.md`.
+
+Vers les apps : copie encadrée (`ds-setup`) tant que `ds.registry` est `null`.
+
+**Coexistence** : deux implémentations d'un même composant ne survivent pas à
+la PR qui introduit la nouvelle. Migration et suppression dans la même PR.
+
+## §5 Outils
+
+| Commande | Quand |
+|---|---|
+| `<pm> run ds:doctor` | après chaque `shadcn add`, avant de rendre la main, en CI. `--report` compte sans échouer. Sortie `fichier:ligne — règle — correctif` : la recopier telle quelle. |
+| `<pm> run ds:visual` | voir les diffs visuels en local. Baselines : **jamais en local** (le rendu dépend de l'OS) — label `ds-baselines` sur la PR, la CI régénère. |
+| `node scripts/ds-changelog.mjs --component <nom>` | historique d'un composant (15 j). En CI : commentaire de PR automatique. |
+| `node scripts/ds-audit.mjs` | état du DS, issues. |
+
+`ds:doctor` délègue : `check:tokens`, `check:duplicates`, `ds-check-docs`,
+`ds-check-boundaries`. Il vérifie aussi couleurs Tailwind brutes, `next/*`
+dans `src/components/`, piège `cn` du CLI shadcn.
+
+`shadcn add` : sur `main` uniquement, puis `ds:doctor`.
+
+## §6 Figma
+
+| Mode | Doctrine | Skills Figma |
 |---|---|---|
-| `ds.name` | nom du DS consommé ou produit | — |
-| `ds.version` | version consommée (app) ou publiée (repo DS) | — |
-| `ds.registry` | namespace + URL registry shadcn — `null` tant que le DS n'est pas publié (installation par copie) | `null` |
-| `ds.repo` | repo du DS de référence | — |
-| `ds.role` | `producer` (repo DS) ou `consumer` (app) | `consumer` |
-| `owner` | rôle steward + contact ; jamais un prénom seul | — |
-| `paths.rules` | règles pour agents | `CLAUDE.md` |
-| `paths.inventory` | index des démos = inventaire des composants légitimes | `src/app/design-system/demos/index.ts` |
-| `paths.docs` | sémantique des tokens, compositions canoniques, contrats | `docs/design-system.md` |
-| `paths.docsComponents` | une fiche .md par composant (+ index) | `docs/components/` |
-| `paths.theme` | source de vérité du thème | `ds-theme.json` |
-| `paths.kitchenSink` | route de la doc vivante | `/design-system` |
-| `paths.protected` | fichiers modifiables uniquement sur `main` par la steward | `src/components/ui`, `src/app/globals.css`, `ds-theme.json`, `src/app/design-system/page.tsx` |
-| `paths.doctorExclude` | chemins exemptés des checks de style de `ds:doctor` | `src/components/ui` |
-| `commands.pm` | package manager (détecté par lockfile) | — |
-| `commands.doctor` / `lint` / `build` | commandes de vérification | `<pm> run ds:doctor` / `lint` / `build` |
-| `figma.mode` | `none` · `intent` · `mirror` (§5) | `none` |
-| `figma.file` / `figma.libraryPage` | fichier et page de la librairie (mode mirror) | — |
+| `none` | code-first, le kitchen-sink est la seule référence | refusent |
+| `intent` | la maquette est une intention datée ; **le code est la vérité** ; un écart est une question, pas un bug | tournent |
+| `mirror` | non disponible | refusent |
 
-Dans les skills, `<pm>` désigne `commands.pm` (`pnpm`, `npm`, `bun`, `yarn`).
-Ne pas imposer un gestionnaire : le lockfile décide.
+Toujours un nœud précis (`?node-id=`), jamais un fichier entier. Une valeur
+Figma hors échelle prend le token le plus proche ; l'écart se note, ne se
+corrige pas. Charger `figma-design-to-code` avant `get_design_context` si
+disponible. Playbook de démarrage : `docs/playbook-figma-bootstrap.md`.
 
-Si un fichier d'inventaire ou de règles manque et qu'aucun manifeste ne le
-relocalise : **s'arrêter et le signaler**. Une skill qui tourne sans inventaire
-produit des décisions sur un système inexistant.
+## §7 Fiche composant
 
-## 2. Les deux fichiers d'écart — ne pas les confondre
+`docs/components/<nom>.md`, depuis `templates/component.md`. Sept champs,
+vérifiés par `ds-check-docs` :
 
-| Fichier | Statut git | Durée de vie | Qui écrit | Contenu |
-|---|---|---|---|---|
-| `SIGNALEMENTS.md` | gitignoré, local au workspace | jeté au merge | l'agent | ce qu'il n'a pas le droit de corriger : token manquant, composant absent, besoin de toucher un fichier protégé, variant `ui/` à appliquer |
-| `ECARTS.md` | committé, racine du DS | survit au handoff | la steward, seulement | dettes assumées : licence de fonte non validée, divergence Figma non corrigée, décision reportée, changement de `figma.mode` |
+`name` · `package` · `status` (`draft` · `beta` · `stable` · `deprecated`) ·
+`usage` (une ligne) · `source` · `demo` · `replacedBy` (si `deprecated`)
 
-Un agent n'écrit **jamais** dans `ECARTS.md`. Quand une skill dit « préparer
-l'entrée pour ECARTS », c'est un bloc prêt à coller que la steward committe.
-Templates : `templates/` à la racine du repo.
+Tokens, dates et historique se **dérivent** du code et de git, ils ne s'écrivent
+pas. Une fiche par entrée d'inventaire, et inversement. Corps : quand
+l'utiliser, quand l'éviter, exemple.
 
-## 3. Chemins protégés et `main`
+Chaque démo porte `data-demo="<package>/<nom>"` (régression visuelle).
 
-`paths.protected` ne se modifie que sur `main`, par la steward. Dans un
-workspace ou une branche : signaler, ne pas éditer. La CI (`.github/workflows/ci.yml`,
-job `protected-paths`) refuse tout diff sur ces chemins dans une PR, avec deux
-dérogations humaines par label : `ui-ok` (ajout/retrait délibéré d'un composant
-du set — jamais une retouche de style) et `page-tsx-ok` (évolution délibérée de
-la coquille du kitchen-sink). Un diff de `globals.css` n'est accepté que s'il
-accompagne `ds-theme.json` dans le même commit — le CLI shadcn régénère
-`globals.css` depuis le thème ; l'éditer seul est perdu à la régénération.
+## §8 Règles pour agents
 
-Les divergences voulues sur le vanilla shadcn passent par la clé `css` de
-`ds-theme.json` : elles survivent à toute régénération.
+Une seule source de règles ; l'autre fichier y renvoie. Le sens dépend du
+repo : ici `AGENTS.md` est la source (canonique, lu par tous les assistants)
+et `CLAUDE.md` = `@AGENTS.md` + les seules spécificités Claude Code. En
+monorepo, un fichier de règles de package précise sans répéter.
 
-## 4. `ds:doctor` — un seul point d'entrée, pas six greps
+## §9 Shell, nav & barres (Plato) — composer, jamais re-rouler
 
-`scripts/ds-doctor.mjs` (zéro dépendance) est la commande unique des skills.
-Il **délègue** aux garde-fous historiques (`check:tokens` pour les valeurs
-arbitraires, `check:duplicates` pour les doublons de rôle — la logique vit
-là-bas, elle n'est pas dupliquée) et ajoute :
+Le chrome de navigation est canonique et invariant. On ne ré-invente JAMAIS un
+rail, une barre de tête, un en-tête de page ou une barre de contexte inline. On
+compose les composants existants (import depuis `src/components/ui/`) :
 
-- couleurs Tailwind brutes (`bg-gray-100`) à la place des tokens sémantiques
-- imports `next/*` dans `src/components/` (portabilité)
-- piège `cn` du CLI shadcn : paquet npm `cn` et imports `from "cn"` (casse la
-  fusion de classes **sans erreur**)
-- validation de `ds.manifest.json`
-- avec `--base <ref>` (opt-in, usage local) : chemins protégés modifiés,
-  `globals.css` sans `ds-theme.json` — en CI, c'est le job `protected-paths`
-  qui fait foi, avec ses labels de dérogation
+| Besoin | Composant - jamais inline |
+|---|---|
+| Rail de navigation gauche | `AppSidebar` (+ `SidebarBrand`, `SidebarGroup`, `NavItem`, `NavSectionHeader`, `SidebarUserInfo`) |
+| Barre de tête fixe (breadcrumb + onglets de vue + outils) | `TopBar` |
+| En-tête de page (titre serif + action + onglets) | `PageHeader` |
+| Barre de contexte niveau 3 (poste / acte / JP) | `Niveau3Strip` |
+| Contrôle « Menu » (nav masquée) | `NavExpandControl` |
 
-`--report` compte sans échouer (mode adoption). Sans flag, exit 1 au premier
-constat. Chaque constat sort en `fichier:ligne — règle — correctif` : le
-recopier tel quel dans les rapports. `--json` pour la sortie machine.
-
-À lancer : après chaque `shadcn add`, avant de rendre la main dans `ds-build`,
-en étape 1 de `ds-review`, en CI.
-
-## 5. Mode Figma
-
-| Mode | Doctrine | Skills actives |
-|---|---|---|
-| `none` | Code-first sans Figma. Le kitchen-sink est la seule référence visuelle. | core + install/adopt/explore. Toute skill `ds-figma-*` refuse. |
-| `intent` | Le Figma est une maquette d'intention, jamais arbitre. Le code est la vérité ; un écart maquette/rendu est une question pour la steward, pas un bug. Doctrine complète : `docs/figma-reference.md`. | core + `ds-figma-screen`, `ds-figma-component`, `ds-figma-releve`, `ds-figma-update` (dérive, validation requise), `ds-figma-bootstrap`. |
-| `mirror` | Le Figma serait **généré depuis le code** à chaque version. **Pas disponible dans ce set** — le mode est à l'étude dans le set v2 expérimental ; y passer serait une décision steward consignée dans `ECARTS.md`. | — |
-
-**Ce repo est en mode `intent`.** La dérive Figma → code se traite par
-`ds-figma-update` : rapport de dérive, validation ligne à ligne par la steward,
-application à `ds-theme.json` uniquement (régime C de `docs/figma-reference.md`).
-
-## 6. Distribution : par copie, en attendant le registry
-
-Le DS n'est pas encore publié sur un registry shadcn (`ds.registry: null`).
-Les apps l'installent par **copie encadrée** via `ds-install` (composants +
-`globals.css` + docs), migrent via `ds-adopt`, et remontent leurs nouveautés
-via `ds-promote` — le travail de promotion se fait dans le repo DS, jamais
-dans l'app. Le modèle registry + preset (`shadcn build`, items namespacés,
-`ds-upgrade`) est en évaluation dans le set v2 ; le jour où il est adopté,
-`ds.registry` se renseigne et `ds-install` bascule.
-
-Deux implémentations d'un même composant qui coexistent « le temps de la
-transition » deviennent permanentes : la transition, c'est la PR.
-
-## 7. La mécanique shadcn
-
-Si la skill officielle `shadcn/skills` est installée, elle porte la mécanique
-CLI et registry (quand invoquer `add`, quels flags, structure d'un registry) —
-avec un point où `ds-*` prime : elle encourage l'édition locale des composants
-installés ; ici `ui/` est protégé (§3). Sans elle, la mécanique tient en deux
-règles de `CLAUDE.md` : `npx shadcn@latest add <nom>` **sur `main` uniquement**,
-puis la vérification anti-piège `cn` (couverte par `ds:doctor`).
-
-## 8. Templates
-
-Les blocs livrables sont dans `.claude/skills/templates/` : `decision.md`
-(ds-decide), `composition.md` (ds-build), `variant.md` (ds-variant),
-`review.md` (ds-review), `promotion.md` (ds-promote), `adoption-plan.md`
-(ds-adopt). Les remplir, pas les réinventer. Les templates de `SIGNALEMENTS.md`
-et `ECARTS.md` restent dans `templates/` à la racine du repo.
+Un nouvel onglet, une nouvelle page, une nouvelle destination = du nouveau
+CONTENU passé à ces composants (un `NavItem` de plus, un `tab` de plus, un slot
+`left`/`right`), jamais une nouvelle barre `h-12 border-b` ou un `border-r
+flex-col` à la main. Si le besoin ne rentre dans aucun composant, c'est une
+évolution du composant (fiche + `ds-decide`), pas un re-roll local. Vitrine
+vivante : `/ui-kit/shell` ; comportement : `src/components/shell/NAV-BEHAVIOR.md`.

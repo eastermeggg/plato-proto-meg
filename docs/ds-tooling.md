@@ -1,82 +1,64 @@
 # Outillage du design system — pour les devs
 
-Trois outils prêts à l'emploi. Ils sont **à disposition** (les deux premiers
-tournent en local et sont câblés en npm scripts ; le troisième est un scaffold
-opt-in). Comment les brancher en CI : voir la dernière section.
+Un garde-fou unique (`ds:doctor`, qui délègue), deux outils d'état
+(`ds-audit`, `ds-changelog`) et la régression visuelle Playwright. Tout est
+branché en CI (`.github/workflows/`).
 
-## 1. Vérification lint — `npm run ds:doctor`
+## 1. Garde-fou unique — `npm run ds:doctor`
 
-Le garde-fou du système (`scripts/ds-doctor.mjs`, zéro dépendance) :
+`scripts/ds-doctor.mjs` (zéro dépendance) vérifie en direct :
 - **bloquant** : hex en dur hors sources de tokens (whitelist `ds-hex-ok:` +
-  `doctor.pendingHex` du manifeste), manifeste invalide ;
-- **avertissements** : émojis, tirets cadratins dans l'UI.
+  `doctor.pendingHex` du manifeste), manifeste invalide, émojis et tirets
+  cadratins dans l'UI (verrouillés depuis le passage à 0), ombres inline ;
+- et **délègue** (constats fusionnés dans sa sortie, doctrine kit v3) :
+  - `scripts/ds-check-docs.mjs` — fiches 7 champs, fiche ↔ inventaire
+    (borné aux entrées canoniques `src/components/ui/`), `exists` ↔
+    filesystem, fraîcheur de `componentDocs.json`, démos manquantes (info),
+    tokens non catalogués (info) — l'ancien `ds-gaps.mjs` est absorbé ici ;
+  - `scripts/ds-check-boundaries.mjs` — frontières de packages (mono-package
+    aujourd'hui : no-op).
 
-`--report` compte sans échouer · `--json` sortie machine. Déjà branché en CI
-(`.github/workflows/ds.yml`).
+`--report` compte sans échouer · `--json` sortie machine (un seul document,
+constats délégués compris). CI : `.github/workflows/ds.yml`.
 
-## 2. Flagger de manques — `npm run ds:gaps`
+## 2. État du DS — `node scripts/ds-audit.mjs`
 
-Le complément « complétude » (`scripts/ds-gaps.mjs`) : le doctor dit ce qui est
-*interdit*, ds-gaps dit ce qui *manque* :
+Agrège doctor + checks + heuristiques (deprecated encore importés, `className`
+répété sur un composant DS = variant probable) → rapport `docs/audits/<date>.md`.
+`--create-issues` ouvre les issues `ds-gap`/`triage` dédupliquées ;
+`--harvest` transforme `SIGNALEMENTS.md` en issues avant merge.
 
-| Règle | Bloquant | Détecte |
-|---|---|---|
-| `fiche-manquante` | oui | composant `ui/*.js` sans fiche `.md` sœur |
-| `docs-périmés` / `docs-absent` | oui | `componentDocs.json` plus vieux qu'une fiche (relancer `ds:docs`) |
-| `inventaire-exists` | oui | entrée d'inventaire dont `exists` contredit le filesystem |
-| `fiche-orpheline` | info | fiche `.md` sans composant |
-| `inventaire-absent` | info | **nouveau composant émis** sans entrée d'inventaire |
-| `demo-manquante` | info | composant sans démo (pas de Playground) |
-| `token-non-catalogué` | info | hex de `tokens.js` absent du catalogue |
+## 3. Changelog par composant — `node scripts/ds-changelog.mjs`
 
-`--ci` : exit 1 sur les bloquants. **Agrégat : `npm run ds:check`** = doctor + gaps.
+Dérivé de git via les fiches (`--component <nom>`, `--days N`, `--pr`,
+`--release`). En CI : commentaire de PR automatique
+(`.github/workflows/ds-changelog.yml`).
 
-## 3. Snapshots visuels — Playwright (opt-in)
+## 4. Régression visuelle — `npm run ds:visual`
 
-Scaffold prêt : `playwright.config.mjs` + `tests/visual/ds.spec.mjs`. Les specs
-sont **pilotées par `componentDocs.json`** : chaque composant documenté gagne
-automatiquement son snapshot de fiche (light **et** dark), plus la vue
-d'ensemble, les tokens et l'inventaire. Ajouter une fiche = gagner un snapshot.
+`playwright.config.mjs` + `tests/visual/kitchen-sink.spec.mjs`. Le spec est
+**piloté par `componentDocs.json`** : il visite chaque page de détail
+(`/ui-kit/c/<id>`), snapshote chaque `[data-demo]` (posé par `DemoCanvas`),
+light **et** dark, plus les vues d'ensemble (tokens, inventaire). Ajouter une
+fiche = gagner un snapshot.
 
-Mise en place (une fois) :
+**Baselines : jamais en local** (le rendu dépend de l'OS). Poser le label
+`ds-baselines` sur la PR → `.github/workflows/ds-visual.yml` génère et committe
+les baselines Linux sur la branche (relancer les workflows ensuite, limite
+connue). En local, `npm run ds:visual` sert à *voir* les diffs.
+
 ```bash
-npx playwright install chromium     # télécharge le navigateur (~120 Mo)
-npm run test:visual:update          # crée la baseline (committer les .png)
+npx playwright install chromium   # une fois (~120 Mo)
+npm run ds:visual                 # échoue si le rendu dérive de la baseline CI
 ```
-Puis en routine :
-```bash
-npm run test:visual                 # échoue si le rendu dérive de la baseline
-```
+
 Le webServer démarre tout seul (port 4173) ou réutilise un serveur existant.
-`test-results/` et `playwright-report/` sont gitignorés ; la **baseline**
-(`tests/visual/ds.spec.mjs-snapshots/`) se committe.
-
-## Brancher en CI (quand l'équipe est prête)
-
-`.github/workflows/ds.yml` lance déjà le doctor. Pour durcir :
-
-```yaml
-# dans le job ds-doctor, remplacer la dernière étape par :
-      - run: node scripts/ds-doctor.mjs && node scripts/ds-gaps.mjs --ci
-
-# job snapshots (optionnel — nécessite la baseline committée) :
-  visual:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:visual
-```
+`test-results/` et `playwright-report/` sont gitignorés ; la baseline
+(`tests/visual/__snapshots__/`) se committe (par la CI).
 
 ## Roadmap (posée, pas construite)
 
-- **Histo composants** : le couple fiche `.md` (source) + snapshots committés
-  donne déjà un historique par git (`git log --follow src/components/ui/Badge.md`,
-  diff des .png). Un onglet « Historique » dans la fiche du playground pourrait
-  le surfacer (lecture `git log` au build).
-- **CI « nouveaux composants émis »** : `ds-gaps` flagge déjà `inventaire-absent`
-  (un composant ajouté sans entrée). Passer cette règle en bloquant quand le flux
-  d'inventaire est rodé.
+- **Histo composants** : fiche `.md` (source) + snapshots committés donnent déjà
+  un historique par git (`git log --follow src/components/ui/Badge.md`, diff des
+  .png). Un onglet « Historique » dans la fiche du playground pourrait le
+  surfacer (lecture `git log` au build).

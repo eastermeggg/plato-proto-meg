@@ -9412,7 +9412,7 @@ export default function App() {
           <button className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg hover:bg-background transition-colors" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>
             <Download className="w-3.5 h-3.5 text-foreground-secondary" /> Exporter
           </button>
-          <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: 'white', backgroundColor: dsColors.semantic.primary }}>
+          <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}>
             <Plus className="w-3.5 h-3.5" /> Nouveau poste
           </button>
         </div>
@@ -9507,7 +9507,7 @@ export default function App() {
               >
                 <div className="flex items-center justify-center flex-shrink-0" style={{ width: 46 }}>
                   <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 22, height: 22, borderRadius: 9999, border: '2px solid rgba(41,37,36,0.1)', background: dsColors.semantic.primary }} aria-hidden>
-                    <Equal style={{ width: 10, height: 10, color: 'white' }} strokeWidth={2.75} />
+                    <Equal style={{ width: 10, height: 10, color: dsColors.semantic.primaryForeground }} strokeWidth={2.75} />
                   </span>
                 </div>
                 <div className="flex items-baseline min-w-0 flex-1" style={{ gap: 9, padding: '12px 12px' }}>
@@ -10395,7 +10395,7 @@ export default function App() {
                   </button>
                   <button
                     className="h-9 px-3 flex items-center gap-2 rounded-lg whitespace-nowrap hover:opacity-90 transition-opacity"
-                    style={{ fontSize: 14, fontWeight: 500, color: 'white', backgroundColor: dsColors.semantic.primary }}
+                    style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}
                     onClick={() => setPosteSearchOpen(true)}
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -10997,7 +10997,7 @@ export default function App() {
                 className="inline-flex items-center justify-center transition-all hover:opacity-90 flex-shrink-0"
                 style={{
                   height: 32, padding: '0 12px', borderRadius: 6,
-                  backgroundColor: dsColors.semantic.primary, color: 'white',
+                  backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
                   border: 'none',
                   boxShadow: dsShadows.xs,
                   fontFamily: "'Inter', system-ui, sans-serif",
@@ -18034,7 +18034,7 @@ export default function App() {
               </p>
             </div>
           ) : (
-          <div className="bg-surface rounded-lg border border-border/60 overflow-hidden">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-background-subtle">
@@ -19029,7 +19029,7 @@ export default function App() {
 
 
               {subTitle('BaremeListItem - Row variants')}
-              <div className="bg-surface rounded-lg border border-border/60 overflow-hidden mb-4" style={{ maxWidth: 500 }}>
+              <div className="bg-surface rounded-lg border border-border overflow-hidden mb-4" style={{ maxWidth: 500 }}>
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-background-subtle">
@@ -20471,7 +20471,7 @@ export default function App() {
               className="inline-flex items-center justify-center gap-2 h-9 px-4 py-2 bg-foreground hover:bg-foreground-tertiary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 borderRadius: 8,
-                color: 'white',
+                color: dsColors.semantic.primaryForeground,
                 boxShadow: '0 0.5px 1px rgba(26,26,26,0.05)',
               }}
             >
@@ -20547,7 +20547,7 @@ export default function App() {
           )}
 
           {/* Account info card - mono header + label/input rows */}
-          <div className="bg-surface rounded-lg border border-border/60 overflow-hidden divide-y divide-border">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden divide-y divide-border">
             <div className="px-5 py-3">
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
             </div>
@@ -20567,7 +20567,7 @@ export default function App() {
 
           {/* Apparence - bascule light/dark (design-system/theme.js). Light par
               défaut ; le choix est mémorisé. */}
-          <div className="bg-surface rounded-lg border border-border/60 overflow-hidden divide-y divide-border mt-6">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden divide-y divide-border mt-6">
             <div className="px-5 py-3">
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Apparence</span>
             </div>
@@ -20631,7 +20631,7 @@ export default function App() {
           )}
 
           {/* Account info card - mono header + label/input row */}
-          <div className="bg-surface rounded-lg border border-border/60 overflow-hidden divide-y divide-border">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden divide-y divide-border">
             <div className="px-5 py-3">
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
             </div>
@@ -21891,7 +21891,7 @@ export default function App() {
         </div>
 
         {/* Search */}
-        <div className="bg-surface rounded-lg border border-border/60 mb-6">
+        <div className="bg-surface rounded-lg border border-border mb-6">
               <div className="flex items-center gap-2 px-3 py-2.5">
                 <Search className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" />
                 <input
@@ -21923,7 +21923,7 @@ export default function App() {
                     className="inline-flex items-center justify-center gap-1 transition-all flex-shrink-0"
                     style={{
                       height: 28, padding: '0 12px', borderRadius: 8,
-                      backgroundColor: dsColors.semantic.primary, color: 'white',
+                      backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
                       border: 'none',
                       boxShadow: dsShadows.xs,
                       fontFamily: "'Inter', system-ui, sans-serif",
@@ -21961,7 +21961,7 @@ export default function App() {
                         className="inline-flex items-center justify-center gap-2 transition-all"
                         style={{
                           height: 28, padding: '0 12px', borderRadius: 8,
-                          backgroundColor: dsColors.semantic.primary, color: 'white',
+                          backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
                           border: 'none',
                           boxShadow: dsShadows.xs,
                           fontFamily: "'Inter', system-ui, sans-serif",
@@ -22011,7 +22011,7 @@ export default function App() {
                 </p>
               </div>
             ) : (
-              <div className="bg-surface rounded-lg border border-border/60 overflow-hidden">
+              <div className="bg-surface rounded-lg border border-border overflow-hidden">
                 {savedCabinet.map((d) => {
                   const isCustom = d._status === 'ficheCabinet';
                   const handleRemove = () => {
@@ -22065,7 +22065,7 @@ export default function App() {
               className="flex-shrink-0"
             />
           )}
-          <div className="bg-surface rounded-lg border border-border/60 overflow-hidden">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-background-subtle">
@@ -22131,7 +22131,7 @@ export default function App() {
               className="flex-shrink-0"
             />
           )}
-          <div className="bg-surface rounded-lg border border-border/60 overflow-hidden">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-background-subtle">
@@ -23841,7 +23841,7 @@ export default function App() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-xs font-semibold" style={{ backgroundColor: dsColors.semantic.primary, color: 'white' }}>{id}</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-xs font-semibold" style={{ backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground }}>{id}</span>
             <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{scenario.title}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -25006,7 +25006,7 @@ export default function App() {
                     <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: dsColors.semantic.mutedForeground }}>Membre</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60">
+                <tbody className="divide-y divide-border">
                   <tr className="align-top">
                     <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: dsColors.semantic.foregroundTertiary }}>Essai (7j)</td>
                     <td className="px-4 py-3" style={{ color: dsColors.semantic.foregroundQuaternary }}>Bannière bleue (J3/7, montant, « Gérer »). Carte essai sur Plan et facturation avec « Annuler l'essai ».</td>

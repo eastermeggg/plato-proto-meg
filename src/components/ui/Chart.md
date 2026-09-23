@@ -1,7 +1,8 @@
 ---
 name: Chart
+package: plato
 type: shadcn
-status: pending
+status: draft
 usage: Visualisation de données (barres, lignes, aires, camemberts) sur la rampe chart
 description: >
   Graphes SVG pur maison (aucune lib), data-driven, sur la rampe colors.chart
@@ -10,6 +11,8 @@ description: >
   légende et tooltip au survol conformes aux Chart Subcomponents Figma.
 figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-21571
 file: src/components/ui/Chart.js
+source: src/components/ui/Chart.js
+demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Chart
 variants: [bar, bar-horizontal, bar-stacked, line, area, area-stacked, pie, donut]
 states: [default, hover-tooltip, hover-dim]
