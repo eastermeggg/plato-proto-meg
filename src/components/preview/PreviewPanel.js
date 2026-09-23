@@ -566,7 +566,7 @@ function LigneBody({ source, scrollRef }) {
             >
               <div className={`px-4 py-2.5 ${r.cite ? 'text-foreground font-medium' : ''}`} {...(r.cite ? { 'data-cite-text': '1' } : {})}>
                 {r.label}
-                {r.cite && <span className="sr-only"> — base {r.base}, montant {r.montant}</span>}
+                {r.cite && <span className="sr-only"> - base {r.base}, montant {r.montant}</span>}
               </div>
               <div className="px-4 py-2.5 text-right tabular-nums">{r.base}</div>
               <div className={`px-4 py-2.5 text-right tabular-nums ${r.cite ? 'text-foreground font-medium' : ''}`}>{r.montant}</div>

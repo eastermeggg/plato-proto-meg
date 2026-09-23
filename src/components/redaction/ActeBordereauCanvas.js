@@ -51,12 +51,12 @@ export default function ActeBordereauCanvas({
         ) : (
           <>
             {/* Sub-header (Figma 2484:29442): bold count + chat helper.
-                Editing the bordereau happens through the chat — no add button. */}
+                Editing the bordereau happens through the chat - no add button. */}
             <p className="mb-3" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: colors.semantic.mutedForeground, margin: '0 0 12px' }}>
               <span style={{ fontWeight: 600, color: colors.semantic.foreground }}>
                 {pieceCount} pièce{pieceCount > 1 ? 's' : ''}{generateSource === 'acte' ? (pieceCount > 1 ? ' citées' : ' citée') : ''}
               </span>
-              {' '}— Vous pouvez modifier le bordereau directement via le chat
+              {' '}- Vous pouvez modifier le bordereau directement via le chat
             </p>
             <BordereauTable rows={numbered} onExclude={onExclude} onPieceClick={onPieceClick} shimmer={shimmer} />
           </>

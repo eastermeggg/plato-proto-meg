@@ -257,7 +257,7 @@ function decorate(year, day) {
     case 2:
       day.periods = [mkPeriod('09:00', '13:00'), mkPeriod('14:00', '18:15')];
       day.note = "SMS du manager : « Peux-tu traiter la relance fournisseur avant ce soir ? »";
-      day.attachments = [{ id: nextId(), name: 'Capture SMS — 02/01.png', kind: 'image' }];
+      day.attachments = [{ id: nextId(), name: 'Capture SMS - 02/01.png', kind: 'image' }];
       break;
     case 3:
       day.periods = [mkPeriod('09:00', '13:00'), mkPeriod('14:00', '18:30')];
@@ -277,7 +277,7 @@ function decorate(year, day) {
       break;
     case 8:
       day.periods = [mkPeriod('09:00', '13:00'), mkPeriod('14:00', '19:30')];
-      day.note = "Inventaire de fin de trimestre — présence prolongée.";
+      day.note = "Inventaire de fin de trimestre - présence prolongée.";
       day.attachments = [{ id: nextId(), name: 'Planning_inventaire.png', kind: 'image' }];
       break;
     case 9:
@@ -371,7 +371,7 @@ function PeriodsEditor({ day, ops, wi, di, compact }) {
           {i > 0 && <div style={{ height: 1, background: LINE, margin: '10px 0' }} />}
           <div className="flex items-center gap-2 rh-pop">
             <button onClick={() => ops.removePeriod(wi, di, p.id)} className="flex items-center justify-center rounded-md transition-colors flex-shrink-0" style={{ width: 34, height: 34, border: `1px solid ${LINE}`, background: WHITE, color: MUTE }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; e.currentTarget.style.color = INK; }} onMouseLeave={(e) => { e.currentTarget.style.background = WHITE; e.currentTarget.style.color = MUTE; }} title={day.periods.length > 1 ? 'Supprimer le créneau' : 'Supprimer — la journée repassera en non saisie'}>
+              onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; e.currentTarget.style.color = INK; }} onMouseLeave={(e) => { e.currentTarget.style.background = WHITE; e.currentTarget.style.color = MUTE; }} title={day.periods.length > 1 ? 'Supprimer le créneau' : 'Supprimer - la journée repassera en non saisie'}>
               <X className="w-3.5 h-3.5" />
             </button>
             <TimeField value={p.start} onChange={(v) => ops.setPeriod(wi, di, p.id, 'start', v)} label="Heure de début" />
@@ -405,7 +405,7 @@ function Justification({ day, ops, wi, di }) {
       <textarea
         value={day.note}
         onChange={(e) => ops.setNote(wi, di, e.target.value)}
-        placeholder="Justification — contexte, échanges, consigne du manager…"
+        placeholder="Justification - contexte, échanges, consigne du manager…"
         className="w-full rounded-lg outline-none resize-none rh-scroll"
         style={{ minHeight: 64, padding: '9px 11px', fontSize: 14, lineHeight: '20px', color: INK2, background: SUBTLE, border: `1px solid ${LINE}` }}
       />
@@ -430,7 +430,7 @@ function Justification({ day, ops, wi, di }) {
         </div>
       )}
       {/* drop component — joindre un justificatif */}
-      <DropZone variant="inline" label="Joindre un justificatif — glisser ou cliquer" onClick={() => ops.addAttach(wi, di)} />
+      <DropZone variant="inline" label="Joindre un justificatif - glisser ou cliquer" onClick={() => ops.addAttach(wi, di)} />
     </div>
   );
 }
@@ -570,7 +570,7 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
           </span>
         </button>
         {day.rest && (
-          <div style={{ marginTop: 8, fontSize: 12.5, color: FAINT, lineHeight: '17px' }}>Aucune heure ce jour — un justificatif peut être joint ci-dessous (congé, arrêt maladie…).</div>
+          <div style={{ marginTop: 8, fontSize: 12.5, color: FAINT, lineHeight: '17px' }}>Aucune heure ce jour - un justificatif peut être joint ci-dessous (congé, arrêt maladie…).</div>
         )}
 
         {/* divider between sections */}
@@ -1249,13 +1249,13 @@ function ChatPanel({ ctx, onClose }) {
   const SUGGESTIONS = [
     { icon: Calculator, label: 'Chiffrer le rappel de salaire', reply: `Sur la base de ${fmtHM(ctx.overtimeMin)} d'heures supplémentaires (majorées 25 % puis 50 % au-delà de 8 h/semaine) et d'un taux horaire de 16,40 €, le rappel pour janvier ressort à ≈ 1 740 €. Je peux étendre le calcul aux 12 mois et y ajouter l'indemnité de travail dissimulé (6 mois de salaire).` },
     { icon: Search, label: 'Lister les jours sans justificatif', reply: `${ctx.missingProof} journées travaillées n'ont aucune pièce rattachée. Ce sont surtout des journées « standard » 9 h–18 h : un e-mail d'arrivée/départ ou un badge d'accès suffirait à les étayer. Je vous prépare la liste avec, pour chacune, la preuve la plus simple à réunir.` },
-    { icon: Moon, label: 'Isoler les heures de nuit', reply: `J'ai identifié ${fmtHM(ctx.nightMin)} de travail de nuit (créneaux franchissant minuit, ex. l'astreinte du 9 janvier 22 h→04 h). Elles ouvrent droit à la majoration conventionnelle de nuit, distincte des heures supplémentaires — à chiffrer séparément.` },
+    { icon: Moon, label: 'Isoler les heures de nuit', reply: `J'ai identifié ${fmtHM(ctx.nightMin)} de travail de nuit (créneaux franchissant minuit, ex. l'astreinte du 9 janvier 22 h→04 h). Elles ouvrent droit à la majoration conventionnelle de nuit, distincte des heures supplémentaires - à chiffrer séparément.` },
   ];
 
   const replyFor = (text) => {
     const hit = SUGGESTIONS.find((s) => s.label === text);
     if (hit) return hit.reply;
-    return "Bien noté. Je reprends le relevé et je prépare le décompte correspondant — je reviendrai avec le détail journée par journée et les pièces à l'appui.";
+    return "Bien noté. Je reprends le relevé et je prépare le décompte correspondant - je reviendrai avec le détail journée par journée et les pièces à l'appui.";
   };
 
   const send = (text) => {
@@ -1344,7 +1344,7 @@ function ChatPanel({ ctx, onClose }) {
             </button>
           </div>
         </div>
-        <p style={{ fontSize: 11, color: FAINT, textAlign: 'center', marginTop: 8 }}>Plato peut se tromper — vérifiez les chiffres clés.</p>
+        <p style={{ fontSize: 11, color: FAINT, textAlign: 'center', marginTop: 8 }}>Plato peut se tromper - vérifiez les chiffres clés.</p>
       </div>
     </div>
   );
@@ -1446,7 +1446,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
   };
 
   const exitBtn = (
-    <button onClick={onExit} className="absolute inline-flex items-center gap-1.5 rounded-md transition-colors" title="Aperçu — retour à l'espace avocat"
+    <button onClick={onExit} className="absolute inline-flex items-center gap-1.5 rounded-md transition-colors" title="Aperçu - retour à l'espace avocat"
       style={{ top: 16, right: 16, height: 30, padding: '0 10px', fontSize: 12.5, color: MUTE, border: `1px solid ${LINE}`, background: WHITE }}
       onMouseEnter={(e) => { e.currentTarget.style.color = INK; }} onMouseLeave={(e) => { e.currentTarget.style.color = MUTE; }}>
       <X className="w-3.5 h-3.5" /> Quitter l'aperçu
@@ -1601,13 +1601,13 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
         <span className="inline-flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 34, height: 34, background: INK }}><PlatoMark size={16} color={WHITE} /></span>
         <div className="flex flex-col" style={{ marginLeft: 11, minWidth: 0 }}>
           <span style={{ fontSize: 14.5, fontWeight: 600, color: INK, lineHeight: '16px' }}>Votre relevé d'heures</span>
-          <span className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '14px' }}>{MATTER.cabinet} · {MATTER.avocat} — dossier {MATTER.juridiction}</span>
+          <span className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '14px' }}>{MATTER.cabinet} · {MATTER.avocat} - dossier {MATTER.juridiction}</span>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 rounded-full" style={{ height: 24, padding: '0 10px', background: colors.accents.emerald.subtle, color: colors.accents.emerald.base, fontSize: 11.5, fontWeight: 600 }}>
             <Check className="w-3.5 h-3.5" /> Enregistré automatiquement
           </span>
-          <Button variant="outline" size="md" icon={Clock} label="Terminer plus tard" onClick={() => { setStarted(false); setUnlocked(false); setPwInput(''); setPwError(false); }} title="Vos saisies sont enregistrées — le mot de passe sera redemandé à la reprise" />
+          <Button variant="outline" size="md" icon={Clock} label="Terminer plus tard" onClick={() => { setStarted(false); setUnlocked(false); setPwInput(''); setPwError(false); }} title="Vos saisies sont enregistrées - le mot de passe sera redemandé à la reprise" />
         </div>
       </header>
 
@@ -1636,7 +1636,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
       {/* bottom banner — neutral confidentiality reassurance + Plato attribution */}
       <div className="relative flex items-center justify-center gap-2 flex-shrink-0" style={{ minHeight: 38, padding: '8px 20px', background: SUBTLE, borderTop: `1px solid ${LINE}` }}>
         <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: FAINT }} />
-        <span style={{ fontSize: 12, color: MUTE, textAlign: 'center', lineHeight: '16px' }}>Vos données sont protégées et confidentielles — partagées uniquement avec {MATTER.avocat}.</span>
+        <span style={{ fontSize: 12, color: MUTE, textAlign: 'center', lineHeight: '16px' }}>Vos données sont protégées et confidentielles - partagées uniquement avec {MATTER.avocat}.</span>
         <span className="hidden md:inline-flex items-center gap-1.5 absolute" style={{ right: 20, fontSize: 11, color: FAINT }}>
           Interface par <PlatoMark size={12} color={colors.semantic.foregroundMuted} /> <span style={{ fontWeight: 600, color: MUTE }}>Plato</span>
         </span>
@@ -2053,7 +2053,7 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
 
   // matter section tabs — Chiffrage → Suivi des heures, no Jurisprudence
   const TABS = [
-    { id: 'dossier', label: 'Dossier', Icon: Folder, blurb: "La fiche du dossier — parties, juridiction, dates clés. Hors périmètre de cette maquette, centrée sur le suivi des heures." },
+    { id: 'dossier', label: 'Dossier', Icon: Folder, blurb: "La fiche du dossier - parties, juridiction, dates clés. Hors périmètre de cette maquette, centrée sur le suivi des heures." },
     { id: 'suivi', label: 'Suivi des heures', Icon: Clock },
     { id: 'pieces', label: 'Pièces', Icon: FileText, blurb: "Les pièces du dossier (bulletins de paie, e-mails, badges d'accès…), classées par catégorie. Hors périmètre de cette maquette." },
     { id: 'actes', label: 'Actes', Icon: Pencil, blurb: "Les actes de procédure (requête, conclusions) rédigés à partir du relevé. Hors périmètre de cette maquette." },
@@ -2136,7 +2136,7 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
                   <span className="inline-flex items-center justify-center rounded-full" style={{ width: 32, height: 32, background: colors.piece.medical.bg, color: colors.feedback.info.text, fontSize: 12, fontWeight: 600 }}>{MATTER.initials}</span>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 14.5, fontWeight: 600, color: INK, lineHeight: '16px' }}>Relevé d'heures</div>
-                    <div className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '15px', maxWidth: 300 }}>{MATTER.client} · {MATTER.role.toLowerCase()} — {MATTER.objet}</div>
+                    <div className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '15px', maxWidth: 300 }}>{MATTER.client} · {MATTER.role.toLowerCase()} - {MATTER.objet}</div>
                   </div>
                 </div>
                 {period && (
@@ -2152,7 +2152,7 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
                   {/* période bar — sticky; the relevé period (clickable to edit) left, completion + year nav right */}
                   <div className="flex items-center" style={{ position: 'sticky', top: 0, zIndex: 5, background: PAPER, paddingTop: 2, paddingBottom: 16 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT, marginRight: 10, flexShrink: 0 }}>Période</span>
-                    <button onClick={() => setPeriodModal('log')} title={`Période du relevé — celle travaillée par ${MATTER.client}, sur laquelle saisir les heures. Cliquer pour modifier.`} className="inline-flex items-center gap-2 rounded-lg transition-colors" style={{ height: 34, padding: '0 10px 0 12px', background: CREAM, fontSize: 13, border: 'none', cursor: 'pointer' }}
+                    <button onClick={() => setPeriodModal('log')} title={`Période du relevé - celle travaillée par ${MATTER.client}, sur laquelle saisir les heures. Cliquer pour modifier.`} className="inline-flex items-center gap-2 rounded-lg transition-colors" style={{ height: 34, padding: '0 10px 0 12px', background: CREAM, fontSize: 13, border: 'none', cursor: 'pointer' }}
                       onMouseEnter={(e) => { e.currentTarget.style.background = colors.semantic.input; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
                       <CalendarRange className="w-3.5 h-3.5" style={{ color: MUTE }} />
                       <span style={{ fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(period.start)} → {fmtDateNum(period.end)}</span>
@@ -2411,7 +2411,7 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
         </div>
       </div>
       <div className="rounded-xl" style={{ ...cardSh, padding: '16px 18px' }}>
-        {sectionLabel('Relevé d’heures — la base du calcul')}
+        {sectionLabel('Relevé d’heures - la base du calcul')}
         {hoursSummary}
       </div>
     </>
@@ -2565,7 +2565,7 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
             </button>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 14.5, fontWeight: 600, color: INK, lineHeight: '16px' }}>Relevé d'heures</div>
-              <div className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '15px', maxWidth: 320 }}>{MATTER.client} · {MATTER.role.toLowerCase()} — {MATTER.objet}</div>
+              <div className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '15px', maxWidth: 320 }}>{MATTER.client} · {MATTER.role.toLowerCase()} - {MATTER.objet}</div>
             </div>
             <div className="ml-auto"><SharePopover open={shareOpen} onOpenChange={setShareOpen} onOpenClient={openClient} /></div>
           </header>
@@ -2721,7 +2721,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
     { id: 'preavis', acro: 'PRÉA', label: 'Indemnité compensatrice de préavis', montant: Math.round(salaireNum * 2), basis: '2 mois × salaire de référence', feeds: ['salaire'] },
     { id: 'icp', acro: 'ICP', label: 'Indemnité compensatrice de congés payés', montant: Math.round(salaireNum * 1.5), basis: 'Solde CP × salaire de référence', feeds: ['salaire'] },
     { id: 'lic', acro: 'IL', label: 'Indemnité légale de licenciement', montant: Math.round(salaireNum * 0.25 * ANCIEN), basis: '¼ mois × ancienneté (3 ans)', feeds: ['salaire'] },
-    { id: 'dscrs', acro: 'DI', label: 'Dommages-intérêts — licenciement sans cause réelle', montant: Math.round(salaireNum * 4), basis: '4 mois × salaire de référence', feeds: ['salaire'] },
+    { id: 'dscrs', acro: 'DI', label: 'Dommages-intérêts - licenciement sans cause réelle', montant: Math.round(salaireNum * 4), basis: '4 mois × salaire de référence', feeds: ['salaire'] },
     { id: 'td', acro: 'TD', label: 'Indemnité pour travail dissimulé', montant: Math.round(salaireNum * 6), basis: '6 mois × salaire de référence', feeds: ['salaire'] },
   ];
   const postes = ALL_POSTES.filter((p) => posteIds.includes(p.id));

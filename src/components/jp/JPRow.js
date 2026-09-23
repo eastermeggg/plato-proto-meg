@@ -152,7 +152,7 @@ export default function JPRow({
         <div className="px-3 pt-2.5 pb-3 flex flex-col" style={{ gap: 6 }}>
 
           {/* Title row — jurisdiction · chambre (left) · date | × (right).
-              Saved state is not shown via icon here anymore — it's communicated
+              Saved state is not shown via icon here anymore - it's communicated
               by the footer poste chips (JP Tab) or the action button state. */}
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="truncate" style={{ fontSize: 14, fontWeight: 500, color: colors.semantic.foreground }}>

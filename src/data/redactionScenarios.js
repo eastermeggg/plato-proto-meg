@@ -33,9 +33,9 @@ export const REDACTION_ACT_TYPES = [
     description: 'Email de relance assureur ou mise en demeure',
     Icon: Mail,
     fields: [
-      { id: 'destinataire', label: 'Destinataire', placeholder: 'Ex: AXA France — Service sinistres corporels' },
+      { id: 'destinataire', label: 'Destinataire', placeholder: 'Ex: AXA France - Service sinistres corporels' },
       { id: 'ton', label: 'Ton souhaité', placeholder: 'Ex: Formel et ferme' },
-      { id: 'objet', label: 'Objet', placeholder: 'Ex: Relance offre d\'indemnisation — dossier n°2024-1234' },
+      { id: 'objet', label: 'Objet', placeholder: 'Ex: Relance offre d\'indemnisation - dossier n°2024-1234' },
     ],
   },
   {
@@ -119,7 +119,7 @@ Madame Claire MARTIN, née le 12 mars 1985 à Bordeaux (33000), demeurant au 15 
 
 ET LUI AI DÉCLARÉ CE QUI SUIT :
 
-——————————————————————
+----------------------
 
 I. EXPOSÉ DES FAITS
 
@@ -135,7 +135,7 @@ Monsieur DUPONT a été immédiatement transporté par les services du SAMU à l
 - Un traumatisme crânien léger avec perte de connaissance initiale
 - De multiples contusions et excoriations
 
-II. PRÉJUDICE CORPOREL — ÉTAT ACTUEL
+II. PRÉJUDICE CORPOREL - ÉTAT ACTUEL
 
 Depuis l'accident, Monsieur DUPONT a subi :
 
@@ -188,8 +188,8 @@ Maître Pierre LEGRAND`;
 
 export const MOCK_ASSIGNATION_BORDEREAU_ENTRIES = [
   { kind: 'section', name: 'Médical' },
-  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023', description: 'CHU Pitié-Salpêtrière — diagnostic initial' },
-  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024', description: 'Dr. Martin — expertise contradictoire' },
+  { kind: 'piece', pieceId: 'p-8', intitule: 'Compte-rendu passage urgences', type: 'Compte-rendu', date: '15/03/2023', description: 'CHU Pitié-Salpêtrière - diagnostic initial' },
+  { kind: 'piece', pieceId: 'p-5', intitule: "Rapport d'expertise", type: 'Rapport', date: '12/09/2024', description: 'Dr. Martin - expertise contradictoire' },
   { kind: 'piece', pieceId: 'p-6', intitule: 'Ordonnance médicaments juillet', type: 'Ordonnance', date: '18/07/2023' },
   { kind: 'section', name: 'Frais médicaux' },
   { kind: 'piece', pieceId: 'p-1', intitule: 'Facture hospitalisation CHU Bordeaux', type: 'Facture', date: '15/03/2023' },
@@ -232,7 +232,7 @@ La société AXA FRANCE IARD, SA au capital de 214 799 030 euros, immatriculée 
 
 ET LEUR AI DÉCLARÉ CE QUI SUIT :
 
-——————————————————————
+----------------------
 
 I. EXPOSÉ DES FAITS
 
@@ -249,7 +249,7 @@ Monsieur DUPONT a été immédiatement transporté par les services du SAMU à l
 - De multiples contusions et excoriations
 - Un syndrome de stress post-traumatique diagnostiqué le 20/10/2024
 
-II. PRÉJUDICE CORPOREL — ÉTAT ACTUEL
+II. PRÉJUDICE CORPOREL - ÉTAT ACTUEL
 
 Depuis l'accident, Monsieur DUPONT a subi :
 
@@ -339,7 +339,7 @@ ET : La société AXA FRANCE IARD, SA, dont le siège social est situé au 313 T
 
 Défendeurs.
 
-——————————————————————
+----------------------
 
 PLAISE AU TRIBUNAL,
 
@@ -357,7 +357,7 @@ La responsabilité exclusive de Madame MARTIN ne fait aucun doute. Le procès-ve
 
 Les défendeurs ne contestent d'ailleurs pas le principe de responsabilité mais cherchent à minorer l'étendue du préjudice.
 
-III. DISCUSSION SUR LE PRÉJUDICE — LIQUIDATION POSTE PAR POSTE
+III. DISCUSSION SUR LE PRÉJUDICE - LIQUIDATION POSTE PAR POSTE
 
 A. Dépenses de santé actuelles (DSA)
 
@@ -377,7 +377,7 @@ C. Déficit fonctionnel temporaire (DFT)
 
 Sur la base de 33 € par jour de DFT total, conformément à la jurisprudence récente des cours d'appel [jp:jp-dft-01], le DFT s'établit comme suit :
 - DFT total (15/03/2023 au 15/09/2023) : 184 jours × 33 € = 6 072 €
-- DFT partiel 50% (16/09/2023 au 12/09/2024) : 362 jours × 16,50 € = 5 973 € — prorata du taux total constamment admis [jp:jp-dft-02]
+- DFT partiel 50% (16/09/2023 au 12/09/2024) : 362 jours × 16,50 € = 5 973 € - prorata du taux total constamment admis [jp:jp-dft-02]
 
 Total DFT : 12 045 €.
 
@@ -433,7 +433,7 @@ Monsieur Jean DUPONT, né le 15 mars 1982 à Lyon, demeurant au 42 rue des Lilas
 
 a l'honneur de vous exposer :
 
-——————————————————————
+----------------------
 
 I. OBJET DE LA REQUÊTE
 
@@ -478,14 +478,14 @@ Expert judiciaire
 
 Paris, le 27 avril 2026
 
-Objet : Dossier DUPONT Jean — Expertise n° 2026/EXP/1847
-Nos références : Cabinet BERNARD — Dossier 2024-3892
+Objet : Dossier DUPONT Jean - Expertise n° 2026/EXP/1847
+Nos références : Cabinet BERNARD - Dossier 2024-3892
 
 Docteur,
 
 Faisant suite à votre rapport préliminaire du 15 mars 2026, nous avons l'honneur de vous adresser les présentes observations au nom de Monsieur Jean DUPONT, notre client.
 
-——————————————————————
+----------------------
 
 I. OBSERVATIONS SUR LE TAUX DE DFP
 
@@ -539,14 +539,14 @@ Service Sinistres Corporels
 313 Terrasses de l'Arche
 92727 Nanterre Cedex
 
-Objet : Mise en demeure — Dossier sinistre n° 2024-AXA-78341
+Objet : Mise en demeure - Dossier sinistre n° 2024-AXA-78341
 Réf. : Dossier DUPONT Jean c/ MARTIN Claire
 
 Madame, Monsieur,
 
 J'interviens en qualité de conseil de Monsieur Jean DUPONT, victime d'un accident de la circulation survenu le 14 septembre 2024, impliquant votre assurée Madame Claire MARTIN.
 
-——————————————————————
+----------------------
 
 I. RAPPEL DES FAITS
 
@@ -601,7 +601,7 @@ Ci-après dénommée « l'Assureur »,
 
 D'AUTRE PART,
 
-——————————————————————
+----------------------
 
 IL A ÉTÉ PRÉALABLEMENT EXPOSÉ CE QUI SUIT :
 
@@ -616,16 +616,16 @@ L'expertise médicale du Docteur DURAND, en date du 12 septembre 2024, a retenu 
 
 CECI EXPOSÉ, IL A ÉTÉ CONVENU CE QUI SUIT :
 
-Article 1 — Objet
+Article 1 - Objet
 
 Le présent protocole a pour objet de régler définitivement et transactionnellement l'ensemble des conséquences dommageables de l'accident.
 
-Article 2 — Concessions réciproques
+Article 2 - Concessions réciproques
 
 La Victime renonce à toute action judiciaire relative à l'accident.
 L'Assureur reconnaît la responsabilité entière de son assurée et accepte d'indemniser la totalité du préjudice.
 
-Article 3 — Indemnisation
+Article 3 - Indemnisation
 
 L'Assureur versera à la Victime la somme globale et forfaitaire de CENT QUATRE-VINGT-CINQ MILLE EUROS (185 000 €), ventilée comme suit :
 
@@ -639,15 +639,15 @@ L'Assureur versera à la Victime la somme globale et forfaitaire de CENT QUATRE-
 - Préjudice d'agrément : 8 000 €
 - Article 700 CPC : 3 193,20 €
 
-Article 4 — Modalités de paiement
+Article 4 - Modalités de paiement
 
 Le règlement interviendra par virement bancaire dans un délai de 30 jours à compter de la signature du présent protocole.
 
-Article 5 — Renonciation
+Article 5 - Renonciation
 
 Sous réserve de l'aggravation de son état de santé dûment constatée médicalement, la Victime déclare être intégralement indemnisée et renonce à tout recours.
 
-Article 6 — Droit applicable
+Article 6 - Droit applicable
 
 Le présent protocole est soumis au droit français. Les articles 2044 et suivants du Code civil s'appliquent.
 
@@ -676,7 +676,7 @@ Monsieur le Président, Mesdames et Messieurs les membres du Tribunal,
 
 À la suite de l'audience du 15 avril 2026, et conformément à l'autorisation donnée par le Tribunal, Monsieur DUPONT a l'honneur de porter à votre connaissance les éléments complémentaires suivants.
 
-——————————————————————
+----------------------
 
 I. OBJET DE LA PRÉSENTE NOTE
 
@@ -743,8 +743,8 @@ export const MOCK_BORDEREAU_MEDICAL_ENTRIES = [
 ];
 
 export const MOCK_BORDEREAU_PROCEDURE_ENTRIES = [
-  { kind: 'piece', pieceId: 'p-proc-1', intitule: 'PV de constat d\'accident', type: 'PV', date: '14/09/2024', description: 'Police nationale — main courante n° 2024/09/14-3847' },
-  { kind: 'piece', pieceId: 'p-proc-2', intitule: 'Ordonnance désignation expert', type: 'Ordonnance', date: '03/10/2024', description: 'TJ Paris — Dr. Martin' },
+  { kind: 'piece', pieceId: 'p-proc-1', intitule: 'PV de constat d\'accident', type: 'PV', date: '14/09/2024', description: 'Police nationale - main courante n° 2024/09/14-3847' },
+  { kind: 'piece', pieceId: 'p-proc-2', intitule: 'Ordonnance désignation expert', type: 'Ordonnance', date: '03/10/2024', description: 'TJ Paris - Dr. Martin' },
   { kind: 'piece', pieceId: 'p-proc-3', intitule: 'Convocation expertise contradictoire', type: 'Courrier', date: '15/10/2024' },
   { kind: 'piece', pieceId: 'p-proc-4', intitule: 'Avis de réception assignation', type: 'Acte d\'huissier', date: '24/04/2026' },
 ];
@@ -824,7 +824,7 @@ export const REDACTION_SCENARIOS = {
       { type: 'DELAY', ms: 200 },
       { type: 'STREAM_CONTENT', text: MOCK_ASSIGNATION_MODIFIED_TEXT, chunkSize: 60, chunkDelay: 20 },
       { type: 'DELAY', ms: 300 },
-      { type: 'AGENT_MESSAGE', text: 'L\'assignation a été mise à jour avec les modifications demandées :\n\n— **AXA France IARD** ajoutée comme co-défenderesse\n— **PV d\'infraction** (franchissement feu rouge) intégré aux faits\n— **Préjudice psychologique** (SSPT) ajouté aux lésions et au préjudice actuel\n— **Sapiteur psychiatre** demandé en complément de l\'expert orthopédiste\n— **Provision portée à 25 000 €** (était 15 000 €)\n— **Article 700 porté à 4 000 €** (était 3 000 €)\n— **7ème demande** ajoutée : ordonnance commune aux tiers payeurs (CPAM + AG2R)\n\nRelisez l\'acte et dites-moi si d\'autres ajustements sont nécessaires.' },
+      { type: 'AGENT_MESSAGE', text: 'L\'assignation a été mise à jour avec les modifications demandées :\n\n- **AXA France IARD** ajoutée comme co-défenderesse\n- **PV d\'infraction** (franchissement feu rouge) intégré aux faits\n- **Préjudice psychologique** (SSPT) ajouté aux lésions et au préjudice actuel\n- **Sapiteur psychiatre** demandé en complément de l\'expert orthopédiste\n- **Provision portée à 25 000 €** (était 15 000 €)\n- **Article 700 porté à 4 000 €** (était 3 000 €)\n- **7ème demande** ajoutée : ordonnance commune aux tiers payeurs (CPAM + AG2R)\n\nRelisez l\'acte et dites-moi si d\'autres ajustements sont nécessaires.' },
     ],
   },
 
@@ -838,7 +838,7 @@ export const REDACTION_SCENARIOS = {
     actions: [
       { type: 'USER_MESSAGE', text: 'Génère-moi un bordereau pour ce dossier' },
       { type: 'DELAY', ms: 400 },
-      { type: 'AGENT_MESSAGE', text: 'Ok, quel type de bordereau veux-tu — un bordereau dédié à un type de pièces (médical, procédure, frais…) ou un bordereau complet du dossier ?' },
+      { type: 'AGENT_MESSAGE', text: 'Ok, quel type de bordereau veux-tu - un bordereau dédié à un type de pièces (médical, procédure, frais…) ou un bordereau complet du dossier ?' },
       { type: 'SET_STEPPER_STATE', stepperType: 'awaiting-bordereau-type-reply' },
     ],
   },
@@ -846,7 +846,7 @@ export const REDACTION_SCENARIOS = {
   // Emit branches — picked by the App.js stepper handler after the user's reply
   'bordereau-emit-medical': {
     label: 'Bordereau · Médical',
-    description: 'Bordereau plat — pièces médicales uniquement',
+    description: 'Bordereau plat - pièces médicales uniquement',
     actions: [
       { type: 'REASONING_COLLAPSED', text: 'Filtre · pièces médicales du dossier' },
       { type: 'DELAY', ms: 400 },
@@ -864,7 +864,7 @@ export const REDACTION_SCENARIOS = {
 
   'bordereau-emit-procedure': {
     label: 'Bordereau · Procédure',
-    description: 'Bordereau plat — pièces de procédure uniquement',
+    description: 'Bordereau plat - pièces de procédure uniquement',
     actions: [
       { type: 'REASONING_COLLAPSED', text: 'Filtre · pièces de procédure du dossier' },
       { type: 'DELAY', ms: 400 },
@@ -882,7 +882,7 @@ export const REDACTION_SCENARIOS = {
 
   'bordereau-emit-full': {
     label: 'Bordereau · Complet',
-    description: 'Bordereau plat — toutes les pièces du dossier',
+    description: 'Bordereau plat - toutes les pièces du dossier',
     actions: [
       { type: 'REASONING_COLLAPSED', text: 'Préparation du bordereau · pièces du dossier' },
       { type: 'DELAY', ms: 400 },
@@ -892,7 +892,7 @@ export const REDACTION_SCENARIOS = {
         { type: 'calculate', label: 'Numérotation séquentielle 1…14', status: 'done' },
       ]},
       { type: 'DELAY', ms: 500 },
-      { type: 'EMIT_BORDEREAU', title: 'Bordereau — pièces du dossier', entries: MOCK_FLAT_BORDEREAU_ENTRIES },
+      { type: 'EMIT_BORDEREAU', title: 'Bordereau - pièces du dossier', entries: MOCK_FLAT_BORDEREAU_ENTRIES },
       { type: 'DELAY', ms: 200 },
       { type: 'AGENT_MESSAGE', text: 'Bordereau prêt avec **14 pièces**, triées par date et numérotées 1 à 14.\n\nDites-moi si vous souhaitez les regrouper par thème (médical, frais, revenus…) ou changer l\'ordre.' },
     ],
@@ -923,7 +923,7 @@ export const REDACTION_SCENARIOS = {
       { type: 'DELAY', ms: 150 },
       { type: 'CLEAR_REORDERING_BORDEREAU' },
       { type: 'DELAY', ms: 100 },
-      { type: 'AGENT_MESSAGE', text: 'Bordereau réorganisé en **3 sections** :\n\n— **I. Médical** — comptes-rendus, expertise, ordonnances\n— **II. Frais médicaux** — factures hospitalisation, kiné, pharmacie, IRM\n— **III. Pertes de revenus** — bulletins, attestations, indemnités\n\nLes pièces sont triées dans l\'ordre où elles apparaîtront dans l\'acte, et numérotées hiérarchiquement (I-1, I-2, II-1…).' },
+      { type: 'AGENT_MESSAGE', text: 'Bordereau réorganisé en **3 sections** :\n\n- **I. Médical** - comptes-rendus, expertise, ordonnances\n- **II. Frais médicaux** - factures hospitalisation, kiné, pharmacie, IRM\n- **III. Pertes de revenus** - bulletins, attestations, indemnités\n\nLes pièces sont triées dans l\'ordre où elles apparaîtront dans l\'acte, et numérotées hiérarchiquement (I-1, I-2, II-1…).' },
     ],
   },
 
@@ -941,7 +941,7 @@ export const REDACTION_SCENARIOS = {
         { type: 'calculate', label: 'Numérotation séquentielle 1…N', status: 'done' },
       ]},
       { type: 'DELAY', ms: 500 },
-      { type: 'EMIT_BORDEREAU', title: 'Bordereau — pièces du dossier', entries: MOCK_STANDALONE_BORDEREAU_ENTRIES },
+      { type: 'EMIT_BORDEREAU', title: 'Bordereau - pièces du dossier', entries: MOCK_STANDALONE_BORDEREAU_ENTRIES },
       { type: 'DELAY', ms: 200 },
       { type: 'AGENT_MESSAGE', text: 'Bordereau prêt avec les pièces du dossier, regroupées par thème (Médical, Frais, Revenus).\n\nVous pouvez l\'associer à un acte plus tard, ou le télécharger tel quel.' },
     ],
@@ -953,7 +953,7 @@ export const REDACTION_SCENARIOS = {
     description: 'Bienvenue dans la rédaction d\'actes',
     actions: [
       { type: 'DELAY', ms: 400 },
-      { type: 'AGENT_MESSAGE', text: 'Bienvenue dans la rédaction d\'actes ! Je peux vous aider à rédiger tout type de document juridique en dommage corporel :\n\n— **Assignation** en référé-expertise ou au fond\n— **Conclusions** récapitulatives\n— **Requête** en référé\n— **Dire à expert** (observations contradictoires)\n— **Courrier** de relance, mise en demeure\n— **Protocole transactionnel**\n— **Note en délibéré**\n\nQu\'est-ce qu\'on rédige ensemble ?' },
+      { type: 'AGENT_MESSAGE', text: 'Bienvenue dans la rédaction d\'actes ! Je peux vous aider à rédiger tout type de document juridique en dommage corporel :\n\n- **Assignation** en référé-expertise ou au fond\n- **Conclusions** récapitulatives\n- **Requête** en référé\n- **Dire à expert** (observations contradictoires)\n- **Courrier** de relance, mise en demeure\n- **Protocole transactionnel**\n- **Note en délibéré**\n\nQu\'est-ce qu\'on rédige ensemble ?' },
       { type: 'SET_STEPPER_STATE', stepperType: 'awaiting-onboarding-reply' },
     ],
   },
@@ -996,7 +996,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
         { type: 'calculate', label: 'Éléments manquants identifiés (2)', status: 'done' },
       ],
       hasGaps: true,
-      gapMessage: 'Avant de rédiger l\'assignation, j\'ai besoin de quelques précisions :\n\n— **Tribunal compétent** — TJ Paris, Lyon, Bordeaux ?\n— **Type de procédure** — référé-expertise, référé-provision, ou au fond ?\n\nRépondez librement, je m\'adapte.',
+      gapMessage: 'Avant de rédiger l\'assignation, j\'ai besoin de quelques précisions :\n\n- **Tribunal compétent** - TJ Paris, Lyon, Bordeaux ?\n- **Type de procédure** - référé-expertise, référé-provision, ou au fond ?\n\nRépondez librement, je m\'adapte.',
     },
     reasoning2: {
       steps: [
@@ -1008,12 +1008,12 @@ export const ACT_TYPE_FLOW_CONFIG = {
     },
     generation: {
       actType: 'assignation',
-      title: 'Assignation en référé-expertise — Dupont c/ Martin',
+      title: 'Assignation en référé-expertise - Dupont c/ Martin',
       text: MOCK_ASSIGNATION_TEXT,
-      artifactTitle: 'Assignation en référé-expertise — v1',
+      artifactTitle: 'Assignation en référé-expertise - v1',
       artifactSubtitle: '3 pages · TJ Paris · M. Dupont c/ Mme Martin',
       doneMessage: 'L\'assignation en référé-expertise est prête. Elle reprend les faits du dossier, détaille le préjudice et formule les demandes d\'expertise et de provision.\n\nSélectionnez une zone du document pour demander des modifications.',
-      bordereauTitle: 'Bordereau — Assignation Dupont c/ Martin',
+      bordereauTitle: 'Bordereau - Assignation Dupont c/ Martin',
       bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
@@ -1025,7 +1025,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
         { type: 'calculate', label: 'Éléments manquants identifiés (2)', status: 'done' },
       ],
       hasGaps: true,
-      gapMessage: 'Avant de rédiger les conclusions, j\'ai besoin de quelques précisions :\n\n— **Date d\'audience** — pour les mentions d\'en-tête\n— **Arguments adverses à contrer** — contestation de responsabilité ? minoration du DFP ?\n\nRépondez librement.',
+      gapMessage: 'Avant de rédiger les conclusions, j\'ai besoin de quelques précisions :\n\n- **Date d\'audience** - pour les mentions d\'en-tête\n- **Arguments adverses à contrer** - contestation de responsabilité ? minoration du DFP ?\n\nRépondez librement.',
     },
     reasoning2: {
       steps: [
@@ -1037,12 +1037,12 @@ export const ACT_TYPE_FLOW_CONFIG = {
     },
     generation: {
       actType: 'conclusions',
-      title: 'Conclusions récapitulatives — Dupont c/ Martin',
+      title: 'Conclusions récapitulatives - Dupont c/ Martin',
       text: MOCK_CONCLUSIONS_TEXT,
-      artifactTitle: 'Conclusions récapitulatives — v1',
+      artifactTitle: 'Conclusions récapitulatives - v1',
       artifactSubtitle: '8 pages · TJ Paris · Dupont c/ Martin & AXA',
       doneMessage: 'Les conclusions récapitulatives sont prêtes. Elles intègrent l\'ensemble du chiffrage Dintilhac et répondent aux arguments adverses.\n\nSélectionnez une zone du document pour demander des modifications.',
-      bordereauTitle: 'Bordereau — Conclusions Dupont c/ Martin',
+      bordereauTitle: 'Bordereau - Conclusions Dupont c/ Martin',
       bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
@@ -1054,7 +1054,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
         { type: 'calculate', label: 'Éléments manquants identifiés (1)', status: 'done' },
       ],
       hasGaps: true,
-      gapMessage: 'Avant de rédiger la requête :\n\n— **Tribunal compétent** — TJ Paris, Lyon, ou autre ?\n\nRépondez librement.',
+      gapMessage: 'Avant de rédiger la requête :\n\n- **Tribunal compétent** - TJ Paris, Lyon, ou autre ?\n\nRépondez librement.',
     },
     reasoning2: {
       steps: [
@@ -1065,12 +1065,12 @@ export const ACT_TYPE_FLOW_CONFIG = {
     },
     generation: {
       actType: 'requete',
-      title: 'Requête en référé-expertise — Dupont',
+      title: 'Requête en référé-expertise - Dupont',
       text: MOCK_REQUETE_TEXT,
-      artifactTitle: 'Requête en référé-expertise — v1',
+      artifactTitle: 'Requête en référé-expertise - v1',
       artifactSubtitle: '2 pages · TJ Paris · M. Dupont',
       doneMessage: 'La requête en référé-expertise est prête.\n\nSélectionnez une zone du document pour demander des modifications.',
-      bordereauTitle: 'Bordereau — Requête Dupont',
+      bordereauTitle: 'Bordereau - Requête Dupont',
       bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
@@ -1082,7 +1082,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
         { type: 'calculate', label: 'Éléments manquants identifiés (1)', status: 'done' },
       ],
       hasGaps: true,
-      gapMessage: 'Avant de rédiger le dire, une précision :\n\n— **Points à soulever** — sous-évaluation du DFP ? absence de prise en compte du retentissement professionnel ? autre ?\n\nDites-moi ce que vous souhaitez contester ou préciser.',
+      gapMessage: 'Avant de rédiger le dire, une précision :\n\n- **Points à soulever** - sous-évaluation du DFP ? absence de prise en compte du retentissement professionnel ? autre ?\n\nDites-moi ce que vous souhaitez contester ou préciser.',
     },
     reasoning2: {
       steps: [
@@ -1093,12 +1093,12 @@ export const ACT_TYPE_FLOW_CONFIG = {
     },
     generation: {
       actType: 'dire',
-      title: 'Dire à expert — Dr. Durand — Dupont',
+      title: 'Dire à expert - Dr. Durand - Dupont',
       text: MOCK_DIRE_TEXT,
-      artifactTitle: 'Dire à expert — v1',
+      artifactTitle: 'Dire à expert - v1',
       artifactSubtitle: '3 pages · Dr. Durand · M. Dupont',
       doneMessage: 'Le dire à expert est prêt. Il conteste les points identifiés et demande des investigations complémentaires.\n\nSélectionnez une zone du document pour demander des modifications.',
-      bordereauTitle: 'Bordereau — Dire à expert Dupont',
+      bordereauTitle: 'Bordereau - Dire à expert Dupont',
       bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
@@ -1110,7 +1110,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
         { type: 'calculate', label: 'Éléments manquants identifiés (1)', status: 'done' },
       ],
       hasGaps: true,
-      gapMessage: 'Pour adapter le ton et le contenu :\n\n— **Destinataire** — assureur (lequel ?), partie adverse, expert ?\n\nPrécisez le destinataire et l\'objet souhaité.',
+      gapMessage: 'Pour adapter le ton et le contenu :\n\n- **Destinataire** - assureur (lequel ?), partie adverse, expert ?\n\nPrécisez le destinataire et l\'objet souhaité.',
     },
     reasoning2: {
       steps: [
@@ -1121,12 +1121,12 @@ export const ACT_TYPE_FLOW_CONFIG = {
     },
     generation: {
       actType: 'email',
-      title: 'Courrier de relance — AXA — Dupont',
+      title: 'Courrier de relance - AXA - Dupont',
       text: MOCK_EMAIL_TEXT,
-      artifactTitle: 'Courrier de relance — v1',
+      artifactTitle: 'Courrier de relance - v1',
       artifactSubtitle: '1 page · AXA France · Dossier Dupont',
       doneMessage: 'Le courrier est prêt.\n\nSélectionnez une zone du document pour demander des modifications.',
-      bordereauTitle: 'Bordereau — Courrier AXA Dupont',
+      bordereauTitle: 'Bordereau - Courrier AXA Dupont',
       bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
@@ -1138,7 +1138,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
         { type: 'calculate', label: 'Éléments manquants identifiés (1)', status: 'done' },
       ],
       hasGaps: true,
-      gapMessage: 'Pour le protocole transactionnel :\n\n— **Montant convenu** — quel montant global ? ventilation par poste ?\n\nPrécisez les termes de l\'accord.',
+      gapMessage: 'Pour le protocole transactionnel :\n\n- **Montant convenu** - quel montant global ? ventilation par poste ?\n\nPrécisez les termes de l\'accord.',
     },
     reasoning2: {
       steps: [
@@ -1149,12 +1149,12 @@ export const ACT_TYPE_FLOW_CONFIG = {
     },
     generation: {
       actType: 'protocole',
-      title: 'Protocole transactionnel — Dupont / AXA',
+      title: 'Protocole transactionnel - Dupont / AXA',
       text: MOCK_PROTOCOLE_TEXT,
-      artifactTitle: 'Protocole transactionnel — v1',
+      artifactTitle: 'Protocole transactionnel - v1',
       artifactSubtitle: '4 pages · Dupont / AXA · 185 000 €',
       doneMessage: 'Le protocole transactionnel est prêt.\n\nSélectionnez une zone du document pour demander des modifications.',
-      bordereauTitle: 'Bordereau — Protocole Dupont / AXA',
+      bordereauTitle: 'Bordereau - Protocole Dupont / AXA',
       bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
@@ -1166,7 +1166,7 @@ export const ACT_TYPE_FLOW_CONFIG = {
         { type: 'calculate', label: 'Éléments manquants identifiés (1)', status: 'done' },
       ],
       hasGaps: true,
-      gapMessage: 'Pour la note en délibéré :\n\n— **Points à compléter** — production d\'une pièce nouvelle ? réponse à un moyen soulevé d\'office ?\n\nPrécisez ce que vous souhaitez porter à la connaissance du tribunal.',
+      gapMessage: 'Pour la note en délibéré :\n\n- **Points à compléter** - production d\'une pièce nouvelle ? réponse à un moyen soulevé d\'office ?\n\nPrécisez ce que vous souhaitez porter à la connaissance du tribunal.',
     },
     reasoning2: {
       steps: [
@@ -1176,12 +1176,12 @@ export const ACT_TYPE_FLOW_CONFIG = {
     },
     generation: {
       actType: 'note-delibere',
-      title: 'Note en délibéré — Dupont c/ Martin',
+      title: 'Note en délibéré - Dupont c/ Martin',
       text: MOCK_NOTE_DELIBERE_TEXT,
-      artifactTitle: 'Note en délibéré — v1',
+      artifactTitle: 'Note en délibéré - v1',
       artifactSubtitle: '2 pages · TJ Paris · Dupont c/ Martin',
       doneMessage: 'La note en délibéré est prête.\n\nSélectionnez une zone du document pour demander des modifications.',
-      bordereauTitle: 'Bordereau — Note en délibéré Dupont',
+      bordereauTitle: 'Bordereau - Note en délibéré Dupont',
       bordereauEntries: MOCK_FLAT_BORDEREAU_ENTRIES,
     },
   },
@@ -1196,7 +1196,7 @@ export const DEFAULT_FLOW_CONFIG = {
       { type: 'calculate', label: 'Éléments manquants identifiés', status: 'done' },
     ],
     hasGaps: true,
-    gapMessage: 'Avant de rédiger, quelques précisions :\n\n— **Parties** — qui sont les parties en présence ?\n— **Juridiction** — quel tribunal ?\n\nRépondez librement.',
+    gapMessage: 'Avant de rédiger, quelques précisions :\n\n- **Parties** - qui sont les parties en présence ?\n- **Juridiction** - quel tribunal ?\n\nRépondez librement.',
   },
   reasoning2: {
     steps: [
@@ -1206,9 +1206,9 @@ export const DEFAULT_FLOW_CONFIG = {
   },
   generation: {
     actType: 'assignation',
-    title: 'Acte juridique — Dupont',
+    title: 'Acte juridique - Dupont',
     text: MOCK_ASSIGNATION_TEXT,
-    artifactTitle: 'Acte — v1',
+    artifactTitle: 'Acte - v1',
     artifactSubtitle: 'TJ Paris · M. Dupont',
     doneMessage: 'L\'acte est prêt.\n\nSélectionnez une zone du document pour demander des modifications.',
   },

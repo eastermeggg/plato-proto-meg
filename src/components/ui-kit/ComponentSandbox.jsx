@@ -29,7 +29,7 @@ export function DemoCanvas({ demo, componentId, values, applyPreset }) {
   if (!demo) {
     return (
       <PlaceholderBox
-        text={`Pas de démo pour ${componentId}. Le code est la source : établir le composant depuis Figma (ds-figma-component), puis sa démo dans componentDemos.jsx.`}
+        text={`Pas de démo pour ${componentId}. Le code est la source : établir le composant depuis Figma (ds-figma-build), puis sa démo dans componentDemos.jsx.`}
       />
     );
   }
@@ -52,6 +52,7 @@ export function DemoCanvas({ demo, componentId, values, applyPreset }) {
         </div>
       )}
       <div
+        data-demo={componentId ? `plato/${componentId}` : undefined}
         style={{
           padding: 40,
           borderRadius: 12,

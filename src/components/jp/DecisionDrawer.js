@@ -317,7 +317,7 @@ export default function DecisionDrawer({
       {/* Drawer — fixed overlay (default) OR inline canvas page.
           Inline uses `flex-1 min-h-0` (not `h-full`) so it sits BELOW the matter
           top bar + tab strip in the parent flex column instead of overlapping
-          them — otherwise the tabs become unclickable. */}
+          them - otherwise the tabs become unclickable. */}
       <div
         className={inline
           ? 'w-full flex-1 min-h-0 bg-surface flex flex-col'
@@ -330,7 +330,7 @@ export default function DecisionDrawer({
         {/* ═══════════ TOP BAR ═══════════
             Row 1: prev/next (left) ······································· close (right)
             Row 2: Title (serif 24px) + meta + actions
-            Aligned on Figma node 2219:19616 — 24px py, 20px px, gap 12 */}
+            Aligned on Figma node 2219:19616 - 24px py, 20px px, gap 12 */}
         <div
           className="border-b border-border flex flex-col flex-shrink-0"
           style={{ backgroundColor: colors.semantic.background, padding: '24px 20px', gap: 12 }}
@@ -421,8 +421,8 @@ export default function DecisionDrawer({
               <div className="relative">
                 <button
                   onClick={() => setShowPosteDropdown(!showPosteDropdown)}
-                  title={(isPinned || workspacePinned) ? 'Sauvegardée — modifier' : 'Sauver'}
-                  aria-label={(isPinned || workspacePinned) ? 'Sauvegardée — modifier' : 'Sauver'}
+                  title={(isPinned || workspacePinned) ? 'Sauvegardée - modifier' : 'Sauver'}
+                  aria-label={(isPinned || workspacePinned) ? 'Sauvegardée - modifier' : 'Sauver'}
                   className="inline-flex items-center gap-1.5 transition-all"
                   style={(isPinned || workspacePinned)
                     ? {
@@ -499,7 +499,7 @@ export default function DecisionDrawer({
         {/* ═══════════ TWO-COLUMN BODY ═══════════
             Grid: reading column (elastic, edge-to-edge) + fixed 320px utility
             sidebar. Fixed because content has stable size needs (poste/value
-            pairs, profil rows) — percent breaks on both ends of the spectrum. */}
+            pairs, profil rows) - percent breaks on both ends of the spectrum. */}
         <div className="flex-1 min-h-0 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 332px' }}>
 
           {/* ── LEFT: Résumé + themes + texte intégral (Figma 36765:49265) ─────────── */}
@@ -657,7 +657,7 @@ export default function DecisionDrawer({
           <div className="overflow-y-auto" style={{ backgroundColor: colors.semantic.background, overflowX: 'hidden', minWidth: 0 }}>
 
             {/* APPORT DE LA DÉCISION — editable rationale for the current scope.
-                Only shown when the JP has been saved at least once — without a save
+                Only shown when the JP has been saved at least once - without a save
                 there's no attachment to attach the rationale to. */}
             {onSaveRationale && attachments.length > 0 && (
               <div className="border-b border-border" style={{ padding: '21px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>

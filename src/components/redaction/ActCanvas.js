@@ -177,7 +177,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
       }
 
       // Horizontal rule
-      if (/^[—─\-]{3,}$/.test(trimmed)) {
+      if (/^[-─\-]{3,}$/.test(trimmed)) {
         return <hr key={i} style={{ border: 'none', borderTop: `1px solid ${colors.semantic.border}`, margin: '20px 0' }} />;
       }
 

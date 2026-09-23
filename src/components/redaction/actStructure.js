@@ -16,7 +16,7 @@
 // Trailing montant, introduced by a separator (: - – —). Captures euro amounts
 // (French formatting: space thousands, comma decimals) and reserve keywords.
 const MONTANT_RE =
-  /[:\-–—]\s*(\d[\d.,\s  ]*€|R[ÉE]SERVES?|R[ée]serv[ée]e?s?|pour\s+m[ée]moire|M[ÉE]MOIRE|n[ée]ant)\s*$/i;
+  /[:\-–-]\s*(\d[\d.,\s  ]*€|R[ÉE]SERVES?|R[ée]serv[ée]e?s?|pour\s+m[ée]moire|M[ÉE]MOIRE|n[ée]ant)\s*$/i;
 
 // L1 — roman numeral parties. [IVX]+ catches single I/V/X (a lone "C"/"D"/"L"/"M"
 // is far likelier a category letter than the roman 100/500/50/1000), while the
@@ -54,7 +54,7 @@ function classifyLine(raw) {
     text = text.slice(0, mm.index).trim();
   }
   // Drop a dangling separator left behind by the montant strip.
-  const labelOf = (s) => s.replace(/[:\s–—-]+$/, '').trim();
+  const labelOf = (s) => s.replace(/[:\s–\u2014-]+$/, '').trim();
 
   let m;
   // L1 — parties (roman)

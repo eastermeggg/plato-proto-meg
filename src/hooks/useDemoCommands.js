@@ -275,7 +275,7 @@ export default function useDemoCommands({ setChatMessages, setNavStack, tabsConf
             }
             break;
           case 'ARTIFACT_CARD':
-            setChatMessages?.(prev => [...prev, { type: 'ai', text: `${action.title} — ${action.summary}` }]);
+            setChatMessages?.(prev => [...prev, { type: 'ai', text: `${action.title} - ${action.summary}` }]);
             break;
           default:
             break;

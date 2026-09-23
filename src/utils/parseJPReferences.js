@@ -37,7 +37,7 @@ function isoDate(frDate) {
 function extractDescription(line, numero) {
   // Anything after an em-dash (—) or " - " separator that follows the numero is the description.
   const afterNumero = line.split(numero).slice(1).join(numero);
-  const sepMatch = afterNumero.match(/(?:\s*[—–-]\s+)(.+)/);
+  const sepMatch = afterNumero.match(/(?:\s*[-–\u2014]\s+)(.+)/);
   return sepMatch ? sepMatch[1].trim() : '';
 }
 
@@ -46,7 +46,7 @@ export function parseJPReferences(text) {
   const out = [];
   const lines = text.split('\n');
   lines.forEach((rawLine, lineIdx) => {
-    const line = rawLine.replace(/^[\s•·\-—*]+/, '').trim();
+    const line = rawLine.replace(/^[\s•·\u2014\-*]+/, '').trim();
     if (!line) return;
     const m = line.match(NUMERO_RE);
     if (!m) return;

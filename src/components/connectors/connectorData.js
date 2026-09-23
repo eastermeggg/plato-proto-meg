@@ -52,7 +52,7 @@ export const CONNECTOR_PROVIDERS = {
     short: 'Adresse de cabinet',
     desc: 'IMAP - @avocats.fr, OVH, Infomaniak…',
     pick: 'Mon adresse de cabinet',
-    hint: '@votre-cabinet.fr — même si vous la lisez dans Outlook.',
+    hint: '@votre-cabinet.fr - même si vous la lisez dans Outlook.',
     folderWord: 'dossiers IMAP',
     authDomain: 'votre serveur IMAP',
     tint: colors.semantic.muted,

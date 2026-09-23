@@ -376,7 +376,7 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
       const inline = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + ' et ' + names[names.length - 1];
       actions.push({
         type: 'AGENT_MESSAGE',
-        text: `J'ai trouvé ${templates.length > 1 ? templates.length + ' modèles correspondants' : 'un modèle correspondant'} dans votre bibliothèque : ${inline}\n\nSouhaitez-vous l'utiliser, déposer un autre via 📎, ou partir de zéro ?`,
+        text: `J'ai trouvé ${templates.length > 1 ? templates.length + ' modèles correspondants' : 'un modèle correspondant'} dans votre bibliothèque : ${inline}\n\nSouhaitez-vous l'utiliser, déposer un autre modèle, ou partir de zéro ?`,
       });
       actions.push({ type: 'SET_STEPPER_STATE', stepperType: 'awaiting-template-confirm' });
       playActions(actions);
@@ -384,7 +384,7 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
       // No templates found
       actions.push({
         type: 'AGENT_MESSAGE',
-        text: `Pas de modèle de ${label.toLowerCase()} dans votre bibliothèque.\n\nVous pouvez déposer un modèle via 📎 ou je génère librement à partir du dossier.`,
+        text: `Pas de modèle de ${label.toLowerCase()} dans votre bibliothèque.\n\nVous pouvez déposer un modèle ou je génère librement à partir du dossier.`,
       });
       actions.push({ type: 'SET_STEPPER_STATE', stepperType: 'awaiting-template-confirm' });
       playActions(actions);
@@ -453,7 +453,7 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
     if (!hasTemplate) {
       const tplIdx = r1Steps.findIndex(s => s.label.includes('Template'));
       if (tplIdx !== -1) {
-        r1Steps[tplIdx] = { ...r1Steps[tplIdx], label: 'Pas de modèle — génération libre' };
+        r1Steps[tplIdx] = { ...r1Steps[tplIdx], label: 'Pas de modèle - génération libre' };
       }
     }
     actions.push({ type: 'AGENT_REASONING_STEPS', label: 'Analyse du contexte', steps: r1Steps });
@@ -509,7 +509,7 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
         type: 'EMIT_BORDEREAU',
         acteId: bordereauActeId,
         pairId,
-        title: gen.bordereauTitle || `Bordereau — ${gen.title}`,
+        title: gen.bordereauTitle || `Bordereau - ${gen.title}`,
         entries: gen.bordereauEntries,
       });
       out.push({ type: 'DELAY', ms: 200 });
@@ -583,7 +583,7 @@ export default function useRedactionCommands({ setChatMessages, navigateTo, onUs
         dispatch({ type: 'UPDATE_ACTE', acteId: null, updates: { content: finalContent } });
         setChatMessages?.(prev => [...prev, {
           type: 'ai',
-          text: `La section a été modifiée selon votre demande :\n\n— **Zone ciblée** : « ${zoneText.slice(0, 50)}${zoneText.length > 50 ? '…' : ''} »\n— **Instruction** : ${userInstruction}\n\nRelisez l'acte et dites-moi si d'autres ajustements sont nécessaires.`,
+          text: `La section a été modifiée selon votre demande :\n\n- **Zone ciblée** : « ${zoneText.slice(0, 50)}${zoneText.length > 50 ? '…' : ''} »\n- **Instruction** : ${userInstruction}\n\nRelisez l'acte et dites-moi si d'autres ajustements sont nécessaires.`,
         }]);
       }, totalChunks * chunkDelay + 50);
       timeoutsRef.current.push(completionT);

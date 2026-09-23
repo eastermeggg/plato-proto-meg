@@ -26,7 +26,7 @@ export const PREFERENCE_SLOT_PLACEHOLDERS = {
   chiffrage: "Ex : Référentiel Mornet 2024 pour le DFP et les SE. Capitalisation via la Gazette du Palais. DFT à 1 800 €/mois. Toujours détailler les postes patrimoniaux en annexe…",
   redaction: "Ex : Plan Faits / Discussion / Dispositif. Numérotation I, A, 1°. JP en notes de bas de page. Ton sobre, phrases courtes. Rappeler les fondements textuels en début de discussion…",
   bordereau: "Ex : Numéroter dans l'ordre d'apparition (numéro stable d'un acte à l'autre). Regrouper par thème (I. Médical, II. Frais, III. Revenus). N'inclure que les pièces citées, sauf conclusions. Tableau N° / Nom / Date…",
-  nommage: "Ex : « N° — Nature — Auteur [JJ-MM-AAAA] ». Conserver l'extension. Omettre l'auteur si inconnu. Garder accents et casse des noms propres…",
+  nommage: "Ex : « N° - Nature - Auteur [JJ-MM-AAAA] ». Conserver l'extension. Omettre l'auteur si inconnu. Garder accents et casse des noms propres…",
   decoupage: "Ex : Découper à chaque changement d'auteur, de date ou de nature. Garder les rapports d'expertise en un seul fichier. Rattacher une page de garde isolée au document suivant…",
 };
 
@@ -36,9 +36,9 @@ export const PREFERENCE_SLOT_DEFAULTS = {
   redaction:
     "Plan en trois parties : Faits et procédure / Discussion / Dispositif. Numérotation décimale (I, A, 1°), titres en gras sans soulignement. Citations de jurisprudence en notes de bas de page, jamais dans le corps. Toujours un récapitulatif chiffré en fin de discussion. Style : phrases courtes, voix active, ton sobre. Désigner « la concluante » plutôt que « ma cliente ». Préférer « il convient » à « il faut ». Toujours rappeler les fondements textuels (art. 1240 c. civ., loi Badinter, etc.) en début de discussion. Dispositif concis : une demande = une ligne.",
   bordereau:
-    "Numéroter les pièces dans l'ordre d'apparition dans l'acte (la numérotation reste stable d'un acte à l'autre sur le même dossier). Regrouper par thème en sections (I. Médical, II. Frais, III. Pertes de revenus) plutôt qu'en liste plate. N'inclure que les pièces citées dans l'acte — sauf pour des conclusions récapitulatives, où le bordereau reprend l'ensemble des pièces du dossier. Présenter en tableau : N° / Nom de la pièce / Date. Exporter toujours l'acte, le bordereau et les pièces ensemble, jamais séparément.",
+    "Numéroter les pièces dans l'ordre d'apparition dans l'acte (la numérotation reste stable d'un acte à l'autre sur le même dossier). Regrouper par thème en sections (I. Médical, II. Frais, III. Pertes de revenus) plutôt qu'en liste plate. N'inclure que les pièces citées dans l'acte - sauf pour des conclusions récapitulatives, où le bordereau reprend l'ensemble des pièces du dossier. Présenter en tableau : N° / Nom de la pièce / Date. Exporter toujours l'acte, le bordereau et les pièces ensemble, jamais séparément.",
   nommage:
-    "Format : « N° pièce — Nature — Auteur [JJ-MM-AAAA] ». Exemples : « 12 — Certificat médical — Dr. Martin [04-03-2024] », « 03 — Rapport d'expertise — Cabinet Lefèvre [22-11-2023] ». Conserver l'extension d'origine. Si l'auteur est inconnu, omettre le segment correspondant. Garder les accents et la casse usuelle des noms propres.",
+    "Format : « N° pièce - Nature - Auteur [JJ-MM-AAAA] ». Exemples : « 12 - Certificat médical - Dr. Martin [04-03-2024] », « 03 - Rapport d'expertise - Cabinet Lefèvre [22-11-2023] ». Conserver l'extension d'origine. Si l'auteur est inconnu, omettre le segment correspondant. Garder les accents et la casse usuelle des noms propres.",
   decoupage:
     "Découper un PDF dès qu'un changement d'auteur, de date ou de nature de document est détecté. Les rapports d'expertise médicale restent en un seul fichier, même longs. Les certificats successifs d'un même médecin sur une même journée sont fusionnés. Une page de garde isolée est rattachée au document suivant. Les annexes d'un rapport restent groupées avec le rapport principal.",
 };

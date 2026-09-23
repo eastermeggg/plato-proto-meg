@@ -112,7 +112,7 @@ function RollingNumber({ value, style }) {
 
 const VARIANTS = [
   { key: 'A', name: 'La Liasse',   tagline: 'La pile est un objet. Éclater = l\'éventail s\'ouvre, garder = la sangle se pose.' },
-  { key: 'B', name: 'Le Massicot', tagline: 'Chaque frontière est une coupe visible. On coupe, on recolle — le geste est l\'explication.' },
+  { key: 'B', name: 'Le Massicot', tagline: 'Chaque frontière est une coupe visible. On coupe, on recolle - le geste est l\'explication.' },
   { key: 'C', name: 'Le Curseur',  tagline: 'Pas un choix binaire : un grain. Une pièce ↔ par émetteur ↔ par document.' },
 ];
 
@@ -137,7 +137,7 @@ export default function SplitVariantsLab() {
                   : { background: 'transparent', color: colors.semantic.mutedForeground }
               }
             >
-              {v.key} — {v.name}
+              {v.key} - {v.name}
             </button>
           ))}
         </div>
@@ -320,8 +320,8 @@ function VariantALiasse() {
               </button>
             </div>
             <div className="text-[11px] text-foreground-muted mt-2" style={{ minHeight: 14 }}>
-              {hoverSide === 'keep' && 'La pile reste un seul objet — la sangle se pose.'}
-              {hoverSide === 'explode' && 'L\'éventail s\'ouvre — chaque document devient une pièce.'}
+              {hoverSide === 'keep' && 'La pile reste un seul objet - la sangle se pose.'}
+              {hoverSide === 'explode' && 'L\'éventail s\'ouvre - chaque document devient une pièce.'}
             </div>
           </div>
         </div>
@@ -449,7 +449,7 @@ function VariantBMassicot() {
   return (
     <div style={{ maxWidth: 880 }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Carte « À vérifier » — dépliée en établi de coupe</span>
+        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Carte « À vérifier » - dépliée en établi de coupe</span>
         <button onClick={reset} className="inline-flex items-center gap-1.5 text-[12px] text-foreground-secondary hover:text-foreground transition-colors">
           <RotateCcw className="w-3 h-3" strokeWidth={1.75} />
           Réinitialiser
@@ -503,7 +503,7 @@ function VariantBMassicot() {
           <div
             className="relative h-5 rounded border bg-surface"
             style={{ borderColor: colors.accents.sand.border }}
-            title="Minimap — un trait par coupe. Cliquer pour y aller."
+            title="Minimap - un trait par coupe. Cliquer pour y aller."
           >
             {boundaries.map((b, i) => (
               <button
@@ -603,7 +603,7 @@ const CutJunction = React.forwardRef(function CutJunction({ onHeal, anomaly, jus
         cursor: 'pointer',
       }}
       onClick={onHeal}
-      title="Recoller — fusionner les deux documents"
+      title="Recoller - fusionner les deux documents"
     >
       {/* cut line */}
       <div
@@ -771,7 +771,7 @@ function VariantCCurseur() {
   return (
     <div style={{ maxWidth: 720 }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Le grain de la pile — un seul contrôle, partout</span>
+        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Le grain de la pile - un seul contrôle, partout</span>
         <span className="text-[12px] tabular-nums text-foreground-secondary">
           <RollingNumber value={pieceCount} style={{ fontWeight: 600, color: colors.semantic.foreground }} /> pièce{pieceCount > 1 ? 's' : ''} · {total}
         </span>
@@ -849,7 +849,7 @@ function VariantCCurseur() {
             ))}
           </div>
         </div>
-        <div className="text-[11px] text-foreground-muted mt-2 px-2">La position du curseur est l'état — revenir en arrière, c'est annuler. Aucune confirmation nécessaire.</div>
+        <div className="text-[11px] text-foreground-muted mt-2 px-2">La position du curseur est l'état - revenir en arrière, c'est annuler. Aucune confirmation nécessaire.</div>
       </div>
 
       {/* Live preview — morphs with the grain */}
@@ -875,7 +875,7 @@ function VariantCCurseur() {
               <Layers className="w-3.5 h-3.5" strokeWidth={1.75} />
             </span>
             <div className="text-[13px] text-foreground flex-1">
-              <span className="font-medium">Factures — {g.emetteur}</span>
+              <span className="font-medium">Factures - {g.emetteur}</span>
               <span className="text-foreground-secondary"> ({g.segs.length}) · {formatEUR(sumCents(g.segs))}</span>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} />

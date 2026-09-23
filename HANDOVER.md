@@ -56,7 +56,11 @@ réconciliation Figma (72 tokens synchro, 3 dérives délibérées).
 5. **Régression visuelle multi-pages** : `data-demo` posé par `DemoCanvas`,
    spec itérant `componentDocs.json` (light + dark), baselines CI-only
    (`ds-visual.yml` + label `ds-baselines`).
-6. **Warnings doctor → 0** puis verrouillage `emoji` / `em-dash` en bloquant.
+6. **Émojis et cadratins → 0** dans les chaînes rendues, puis verrouillage
+   `emoji` / `em-dash` en bloquant (la règle ne peut plus se reformer). Les
+   ombres inline (`shadow-inline`, 91 occ, 62 valeurs sur mesure) restent en
+   warn : mapping vers l'échelle `shadows` = décision design steward
+   (SIGNALEMENTS §14), pas une migration mécanique.
 
 ## Vérifier / lancer
 
@@ -77,7 +81,8 @@ npm run ds:visual  # diffs visuels locaux (baselines en CI seulement)
       visibles dans l'inventaire et `ds-audit`. Promotion = décision steward
       (`ui/CLAUDE.md`).
 - [ ] **Arbitrages design ouverts** de SIGNALEMENTS (§11 conflits internes au
-      Figma, §12 crans typo / tokens focus, §13 primitives à créer).
+      Figma, §12 crans typo / tokens focus, §13 primitives à créer, §14 ombres
+      inline → échelle `shadows`).
 - [ ] **Licence de la fonte serif** `RL Para Trial Central` (Trial) à valider
       avant prod — encodée dans `fonts` du manifeste.
 - [ ] **Sort des labs `/ui-kit`** (`ECARTS.md` #7) et **`App.js` monolithe**

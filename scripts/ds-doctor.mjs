@@ -15,12 +15,14 @@
 //   manifest       ds.manifest.json absent, invalide ou chemins déclarés manquants
 //   docs           constat bloquant délégué à scripts/ds-check-docs.mjs (fiches)
 //   boundaries     constat délégué à scripts/ds-check-boundaries.mjs (packages)
+//   emoji          émoji dans une chaîne rendue (interdit dans l'UI Norma) —
+//                  verrouillé en bloquant le 23/09/2026 après passage à 0
+//   em-dash        tiret cadratin dans une chaîne rendue (préférer le tiret
+//                  simple ; le placeholder « — » seul est toléré) — verrouillé
+//                  en bloquant le 23/09/2026 après passage à 0
 // Règles informatives (warn, ne font jamais échouer) :
 //   hex-pending    hex listé dans doctor.pendingHex du manifeste : en attente
 //                  d'arbitrage steward (voir doctor.decisions, DECISIONS-HEX.md)
-//   emoji          émoji dans un fichier UI (interdit dans l'UI Norma)
-//   em-dash        tiret cadratin dans une chaîne (préférer le tiret simple ;
-//                  le placeholder « — » seul est toléré)
 //   shadow-inline  chaîne box-shadow inline (rgba…) hors tokens : utiliser
 //                  l'échelle shadows 2xs→3xl (tokens.js + classes shadow-*)
 //
@@ -140,12 +142,16 @@ const scan = (full, rel) => {
           ? `remplacer par le token ${token ? `« ${token} »` : 'équivalent'} (tokens.js / classe Tailwind nommée)`
           : 'hors palette : mapper sur un token proche ou faire entrer la valeur dans le thème (ds-decide)');
     }
-    if (EMOJI_RE.test(line)) {
-      add(rel, n, 'emoji', 'warn', line.trim().slice(0, 60),
+    // Émojis / cadratins : seules les chaînes RENDUES comptent — un commentaire
+    // n'est pas de l'UI (même périmètre que le check hex).
+    if (!isComment && EMOJI_RE.test(codePart)) {
+      add(rel, n, 'emoji', 'error', line.trim().slice(0, 60),
         'pas d\'émoji dans l\'UI Norma : icône lucide, typo ou motion');
     }
-    if (line.includes('—') && !/['"`]\s*—\s*['"`]/.test(line)) {
-      add(rel, n, 'em-dash', 'warn', line.trim().slice(0, 60),
+    // Les placeholders « — » seuls entre quotes sont retirés avant le test :
+    // seuls les cadratins restants (texte UI) comptent.
+    if (!isComment && codePart.replace(/(['"`])\s*—\s*\1/g, '').includes('—')) {
+      add(rel, n, 'em-dash', 'error', line.trim().slice(0, 60),
         'préférer le tiret simple « - » dans les textes UI (« — » seul = placeholder toléré)');
     }
     // Ombre inline (boxShadow: '0 … rgba(…)') hors tokens : l'échelle vit dans
@@ -219,7 +225,7 @@ if (JSON_OUT) {
     console.log(`${f.file}:${f.line} — ${f.rule} (${f.detail}) — ${f.fix}`);
   }
   if (errors.length > CAP) console.log(`… + ${errors.length - CAP} autres constats — utiliser --json ou --report`);
-  if (warns.length) console.log(`\n${warns.length} avertissement(s) non bloquant(s) (emoji / em-dash / shadow-inline / infos déléguées) — détail via --json`);
+  if (warns.length) console.log(`\n${warns.length} avertissement(s) non bloquant(s) (shadow-inline / hex-pending / infos déléguées) — détail via --json`);
   console.log(`\n${errors.length} constat(s) bloquant(s).`);
   process.exitCode = errors.length ? 1 : 0;
 }

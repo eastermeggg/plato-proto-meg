@@ -619,7 +619,7 @@ function genericSplits(totalPages) {
 }
 
 function buildDropFirstSplitRows(parentId, originalName, fakeSize, isRapport, poolEntry, renamedBase) {
-  const baseName = renamedBase || poolEntry.cleanName.split(/\s[-—]\s/)[0].trim();
+  const baseName = renamedBase || poolEntry.cleanName.split(/\s[\u2014-]\s/)[0].trim();
   return poolEntry.splits.map((split, si) => ({
     id: `${parentId}-split-${si}`,
     originalName,
@@ -1759,7 +1759,7 @@ export default function App() {
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
   const preferenceMasterPrompt = PREFERENCE_SLOT_IDS
-    .map(id => `— ${PREFERENCE_SLOT_LABELS[id]}\n${preferenceSlots[id] || ''}`)
+    .map(id => `- ${PREFERENCE_SLOT_LABELS[id]}\n${preferenceSlots[id] || ''}`)
     .join('\n\n');
   const [savedJurisprudences, setSavedJurisprudences] = useState([]);
   const [preferenceDragOver, setPreferenceDragOver] = useState(false);
@@ -3020,7 +3020,7 @@ export default function App() {
       if (!trimmed) return <br key={li} />;
       // Bullet points (— or -)
       const isBullet = trimmed.startsWith('— ') || trimmed.startsWith('- ');
-      const bulletContent = isBullet ? trimmed.replace(/^[—-]\s/, '') : trimmed;
+      const bulletContent = isBullet ? trimmed.replace(/^[\u2014-]\s/, '') : trimmed;
       // Parse inline: bold **text** and doc references « text »
       const parts = bulletContent.split(/(\*\*[^*]+\*\*|«\s*[^»]+\s*»)/g);
       const rendered = parts.map((part, pi) => {
@@ -3065,7 +3065,7 @@ export default function App() {
   // Matter type of the active dossier — drives the Dossier + Chiffrage layout fork (corporel vs droit social).
   const activeMatterType = (dossiers.find(d => d.id === activeDossierId) || {}).matterType || 'corporel';
 
-  const fmt = (n) => n != null ? n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '— €';
+  const fmt = (n) => n != null ? n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '- €';
   const getPieceLabel = (pieceId) => {
     const idx = pieces.findIndex(p => p.id === pieceId);
     return idx >= 0 ? `P${idx + 1}` : '?';
@@ -3409,7 +3409,7 @@ export default function App() {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-foreground-muted">—</span>
+                        <span className="text-xs text-foreground-muted">-</span>
                       )}
                     </div>
                     {/* Options */}
@@ -4357,7 +4357,7 @@ export default function App() {
         type: 'user', text: '/prp'
       }, {
         type: 'ai',
-        text: "Pour calculer les **Pertes de Revenus des Proches**, j'ai besoin des documents suivants :\n\n— **Acte de décès** (obligatoire)\n— **Avis d'imposition** du défunt et du conjoint (3 dernières années si possible)\n— **Bulletins de salaire** du défunt (12 derniers mois)\n— **Décompte Sécu / CARSAT** (pension de réversion, capital décès)\n— **Livret de famille** (composition du foyer)\n\nVous pouvez les déposer directement dans le chat ou taper `/prp-compute` pour lancer le calcul avec les données déjà au dossier."
+        text: "Pour calculer les **Pertes de Revenus des Proches**, j'ai besoin des documents suivants :\n\n- **Acte de décès** (obligatoire)\n- **Avis d'imposition** du défunt et du conjoint (3 dernières années si possible)\n- **Bulletins de salaire** du défunt (12 derniers mois)\n- **Décompte Sécu / CARSAT** (pension de réversion, capital décès)\n- **Livret de famille** (composition du foyer)\n\nVous pouvez les déposer directement dans le chat ou taper `/prp-compute` pour lancer le calcul avec les données déjà au dossier."
       }]);
       return;
     }
@@ -4381,7 +4381,7 @@ export default function App() {
         type: 'user', text: '/prp-compute'
       }, {
         type: 'ai',
-        text: '**Raisonnement :**\n\n— ' + reasoning.join('\n— ') + `\n\n**Résultat :** ${fmt(Math.round(total))} en capital${totalRente > 0 ? ` + ${fmt(Math.round(totalRente))} / an de rentes` : ''}.\n\nJ'ai mis à jour la cascade dans le panneau de droite. Tapez \`/prp-alerts\` pour voir les zones potentiellement attaquables.`
+        text: '**Raisonnement :**\n\n- ' + reasoning.join('\n- ') + `\n\n**Résultat :** ${fmt(Math.round(total))} en capital${totalRente > 0 ? ` + ${fmt(Math.round(totalRente))} / an de rentes` : ''}.\n\nJ'ai mis à jour la cascade dans le panneau de droite. Tapez \`/prp-alerts\` pour voir les zones potentiellement attaquables.`
       }]);
       // Open PRP poste view
       navigateTo({ id: 'prp', title: 'PRP', fullTitle: 'Pertes de revenus des proches', type: 'poste', montant: total });
@@ -4392,19 +4392,19 @@ export default function App() {
       const lignes = ivPosteData['prp']?.lignes || [];
       const foyer = computePrpFoyer(shared, victimesIndirectes);
       const alerts = [];
-      if (foyer.partAutoConso > 35) alerts.push(`⚠️ Auto-consommation à ${foyer.partAutoConso}% - supérieur à la fourchette habituelle (15-35%), attaquable.`);
-      if (foyer.partAutoConso < 15 && foyer.partAutoConso > 0) alerts.push(`ℹ️ Auto-consommation à ${foyer.partAutoConso}% - en dessous des seuils habituels.`);
+      if (foyer.partAutoConso > 35) alerts.push(`Attention : auto-consommation à ${foyer.partAutoConso}% - supérieur à la fourchette habituelle (15-35%), attaquable.`);
+      if (foyer.partAutoConso < 15 && foyer.partAutoConso > 0) alerts.push(`Auto-consommation à ${foyer.partAutoConso}% - en dessous des seuils habituels.`);
       const conjointVI = victimesIndirectes.find(v => ['Épouse','Époux','Concubin','Concubine','Partenaire'].includes(v.lien));
       const conjointLigne = conjointVI ? lignes.find(l => l.victimeId === conjointVI.id) : null;
       if (conjointVI && conjointLigne && !(conjointLigne.deductionsTP || []).some(d => d.type === 'pension-reversion' && (d.montantAnnuel || 0) > 0)) {
-        alerts.push(`⚠️ Pension de réversion non déclarée pour ${conjointVI.prenom} ${conjointVI.nom} - risque de rejet par la défense.`);
+        alerts.push(`Attention : pension de réversion non déclarée pour ${conjointVI.prenom} ${conjointVI.nom} - risque de rejet par la défense.`);
       }
       const sumParts = lignes.reduce((s, l) => s + (l.partIndividuelle || 0), 0);
-      if (sumParts !== 100 && sumParts > 0) alerts.push(`⚠️ Somme des parts : ${sumParts}% (devrait être 100%).`);
+      if (sumParts !== 100 && sumParts > 0) alerts.push(`Attention : somme des parts : ${sumParts}% (devrait être 100%).`);
       const missingCoeff = lignes.find(l => (l.mode || 'capitalisation') === 'capitalisation' && !l.coeffCapitalisation);
       if (missingCoeff) {
         const vi = victimesIndirectes.find(v => v.id === missingCoeff.victimeId);
-        if (vi) alerts.push(`⚠️ Coefficient de capitalisation manquant pour ${vi.prenom} ${vi.nom}.`);
+        if (vi) alerts.push(`Attention : coefficient de capitalisation manquant pour ${vi.prenom} ${vi.nom}.`);
       }
       setChatMessages(prev => [...prev, {
         type: 'user', text: '/prp-alerts'
@@ -4412,7 +4412,7 @@ export default function App() {
         type: 'ai',
         text: alerts.length > 0
           ? '**Points d\'attention sur le calcul PRP :**\n\n' + alerts.map(a => '— ' + a).join('\n')
-          : '✅ Aucune zone attaquable détectée sur le calcul PRP en l\'état.'
+          : 'Aucune zone attaquable détectée sur le calcul PRP en l\'état.'
       }]);
       return;
     }
@@ -5643,7 +5643,7 @@ export default function App() {
                     >
                       <div className="w-1.5 h-1.5" style={{ background: dsColors.banner.success.border, transform: 'rotate(45deg)' }} />
                       <span style={{ fontSize: 11, fontWeight: 500, color: dsColors.icon.success, fontFamily: "'IBM Plex Mono', monospace" }}>{msg.tool}</span>
-                      {msg.detail && <span style={{ fontSize: 11, color: dsColors.banner.success.accentHover }}>— {msg.detail}</span>}
+                      {msg.detail && <span style={{ fontSize: 11, color: dsColors.banner.success.accentHover }}>- {msg.detail}</span>}
                     </div>
                     {msg.expanded && msg.expandedText && (
                       <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>{msg.expandedText}</span>
@@ -7962,7 +7962,7 @@ export default function App() {
                             {(data.diffType === 'add' || ijHasDiff('tiers')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
                           <select id="pgpa-ij-tiers" defaultValue={data.tiers || ''} className={ijInputCls} style={ijInputShadow}>
-                            <option value="">— Sélectionner —</option>
+                            <option value="">- Sélectionner -</option>
                             {chiffrageParams.tiersPayeurs.map((t, i) => (
                               <option key={i} value={t}>{t}</option>
                             ))}
@@ -8832,7 +8832,7 @@ export default function App() {
 
         {/* Montant - PRIORITAIRE */}
         <span className="text-body-medium font-semibold text-foreground tabular-nums min-w-[90px] text-right flex-shrink-0">
-          {ligne.montant != null ? fmt(ligne.montant) : '— €'}
+          {ligne.montant != null ? fmt(ligne.montant) : '- €'}
         </span>
 
         {/* Actions en overlay au hover - minimaliste */}
@@ -12965,7 +12965,7 @@ export default function App() {
                             {montant > 0 ? (
                               <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(montant)}</span>
                             ) : (
-                              <span style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>—</span>
+                              <span style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>-</span>
                             )}
                           </div>
                           <div className="w-11 flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -13048,7 +13048,7 @@ export default function App() {
                           {row.ligne.montant > 0 ? (
                             <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(row.ligne.montant)}</span>
                           ) : (
-                            <span style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>—</span>
+                            <span style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>-</span>
                           )}
                         </div>
                         {/* Actions */}
@@ -13243,7 +13243,7 @@ export default function App() {
                         {mensuel > 0 ? (
                           <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(mensuel))}<span className="text-[14px] text-foreground-secondary ml-1">/ mois</span></span>
                         ) : (
-                          <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                          <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                         )}
                         {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                       </div>
@@ -13350,7 +13350,7 @@ export default function App() {
                           {revenuTotal > 0 ? (
                             <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(revenuTotal))}<span className="text-[14px] text-foreground-secondary ml-1">/ an</span></span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                           )}
                           {isIvCardExpanded(`iv-${ivPosteId}-d-revenu`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                         </div>
@@ -13415,7 +13415,7 @@ export default function App() {
                           {perteAnnuelle > 0 ? (
                             <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(perteAnnuelle))}<span className="text-[14px] text-foreground-secondary ml-1">/ an</span></span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                           )}
                           {isIvCardExpanded(`iv-${ivPosteId}-d-calcul`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                         </div>
@@ -13608,7 +13608,7 @@ export default function App() {
                           ) : totalRenteAnnuelle > 0 ? (
                             <span style={serifAmountStyle} className="text-brand-darker-subtle-foreground">{fmt(Math.round(totalRenteAnnuelle))} / an</span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                           )}
                           <ChevronRight className={`w-4 h-4 text-foreground-secondary transition-transform ${isIvCardExpanded(`iv-${ivPosteId}-d-recap`) ? 'rotate-90' : ''}`} />
                         </div>
@@ -15686,7 +15686,7 @@ export default function App() {
           {/* Track B hint - no rapport */}
           {allDone && !dropFirstHasRapport && !rapportBannerDismissed && (
             <div className="mt-3 px-4 py-3 text-sm text-foreground-secondary flex items-center gap-2">
-              <span>💡</span>
+              <Lightbulb className="w-4 h-4 shrink-0" />
               <span>Astuce : ajoutez un rapport d'expertise pour remplir automatiquement les informations du dossier.</span>
             </div>
           )}
@@ -18274,13 +18274,13 @@ export default function App() {
                   {resolved ? <span style={{ fontSize: 14, color: dsColors.semantic.mutedForeground }}>{showDate}</span> : isPending && isDel ? delVal(r.date) : isPending && r.oldDate ? <>{oldVal(r.oldDate)}{newVal(r.date, { fontWeight: 500 })}</> : <span style={{ fontSize: 14, color: dsColors.semantic.mutedForeground }}>{r.date}</span>}
                 </div>
                 <div className="flex-1 min-w-0 px-2 text-right">
-                  {resolved ? (showMontant ? newVal(showMontant, { color: dsColors.semantic.foregroundTertiary }) : <span style={{ color: dsColors.semantic.foregroundMuted }}>—</span>) : r.montant == null && r.oldMontant && isPending ? delVal(r.oldMontant) : isPending && isDel ? delVal(r.montant) : isPending && r.oldMontant ? <>{oldVal(r.oldMontant)}{newVal(r.montant)}</> : r.montant ? newVal(r.montant, { color: dsColors.semantic.foregroundTertiary }) : <span style={{ color: dsColors.semantic.foregroundMuted }}>—</span>}
+                  {resolved ? (showMontant ? newVal(showMontant, { color: dsColors.semantic.foregroundTertiary }) : <span style={{ color: dsColors.semantic.foregroundMuted }}>-</span>) : r.montant == null && r.oldMontant && isPending ? delVal(r.oldMontant) : isPending && isDel ? delVal(r.montant) : isPending && r.oldMontant ? <>{oldVal(r.oldMontant)}{newVal(r.montant)}</> : r.montant ? newVal(r.montant, { color: dsColors.semantic.foregroundTertiary }) : <span style={{ color: dsColors.semantic.foregroundMuted }}>-</span>}
                 </div>
                 <div className="flex-1 min-w-0 px-2 text-right">
                   {resolved ? resteCell({ resteBase: showResteBase, reste: showReste }, false) : isPending && r.oldReste ? <>{resteCell({ resteBase: r.oldResteBase, reste: r.oldReste }, true)}{resteCell(r, false)}</> : resteCell(r, isPending && isDel)}
                 </div>
                 <div className="flex-1 min-w-0 px-2 text-right">
-                  {r.diffType ? diffTag(r.diffType) : <span className="text-counter text-foreground-muted">—</span>}
+                  {r.diffType ? diffTag(r.diffType) : <span className="text-counter text-foreground-muted">-</span>}
                 </div>
                 {isPending && r.diffType && renderBtns(r.id)}
               </div>
@@ -19420,9 +19420,9 @@ export default function App() {
         ].map((row, i) => (
           <div key={i} className="flex items-center" style={{ borderBottom: i < 2 ? `1px solid ${dsColors.semantic.backgroundSubtle}` : 'none', padding: '10px 16px' }}>
             <span className="text-body-medium text-foreground" style={{ width: 200 }}>{row.surface}</span>
-            <span className="flex-1 text-body" style={{ color: row.sees ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.sees ? '✓ Sees diff' : '✗ Banner only'}</span>
-            <span className="flex-1 text-body" style={{ color: row.canAccept ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.canAccept ? '✓ Accept/Reject' : '✗ Save = implicit accept'}</span>
-            <span className="flex-1 text-body" style={{ color: row.canEdit ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.canEdit ? '✓ Full edit' : '✗ Read-only'}</span>
+            <span className="flex-1 text-body" style={{ color: row.sees ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.sees ? 'Sees diff' : 'Banner only'}</span>
+            <span className="flex-1 text-body" style={{ color: row.canAccept ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.canAccept ? 'Accept/Reject' : 'Save = implicit accept'}</span>
+            <span className="flex-1 text-body" style={{ color: row.canEdit ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.canEdit ? 'Full edit' : 'Read-only'}</span>
           </div>
         ))}
       </div>
@@ -23113,7 +23113,7 @@ export default function App() {
                           {amounts.mode === 'capitalisation' ? (
                             <span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{amounts.coeff}</span>
                           ) : (
-                            <span style={{ fontSize: 13, color: dsColors.semantic.borderStrong }}>—</span>
+                            <span style={{ fontSize: 13, color: dsColors.semantic.borderStrong }}>-</span>
                           )}
                         </div>
                         <div className="w-[110px] px-2 text-right">
@@ -24098,7 +24098,7 @@ export default function App() {
       <div className="border border-border rounded-lg bg-surface overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foreground }}>
-            {variant === 'inline' ? 'UX A — expand dans le chat' : 'UX B — panneau latéral'}
+            {variant === 'inline' ? 'UX A - expand dans le chat' : 'UX B - panneau latéral'}
           </span>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 border border-border rounded overflow-hidden">
@@ -24525,7 +24525,7 @@ export default function App() {
             {/* ══════════════════════════════════════════════════════════════ */}
             <h1 style={sH1}>Tâches parallèles</h1>
             <p style={{ ...sP, maxWidth: 700 }}>
-              Quand plusieurs sous-agents tournent en même temps, on ne montre pas N traces empilées. Chaque groupe se réduit à <b>une ligne inline</b> dans le chat&nbsp;: <span style={sCode}>gif + «&nbsp;{'{x}'} tâches simultanément en cours&nbsp;»</span>, puis un état terminé avec compteurs agrégés. Plusieurs lignes de ce type peuvent coexister dans la conversation. Cliquer une ligne la déplie — deux UX au choix (<span style={sCode}>variant="inline"</span> / <span style={sCode}>variant="panel"</span>).
+              Quand plusieurs sous-agents tournent en même temps, on ne montre pas N traces empilées. Chaque groupe se réduit à <b>une ligne inline</b> dans le chat&nbsp;: <span style={sCode}>gif + «&nbsp;{'{x}'} tâches simultanément en cours&nbsp;»</span>, puis un état terminé avec compteurs agrégés. Plusieurs lignes de ce type peuvent coexister dans la conversation. Cliquer une ligne la déplie - deux UX au choix (<span style={sCode}>variant="inline"</span> / <span style={sCode}>variant="panel"</span>).
             </p>
 
             {/* States — the line itself */}
@@ -24660,7 +24660,7 @@ export default function App() {
       {/* Fiche cabinet modal */}
       {ficheCabinetModalRef && (
         <FicheCabinetModal
-          reference={ficheCabinetModalRef.ref?.raw?.replace(/^[\s•·\-—*]+/, '').trim() || ''}
+          reference={ficheCabinetModalRef.ref?.raw?.replace(/^[\s•·\u2014\-*]+/, '').trim() || ''}
           existing={ficheCabinetModalRef.customJP}
           onClose={() => setFicheCabinetModalRef(null)}
           onSave={({ pdfFileName, pdfDataURL, url, impact }) => {
@@ -24669,8 +24669,8 @@ export default function App() {
             jp.upsertCustomJP({
               ...(ficheCabinetModalRef.customJP || {}),
               id,
-              reference: (r.raw || '').replace(/^[\s•·\-—*]+/, '').trim(),
-              jurisdiction: r.court || (r.raw || '').replace(/^[\s•·\-—*]+/, '').split(',')[0].trim(),
+              reference: (r.raw || '').replace(/^[\s•·\u2014\-*]+/, '').trim(),
+              jurisdiction: r.court || (r.raw || '').replace(/^[\s•·\u2014\-*]+/, '').split(',')[0].trim(),
               chambre: r.chamber,
               date: r.dateISO || '',
               numero: r.numero,

@@ -227,7 +227,7 @@ export default function JPAddStepper({
                     type="text"
                     value={searchQuery}
                     onChange={(e) => { setSearchQuery(e.target.value); setSearchSelectedId(null); }}
-                    placeholder="Juridiction, numéro, poste — ou référence libre…"
+                    placeholder="Juridiction, numéro, poste - ou référence libre…"
                     className="w-full px-3 py-2 text-[14px] rounded-md border border-border bg-surface text-foreground placeholder-foreground-muted focus:outline-none focus:border-info-border"
                   />
                   {searchQuery.trim() && searchResults.length === 0 && (

@@ -117,7 +117,7 @@ function TamponnageToggle({ on, disabled, onToggle }) {
       className={`w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] transition-colors ${
         disabled ? 'cursor-not-allowed' : 'hover:bg-background'
       }`}
-      title={disabled ? "Le tamponnage s'applique aux pièces — sélectionnez Bordereau seul ou Tout." : undefined}
+      title={disabled ? "Le tamponnage s'applique aux pièces - sélectionnez Bordereau seul ou Tout." : undefined}
     >
       <span className="inline-flex items-center gap-2">
         <Stamp
