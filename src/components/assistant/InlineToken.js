@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors } from '../../design-system/tokens';
 
 // ── InlineToken ──────────────────────────────────────────────────────
 // Typed, non-breaking reference token inserted in the composer's rich
@@ -36,7 +37,7 @@ export function createTokenSpan(token) {
     g.textContent = glyph;
     g.style.fontFamily = "'IBM Plex Mono', monospace";
     g.style.fontSize = '10px';
-    g.style.color = '#78716c';
+    g.style.color = colors.semantic.mutedForeground;
     g.style.marginRight = '4px';
     span.appendChild(g);
   }

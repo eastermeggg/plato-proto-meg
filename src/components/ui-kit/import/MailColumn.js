@@ -10,14 +10,19 @@
 // (source de vérité unique).
 
 import React, { useMemo, useRef, useState } from 'react';
-import { Check, ChevronRight, Folder, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck, FileText } from 'lucide-react';
+import { ArrowRight, ChevronRight, FolderOpen, Inbox, ListCollapse, Mail, Paperclip, Search, X, CheckCheck } from 'lucide-react';
 import {
   normalize, relDate, LAB_THREADS, LAB_FOLDERS,
   folderById, folderBreadcrumb, childFolders, rootFolders, statsForDeep, threadsOfFolder,
   threadView, folderOfThread, ancestorFolderIds, DEJA_LIE, threadPreview,
 } from './labData';
 import { AjouteBadge, AjouterChip, DejaSuiviBadge, DejaImporteBadge, ConnectScreen, monoLabel, usePhase2 } from './atoms';
+import { MetaDot, V2 } from '../import-v2/pieceRow';
 import outlookLogo from '../../../assets/outlook.svg';
+
+// Compteurs de la ligne méta (« 2 » de PJ, « 3 msg ») : mono 11 uppercase,
+// comme le caption/header-cols de la planche Threads.
+const metaMono = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11 };
 
 // Carte au survol : comprendre un échange sans l'ouvrir. Flotte à droite de la
 // ligne survolée (position fixe → échappe au clip de la colonne).
@@ -36,7 +41,7 @@ function ThreadPreviewCard({ tid, rect }) {
     >
       <div className="px-3.5 pt-3 pb-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-start gap-2">
-          <Mail className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
+          <Mail className="w-4 h-4 flex-shrink-0 mt-0.5 text-foreground-secondary" strokeWidth={2} />
           <div className="min-w-0">
             <p className={`text-[13px] leading-4 ${p.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{p.subject}</p>
             <p className="text-[11px] text-foreground-muted mt-0.5 truncate">{p.sender} · {p.date}</p>
@@ -48,10 +53,10 @@ function ThreadPreviewCard({ tid, rect }) {
         <p className="mb-1.5" style={monoLabel}>Pièces · {p.pieces.length}</p>
         <div className="flex flex-col gap-1.5">
           {p.pieces.map((pc, i) => {
-            const Icon = pc.kind === 'body' ? Mail : FileText;
+            const Icon = pc.kind === 'body' ? Mail : Paperclip;
             return (
               <div key={i} className="flex items-start gap-2 min-w-0">
-                <Icon className="w-3.5 h-3.5 flex-shrink-0 mt-px" strokeWidth={1.75} style={{ color: pc.kind === 'body' ? '#1e3a8a' : '#b4483c' }} />
+                <Icon className="w-3.5 h-3.5 flex-shrink-0 mt-px" strokeWidth={2} style={{ color: pc.kind === 'body' ? V2.muted : V2.pjMini }} />
                 <div className="min-w-0">
                   <p className="text-[12px] text-foreground truncate">
                     {pc.name}
@@ -83,7 +88,7 @@ const CAP_FOLDERS = 8;
 
 function MonoHeader({ children, right }) {
   return (
-    <div className="flex items-center justify-between px-3 pt-2 pb-1">
+    <div className="flex items-center justify-between px-4 pt-3 pb-1.5">
       <span style={monoLabel}>{children}</span>
       {right}
     </div>
@@ -92,7 +97,7 @@ function MonoHeader({ children, right }) {
 
 function CapLine({ n, hint = 'affinez la recherche' }) {
   if (n <= 0) return null;
-  return <p className="px-3 py-1.5 text-[11px] text-foreground-muted">+ {n} autre{n > 1 ? 's' : ''} - {hint}</p>;
+  return <p className="px-4 py-1.5 text-[11px] text-foreground-muted">+ {n} autre{n > 1 ? 's' : ''} - {hint}</p>;
 }
 
 // « Tout sélectionner · N échanges » (spec §9) : prend d'un coup TOUS les
@@ -218,12 +223,15 @@ export default function MailColumn({
   };
 
   const coveredLines = (covered) => covered.map(([name, n]) => (
-    <p key={name} className="px-3 py-1.5 text-[11px] text-foreground-muted">
+    <p key={name} className="px-4 py-1.5 text-[11px] text-foreground-muted">
       {n} échange{n > 1 ? 's' : ''} inclus via « {name} » - aperçu dans le panier
     </p>
   ));
 
-  // ── Ligne dossier ──
+  // ── Ligne dossier (planche « Import / Inbox / Folder » 3315:64853) ──
+  // p-12, gap-8, chevron 12 · folder-open 16 VERT · nom 14 medium, border-b ;
+  // Ajouté / inerte = contenu à 50 %, badge à pleine opacité ; survol = fond
+  // accent + bouton primaire « + Ajouter » sur voile dégradé.
   const folderRow = (f, { showPath = false } = {}) => {
     const fid = f.id;
     const dejaSuivi = phase2 && dejaSuiviFolderIds.has(fid);
@@ -232,41 +240,38 @@ export default function MailColumn({
     // Couvert par un dossier parent déjà pris : inerte, la raison est nommée.
     const coveredBy = !taken ? coveringFolderOf(f.parentId) : null;
     const inert = dejaSuivi || !!dejaLie || !!coveredBy;
+    const dimmed = inert || taken;
     const st = statsForDeep(fid);
     const isInbox = (f.attributes || []).includes('\\Inbox');
-    const Icon = isInbox ? Inbox : Folder;
+    const Icon = isInbox ? Inbox : FolderOpen;
     return (
       <div
         key={fid}
-        className={`group relative flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || taken ? '' : 'hover:bg-cream/60'}`}
-        style={inert ? { opacity: 0.55 } : undefined}
+        className={`group relative flex items-center gap-2 p-3 bg-surface border-b border-border transition-colors ${dimmed ? '' : 'hover:bg-background'}`}
       >
         <button
           type="button"
           onClick={() => { if (!dejaSuivi && !coveredBy && !taken) enter(fid); }}
-          className={`flex-1 min-w-0 flex items-center gap-2.5 text-left ${dejaSuivi || coveredBy || taken ? 'cursor-default' : ''}`}
-          style={dejaSuivi || coveredBy || taken ? { pointerEvents: 'none' } : undefined}
+          className={`flex-1 min-w-0 flex items-center gap-2 text-left ${dimmed ? 'cursor-default' : ''}`}
+          style={dimmed ? { pointerEvents: 'none' } : undefined}
+          title={dimmed ? undefined : `${st.threads} échange${st.threads > 1 ? 's' : ''} · ${st.pieces} pièces`}
         >
-          <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
-          <span className="flex-1 min-w-0">
-            <span className="text-[13px] text-foreground truncate block">{f.name}</span>
+          <ChevronRight className={`w-3 h-3 text-foreground-secondary flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2} />
+          <Icon className={`w-4 h-4 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.folder }} />
+          <span className={`flex-1 min-w-0 ${dimmed ? 'opacity-50' : ''}`}>
+            <span className="text-[14px] leading-5 font-medium text-foreground truncate block">{f.name}</span>
             {coveredBy ? (
-              <span className="text-[11px] text-foreground-secondary truncate block">Déjà couvert par « {folderBreadcrumb(coveredBy)} »</span>
+              <span className="text-xs leading-4 text-foreground-secondary truncate block">Déjà couvert par « {folderBreadcrumb(coveredBy)} »</span>
             ) : showPath ? (
-              <span className="text-[11px] text-foreground-muted truncate block">{folderBreadcrumb(f)}</span>
+              <span className="text-xs leading-4 text-foreground-muted truncate block">{folderBreadcrumb(f)}</span>
             ) : null}
           </span>
           {!taken && !coveredBy && (dejaSuivi ? <DejaSuiviBadge />
             : dejaLie ? (
-              <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-warning-subtle text-warning-text text-[12px] leading-4 font-medium flex-shrink-0 whitespace-nowrap">
                 Déjà lié à {dejaLie}
               </span>
-            ) : (
-              <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">
-                {st.threads} échange{st.threads > 1 ? 's' : ''} · {st.pieces} pièces
-              </span>
-            ))}
-          {!inert && !taken && <ChevronRight className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />}
+            ) : null)}
         </button>
         {taken && <AjouteBadge onRemove={() => removeFolder(fid)} title="Retirer le dossier" />}
         {!inert && !taken && <AjouterChip onAdd={() => takeFolder(fid)} title="Ajouter tout le dossier (sous-dossiers compris)" />}
@@ -274,7 +279,11 @@ export default function MailColumn({
     );
   };
 
-  // ── Ligne thread (composite dépliable) ──
+  // ── Ligne thread (planche « Import / Inbox / Threads » 3330:32733) ──
+  // p-14, gap-8, chevron 12 · titre 14 medium · méta 12 (date medium · exp ·
+  // trombone 12 + compteur mono 11) · aperçu 12 derrière un filet violet
+  // (border-l-2 ai-text) ; ajouté/inclus/inerte = contenu à 50 %, badge plein ;
+  // survol = fond accent + bouton primaire « + Ajouter » sur voile dégradé.
   const threadRow = (tv) => {
     const tid = tv.id;
     const dejaSuivi = phase2 && dejaSuiviThreadIds.has(tid);
@@ -285,67 +294,77 @@ export default function MailColumn({
     const importedDone = state.kind === 'imported-done';
     const importedDelta = state.kind === 'imported-delta';
     const inert = baseInert || importedDone; // rien de neuf → inerte
+    const dimmed = inert || state.kind === 'full'; // Figma : added / included / inertes
     return (
       <React.Fragment key={tid}>
         <div
-          className={`group relative flex items-start gap-2.5 px-3 py-2 rounded-lg transition-colors ${inert || state.kind === 'full' ? '' : 'hover:bg-cream/50'}`}
-          style={inert ? { opacity: 0.55 } : undefined}
+          className={`group relative flex items-start gap-2 p-3.5 bg-surface border-b border-border transition-colors ${dimmed ? '' : 'hover:bg-background'}`}
           onMouseEnter={(e) => openPreview(tid, e.currentTarget)}
           onMouseLeave={closePreview}
         >
-          {/* Corps de ligne : clic = prendre l'échange. Un échange AJOUTÉ reste
-              en plein contraste (c'est un objet acquis, pas un impossible) - le
-              badge « Ajouté » porte le seul retrait ; le contenu n'est pas
-              cliquable. L'estompage est réservé aux impossibles (inert). */}
+          <span className={`flex items-center py-1 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`}>
+            <ChevronRight className="w-3 h-3 text-foreground-secondary" strokeWidth={2} />
+          </span>
+          {/* Corps de ligne : clic = prendre l'échange. Le badge « Ajouté »
+              porte le seul retrait ; le contenu n'est alors pas cliquable. */}
           <button
             type="button"
-            onClick={inert || state.kind === 'full' ? undefined : () => (importedDelta ? takeThreadDelta(tid) : takeThread(tid))}
-            className={`flex-1 min-w-0 flex flex-col gap-0.5 text-left ${inert || state.kind === 'full' ? 'cursor-default' : ''}`}
-            style={state.kind === 'full' ? { pointerEvents: 'none' } : undefined}
-            title={inert || state.kind === 'full' ? undefined : importedDelta ? 'Ajouter les nouvelles pièces' : state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter cet échange'}
+            onClick={dimmed ? undefined : () => (importedDelta ? takeThreadDelta(tid) : takeThread(tid))}
+            className={`flex-1 min-w-0 flex flex-col gap-2 text-left ${dimmed ? 'opacity-50 cursor-default' : ''}`}
+            style={dimmed ? { pointerEvents: 'none' } : undefined}
+            title={dimmed ? undefined : importedDelta ? 'Ajouter les nouvelles pièces' : state.kind === 'partial' ? 'Ajouter le reste' : 'Ajouter cet échange'}
           >
-            <span className="flex items-center gap-2.5 min-w-0">
-              <span className={`flex-1 min-w-0 text-[13px] leading-5 truncate ${tv.illegible ? 'italic text-foreground-secondary font-normal' : 'font-medium text-foreground'}`}>{tv.subject}</span>
-              {state.kind === 'partial' && (
-                <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 tabular-nums" style={{ backgroundColor: '#eeece6', color: '#78716c' }}>
-                  <Check className="w-2.5 h-2.5" strokeWidth={2.5} /> {state.taken} sur {state.total} ajouté
+            <span className="flex flex-col gap-0.5 min-w-0 w-full">
+              <span className={`text-[14px] leading-5 truncate ${tv.illegible ? 'italic text-foreground-secondary font-normal' : 'font-medium text-foreground'}`}>{tv.subject}</span>
+              <span className="flex items-center gap-1 min-w-0">
+                <span className="text-xs leading-4 font-medium text-foreground-secondary flex-shrink-0 tabular-nums">{relDate(tv.date)}</span>
+                <MetaDot />
+                <span className="text-xs leading-4 text-foreground-secondary truncate" style={{ letterSpacing: 0.12 }}>
+                  {covered ? `Inclus via « ${coveredBy.name} »` : tv.sender}
                 </span>
-              )}
-              {(importedDone || importedDelta) && <DejaImporteBadge />}
-              {dejaSuivi ? <DejaSuiviBadge /> : (
-                <span className="text-[11px] text-foreground-muted flex-shrink-0 tabular-nums">{relDate(tv.date)}</span>
-              )}
-            </span>
-            <span className="flex items-center gap-2 min-w-0">
-              <span className="text-[11px] text-foreground-secondary truncate leading-4">
-                {covered ? `Inclus via « ${coveredBy.name} »` : tv.sender}
+                {tv.illegible && <span className="text-[10px] italic text-foreground-muted flex-shrink-0">objet illisible</span>}
+                {tv.msg > 1 && !covered && (
+                  <>
+                    <MetaDot />
+                    <span className="inline-flex items-center gap-1 flex-shrink-0">
+                      <Mail className="w-3 h-3 text-foreground-secondary" strokeWidth={2} />
+                      <span className="font-medium uppercase text-foreground-secondary" style={metaMono}>{tv.msg} msg</span>
+                    </span>
+                  </>
+                )}
+                {tv.pj > 0 && !covered && (
+                  <>
+                    <MetaDot />
+                    <span className="inline-flex items-center gap-1 flex-shrink-0">
+                      <Paperclip className="w-3 h-3 text-info-text" strokeWidth={2} />
+                      <span className="font-medium uppercase text-foreground-secondary" style={metaMono}>{tv.pj}</span>
+                    </span>
+                  </>
+                )}
               </span>
-              {tv.illegible && <span className="text-[10px] italic text-foreground-muted flex-shrink-0">objet illisible</span>}
-              {tv.msg > 1 && !covered && (
-                <span className="inline-flex items-center gap-1 flex-shrink-0">
-                  <Mail className="w-3 h-3 opacity-60 text-foreground-secondary" strokeWidth={1.75} />
-                  <span className="text-[10px] font-medium uppercase text-foreground-secondary" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{tv.msg} msg</span>
-                </span>
-              )}
-              {tv.pj > 0 && !covered && (
-                <span className="inline-flex items-center gap-1 flex-shrink-0">
-                  <Paperclip className="w-3 h-3 opacity-60 text-foreground-secondary" strokeWidth={1.75} />
-                  <span className="text-[10px] font-medium uppercase text-foreground-secondary" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{tv.pj} PJ</span>
-                </span>
-              )}
             </span>
-            {/* Ligne 3 : aperçu du fil - OU, pour un fil déjà importé, l'état
-                de complétude (le delta à ajouter, ou « à jour »). */}
+            {/* Ligne 3 : aperçu du fil derrière le filet violet - OU, pour un
+                fil déjà importé, l'état de complétude (delta ou « à jour »). */}
             {importedDelta ? (
-              <span className="text-[11px] truncate leading-4 mt-px font-medium" style={{ color: '#855b31' }}>
+              <span className="w-full border-l-2 border-warning pl-2 text-xs leading-4 font-medium text-warning-text">
                 {state.deltaN} nouvelle{state.deltaN > 1 ? 's' : ''} pièce{state.deltaN > 1 ? 's' : ''} depuis l'import du {state.importedOn}
               </span>
             ) : importedDone ? (
-              <span className="text-[11px] text-foreground-muted truncate leading-4 mt-px">Importé le {state.importedOn} · à jour</span>
+              <span className="w-full border-l-2 border-border pl-2 text-xs leading-4 text-foreground-muted truncate">Importé le {state.importedOn} · à jour</span>
             ) : tv.summary && !covered ? (
-              <span className="text-[11px] text-foreground-muted truncate leading-4 mt-px">{tv.summary}</span>
+              <span className="w-full border-l-2 border-ai-text pl-2 text-xs leading-4 text-foreground-secondary line-clamp-2" style={{ letterSpacing: 0.12 }}>
+                {tv.summary}
+              </span>
             ) : null}
           </button>
+          {/* Badges à droite, toujours à pleine opacité. */}
+          {state.kind === 'partial' && (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-secondary text-secondary-foreground text-[12px] leading-4 font-medium flex-shrink-0 tabular-nums whitespace-nowrap">
+              {state.taken}/{state.total} ajouté
+            </span>
+          )}
+          {(importedDone || importedDelta) && <DejaImporteBadge />}
+          {dejaSuivi && <DejaSuiviBadge />}
           {state.kind === 'full' && <AjouteBadge onRemove={() => removeThread(tid)} title="Retirer l'échange" />}
           {/* Pas de dépliage sur un échange : la gauche prend des objets
               entiers, la curation corps/PJ vit dans la carte du panier. */}
@@ -360,8 +379,10 @@ export default function MailColumn({
     );
   };
 
-  // Carte « Ajouter “X” en entier » en tête de dossier ouvert. Les stats sont
-  // PROFONDES (sous-dossiers compris) : la carte annonce ce que le bloc engage.
+  // Tête de dossier ouvert (frame MailColumn 3377:47379, vue dossier) : la
+  // barre secondaire pleine largeur « Ajouter tout le dossier → ». Les stats
+  // PROFONDES (sous-dossiers compris) restent portées par le title. Les états
+  // pris / inertes gardent une carte d'état avec leur badge.
   const enEntierCard = () => {
     const fid = currentFolderId;
     const f = currentFolder;
@@ -373,25 +394,37 @@ export default function MailColumn({
     const inert = !!(dejaSuivi || dejaLie || coveredBy);
     const st = statsForDeep(fid);
     const hasSub = folderChildren.length > 0;
+    if (!inert && !taken) {
+      return (
+        <div className="px-4 pt-2 pb-1">
+          <button
+            type="button"
+            onClick={() => takeFolder(fid)}
+            className="w-full h-9 rounded-lg bg-secondary text-secondary-foreground text-[14px] leading-5 font-medium inline-flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90"
+            title={`${st.threads} échange${st.threads > 1 ? 's' : ''} · ≈ ${st.pieces} pièces${hasSub ? ' · sous-dossiers compris' : ''}${phase2 ? ' · suivable' : ''}`}
+          >
+            Ajouter tout le dossier
+            <ArrowRight className="w-4 h-4" strokeWidth={1.75} />
+          </button>
+        </div>
+      );
+    }
     return (
-      <div
-        className="group relative mx-3 mt-1 rounded-lg border p-3 flex items-center gap-2.5 transition-colors bg-white"
-        style={{ borderColor: '#dfdcd9', opacity: inert ? 0.55 : 1 }}
-      >
+      <div className="group relative mx-4 mt-1 rounded-lg border border-border p-3 flex items-center gap-2.5 bg-surface" style={{ opacity: taken ? 1 : 0.55 }}>
         <span className="flex-1 min-w-0">
-          <span className="text-[13px] font-medium text-foreground truncate block">Ajouter « {f.name} » en entier</span>
-          <span className="text-[11px] text-foreground-muted truncate block">
+          <span className="text-[14px] leading-5 font-medium text-foreground truncate block">Ajouter « {f.name} » en entier</span>
+          <span className="text-xs leading-4 text-foreground-muted truncate block">
             {coveredBy
               ? `Déjà couvert par « ${folderBreadcrumb(coveredBy)} »`
-              : <>{st.threads} échange{st.threads > 1 ? 's' : ''} · ≈ {st.pieces} pièces{hasSub ? ' · sous-dossiers compris' : ''}{phase2 && !inert ? ' · suivable' : ''}</>}
+              : <>{st.threads} échange{st.threads > 1 ? 's' : ''} · ≈ {st.pieces} pièces{hasSub ? ' · sous-dossiers compris' : ''}</>}
           </span>
         </span>
         {taken ? <AjouteBadge onRemove={() => removeFolder(fid)} title="Retirer le dossier" />
           : dejaSuivi ? <DejaSuiviBadge /> : dejaLie ? (
-            <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-warning-subtle text-warning-text text-[12px] leading-4 font-medium flex-shrink-0 whitespace-nowrap">
               Déjà lié à {dejaLie}
             </span>
-          ) : !inert ? <AjouterChip onAdd={() => takeFolder(fid)} title="Ajouter tout le dossier (sous-dossiers compris)" /> : null}
+          ) : null}
       </div>
     );
   };
@@ -552,7 +585,7 @@ export default function MailColumn({
             </div>
           )}
 
-          <div ref={listRef} onScroll={closePreview} className="flex-1 min-h-0 overflow-y-auto px-1.5 pb-2">
+          <div ref={listRef} onScroll={closePreview} className="flex-1 min-h-0 overflow-y-auto pb-2">
             {q ? searchView() : path.length > 0 ? drillView() : rootView()}
           </div>
         </>

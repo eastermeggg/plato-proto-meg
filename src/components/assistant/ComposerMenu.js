@@ -235,7 +235,7 @@ const ComposerMenu = forwardRef(function ComposerMenu(
   return (
     <div
       ref={menuRef}
-      className="z-50 rounded-xl border border-border bg-white shadow-lg overflow-hidden"
+      className="z-50 rounded-xl border border-border bg-surface shadow-lg overflow-hidden"
       style={style}
       onMouseDown={(e) => e.preventDefault()}
     >

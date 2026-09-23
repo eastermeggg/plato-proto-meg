@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Folder, Plus } from 'lucide-react';
+import { colors, shadows } from '../../design-system/tokens';
 
 /**
  * DossierSwitcher - le nom du dossier (en-tête du workspace / nav du dossier)
@@ -47,7 +48,7 @@ export default function DossierSwitcher({ dossiers = [], activeDossierId, onSele
         onClick={() => setOpen(o => !o)}
         className={
           trigger === 'chip'
-            ? 'flex items-center gap-1.5 min-w-0 px-2 py-1 rounded-md border border-border bg-white hover:bg-background transition-colors'
+            ? 'flex items-center gap-1.5 min-w-0 px-2 py-1 rounded-md border border-border bg-surface hover:bg-background transition-colors'
             : 'group flex items-center gap-1.5 min-w-0 rounded-md px-1 hover:bg-background transition-colors'
         }
         title="Changer de dossier"
@@ -69,14 +70,14 @@ export default function DossierSwitcher({ dossiers = [], activeDossierId, onSele
 
       {open && (
         <div
-          className="absolute left-0 top-full mt-1 w-[320px] max-w-[calc(100vw-32px)] bg-white border border-border rounded-[8px] overflow-hidden z-50"
-          style={{ boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)' }}
+          className="absolute left-0 top-full mt-1 w-[320px] max-w-[calc(100vw-32px)] bg-surface border border-border rounded-[8px] overflow-hidden z-50"
+          style={{ boxShadow: shadows.xl }}
         >
           <div
             className="flex items-center px-[10px]"
-            style={{ height: 32, backgroundColor: '#f8f7f5', borderBottom: '1px solid #dfdcd9' }}
+            style={{ height: 32, backgroundColor: colors.semantic.background, borderBottom: `1px solid ${colors.semantic.border}` }}
           >
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: colors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Dossiers
             </span>
           </div>

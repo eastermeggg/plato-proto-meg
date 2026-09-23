@@ -5,14 +5,15 @@
 // curation se fait à gauche.
 
 import React, { useState } from 'react';
-import { ChevronRight, FileText, Folder, FileArchive, Loader2, Mail, Plus, X, AlertTriangle, Scissors } from 'lucide-react';
+import { ChevronRight, FileText, FolderOpen, FileArchive, Loader2, Mail, Paperclip, Upload, X, AlertTriangle, Scissors } from 'lucide-react';
 import Button from '../../ui/Button';
 import DropZone from '../../ui/DropZone';
 import {
   decoupableKeys, threadCardSubtitle,
   folderIncludedCounts, treeState, treeCounts, treeThreadTotals, treeLeaves,
 } from './labData';
-import { Checkbox, DecoupeControl, Elbow, LabSwitch, monoLabel } from './atoms';
+import { Checkbox, DecoupeControl, LabSwitch, monoLabel } from './atoms';
+import { V2 } from '../import-v2/pieceRow';
 
 const CARD = { border: '1px solid #dfdcd9', borderRadius: 12, backgroundColor: '#ffffff' };
 
@@ -58,29 +59,29 @@ function UploadBar() {
   );
 }
 
-// Ligne « Corps du mail » indentée, lecture seule (aperçu dossier / zip). Le
-// corps est une pièce comme les autres (invariant) : il DOIT apparaître sous
-// chaque échange, au même titre que ses PJ, jamais implicite.
+// Ligne « Corps du mail », lecture seule (aperçu dossier / zip). Le corps est
+// une pièce comme les autres (invariant) : il DOIT apparaître sous chaque
+// échange, au même titre que ses PJ, jamais implicite. Planche « Import /
+// Inbox / Body PJs » : icône mail 16 MUETTE, nom 14, indentation plate.
 function BodyLine({ msg, dim = false }) {
   return (
-    <div className="flex items-center gap-2.5 min-w-0 h-7" style={dim ? { opacity: 0.85 } : undefined}>
-      <Elbow />
-      <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
-      <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">Corps du mail</span>
+    <div className="flex items-center gap-2 min-w-0 h-9" style={dim ? { opacity: 0.85 } : undefined}>
+      <Mail className="w-4 h-4 flex-shrink-0 text-foreground-secondary" strokeWidth={2} />
+      <span className="flex-1 min-w-0 text-[14px] leading-5 text-foreground truncate">Corps du mail</span>
       {msg > 1 && (
-        <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{msg} msg</span>
+        <span className="inline-flex items-center h-4 px-1 rounded bg-secondary text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{msg} msg</span>
       )}
     </div>
   );
 }
 
-// Ligne PJ indentée (coude), lecture seule (aperçu dossier / zip), avec découpe.
+// Ligne PJ, lecture seule (aperçu dossier / zip), avec découpe. Planche Body
+// PJs : trombone 16 BLEU info, nom 14.
 function PJLine({ pj, decoupe, onToggleDecoupe, dim = false }) {
   return (
-    <div className="flex items-center gap-2.5 min-w-0 h-7" style={dim ? { opacity: 0.85 } : undefined}>
-      <Elbow />
-      <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#b4483c' }} />
-      <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">{pj.name}</span>
+    <div className="flex items-center gap-2 min-w-0 h-9" style={dim ? { opacity: 0.85 } : undefined}>
+      <Paperclip className="w-4 h-4 flex-shrink-0 text-info-text" strokeWidth={2} />
+      <span className="flex-1 min-w-0 text-[14px] leading-5 text-foreground truncate">{pj.name}</span>
       {pj.decoupable && (
         <DecoupeControl on={decoupe.has(pj.key)} onToggle={() => onToggleDecoupe(pj.key)} />
       )}
@@ -89,27 +90,27 @@ function PJLine({ pj, decoupe, onToggleDecoupe, dim = false }) {
 }
 
 // Pièce d'un thread dans le panier : case (inclusion), la ligne RESTE visible
-// même décochée (estompée, jamais barrée) - recocher est le même geste. Le corps
+// même décochée (contraste normal, jamais barrée - planche Body PJs : Def =
+// plein contraste, added = nom medium) - recocher est le même geste. Le corps
 // du mail est une pièce comme les autres ; seules les PJ portent la découpe.
 function PieceLine({ piece, included, onToggle, decoupe, onToggleDecoupe }) {
   const isBody = piece.kind === 'body';
-  const Icon = isBody ? Mail : FileText;
+  const Icon = isBody ? Mail : Paperclip;
   return (
-    <div className="flex items-center gap-2.5 min-w-0 h-8" style={included ? undefined : { opacity: 0.45 }}>
-      <Elbow />
+    <div className="group/piece flex items-center gap-2 min-w-0 h-9 rounded-md px-1 -mx-1 hover:bg-background transition-colors">
       <Checkbox checked={included} onToggle={onToggle} title={included ? 'Ne pas inclure cette pièce' : 'Inclure cette pièce'} />
-      <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: isBody ? '#1e3a8a' : '#b4483c' }} />
+      <Icon className={`w-4 h-4 flex-shrink-0 ${isBody ? 'text-foreground-secondary' : 'text-info-text'}`} strokeWidth={2} />
       <span className="flex-1 min-w-0 flex items-center gap-2">
-        <span className="text-[13px] text-foreground truncate">{isBody ? 'Corps du mail' : piece.name}</span>
+        <span className={`text-[14px] leading-5 text-foreground truncate ${included ? 'font-medium' : ''}`}>{isBody ? 'Corps du mail' : piece.name}</span>
         {isBody && piece.msg > 1 && !piece.reason && (
-          <span className="inline-flex items-center h-4 px-1 rounded text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#eeece6' }}>{piece.msg} msg</span>
+          <span className="inline-flex items-center h-4 px-1 rounded bg-secondary text-[9px] font-medium uppercase text-foreground-secondary flex-shrink-0" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{piece.msg} msg</span>
         )}
         {/* Complément d'un fil déjà importé : d'où vient cette pièce. */}
         {piece.reason === 'nouvelle' && (
-          <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>nouvelle</span>
+          <span className="inline-flex items-center h-4 px-1.5 rounded bg-warning-subtle text-warning-text text-[9px] font-medium flex-shrink-0">nouvelle</span>
         )}
         {piece.reason === 'actualisé' && (
-          <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium flex-shrink-0" style={{ backgroundColor: '#fdf6ea', color: '#855b31' }}>+{piece.newMessages} message{piece.newMessages > 1 ? 's' : ''}</span>
+          <span className="inline-flex items-center h-4 px-1.5 rounded bg-warning-subtle text-warning-text text-[9px] font-medium flex-shrink-0">+{piece.newMessages} message{piece.newMessages > 1 ? 's' : ''}</span>
         )}
       </span>
       {!isBody && piece.decoupable && included && (
@@ -125,11 +126,11 @@ function PreviewThreadGroup({ subject, sender, illegible = false, msg, pjLines }
   return (
     <div className="px-3.5 py-2.5 flex flex-col gap-1">
       <div className="flex items-center gap-2.5 min-w-0 h-6">
-        <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a', opacity: 0.8 }} />
+        <Mail className="w-4 h-4 flex-shrink-0 text-foreground-secondary" strokeWidth={2} style={{ opacity: 0.8 }} />
         <span className={`flex-1 min-w-0 text-[13px] truncate ${illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{subject}</span>
         <span className="text-[11px] text-foreground-muted truncate flex-shrink-0 text-right" style={{ maxWidth: 180 }}>{sender}</span>
       </div>
-      <div className="pl-1.5 flex flex-col">
+      <div className="pl-6 flex flex-col">
         <BodyLine msg={msg} />
         {pjLines}
       </div>
@@ -146,7 +147,7 @@ function FileCard({ item, decoupe, onToggleDecoupe, onRemove }) {
       <div className="flex items-center gap-2.5 min-w-0" style={{ minHeight: 28 }}>
         {uploading
           ? <Loader2 className="w-4 h-4 text-foreground-secondary animate-spin flex-shrink-0" />
-          : <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#b4483c' }} />}
+          : <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.pj }} />}
         <span className="flex-1 min-w-0 flex items-baseline gap-2">
           <span className={`text-sm leading-5 truncate ${uploading ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{f.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate flex-shrink-0">{uploading ? 'Import en cours…' : f.meta}</span>
@@ -177,7 +178,7 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
       <div className="flex items-center gap-2.5 min-w-0">
         {uploading
           ? <Loader2 className="w-4 h-4 text-foreground-secondary animate-spin flex-shrink-0" />
-          : <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />}
+          : <Mail className="w-4 h-4 flex-shrink-0 text-foreground-secondary" strokeWidth={2} />}
         <span className="flex-1 min-w-0">
           <span className={`text-sm leading-5 truncate block ${uploading || t.illegible ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{t.subject}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
@@ -188,7 +189,7 @@ function ThreadCard({ item, decoupe, onToggleDecoupe, onTogglePiece, onRemove })
         {!uploading && <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer l'échange" />}
       </div>
       {showPieces && (
-        <div className="mt-2 pl-1 flex flex-col">
+        <div className="mt-2 pl-6 flex flex-col">
           {t.pieces.map(p => (
             <PieceLine
               key={p.key}
@@ -220,10 +221,10 @@ function NodeDecoupeControl({ keys, decoupe, onToggleMany, revealOnHover = true 
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onToggleMany(keys, !allOn); }}
-      className={`inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium flex-shrink-0 text-foreground-secondary hover:text-foreground hover:bg-cream transition-all ${revealOnHover ? 'opacity-0 group-hover/node:opacity-100 focus-visible:opacity-100' : ''}`}
+      className={`inline-flex items-center gap-1.5 h-[26px] px-2 rounded text-[12px] leading-4 font-medium flex-shrink-0 text-foreground-secondary hover:text-foreground hover:bg-cream transition-all ${revealOnHover ? 'opacity-0 group-hover/node:opacity-100 focus-visible:opacity-100' : ''}`}
       title={allOn ? 'Recoller ces pièces' : 'Découper toutes les pièces découpables de ce niveau'}
     >
-      <Scissors className="w-3 h-3" strokeWidth={1.75} />
+      <Scissors className="w-3.5 h-3.5" strokeWidth={2} />
       {allOn ? 'Tout recoller' : 'Tout découper'}
     </button>
   );
@@ -252,8 +253,8 @@ function FolderTreeNode({ node, depth, isLast, itemId, onToggleNode, expanded, o
   const { total, included } = treeCounts(node);
   const isPj = node.kind === 'pj';
   const isBody = node.kind === 'body';
-  const Icon = node.kind === 'folder' ? Folder : (node.kind === 'thread' || isBody) ? Mail : FileText;
-  const color = isPj ? '#b4483c' : node.kind === 'folder' ? '#78716c' : '#1e3a8a';
+  const Icon = node.kind === 'folder' ? FolderOpen : (node.kind === 'thread' || isBody) ? Mail : Paperclip;
+  const color = isPj ? 'var(--feedback-info-text, #1e3a8a)' : node.kind === 'folder' ? V2.folder : V2.muted;
   const dim = state === 'none';
   const isFolder = node.kind === 'folder';
   const tt = isFolder ? treeThreadTotals(node) : null;
@@ -340,7 +341,7 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onToggleDecoupeMany, onRem
   return (
     <div className="group p-3.5" style={CARD}>
       <div className="flex items-center gap-2.5 min-w-0">
-        <Folder className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />
+        <FolderOpen className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.folder }} />
         <span className="flex-1 min-w-0">
           <span className="text-sm leading-5 font-medium text-foreground truncate block">{f.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">
@@ -351,18 +352,23 @@ function FolderCard({ item, decoupe, onToggleDecoupe, onToggleDecoupeMany, onRem
         <RemoveBtn onClick={() => onRemove(item.id)} title="Retirer le dossier" />
       </div>
 
-      {/* Barre d'action : Tout sélectionner + compteur live */}
-      <div className="mt-2.5 flex items-center gap-2.5 px-3 h-10 rounded-lg" style={{ backgroundColor: '#f5f4f1' }}>
+      {/* Barre d'action (planche « Import / Barre d'action (carte dossier) »
+          3284:2068) : fond subtil #f5f4f1, rounded-6, pl-12 pr-8 py-6 ; label
+          12 medium ; compteur 12 aux NOMBRES en encre ; « ✂ Tout découper »
+          fantôme 26px à droite. */}
+      <div className="mt-2.5 flex items-center justify-between gap-2 pl-3 pr-2 py-1.5 rounded-md bg-background-subtle">
         <div className="inline-flex items-center gap-2 flex-shrink-0">
           <Checkbox checked={rootState === 'all'} partial={rootState === 'some'} onToggle={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} title={rootState === 'all' ? 'Tout décocher' : 'Tout sélectionner'} />
-          <button type="button" onClick={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} className="text-[12.5px] font-medium text-foreground hover:text-foreground-secondary transition-colors">Tout sélectionner</button>
+          <button type="button" onClick={() => onToggleNode(item.id, f.tree.key, rootState !== 'all')} className="text-xs leading-4 font-medium text-foreground hover:text-foreground-secondary transition-colors">Tout sélectionner</button>
         </div>
-        <span className="ml-auto text-[11px] tabular-nums text-foreground-secondary">
-          <span className="font-medium text-foreground">{inc.threads}</span>/{inc.total} échanges · <span className="font-medium text-foreground">{inc.pieces}</span>/{inc.piecesTotal} pièces{curated ? ' retenus' : ''}
-        </span>
-        {decKeys.length > 0 && (
-          <NodeDecoupeControl keys={decKeys} decoupe={decoupe} onToggleMany={onToggleDecoupeMany} revealOnHover={false} />
-        )}
+        <div className="flex items-center gap-[5px] flex-shrink-0">
+          <span className="text-xs leading-4 tabular-nums text-foreground-secondary whitespace-nowrap" style={{ letterSpacing: 0.12 }}>
+            <span className="text-foreground">{inc.threads}</span>/{inc.total} échanges · <span className="text-foreground">{inc.pieces}</span>/{inc.piecesTotal} pièces{curated ? ' retenus' : ''}
+          </span>
+          {decKeys.length > 0 && (
+            <NodeDecoupeControl keys={decKeys} decoupe={decoupe} onToggleMany={onToggleDecoupeMany} revealOnHover={false} />
+          )}
+        </div>
       </div>
 
       {/* Arbre - replié au-delà du 1er niveau */}
@@ -392,7 +398,7 @@ function ZipCard({ item, decoupe, onToggleDecoupe, onRemove }) {
         </button>
         {uploading
           ? <Loader2 className="w-4 h-4 text-foreground-secondary animate-spin flex-shrink-0" />
-          : <FileArchive className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#1e3a8a' }} />}
+          : <FileArchive className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.pj }} />}
         <span className="flex-1 min-w-0 ml-0.5">
           <span className={`text-sm leading-5 truncate block ${uploading ? 'italic text-foreground-secondary' : 'font-medium text-foreground'}`}>{z.name}</span>
           <span className="text-[11px] leading-4 text-foreground-muted truncate block mt-0.5">{uploading ? 'Extraction de l\'export…' : `${z.meta} · ${z.children.reduce((n, c) => n + c.pj.length, 0)} PJ`}</span>
@@ -425,7 +431,7 @@ export default function Panier({
   items, onRemove, onTogglePiece, onToggleFolderNode,
   decoupe, onToggleDecoupe, onToggleDecoupeMany, onToggleAllDecoupe,
   onAddFiles,
-  collapsed, onExpand,
+  onExpand,
   introCopy,
 }) {
   const docs = items.filter(i => i.kind === 'file');
@@ -436,16 +442,16 @@ export default function Panier({
 
   return (
     <div className="flex-1 min-w-0 flex flex-col px-6 py-5 gap-4 overflow-hidden">
-      {/* Intro */}
-      <p className="text-sm text-foreground-secondary leading-5 flex-shrink-0" style={{ maxWidth: 640 }}>{introCopy}</p>
+      {/* Intro (optionnelle - absente des frames inbox Figma). */}
+      {introCopy && (
+        <p className="text-sm text-foreground-secondary leading-5 flex-shrink-0" style={{ maxWidth: 640 }}>{introCopy}</p>
+      )}
 
-      {/* Toolbar : sources à gauche, « Tout découper » à droite. */}
+      {/* Toolbar : sources à gauche (emails d'abord - Figma 3377:46370), « Tout découper » à droite. */}
       <div className="flex items-center justify-between gap-3 flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <Button variant="outline" size="md" icon={Plus} label="Ajouter depuis l'ordinateur" onClick={onAddFiles} />
-          {collapsed && (
-            <Button variant="outline" size="md" icon={Mail} label="Ajouter depuis mes emails" onClick={onExpand} />
-          )}
+          <Button variant="outline" size="md" icon={Mail} label="Ajouter depuis mes emails" onClick={onExpand} />
+          <Button variant="outline" size="md" icon={Upload} label="Ajouter depuis l'ordinateur" onClick={onAddFiles} />
         </div>
         {items.length > 0 && allKeys.length > 0 && (
           <div className="flex items-center gap-2 flex-shrink-0">

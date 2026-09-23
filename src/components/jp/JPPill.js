@@ -1,6 +1,8 @@
 import React from 'react';
 import { Bookmark, ExternalLink } from 'lucide-react';
 import { formatDateShort, splitValue } from '../../data/mockDecisions';
+import { colors } from '../../design-system/tokens';
+import SourceBadge from '../ui/SourceBadge';
 
 // Inline JP reference. Two real contexts — chat and acte — expressed as
 // five variants:
@@ -36,11 +38,11 @@ import { formatDateShort, splitValue } from '../../data/mockDecisions';
 //
 // Chamber is hidden in Pill per spec (reserved for Card).
 
-const PILL_TEXT = { fontSize: 12, fontWeight: 500, color: '#44403c' };
-const PILL_MUTED = { fontSize: 12, fontWeight: 500, color: '#78716c' };
-const PILL_FAINT = { fontSize: 12, fontWeight: 500, color: '#a8a29e' };
-const PILL_ACCENT = { fontSize: 12, fontWeight: 500, color: '#b9703f' };
-const SEP_STYLE = { fontSize: 12, color: '#a8a29e' };
+const PILL_TEXT = { fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary };
+const PILL_MUTED = { fontSize: 12, fontWeight: 500, color: colors.semantic.mutedForeground };
+const PILL_FAINT = { fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundMuted };
+const PILL_ACCENT = { fontSize: 12, fontWeight: 500, color: colors.accents.ochre };
+const SEP_STYLE = { fontSize: 12, color: colors.semantic.foregroundMuted };
 
 export default function JPPill({
   decision,
@@ -75,39 +77,25 @@ export default function JPPill({
   const showPoste = (isQuantum || isSm) && amt;
   const showExternalIcon = isRef || isQuantum;
 
+  // Le JPPill EST un Source Badge de type « jp » (famille source, spec
+  // badge-rationalization) : conteneur + identité (icône marteau, teinte
+  // violet) viennent de SourceBadge ; le contenu (slots de citation) reste ici.
   return (
-    <span
+    <SourceBadge
+      type="jp"
+      size="sm"
+      selected={isSelected}
       className="jp-pill"
       data-pill-id={decision.id}
       data-variant={variant}
       onClick={(e) => { e.stopPropagation(); onClick?.(decision); }}
       onMouseEnter={(e) => onMouseEnter?.(e, decision)}
       onMouseLeave={onMouseLeave}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'baseline',
-        gap: 4,
-        padding: '2px 8px',
-        borderRadius: 6,
-        border: isSelected ? '1.5px solid #b9703f' : '1px solid transparent',
-        backgroundColor: isSelected ? 'rgba(185, 112, 63, 0.06)' : '#eeece6',
-        cursor: 'pointer',
-        verticalAlign: 'baseline',
-        lineHeight: '16px',
-        transition: 'border-color 0.15s, background-color 0.15s',
-        whiteSpace: 'nowrap',
-      }}
-      onMouseOver={(e) => {
-        if (!isSelected) e.currentTarget.style.borderColor = '#b9703f';
-      }}
-      onMouseOut={(e) => {
-        if (!isSelected) e.currentTarget.style.borderColor = 'transparent';
-      }}
     >
       {saved && (
         <Bookmark
           className="flex-shrink-0"
-          style={{ width: 12, height: 12, color: '#b9703f', fill: '#b9703f', position: 'relative', top: 1 }}
+          style={{ width: 12, height: 12, color: colors.accents.ochre, fill: colors.accents.ochre, position: 'relative', top: 1 }}
         />
       )}
       {showJurisdiction && (
@@ -135,10 +123,10 @@ export default function JPPill({
       {showExternalIcon && (
         <ExternalLink
           className="flex-shrink-0"
-          style={{ width: 10, height: 10, color: '#78716c', position: 'relative', top: 1, marginLeft: 2 }}
+          style={{ width: 10, height: 10, color: colors.semantic.mutedForeground, position: 'relative', top: 1, marginLeft: 2 }}
           strokeWidth={1.75}
         />
       )}
-    </span>
+    </SourceBadge>
   );
 }

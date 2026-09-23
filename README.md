@@ -1,3 +1,17 @@
+# Norma - prototype Plato
+
+Prototype produit Norma (React 19, Create React App, Tailwind v3).
+
+## Design system
+
+- **Tokens** : `src/design-system/tokens.js` (source unique, re-syncée depuis Figma « Plato - System ») + miroir Tailwind dans `tailwind.config.js`. Ne jamais coder une couleur en hex : utiliser les tokens / classes nommées.
+- **Vérité design** : mixte par surface - le registre est dans `docs/design-truth.md` (quelles surfaces suivent Figma, lesquelles font foi côté code).
+- **Vérification** : `npm run ds:doctor` (bloquant), `npm run ds:doctor -- --report` (état des lieux sans échec).
+- **Conventions & règles agents** : `AGENTS.md`. Configuration du set de skills DS : `ds.manifest.json`. Dettes assumées : `ECARTS.md`.
+- **Catalogue composants + tokens** : `src/data/designSystemInventory.json` (surfacé à `/ui-kit`) ; fiches : `src/components/ui/*.md` → `src/data/componentDocs.json` (`npm run ds:docs`) ; carte : `llms.txt`.
+
+---
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -3,6 +3,7 @@ import { Search, X, Check } from 'lucide-react';
 import { buildTreeViewRows } from '../../data/piecesModel';
 import CategoryHeader from '../pieces/CategoryHeader';
 import PieceRow from '../pieces/PieceRow';
+import { colors } from '../../design-system/tokens';
 
 // "Ajouter une pièce" — reuses the Pièces tab's tree (same `buildTreeViewRows`
 // engine, same `CategoryHeader` and `PieceRow` components) so the browsing
@@ -130,19 +131,19 @@ export default function AddPieceSearchModal({
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[640px] bg-white rounded-[12px] overflow-hidden"
+        className="relative w-full max-w-[640px] bg-surface rounded-[12px] overflow-hidden"
         style={{
           boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
-          border: '1px solid #dfdcd9',
+          border: `1px solid ${colors.semantic.border}`,
         }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
           <div>
-            <h2 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
+            <h2 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 15, fontWeight: 600, color: colors.semantic.foreground, margin: 0 }}>
               Ajouter une pièce
             </h2>
-            <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
+            <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: colors.semantic.mutedForeground, margin: '2px 0 0' }}>
               {totalPieces} pièce{totalPieces > 1 ? 's' : ''} dans le dossier
             </p>
           </div>
@@ -159,7 +160,7 @@ export default function AddPieceSearchModal({
         <div className="px-4 pb-3">
           <div
             className="flex items-center gap-2 px-3 h-10 rounded-[8px]"
-            style={{ border: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
+            style={{ border: `1px solid ${colors.semantic.border}`, backgroundColor: colors.banner.neutral.bgFrom }}
           >
             <Search className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />
             <input
@@ -175,7 +176,7 @@ export default function AddPieceSearchModal({
                 background: 'transparent',
                 fontFamily: "'Inter', system-ui, sans-serif",
                 fontSize: 14,
-                color: '#292524',
+                color: colors.semantic.foreground,
               }}
             />
             {query && (
@@ -195,7 +196,7 @@ export default function AddPieceSearchModal({
           style={{
             maxHeight: '60vh',
             overflowY: 'auto',
-            borderTop: '1px solid #dfdcd9',
+            borderTop: `1px solid ${colors.semantic.border}`,
           }}
         >
           {totalPieces === 0 ? (
@@ -243,9 +244,9 @@ export default function AddPieceSearchModal({
         {/* Footer — selection count + confirm */}
         <div
           className="flex items-center justify-between px-4 py-3"
-          style={{ borderTop: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
+          style={{ borderTop: `1px solid ${colors.semantic.border}`, backgroundColor: colors.banner.neutral.bgFrom }}
         >
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: colors.semantic.mutedForeground }}>
             {selectedIds.size === 0
               ? 'Sélectionnez des pièces à ajouter'
               : `${selectedIds.size} pièce${selectedIds.size > 1 ? 's' : ''} sélectionnée${selectedIds.size > 1 ? 's' : ''}`}
@@ -262,7 +263,7 @@ export default function AddPieceSearchModal({
               disabled={selectedIds.size === 0}
               className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-[8px] text-[13px] font-medium text-white transition-colors"
               style={{
-                backgroundColor: selectedIds.size === 0 ? '#cbc7c4' : '#292524',
+                backgroundColor: selectedIds.size === 0 ? colors.semantic.borderStrong : colors.semantic.primary,
                 cursor: selectedIds.size === 0 ? 'not-allowed' : 'pointer',
               }}
             >
@@ -282,18 +283,18 @@ function SansCatBand({ count }) {
     <div
       className="flex items-center justify-between px-4 py-1.5"
       style={{
-        backgroundColor: '#fafaf9',
-        borderBottom: '1px solid #f5f4f0',
+        backgroundColor: colors.banner.neutral.bgFrom,
+        borderBottom: `1px solid ${colors.semantic.accent}`,
         fontFamily: "'IBM Plex Mono', monospace",
         fontSize: 10,
         fontWeight: 500,
-        color: '#78716c',
+        color: colors.semantic.mutedForeground,
         textTransform: 'uppercase',
         letterSpacing: '0.06em',
       }}
     >
       <span>Sans catégorie</span>
-      <span style={{ color: '#a8a29e' }}>{count}</span>
+      <span style={{ color: colors.semantic.foregroundMuted }}>{count}</span>
     </div>
   );
 }
@@ -324,7 +325,7 @@ function EmptyState({ message }) {
       style={{
         fontFamily: "'Inter', system-ui, sans-serif",
         fontSize: 13,
-        color: '#a8a29e',
+        color: colors.semantic.foregroundMuted,
       }}
     >
       {message}

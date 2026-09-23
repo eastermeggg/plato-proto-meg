@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { X, Search, Link as LinkIcon, FileUp, Tag, ChevronRight, Check, Loader2, FolderOpen, Landmark } from 'lucide-react';
 import DECISIONS, { formatDateLong, getPrimaryAmount } from '../../data/mockDecisions';
+import { colors } from '../../design-system/tokens';
 
 const MODES = [
   { id: 'search', icon: Search,   label: 'Rechercher',     hint: 'Dans Plato JP ou réf. libre' },
@@ -20,14 +21,14 @@ function CheckRow({ checked, onClick, icon: Icon, label, sublabel }) {
       onClick={onClick}
       className="w-full text-left px-3 py-2 rounded-md text-[14px] flex items-center gap-2 transition-colors"
       style={{
-        backgroundColor: checked ? '#fdf8f4' : '#fafaf9',
-        border: checked ? '1px solid #b9703f' : '1px solid #dfdcd9',
-        color: '#44403c',
+        backgroundColor: checked ? colors.semantic.background : colors.banner.neutral.bgFrom,
+        border: checked ? `1px solid ${colors.accents.ochre}` : `1px solid ${colors.semantic.border}`,
+        color: colors.semantic.foregroundTertiary,
       }}
     >
       <div
         className="w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0"
-        style={{ borderColor: checked ? '#b9703f' : '#cbc7c4', backgroundColor: checked ? '#b9703f' : 'white' }}
+        style={{ borderColor: checked ? colors.accents.ochre : colors.semantic.borderStrong, backgroundColor: checked ? colors.accents.ochre : 'white' }}
       >
         {checked && <Checkmark />}
       </div>
@@ -147,12 +148,12 @@ export default function JPAddStepper({
   return (
     <div className="w-full">
       <div
-        className="bg-white rounded-lg border border-border overflow-hidden"
+        className="bg-surface rounded-lg border border-border overflow-hidden"
         style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle" style={{ backgroundColor: '#fafaf9' }}>
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#b9703f', textTransform: 'uppercase' }}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle" style={{ backgroundColor: colors.banner.neutral.bgFrom }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: colors.accents.ochre, textTransform: 'uppercase' }}>
             {headerSubtitle}
           </span>
           <button onClick={onClose} className="p-1 hover:bg-cream rounded transition-colors">
@@ -169,19 +170,19 @@ export default function JPAddStepper({
               const isDone = step > s.num;
               return (
                 <React.Fragment key={s.num}>
-                  {i > 0 && <div className="w-6 h-px mx-1" style={{ backgroundColor: isDone ? '#b9703f' : '#dfdcd9' }} />}
+                  {i > 0 && <div className="w-6 h-px mx-1" style={{ backgroundColor: isDone ? colors.accents.ochre : colors.semantic.input }} />}
                   <div className="flex items-center gap-1.5">
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: isDone ? '#b9703f' : isActive ? '#292524' : '#eeece6' }}
+                      style={{ backgroundColor: isDone ? colors.accents.ochre : isActive ? colors.semantic.primary : colors.semantic.muted }}
                     >
                       {isDone ? (
                         <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
                       ) : (
-                        <StepIcon className="w-2.5 h-2.5" style={{ color: isActive ? 'white' : '#a8a29e' }} />
+                        <StepIcon className="w-2.5 h-2.5" style={{ color: isActive ? 'white' : colors.semantic.foregroundMuted }} />
                       )}
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: isActive ? 500 : 400, color: isActive ? '#292524' : isDone ? '#b9703f' : '#a8a29e' }}>
+                    <span style={{ fontSize: 12, fontWeight: isActive ? 500 : 400, color: isActive ? colors.semantic.foreground : isDone ? colors.accents.ochre : colors.semantic.foregroundMuted }}>
                       {s.label}
                     </span>
                   </div>
@@ -206,14 +207,14 @@ export default function JPAddStepper({
                       onClick={() => { setMode(m.id); setSearchSelectedId(null); }}
                       className="flex items-start gap-2 px-3 py-2.5 rounded-md text-left transition-all"
                       style={{
-                        backgroundColor: active ? '#fdf8f4' : '#fafaf9',
-                        border: active ? '1px solid #b9703f' : '1px solid #dfdcd9',
+                        backgroundColor: active ? colors.semantic.background : colors.banner.neutral.bgFrom,
+                        border: active ? `1px solid ${colors.accents.ochre}` : `1px solid ${colors.semantic.border}`,
                       }}
                     >
-                      <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: active ? '#b9703f' : '#78716c' }} strokeWidth={1.75} />
+                      <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: active ? colors.accents.ochre : colors.semantic.mutedForeground }} strokeWidth={1.75} />
                       <div className="flex-1 min-w-0">
-                        <div className="text-[14px] font-medium leading-4" style={{ color: '#292524' }}>{m.label}</div>
-                        <div className="text-[12px] leading-4 mt-0.5" style={{ color: '#a8a29e' }}>{m.hint}</div>
+                        <div className="text-[14px] font-medium leading-4" style={{ color: colors.semantic.foreground }}>{m.label}</div>
+                        <div className="text-[12px] leading-4 mt-0.5" style={{ color: colors.semantic.foregroundMuted }}>{m.hint}</div>
                       </div>
                     </button>
                   );
@@ -227,10 +228,10 @@ export default function JPAddStepper({
                     value={searchQuery}
                     onChange={(e) => { setSearchQuery(e.target.value); setSearchSelectedId(null); }}
                     placeholder="Juridiction, numéro, poste — ou référence libre…"
-                    className="w-full px-3 py-2 text-[14px] rounded-md border border-border bg-white text-foreground placeholder-foreground-muted focus:outline-none focus:border-[#aabcd5]"
+                    className="w-full px-3 py-2 text-[14px] rounded-md border border-border bg-surface text-foreground placeholder-foreground-muted focus:outline-none focus:border-info-border"
                   />
                   {searchQuery.trim() && searchResults.length === 0 && (
-                    <p style={{ fontSize: 12, color: '#a8a29e', marginTop: 6 }}>
+                    <p style={{ fontSize: 12, color: colors.semantic.foregroundMuted, marginTop: 6 }}>
                       Pas de correspondance dans Plato JP. Cette référence sera ajoutée comme citation libre.
                     </p>
                   )}
@@ -244,23 +245,23 @@ export default function JPAddStepper({
                           onClick={() => setSearchSelectedId(d.id)}
                           className="w-full text-left px-2.5 py-2 rounded transition-colors"
                           style={{
-                            backgroundColor: isSel ? '#fdf8f4' : 'transparent',
-                            border: isSel ? '1px solid #b9703f' : '1px solid transparent',
+                            backgroundColor: isSel ? colors.semantic.background : 'transparent',
+                            border: isSel ? `1px solid ${colors.accents.ochre}` : '1px solid transparent',
                           }}
-                          onMouseOver={(e) => { if (!isSel) e.currentTarget.style.backgroundColor = '#fafaf9'; }}
+                          onMouseOver={(e) => { if (!isSel) e.currentTarget.style.backgroundColor = colors.banner.neutral.bgFrom; }}
                           onMouseOut={(e) => { if (!isSel) e.currentTarget.style.backgroundColor = 'transparent'; }}
                         >
                           <div className="flex items-center gap-2 flex-wrap">
                             <Landmark className="w-3 h-3 text-brand" />
-                            <span className="text-[14px] font-medium" style={{ color: '#292524' }}>
+                            <span className="text-[14px] font-medium" style={{ color: colors.semantic.foreground }}>
                               {d.jurisdiction}{d.chambre ? ` · ${d.chambre}` : ''}
                             </span>
-                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#c8c5c0' }}>
+                            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: colors.semantic.borderStrong }}>
                               {formatDateLong(d.date)}
                             </span>
                             {amt && <span className="badge badge-sm badge-secondary">{amt.poste}</span>}
                           </div>
-                          <div className="text-[12px] mt-0.5 truncate" style={{ color: '#a8a29e' }}>
+                          <div className="text-[12px] mt-0.5 truncate" style={{ color: colors.semantic.foregroundMuted }}>
                             {d.numero} · {d.category}
                           </div>
                         </button>
@@ -275,7 +276,7 @@ export default function JPAddStepper({
 
               {mode === 'link' && (
                 <div>
-                  <label htmlFor="jp-add-url" style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
+                  <label htmlFor="jp-add-url" style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary, display: 'block', marginBottom: 6 }}>
                     URL Légifrance ou autre source
                   </label>
                   <input
@@ -284,9 +285,9 @@ export default function JPAddStepper({
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://www.legifrance.gouv.fr/juri/id/..."
-                    className="w-full px-3 py-2 text-[14px] rounded-md border border-border bg-white text-foreground placeholder-foreground-muted focus:outline-none focus:border-[#aabcd5]"
+                    className="w-full px-3 py-2 text-[14px] rounded-md border border-border bg-surface text-foreground placeholder-foreground-muted focus:outline-none focus:border-info-border"
                   />
-                  <p style={{ fontSize: 12, color: '#a8a29e', marginTop: 6 }}>
+                  <p style={{ fontSize: 12, color: colors.semantic.foregroundMuted, marginTop: 6 }}>
                     Les métadonnées seront extraites automatiquement.
                   </p>
                 </div>
@@ -294,15 +295,15 @@ export default function JPAddStepper({
 
               {mode === 'upload' && (
                 <div>
-                  <label htmlFor="jp-add-pdf" style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
+                  <label htmlFor="jp-add-pdf" style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary, display: 'block', marginBottom: 6 }}>
                     Décision au format PDF
                   </label>
                   <label
                     className="flex items-center justify-center gap-2 w-full h-16 rounded-md border border-dashed cursor-pointer transition-colors"
-                    style={{ borderColor: pdfFile ? '#b9703f' : '#dfdcd9', backgroundColor: pdfFile ? '#fdf8f4' : '#fafaf9' }}
+                    style={{ borderColor: pdfFile ? colors.accents.ochre : colors.semantic.border, backgroundColor: pdfFile ? colors.semantic.background : colors.banner.neutral.bgFrom }}
                   >
-                    <FileUp className="w-4 h-4" style={{ color: pdfFile ? '#b9703f' : '#78716c' }} />
-                    <span className="text-[14px]" style={{ color: pdfFile ? '#b9703f' : '#78716c' }}>
+                    <FileUp className="w-4 h-4" style={{ color: pdfFile ? colors.accents.ochre : colors.semantic.mutedForeground }} />
+                    <span className="text-[14px]" style={{ color: pdfFile ? colors.accents.ochre : colors.semantic.mutedForeground }}>
                       {pdfFile ? pdfFile.name : 'Sélectionner un PDF'}
                     </span>
                     <input
@@ -328,7 +329,7 @@ export default function JPAddStepper({
           {/* ── Step 2 — Portée ─────────────────────── */}
           {step === 2 && (
             <div>
-              <div style={{ fontSize: 12, fontWeight: 500, color: '#44403c', display: 'block', marginBottom: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary, display: 'block', marginBottom: 6 }}>
                 Où dans ce dossier ?
               </div>
               <div className="space-y-1.5">
@@ -342,7 +343,7 @@ export default function JPAddStepper({
                 {posteOptions.length > 0 && (
                   <div
                     className="space-y-1 max-h-[200px] overflow-y-auto rounded-md p-1.5"
-                    style={{ border: '1px solid #f0efed', backgroundColor: '#fafaf9' }}
+                    style={{ border: `1px solid ${colors.semantic.backgroundSubtle}`, backgroundColor: colors.banner.neutral.bgFrom }}
                   >
                     {posteOptions.map(p => {
                       const isChecked = pinPosteIds.includes(p.id);
@@ -355,7 +356,7 @@ export default function JPAddStepper({
                         >
                           <div
                             className="w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0"
-                            style={{ borderColor: isChecked ? '#b9703f' : '#cbc7c4', backgroundColor: isChecked ? '#b9703f' : 'white' }}
+                            style={{ borderColor: isChecked ? colors.accents.ochre : colors.semantic.borderStrong, backgroundColor: isChecked ? colors.accents.ochre : 'white' }}
                           >
                             {isChecked && <Checkmark />}
                           </div>
@@ -387,8 +388,8 @@ export default function JPAddStepper({
               disabled={!canProceed1 || extracting}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[14px] font-medium transition-all"
               style={{
-                backgroundColor: canProceed1 && !extracting ? '#292524' : '#eeece6',
-                color: canProceed1 && !extracting ? 'white' : '#a8a29e',
+                backgroundColor: canProceed1 && !extracting ? colors.semantic.primary : colors.semantic.muted,
+                color: canProceed1 && !extracting ? 'white' : colors.semantic.foregroundMuted,
                 cursor: canProceed1 && !extracting ? 'pointer' : 'not-allowed',
               }}
             >
@@ -402,8 +403,8 @@ export default function JPAddStepper({
               disabled={!canProceed2}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[14px] font-medium transition-all"
               style={{
-                backgroundColor: canProceed2 ? '#292524' : '#eeece6',
-                color: canProceed2 ? 'white' : '#a8a29e',
+                backgroundColor: canProceed2 ? colors.semantic.primary : colors.semantic.muted,
+                color: canProceed2 ? 'white' : colors.semantic.foregroundMuted,
                 cursor: canProceed2 ? 'pointer' : 'not-allowed',
               }}
             >

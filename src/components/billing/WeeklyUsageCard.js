@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Clock } from 'lucide-react';
 import { quotaTone } from '../../data/pricing';
+import { colors } from '../../design-system/tokens';
 
 // Weekly usage / quota gauge - shared by settings ("Mon usage", sidebar
 // indicator) and the onboarding flow. Pure: pass `trial` ({ tone, daysRemaining })
@@ -15,9 +16,9 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
   const shell = {
     // Pas d'arrondi en variante sidebar : la carte touche le bord de l'app.
     borderRadius: compact ? 0 : 4,
-    border: compact ? 'none' : (tone.warn ? '1px solid rgba(238,185,126,0.5)' : '1px solid #dfdcd9'),
+    border: compact ? 'none' : (tone.warn ? '1px solid rgba(238,185,126,0.5)' : `1px solid ${colors.semantic.border}`),
     boxShadow: compact ? 'none' : '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)',
-    backgroundColor: compact ? 'transparent' : '#ffffff',
+    backgroundColor: compact ? 'transparent' : colors.semantic.white,
   };
 
   // ── Ø licence - lecture seule ────────────────────────────────────────────
@@ -25,14 +26,14 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
     return (
       <div className="overflow-hidden" style={shell}>
         <div style={{ padding: compact ? '14px 16px 16px' : '20px' }}>
-          <div className="inline-flex items-center gap-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>
+          <div className="inline-flex items-center gap-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: colors.semantic.mutedForeground, textTransform: 'uppercase' }}>
             <Eye className="w-3 h-3 flex-shrink-0" strokeWidth={1.75} />
             <span>Lecture seule</span>
           </div>
-          <div style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 22 : 28, fontWeight: 400, color: '#292524', letterSpacing: '-0.015em', marginTop: 8 }}>
+          <div style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 22 : 28, fontWeight: 400, color: colors.semantic.foreground, letterSpacing: '-0.015em', marginTop: 8 }}>
             Aucune licence
           </div>
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#78716c', marginTop: 4, lineHeight: '16px' }}>
+          <p style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.mutedForeground, marginTop: 4, lineHeight: '16px' }}>
             Demandez une licence à votre administrateur pour reprendre la main.
           </p>
         </div>
@@ -41,8 +42,8 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
   }
 
   const headerWarn = tone.warn;
-  const headerBg = headerWarn ? 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' : 'transparent';
-  const headerColor = headerWarn ? '#855b31' : '#78716c';
+  const headerBg = headerWarn ? `linear-gradient(180deg, ${colors.brand.darker.subtle} 0%, ${colors.semantic.card} 100%)` : 'transparent';
+  const headerColor = headerWarn ? colors.feedback.warning.text : colors.semantic.mutedForeground;
 
   return (
     <div className="overflow-hidden" style={shell}>
@@ -67,7 +68,7 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
             <span className="truncate">Quota hebdomadaire</span>
           </span>
           {plan && (
-            <span className="flex-shrink-0" style={{ color: tone.warn ? '#855b31' : '#a8a29e' }}>{plan.name} · ×{plan.quotaMult}</span>
+            <span className="flex-shrink-0" style={{ color: tone.warn ? colors.feedback.warning.text : colors.semantic.foregroundMuted }}>{plan.name} · ×{plan.quotaMult}</span>
           )}
         </div>
       </div>
@@ -76,12 +77,12 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
       <div style={{ padding: compact ? '8px 16px 18px' : '12px 20px 24px', display: 'flex', flexDirection: 'column', gap: compact ? 10 : 14 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <div className="flex items-baseline gap-0.5">
-            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 30 : 48, fontWeight: 400, color: tone.warn ? '#bd6c1a' : '#292524', letterSpacing: '-0.6px', lineHeight: 1 }}>
+            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: compact ? 30 : 48, fontWeight: 400, color: tone.warn ? colors.feedback.warning.base : colors.semantic.foreground, letterSpacing: '-0.6px', lineHeight: 1 }}>
               {pct}
             </span>
-            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: compact ? 16 : 24, fontWeight: 500, color: '#78716c', opacity: 0.5 }}>%</span>
+            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: compact ? 16 : 24, fontWeight: 500, color: colors.semantic.mutedForeground, opacity: 0.5 }}>%</span>
           </div>
-          <div className={compact ? 'whitespace-nowrap' : undefined} style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>
+          <div className={compact ? 'whitespace-nowrap' : undefined} style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, fontWeight: 500, color: colors.semantic.mutedForeground, lineHeight: '16px' }}>
             {/* Compact (nav) : libellé court tenant sur UNE ligne (« hebdomadaire »
                 dans l'en-tête rend « cette semaine » redondant). Full : phrase complète. */}
             {pct >= 100

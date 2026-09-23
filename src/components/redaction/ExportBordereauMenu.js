@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, Check, Stamp, FileText } from 'lucide-react';
+import { colors } from '../../design-system/tokens';
 
 // Télécharger dropdown for the bordereau header. The export ALWAYS bundles the
 // acte + its bordereau + pièces — they're never downloaded apart, so there's
@@ -39,8 +40,8 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
         onClick={() => setOpen((o) => !o)}
         className={triggerClass}
         style={{
-          backgroundColor: open ? '#44403c' : '#292524',
-          color: '#ffffff',
+          backgroundColor: open ? colors.semantic.foregroundTertiary : colors.semantic.primary,
+          color: colors.semantic.white,
           boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)',
         }}
         title="Télécharger"
@@ -60,23 +61,23 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
 
       {open && (
         <div
-          className="absolute right-0 top-10 z-50 bg-white rounded-[10px] border border-border overflow-hidden"
+          className="absolute right-0 top-10 z-50 bg-surface rounded-[10px] border border-border overflow-hidden"
           style={{ width: 300, boxShadow: '0px 4px 8px -2px rgba(26,26,26,0.06), 0px 8px 24px -4px rgba(26,26,26,0.08)' }}
         >
           {/* What gets exported — always the full bundle, never one alone. */}
           <div className="px-3 pt-3 pb-2.5 flex items-start gap-2">
             <FileText className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-foreground-secondary" strokeWidth={1.75} />
-            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, lineHeight: '16px', color: '#44403c' }}>
-              <span style={{ fontWeight: 600, color: '#292524' }}>Acte + bordereau + pièces</span><br />
+            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, lineHeight: '16px', color: colors.semantic.foregroundTertiary }}>
+              <span style={{ fontWeight: 600, color: colors.semantic.foreground }}>Acte + bordereau + pièces</span><br />
               Téléchargés ensemble dans un seul document.
             </span>
           </div>
 
-          <div style={{ height: 1, backgroundColor: '#dfdcd9' }} />
+          <div style={{ height: 1, backgroundColor: colors.semantic.input }} />
 
           {/* Tamponnage */}
           <div className="px-3 pt-3 pb-1">
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: colors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Options
             </span>
           </div>
@@ -92,7 +93,7 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
           <div className="p-2 border-t border-border bg-background">
             <button
               onClick={confirm}
-              className="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-[8px] text-[13px] font-medium text-white bg-foreground hover:bg-foreground-tertiary transition-colors"
+              className="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-[8px] text-[13px] font-medium text-primary-foreground bg-foreground hover:bg-foreground-tertiary transition-colors"
               style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)' }}
             >
               <Download className="w-3.5 h-3.5" strokeWidth={1.75} />
@@ -120,10 +121,10 @@ function TamponnageToggle({ on, disabled, onToggle }) {
     >
       <span className="inline-flex items-center gap-2">
         <Stamp
-          style={{ width: 14, height: 14, color: disabled ? '#c7c2b8' : '#78716c' }}
+          style={{ width: 14, height: 14, color: disabled ? colors.semantic.borderStrong : colors.semantic.mutedForeground }}
           strokeWidth={1.75}
         />
-        <span className="text-[14px]" style={{ color: disabled ? '#a8a29e' : '#292524' }}>
+        <span className="text-[14px]" style={{ color: disabled ? colors.semantic.foregroundMuted : colors.semantic.foreground }}>
           Avec tamponnage
         </span>
       </span>
@@ -132,7 +133,7 @@ function TamponnageToggle({ on, disabled, onToggle }) {
           width: 28,
           height: 16,
           borderRadius: 999,
-          backgroundColor: disabled ? '#dfdcd9' : on ? '#292524' : '#cbc7c4',
+          backgroundColor: disabled ? colors.semantic.input : on ? colors.semantic.primary : colors.semantic.borderStrong,
           position: 'relative',
           transition: 'background-color 120ms',
           flexShrink: 0,
@@ -153,7 +154,7 @@ function TamponnageToggle({ on, disabled, onToggle }) {
             justifyContent: 'center',
           }}
         >
-          {on && !disabled && <Check style={{ width: 8, height: 8, color: '#292524' }} strokeWidth={3} />}
+          {on && !disabled && <Check style={{ width: 8, height: 8, color: colors.semantic.foreground }} strokeWidth={3} />}
         </span>
       </span>
     </button>

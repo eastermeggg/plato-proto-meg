@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { formatDateLong, getPrimaryAmount } from '../../data/mockDecisions';
+import { colors } from '../../design-system/tokens';
 
 export default function JPPopoverCard({
   decision,
@@ -8,6 +9,7 @@ export default function JPPopoverCard({
   onOpenDrawer,
   onMouseEnter,
   onMouseLeave,
+  inline = false, // rendu statique en flux (playground) : pas d'ancre, pas de fixed
 }) {
   const cardRef = useRef(null);
   const [pos, setPos] = useState({ top: 0, left: 0, placement: 'below', ready: false });
@@ -33,14 +35,17 @@ export default function JPPopoverCard({
     setPos({ top, left, placement, ready: true });
   }, [anchorRect]);
 
-  if (!decision || !anchorRect) return null;
+  if (!decision || (!anchorRect && !inline)) return null;
 
   return (
     <div
       ref={cardRef}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      style={{
+      style={inline ? {
+        position: 'relative',
+        width: 320,
+      } : {
         position: 'fixed',
         top: pos.placement === 'below' ? pos.top - 14 : pos.top,
         left: pos.left,
@@ -57,7 +62,7 @@ export default function JPPopoverCard({
         borderRadius: 8,
         overflow: 'hidden',
         backgroundColor: 'white',
-        border: '1px solid #dfdcd9',
+        border: `1px solid ${colors.semantic.border}`,
         boxShadow: '0 8px 24px rgba(41, 37, 36, 0.08), 0 2px 8px rgba(41, 37, 36, 0.04)',
       }}>
 
@@ -65,15 +70,15 @@ export default function JPPopoverCard({
         <div style={{ padding: '12px 16px' }}>
           <div style={{
             fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500,
-            color: '#b9703f', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4,
+            color: colors.accents.ochre, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4,
           }}>
             {decision.jurisdiction}{decision.chambre ? ` · ${decision.chambre}` : ''}
           </div>
           <div style={{
-            fontFamily: "'EB Garamond', 'Georgia', serif", fontSize: 16, color: '#292524',
+            fontFamily: "'EB Garamond', 'Georgia', serif", fontSize: 16, color: colors.semantic.foreground,
             lineHeight: '20px',
           }}>
-            Arrêt du {formatDateLong(decision.date)} · <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>n° {decision.numero}</span>
+            Arrêt du {formatDateLong(decision.date)} · <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: colors.semantic.mutedForeground }}>n° {decision.numero}</span>
           </div>
         </div>
 
@@ -82,20 +87,20 @@ export default function JPPopoverCard({
           {/* Context + amount */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', gap: 8 }}>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', width: 58, flexShrink: 0, paddingTop: 2 }}>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundMuted, textTransform: 'uppercase', width: 58, flexShrink: 0, paddingTop: 2 }}>
                 Contexte
               </span>
-              <span style={{ fontSize: 14, color: '#44403c', lineHeight: '20px' }}>
+              <span style={{ fontSize: 14, color: colors.semantic.foregroundTertiary, lineHeight: '20px' }}>
                 {decision.category}
               </span>
             </div>
             {getPrimaryAmount(decision) && (
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', flexShrink: 0 }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundMuted, textTransform: 'uppercase', flexShrink: 0 }}>
                   Poste
                 </span>
                 <span className="badge badge-sm badge-secondary" title={getPrimaryAmount(decision).label}>
-                  {getPrimaryAmount(decision).poste} : <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#b9703f' }}>{getPrimaryAmount(decision).displayValue}</span>
+                  {getPrimaryAmount(decision).poste} : <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: colors.accents.ochre }}>{getPrimaryAmount(decision).displayValue}</span>
                 </span>
               </div>
             )}
@@ -103,14 +108,14 @@ export default function JPPopoverCard({
         </div>
 
         {/* ── Resume — scrollable with fade ───────────────── */}
-        <div style={{ borderTop: '1px solid #f0efed', position: 'relative' }}>
+        <div style={{ borderTop: `1px solid ${colors.semantic.backgroundSubtle}`, position: 'relative' }}>
           <div style={{
             padding: '8px 16px 12px',
             maxHeight: 72,
             overflow: 'hidden',
           }}>
             <p style={{
-              fontSize: 14, color: '#78716c', lineHeight: '20px', margin: 0,
+              fontSize: 14, color: colors.semantic.mutedForeground, lineHeight: '20px', margin: 0,
             }}>
               {decision.resume}
             </p>
@@ -128,16 +133,16 @@ export default function JPPopoverCard({
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             width: '100%', padding: '8px 16px',
-            backgroundColor: '#fafaf9', border: 'none',
-            borderTop: '1px solid #f0efed',
-            cursor: 'pointer', fontSize: 12, fontWeight: 500, color: '#44403c',
+            backgroundColor: colors.banner.neutral.bgFrom, border: 'none',
+            borderTop: `1px solid ${colors.semantic.backgroundSubtle}`,
+            cursor: 'pointer', fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary,
             transition: 'background-color 0.12s ease',
           }}
-          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f0efed'; }}
-          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#fafaf9'; }}
+          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = colors.semantic.backgroundSubtle; }}
+          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = colors.banner.neutral.bgFrom; }}
         >
           Ouvrir la décision
-          <ArrowRight style={{ width: 12, height: 12, color: '#a8a29e' }} />
+          <ArrowRight style={{ width: 12, height: 12, color: colors.semantic.foregroundMuted }} />
         </button>
       </div>
     </div>

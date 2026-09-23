@@ -87,14 +87,14 @@ export default function PiecesTab({ pieces, categories, setPieces, setCategories
             />
             <button
               onClick={() => setCreateFolderOpen(true)}
-              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-foreground-secondary bg-white border border-border rounded-md hover:bg-cream transition-colors flex-shrink-0"
+              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-foreground-secondary bg-surface border border-border rounded-md hover:bg-cream transition-colors flex-shrink-0"
             >
               <FolderPlus className="w-4 h-4" strokeWidth={1.5} />
               Nouveau dossier
             </button>
             <button
               onClick={() => onAddFiles?.()}
-              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
+              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors flex-shrink-0"
             >
               <Plus className="w-4 h-4" strokeWidth={1.5} />
               Ajouter des documents

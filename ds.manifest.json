@@ -1,0 +1,51 @@
+{
+  "ds": {
+    "name": "plato",
+    "version": "0 (prototype, non versionné)",
+    "registry": null,
+    "repo": ".",
+    "role": "producer"
+  },
+  "owner": {
+    "role": "design steward",
+    "contact": "regior.meghan@gmail.com"
+  },
+  "paths": {
+    "rules": "AGENTS.md",
+    "inventory": "src/data/designSystemInventory.json",
+    "docs": "llms.txt",
+    "docsComponents": "src/components/ui",
+    "theme": "src/design-system/tokens.js",
+    "kitchenSink": "/ui-kit",
+    "protected": [
+      "src/design-system/tokens.js",
+      "src/index.css"
+    ],
+    "doctorExclude": [
+      "src/components/ui-kit",
+      "src/index.css",
+      "src/App.css",
+      "tailwind.config.js"
+    ]
+  },
+  "commands": {
+    "pm": "npm",
+    "doctor": "npm run ds:doctor",
+    "lint": null,
+    "build": "npm run build"
+  },
+  "figma": {
+    "mode": "intent",
+    "file": "0eKtlRkT1Hbjh8Nqd47Woy",
+    "libraryPage": null,
+    "note": "Vérité MIXTE par surface, pas globale — registre complet dans docs/design-truth.md. Certaines surfaces sont pixel-perfect depuis Figma (la frame fait foi : ex. PreviewPanel V2, nav dossier V2 / frame 4046) ; d'autres sont code-first (le code fait foi, le Figma est au mieux un EXPORT du code — ex. page Labour 2668:24241, exportée DEPUIS le relevé d'heures). Avant d'arbitrer un écart Figma/code : identifier la source de vérité de LA surface concernée dans le registre ; en cas de doute, question pour la steward, jamais de correction automatique."
+  },
+  "notes": {
+    "stack": "Create React App, React 18, JavaScript (pas de TypeScript), Tailwind v3. Pas de shadcn, pas de ds-theme.json, pas de src/components/ui : les chemins par défaut des conventions ne s'appliquent pas, ce manifeste fait foi.",
+    "doctor": "scripts/ds-doctor.mjs (zéro dépendance, 22/09/2026) remplace `lyse audit`, cassé (paquet npm disparu, ENOVERSIONS). Règles bloquantes : hex en dur hors sources de tokens, validation du manifeste. Avertissements non bloquants : émojis et tirets cadratins dans l'UI. `--report` pour compter sans échouer (mode adoption), `--json` pour la sortie machine."
+  },
+  "doctor": {
+    "pendingHex": [],
+    "decisions": "DECISIONS-HEX.md"
+  }
+}

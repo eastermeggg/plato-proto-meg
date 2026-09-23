@@ -36,6 +36,12 @@ export const V2 = {
   warningSubtle: '#f2ebe3',
   warningText: '#855b31',
   hoverFade: '#f7f6f3',
+  // Planche « Import / Bordereau / Flat Objects » (3336:35060) : l'icône mail
+  // des corps est AMBRE (#d97706 = banner.warning.accent) et le document PDF
+  // est ROUGE identité doc (Figma #ef4444, mappé sur le token doc.pdf le plus
+  // proche). Références var() theme-aware, fallback light.
+  mailBody: 'var(--banner-warning-accent, #d97706)',
+  docRed: 'var(--doc-pdf, #dc2626)',
 };
 
 export const kindIcon = (kind) =>
@@ -63,10 +69,12 @@ const BADGE_TONES = {
   warning: { backgroundColor: V2.warningSubtle, color: V2.warningText },
   ai: { backgroundColor: V2.aiSubtle, color: V2.ai },
 };
-export function Badge({ tone = 'secondary', children, className = '' }) {
+// `wide` : les badges Erreur / Doublon de la planche Flat Objects sont à px-8
+// (vs px-6 pour les badges d'état courants).
+export function Badge({ tone = 'secondary', wide = false, children, className = '' }) {
   return (
     <span
-      className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-md text-[12px] leading-4 font-medium whitespace-nowrap flex-shrink-0 ${className}`}
+      className={`inline-flex items-center justify-center ${wide ? 'px-2' : 'px-1.5'} py-0.5 rounded-md text-[12px] leading-4 font-medium whitespace-nowrap flex-shrink-0 ${className}`}
       style={BADGE_TONES[tone]}
     >
       {children}

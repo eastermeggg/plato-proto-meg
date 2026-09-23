@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calculator, Pencil, Type, Scissors, ListOrdered, IterationCcw } from 'lucide-react';
+import { colors, shadows } from '../../design-system/tokens';
 
 export const PREFERENCE_SLOT_IDS = ['chiffrage', 'redaction', 'bordereau', 'nommage', 'decoupage'];
 
@@ -43,11 +44,11 @@ export const PREFERENCE_SLOT_DEFAULTS = {
 };
 
 const SLOT_META = {
-  chiffrage: { icon: Calculator,  gradientFrom: '#dbeafe', iconColor: '#1d4ed8' },
-  redaction: { icon: Pencil,      gradientFrom: '#f3e8ff', iconColor: '#7c3aed' },
-  bordereau: { icon: ListOrdered, gradientFrom: '#fef2f2', iconColor: '#b91c1c' },
-  nommage:   { icon: Type,        gradientFrom: '#ecfdf5', iconColor: '#059669' },
-  decoupage: { icon: Scissors,    gradientFrom: '#fffbeb', iconColor: '#d97706' },
+  chiffrage: { icon: Calculator,  gradientFrom: colors.piece.medical.bg, iconColor: colors.banner.info.accentHover },
+  redaction: { icon: Pencil,      gradientFrom: colors.piece.decision.bg, iconColor: colors.feedback.ai.base },
+  bordereau: { icon: ListOrdered, gradientFrom: colors.step.red.bg, iconColor: colors.banner.error.accentHover },
+  nommage:   { icon: Type,        gradientFrom: colors.banner.success.bgFrom, iconColor: colors.feedback.success.base },
+  decoupage: { icon: Scissors,    gradientFrom: colors.banner.warning.bgFrom, iconColor: colors.banner.warning.accent },
 };
 
 function PreferenceSlot({ id, value, onChange, extra }) {
@@ -61,15 +62,15 @@ function PreferenceSlot({ id, value, onChange, extra }) {
 
   return (
     <div
-      className="bg-white rounded-lg border border-border p-5 flex flex-col gap-4"
+      className="bg-surface rounded-lg border border-border p-5 flex flex-col gap-4"
       style={{ boxShadow: '0 2px 4px -2px rgba(26,26,26,0.05), 0 4px 6px -1px rgba(26,26,26,0.05)' }}
     >
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-md border border-border flex items-center justify-center flex-shrink-0"
           style={{
-            background: `linear-gradient(180deg, ${meta.gradientFrom} 0%, #ffffff 100%)`,
-            boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+            background: `linear-gradient(180deg, ${meta.gradientFrom} 0%, ${colors.semantic.card} 100%)`,
+            boxShadow: shadows.xs,
           }}
         >
           <Icon className="w-5 h-5" strokeWidth={1.75} style={{ color: meta.iconColor }} />
@@ -79,7 +80,7 @@ function PreferenceSlot({ id, value, onChange, extra }) {
             style={{
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 14, fontWeight: 500,
-              color: '#292524', lineHeight: '20px', margin: 0,
+              color: colors.semantic.foreground, lineHeight: '20px', margin: 0,
             }}
           >
             {label}
@@ -88,7 +89,7 @@ function PreferenceSlot({ id, value, onChange, extra }) {
             style={{
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 12, fontWeight: 400,
-              color: '#78716c', lineHeight: '16px',
+              color: colors.semantic.mutedForeground, lineHeight: '16px',
               letterSpacing: '0.12px',
               margin: 0,
             }}
@@ -118,13 +119,13 @@ function PreferenceSlot({ id, value, onChange, extra }) {
           fontFamily: "'Inter', system-ui, sans-serif",
           fontSize: 14,
           lineHeight: '20px',
-          color: '#292524',
+          color: colors.semantic.foreground,
           padding: '10px 12px',
           minHeight: 176,
           maxHeight: 208,
           resize: 'vertical',
           overflowY: 'auto',
-          boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+          boxShadow: shadows.xs,
         }}
       />
     </div>

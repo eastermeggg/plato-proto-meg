@@ -69,8 +69,17 @@ confond plus.
 | **Masquée** | Largeur 0, **rien ne subsiste** (ni rail d'icônes, ni liseré). Le contrôle « Menu » (`NavExpandControl` : logo Plato + glyphe panel + libellé) apparaît à l'extrême gauche de la barre de la surface - ou en absolu `left-3 top-3` sur les surfaces sans barre. |
 | **Peek** | La nav complète en **overlay** plein-hauteur (100vh, 264px), ancrée en haut à gauche - son logo retombe exactement sur celui du contrôle « Menu » : la nav « se déplie du coin ». Le workspace ne reflue jamais. Seule situation où la nav porte une ombre : `14px 0 34px rgba(41,37,36,.16)`. |
 
-L'état ouvert/masqué vaut pour la **session** (non persisté). Entrer dans un
-dossier ne force plus l'ouverture (décision 08/09, abandon du modèle B).
+L'état ouvert/masqué vaut pour la **session** (non persisté) sur Accueil /
+Conversations / Paramètres.
+
+**Auto-collapse sur entrée dossier** (règle produit, 23/09) : entrer dans un
+dossier (« matter ») **replie automatiquement la nav** (`openDossier` →
+`setNavHidden(true)`). On plonge dans le travail du dossier : le breadcrumb de la
+Top Bar + le contrôle « Menu » (peek au survol) suffisent à se repérer et à
+ressortir. L'utilisateur peut rouvrir (préférence de session ensuite), mais
+**chaque nouvelle entrée dans un dossier la replie de nouveau**. Ne concerne que
+l'entrée dossier. (Remplace la décision 08/09 « entrer ne force plus l'ouverture » :
+on ne force pas l'ouverture, on force désormais le repli.)
 
 ## 2. Transitions
 

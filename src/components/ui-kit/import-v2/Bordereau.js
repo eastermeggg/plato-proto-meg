@@ -21,7 +21,7 @@ export function GroupChapeau({ kind = 'body', title, illegible = false, tag = nu
   return (
     <div className={`bg-white pl-4 pr-2.5 py-3 flex items-center justify-between gap-3 ${divided ? 'border-b border-border' : ''}`}>
       <div className={`flex items-center min-w-0 ${kind === 'folder' ? 'gap-2.5' : 'gap-3'}`}>
-        <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: kindColor(kind) }} />
+        <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: kindColor(kind) }} />
         <p className={`text-[14px] leading-5 font-medium truncate ${illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{title}</p>
         {tag}
       </div>
@@ -60,15 +60,18 @@ function GhostBtn({ icon: Icon, children, onClick, title, active = false }) {
   );
 }
 
-// La barre « Tout sélectionner » qui ouvre le corps de chaque bloc.
+// La barre « Tout sélectionner » qui ouvre le corps de chaque bloc (planche
+// « Import / Barre d'action (carte dossier) » 3284:2068) : fond subtil
+// #f5f4f1, rounded-6, pl-12 pr-8 py-6, label 12 medium, compteur + découpe
+// serrés à droite (gap 5).
 function SelectionBar({ state, onToggle, pairs, decoupe }) {
   return (
-    <div className="w-full rounded-lg pl-4 pr-2 flex items-center justify-between gap-3 flex-shrink-0" style={{ backgroundColor: V2.accent, height: 50 }}>
+    <div className="w-full rounded-md bg-background-subtle pl-3 pr-2 py-1.5 flex items-center justify-between gap-3 flex-shrink-0">
       <div className="flex items-center gap-2">
         <Checkbox checked={state === 'all'} partial={state === 'some'} onToggle={onToggle} title={state === 'all' ? 'Tout écarter' : 'Tout sélectionner'} />
-        <span className="text-[14px] leading-5 font-medium" style={{ color: V2.foreground }}>Tout sélectionner</span>
+        <span className="text-[12px] leading-4 font-medium" style={{ color: V2.foreground }}>Tout sélectionner</span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-[5px]">
         <BarCounter pairs={pairs} />
         {decoupe}
       </div>
@@ -91,7 +94,7 @@ export function Line({ line, api }) {
     return (
       <div className="flex items-center gap-2 h-11 px-4 bg-white">
         <span className="w-4 flex-shrink-0" aria-hidden />
-        <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" strokeWidth={1.33} style={{ color: V2.muted }} />
+        <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" strokeWidth={2} style={{ color: V2.muted }} />
         <p className="flex-1 min-w-0 text-[14px] leading-5 italic truncate opacity-40" style={{ color: V2.foreground }}>{line.title}</p>
       </div>
     );
@@ -103,10 +106,10 @@ export function Line({ line, api }) {
     return (
       <div className="flex items-center justify-between gap-3 h-11 px-4 bg-white">
         <div className="flex items-center gap-2 min-w-0">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.destructiveText }} />
-          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.destructiveText }} />
+          <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
+          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
           <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.destructiveText }}>{line.title}</p>
-          <Badge tone="destructive">Erreur</Badge>
+          <Badge tone="destructive" wide>Erreur</Badge>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <SmallBtn variant="secondary" onClick={() => api.retryLine(line.id)} title="Relancer le téléversement">Réessayer</SmallBtn>
@@ -122,10 +125,10 @@ export function Line({ line, api }) {
     return (
       <div className="flex items-center justify-between gap-3 h-11 px-4 bg-white">
         <div className="flex items-center gap-2 min-w-0">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.warning }} />
-          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.warning }} />
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
+          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
           <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }} title={line.doublon.note}>{line.title}</p>
-          <Badge tone="warning" title={line.doublon.note}>Doublon identifié</Badge>
+          <Badge tone="warning" wide title={line.doublon.note}>Doublon identifié</Badge>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <SmallBtn variant="secondary" onClick={() => api.resolveDoublon(line.id, 'keep')} title="Verser quand même - la pièce du dossier reste">Garder les deux</SmallBtn>
@@ -148,7 +151,7 @@ export function Line({ line, api }) {
         >
           <div className="flex items-center gap-2 min-w-0">
             <Checkbox checked onToggle={() => api.toggleIncluded(line.id)} title="Ne pas ajouter ces pièces" />
-            <Scissors className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.aiIcon }} />
+            <Scissors className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.aiIcon }} />
             <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{line.title}</p>
             {line.tag && <Badge tone="warning">{line.tag}</Badge>}
           </div>
@@ -164,7 +167,7 @@ export function Line({ line, api }) {
           <div className="flex flex-col">
             {line.detection.pieces.map((p) => (
               <div key={p.name} className="flex items-center gap-2 h-9 pl-10 pr-4 bg-white">
-                <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.pj }} />
+                <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.docRed }} />
                 <p className="flex-1 min-w-0 text-[13px] leading-5 truncate" style={{ color: V2.foreground }}>{p.name}</p>
               </div>
             ))}
@@ -188,12 +191,12 @@ export function Line({ line, api }) {
         onToggle={() => api.toggleIncluded(line.id)}
         title={line.included ? 'Ne pas ajouter cette pièce' : 'Ajouter cette pièce'}
       />
+      {/* Planche Flat Objects : corps de mail = mail AMBRE, PJ / fichier =
+          file-text ROUGE identité doc. */}
       {line.kind === 'body' ? (
-        <Mail className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.muted }} />
-      ) : line.kind === 'pj' ? (
-        <Paperclip className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.pj }} />
+        <Mail className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.mailBody }} />
       ) : (
-        <FileText className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.pj }} />
+        <FileText className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.docRed }} />
       )}
       <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${line.included ? 'font-medium' : 'opacity-50'}`} style={{ color: V2.foreground }}>{line.title}</p>
       {line.tag && line.included && <Badge tone="warning">{line.tag}</Badge>}
@@ -237,7 +240,7 @@ function TreeNodeDecoupe({ node, decoupe, api }) {
   }
   return (
     <HoverReveal>
-      <SmallBtn variant="outline" icon={Scissors} onClick={() => api.setFolderDecoupeMany(keys, true)} title={`Découper les ${keys.length} PJ de ce niveau`}>Découper</SmallBtn>
+      <SmallBtn variant="outline" icon={Scissors} onClick={() => api.setFolderDecoupeMany(keys, true)} title={`Découper les ${keys.length} PJ de ce niveau`}>Tout découper</SmallBtn>
     </HoverReveal>
   );
 }
@@ -269,7 +272,7 @@ function TreeNode({ node, depth, fid, decoupe, api, detectionFor }) {
           </button>
         ) : null}
         <Checkbox checked={st === 'all'} partial={st === 'some'} onToggle={toggle} title={st === 'all' ? 'Écarter' : 'Reprendre'} />
-        <Icon className={`w-4 h-4 flex-shrink-0 ${st === 'none' ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: iconColor }} />
+        <Icon className={`w-4 h-4 flex-shrink-0 ${st === 'none' ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: iconColor }} />
         <span className={`flex-1 min-w-0 truncate text-[14px] leading-5 ${isFolder || node.kind === 'thread' ? 'font-medium' : ''} ${st === 'none' ? 'opacity-50' : ''} ${node.illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{node.name}</span>
         {decoupablePj && <TreePjDecoupe leafKey={node.key} name={node.name} decoupe={decoupe} api={api} detectionFor={detectionFor} />}
         {!leaf && <TreeNodeDecoupe node={node} decoupe={decoupe} api={api} />}

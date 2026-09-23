@@ -1,10 +1,11 @@
 import React from 'react';
 import PanelToggleIcon from './PanelToggleIcon';
 
-// Contrôle « Menu » (frame 09fvZrDgcY83Js7y864E4v 3757:30888) - visible
-// UNIQUEMENT quand la nav est masquée. Le logo Plato garde une ancre de
-// marque à l'extrême gauche, suivi du glyphe panel (miroir du masquage,
-// barre qui glisse au survol) + libellé « Menu ».
+// Contrôle « Menu » (Figma « Navigation / Sidebar / Toggle », Plato---System
+// 37443:5724) - visible UNIQUEMENT quand la nav est masquée. Le logo Plato
+// (28px) garde une ancre de marque à l'extrême gauche, suivi du bouton
+// « Menu » (h-32, px-12, radius 8 : glyphe panel 16 dont la barre glisse au
+// survol + libellé 14 medium muted-foreground).
 // Survol → peek immédiat (onPeekEnter/onPeekLeave) ; clic → réouverture.
 // `absolute` : pose ancrée en haut à gauche sur les surfaces sans barre.
 // Le parent décide de l'afficher (navHidden) - le composant est purement
@@ -24,16 +25,16 @@ export default function NavExpandControl({ onExpand, onPeekEnter, onPeekLeave, o
         title="Accueil"
         aria-label="Accueil"
       >
-        <img src="/logo-plato.png" alt="Plato" className="w-6 h-6 block" />
+        <img src="/logo-plato.svg" alt="Plato" className="w-7 h-7 block" />
       </button>
       <button
         onClick={onExpand}
-        className="group flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+        className="group flex items-center justify-center gap-2 h-8 px-3 rounded-lg hover:bg-cream/60 transition-colors flex-shrink-0"
         title="Afficher la navigation"
         aria-label="Afficher la navigation"
       >
         <PanelToggleIcon dir="expand" className="w-4 h-4 text-foreground-secondary" />
-        <span className="text-[14px] text-foreground-secondary leading-none">Menu</span>
+        <span className="text-[14px] font-medium text-foreground-secondary leading-5">Menu</span>
       </button>
     </div>
   );

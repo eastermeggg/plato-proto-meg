@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Search as SearchIcon } from 'lucide-react';
 import { SCENARIO_LIST } from '../../data/demoScenarios';
+import { colors } from '../../design-system/tokens';
 
 export default function SlashCommandPalette({ query, onSelect, onDismiss, scenarios }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -56,16 +57,16 @@ export default function SlashCommandPalette({ query, onSelect, onDismiss, scenar
         marginBottom: 4,
         backgroundColor: 'white',
         borderRadius: 8,
-        border: '1px solid #dfdcd9',
+        border: `1px solid ${colors.semantic.border}`,
         boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
         overflow: 'hidden',
         zIndex: 40,
       }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border-subtle" style={{ backgroundColor: '#fafaf9' }}>
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border-subtle" style={{ backgroundColor: colors.banner.neutral.bgFrom }}>
         <SearchIcon className="w-3 h-3 text-foreground-muted" />
-        <span style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: '#78716c' }}>
+        <span style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: colors.semantic.mutedForeground }}>
           COMMANDES
         </span>
       </div>
@@ -78,15 +79,15 @@ export default function SlashCommandPalette({ query, onSelect, onDismiss, scenar
             onClick={() => onSelect(s.command)}
             className="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors"
             style={{
-              backgroundColor: i === selectedIndex ? '#fafaf9' : 'transparent',
-              borderBottom: i < filtered.length - 1 ? '1px solid #f0efed' : 'none',
+              backgroundColor: i === selectedIndex ? colors.banner.neutral.bgFrom : 'transparent',
+              borderBottom: i < filtered.length - 1 ? `1px solid ${colors.semantic.backgroundSubtle}` : 'none',
             }}
             onMouseEnter={() => setSelectedIndex(i)}
           >
-            <Play className="w-3 h-3 flex-shrink-0" style={{ color: '#b9703f' }} />
+            <Play className="w-3 h-3 flex-shrink-0" style={{ color: colors.accents.ochre }} />
             <div className="flex-1 min-w-0">
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#292524', display: 'block' }}>{s.label}</span>
-              <span style={{ fontSize: 12, color: '#a8a29e', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.description}</span>
+              <span style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.foreground, display: 'block' }}>{s.label}</span>
+              <span style={{ fontSize: 12, color: colors.semantic.foregroundMuted, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.description}</span>
             </div>
           </div>
         ))}

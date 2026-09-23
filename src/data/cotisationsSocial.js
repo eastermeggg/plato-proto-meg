@@ -1,4 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
+import { colors } from '../design-system/tokens';
 // COTISATIONS & IMPÔTS (droit social) - modèle de données (spec v3)
 //
 // Le calcul est un graphe ; le rendu est une projection du graphe sur des
@@ -72,13 +73,17 @@ export const sourceFamille = (type) => ({
 // Jetons des familles de badge - cinq teintes + un traitement sans teinte.
 // Géométrie Plato (Badge système) : bordure teintée un cran plus soutenue que
 // le fond + ombre xs. Aucune n'est orange (alerte) ni rouge (destructif).
+// Aligné le 23/09 sur le set Figma « Source Badge » canonique (familles
+// accents subtle/border/text), comme CotBadge de ui/tables/CotisationsRows -
+// les teintes approximées piece.*/banner.* sont retirées (migration §11 de
+// SIGNALEMENTS, validée steward).
 export const COT_BADGE_TOKENS = {
-  PIECE: { bg: '#EDF2FE', color: '#3B5BDB', border: '#cdd9f5' },
-  TEXTE: { bg: '#EFEBFE', color: '#6D46C8', border: '#ddd3f6' },
-  DECISION: { bg: '#E8F2EA', color: '#3F7350', border: '#c8dccd' },
-  REFERENCE: { bg: '#F3EEE4', color: '#7A6244', border: '#ded1ba' },
-  VALEUR: { bg: '#EEF1F5', color: '#52657D', border: '#d6dde5' },
-  WEB: { bg: 'transparent', color: '#78716C', dashed: '#C9C4BE' },
+  PIECE: { bg: colors.accents.indigo.subtle, color: colors.accents.indigo.text, border: colors.accents.indigo.border },
+  TEXTE: { bg: colors.accents.violet.subtle, color: colors.accents.violet.text, border: colors.accents.violet.border },
+  DECISION: { bg: colors.accents.emerald.subtle, color: colors.accents.emerald.text, border: colors.accents.emerald.border },
+  REFERENCE: { bg: colors.accents.sand.subtle, color: colors.accents.sand.text, border: colors.accents.sand.border },
+  VALEUR: { bg: colors.accents.slate.subtle, color: colors.accents.slate.text, border: colors.accents.slate.border },
+  WEB: { bg: 'transparent', color: colors.semantic.mutedForeground, dashed: colors.semantic.borderStrong },
 };
 
 // ── 1. VALEURS ──────────────────────────────────────────────────────────────

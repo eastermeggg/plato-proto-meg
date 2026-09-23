@@ -1,6 +1,9 @@
 import React from 'react';
 import { PencilLine, MessageSquare, Folder } from 'lucide-react';
 import { isThreadArchived, formatThreadActivity } from '../../hooks/useThreads';
+import { colors } from '../../design-system/tokens';
+import PageHeader from '../ui/PageHeader';
+import Button from '../ui/Button';
 
 // Page index « Mes conversations » - titre serif 28 + CTA sombre « Nouvelle
 // conversation », table blanche (Question / Dossier / Dernière activité),
@@ -11,7 +14,7 @@ import { isThreadArchived, formatThreadActivity } from '../../hooks/useThreads';
 //   threads       fils triés par la page (lastActivity desc)
 //   onOpenThread  (thread, dossier|null) - fil rattaché → ouvre le dossier
 // (miroir de App.js colHeaderStyle)
-const colHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
+const colHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: colors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
 
 export default function ConversationsIndexPage({
   threads,
@@ -27,32 +30,24 @@ export default function ConversationsIndexPage({
   const dossierOf = (t) => dossiers.find(d => d.id === t.scope?.dossierId) || null;
 
   return (
-    <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
+    <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: colors.semantic.foreground }}>
       {trialBanner}
       <div className="flex-1 flex relative overflow-hidden">
         {navSlot}
-        <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: '#F8F7F5' }}>
+        <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: colors.semantic.background }}>
           {/* Nav masquée : bande « Menu » en tête, au-dessus du titre. */}
           {expandControl && (
             <div className="px-8 pt-3 pb-1 flex-shrink-0">
               {expandControl}
             </div>
           )}
-          {/* Header - pas d'onglets, un en-tête de page */}
-          <div className={`px-8 ${navHidden ? 'pt-3' : 'pt-8'} pb-4`}>
-            <div className="flex items-center justify-between">
-              <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '28px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.01em' }}>
-                Mes conversations
-              </h1>
-              <button
-                onClick={onNewConversation}
-                className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors"
-              >
-                <PencilLine className="w-4 h-4" />
-                Nouvelle conversation
-              </button>
-            </div>
-          </div>
+          {/* En-tête de page canonique (ui/PageHeader, Figma 37511:1436) :
+              titre serif + « Nouvelle conversation », pas d'onglets. */}
+          <PageHeader
+            className={navHidden ? 'pt-3' : ''}
+            title="Mes conversations"
+            action={<Button variant="primary" icon={PencilLine} label="Nouvelle conversation" onClick={onNewConversation} />}
+          />
           {/* Table */}
           <div className="flex-1 overflow-y-auto px-8 pb-6">
             {rows.length === 0 ? (
@@ -64,10 +59,10 @@ export default function ConversationsIndexPage({
                 <p className="text-body text-foreground-secondary">Posez une question depuis l'accueil pour commencer.</p>
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
+              <div className="rounded-lg border border-border/60 overflow-hidden" style={{ backgroundColor: colors.semantic.card }}>
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-zinc-100">
+                    <tr className="border-b border-background-subtle">
                       <th className="px-5 py-3 text-left" style={colHeaderStyle}>Question</th>
                       <th className="px-5 py-3 text-left" style={colHeaderStyle}>Dossier</th>
                       <th className="px-5 py-3 text-left" style={colHeaderStyle}>Dernière activité</th>
@@ -81,7 +76,8 @@ export default function ConversationsIndexPage({
                         <tr
                           key={t.id}
                           onClick={() => onOpenThread(t, d)}
-                          className="bg-white hover:bg-background cursor-pointer transition-colors"
+                          className="hover:bg-background cursor-pointer transition-colors"
+                          style={{ backgroundColor: colors.semantic.card }}
                         >
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-3 min-w-0">

@@ -4,31 +4,57 @@ import AssistantComposer from './AssistantComposer';
 
 // ── ComposerLab ──────────────────────────────────────────────────────
 // Sandbox for the AssistantComposer: both variants, a fake catalog
-// (scoped / unscoped), a system-state cycler and an event log.
-// Standalone — the route is registered by the app shell.
+// (scoped / unscoped), all the Figma « Chat Input » states (node
+// 1081:50926) — système, running/stop, contexte, docs, UserAsk — and an
+// event log. Standalone — the route is registered by the app shell.
 
 const SYSTEM_STATES = [
   { key: 'aucun', state: null },
   {
-    key: 'en cours',
-    state: { kind: 'inProgress', label: 'Analyse des documents en cours...' },
+    key: 'analyse',
+    state: { kind: 'inProgress', label: 'Analyse des documents en cours...', disables: true },
   },
   {
-    key: 'alerte',
+    key: 'limite',
     state: {
       kind: 'warning',
-      label: '87% du quota hebdo utilisé',
+      label: "92% de votre quota d'utilisation hebdo utilisé",
       onOpen: () => {},
     },
   },
   {
-    key: 'bloqué',
+    key: 'quota',
     state: {
       kind: 'blocked',
       label: 'Quota hebdomadaire atteint - Upgrade',
       onOpen: () => {},
     },
   },
+];
+
+const USER_ASK_QUESTIONS = [
+  {
+    question: "Pour adapter l'acte à votre dossier, précisez-moi le tribunal compétent.",
+    proposals: ['Tribunal judiciaire de Paris', 'Tribunal judiciaire de Nanterre', 'Conseil de prud’hommes de Paris'],
+  },
+  {
+    question: 'Quelle est la date de signification retenue ?',
+    proposals: ['12 mars 2026', '2 avril 2026'],
+  },
+  {
+    question: 'Souhaitez-vous inclure une demande au titre de l’article 700 ?',
+    proposals: ['Oui, 3 000 EUR', 'Oui, 5 000 EUR', 'Non'],
+  },
+];
+
+const CONTEXT_ITEMS = [
+  { id: 'acte', label: 'ACTE - Assignation en référé-expertise - Dupont c/ Martin' },
+];
+
+const STAGED_DOCS = [
+  { id: 'sd1', name: 'Rapport expertise.pdf' },
+  { id: 'sd2', name: 'Certificat médical.pdf' },
+  { id: 'sd3', name: 'Avis imposition 2024.pdf' },
 ];
 
 const PIECE_FOLDERS = [
@@ -92,10 +118,29 @@ function buildCatalog(scoped) {
   };
 }
 
+const toggleBtnClass = (active) =>
+  `h-7 px-2.5 rounded-md border text-[12px] font-medium transition-colors ${
+    active
+      ? 'border-border-strong bg-secondary text-foreground'
+      : 'border-border bg-surface text-foreground hover:bg-background-subtle'
+  }`;
+
+const MONO_LABEL = {
+  fontFamily: "'IBM Plex Mono', monospace",
+  fontSize: 10.5,
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+};
+
 export default function ComposerLab() {
   const [scoped, setScoped] = useState(false);
   const [stateIdx, setStateIdx] = useState(0);
   const [scopeFlash, setScopeFlash] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [withContext, setWithContext] = useState(false);
+  const [withDocs, setWithDocs] = useState(false);
+  const [stagedDocs, setStagedDocs] = useState(STAGED_DOCS);
+  const [ask, setAsk] = useState(null); // { currentIdx, answers } | null
   const [log, setLog] = useState([]);
 
   const catalog = useMemo(() => buildCatalog(scoped), [scoped]);
@@ -116,6 +161,25 @@ export default function ComposerLab() {
     setScopeFlash(true);
   };
 
+  // ── UserAsk demo wiring — one question at a time, answers tracked ──
+  const userAsk = ask
+    ? {
+        ...USER_ASK_QUESTIONS[ask.currentIdx],
+        step: ask.currentIdx + 1,
+        total: USER_ASK_QUESTIONS.length,
+        answered: ask.answers,
+      }
+    : null;
+
+  const advanceAsk = (answers) => {
+    if (ask.currentIdx < USER_ASK_QUESTIONS.length - 1) {
+      setAsk({ currentIdx: ask.currentIdx + 1, answers });
+    } else {
+      pushLog('userAsk terminé', answers);
+      setAsk(null);
+    }
+  };
+
   const composerProps = {
     scope,
     dossierLabel: scoped ? 'Martin c/ AXA' : undefined,
@@ -123,6 +187,27 @@ export default function ComposerLab() {
     scopeFlash,
     onScopeFlashEnd: () => setScopeFlash(false),
     catalog,
+    running,
+    onStop: () => {
+      pushLog('onStop', null);
+      setRunning(false);
+    },
+    contextItems: withContext ? CONTEXT_ITEMS : undefined,
+    stagedDocs: withDocs ? stagedDocs : undefined,
+    onRemoveStagedDoc: (doc) => setStagedDocs((prev) => prev.filter((d) => d !== doc)),
+    userAsk,
+    onUserAskSubmit: (answer) => {
+      pushLog('onUserAskSubmit', { question: userAsk?.question, answer });
+      advanceAsk({ ...ask.answers, [ask.currentIdx]: true });
+    },
+    onUserAskSkip: () => {
+      pushLog('onUserAskSkip', { question: userAsk?.question });
+      advanceAsk(ask.answers);
+    },
+    onUserAskClose: () => setAsk(null),
+    onUserAskPrev: () => setAsk((s) => ({ ...s, currentIdx: Math.max(0, s.currentIdx - 1) })),
+    onUserAskNext: () =>
+      setAsk((s) => ({ ...s, currentIdx: Math.min(USER_ASK_QUESTIONS.length - 1, s.currentIdx + 1) })),
     onSend: (payload) =>
       pushLog('onSend', { body: payload.body, tokens: payload.tokens }),
     onAttach: attach,
@@ -142,40 +227,53 @@ export default function ComposerLab() {
           </h1>
           <p className="text-[13px] text-foreground-secondary mt-1">
             Un composer, deux périmètres. Le périmètre filtre le catalogue, jamais l'anatomie.
+            Tous les états du Figma « Chat Input » : système, running, contexte, docs, UserAsk.
           </p>
         </div>
 
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5 text-[12px]">
-            <span className="text-foreground-secondary" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span className="text-foreground-secondary" style={MONO_LABEL}>
               Périmètre
             </span>
-            <button
-              type="button"
-              onClick={() => setScoped((s) => !s)}
-              className="h-7 px-2.5 rounded-md border border-border bg-white text-[12px] font-medium text-foreground hover:bg-background-subtle transition-colors"
-            >
+            <button type="button" onClick={() => setScoped((s) => !s)} className={toggleBtnClass(scoped)}>
               {scoped ? 'Dossier Martin c/ AXA' : 'Hors dossier'}
             </button>
           </div>
           <div className="flex items-center gap-1.5 text-[12px]">
-            <span className="text-foreground-secondary" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span className="text-foreground-secondary" style={MONO_LABEL}>
               État système
             </span>
             <button
               type="button"
               onClick={() => setStateIdx((i) => (i + 1) % SYSTEM_STATES.length)}
-              className="h-7 px-2.5 rounded-md border border-border bg-white text-[12px] font-medium text-foreground hover:bg-background-subtle transition-colors"
+              className={toggleBtnClass(stateIdx !== 0)}
             >
               {SYSTEM_STATES[stateIdx].key}
             </button>
           </div>
+          <button type="button" onClick={() => setRunning((r) => !r)} className={toggleBtnClass(running)}>
+            {running ? 'Running (stop)' : 'Running'}
+          </button>
+          <button type="button" onClick={() => setWithContext((c) => !c)} className={toggleBtnClass(withContext)}>
+            Contexte
+          </button>
           <button
             type="button"
-            onClick={() => setScopeFlash(true)}
-            className="h-7 px-2.5 rounded-md border border-border bg-white text-[12px] font-medium text-foreground hover:bg-background-subtle transition-colors"
+            onClick={() => { setWithDocs((d) => !d); setStagedDocs(STAGED_DOCS); }}
+            className={toggleBtnClass(withDocs)}
           >
+            Docs joints
+          </button>
+          <button
+            type="button"
+            onClick={() => setAsk(ask ? null : { currentIdx: 0, answers: {} })}
+            className={toggleBtnClass(!!ask)}
+          >
+            UserAsk
+          </button>
+          <button type="button" onClick={() => setScopeFlash(true)} className={toggleBtnClass(false)}>
             Flash du chip
           </button>
         </div>
@@ -184,7 +282,7 @@ export default function ComposerLab() {
         <section>
           <div className="flex items-center gap-2 mb-3">
             <Scale className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.75} />
-            <span className="text-foreground-secondary" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+            <span className="text-foreground-secondary" style={{ ...MONO_LABEL, fontWeight: 600 }}>
               Variante hero (home)
             </span>
           </div>
@@ -200,7 +298,7 @@ export default function ComposerLab() {
         <section>
           <div className="flex items-center gap-2 mb-3">
             <Scale className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.75} />
-            <span className="text-foreground-secondary" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+            <span className="text-foreground-secondary" style={{ ...MONO_LABEL, fontWeight: 600 }}>
               Variante standard (fil)
             </span>
           </div>
@@ -216,7 +314,7 @@ export default function ComposerLab() {
         {/* Event log */}
         <section>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-foreground-secondary" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+            <span className="text-foreground-secondary" style={{ ...MONO_LABEL, fontWeight: 600 }}>
               Journal des événements
             </span>
             {log.length > 0 && (
@@ -229,7 +327,7 @@ export default function ComposerLab() {
               </button>
             )}
           </div>
-          <div className="rounded-xl border border-border bg-white overflow-hidden">
+          <div className="rounded-xl border border-border bg-surface overflow-hidden">
             {log.length === 0 ? (
               <div className="px-4 py-6 text-[13px] text-foreground-muted">
                 Aucun événement - envoyez un message, exécutez une intention ou déposez un fichier.

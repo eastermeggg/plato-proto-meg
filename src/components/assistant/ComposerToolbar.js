@@ -1,21 +1,42 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUp, Folder, Lightbulb, Link2, Mic, Paperclip, Plus } from 'lucide-react';
+import {
+  ArrowUp,
+  FileText,
+  Folder,
+  FolderOpen,
+  LayoutTemplate,
+  Lightbulb,
+  Mic,
+  Paperclip,
+  Plus,
+  Square,
+} from 'lucide-react';
 import SuggestionsMenu from '../SuggestionsMenu';
+import { colors, shadows } from '../../design-system/tokens';
 
 // ── ComposerToolbar ──────────────────────────────────────────────────
-// Rangée basse du composer, volontairement minimale (décision 08/09) :
-//   gauche  - ampoule à suggestions (menu au-dessus) · trombone
-//   droite  - « Rattacher à un dossier » (bouton pointillé, seulement quand
-//             onAttach est fourni) · dictée (présente, inerte) · envoi
-// Les menus @ et / restent accessibles en tapant @ ou / dans l'input ; le
-// périmètre n'est plus affiché ici pour l'instant.
+// Rangée basse du composer — alignée sur le Figma « Chat Input »
+// (node 1081:50926) :
+//   gauche  - « Pièces » · « Modèles » (boutons libellés, ouvrent le menu @
+//             filtré) · ampoule à suggestions · trombone (HORS dossier
+//             seulement - en dossier, pas d'upload dans le chat)
+//   droite  - « Lier à un dossier » (pointillé, hors dossier seulement) ·
+//             dictée (présente, inerte) · envoi / stop
+// Les menus @ et / restent accessibles en tapant @ ou / dans l'input.
 
 const iconBtnClass = (disabled) =>
   `inline-flex items-center justify-center w-[26px] h-[26px] rounded-[4px] transition-colors ${
     disabled
       ? 'text-foreground-muted cursor-not-allowed'
-      : 'text-foreground-secondary hover:bg-stone-100 hover:text-foreground active:bg-stone-200'
+      : 'text-foreground-secondary hover:bg-background-subtle hover:text-foreground active:bg-stone-subtle'
+  }`;
+
+const labelBtnClass = (disabled) =>
+  `inline-flex items-center gap-1.5 h-[26px] px-2 rounded-[4px] text-[12px] font-medium transition-colors ${
+    disabled
+      ? 'text-foreground-muted cursor-not-allowed'
+      : 'text-foreground-secondary hover:bg-background-subtle hover:text-foreground active:bg-stone-subtle'
   }`;
 
 export default function ComposerToolbar({
@@ -26,17 +47,25 @@ export default function ComposerToolbar({
   onAttachToDossier,
   onCreateDossier,
   onDropClick,
+  // Boutons libellés « Pièces » / « Modèles » : ouvrent le menu @ filtré.
+  onOpenPieces,
+  onOpenModeles,
+  // Hors dossier : trombone (upload direct) + « Lier à un dossier ».
+  horsDossier = true,
   suggestions = [],
   disabled = false,
   canSend = false,
   onSend,
+  // Agent en cours : l'envoi devient un bouton stop (carré sur fond secondary).
+  running = false,
+  onStop,
 }) {
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [menuRect, setMenuRect] = useState(null); // { left, bottom } en coords viewport
   const btnRef = useRef(null);
   const menuRef = useRef(null);
 
-  // Popover de rattachement (ancré au bouton « Rattacher à un dossier »).
+  // Popover de rattachement (ancré au bouton « Lier à un dossier »).
   const usePopover = !!onAttachToDossier;
   const [attachOpen, setAttachOpen] = useState(false);
   const [attachRect, setAttachRect] = useState(null);
@@ -106,9 +135,80 @@ export default function ComposerToolbar({
     };
   }, [suggestionsOpen, place]);
 
+  // Bouton envoi / stop : trois états (Figma Default / Active / Paused).
+  const sendBtn = running ? (
+    <button
+      type="button"
+      title="Arrêter"
+      aria-label="Arrêter"
+      onClick={onStop}
+      className="inline-flex items-center justify-center w-[26px] h-[26px] rounded-[4px] flex-shrink-0 transition-colors"
+      style={{
+        backgroundColor: colors.semantic.secondary,
+        boxShadow: shadows['2xs'],
+      }}
+    >
+      <Square
+        className="w-3.5 h-3.5 opacity-50"
+        strokeWidth={2}
+        style={{ color: colors.semantic.foreground }}
+        fill={colors.semantic.foreground}
+      />
+    </button>
+  ) : (
+    <button
+      type="button"
+      title="Envoyer (Entrée)"
+      aria-label="Envoyer"
+      onClick={canSend ? onSend : undefined}
+      disabled={!canSend}
+      className="inline-flex items-center justify-center w-[26px] h-[26px] rounded-[4px] flex-shrink-0"
+      style={{
+        backgroundColor: canSend ? colors.semantic.primary : colors.semantic.background,
+        boxShadow: canSend ? '0px 1px 2px 0px rgba(26,26,26,0.1)' : 'none',
+        cursor: canSend ? 'pointer' : 'default',
+        transition: 'background-color 150ms ease',
+      }}
+      onMouseEnter={(e) => { if (canSend) e.currentTarget.style.backgroundColor = colors.semantic.foregroundTertiary; }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = canSend ? colors.semantic.primary : colors.semantic.background; }}
+    >
+      <ArrowUp
+        className={canSend ? 'w-3.5 h-3.5' : 'w-3 h-3 opacity-50'}
+        strokeWidth={2.25}
+        style={{ color: canSend ? colors.semantic.primaryForeground : colors.semantic.mutedForeground }}
+      />
+    </button>
+  );
+
   return (
     <div className="flex items-center justify-between gap-2 p-3">
-      <div className="flex items-center gap-0.5 min-w-0">
+      {/* Figma « Icon buttons » : boutons adjacents (gap 0), le groupe entier
+          passe à 30% quand désactivé. */}
+      <div className={`flex items-center min-w-0 ${disabled ? 'opacity-30' : ''}`}>
+        {onOpenPieces && (
+          <button
+            type="button"
+            title="Pièces du dossier"
+            className={labelBtnClass(disabled)}
+            disabled={disabled}
+            onClick={onOpenPieces}
+          >
+            <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />
+            Pièces
+          </button>
+        )}
+        {onOpenModeles && (
+          <button
+            type="button"
+            title="Modèles"
+            className={labelBtnClass(disabled)}
+            disabled={disabled}
+            onClick={onOpenModeles}
+          >
+            <LayoutTemplate className="w-3.5 h-3.5" strokeWidth={1.75} />
+            Modèles
+          </button>
+        )}
         {suggestions.length > 0 && (
           <>
             <button
@@ -116,7 +216,7 @@ export default function ComposerToolbar({
               type="button"
               title="Suggestions"
               aria-label="Suggestions"
-              className={`${iconBtnClass(disabled)} ${suggestionsOpen ? 'bg-stone-100 text-foreground' : ''}`}
+              className={`${iconBtnClass(disabled)} ${suggestionsOpen ? 'bg-background-subtle text-foreground' : ''}`}
               disabled={disabled}
               onClick={() => { if (!disabled) setSuggestionsOpen(o => !o); }}
             >
@@ -140,47 +240,51 @@ export default function ComposerToolbar({
             )}
           </>
         )}
-        <button
-          type="button"
-          title="Joindre des fichiers"
-          aria-label="Joindre des fichiers"
-          className={iconBtnClass(disabled)}
-          disabled={disabled}
-          onClick={onDropClick}
-        >
-          <Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />
-        </button>
+        {/* Trombone HORS dossier seulement : en dossier, les documents entrent
+            par le circuit pièces, jamais par le chat (décision attach split). */}
+        {horsDossier && onDropClick && (
+          <button
+            type="button"
+            title="Joindre des fichiers"
+            aria-label="Joindre des fichiers"
+            className={iconBtnClass(disabled)}
+            disabled={disabled}
+            onClick={onDropClick}
+          >
+            <Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />
+          </button>
+        )}
       </div>
-      <div className="flex items-center gap-1.5 flex-shrink-0">
-        {/* Conversion : rattacher le fil - pointillé, à gauche de la dictée.
-            Ouvre un popover ancré (liste des dossiers) ; sinon retombe sur la
-            modale onAttach(). Visible dès qu'un des deux est fourni (le popover
-            existe même sans fil actif - ex. home, « pour le futur »). */}
-        {(onAttach || usePopover) && (
+      {/* Figma « Action buttons » : gap 2px. */}
+      <div className="flex items-center gap-[2px] flex-shrink-0">
+        {/* Conversion : lier le fil - pointillé, à gauche de la dictée. Ouvre un
+            popover ancré (liste des dossiers) ; sinon retombe sur la modale
+            onAttach(). Hors dossier seulement : en dossier le fil est déjà lié. */}
+        {horsDossier && (onAttach || usePopover) && (
           <>
             <button
               ref={attachBtnRef}
               type="button"
-              onClick={() => { if (usePopover) setAttachOpen(o => !o); else onAttach(); }}
+              onClick={() => { if (disabled) return; if (usePopover) setAttachOpen(o => !o); else onAttach(); }}
               disabled={disabled}
-              className={`inline-flex items-center gap-1.5 h-[26px] px-2.5 rounded-[6px] text-[12.5px] font-medium transition-colors ${attachOpen ? 'text-foreground bg-stone-50' : 'text-foreground-secondary hover:text-foreground hover:bg-stone-50'}`}
-              style={{ border: '1px dashed #cbc7c4' }}
+              className={`inline-flex items-center gap-1.5 h-[26px] px-2.5 rounded-[6px] text-[12.5px] font-medium transition-colors ${disabled ? 'opacity-30 cursor-not-allowed text-foreground-secondary' : attachOpen ? 'text-foreground bg-background' : 'text-foreground-secondary hover:text-foreground hover:bg-background'}`}
+              style={{ border: `1px dashed ${colors.semantic.borderStrong}` }}
             >
-              <Link2 className="w-3 h-3" strokeWidth={1.75} />
-              Rattacher à un dossier
+              <FolderOpen className="w-3.5 h-3.5" strokeWidth={1.75} />
+              Lier à un dossier
             </button>
             {attachOpen && attachRect && createPortal(
               <div
                 ref={attachMenuRef}
-                className="fixed z-[100] bg-white border border-border rounded-[8px] overflow-hidden"
-                style={{ left: attachRect.left, bottom: attachRect.bottom, width: attachRect.width, boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.08), 0px 12px 24px -8px rgba(26,26,26,0.16)' }}
+                className="fixed z-[100] border border-border rounded-[8px] overflow-hidden"
+                style={{ left: attachRect.left, bottom: attachRect.bottom, width: attachRect.width, backgroundColor: colors.semantic.popover, boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.08), 0px 12px 24px -8px rgba(26,26,26,0.16)' }}
               >
                 <div
                   className="flex items-center px-[10px]"
-                  style={{ height: 32, backgroundColor: '#f8f7f5', borderBottom: '1px solid #dfdcd9' }}
+                  style={{ height: 32, backgroundColor: colors.semantic.background, borderBottom: `1px solid ${colors.semantic.border}` }}
                 >
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Rattacher à un dossier
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: colors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Lier à un dossier
                   </span>
                 </div>
                 <div className="p-1.5 max-h-[280px] overflow-y-auto">
@@ -222,28 +326,11 @@ export default function ComposerToolbar({
           title="Dictée (à venir)"
           aria-label="Dictée (à venir)"
           aria-disabled="true"
-          className="inline-flex items-center justify-center w-[26px] h-[26px] rounded-[4px] text-foreground-muted cursor-default"
+          className={`inline-flex items-center justify-center w-[26px] h-[26px] rounded-[4px] text-foreground-muted cursor-default ${disabled ? 'opacity-30' : ''}`}
         >
           <Mic className="w-3.5 h-3.5" strokeWidth={1.75} />
         </span>
-        <button
-          type="button"
-          title="Envoyer (Entrée)"
-          aria-label="Envoyer"
-          onClick={canSend ? onSend : undefined}
-          disabled={!canSend}
-          className="inline-flex items-center justify-center w-[26px] h-[26px] rounded-[4px] flex-shrink-0"
-          style={{
-            backgroundColor: canSend ? '#292524' : '#f8f7f5',
-            boxShadow: canSend ? '0px 1px 2px 0px rgba(26,26,26,0.1)' : 'none',
-            cursor: canSend ? 'pointer' : 'default',
-            transition: 'background-color 150ms ease',
-          }}
-          onMouseEnter={(e) => { if (canSend) e.currentTarget.style.backgroundColor = '#44403c'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = canSend ? '#292524' : '#f8f7f5'; }}
-        >
-          <ArrowUp className="w-3 h-3" strokeWidth={2.25} style={{ color: canSend ? '#ffffff' : '#78716c' }} />
-        </button>
+        {sendBtn}
       </div>
     </div>
   );

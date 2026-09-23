@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors } from '../../design-system/tokens';
 
 // Bouton de réouverture du rail Plato Assistant (header du dossier, quand le
 // rail est replié). Style « Plato Assistant Button » de Plato - System
@@ -15,7 +16,7 @@ const SparkleIA = () => (
   <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative flex-shrink-0">
     <path
       d="M19 19H13.0625L12.5879 16.625H13.5371V14.7246H5.46289V16.625H6.41211L5.9375 19H0V0H19V19ZM6.86719 9.28223L4.9873 7.59961L3.5625 8.5498L6.1748 13.2998H12.8252L15.4375 8.5498L14.0127 7.59961L12.1318 9.28223L9.5 6.65039L6.86719 9.28223ZM7.83789 4.03711L9.5 5.7002L11.1621 4.03711L9.5 2.375L7.83789 4.03711Z"
-      fill="#292524"
+      fill={colors.semantic.foreground}
     />
   </svg>
 );
@@ -31,7 +32,7 @@ export default function PlatoAssistantButton({ onClick }) {
           border-radius: 7px;
           pointer-events: none;
           background: conic-gradient(from var(--plato-glow-angle),
-            transparent 0deg, #f47a2c 46deg, transparent 92deg);
+            transparent 0deg, ${colors.brand.DEFAULT} 46deg, transparent 92deg);
           animation: pab-glow-spin 2.8s linear infinite;
         }
         /* anneau net 1px : comète PAR-DESSUS l'anneau de base border-strong */
@@ -40,11 +41,11 @@ export default function PlatoAssistantButton({ onClick }) {
           padding: 1px;
           z-index: 1;
           background:
-            conic-gradient(from var(--plato-glow-angle), transparent 0deg, #f47a2c 46deg, transparent 92deg),
-            linear-gradient(#cbc7c4, #cbc7c4);
-          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            conic-gradient(from var(--plato-glow-angle), transparent 0deg, ${colors.brand.DEFAULT} 46deg, transparent 92deg),
+            linear-gradient(${colors.semantic.borderStrong}, ${colors.semantic.borderStrong});
+          -webkit-mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
           -webkit-mask-composite: xor;
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
           mask-composite: exclude;
         }
         /* jumeau flou (bloom) autour du bord */
@@ -54,23 +55,23 @@ export default function PlatoAssistantButton({ onClick }) {
           z-index: 0;
           filter: blur(7px);
           opacity: 0.75;
-          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
           -webkit-mask-composite: xor;
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
           mask-composite: exclude;
         }
         @supports not (background: conic-gradient(from 0deg, red, blue)) {
-          .pab-glow-ring { background: #cbc7c4; }
+          .pab-glow-ring { background: ${colors.semantic.borderStrong}; }
           .pab-glow-bloom { display: none; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .pab-glow-ring { animation: none; background: #cbc7c4; }
+          .pab-glow-ring { animation: none; background: ${colors.semantic.borderStrong}; }
           .pab-glow-bloom { display: none; }
         }
       `}</style>
       <button
         onClick={onClick}
-        className="group relative flex items-center gap-2 px-3 py-1.5 rounded-[6px] bg-white transition-shadow"
+        className="group relative flex items-center gap-2 px-3 py-1.5 rounded-[6px] bg-surface transition-shadow"
         title="Ouvrir Plato Assistant"
         style={{
           boxShadow:

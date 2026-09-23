@@ -69,11 +69,11 @@ export default function RowContextMenu({ open, position, items, onClose }) {
               cursor: 'pointer',
               fontFamily: typography.fontFamily.sans,
               fontSize: 13,
-              color: item.destructive ? '#991b1b' : colors.semantic.foreground,
+              color: item.destructive ? colors.feedback.destructive.base : colors.semantic.foreground,
               textAlign: 'left',
               transition: 'background-color 100ms',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = item.destructive ? '#fef2f2' : colors.semantic.backgroundHover; }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = item.destructive ? colors.step.red.bg : colors.semantic.backgroundHover; }}
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
           >
             {Icon && <Icon style={{ width: 14, height: 14, flexShrink: 0 }} strokeWidth={1.5} />}

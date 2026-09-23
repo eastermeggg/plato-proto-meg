@@ -4,6 +4,7 @@ import { PRICING_PLANS, PLAN_BY_ID, fmtEur } from '../data/pricing';
 import LicencePicker from './billing/LicencePicker';
 import { ProviderMark } from './connectors/ConnectorArt';
 import { CONNECTOR_PROVIDERS } from './connectors/connectorData';
+import { colors, shadows } from '../design-system/tokens';
 
 // ───────────────────────────────────────────────────────────────────────────
 // OnboardingFlow - first-run experience for a newly provisioned account.
@@ -33,19 +34,19 @@ const REDIRECT_SECONDS = 5; // done step auto-launches into Plato after this
 
 // ── Tokens (aligned with src/design-system/tokens.js) ──
 const C = {
-  canvas: '#f8f7f5',
-  surface: '#ffffff',
-  cream: '#eeece6',
-  fg: '#292524',
-  fgStrong: '#1c1917',
-  fg2: '#78716c',
-  fg3: '#57534e',
-  muted: '#a8a29e',
-  border: '#dfdcd9',
-  borderStrong: '#cbc7c4',
-  blue: '#1e3a8a',
-  blueBg: '#eef3fa',
-  blueBorder: '#d7e2f2',
+  canvas: colors.semantic.accent,
+  surface: colors.semantic.card,
+  cream: colors.semantic.muted,
+  fg: colors.semantic.foreground,
+  fgStrong: colors.semantic.foreground,
+  fg2: colors.semantic.mutedForeground,
+  fg3: colors.semantic.foregroundQuaternary,
+  muted: colors.semantic.borderHover,
+  border: colors.semantic.border,
+  borderStrong: colors.semantic.borderStrong,
+  blue: colors.feedback.info.text,
+  blueBg: colors.banner.info.bgFrom,
+  blueBorder: colors.piece.expertise.bg,
 };
 const SERIF = "'RL Para Trial Central', Georgia, serif";
 const SANS = "'Inter', system-ui, sans-serif";
@@ -54,15 +55,15 @@ const MONO = "'IBM Plex Mono', monospace";
 // Shared dark side-panel language (brand hero + trial timeline use the same
 // shell so the onboarding reads as one continuous surface, left panel throughout).
 const D = {
-  bg: `linear-gradient(165deg, ${'#1c1917'} 0%, #262220 62%, #302b28 100%)`,
-  head: '#faf9f7',
-  title: '#f5f3f0',
+  bg: `linear-gradient(165deg, ${colors.semantic.foreground} 0%, ${colors.semantic.cardForeground} 62%, ${colors.semantic.cardForeground} 100%)`,
+  head: colors.semantic.accent,
+  title: colors.semantic.accent,
   body: 'rgba(255,255,255,0.6)',
   muted: 'rgba(255,255,255,0.42)',
   line: 'rgba(255,255,255,0.1)',
   tile: 'rgba(255,255,255,0.07)',
   tileBorder: 'rgba(255,255,255,0.1)',
-  accent: '#b8cdec',
+  accent: colors.banner.info.border,
   accentBg: 'rgba(184,205,236,0.12)',
   accentBorder: 'rgba(184,205,236,0.25)',
 };
@@ -98,12 +99,12 @@ function PrimaryButton({ children, onClick, disabled, full, icon: Icon = ArrowRi
       className={`inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-[14px] font-medium transition-all ${full ? 'w-full' : ''}`}
       style={{
         background: disabled ? C.borderStrong : C.fg,
-        color: '#fff',
+        color: colors.semantic.white,
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.6 : 1,
         boxShadow: disabled ? 'none' : '0 1px 2px rgba(41,37,36,0.18)',
       }}
-      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = '#1c1917'; }}
+      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = colors.semantic.foreground; }}
       onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.background = C.fg; }}
     >
       {children}
@@ -146,7 +147,7 @@ function AccordionRow({ n, title, optional, open, summary, onToggle, children })
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${open ? C.borderStrong : C.border}`, background: C.surface, boxShadow: open ? '0 2px 8px rgba(41,37,36,0.06)' : 'none', transition: 'box-shadow 150ms' }}>
       <button onClick={onToggle} className="w-full flex items-center gap-3 px-4 text-left" style={{ height: 52 }}>
-        <div className="flex items-center justify-center rounded-full flex-shrink-0" style={{ width: 22, height: 22, fontSize: 11, fontWeight: 600, fontFamily: MONO, background: open ? C.fg : C.cream, color: open ? '#fff' : C.fg2 }}>{n}</div>
+        <div className="flex items-center justify-center rounded-full flex-shrink-0" style={{ width: 22, height: 22, fontSize: 11, fontWeight: 600, fontFamily: MONO, background: open ? C.fg : C.cream, color: open ? colors.semantic.white : C.fg2 }}>{n}</div>
         <span style={{ fontSize: 14, fontWeight: 600, color: C.fg }}>{title}</span>
         {optional && <span style={{ fontSize: 11.5, color: C.muted }}>· optionnel</span>}
         <div className="ml-auto flex items-center gap-2.5 min-w-0">
@@ -265,7 +266,7 @@ function BrandPanel() {
         <div style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 500, color: 'rgba(255,255,255,0.42)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 18 }}>
           L'IA des cabinets de contentieux
         </div>
-        <h2 style={{ fontFamily: SERIF, fontSize: 33, fontWeight: 500, color: '#faf9f7', letterSpacing: '-0.6px', lineHeight: '40px', marginBottom: 14 }}>
+        <h2 style={{ fontFamily: SERIF, fontSize: 33, fontWeight: 500, color: colors.semantic.accent, letterSpacing: '-0.6px', lineHeight: '40px', marginBottom: 14 }}>
           Spécialisée dans<br />vos contentieux.
         </h2>
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: '22px' }}>
@@ -278,7 +279,7 @@ function BrandPanel() {
           </div>
           <div className="flex flex-wrap gap-2">
             {domains.map((d) => (
-              <span key={d} className="rounded-full" style={{ fontSize: 12, fontWeight: 500, color: '#f5f3f0', padding: '5px 11px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>{d}</span>
+              <span key={d} className="rounded-full" style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.accent, padding: '5px 11px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>{d}</span>
             ))}
           </div>
         </div>
@@ -336,7 +337,7 @@ function TimelineRail({ billingDate, started }) {
           <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, color: D.muted, letterSpacing: '0.08em' }}>J1</span>
           <div className="flex flex-1" style={{ gap: 3 }}>
             {Array.from({ length: TRIAL_DAYS }, (_, i) => (
-              <div key={i} style={{ height: 4, flex: 1, borderRadius: 999, backgroundColor: i === 0 ? '#fff' : 'rgba(255,255,255,0.18)' }} />
+              <div key={i} style={{ height: 4, flex: 1, borderRadius: 999, backgroundColor: i === 0 ? colors.semantic.white : 'rgba(255,255,255,0.18)' }} />
             ))}
           </div>
           <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, color: D.muted, letterSpacing: '0.08em' }}>J7</span>
@@ -353,8 +354,8 @@ function TimelineRail({ billingDate, started }) {
                     className="flex items-center justify-center rounded-full flex-shrink-0"
                     style={{
                       width: 28, height: 28,
-                      background: t.now ? '#fff' : D.tile,
-                      border: `1.5px solid ${t.now ? '#fff' : D.tileBorder}`,
+                      background: t.now ? colors.semantic.white : D.tile,
+                      border: `1.5px solid ${t.now ? colors.semantic.card : D.tileBorder}`,
                       boxShadow: t.now ? `0 0 0 4px rgba(255,255,255,0.12)` : 'none',
                     }}
                   >
@@ -411,7 +412,7 @@ function Stepper({ activeIndex }) {
                 style={{
                   width: 22, height: 22, fontSize: 11, fontWeight: 600, fontFamily: MONO,
                   background: done ? C.fg : active ? C.blueBg : C.surface,
-                  color: done ? '#fff' : active ? C.blue : C.muted,
+                  color: done ? colors.semantic.white : active ? C.blue : C.muted,
                   border: `1px solid ${done ? C.fg : active ? C.blueBorder : C.border}`,
                 }}
               >
@@ -489,7 +490,7 @@ function StripeModal({ open, totalMonthly, licenceCount, billingDate, defaultEma
         {phase === 'success' ? (
           <div className="flex flex-col items-center text-center px-8 py-14">
             <div className="flex items-center justify-center rounded-full mb-5" style={{ width: 56, height: 56, background: C.fg }}>
-              <Check className="w-7 h-7" style={{ color: '#fff' }} strokeWidth={2.5} />
+              <Check className="w-7 h-7" style={{ color: colors.semantic.white }} strokeWidth={2.5} />
             </div>
             <div style={{ fontFamily: SERIF, fontSize: 20, fontWeight: 500, color: C.fgStrong }}>Paiement confirmé</div>
             <div style={{ fontSize: 12.5, color: C.fg2, marginTop: 4 }}>Votre essai gratuit démarre maintenant.</div>
@@ -546,7 +547,7 @@ function StripeModal({ open, totalMonthly, licenceCount, billingDate, defaultEma
                 className="inline-flex items-center justify-center gap-2 h-11 w-full rounded-lg text-[14px] font-medium transition-all mt-1"
                 style={{
                   background: (!cardValid || phase !== 'form') ? C.borderStrong : C.fg,
-                  color: '#fff',
+                  color: colors.semantic.white,
                   cursor: (!cardValid || phase !== 'form') ? 'not-allowed' : 'pointer',
                   opacity: (!cardValid) ? 0.6 : 1,
                 }}
@@ -718,7 +719,7 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
                     />
                   </Field>
                   {confirmPassword.length > 0 && password !== confirmPassword && (
-                    <p style={{ fontSize: 12, color: '#991b1b' }}>Les mots de passe ne correspondent pas.</p>
+                    <p style={{ fontSize: 12, color: colors.feedback.destructive.base }}>Les mots de passe ne correspondent pas.</p>
                   )}
                 </div>
 
@@ -868,8 +869,8 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
                       key={p.id}
                       type="button"
                       onClick={() => { setMailConnected(true); setStep('done'); }}
-                      className="group flex items-center text-left rounded-xl bg-white transition-colors hover:bg-black/[0.02]"
-                      style={{ gap: 12, padding: '12px 14px', border: `1px solid ${C.border}`, boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                      className="group flex items-center text-left rounded-xl bg-surface transition-colors hover:bg-black/[0.02]"
+                      style={{ gap: 12, padding: '12px 14px', border: `1px solid ${C.border}`, boxShadow: shadows.xs }}
                     >
                       <ProviderMark provider={p.id} size={24} />
                       <span className="flex flex-col flex-1 min-w-0" style={{ gap: 1 }}>

@@ -19,27 +19,28 @@ import { CONNECTOR_PROVIDERS, SCOPE_READS } from './connectorData';
 import { ConnectorHero, ProviderMark, OAuthWindow } from './ConnectorArt';
 import { BENEFITS } from './MailValueModal';
 import { SyncSoonTeaser } from './ConnectorPromo';
+import { colors, shadows } from '../../design-system/tokens';
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
-const serifTitle = { fontFamily: SERIF, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', lineHeight: 1.25 };
+const serifTitle = { fontFamily: SERIF, fontWeight: 500, color: colors.semantic.foreground, letterSpacing: '-0.3px', lineHeight: 1.25 };
 
 // Le périmètre exact de l'autorisation - dit AVANT tout clic, c'est le consentement.
 function ConsentBlock({ scope, label = 'Accès demandé : lecture seule' }) {
   return (
-    <div className="rounded-lg" style={{ backgroundColor: '#eeece6', padding: '12px 14px' }}>
+    <div className="rounded-lg" style={{ backgroundColor: colors.semantic.muted, padding: '12px 14px' }}>
       <div className="flex items-center gap-2 flex-wrap">
         <Lock className="w-4 h-4 flex-shrink-0 text-foreground" strokeWidth={1.75} />
         <p className="text-[13px] font-medium text-foreground">{label}</p>
         <span className="flex items-center gap-1.5 ml-1">
           {SCOPE_READS.map(s => (
-            <span key={s} className="inline-flex items-center h-[22px] px-2 rounded-full bg-white text-[11.5px] font-medium" style={{ color: '#44403c', border: '1px solid #e0ddd6' }}>{s}</span>
+            <span key={s} className="inline-flex items-center h-[22px] px-2 rounded-full bg-surface text-[11.5px] font-medium" style={{ color: colors.semantic.foregroundTertiary, border: `1px solid ${colors.semantic.border}` }}>{s}</span>
           ))}
         </span>
       </div>
-      <p className="text-[12px] leading-[18px] mt-2" style={{ color: '#57534e' }}>
+      <p className="text-[12px] leading-[18px] mt-2" style={{ color: colors.semantic.foregroundQuaternary }}>
         Jamais d'envoi ni de suppression - rien n'entre dans un dossier sans votre geste.
       </p>
-      <p className="text-[12px] leading-[18px] mt-1" style={{ color: '#57534e' }}>
+      <p className="text-[12px] leading-[18px] mt-1" style={{ color: colors.semantic.foregroundQuaternary }}>
         {scope === 'shared'
           ? 'Boîte commune du cabinet : consultable par tous les membres du workspace.'
           : 'Votre boîte personnelle : visible par vous seul. Ce que vous versez dans un dossier devient accessible au cabinet.'}
@@ -64,8 +65,8 @@ export function ProviderChoice({ onPick, compact = false }) {
   return (
     <div className="flex flex-col" style={{ gap: 10 }}>
       {/* La phrase de cadrage - règle la confusion d'un coup. */}
-      <p className="text-[12.5px] leading-[17px]" style={{ color: '#78716c' }}>
-        Choisissez d'après votre <span className="font-medium" style={{ color: '#44403c' }}>adresse email</span>, pas d'après l'application que vous ouvrez.
+      <p className="text-[12.5px] leading-[17px]" style={{ color: colors.semantic.mutedForeground }}>
+        Choisissez d'après votre <span className="font-medium" style={{ color: colors.semantic.foregroundTertiary }}>adresse email</span>, pas d'après l'application que vous ouvrez.
       </p>
       <div className="flex flex-col" style={{ gap: 8 }}>
         {providers.map(p => (
@@ -73,17 +74,17 @@ export function ProviderChoice({ onPick, compact = false }) {
             key={p.id}
             type="button"
             onClick={() => onPick?.(p.id)}
-            className="group flex items-center text-left bg-white border border-border rounded-xl hover:border-border-strong transition-colors"
-            style={{ gap: 12, padding: compact ? '11px 13px' : '13px 15px', boxShadow: '0 1px 2px rgba(26,26,26,0.04)' }}
+            className="group flex items-center text-left bg-surface border border-border rounded-xl hover:border-border-strong transition-colors"
+            style={{ gap: 12, padding: compact ? '11px 13px' : '13px 15px', boxShadow: shadows.xs }}
           >
             <ProviderMark provider={p.id} size={26} />
             <span className="flex flex-col flex-1 min-w-0" style={{ gap: 1 }}>
               <span className="text-[13.5px] font-medium text-foreground leading-[18px]">{p.pick}</span>
-              <span className="text-[12px] leading-[16px]" style={{ color: '#78716c' }}>{p.hint}</span>
+              <span className="text-[12px] leading-[16px]" style={{ color: colors.semantic.mutedForeground }}>{p.hint}</span>
             </span>
             <span
               className="flex-shrink-0 inline-flex items-center justify-center rounded-lg text-[12.5px] font-medium text-foreground-secondary group-hover:text-foreground transition-colors"
-              style={{ height: 30, padding: '0 12px', border: '1px solid #e0ddd6' }}
+              style={{ height: 30, padding: '0 12px', border: `1px solid ${colors.semantic.border}` }}
             >
               Connecter
             </span>
@@ -117,13 +118,13 @@ export function MailConnectIntro({ onPick }) {
           <div key={title} className="flex items-start" style={{ gap: 11 }}>
             <span
               className="inline-flex items-center justify-center flex-shrink-0"
-              style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#f1efeb', border: '1px solid #dfdcd9' }}
+              style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: colors.semantic.muted, border: `1px solid ${colors.semantic.border}` }}
             >
-              <Icon style={{ width: 15, height: 15, color: '#44403c' }} strokeWidth={1.75} />
+              <Icon style={{ width: 15, height: 15, color: colors.semantic.foregroundTertiary }} strokeWidth={1.75} />
             </span>
             <div className="flex flex-col" style={{ gap: 1, paddingTop: 1 }}>
               <p className="text-[13px] font-medium text-foreground leading-[18px]">{title}</p>
-              <p className="text-[12px] leading-[16px]" style={{ color: '#78716c' }}>{sub}</p>
+              <p className="text-[12px] leading-[16px]" style={{ color: colors.semantic.mutedForeground }}>{sub}</p>
             </div>
           </div>
         ))}
@@ -202,7 +203,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
               </p>
             </div>
           </OAuthWindow>
-          <p className="flex items-center gap-1.5 text-[11.5px]" style={{ color: '#dfdcd9' }}>
+          <p className="flex items-center gap-1.5 text-[11.5px]" style={{ color: colors.semantic.input }}>
             <Lock className="w-3 h-3" strokeWidth={2} /> Connexion chiffrée (TLS) - hébergement dans l'Union européenne
           </p>
           <button onClick={onCancel} className="text-[12.5px] font-medium text-white/70 hover:text-white transition-colors">
@@ -213,7 +214,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
         // ── Carte dialog : formulaire IMAP · vérification IMAP · confirmation ──
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative bg-white rounded-xl border border-border overflow-hidden animate-fadeIn"
+          className="relative bg-surface rounded-xl border border-border overflow-hidden animate-fadeIn"
           style={{ width: 560, maxWidth: '100%', boxShadow: '0 32px 72px -16px rgba(28,25,23,0.34)' }}
         >
           {!busy && (
@@ -249,7 +250,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
                       value={imapEmail}
                       onChange={(e) => setImapEmail(e.target.value)}
                       placeholder="vous@avocats.fr"
-                      className="h-9 px-3 rounded-lg border border-border bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
+                      className="h-9 px-3 rounded-lg border border-border bg-surface text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
                     />
                   </label>
 
@@ -260,17 +261,17 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
                       value={imapPass}
                       onChange={(e) => setImapPass(e.target.value)}
                       placeholder="••••••••••••"
-                      className="h-9 px-3 rounded-lg border border-border bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
+                      className="h-9 px-3 rounded-lg border border-border bg-surface text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
                     />
-                    <span className="text-[11.5px] leading-[16px]" style={{ color: '#78716c' }}>
+                    <span className="text-[11.5px] leading-[16px]" style={{ color: colors.semantic.mutedForeground }}>
                       Créez un mot de passe d'application dédié dans votre messagerie - jamais votre
                       mot de passe principal. Révocable à tout moment.
                     </span>
                   </label>
 
-                  <div className="rounded-lg" style={{ backgroundColor: '#f6f5f2', border: '1px solid #dfdcd9', padding: '10px 12px' }}>
+                  <div className="rounded-lg" style={{ backgroundColor: colors.semantic.background, border: `1px solid ${colors.semantic.border}`, padding: '10px 12px' }}>
                     <div className="flex items-center gap-2">
-                      <p className="flex-1 text-[12px] leading-[17px]" style={{ color: '#57534e' }}>
+                      <p className="flex-1 text-[12px] leading-[17px]" style={{ color: colors.semantic.foregroundQuaternary }}>
                         Serveur détecté : <span className="font-medium text-foreground" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11.5 }}>{imapHost}</span> · port 993 · SSL
                       </p>
                       <button type="button" onClick={() => setShowServer(s => !s)} className="text-[12px] font-medium text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0">
@@ -279,8 +280,8 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
                     </div>
                     {showServer && (
                       <div className="flex gap-2 mt-2.5">
-                        <input defaultValue={imapHost} placeholder="Serveur IMAP" className="flex-1 h-8 px-2.5 rounded-md border border-border bg-white text-[13px] text-foreground focus:outline-none focus:border-border-strong" />
-                        <input defaultValue="993" placeholder="Port" style={{ width: 72 }} className="h-8 px-2.5 rounded-md border border-border bg-white text-[13px] text-foreground focus:outline-none focus:border-border-strong" />
+                        <input defaultValue={imapHost} placeholder="Serveur IMAP" className="flex-1 h-8 px-2.5 rounded-md border border-border bg-surface text-[13px] text-foreground focus:outline-none focus:border-border-strong" />
+                        <input defaultValue="993" placeholder="Port" style={{ width: 72 }} className="h-8 px-2.5 rounded-md border border-border bg-surface text-[13px] text-foreground focus:outline-none focus:border-border-strong" />
                       </div>
                     )}
                   </div>
@@ -292,17 +293,17 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
 
                 <div className="flex items-center gap-4 mt-6">
                   <p className="flex items-center gap-2 text-[11.5px] text-foreground-secondary leading-4 flex-1 min-w-0">
-                    <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#4a9168' }} strokeWidth={1.75} />
+                    <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" style={{ color: colors.accents.meadow }} strokeWidth={1.75} />
                     Connexion chiffrée (TLS). Vos identifiants sont stockés de façon sécurisée, en lecture seule.
                   </p>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button onClick={onCancel} className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background transition-colors">
+                    <button onClick={onCancel} className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-surface border border-border rounded-lg hover:bg-background transition-colors">
                       Annuler
                     </button>
                     <button
                       onClick={() => imapReady && setStep('connecting')}
                       disabled={!imapReady}
-                      className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-opacity disabled:opacity-40"
+                      className="inline-flex items-center gap-2 h-9 px-4 text-[14px] font-medium text-primary-foreground bg-foreground rounded-lg hover:bg-foreground-tertiary transition-opacity disabled:opacity-40"
                     >
                       Connecter
                     </button>
@@ -314,7 +315,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
             {/* ── IMAP : vérification serveur (travail in-app de Plato) ── */}
             {step === 'connecting' && isImap && (
               <div className="flex flex-col items-center justify-center gap-3.5 text-center" style={{ padding: '28px 0' }}>
-                <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#57534e' }} strokeWidth={1.75} />
+                <Loader2 className="w-6 h-6 animate-spin" style={{ color: colors.semantic.foregroundQuaternary }} strokeWidth={1.75} />
                 <p className="text-[13px] font-medium text-foreground">Connexion à {imapHost}…</p>
                 <p className="text-[12px] text-foreground-secondary leading-[18px]" style={{ maxWidth: 280 }}>
                   Vérification de vos identifiants, en lecture seule.

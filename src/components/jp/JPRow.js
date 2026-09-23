@@ -4,6 +4,7 @@ import {
   getPrimaryAmount,
   formatDateLong,
 } from '../../data/mockDecisions';
+import { colors, shadows } from '../../design-system/tokens';
 
 // Décédé/Décédée → destructive color; everything else stays muted.
 const STATUS_DECEASED = (s) => s === 'Décédé' || s === 'Décédée';
@@ -23,9 +24,9 @@ const TAG_BASE = {
   lineHeight: 1.2,
   whiteSpace: 'nowrap',
 };
-const TAG_NEUTRAL = { ...TAG_BASE, backgroundColor: '#f5f5f4', color: '#44403c' };
-const TAG_DESTRUCTIVE = { ...TAG_BASE, backgroundColor: '#7f1d1d', color: '#ffffff' };
-const TAG_AMOUNT = { ...TAG_BASE, backgroundColor: '#dbeafe', color: '#1e3a8a', fontWeight: 600 };
+const TAG_NEUTRAL = { ...TAG_BASE, backgroundColor: colors.semantic.backgroundSubtle, color: colors.semantic.foregroundTertiary };
+const TAG_DESTRUCTIVE = { ...TAG_BASE, backgroundColor: colors.feedback.destructive.text, color: colors.semantic.white };
+const TAG_AMOUNT = { ...TAG_BASE, backgroundColor: colors.piece.medical.bg, color: colors.feedback.info.text, fontWeight: 600 };
 
 function Tag({ style, children, title }) {
   return <span style={style || TAG_NEUTRAL} title={title}>{children}</span>;
@@ -40,12 +41,12 @@ const PosteFooterChip = ({ acronym }) => (
       alignItems: 'center',
       padding: '2px 8px',
       borderRadius: 999,
-      border: '1px solid #dfdcd9',
+      border: `1px solid ${colors.semantic.border}`,
       backgroundColor: 'white',
       fontFamily: "'Inter', system-ui, sans-serif",
       fontSize: 11,
       fontWeight: 500,
-      color: '#78716c',
+      color: colors.semantic.mutedForeground,
       lineHeight: 1.4,
       whiteSpace: 'nowrap',
     }}
@@ -128,21 +129,21 @@ export default function JPRow({
       onClick={() => onClick?.(d)}
       className="group cursor-pointer flex items-stretch relative"
       style={{
-        backgroundColor: isSelected ? '#fdf3ec' : 'white',
+        backgroundColor: isSelected ? colors.brand.subtle : 'white',
         ...(asCard
           ? {
-              border: '1px solid #dfdcd9',
+              border: `1px solid ${colors.semantic.border}`,
               borderRadius: 4,
-              boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+              boxShadow: shadows.xs,
             }
           : {
-              borderBottom: isLast ? 'none' : '1px solid #dfdcd9',
+              borderBottom: isLast ? 'none' : `1px solid ${colors.semantic.border}`,
             }
         ),
         transition: 'background-color 0.12s ease',
         ...(rowStyle || {}),
       }}
-      onMouseOver={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = '#fafaf9'; }}
+      onMouseOver={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = colors.banner.neutral.bgFrom; }}
       onMouseOut={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = 'white'; }}
     >
       <div className="flex-1 min-w-0 flex flex-col">
@@ -154,14 +155,14 @@ export default function JPRow({
               Saved state is not shown via icon here anymore — it's communicated
               by the footer poste chips (JP Tab) or the action button state. */}
           <div className="flex items-center justify-between gap-2 min-w-0">
-            <span className="truncate" style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>
+            <span className="truncate" style={{ fontSize: 14, fontWeight: 500, color: colors.semantic.foreground }}>
               {d.jurisdiction}{d.chambre ? ` · ${d.chambre}` : ''}
             </span>
             <div className="flex items-center flex-shrink-0" style={{ gap: 8 }}>
               {hasDate && (
                 <span style={{
                   fontFamily: "'Inter', system-ui, sans-serif",
-                  fontSize: 12, fontWeight: 400, color: '#78716c',
+                  fontSize: 12, fontWeight: 400, color: colors.semantic.mutedForeground,
                   whiteSpace: 'nowrap',
                 }}>
                   {formatDateLong(d.date)}
@@ -169,15 +170,15 @@ export default function JPRow({
               )}
               {onRemove && (
                 <>
-                  {hasDate && <span style={{ width: 1, height: 12, backgroundColor: '#cbc7c4' }} />}
+                  {hasDate && <span style={{ width: 1, height: 12, backgroundColor: colors.semantic.borderStrong }} />}
                   <button
                     onClick={(e) => { e.stopPropagation(); onRemove(d); }}
                     title={removeTitle}
                     aria-label={removeTitle}
                     className="inline-flex items-center justify-center rounded transition-colors"
-                    style={{ width: 18, height: 18, color: '#a8a29e' }}
-                    onMouseOver={(e) => { e.currentTarget.style.color = '#7f1d1d'; e.currentTarget.style.backgroundColor = '#fef2f2'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.color = '#a8a29e'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    style={{ width: 18, height: 18, color: colors.semantic.foregroundMuted }}
+                    onMouseOver={(e) => { e.currentTarget.style.color = colors.feedback.destructive.text; e.currentTarget.style.backgroundColor = colors.step.red.bg; }}
+                    onMouseOut={(e) => { e.currentTarget.style.color = colors.semantic.foregroundMuted; e.currentTarget.style.backgroundColor = 'transparent'; }}
                   >
                     <X className="w-3.5 h-3.5" strokeWidth={1.75} />
                   </button>
@@ -190,7 +191,7 @@ export default function JPRow({
           {(d.victimProfile || subline != null) && (
             <span className="truncate" style={{
               fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: 12, fontWeight: 400, color: '#78716c',
+              fontSize: 12, fontWeight: 400, color: colors.semantic.mutedForeground,
               lineHeight: '16px',
             }}>
               {subline != null ? subline : d.victimProfile}
@@ -208,7 +209,7 @@ export default function JPRow({
               )}
               {amountTags.map((a, i) => (
                 <Tag key={`amt-${i}`} style={TAG_AMOUNT} title={a.label}>
-                  <span style={{ color: '#1e3a8a', fontWeight: 500, opacity: 0.75 }}>{a.poste}</span>
+                  <span style={{ color: colors.feedback.info.text, fontWeight: 500, opacity: 0.75 }}>{a.poste}</span>
                   <span>{a.displayValue}</span>
                 </Tag>
               ))}
@@ -219,11 +220,11 @@ export default function JPRow({
           {rationale && (
             <div
               className="mt-2"
-              style={{ borderLeft: '2px solid #ac9e8b', paddingLeft: 15, paddingTop: 4, paddingBottom: 4 }}
+              style={{ borderLeft: `2px solid ${colors.semantic.borderHover}`, paddingLeft: 15, paddingTop: 4, paddingBottom: 4 }}
             >
               <div style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11, fontWeight: 500, color: '#78716c',
+                fontSize: 11, fontWeight: 500, color: colors.semantic.mutedForeground,
                 opacity: 0.8, textTransform: 'uppercase',
                 letterSpacing: '0.04em', marginBottom: 6, whiteSpace: 'nowrap',
               }}>
@@ -233,7 +234,7 @@ export default function JPRow({
                 style={{
                   fontFamily: "'Inter', system-ui, sans-serif",
                   fontSize: 12, fontWeight: 400, lineHeight: '16px',
-                  color: '#78716c', letterSpacing: '0.12px', margin: 0,
+                  color: colors.semantic.mutedForeground, letterSpacing: '0.12px', margin: 0,
                   display: '-webkit-box',
                   WebkitLineClamp: 4,
                   WebkitBoxOrient: 'vertical',
@@ -250,12 +251,12 @@ export default function JPRow({
         {hasFooter && (
           <div
             className="px-3 py-2 flex items-center justify-between gap-2"
-            style={{ borderTop: '1px solid #f0efed' }}
+            style={{ borderTop: `1px solid ${colors.semantic.backgroundSubtle}` }}
           >
             {d.numero ? (
               <span style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 11, fontWeight: 500, color: '#a8a29e',
+                fontSize: 11, fontWeight: 500, color: colors.semantic.foregroundMuted,
                 whiteSpace: 'nowrap',
               }}>
                 N°{d.numero}

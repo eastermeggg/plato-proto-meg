@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { FileText, Plus, Pencil, MoreVertical, ListOrdered } from 'lucide-react';
 import EmptyState from '../EmptyState';
+import { colors, typeStyle } from '../../design-system/tokens';
 
-const colHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
+const colHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: colors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
 
 export default function ActesList({ actes = [], onOpen, onNewActe, onNewBordereau, onSendPrompt }) {
   // Collapse paired (acte + bordereau) into a single row represented by the
@@ -45,7 +46,7 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
     <div className="flex flex-col -mx-4 -mt-4">
       {/* Sub-header bar - titre serif « N actes » + actions (maquette 37604:16398) */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-        <span className="text-foreground" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>
+        <span className="text-foreground" style={{ ...typeStyle('display-sm') }}>
           {rows.length} acte{rows.length > 1 ? 's' : ''}
         </span>
         <div className="flex items-center gap-2">
@@ -61,7 +62,7 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
           {onNewActe && (
             <button
               onClick={onNewActe}
-              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
+              className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
             >
               <Plus className="w-4 h-4" strokeWidth={1.5} />
               Nouvel acte
@@ -74,7 +75,7 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
       <div className="p-4">
         <div className="border border-border rounded-md overflow-hidden">
           {/* Column headers */}
-          <div className="flex items-center bg-white border-b border-border">
+          <div className="flex items-center bg-surface border-b border-border">
             <div className="w-[38px] h-10 shrink-0" />
             <div className="flex-1 min-w-0 px-3 py-3" style={colHeaderStyle}>Titre</div>
             <div className="w-[120px] shrink-0 px-3 py-3" style={colHeaderStyle}>Modifié</div>
@@ -88,7 +89,7 @@ export default function ActesList({ actes = [], onOpen, onNewActe, onNewBorderea
             return (
               <div
                 key={acte.id}
-                className="flex items-center h-14 bg-white border-b border-border last:border-b-0 cursor-pointer hover:bg-background transition-colors group"
+                className="flex items-center h-14 bg-surface border-b border-border last:border-b-0 cursor-pointer hover:bg-background transition-colors group"
                 onClick={() => onOpen?.(acte.id)}
               >
                 {/* Icon — FileText for actes, ListOrdered for bordereaux. The

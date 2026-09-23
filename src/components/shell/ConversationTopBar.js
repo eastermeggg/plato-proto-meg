@@ -1,42 +1,63 @@
 import React from 'react';
-import { PencilLine } from 'lucide-react';
+import { ArrowLeft, ChevronRight, PencilLine } from 'lucide-react';
+import TopBar from '../ui/TopBar';
 
-// Barre de contexte de la conversation centrale - h-48, filet bas, px-4.
-// Fil : « Mes conversations / <titre> ». Le titre est un bouton de renommage
-// (crayon en fade-in au survol). Une barre vide ne s'affiche jamais : la
-// barre n'existe QUE sur la conversation centrale.
-//   leading   slot à l'extrême gauche - le contrôle « Menu » quand la nav
-//             est masquée (NavExpandControl), sinon null
-//   children  slot overlay - la modale de renommage
+// Barre de tête de la conversation centrale — compose le chrome canonique
+// TopBar (variant « Conversation » du nœud Figma Plato---System 37443:5796) :
+// breadcrumb « ← Mes conversations » (12px muted) › chevron › titre 14 medium.
+// Le titre est un bouton de renommage : au survol, souligné + crayon en
+// fade-in. Une barre vide ne s'affiche jamais : la barre n'existe QUE sur la
+// conversation centrale.
+//   navCollapsed + onNav*  nav masquée : le TopBar rend le contrôle « Menu »
+//   leading                échappatoire (slot custom en tête)
+//   children               slot overlay - la modale de renommage
 export default function ConversationTopBar({
   title,
   indexLabel = 'Mes conversations',
   onOpenIndex,
   onRename,
+  navCollapsed = false,
+  onNavExpand,
+  onNavHome,
+  onNavPeekEnter,
+  onNavPeekLeave,
   leading = null,
   children,
 }) {
   return (
-    <div className="h-12 border-b border-border flex items-center justify-between px-4 flex-shrink-0">
-      <div className="flex items-center gap-2 min-w-0">
-        {leading}
-        <button
-          onClick={onOpenIndex}
-          className="text-[13px] text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0"
-        >
-          {indexLabel}
-        </button>
-        <span className="text-[13px] text-foreground-quaternary flex-shrink-0">/</span>
-        <button
-          onClick={onRename}
-          className="group flex items-center gap-1.5 min-w-0 hover:bg-background rounded px-1 -mx-1 py-0.5 transition-colors text-left"
-          title="Renommer la conversation"
-        >
-          <span className="text-[13px] font-medium text-foreground truncate min-w-0">{title ?? 'Conversation'}</span>
-          <PencilLine className="w-3.5 h-3.5 flex-shrink-0 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={1.75} />
-        </button>
-      </div>
-      {children}
-    </div>
+    <TopBar
+      navCollapsed={navCollapsed}
+      onNavExpand={onNavExpand}
+      onNavHome={onNavHome}
+      onNavPeekEnter={onNavPeekEnter}
+      onNavPeekLeave={onNavPeekLeave}
+      leading={leading}
+      left={(
+        <div className="flex items-center gap-1.5 pl-1.5 min-w-0">
+          <button
+            onClick={onOpenIndex}
+            className="group/index flex items-center gap-1.5 flex-shrink-0"
+            title={indexLabel}
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-foreground-secondary group-hover/index:text-foreground transition-colors" strokeWidth={1.75} />
+            <span className="text-[12px] leading-4 text-foreground-secondary tracking-[0.01em] group-hover/index:text-foreground transition-colors">
+              {indexLabel}
+            </span>
+          </button>
+          <ChevronRight className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
+          <button
+            onClick={onRename}
+            className="group flex items-center gap-1.5 min-w-0 text-left"
+            title="Renommer la conversation"
+          >
+            <span className="text-[14px] leading-5 font-medium text-foreground truncate min-w-0 group-hover:underline">
+              {title ?? 'Conversation'}
+            </span>
+            <PencilLine className="w-4 h-4 flex-shrink-0 text-foreground-secondary opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={1.75} />
+          </button>
+        </div>
+      )}
+      right={children}
+    />
   );
 }

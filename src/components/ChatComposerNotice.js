@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Zap } from 'lucide-react';
+import { colors } from '../design-system/tokens';
 
 // ── ChatComposerNotice ───────────────────────────────────────────────
 // The notice row that caps the chat composer. Three variants:
@@ -10,15 +11,15 @@ import { ArrowRight, Zap } from 'lucide-react';
 // Props: variant, pct (quota-warning), onOpenUsage, onRequestUpgrade.
 
 export const NOTICE_WRAP_BG = {
-  analyzing: '#e5e3da',
-  'quota-warning': '#ecdbc9',
-  'quota-full': '#e5d4d2',
+  analyzing: colors.semantic.muted,
+  'quota-warning': colors.avatar[3].bg,
+  'quota-full': colors.feedback.destructive.border,
 };
 
 const NOTICE_TEXT = {
-  analyzing: '#292524',
-  'quota-warning': '#855b31',
-  'quota-full': '#7f1d1d',
+  analyzing: colors.semantic.ring,
+  'quota-warning': colors.feedback.warning.text,
+  'quota-full': colors.feedback.destructive.text,
 };
 
 const ChatComposerNotice = ({ variant, pct, onOpenUsage, onRequestUpgrade }) => {

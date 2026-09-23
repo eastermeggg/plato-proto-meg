@@ -126,7 +126,7 @@ export default function Input({
           padding: '8px 12px',
           borderRadius: radius.lg,                  // 8
           border: `1px solid ${colors.semantic.border}`,
-          background: disabled ? colors.semantic.backgroundSubtle : '#ffffff',
+          background: disabled ? colors.semantic.backgroundSubtle : colors.semantic.card,
           boxShadow: shadows.xs,
           fontFamily: typography.fontFamily.sans,
           fontSize: 14,

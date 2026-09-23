@@ -65,7 +65,7 @@ export default function RenamePieceModal({
           outline: 'none',
           backgroundColor: colors.semantic.white,
         }}
-        onFocus={(e) => { e.target.style.borderColor = '#1e3a8a'; }}
+        onFocus={(e) => { e.target.style.borderColor = colors.feedback.info.text; }}
         onBlur={(e) => { e.target.style.borderColor = colors.semantic.border; }}
       />
       {piece?.nomOriginal && (

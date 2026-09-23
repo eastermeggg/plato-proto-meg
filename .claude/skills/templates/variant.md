@@ -1,0 +1,16 @@
+## Variant demandé — [Composant].[variant]
+
+**Composant** : `ui/…` / `custom/…`
+**Mécanisme** : clé `css` de ds-theme.json / cva dans custom/ / cva dans ui/ (dernier recours)
+**Pourquoi pas la clé `css`** : [obligatoire si mécanisme 3 — sinon « n/a »]
+**Nom du variant** : …
+**Rôle inchangé** : oui — [une ligne]
+**Classes proposées (tokens uniquement)** :
+base : …
+hover : …
+focus-visible : (hérité du cva) / …
+disabled : (hérité du cva) / …
+**Tokens requis** : existants / nouveaux → [liste]
+**Usages prévus** : [écrans]
+**Décision ds-decide** : palier 3 — [lien ou résumé]
+**Démo** : ajoutée dans toutes les lignes d'états · light ✓ dark ✓

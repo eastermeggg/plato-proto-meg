@@ -1,5 +1,6 @@
 import React from 'react';
 import JPRow from './JPRow';
+import { colors, shadows } from '../../design-system/tokens';
 
 // Mini-table for chat results: card chrome (border + radius + shadow xs) + an
 // optional `JURIDICTION` label header + JPRow children with bottom borders.
@@ -29,7 +30,7 @@ const COL_HEADER = {
   fontFamily: "'IBM Plex Mono', monospace",
   fontSize: 11,
   fontWeight: 500,
-  color: '#78716c',
+  color: colors.semantic.mutedForeground,
   textTransform: 'uppercase',
   letterSpacing: '0.02em',
   whiteSpace: 'nowrap',
@@ -62,16 +63,16 @@ export default function JPListingChat({
       className={className}
       style={{
         backgroundColor: 'white',
-        border: '1px solid #dfdcd9',
+        border: `1px solid ${colors.semantic.border}`,
         borderRadius: 4,
         overflow: 'hidden',
-        boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+        boxShadow: shadows.xs,
       }}
     >
       {showHeader && (
         <div
           className="flex items-center px-3 py-2"
-          style={{ backgroundColor: 'white', borderBottom: '1px solid #dfdcd9' }}
+          style={{ backgroundColor: 'white', borderBottom: `1px solid ${colors.semantic.border}` }}
         >
           <span style={COL_HEADER}>{headerLabel}</span>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import JPMemoryRow from './JPMemoryRow';
+import { colors, shadows } from '../../design-system/tokens';
 
 // Chato pre-fills a draft rationale from the decision's metadata.
 function draftRationaleFor(decision) {
@@ -41,7 +42,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
     <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-border flex flex-col"
+        className="bg-surface border border-border flex flex-col"
         style={{
           width: 520,
           borderRadius: 12,
@@ -50,10 +51,10 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
       >
         {/* Header */}
         <div className="flex flex-col gap-1 px-6 pt-6 pb-0">
-          <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, fontWeight: 500, color: '#292524', letterSpacing: '-0.6px', lineHeight: '28px', margin: 0 }}>
+          <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, fontWeight: 500, color: colors.semantic.foreground, letterSpacing: '-0.6px', lineHeight: '28px', margin: 0 }}>
             Dites-nous pourquoi cette jurisprudence est pertinente&nbsp;?
           </h2>
-          <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: '#78716c', lineHeight: '20px', marginTop: 4 }}>
+          <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: colors.semantic.mutedForeground, lineHeight: '20px', marginTop: 4 }}>
             Cette note guide l'agent quand il citera la décision dans vos actes.
           </p>
         </div>
@@ -63,7 +64,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
           {/* JP card preview */}
           <div
             style={{
-              border: '1px solid #dfdcd9',
+              border: `1px solid ${colors.semantic.border}`,
               borderRadius: 8,
               overflow: 'hidden',
             }}
@@ -73,7 +74,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
 
           {/* Apport */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="jp-rationale-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="jp-rationale-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
               Apport de la décision
             </label>
             <textarea
@@ -82,13 +83,13 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
               onChange={(e) => setRationale(e.target.value)}
               rows={6}
               placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
-              className="w-full px-3 py-2 text-[14px] text-foreground bg-white placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
+              className="w-full px-3 py-2 text-[14px] text-foreground bg-surface placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 lineHeight: '24px',
-                border: '1px solid #dfdcd9',
+                border: `1px solid ${colors.semantic.border}`,
                 borderRadius: 8,
-                boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+                boxShadow: shadows.xs,
                 minHeight: 140,
               }}
             />
@@ -103,11 +104,11 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
             style={{
               height: 36,
               borderRadius: 8,
-              backgroundColor: '#eeece6',
+              backgroundColor: colors.semantic.muted,
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 14,
               fontWeight: 500,
-              color: '#44403c',
+              color: colors.semantic.foregroundTertiary,
               lineHeight: '20px',
             }}
           >
@@ -120,8 +121,8 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
             style={{
               height: 36,
               borderRadius: 8,
-              backgroundColor: canSave ? '#292524' : '#eeece6',
-              color: canSave ? 'white' : '#a8a29e',
+              backgroundColor: canSave ? colors.semantic.primary : colors.semantic.muted,
+              color: canSave ? 'white' : colors.semantic.foregroundMuted,
               cursor: canSave ? 'pointer' : 'not-allowed',
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 14,

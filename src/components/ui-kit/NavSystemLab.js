@@ -385,7 +385,7 @@ function HomeSurface({ leading }) {
     <div className="flex-1 min-w-0 flex flex-col h-full bg-white">
       <div className="h-12 flex items-center px-4 flex-shrink-0">{leading}</div>
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-8 pb-12 text-center">
-        <img src="/logo-plato.png" alt="" className="w-8 h-8 mb-3" />
+        <img src="/logo-plato.svg" alt="" className="w-8 h-8 mb-3" />
         <h2 className="text-foreground" style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500 }}>Bonjour, Meghan.</h2>
         <p className="text-[13.5px] text-foreground-secondary mt-1">Par où voulez-vous commencer ?</p>
         <div className="mt-5 w-full max-w-[520px] h-12 rounded-xl border border-border bg-white flex items-center px-4 text-[13.5px] text-foreground-muted">Écrivez à Plato…</div>

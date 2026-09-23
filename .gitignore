@@ -23,6 +23,9 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 
-# Lyse local cache
-.lyse/
-.lyse-report/
+# DS - constats d'agents locaux au workspace (conventions ds-*)
+SIGNALEMENTS.md
+
+# Playwright (snapshots visuels DS)
+/test-results/
+/playwright-report/

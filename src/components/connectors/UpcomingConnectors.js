@@ -10,12 +10,13 @@ import React from 'react';
 import { Check, Plug2 } from 'lucide-react';
 import { UPCOMING_CONNECTORS } from './connectorData';
 import { UpcomingMark } from './ConnectorArt';
+import { colors } from '../../design-system/tokens';
 
 const MONO = "'IBM Plex Mono', monospace";
 
 export default function UpcomingConnectorsCard({ interested = [], onNotify }) {
   return (
-    <div className="bg-white rounded-md border border-border overflow-hidden divide-y divide-border shadow-sm">
+    <div className="bg-surface rounded-md border border-border overflow-hidden divide-y divide-border shadow-sm">
       <div className="px-5 py-3 flex items-center gap-2">
         <Plug2 className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
         <span className="text-body-medium text-foreground">Prochains connecteurs</span>
@@ -31,14 +32,14 @@ export default function UpcomingConnectorsCard({ interested = [], onNotify }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-body-medium text-foreground">{u.name}</span>
-                <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#78716c', backgroundColor: '#eeece6', borderRadius: 4, padding: '2px 5px', flexShrink: 0 }}>
+                <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.semantic.mutedForeground, backgroundColor: colors.semantic.muted, borderRadius: 4, padding: '2px 5px', flexShrink: 0 }}>
                   À venir
                 </span>
               </div>
               <p className="text-[13px] text-foreground-secondary truncate">{u.desc}</p>
             </div>
             {asked ? (
-              <span className="inline-flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium flex-shrink-0" style={{ color: '#4a9168' }}>
+              <span className="inline-flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium flex-shrink-0" style={{ color: colors.accents.meadow }}>
                 <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> On vous préviendra
               </span>
             ) : (

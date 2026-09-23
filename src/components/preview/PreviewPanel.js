@@ -1,16 +1,27 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   FileText, FileType2, Image as ImageIcon, LayoutTemplate, Gavel, Mail, Stamp, Globe,
-  ChevronRight, ChevronDown, X, Calendar, Hash,
-  Sparkles, Sparkle, Scissors, Download, Trash2,
+  ChevronRight, ChevronDown, Calendar, Hash,
+  Sparkle, Scissors, Download, Trash2,
   ExternalLink, Search, Paperclip, PencilLine, Check,
   Table, Calculator,
 } from 'lucide-react';
 import Input from '../ui/Input';
 import Badge from '../ui/Badge';
+import Button from '../ui/Button';
+import IVAvatar from '../IVAvatar';
 import { colors, typography } from '../../design-system/tokens';
 import { COT_BADGE_TOKENS } from '../../data/cotisationsSocial';
 import { DOC_SAMPLE_IMAGES, docSampleIndex } from './docSamples';
+import {
+  PanelHeader, MetaChip, CitesPanel, Previewer, PreviewerPage,
+  SERIF_TITLE, FOCUS_RING,
+} from './PreviewAtoms';
+
+// Les ATOMES du Doc Preview (KindIcon, PanelHeader, MetaChip, CiteRow,
+// CitesPanel, Previewer) vivent dans PreviewAtoms.js - le panneau les COMPOSE.
+// Ré-exportés ici pour compat des imports existants.
+export { KindIcon, PanelHeader, MetaChip, META_CHIP_TYPES, CiteRow, CitesPanel, Previewer, PreviewerPage, KIND_ACCENTS } from './PreviewAtoms';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PreviewPanel - le panneau de preview systématisé (fusion preview-doc + panel)
@@ -44,37 +55,12 @@ const AI_ACCENT = colors.banner.ai.accent;      // #9333ea - marqueur « génér
 const MONO = typography.fontFamily.mono;
 const SERIF = typography.fontFamily.serif;
 
-// Titre serif du panneau (Figma « display-xs » : serif 16 / 20, tracking -0.5).
-const SERIF_TITLE = { fontFamily: SERIF, fontSize: 16, lineHeight: '20px', letterSpacing: '-0.5px', fontWeight: 500 };
-
-// Ring de focus keyboard-only cohérent, appliqué aux contrôles interactifs
-// principaux du panneau. Reste discret (foreground @ 40%, offset 1px) mais
-// visible sur les fonds blancs ET les fonds cream/canvas.
-const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-white focus-visible:ring-foreground/40';
-
 // ── PartyAvatar ─────────────────────────────────────────────────────────────
-// Portage local du système d'avatars « Victimes / Intervenants » de l'App
-// (App.js › VI_AVATAR_PALETTE + CHESS_PATHS) : une pastille carrée teintée
-// contenant une pièce d'échec. Le fil d'email dans le doc kind = 'email' s'en
-// sert pour habiller chaque expéditeur ; la couleur + la pièce sont dérivées
-// du NOM (déterministe), sauf pour le cabinet (cream + roi, comme userAvatar
-// pour un Admin dans l'App).
-//
-// Palette lue depuis les tokens (colors.avatar) - même source que l'App, donc
-// une modif propage naturellement sans dupliquer les hex.
-const CHESS_PATHS = {
-  knight: 'M14.18 0c.02.11.01 1.02.01 1.17l-.001 2.8c.4.29 1.01.66 1.44.93l2.64 1.72c.16.56.29 1.14.43 1.7.06.23.1.49.2.71.14.34 1.84 1.93 2.23 2.32l-4.52 4.45-4.05-.02c-.28-.25-.6-.59-.88-.86-.47-.46-.93-.93-1.4-1.4.04-.87.01-2 .01-2.88-.44.01-.88.01-1.33.01-.04 1.1-.01 2.4-.01 3.51.62.66 1.31 1.29 1.94 1.94l.33.36 2.2-.002c.95 1.35 2.12 2.82 3.13 4.16l.003 2.72c.39.36 1.02.84 1.45 1.19.01.8.003 1.63 0 2.44l-7-0.001-8.74.004-.002-2.45c.45-.4.98-.79 1.44-1.19l-.004-2.73-4.41-.007c.08-.34.13-.79.19-1.15l.3-1.97c.78-.61 1.84-1.23 2.61-1.87.01-.15.04-.36.06-.52-.73.23-1.7.69-2.45.97.13-1.04.34-2.2.5-3.26.82-.42 1.65-.8 2.47-1.22.01-.16.02-.32.03-.48-.76.2-1.56.38-2.33.57.04-.2.07-.43.1-.64.17-1.27.44-2.55.59-3.81.75.25 1.49.5 2.23.76l.18-.37c-.6-.5-1.28-.97-1.87-1.47l2.37-2.33c.39-.39.81-.81 1.21-1.18.45-.03 1.16-.01 1.62-.01l3-.008c.23-.21.49-.49.72-.72.88-.85 1.74-1.75 2.62-2.59zm7.93 12.35c.16.08 1.84 1.82 2.08 2.06l-.04 3.04c-.44.37-.93.75-1.38 1.11-.36-.22-.68-.46-1.03-.7l-1.53-1.05-.31.3c.29.43.64.9.95 1.32.23.32.46.64.68.96l-2.84-.03c-.26-.8-.72-1.84-1.03-2.66.56-.58 1.24-1.23 1.83-1.8.86-.83 1.74-1.73 2.61-2.54zm-.19 2.46l-.004.68.57.06c.07.12.14.23.2.35.13.22.25.45.37.67l.02-1.74c-.04-.03-.02-.03-.06-.03-.35.01-.71.02-1.06.02zm-8.05-7.02c.31.21.64.37.94.56.01.24.01.5.03.74.21.15.48.29.72.41.25-.11.47-.22.72-.35.2.09.41.19.6.29l.21.11-.95-1.76h-2.27z',
-  bishop: 'M12.67 20.83v3.08h-1.6l.81 3.95H1.1l.83-3.95H.31v-3.08h12.36zM6.49 0c.16.18.5.63.65.84.4.57.91 1.2 1.28 1.78L6.59 7.69c-.37 1.03-.79 2.12-1.13 3.15.12.39.31.87.45 1.25.18.51.37 1.07.57 1.56.13-.28.28-.77.38-1.07.26-.71.52-1.43.77-2.14l2.12-5.88c.19.26.41.6.59.87.38.57.76 1.14 1.13 1.72.3.47.6.95.89 1.43.21.33.43.69.6 1.05-.17.88-.41 1.87-.61 2.75-.11.47-.2.98-.31 1.46-.2.9-.39 1.8-.58 2.69-.12.6-.35 1.43-.43 2l-9.12.002c-.05-.34-.19-.92-.27-1.27-.12-.54-.24-1.08-.35-1.62l-.63-2.86C.46 11.74.24 10.68 0 9.63c.1-.23.33-.58.46-.8.38-.63.77-1.25 1.17-1.86 1.02-1.59 2.07-3.15 3.16-4.68.37-.53.75-1.05 1.14-1.56.19-.25.36-.49.56-.73z',
-  rook: 'M21.14 27.17c.73.82 1.71 1.66 2.44 2.48l.005 2.76-2.49-.001-21.08.003C-.001 31.49.01 30.58 0 29.65c.79-.83 1.69-1.64 2.46-2.48.02-.6-.001-1.32.006-1.93l18.68-.002c-.004.65-.004 1.29 0 1.94zm-1.97-3.45c-.51.01-1.04.004-1.55.005l-13.18-.005 1.13-8.12c.13-.97.29-1.93.4-2.9l11.63-.002 1.56 11.03zm-.01-12.53H4.43c.004-.64.004-1.29 0-1.93h14.73l-.01 1.93zM6.1.01c.01 1.25-.001 2.54-.001 3.8 1.11.02 2.3 0 3.42.005l-.007-3.8 4.56.004v3.8l3.41-.002-.002-3.8c.32.001 3.56-.02 3.66.03l.002 7.7-18.69-.003-.004-7.72C3.61-.02 4.93.01 6.1.01z',
-  pawn: 'M14 2a4 4 0 00-4 4c0 1.2.53 2.27 1.37 3H9.5a1.5 1.5 0 000 3h1.09A5.99 5.99 0 008 17v1h12v-1a5.99 5.99 0 00-2.59-4.93H18.5a1.5 1.5 0 000-3h-1.87A3.98 3.98 0 0018 6a4 4 0 00-4-4zM6 20v2h16v-2H6zm-2 4v2h20v-2H4z',
-  crown: 'M19.85 21.59v2.79h-1.39l.7 3.48H8.71l.7-3.48H8.01v-2.79h11.84zM17.79 13.61l2.76-2.47 2.09 1.39-3.83 6.97H9.05l-3.83-6.97 2.09-1.39 2.76 2.47 3.86-3.86 3.86 3.86zM16.37 5.92l-2.44 2.44-2.44-2.44 2.44-2.44 2.44 2.44z',
-  queen: 'M14 2a3 3 0 00-1 5.83V10H9L6 5l-4 9h3l1 8h16l1-8h3L22 5l-3 5h-4V7.83A3 3 0 0014 2zM6 24v2h16v-2H6z',
-  king: 'M15 2h-2v3h-3v2h3v3h2V7h3V5h-3V2zM9 12a5 5 0 0110 0v1H9v-1zm-2 3h14l1 7H6l1-7zm-2 9h18v2H5v-2z',
-};
-const CHESS_VB = {
-  knight: '0 0 24.19 27.63', bishop: '0 0 12.98 27.86', rook: '0 0 23.58 32.41',
-  pawn: '0 0 28 28', crown: '0 0 27.86 27.86', queen: '0 0 28 28', king: '0 0 28 28',
-};
+// Avatar de partie du fil email (kind = 'email') : pièce + couleur dérivées du
+// NOM (déterministe), cabinet = roi cream. Depuis le 23/09 il COMPOSE le
+// IVAvatar canonique (set Figma 36533:7967, 6 pièces × 6 palettes) au lieu de
+// porter ses propres vecteurs - le doublon CHESS_PATHS local est résorbé
+// (SIGNALEMENTS §8).
 
 // Hash déterministe simple (djb2 tronqué) : le même nom → même couleur + même
 // pièce à travers les rendus.
@@ -90,29 +76,17 @@ function isCabinet(name = '') {
   return /^\s*(cabinet|m(a[îi])?tre|me\.?\s)/i.test(name);
 }
 
-const PARTY_PIECES = ['knight', 'bishop', 'rook', 'queen', 'crown'];
+const PARTY_PIECES = ['knight', 'bishop', 'rook', 'queen', 'king'];
+const PARTY_COLORS = ['green', 'blue', 'plum', 'orange', 'purple']; // cream = cabinet
 
 function PartyAvatar({ name = '', size = 28 }) {
   const cabinet = isCabinet(name);
-  const pal = cabinet ? colors.avatar[5] : colors.avatar[hashName(name) % (colors.avatar.length - 1)]; // le cream (idx 5) est réservé au cabinet
-  const piece = cabinet ? 'king' : PARTY_PIECES[hashName(name) % PARTY_PIECES.length];
-  const d = CHESS_PATHS[piece];
-  const vb = CHESS_VB[piece];
+  const type = cabinet ? 'king' : PARTY_PIECES[hashName(name) % PARTY_PIECES.length];
+  const color = cabinet ? 'cream' : PARTY_COLORS[hashName(name) % PARTY_COLORS.length];
   return (
-    <div
-      className="flex items-end justify-center flex-shrink-0 overflow-hidden"
-      style={{
-        width: size, height: size,
-        borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8,
-        backgroundColor: pal.bg,
-        paddingTop: 2,
-      }}
-      title={name}
-    >
-      <svg viewBox={vb} fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80%', height: '80%', display: 'block' }}>
-        <path d={d} fill={pal.fill} />
-      </svg>
-    </div>
+    <span title={name} style={{ display: 'inline-flex', flexShrink: 0 }}>
+      <IVAvatar type={type} color={color} size={size} />
+    </span>
   );
 }
 
@@ -125,132 +99,6 @@ function TexteGlyph({ className, style, strokeWidth: _sw, ...rest }) {
 }
 
 // ── Petits blocs partagés ────────────────────────────────────────────────────
-
-// ── MetaChip ────────────────────────────────────────────────────────────────
-// Chip d'atome de métadonnée - forme UNIQUE du header du panneau, avec toutes
-// les variantes rangées dans un même composant.
-//
-// Composition (dans l'ordre visuel) :
-//   [icon]  [label muted]  [value fg]  [· aside muted, truncable]  [✦ ai]  [action]
-//
-// Deux `variant` (fond) :
-//   · default   fond canvas + border neutre               (Date, Type…)
-//   · strong    fond cream + valeur medium                (chip d'identité)
-//
-// Deux comportements INTERACTIFS mutuellement exclusifs :
-//   · action    { label, onClick } - petit lien texte à droite du chip
-//                (le chip reste un <span>)
-//   · onClick   TOUT le chip devient un <button> - hover renforce border+texte
-//
-// États : default · hover (interactif) · disabled (onClick) · truncated (aside).
-//
-// `value` accepte un ReactNode : on compose librement une valeur multi-parties
-// (« I - MEDICAL · n° 2 ») sans multiplier les variants.
-//
-// TYPES — chaque « type » de métadonnée (date, pièce, découpage, source…) a son
-// icône + label + variant canoniques, définis UNE seule fois dans META_CHIP_TYPES.
-// Passer `type="date"` suffit ; icon / label / variant restent surchargeables au
-// cas par cas. C'est le même langage partout : un type = une forme.
-export const META_CHIP_TYPES = {
-  // — métadonnées d'un document (pièce / modèle) —
-  piece:         { icon: Hash,      label: 'Pièce', variant: 'strong' }, // chip d'identité
-  date:          { icon: Calendar,  label: 'Date' },
-  type:          { icon: null,      label: 'Type' },
-  decoupage:     { icon: Scissors,  label: 'Document découpé' },
-  source:        { icon: Mail,      label: 'Source' },        // provenance (email, dépôt…)
-  // — jurisprudence —
-  juridiction:   { icon: Gavel,     label: 'Juridiction' },
-  numero:        { icon: Hash,      label: 'n°' },
-  // — email —
-  objet:         { icon: Mail,      label: 'Objet' },
-  messages:      { icon: null,      label: 'Messages' },
-  piecesJointes: { icon: Paperclip, label: 'Pièces jointes' },
-  // — loi / texte —
-  code:          { icon: Stamp,     label: 'Code' },
-  enVigueur:     { icon: Calendar,  label: 'En vigueur au' },
-  // — ligne structurée (cotisations…) —
-  periode:       { icon: Calendar,  label: 'Période' },
-  // — web —
-  web:           { icon: Globe,     label: 'Source web' },
-};
-
-export function MetaChip({
-  type,                // clé de META_CHIP_TYPES - fournit icon/label/variant par défaut
-  icon,
-  label,
-  value,
-  aside,
-  ai,
-  variant,             // 'default' | 'strong' - surcharge le variant du type
-  action,              // { label, onClick } - lien texte à droite (span uniquement)
-  onClick,             // rend le chip entier cliquable (button)
-  disabled,
-  title,
-  className,
-}) {
-  const preset = (type && META_CHIP_TYPES[type]) || null;
-  const Icon = icon !== undefined ? icon : preset?.icon;
-  const resolvedLabel = label !== undefined ? label : preset?.label;
-  const resolvedVariant = variant || preset?.variant || 'default';
-  const clickable = !!onClick;
-  const strong = resolvedVariant === 'strong';
-
-  const chrome = [
-    'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border text-[12px] leading-4 text-foreground-secondary min-w-0 max-w-full',
-    strong ? 'bg-cream' : 'bg-background-canvas',
-    clickable
-      ? 'transition-colors hover:border-border-strong disabled:hover:border-border disabled:cursor-not-allowed disabled:opacity-60'
-      : '',
-    className || '',
-  ].filter(Boolean).join(' ');
-
-  // Contraste : sur bg-canvas (#f8f7f5) et bg-cream (#eeece6), foreground-muted
-  // (#a8a29e) tombe à ~2.4:1 - sous le plancher WCAG. On monte à
-  // foreground-secondary (#78716c ≈ 4.7:1) tout en gardant la hiérarchie
-  // muted-label / strong-value. Le séparateur « · » de l'aside reste plus léger
-  // (foreground-muted) : c'est un signe typographique, pas du texte.
-  const inner = (
-    <>
-      {Icon && <Icon className="w-3.5 h-3.5 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />}
-      {resolvedLabel && <span className="text-foreground-secondary flex-shrink-0 whitespace-nowrap" style={{ letterSpacing: '0.12px' }}>{resolvedLabel}</span>}
-      {value != null && (
-        <span className="text-foreground font-medium flex-shrink-0 whitespace-nowrap">{value}</span>
-      )}
-      {aside && (
-        <span
-          className="text-foreground-secondary truncate min-w-0"
-          title={typeof aside === 'string' ? aside : undefined}
-        >
-          <span className="text-foreground-muted mr-1" aria-hidden>·</span>{aside}
-        </span>
-      )}
-      {ai && <Sparkles className="w-2.5 h-2.5 flex-shrink-0" strokeWidth={2} style={{ color: AI_ACCENT }} />}
-    </>
-  );
-
-  if (clickable) {
-    return (
-      <button type="button" onClick={onClick} disabled={disabled} title={title} className={chrome}>
-        {inner}
-      </button>
-    );
-  }
-
-  return (
-    <span title={title} className={chrome}>
-      {inner}
-      {action && (
-        <button
-          type="button"
-          onClick={action.onClick}
-          className="ml-0.5 font-medium text-link hover:underline underline-offset-2 flex-shrink-0"
-        >
-          {action.label}
-        </button>
-      )}
-    </span>
-  );
-}
 
 function FieldLabel({ children }) {
   return (
@@ -279,11 +127,11 @@ function Citation({ children }) {
 // Badge autorité juridique (cotisations) - 5 teintes spécifiées par la spec
 // Social (pas encore promues en tokens - candidates /ui-kit/tokens) + neutre DS.
 const AUTHORITY = {
-  urssaf: { label: 'URSSAF', bg: '#eff6ff', fg: '#1e40af' },
-  boss: { label: 'BOSS', bg: '#f5f3ff', fg: '#6d28d9' },
-  impots: { label: 'Impôts', bg: '#ecfdf5', fg: '#047857' },
-  code: { label: 'Code du travail', bg: '#fff7ed', fg: '#c2410c' },
-  conv: { label: 'Convention collective', bg: '#fdf2f8', fg: '#be185d' },
+  urssaf: { label: 'URSSAF', bg: colors.banner.info.bgFrom, fg: colors.piece.medical.fg },
+  boss: { label: 'BOSS', bg: colors.banner.ai.bgFrom, fg: colors.banner.ai.accentHover },
+  impots: { label: 'Impôts', bg: colors.banner.success.bgFrom, fg: colors.banner.success.accentHover },
+  code: { label: 'Code du travail', bg: colors.feedback.warning.subtle, fg: colors.banner.warning.accentHover },
+  conv: { label: 'Convention collective', bg: colors.step.red.bg, fg: colors.avatar[4].fill },
   none: { label: '-', bg: colors.semantic.backgroundSubtle, fg: colors.semantic.foregroundSecondary },
 };
 function AuthorityBadge({ authority }) {
@@ -299,7 +147,7 @@ function AuthorityBadge({ authority }) {
 function SplitCallout({ split }) {
   return (
     <div className="rounded-lg border border-border bg-background-canvas p-3 flex items-center gap-2.5">
-      <div className="w-7 h-7 rounded-md bg-white border border-border flex items-center justify-center flex-shrink-0">
+      <div className="w-7 h-7 rounded-md bg-surface border border-border flex items-center justify-center flex-shrink-0">
         <Scissors className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
       </div>
       <div className="flex-1 min-w-0">
@@ -316,7 +164,7 @@ function SplitCallout({ split }) {
 function ProvenanceCallout({ prov, onOpen }) {
   return (
     <div className="rounded-lg border border-border bg-background-canvas p-3 flex items-center gap-2.5">
-      <div className="w-7 h-7 rounded-md bg-white border border-border flex items-center justify-center flex-shrink-0">
+      <div className="w-7 h-7 rounded-md bg-surface border border-border flex items-center justify-center flex-shrink-0">
         <Mail className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
       </div>
       <div className="flex-1 min-w-0">
@@ -341,11 +189,7 @@ function ProvenanceCallout({ prov, onOpen }) {
 // « aller à la citation » (le rail lit leur texte via data-cite).
 function DocPage({ pageNo, totalPages, width, quotes = [], img, highlight }) {
   return (
-    <div
-      className="relative bg-white rounded-md shadow-md border border-border shrink-0 overflow-hidden"
-      style={{ width, aspectRatio: '1 / 1.414', containerType: 'inline-size' }}
-      data-page={pageNo}
-    >
+    <PreviewerPage pageNo={pageNo} width={width}>
       <img src={img} alt={`Page ${pageNo}`} className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
       {/* Surlignage « source » : où la valeur du champ survolé a été extraite. */}
       {highlight && (
@@ -367,7 +211,7 @@ function DocPage({ pageNo, totalPages, width, quotes = [], img, highlight }) {
       <div className="absolute left-0 right-0 text-center text-foreground-muted tabular-nums" style={{ bottom: '2.5cqw', fontSize: '2cqw' }}>
         {pageNo} / {totalPages}
       </div>
-    </div>
+    </PreviewerPage>
   );
 }
 
@@ -395,21 +239,19 @@ function PdfDoc({ source, pageWidth, scrollRef, onScroll, highlight }) {
   // rendu multi-pages crédible (chaque page = une vraie page de document).
   const start = docSampleIndex(source.name || '');
   return (
-    <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
-      <div className="flex flex-col items-center gap-6 p-6">
-        {Array.from({ length: source.pages }, (_, i) => (
-          <DocPage
-            key={i}
-            pageNo={i + 1}
-            totalPages={source.pages}
-            width={pageWidth}
-            quotes={byPage[i + 1] || []}
-            img={DOC_SAMPLE_IMAGES[(start + i) % DOC_SAMPLE_IMAGES.length]}
-            highlight={highlight && highlight.page === i + 1 ? highlight.rect : null}
-          />
-        ))}
-      </div>
-    </div>
+    <Previewer scrollRef={scrollRef} onScroll={onScroll}>
+      {Array.from({ length: source.pages }, (_, i) => (
+        <DocPage
+          key={i}
+          pageNo={i + 1}
+          totalPages={source.pages}
+          width={pageWidth}
+          quotes={byPage[i + 1] || []}
+          img={DOC_SAMPLE_IMAGES[(start + i) % DOC_SAMPLE_IMAGES.length]}
+          highlight={highlight && highlight.page === i + 1 ? highlight.rect : null}
+        />
+      ))}
+    </Previewer>
   );
 }
 
@@ -426,7 +268,7 @@ function ImagePage({ source, pageNo, totalPages, width, quotes }) {
       className="relative bg-white rounded-md shadow-md border border-border shrink-0 overflow-hidden"
       style={{ width, containerType: 'inline-size' }}
     >
-      <div className="relative overflow-hidden" style={{ aspectRatio: '4 / 3', background: 'linear-gradient(135deg,#e9e4dc,#d9d3c8 58%,#cec7ba)' }}>
+      <div className="relative overflow-hidden" style={{ aspectRatio: '4 / 3', background: `linear-gradient(135deg,${colors.feedback.warning.subtle},${colors.accents.sand.border} 58%,${colors.accents.sand.border})` }}>
         {/* La feuille photographiée */}
         <div
           className="absolute bg-white"
@@ -457,7 +299,7 @@ function ImagePage({ source, pageNo, totalPages, width, quotes }) {
         </div>
       </div>
       {/* Légende : nom + extraits cités lisibles */}
-      <div className="px-3 py-2.5 border-t border-border bg-white">
+      <div className="px-3 py-2.5 border-t border-border bg-surface">
         <div className="text-[12px] text-foreground-muted tabular-nums">{source.name} · {pageNo}/{totalPages}</div>
         {quotes.length > 0 && (
           <div className="mt-1.5 flex flex-col gap-1">
@@ -480,13 +322,11 @@ function ImageDoc({ source, pageWidth, scrollRef, onScroll }) {
   passages.forEach((p) => { const pg = p.page || 1; (byPage[pg] || (byPage[pg] = [])).push(p); });
   const total = source.pages || 1;
   return (
-    <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
-      <div className="flex flex-col items-center gap-6 p-6">
-        {Array.from({ length: total }, (_, i) => (
-          <ImagePage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} quotes={byPage[i + 1] || []} />
-        ))}
-      </div>
-    </div>
+    <Previewer scrollRef={scrollRef} onScroll={onScroll}>
+      {Array.from({ length: total }, (_, i) => (
+        <ImagePage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} quotes={byPage[i + 1] || []} />
+      ))}
+    </Previewer>
   );
 }
 
@@ -542,13 +382,11 @@ function WordDoc({ source, pageWidth, scrollRef, onScroll }) {
   body.forEach((p) => { const pg = p.page || 1; (byPage[pg] || (byPage[pg] = [])).push(p); });
   const total = source.pages || Math.max(1, ...Object.keys(byPage).map(Number));
   return (
-    <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-auto min-w-0">
-      <div className="flex flex-col items-center gap-6 p-6">
-        {Array.from({ length: total }, (_, i) => (
-          <WordPage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} paras={byPage[i + 1] || []} />
-        ))}
-      </div>
-    </div>
+    <Previewer scrollRef={scrollRef} onScroll={onScroll}>
+      {Array.from({ length: total }, (_, i) => (
+        <WordPage key={i} source={source} pageNo={i + 1} totalPages={total} width={pageWidth} paras={byPage[i + 1] || []} />
+      ))}
+    </Previewer>
   );
 }
 
@@ -621,7 +459,7 @@ function EmailBody({ source, scrollRef, onOpen }) {
       <div className="max-w-[720px] mx-auto py-6 px-6 space-y-3">
         {/* Liste consolidée des pièces jointes du fil - prévisualisables */}
         {allAtts.length > 0 && (
-          <div className="rounded-xl border border-border bg-white p-4">
+          <div className="rounded-xl border border-border bg-surface p-4">
             <FieldLabel>Pièces jointes du fil ({allAtts.length})</FieldLabel>
             <div className="mt-2.5 flex flex-col gap-1.5">
               {allAtts.map((a, i) => {
@@ -650,7 +488,7 @@ function EmailBody({ source, scrollRef, onOpen }) {
 
         {msgs.map((m, i) => {
           const inner = (
-            <div className={`rounded-xl border bg-white p-4 ${m.cite ? 'border-transparent' : 'border-border'}`}>
+            <div className={`rounded-xl border bg-surface p-4 ${m.cite ? 'border-transparent' : 'border-border'}`}>
               <div className="flex items-center gap-2.5 mb-2">
                 <PartyAvatar name={m.from} size={28} />
                 <div className="min-w-0 flex-1">
@@ -708,12 +546,12 @@ function LigneBody({ source, scrollRef }) {
     <div ref={scrollRef} className="flex-1 overflow-auto min-w-0 bg-background-canvas">
       <div className="max-w-[760px] mx-auto py-8 px-8">
         {g.regle && (
-          <div className="rounded-xl border border-border bg-white p-4 mb-5">
+          <div className="rounded-xl border border-border bg-surface p-4 mb-5">
             <FieldLabel>Règle appliquée</FieldLabel>
             <p className="mt-2 text-[13.5px] leading-6 text-foreground-secondary">{g.regle}</p>
           </div>
         )}
-        <div className="rounded-xl border border-border bg-white overflow-hidden">
+        <div className="rounded-xl border border-border bg-surface overflow-hidden">
           <div className="grid grid-cols-[1fr_auto_auto] text-[11px] font-medium uppercase tracking-wide text-foreground-muted bg-cream border-b border-border" style={{ fontFamily: MONO }}>
             <div className="px-4 py-2">Libellé</div>
             <div className="px-4 py-2 text-right">Base</div>
@@ -749,95 +587,6 @@ function LigneBody({ source, scrollRef }) {
 //
 // La liste lit `items` (dérivés du DOM) donc marche uniformément pour tous
 // les kinds sans logique spécifique par corps.
-function CitesPanel({ items, active, onGo, width }) {
-  const activeRef = useRef(null);
-  // Suit le stepper : quand la citation active change (clic dans le doc,
-  // flèches du pied, popover), on ramène la ligne dans le rail. Nearest
-  // évite de re-scroller quand elle est déjà visible.
-  useEffect(() => {
-    if (activeRef.current) activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, [active]);
-  if (!items || items.length === 0) return null;
-  // Largeur pilotée par le parent (mesure de la largeur RÉELLE du panneau, pas
-  // du viewport - le chat mange de la place à droite). Le parent masque aussi
-  // le rail quand le panneau est trop étroit ; la liste reste alors accessible
-  // depuis les surlignages du corps.
-  //
-  // Traitement typographique inbox-like (Figma 37375:9168) : PAGE tient lieu
-  // d'objet (mono uppercase), l'extrait tient lieu de snippet (deux lignes).
-  // L'état actif se déclare en STONE : pastille pleine foreground, dégradé
-  // cream→blanc sur la ligne, liseré 2px foreground à gauche.
-  return (
-    <aside className="flex border-l border-border bg-white flex-col flex-shrink-0 min-h-0" style={{ width }}>
-      {/* Header : label semibold + compteur en pastille discrète */}
-      <div className="h-12 px-4 border-b border-border-subtle flex-shrink-0 flex items-center justify-between gap-3">
-        <span className="uppercase text-[11px] font-semibold text-foreground-secondary" style={{ letterSpacing: '0.5px' }}>
-          Extraits cités
-        </span>
-        <span className="inline-flex items-center justify-center min-w-[20px] px-1.5 py-0.5 rounded-[10px] bg-background-subtle text-[11px] font-semibold text-foreground-secondary tabular-nums">
-          {items.length}
-        </span>
-      </div>
-      {/* Liste : items séparés par un filet très léger, tension respirable */}
-      <div className="overflow-auto flex-1 min-h-0">
-        {items.map((it, i) => {
-          const isActive = i === active;
-          return (
-            <button
-              key={i}
-              type="button"
-              ref={isActive ? activeRef : undefined}
-              onClick={() => onGo(i)}
-              aria-current={isActive ? 'true' : undefined}
-              aria-label={`Citation ${i + 1}${it.page ? `, page ${it.page}` : ''}${it.text ? `. ${it.text.slice(0, 80)}${it.text.length > 80 ? '…' : ''}` : ''}`}
-              className={`group relative w-full text-left px-4 py-3.5 flex items-start gap-3 transition-colors ${FOCUS_RING} focus-visible:ring-inset ${i > 0 ? 'border-t border-border-subtle' : ''} ${isActive ? 'bg-gradient-to-r from-cream to-white' : 'hover:bg-background-canvas'}`}
-            >
-              {/* Liseré stone plein à gauche quand actif */}
-              {isActive && (
-                <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[2px] bg-foreground" />
-              )}
-              {/* Numéro en pastille ronde : foreground plein quand actif, cream sinon */}
-              <span
-                className={`inline-flex items-center justify-center flex-shrink-0 h-5 min-w-[20px] px-1 rounded-full text-[12px] font-medium tabular-nums transition-colors ${
-                  isActive ? 'bg-foreground text-white' : 'bg-cream text-foreground-tertiary'
-                }`}
-              >
-                {i + 1}
-              </span>
-              {/* Contenu : eyebrow page (mono) + extrait deux lignes */}
-              <span className="min-w-0 flex-1 flex flex-col gap-1">
-                {it.page && (
-                  <span
-                    className={`block uppercase tabular-nums ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`}
-                    style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500 }}
-                  >
-                    page {it.page}
-                  </span>
-                )}
-                <span
-                  className={`block ${isActive ? 'text-foreground' : 'text-foreground-secondary'}`}
-                  style={{
-                    fontSize: 12,
-                    lineHeight: '16px',
-                    letterSpacing: '0.12px',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    wordBreak: 'break-word',
-                  }}
-                >
-                  {it.text || <em className="text-foreground-muted">Extrait indisponible</em>}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </aside>
-  );
-}
-
 // ── Registre des types ───────────────────────────────────────────────────────
 // Accents et icônes alignés sur les badges SOURCE (COT_BADGE_TOKENS) : le titre
 // du panneau parle le même langage visuel que la pilule qui l'a ouvert.
@@ -875,7 +624,7 @@ export const PREVIEW_KINDS = {
 // (+ `summary` dérivé), donc il sert n'importe quel poste (PGPA, DFT, DSA,
 // social…). L'édition des MÉTADONNÉES de la pièce reste, elle, dans la barre méta
 // (bouton « Modifier la pièce »).
-const LIGNE_INPUT = 'w-full h-9 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg shadow-xs outline-none focus:border-foreground-muted transition-colors';
+const LIGNE_INPUT = 'w-full h-9 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg shadow-xs outline-none focus:border-foreground-muted transition-colors';
 
 function LigneField({ f }) {
   // Repère « sourcé » : signale que la valeur a été extraite du document ouvert
@@ -896,10 +645,10 @@ function LigneField({ f }) {
     <p className="mt-1.5 text-[12px] leading-4 text-foreground-secondary" style={{ letterSpacing: '0.12px' }}>{f.helper}</p>
   ) : null;
   if (f.type === 'date') {
-    return (<div>{label}<div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors"><Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} /><input defaultValue={f.value} className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground" /></div>{helper}</div>);
+    return (<div>{label}<div className="flex items-center gap-2 h-9 px-3 bg-surface border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors"><Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} /><input defaultValue={f.value} className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground" /></div>{helper}</div>);
   }
   if (f.type === 'money') {
-    return (<div>{label}<div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors"><span className="text-foreground-muted text-[14px] flex-shrink-0">€</span><input defaultValue={f.value} className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground tabular-nums" /></div>{helper}</div>);
+    return (<div>{label}<div className="flex items-center gap-2 h-9 px-3 bg-surface border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors"><span className="text-foreground-muted text-[14px] flex-shrink-0">€</span><input defaultValue={f.value} className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground tabular-nums" /></div>{helper}</div>);
   }
   if (f.type === 'number' || f.type === 'percent') {
     const suffix = f.type === 'percent' ? '%' : (f.suffix || '');
@@ -948,7 +697,7 @@ function LignePieces({ pieces, activePiece = 0, onView }) {
     <div className="flex flex-col gap-3">
       <div>
         <label className="block text-[14px] leading-5 font-medium text-foreground mb-1.5">Ajouter des pièces justificatives</label>
-        <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors">
+        <div className="flex items-center gap-2 h-9 px-3 bg-surface border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors">
           <Search className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
           <input placeholder="Recherchez une pièce..." className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground placeholder:text-foreground-secondary" />
         </div>
@@ -979,7 +728,7 @@ function LigneEditRail({ ligne, onClose, pieceNames, activePiece, onView, onSour
   const totalRow = summary.find((s) => s.strong);
   const detailRows = summary.filter((s) => !s.strong);
   return (
-    <aside className="flex-shrink-0 bg-white flex flex-col min-h-0" style={{ width }}>
+    <aside className="flex-shrink-0 bg-surface flex flex-col min-h-0" style={{ width }}>
       <div className="flex-1 overflow-y-auto overflow-x-clip py-5 flex flex-col gap-4 min-h-0">
         {/* Titre serif + champs pleine largeur (libellé…) */}
         <div className="px-5 flex flex-col gap-4">
@@ -1032,9 +781,9 @@ function LigneEditRail({ ligne, onClose, pieceNames, activePiece, onView, onSour
             )}
           </div>
         )}
-        <div className="p-5 bg-white border-t border-border flex items-center justify-between gap-2">
+        <div className="p-5 bg-surface border-t border-border flex items-center justify-between gap-2">
           <button type="button" onClick={onClose} className={`h-9 px-4 rounded-lg bg-danger-subtle text-danger-text text-[14px] font-medium hover:brightness-95 transition-all ${FOCUS_RING}`}>Supprimer</button>
-          <button type="button" onClick={onClose} className={`h-9 px-4 rounded-lg bg-foreground text-white text-[14px] font-medium hover:bg-foreground-tertiary transition-colors shadow-2xs ${FOCUS_RING}`}>Enregistrer</button>
+          <Button variant="primary" size="md" label="Enregistrer" onClick={onClose} />
         </div>
       </div>
     </aside>
@@ -1144,7 +893,13 @@ export default function PreviewPanel({
       n.style.outline = k === i ? `2px solid ${HL_EDGE}` : 'none';
       n.style.outlineOffset = '1px';
     });
-    cites[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Scroll MANUEL du seul scroller du document - jamais scrollIntoView, qui
+    // ferait défiler TOUS les ancêtres scrollables (la sandbox du playground,
+    // un conteneur overflow-hidden…) et sortirait le header du cadre.
+    const r = cites[i].getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    const top = el.scrollTop + (r.top - er.top) - (el.clientHeight - r.height) / 2;
+    el.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   }, []);
 
   useEffect(() => {
@@ -1232,13 +987,13 @@ export default function PreviewPanel({
   // « Numérotation de la pièce ». Le corps du document reste visible dessous.
   const originalName = source.originalName || source.split?.source;
   const docEditForm = (
-    <div className="bg-white border-b border-border flex-shrink-0 flex flex-col gap-4 py-4" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+    <div className="bg-surface border-b border-border flex-shrink-0 flex flex-col gap-4 py-4" style={{ animation: 'fadeIn 0.15s ease-out' }}>
       <div className="px-4 flex items-center justify-between gap-3">
         <span className="text-foreground truncate" style={SERIF_TITLE}>Modifier les informations du document</span>
         <button
           type="button"
           onClick={() => setEditing(false)}
-          className={`inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-foreground text-white text-[14px] font-medium hover:bg-foreground-tertiary transition-colors flex-shrink-0 ${FOCUS_RING}`}
+          className={`inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-foreground text-primary-foreground text-[14px] font-medium hover:bg-foreground-tertiary transition-colors flex-shrink-0 ${FOCUS_RING}`}
         >
           <Check className="w-4 h-4" strokeWidth={2} /> Enregistrer
         </button>
@@ -1255,7 +1010,7 @@ export default function PreviewPanel({
           )}
         </div>
         <Input label={kind === 'piece' ? 'Date du document' : 'Mise à jour'} aiGenerated={kind === 'piece'}>
-          <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors">
+          <div className="flex items-center gap-2 h-9 px-3 bg-surface border border-border rounded-lg shadow-xs focus-within:border-foreground-muted transition-colors">
             <Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
             <input defaultValue={source.date} placeholder="jj/mm/aaaa" className="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-foreground" />
           </div>
@@ -1337,7 +1092,7 @@ export default function PreviewPanel({
   // bouton « Modifier » à droite (sujet Pièce). En mode édition, la barre est
   // remplacée par docEditForm (voir plus haut).
   const metaBand = (
-    <div className="h-[52px] px-4 border-b border-border bg-white flex-shrink-0 flex items-center gap-2">
+    <div className="h-[52px] px-4 border-b border-border bg-surface flex-shrink-0 flex items-center gap-2">
       <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
         {isDoc ? docReadChips() : otherMeta()}
       </div>
@@ -1353,23 +1108,25 @@ export default function PreviewPanel({
     </div>
   );
 
-  // Sujet ligne : la colonne document porte son propre sous-header (Figma
-  // PanelHeader kind=PieceSmall) - icône + nom de la pièce, « Détail › » ouvre
-  // la pièce en preview pleine (métadonnées + citations).
+  // Sujet ligne : la colonne document porte son propre sous-header (atome
+  // PanelHeader small, Figma kind=PieceSmall 37613:19640) - icône + nom de la
+  // pièce, « Détail › » ouvre la pièce en preview pleine.
   const docSubHeader = (
-    <div className="h-14 pl-4 pr-3 bg-white border-b border-border flex items-center justify-between gap-3 flex-shrink-0">
-      <div className="flex items-center gap-3 min-w-0">
-        <Icon className="w-4 h-4 flex-shrink-0" style={{ color: cfg.accent.fg }} strokeWidth={1.75} />
-        <span className="text-[14px] leading-5 font-medium text-foreground-strong truncate">{source.name}</span>
-      </div>
-      <button
-        type="button"
-        onClick={() => openSource({ kind: 'piece', source })}
-        className={`inline-flex items-center gap-2 rounded-md text-[14px] font-medium text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0 ${FOCUS_RING}`}
-      >
-        Détail <ChevronRight className="w-3 h-3" strokeWidth={2} />
-      </button>
-    </div>
+    <PanelHeader
+      small
+      icon={Icon}
+      accent={cfg.accent}
+      title={source.name}
+      trailing={(
+        <button
+          type="button"
+          onClick={() => openSource({ kind: 'piece', source })}
+          className={`inline-flex items-center gap-2 rounded-md text-[14px] font-medium text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0 ${FOCUS_RING}`}
+        >
+          Détail <ChevronRight className="w-3 h-3" strokeWidth={2} />
+        </button>
+      )}
+    />
   );
 
   return (
@@ -1379,31 +1136,19 @@ export default function PreviewPanel({
         embedded ? 'relative rounded-lg border border-border shadow-sm h-[520px] sm:h-[640px] lg:h-[720px]' : 'relative h-full w-full'
       }`}
     >
-      {/* ── Barre de titre (Figma PanelHeader 37375:8738, h-56) ── */}
-      <div className="h-14 pl-4 pr-3 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <span className={`inline-flex items-center justify-center p-1.5 rounded-md flex-shrink-0 ${subjectIsLigne ? 'bg-sand-subtle text-sand' : ''}`} style={subjectIsLigne ? undefined : { background: cfg.accent.bg, color: cfg.accent.fg }}>
-            <TitleIcon className="w-4 h-4" strokeWidth={1.75} />
-          </span>
-          {/* Eyebrow : uniquement en sujet ligne - le poste, en Badge secondary. */}
-          {subjectIsLigne && (
-            <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md bg-cream text-[12px] leading-4 font-medium text-foreground-tertiary flex-shrink-0">{titleEyebrow}</span>
-          )}
-          <span className="text-foreground-strong truncate min-w-0" style={SERIF_TITLE}>{titleName}</span>
-        </div>
-        <div className="flex items-center gap-3.5 flex-shrink-0">
-          {/* Nav entre documents : glyphes ‹ › + compteur, puis séparateur */}
-          {navTotal > 1 && (
-            <>
-              <div className="flex items-center gap-2 text-[14px] text-foreground-secondary">
-                <button type="button" onClick={onPrev} className={`px-0.5 rounded font-medium hover:text-foreground transition-colors ${FOCUS_RING}`} aria-label="Document précédent">‹</button>
-                <span className="tabular-nums" aria-label={`Document ${navIndex} sur ${navTotal}`}>{navIndex} / {navTotal}</span>
-                <button type="button" onClick={onNext} className={`px-0.5 rounded font-medium hover:text-foreground transition-colors ${FOCUS_RING}`} aria-label="Document suivant">›</button>
-              </div>
-              <span className="w-px h-5 bg-border" aria-hidden />
-            </>
-          )}
-          <div className="flex items-center gap-[7px]">
+      {/* ── Barre de titre : atome PanelHeader (Figma 37375:8738, h-56) ── */}
+      <PanelHeader
+        kind={subjectIsLigne ? 'ligne' : kind}
+        icon={TitleIcon}
+        accent={subjectIsLigne ? undefined : cfg.accent}
+        eyebrow={subjectIsLigne ? (
+          <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md bg-cream text-[12px] leading-4 font-medium text-foreground-tertiary flex-shrink-0">{titleEyebrow}</span>
+        ) : null}
+        title={titleName}
+        nav={{ index: navIndex, total: navTotal, onPrev, onNext }}
+        onClose={onClose}
+        actions={(
+          <>
             {cfg.link && (
               <button
                 type="button"
@@ -1422,7 +1167,7 @@ export default function PreviewPanel({
                   type="button"
                   title="Télécharger"
                   aria-label="Télécharger"
-                  className={`inline-flex items-center gap-2 h-8 px-2 sm:px-3 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors text-[14px] font-medium ${FOCUS_RING}`}
+                  className={`inline-flex items-center gap-2 h-8 px-2 sm:px-3 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-tertiary transition-colors text-[14px] font-medium ${FOCUS_RING}`}
                 >
                   <Download className="w-4 h-4" strokeWidth={1.75} />
                   {!compact && <span>Télécharger</span>}
@@ -1438,13 +1183,9 @@ export default function PreviewPanel({
                 </button>
               </>
             )}
-            {/* Fermer : bouton secondary rempli (Figma) */}
-            <button type="button" onClick={onClose} className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-cream text-foreground-tertiary hover:text-foreground hover:brightness-95 transition-all ${FOCUS_RING}`} aria-label="Fermer">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
+          </>
+        )}
+      />
 
       {/* ── Corps + zone de droite ──
            · sujet ligne  → colonne doc (sous-header pièce + doc) et rail

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Scissors, Loader2 } from 'lucide-react';
 import { CardShell, CardIcon, CardLabel, btnLight } from './CardShell';
+import { colors } from '../../../design-system/tokens';
 
 // Posteriori split — a document split after upload (from the doc panel). Two
 // phases in the same shared shell as the other review cards:
@@ -10,14 +11,14 @@ export default function PosterioriSplitCard({ name, state, count = 0, onKeepAsOn
   if (state === 'splitting') {
     return (
       <CardShell>
-        <CardIcon bg="#f5f5f4" color="#44403c"><Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.75} /></CardIcon>
+        <CardIcon bg={colors.semantic.backgroundSubtle} color={colors.semantic.foregroundTertiary}><Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.75} /></CardIcon>
         <CardLabel name={name} state="Découpage en cours…" />
       </CardShell>
     );
   }
   return (
     <CardShell>
-      <CardIcon bg="#f5f5f4" color="#44403c"><Scissors className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
+      <CardIcon bg={colors.semantic.backgroundSubtle} color={colors.semantic.foregroundTertiary}><Scissors className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
       <div className="flex-1 min-w-0 text-[13px] leading-[18px] truncate" title={`${name} · ${count} pièces détectées`}>
         <span className="font-medium text-foreground-strong">{name}</span>
         <span className="text-foreground-secondary tabular-nums"> · {count} pièce{count > 1 ? 's' : ''} détectée{count > 1 ? 's' : ''}</span>

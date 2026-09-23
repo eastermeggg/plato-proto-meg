@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, FileText, Link as LinkIcon } from 'lucide-react';
+import { colors, shadows } from '../../design-system/tokens';
 
 /**
  * Simple modal to fill in a "fiche cabinet" for a JP not in the Plato JP DB.
@@ -39,7 +40,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
     <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-border flex flex-col"
+        className="bg-surface border border-border flex flex-col"
         style={{
           width: 520,
           borderRadius: 12,
@@ -48,11 +49,11 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
       >
         {/* Card Header */}
         <div className="flex flex-col gap-1 px-6 pt-6 pb-0">
-          <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, fontWeight: 500, color: '#292524', letterSpacing: '-0.6px', lineHeight: '28px', margin: 0 }}>
+          <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, fontWeight: 500, color: colors.semantic.foreground, letterSpacing: '-0.6px', lineHeight: '28px', margin: 0 }}>
             Dites-nous pourquoi cette jurisprudence est pertinente&nbsp;?
           </h2>
           {reference && (
-            <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: '#78716c', lineHeight: '20px', marginTop: 4 }}>
+            <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: colors.semantic.mutedForeground, lineHeight: '20px', marginTop: 4 }}>
               {reference}
             </p>
           )}
@@ -62,7 +63,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
         <div className="flex flex-col gap-6 px-6 pt-6 pb-8">
           {/* PDF drop zone */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="fiche-cabinet-pdf" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="fiche-cabinet-pdf" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
               PDF de la décision
             </label>
             <label
@@ -74,7 +75,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
               }}
               className="flex items-center justify-center cursor-pointer"
               style={{
-                border: `1px dashed ${dragOver ? '#b9703f' : (pdfFileName ? '#b9703f' : '#cbc7c4')}`,
+                border: `1px dashed ${dragOver ? colors.accents.ochre : (pdfFileName ? colors.accents.ochre : colors.semantic.borderStrong)}`,
                 borderRadius: 8,
                 padding: 6,
               }}
@@ -84,24 +85,24 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
                 style={{
                   borderRadius: 8,
                   background: pdfFileName || dragOver
-                    ? 'linear-gradient(to top, #fdf8f4 50%, rgba(253, 248, 244, 0))'
-                    : 'linear-gradient(to top, #f8f7f5 50%, rgba(238,236,230, 0))',
+                    ? `linear-gradient(to top, ${colors.semantic.accent} 50%, rgba(253, 248, 244, 0))`
+                    : `linear-gradient(to top, ${colors.semantic.accent} 50%, rgba(238,236,230, 0))`,
                 }}
               >
                 {pdfFileName ? (
                   <>
-                    <FileText className="w-5 h-5" style={{ color: '#b9703f' }} />
-                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: '#292524', lineHeight: '20px' }}>
+                    <FileText className="w-5 h-5" style={{ color: colors.accents.ochre }} />
+                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: colors.semantic.foreground, lineHeight: '20px' }}>
                       {pdfFileName}
-                      <span style={{ color: '#78716c', marginLeft: 6 }}> · cliquez pour remplacer</span>
+                      <span style={{ color: colors.semantic.mutedForeground, marginLeft: 6 }}> · cliquez pour remplacer</span>
                     </p>
                   </>
                 ) : (
                   <>
-                    <Upload className="w-5 h-5" style={{ color: '#78716c' }} />
-                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, lineHeight: '20px', color: '#78716c' }}>
+                    <Upload className="w-5 h-5" style={{ color: colors.semantic.mutedForeground }} />
+                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, lineHeight: '20px', color: colors.semantic.mutedForeground }}>
                       Déposez ou{' '}
-                      <span style={{ color: '#1e3a8a', fontWeight: 500 }}>cliquez</span>
+                      <span style={{ color: colors.feedback.info.text, fontWeight: 500 }}>cliquez</span>
                       {' '}pour ajouter un justificatif
                     </p>
                   </>
@@ -114,7 +115,7 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
           {/* OU divider */}
           <div className="flex items-center gap-3" style={{ marginTop: -4, marginBottom: -4 }}>
             <span className="flex-1 h-px bg-border" />
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.1em' }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: colors.semantic.foregroundMuted, letterSpacing: '0.1em' }}>
               OU
             </span>
             <span className="flex-1 h-px bg-border" />
@@ -122,15 +123,15 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
 
           {/* Lien de la décision */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="fiche-cabinet-url" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="fiche-cabinet-url" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
               Lien de la décision
             </label>
             <div
-              className="flex items-center gap-1 px-3 py-2 bg-white"
+              className="flex items-center gap-1 px-3 py-2 bg-surface"
               style={{
-                border: '1px solid #dfdcd9',
+                border: `1px solid ${colors.semantic.border}`,
                 borderRadius: 8,
-                boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+                boxShadow: shadows.xs,
               }}
             >
               <LinkIcon className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" />
@@ -144,14 +145,14 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
                 style={{ fontFamily: "'Inter', system-ui, sans-serif", lineHeight: '20px' }}
               />
             </div>
-            <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: '#a8a29e', lineHeight: '18px' }}>
+            <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: colors.semantic.foregroundMuted, lineHeight: '18px' }}>
               Lien doctrine, lexis, lexbase, légifrance, etc.
             </p>
           </div>
 
           {/* Apport */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="fiche-cabinet-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>
+            <label htmlFor="fiche-cabinet-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
               Apport de la décision
             </label>
             <textarea
@@ -160,13 +161,13 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
               onChange={(e) => setImpact(e.target.value)}
               rows={6}
               placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
-              className="w-full px-3 py-2 text-[14px] text-foreground bg-white placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
+              className="w-full px-3 py-2 text-[14px] text-foreground bg-surface placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 lineHeight: '20px',
-                border: '1px solid #dfdcd9',
+                border: `1px solid ${colors.semantic.border}`,
                 borderRadius: 8,
-                boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+                boxShadow: shadows.xs,
               }}
             />
           </div>
@@ -180,12 +181,12 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
             style={{
               height: 36,
               borderRadius: 8,
-              backgroundColor: '#eeece6',
+              backgroundColor: colors.semantic.muted,
               backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1))',
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 14,
               fontWeight: 500,
-              color: '#44403c',
+              color: colors.semantic.foregroundTertiary,
               lineHeight: '20px',
             }}
           >
@@ -198,8 +199,8 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
             style={{
               height: 36,
               borderRadius: 8,
-              backgroundColor: canSave ? '#292524' : '#eeece6',
-              color: canSave ? 'white' : '#a8a29e',
+              backgroundColor: canSave ? colors.semantic.primary : colors.semantic.muted,
+              color: canSave ? 'white' : colors.semantic.foregroundMuted,
               cursor: canSave ? 'pointer' : 'not-allowed',
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 14,

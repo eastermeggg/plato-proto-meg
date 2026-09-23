@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { X, Scissors, Link2, Check, Pencil, Trash2, FileText, ChevronLeft, Play, RotateCcw, FoldHorizontal, Sparkles, Calendar } from 'lucide-react';
+import { colors } from '../../design-system/tokens';
 
 // Design tokens lifted from the Plato "DocumentPanelCut" Figma frame.
 const SHADOW_LG = '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 10px 15px -3px rgba(26,26,26,0.05)';
@@ -254,12 +255,12 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
       style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28, 25, 23, 0.5)', animation: 'fadeIn 0.2s ease-out' }}
     />
     <div
-      className="fixed top-0 h-screen bg-white border-l border-border z-30 flex flex-col"
+      className="fixed top-0 h-screen bg-surface border-l border-border z-30 flex flex-col"
       style={{ width: '1040px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}
     >
       {/* Header - harmonized with the document preview panel. Title + actions
           depend on the mode; the document pane below is shared across modes. */}
-      <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+      <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-surface">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {mode === 'adjust' && initialMode === 'view' && (
             <button
@@ -286,11 +287,11 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
               <button
                 onClick={saveAndClose}
                 className="inline-flex items-center h-8 px-3 rounded-lg text-[14px] font-medium text-white transition-colors"
-                style={{ fontFamily: SANS, background: '#292524', boxShadow: SHADOW_2XS }}
+                style={{ fontFamily: SANS, background: colors.semantic.primary, boxShadow: SHADOW_2XS }}
               >
                 Enregistrer
               </button>
-              <span className="w-px h-[15px] bg-[#d9d9d9] mx-1" />
+              <span className="w-px h-[15px] bg-border-alt mx-1" />
             </>
           )}
           <button onClick={closePanel} className="p-1 text-foreground-secondary hover:text-foreground hover:bg-background-subtle rounded-md transition-colors" aria-label="Fermer" title="Fermer sans enregistrer">
@@ -341,7 +342,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
 
         {/* Right - controls. Adjust: découpage sommaire + prompt. View: the
             active part's document metadata. */}
-        <div className="w-[440px] flex flex-col bg-white flex-shrink-0 border-l border-border">
+        <div className="w-[440px] flex flex-col bg-surface flex-shrink-0 border-l border-border">
           {mode === 'adjust' ? (
             <>
               <div className="px-5 py-4 flex items-center justify-between flex-shrink-0">
@@ -375,15 +376,15 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                       onClick={() => { if (!isRenaming) scrollToSegment(idx); }}
                       className="w-full text-left px-4 pt-2 pb-2.5 rounded-lg transition-colors flex items-start gap-2 group cursor-pointer"
                       style={{
-                        background: isActive ? '#292524' : 'transparent',
+                        background: isActive ? colors.semantic.primary : 'transparent',
                         boxShadow: isActive ? SHADOW_MD : 'none',
                       }}
-                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#f8f7f5'; }}
+                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = colors.semantic.background; }}
                       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
                     >
                       <span
                         className="text-[11px] uppercase tabular-nums py-1.5 w-[30px] flex-shrink-0 transition-colors"
-                        style={{ fontFamily: MONO, color: isActive ? '#ffffff' : '#78716c' }}
+                        style={{ fontFamily: MONO, color: isActive ? colors.semantic.white : colors.semantic.mutedForeground }}
                       >
                         {idx + 1}
                       </span>
@@ -396,14 +397,14 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                           />
                         ) : (
                           <div className="flex items-center gap-1 min-w-0">
-                            <span className="text-[14px] leading-[20px] truncate" style={{ fontFamily: SANS, color: isActive ? '#ffffff' : '#292524', fontWeight: isActive ? 500 : 400 }}>
+                            <span className="text-[14px] leading-[20px] truncate" style={{ fontFamily: SANS, color: isActive ? colors.semantic.white : colors.semantic.foreground, fontWeight: isActive ? 500 : 400 }}>
                               {seg._customName || seg.label}
                             </span>
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); setRenamingIdx(idx); }}
                               className="flex-shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                              style={{ color: isActive ? 'rgba(255,255,255,0.6)' : '#a8a29e' }}
+                              style={{ color: isActive ? 'rgba(255,255,255,0.6)' : colors.semantic.foregroundMuted }}
                               title="Renommer"
                             >
                               <Pencil className="w-3 h-3" strokeWidth={1.75} />
@@ -431,19 +432,19 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1">
                     <label htmlFor="pile-segment-name" className="text-[14px] leading-[20px] font-medium text-foreground" style={{ fontFamily: SANS }}>Nom du document</label>
-                    <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
+                    <Sparkles className="w-3 h-3 text-ai" strokeWidth={1.75} />
                   </div>
                   <input
                     id="pile-segment-name"
                     value={active ? (active._customName || active.label) : ''}
                     onChange={(e) => setSegmentName(safe, e.target.value)}
-                    className="w-full text-[14px] text-foreground bg-white border border-border rounded-lg px-3 py-2.5 hover:border-zinc-300 focus:border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-200 transition-colors"
+                    className="w-full text-[14px] text-foreground bg-surface border border-border rounded-lg px-3 py-2.5 hover:border-border-strong focus:border-border-hover focus:outline-none focus:ring-1 focus:ring-stone-subtle transition-colors"
                     style={{ fontFamily: SANS, boxShadow: SHADOW_XS }}
                   />
 
                   {/* Document découpé - provenance callout (« the splitted box ») */}
                   <div className="flex items-start gap-2.5 p-3 rounded-lg border border-border bg-background-canvas">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-md border border-border bg-white flex-shrink-0">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-md border border-border bg-surface flex-shrink-0">
                       <Scissors className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
                     </span>
                     <div className="flex-1 min-w-0 flex flex-col gap-0.5">
@@ -457,7 +458,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                       onClick={() => setMode('adjust')}
                       title="Revoir et ajuster le découpage"
                       className="flex-shrink-0 text-[14px] leading-[20px] font-medium hover:underline underline-offset-2"
-                      style={{ fontFamily: SANS, color: '#1e3a8a' }}
+                      style={{ fontFamily: SANS, color: colors.feedback.info.text }}
                     >
                       Ajuster
                     </button>
@@ -468,9 +469,9 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1">
                     <span className="text-[14px] leading-[20px] font-medium text-foreground" style={{ fontFamily: SANS }}>Date du document</span>
-                    <Sparkles className="w-3 h-3 text-[#7c3aed]" strokeWidth={1.75} />
+                    <Sparkles className="w-3 h-3 text-ai" strokeWidth={1.75} />
                   </div>
-                  <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-white" style={{ boxShadow: SHADOW_XS }}>
+                  <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-surface" style={{ boxShadow: SHADOW_XS }}>
                     <Calendar className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
                     <span className="text-[14px] text-foreground tabular-nums" style={{ fontFamily: SANS }}>
                       {active ? formatDateShort(active.date) : '—'}
@@ -492,7 +493,7 @@ export default function PileAdjustSheet({ pile, splitPrompt, initialMode = 'adju
                 <button
                   onClick={() => deleteSegment(safe)}
                   disabled={segments.length <= 1}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-[#7f1d1d] bg-[#fee2e2] hover:bg-danger-border disabled:opacity-40 disabled:hover:bg-[#fee2e2] transition-colors"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[14px] font-medium text-danger-text bg-danger-subtle hover:bg-danger-border disabled:opacity-40 disabled:hover:bg-danger-subtle transition-colors"
                   style={{ fontFamily: SANS }}
                 >
                   <Trash2 className="w-4 h-4" strokeWidth={1.75} />
@@ -515,8 +516,8 @@ function SegBadge({ active, children }) {
     <span
       className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-[12px] leading-[16px] font-medium tabular-nums whitespace-nowrap"
       style={active
-        ? { background: '#eeece6', color: '#44403c', fontFamily: SANS }
-        : { border: '1px solid #dfdcd9', color: '#44403c', fontFamily: SANS }}
+        ? { background: colors.semantic.muted, color: colors.semantic.foregroundTertiary, fontFamily: SANS }
+        : { border: `1px solid ${colors.semantic.border}`, color: colors.semantic.foregroundTertiary, fontFamily: SANS }}
     >
       {children}
     </span>
@@ -558,12 +559,12 @@ function SplitPromptSection({ defaultPrompt }) {
         onChange={(e) => setText(e.target.value)}
         disabled={applying}
         placeholder="Décrivez comment découper ce document…"
-        className="w-full rounded-md bg-white border border-border focus:outline-none focus:border-foreground-muted transition-colors"
+        className="w-full rounded-md bg-surface border border-border focus:outline-none focus:border-foreground-muted transition-colors"
         style={{
           fontFamily: SANS,
           fontSize: 14,
           lineHeight: '20px',
-          color: '#292524',
+          color: colors.semantic.foreground,
           padding: '10px 12px',
           minHeight: 80,
           maxHeight: 160,
@@ -599,7 +600,7 @@ function SplitPromptSection({ defaultPrompt }) {
             </>
           ) : appliedFlash ? (
             <>
-              <Check className="w-4 h-4" strokeWidth={2.5} style={{ color: '#4a9168' }} />
+              <Check className="w-4 h-4" strokeWidth={2.5} style={{ color: colors.accents.meadow }} />
               Relancé
             </>
           ) : (
@@ -641,7 +642,7 @@ function SommaireRenameInput({ initial, onCommit, onCancel }) {
         if (e.key === 'Enter') { e.preventDefault(); onCommit(draft); }
         else if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
       }}
-      className="w-full text-[14px] leading-[20px] font-medium text-foreground-strong bg-white rounded px-1.5 py-0.5 -ml-1.5 outline-none ring-2 ring-foreground-strong/15"
+      className="w-full text-[14px] leading-[20px] font-medium text-foreground-strong bg-surface rounded px-1.5 py-0.5 -ml-1.5 outline-none ring-2 ring-foreground-strong/15"
       style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
     />
   );
@@ -658,7 +659,7 @@ function MockPage({ pageNum, relIdx, segment, docNumber, first, last }) {
 
   return (
     <div
-      className="bg-white rounded-xl border border-border flex flex-col transition-shadow duration-200"
+      className="bg-surface rounded-xl border border-border flex flex-col transition-shadow duration-200"
       style={{
         width: 520,
         minHeight: 680,
@@ -686,7 +687,7 @@ function MockPage({ pageNum, relIdx, segment, docNumber, first, last }) {
 
       <div className="flex-1 px-11 pb-11 space-y-[11px]">
         {blocks.map((w, i) => (
-          <div key={i} className="h-[5px] rounded-full" style={{ width: `${Math.round(w * 100)}%`, background: i % 7 === 6 ? 'transparent' : '#f1f0ee' }} />
+          <div key={i} className="h-[5px] rounded-full" style={{ width: `${Math.round(w * 100)}%`, background: i % 7 === 6 ? 'transparent' : colors.semantic.backgroundSubtle }} />
         ))}
       </div>
     </div>
@@ -736,7 +737,7 @@ function CutBoundary({ onHeal, onHoverChange }) {
       <span
         className="absolute left-1/2 top-1/2 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium text-white whitespace-nowrap"
         style={{
-          background: '#1c1917',
+          background: colors.semantic.foreground,
           boxShadow: '0 2px 8px rgba(28,25,23,0.25), 0 8px 24px -6px rgba(28,25,23,0.3)',
           opacity: hover ? 1 : 0,
           transform: hover ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -50%) scale(0.85)',
@@ -775,7 +776,7 @@ function GhostCut({ onCut }) {
       <span
         className="relative inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium text-white whitespace-nowrap"
         style={{
-          background: '#1c1917',
+          background: colors.semantic.foreground,
           boxShadow: '0 2px 8px rgba(28,25,23,0.25), 0 8px 24px -6px rgba(28,25,23,0.3)',
           opacity: hover ? 1 : 0,
           transform: hover ? 'scale(1) translateY(0)' : 'scale(0.85) translateY(2px)',

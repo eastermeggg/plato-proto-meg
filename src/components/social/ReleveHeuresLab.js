@@ -14,6 +14,7 @@ import PromptSuggestionCard from '../PromptSuggestionCard';
 import Button from '../ui/Button';
 import DropZone from '../ui/DropZone';
 import Badge from '../ui/Badge';
+import { colors, shadows } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Relevé d'heures — Droit social.  Three UX explorations for the timesheet a
@@ -38,20 +39,20 @@ import Badge from '../ui/Badge';
 // ─────────────────────────────────────────────────────────────────────────
 
 // ── palette (Norma stone + cream) ────────────────────────────────────────
-const INK    = '#292524';
-const INK2   = '#44403c';
-const MUTE   = '#78716c';
-const FAINT  = '#a8a29e';
-const LINE   = '#dfdcd9';
-const PAPER  = '#F8F7F5';
-const SUBTLE = '#fafaf9';
-const CREAM  = '#eeece6';
-const WHITE  = '#ffffff';
+const INK    = colors.semantic.foreground;
+const INK2   = colors.semantic.foregroundTertiary;
+const MUTE   = colors.semantic.mutedForeground;
+const FAINT  = colors.semantic.foregroundMuted;
+const LINE   = colors.semantic.border;
+const PAPER  = colors.semantic.background;
+const SUBTLE = colors.banner.neutral.bgFrom;
+const CREAM  = colors.semantic.muted;
+const WHITE  = colors.semantic.white;
 // brand emphasis = blue (cream + primary-black are the other two brand tokens)
-const ACCENT_BG = '#eef3fa';   // light blue surface
-const ACCENT_DK = '#1e3a8a';   // deep brand blue — figures / totals / links
-const NIGHT     = '#5b6472';   // cool slate — work that crosses midnight
-const REST_BG   = '#f6f5f3';
+const ACCENT_BG = colors.banner.info.bgFrom;   // light blue surface
+const ACCENT_DK = colors.feedback.info.text;   // deep brand blue — figures / totals / links
+const NIGHT     = colors.accents.slate.base;   // cool slate — work that crosses midnight
+const REST_BG   = colors.semantic.accent;
 // subtle, diffused shadow shared by the relevé's blocks (cards)
 const SHADOW = '0px 1px 2px rgba(26,26,26,0.04), 0px 8px 20px -8px rgba(26,26,26,0.10)';
 
@@ -312,7 +313,7 @@ function useLabStyles() {
       .rh-slide-r { animation: rh-slide-r .26s cubic-bezier(.32,.72,0,1) both; }
       .rh-dim { animation: rh-dim .2s ease-out both; }
       .rh-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-      .rh-scroll::-webkit-scrollbar-thumb { background: #e0ded9; border-radius: 8px; }
+      .rh-scroll::-webkit-scrollbar-thumb { background: ${colors.semantic.border}; border-radius: 8px; }
       .rh-scroll::-webkit-scrollbar-track { background: transparent; }
     `;
     document.head.appendChild(el);
@@ -453,7 +454,7 @@ function SharePopover({ onOpenClient, open, onOpenChange }) {
   };
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => onOpenChange(!open)} className="inline-flex items-center gap-2 transition-all" style={{ height: 32, padding: '0 12px', borderRadius: 6, fontSize: 14, fontWeight: 500, color: WHITE, background: INK, boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}>
+      <button onClick={() => onOpenChange(!open)} className="inline-flex items-center gap-2 transition-all" style={{ height: 32, padding: '0 12px', borderRadius: 6, fontSize: 14, fontWeight: 500, color: WHITE, background: INK, boxShadow: shadows['2xs'] }}>
         Partager au client <ArrowUpRight className="w-4 h-4" />
       </button>
       {open && (
@@ -471,8 +472,8 @@ function SharePopover({ onOpenClient, open, onOpenChange }) {
             <span style={{ fontSize: 11.5, color: MUTE }}>Mot de passe</span>
             <span className="ml-auto" style={{ fontSize: 12.5, fontWeight: 600, color: INK2, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.06em' }}>{pwd}</span>
           </div>
-          <button onClick={copyBoth} className="w-full inline-flex items-center justify-center gap-2 rounded-lg transition-colors" style={{ height: 40, fontSize: 13.5, fontWeight: 600, color: WHITE, background: copied ? '#3f7d5f' : INK }}
-            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.background = INK2; }} onMouseLeave={(e) => { e.currentTarget.style.background = copied ? '#3f7d5f' : INK; }}>
+          <button onClick={copyBoth} className="w-full inline-flex items-center justify-center gap-2 rounded-lg transition-colors" style={{ height: 40, fontSize: 13.5, fontWeight: 600, color: WHITE, background: copied ? colors.accents.emerald.base : INK }}
+            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.background = INK2; }} onMouseLeave={(e) => { e.currentTarget.style.background = copied ? colors.accents.emerald.base : INK; }}>
             {copied ? <><Check className="w-4 h-4" /> Lien et mot de passe copiés</> : <><Copy className="w-4 h-4" /> Copier le lien et le mot de passe</>}
           </button>
           {onOpenClient && (
@@ -534,7 +535,7 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
         {!day.rest && (
           <>
             {suggestion && !day.worked && (
-              <div className="rounded-xl rh-fade" style={{ marginBottom: 14, padding: '11px 13px', background: ACCENT_BG, border: `1px solid #c4d5ea` }}>
+              <div className="rounded-xl rh-fade" style={{ marginBottom: 14, padding: '11px 13px', background: ACCENT_BG, border: `1px solid ${colors.accents.slate.border}` }}>
                 <div style={{ fontSize: 12.5, color: ACCENT_DK, lineHeight: '17px', marginBottom: 9 }}>
                   Reprendre les horaires de <strong style={{ fontWeight: 700 }}>{suggestion.dow.toLowerCase()} {suggestion.dateNum}</strong> ?
                   <span style={{ display: 'block', fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>{suggestion.periods.map((p) => `${p.start}–${p.end}`).join('   ·   ')}</span>
@@ -561,11 +562,11 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
         {/* discreet « jour non travaillé » toggle — sits just under the declare-hours action */}
         <button role="switch" aria-checked={day.rest} onClick={() => ops.setDayStatus(wi, di, day.rest ? 'todo' : 'rest')}
           className="inline-flex items-center gap-2.5" style={{ marginTop: day.rest ? 0 : 16, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}>
-          <span className="relative flex-shrink-0" style={{ width: 34, height: 20, borderRadius: 99, background: day.rest ? INK : '#cbc7c4', transition: 'background .15s' }}>
+          <span className="relative flex-shrink-0" style={{ width: 34, height: 20, borderRadius: 99, background: day.rest ? INK : colors.semantic.borderStrong, transition: 'background .15s' }}>
             <span className="absolute" style={{ top: 2, left: day.rest ? 16 : 2, width: 16, height: 16, borderRadius: 99, background: WHITE, transition: 'left .15s ease', boxShadow: '0 1px 2px rgba(26,26,26,0.25)' }} />
           </span>
           <span className="inline-flex items-center gap-1.5" style={{ fontSize: 13, fontWeight: day.rest ? 600 : 500, color: day.rest ? INK : MUTE }}>
-            <Coffee className="w-3.5 h-3.5" style={{ color: day.rest ? '#9a7b4f' : FAINT }} /> Jour non travaillé
+            <Coffee className="w-3.5 h-3.5" style={{ color: day.rest ? colors.accents.sand.base : FAINT }} /> Jour non travaillé
           </span>
         </button>
         {day.rest && (
@@ -603,7 +604,7 @@ function YearDropdown({ years, value, onChange }) {
   return (
     <div ref={ref} className="relative flex-shrink-0">
       <button onClick={() => setOpen((o) => !o)} title="Aller à une autre année" className="inline-flex items-center gap-1.5 rounded-lg transition-colors" style={{ height: 32, padding: '0 8px 0 12px', background: CREAM, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12.5, fontWeight: 500, color: INK, border: 'none', cursor: 'pointer' }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = '#e4e1da'; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
+        onMouseEnter={(e) => { e.currentTarget.style.background = colors.semantic.input; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
         {value}<ChevronDown className="w-3.5 h-3.5" style={{ color: MUTE, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
       </button>
       {open && (
@@ -660,8 +661,8 @@ function MonthDuplicateDialog({ srcY, srcM, periodStart, periodEnd, ops, onClose
     onClose();
   };
   const Option = ({ id, title, sub }) => (
-    <button onClick={() => setMode(id)} className="w-full flex items-start gap-2.5 rounded-xl transition-colors" style={{ textAlign: 'left', padding: '12px 14px', border: `1px solid ${mode === id ? '#c4d5ea' : LINE}`, background: mode === id ? ACCENT_BG : WHITE, cursor: 'pointer' }}>
-      <span className="flex items-center justify-center flex-shrink-0" style={{ width: 18, height: 18, borderRadius: 99, border: `1.5px solid ${mode === id ? ACCENT_DK : '#cbd5e1'}`, marginTop: 1 }}>
+    <button onClick={() => setMode(id)} className="w-full flex items-start gap-2.5 rounded-xl transition-colors" style={{ textAlign: 'left', padding: '12px 14px', border: `1px solid ${mode === id ? colors.accents.slate.border : LINE}`, background: mode === id ? ACCENT_BG : WHITE, cursor: 'pointer' }}>
+      <span className="flex items-center justify-center flex-shrink-0" style={{ width: 18, height: 18, borderRadius: 99, border: `1.5px solid ${mode === id ? ACCENT_DK : colors.accents.slate.border}`, marginTop: 1 }}>
         {mode === id && <span style={{ width: 9, height: 9, borderRadius: 99, background: ACCENT_DK }} />}
       </span>
       <span style={{ minWidth: 0 }}>
@@ -762,7 +763,7 @@ function RegistreView({ weeks, year, ops, openDay, onOpenDay, month, start, end,
 
   // hour totals are badged as a blue info pill — mono, medium, uppercase « H »
   const HourPill = ({ min }) => (
-    <span style={{ display: 'inline-flex', alignItems: 'center', height: 22, padding: '0 8px', borderRadius: 6, background: '#dfe8f5', color: ACCENT_DK, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: '0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmtHU(min)}</span>
+    <span style={{ display: 'inline-flex', alignItems: 'center', height: 22, padding: '0 8px', borderRadius: 6, background: colors.piece.expertise.bg, color: ACCENT_DK, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: '0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmtHU(min)}</span>
   );
 
   return (
@@ -896,7 +897,7 @@ function RegistreView({ weeks, year, ops, openDay, onOpenDay, month, start, end,
       {!single && (() => {
         const th = Math.floor(yearTotal / 60), tm = yearTotal % 60;
         return (
-          <div className="flex items-center" style={{ marginTop: 12, padding: '15px 16px', background: CREAM, border: `1px solid ${LINE}`, borderRadius: 8, boxShadow: '0px 1px 2px rgba(26,26,26,0.05)' }}>
+          <div className="flex items-center" style={{ marginTop: 12, padding: '15px 16px', background: CREAM, border: `1px solid ${LINE}`, borderRadius: 8, boxShadow: shadows.xs }}>
             <Clock className="w-5 h-5 flex-shrink-0" style={{ color: MUTE }} strokeWidth={1.5} />
             <span style={{ fontSize: 14, fontWeight: 500, color: INK, marginLeft: 8 }}>Total heures travaillées {year}</span>
             <span className="ml-auto inline-flex items-center" style={{ gap: 8 }}>
@@ -947,8 +948,8 @@ function ListeView({ weeks, year, ops, standalone, paged, start, end, aside, ren
           {/* undecided — the client picks */}
           {status === 'todo' && (
             <div className="ml-auto flex items-center gap-2">
-              <button onClick={() => { ops.setDayStatus(wi, di, 'worked'); setExpandedDays((p) => new Set(p).add(d.id)); }} className="inline-flex items-center gap-1.5 rounded-lg transition-colors" style={{ height: 32, padding: '0 12px', fontSize: 12.5, fontWeight: 600, color: ACCENT_DK, border: `1px solid #c4d5ea`, background: ACCENT_BG }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#e0e9f7'; }} onMouseLeave={(e) => { e.currentTarget.style.background = ACCENT_BG; }}>
+              <button onClick={() => { ops.setDayStatus(wi, di, 'worked'); setExpandedDays((p) => new Set(p).add(d.id)); }} className="inline-flex items-center gap-1.5 rounded-lg transition-colors" style={{ height: 32, padding: '0 12px', fontSize: 12.5, fontWeight: 600, color: ACCENT_DK, border: `1px solid ${colors.accents.slate.border}`, background: ACCENT_BG }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = colors.piece.expertise.bg; }} onMouseLeave={(e) => { e.currentTarget.style.background = ACCENT_BG; }}>
                 <Clock className="w-3.5 h-3.5" /> Entrer mes heures
               </button>
               <button onClick={() => ops.setDayStatus(wi, di, 'rest')} className="inline-flex items-center gap-1.5 rounded-lg transition-colors" style={{ height: 32, padding: '0 12px', fontSize: 12.5, fontWeight: 500, color: MUTE, border: `1px solid ${LINE}`, background: WHITE }}
@@ -1018,7 +1019,7 @@ function ListeView({ weeks, year, ops, standalone, paged, start, end, aside, ren
   };
 
   const banner = !standalone && (
-    <div className="flex items-center gap-2.5 rounded-xl" style={{ background: ACCENT_BG, border: `1px solid #c4d5ea`, padding: '10px 14px', marginBottom: 18 }}>
+    <div className="flex items-center gap-2.5 rounded-xl" style={{ background: ACCENT_BG, border: `1px solid ${colors.accents.slate.border}`, padding: '10px 14px', marginBottom: 18 }}>
       <Eye className="w-4 h-4 flex-shrink-0" style={{ color: ACCENT_DK }} />
       <span style={{ fontSize: 13, color: ACCENT_DK }}>
         <strong style={{ fontWeight: 600 }}>Aperçu client.</strong> L'écran partagé : chaque jour, indiquez vos horaires ou marquez « je n'ai pas travaillé ».
@@ -1029,7 +1030,7 @@ function ListeView({ weeks, year, ops, standalone, paged, start, end, aside, ren
   const footer = !standalone && (
     <div className="flex items-center justify-between rounded-xl" style={{ background: INK, padding: '14px 18px', marginTop: 18 }}>
       <div className="flex items-center gap-2.5">
-        <Clock className="w-4 h-4" style={{ color: '#9db4d8' }} />
+        <Clock className="w-4 h-4" style={{ color: colors.chart[0] }} />
         <span style={{ fontSize: 13.5, color: WHITE }}><strong style={{ fontWeight: 600 }}>{workedDays} jours travaillés</strong> · total déclaré {year}</span>
       </div>
       <span style={{ fontSize: 20, fontWeight: 700, color: WHITE, fontVariantNumeric: 'tabular-nums' }}>{fmtHM(yearMin)}</span>
@@ -1069,7 +1070,7 @@ function ListeView({ weeks, year, ops, standalone, paged, start, end, aside, ren
       <div>
         <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT, marginBottom: 6 }}>Période à compléter</div>
         <button onClick={onEditPeriod} disabled={!onEditPeriod} title={onEditPeriod ? 'Modifier la période' : undefined} className="inline-flex items-center gap-1.5 rounded-lg transition-colors" style={{ maxWidth: '100%', height: 34, padding: '0 10px 0 12px', background: CREAM, fontSize: 13, border: 'none', cursor: onEditPeriod ? 'pointer' : 'default', whiteSpace: 'nowrap' }}
-          onMouseEnter={(e) => { if (onEditPeriod) e.currentTarget.style.background = '#e4e1da'; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
+          onMouseEnter={(e) => { if (onEditPeriod) e.currentTarget.style.background = colors.semantic.input; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
           <CalendarRange className="w-3.5 h-3.5 flex-shrink-0" style={{ color: MUTE }} />
           <span style={{ fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(start)} → {fmtDateNum(end)}</span>
           {onEditPeriod && <Pencil className="w-3.5 h-3.5 flex-shrink-0" style={{ color: MUTE, marginLeft: 2 }} />}
@@ -1115,7 +1116,7 @@ function ListeView({ weeks, year, ops, standalone, paged, start, end, aside, ren
           <div className="flex-1 flex justify-end" style={{ minWidth: 0 }}>
             {months.length > 1 && (
               <button onClick={() => setDupMonth({ y: cur.y, m: cur.m })} className="inline-flex items-center gap-1.5 rounded-lg transition-colors flex-shrink-0" style={{ height: 32, padding: '0 11px', fontSize: 12.5, fontWeight: 500, color: MUTE, border: `1px solid ${LINE}`, background: WHITE }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT_DK; e.currentTarget.style.borderColor = '#c4d5ea'; }} onMouseLeave={(e) => { e.currentTarget.style.color = MUTE; e.currentTarget.style.borderColor = LINE; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT_DK; e.currentTarget.style.borderColor = colors.accents.slate.border; }} onMouseLeave={(e) => { e.currentTarget.style.color = MUTE; e.currentTarget.style.borderColor = LINE; }}
                 title="Dupliquer ce mois vers le mois suivant, toute l'année ou une période personnalisée">
                 <Copy className="w-3.5 h-3.5" /> Dupliquer le mois
               </button>
@@ -1165,7 +1166,7 @@ function ListeView({ weeks, year, ops, standalone, paged, start, end, aside, ren
           )}
         </div>
         {/* no validation step — every change is saved automatically (autosave) */}
-        <div className="flex items-center justify-center gap-1.5 xl:hidden" style={{ marginTop: 24, fontSize: 12, color: '#3f7d5f' }}>
+        <div className="flex items-center justify-center gap-1.5 xl:hidden" style={{ marginTop: 24, fontSize: 12, color: colors.accents.emerald.base }}>
           <Check className="w-3.5 h-3.5 flex-shrink-0" /> Vos saisies sont enregistrées automatiquement
         </div>
         {footer}
@@ -1269,7 +1270,7 @@ function ChatPanel({ ctx, onClose }) {
       {/* header */}
       <div className="px-3 flex items-center gap-2 flex-shrink-0" style={{ height: 48, borderBottom: `1px solid ${LINE}` }}>
         <button onClick={onClose} className="p-1.5 rounded-md transition-colors flex-shrink-0" title="Masquer le chat"
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#f0efec'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
+          onMouseEnter={(e) => { e.currentTarget.style.background = colors.semantic.muted; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
           <PanelRightClose className="w-4 h-4" style={{ color: MUTE }} strokeWidth={1.75} />
         </button>
         <PlatoMark size={16} />
@@ -1321,7 +1322,7 @@ function ChatPanel({ ctx, onClose }) {
 
       {/* composer */}
       <div className="flex-shrink-0" style={{ padding: 12 }}>
-        <div className="rounded-xl" style={{ border: `1px solid ${focused ? INK : LINE}`, background: WHITE, transition: 'border-color .15s', boxShadow: '0 1px 2px rgba(26,26,26,0.04)' }}>
+        <div className="rounded-xl" style={{ border: `1px solid ${focused ? INK : LINE}`, background: WHITE, transition: 'border-color .15s', boxShadow: shadows.xs }}>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -1338,7 +1339,7 @@ function ChatPanel({ ctx, onClose }) {
               <Paperclip className="w-4 h-4" style={{ color: MUTE }} />
             </button>
             <button onClick={() => send(input)} disabled={!input.trim()} className="ml-auto flex items-center justify-center rounded-full transition-all"
-              style={{ width: 30, height: 30, background: input.trim() ? INK : '#dfdcd9', cursor: input.trim() ? 'pointer' : 'default' }}>
+              style={{ width: 30, height: 30, background: input.trim() ? INK : colors.semantic.input, cursor: input.trim() ? 'pointer' : 'default' }}>
               <ArrowUp className="w-4 h-4" style={{ color: input.trim() ? WHITE : FAINT }} strokeWidth={2.25} />
             </button>
           </div>
@@ -1357,7 +1358,7 @@ function ChatPanel({ ctx, onClose }) {
 // a faded centered frame with diamond corner-markers + soft corner glows on cream, plus the
 // « Interface par Plato » footer. Sits behind the centered access card (pointer-events: none).
 function ClientAccessBackdrop() {
-  const LC = '#e7e5e1', L0 = 'rgba(231,229,225,0)';          // frame line + its transparent fade
+  const LC = colors.semantic.muted, L0 = 'rgba(231,229,225,0)';          // frame line + its transparent fade
   const FW = 512, FH = 506;                                   // centered frame rectangle
   const hLine = `linear-gradient(to right, ${L0} 0%, ${LC} 20%, ${LC} 80%, ${L0} 100%)`;
   const vLine = `linear-gradient(to bottom, ${L0} 0%, ${LC} 20%, ${LC} 80%, ${L0} 100%)`;
@@ -1386,7 +1387,7 @@ function ClientAccessBackdrop() {
       <div className="flex items-center justify-center" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 45, gap: 8, borderTop: `1px solid ${LINE}`, fontSize: 12, color: MUTE }}>
         <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: FAINT }} />
         <span>Vos données sont protégées et confidentielles</span>
-        <span style={{ color: '#cbc7c4' }}>·</span>
+        <span style={{ color: colors.semantic.borderStrong }}>·</span>
         <span style={{ color: FAINT }}>Interface par</span>
         <span className="inline-flex items-center gap-1"><PlatoMark size={12} color={INK} /><span style={{ fontWeight: 600, color: INK2 }}>Plato</span></span>
       </div>
@@ -1460,7 +1461,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
         {exitBtn}
         <ClientAccessBackdrop />
         <div className="rh-pop rounded-2xl flex flex-col items-center text-center" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 392, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.08), 0px 16px 40px -8px rgba(26,26,26,0.12)', padding: '36px 28px' }}>
-          <span className="inline-flex items-center justify-center rounded-full" style={{ width: 52, height: 52, background: '#fbe7e4', marginBottom: 18 }}><AlertTriangle className="w-6 h-6" style={{ color: '#b4453a' }} /></span>
+          <span className="inline-flex items-center justify-center rounded-full" style={{ width: 52, height: 52, background: colors.feedback.destructive.subtle, marginBottom: 18 }}><AlertTriangle className="w-6 h-6" style={{ color: colors.banner.error.accentHover }} /></span>
           <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 23, fontWeight: 500, letterSpacing: '-0.4px', color: INK, margin: 0 }}>{expired ? 'Lien expiré' : 'Lien invalide'}</h1>
           <p style={{ fontSize: 13.5, lineHeight: '19px', color: MUTE, marginTop: 8, maxWidth: 300 }}>
             {expired ? 'Ce lien a expiré. Contactez votre avocat pour en obtenir un nouveau.' : 'Ce lien est invalide ou incomplet. Contactez votre avocat.'}
@@ -1492,15 +1493,15 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
           <span className="inline-flex items-center justify-center rounded-full" style={{ width: 44, height: 44, background: ACCENT_BG, marginBottom: 16 }}><Lock className="w-5 h-5" style={{ color: ACCENT_DK }} /></span>
           <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 23, fontWeight: 500, letterSpacing: '-0.5px', lineHeight: '28px', color: INK, marginBottom: 7 }}>Relevé d'heures protégé</h1>
           <p style={{ fontSize: 13.5, lineHeight: '19px', color: INK2, marginBottom: 18 }}>Saisissez le mot de passe que {MATTER.avocat} vous a communiqué avec ce lien.</p>
-          <label style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: pwError ? '#991b1b' : FAINT, display: 'block', marginBottom: 6 }}>Mot de passe</label>
+          <label style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: pwError ? colors.feedback.destructive.base : FAINT, display: 'block', marginBottom: 6 }}>Mot de passe</label>
           <input type="text" autoFocus value={pwInput} aria-label="Mot de passe"
             onChange={(e) => { setPwInput(e.target.value); if (pwError) setPwError(false); }}
             onKeyDown={(e) => { if (e.key === 'Enter') submitPw(); }}
             placeholder="XXX-XXX"
             className="w-full outline-none transition-colors"
-            style={{ height: 42, padding: '0 12px', fontSize: 15, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.08em', color: INK, background: WHITE, border: `1px solid ${pwError ? '#b4453a' : LINE}`, borderRadius: 9, textTransform: 'uppercase' }}
-            onFocus={(e) => { if (!pwError) e.currentTarget.style.borderColor = INK; }} onBlur={(e) => { e.currentTarget.style.borderColor = pwError ? '#b4453a' : LINE; }} />
-          {pwError && <div style={{ fontSize: 12, color: '#991b1b', marginTop: 6 }}>Mot de passe incorrect.</div>}
+            style={{ height: 42, padding: '0 12px', fontSize: 15, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.08em', color: INK, background: WHITE, border: `1px solid ${pwError ? colors.banner.error.accentHover : LINE}`, borderRadius: 9, textTransform: 'uppercase' }}
+            onFocus={(e) => { if (!pwError) e.currentTarget.style.borderColor = INK; }} onBlur={(e) => { e.currentTarget.style.borderColor = pwError ? colors.banner.error.accentHover : LINE; }} />
+          {pwError && <div style={{ fontSize: 12, color: colors.feedback.destructive.base, marginTop: 6 }}>Mot de passe incorrect.</div>}
           <div style={{ marginTop: 18 }}>
             <Button variant="primary" size="lg" fullWidth icon={ArrowRight} iconPosition="trailing" label="Accéder" onClick={submitPw} disabled={!pwInput.trim()} />
           </div>
@@ -1566,13 +1567,13 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
                   const err = key === 'start' ? cpv.startError : cpv.endError;
                   return (
                     <div key={key} style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: err ? '#991b1b' : FAINT, marginBottom: 5 }}>{label}</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: err ? colors.feedback.destructive.base : FAINT, marginBottom: 5 }}>{label}</div>
                       <input type="date" value={cp[key]} max={max} aria-label={label}
                         onChange={(e) => setCp((p) => ({ ...p, [key]: e.target.value }))}
                         className="w-full outline-none transition-colors"
-                        style={{ height: 36, padding: '0 10px', fontSize: 13.5, fontWeight: 600, color: INK, background: WHITE, border: `1px solid ${err ? '#b4453a' : LINE}`, borderRadius: 8, fontVariantNumeric: 'tabular-nums', cursor: 'pointer' }}
-                        onFocus={(e) => { if (!err) e.currentTarget.style.borderColor = INK; }} onBlur={(e) => { e.currentTarget.style.borderColor = err ? '#b4453a' : LINE; }} />
-                      {err && <div style={{ fontSize: 11.5, color: '#991b1b', marginTop: 4 }}>{err}</div>}
+                        style={{ height: 36, padding: '0 10px', fontSize: 13.5, fontWeight: 600, color: INK, background: WHITE, border: `1px solid ${err ? colors.banner.error.accentHover : LINE}`, borderRadius: 8, fontVariantNumeric: 'tabular-nums', cursor: 'pointer' }}
+                        onFocus={(e) => { if (!err) e.currentTarget.style.borderColor = INK; }} onBlur={(e) => { e.currentTarget.style.borderColor = err ? colors.banner.error.accentHover : LINE; }} />
+                      {err && <div style={{ fontSize: 11.5, color: colors.feedback.destructive.base, marginTop: 4 }}>{err}</div>}
                     </div>
                   );
                 })}
@@ -1603,7 +1604,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
           <span className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '14px' }}>{MATTER.cabinet} · {MATTER.avocat} — dossier {MATTER.juridiction}</span>
         </div>
         <div className="ml-auto flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full" style={{ height: 24, padding: '0 10px', background: '#e3f0e8', color: '#3f7d5f', fontSize: 11.5, fontWeight: 600 }}>
+          <span className="inline-flex items-center gap-1.5 rounded-full" style={{ height: 24, padding: '0 10px', background: colors.accents.emerald.subtle, color: colors.accents.emerald.base, fontSize: 11.5, fontWeight: 600 }}>
             <Check className="w-3.5 h-3.5" /> Enregistré automatiquement
           </span>
           <Button variant="outline" size="md" icon={Clock} label="Terminer plus tard" onClick={() => { setStarted(false); setUnlocked(false); setPwInput(''); setPwError(false); }} title="Vos saisies sont enregistrées — le mot de passe sera redemandé à la reprise" />
@@ -1615,7 +1616,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
           créneaux inline in the cards. */}
       <div className="flex-1 overflow-y-auto rh-scroll" style={{ padding: '24px 24px 28px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <div className="xl:hidden rounded-xl rh-fade" style={{ background: ACCENT_BG, border: `1px solid #c4d5ea`, padding: '14px 16px', marginBottom: 18, boxShadow: SHADOW }}>
+          <div className="xl:hidden rounded-xl rh-fade" style={{ background: ACCENT_BG, border: `1px solid ${colors.accents.slate.border}`, padding: '14px 16px', marginBottom: 18, boxShadow: SHADOW }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: ACCENT_DK, marginBottom: 3 }}>Bonjour {MATTER.civilite} {MATTER.nom},</div>
             <div style={{ fontSize: 13, lineHeight: '19px', color: ACCENT_DK }}>{CLIENT_INTRO}</div>
           </div>
@@ -1625,7 +1626,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
               <RegistreView weeks={weeks} year={cur.y} month={cur} ops={ops} openDay={openDay} onOpenDay={setOpenDay} start={cp.start} end={cp.end} />
             )) : undefined}
             aside={(
-              <div className="rounded-xl" style={{ background: ACCENT_BG, border: `1px solid #c4d5ea`, padding: '13px 15px', boxShadow: SHADOW }}>
+              <div className="rounded-xl" style={{ background: ACCENT_BG, border: `1px solid ${colors.accents.slate.border}`, padding: '13px 15px', boxShadow: SHADOW }}>
                 <div style={{ fontSize: 13.5, fontWeight: 600, color: ACCENT_DK, marginBottom: 4 }}>Bonjour {MATTER.civilite} {MATTER.nom},</div>
                 <div style={{ fontSize: 12, lineHeight: '17px', color: ACCENT_DK }}>{CLIENT_INTRO}</div>
               </div>
@@ -1637,7 +1638,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
         <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: FAINT }} />
         <span style={{ fontSize: 12, color: MUTE, textAlign: 'center', lineHeight: '16px' }}>Vos données sont protégées et confidentielles — partagées uniquement avec {MATTER.avocat}.</span>
         <span className="hidden md:inline-flex items-center gap-1.5 absolute" style={{ right: 20, fontSize: 11, color: FAINT }}>
-          Interface par <PlatoMark size={12} color="#a8a29e" /> <span style={{ fontWeight: 600, color: MUTE }}>Plato</span>
+          Interface par <PlatoMark size={12} color={colors.semantic.foregroundMuted} /> <span style={{ fontWeight: 600, color: MUTE }}>Plato</span>
         </span>
       </div>
       {view === 'table' && openDayObj && (
@@ -1689,13 +1690,13 @@ function PeriodModal({ mode, defaultStart, defaultEnd, onClose, onSubmit, modify
     const showErr = touched && !!error;
     return (
       <div style={{ flex: 1, minWidth: 0 }}>
-        <label style={{ fontSize: 13, fontWeight: 600, color: showErr ? '#991b1b' : INK, display: 'block', marginBottom: 6 }}>{label}</label>
+        <label style={{ fontSize: 13, fontWeight: 600, color: showErr ? colors.feedback.destructive.base : INK, display: 'block', marginBottom: 6 }}>{label}</label>
         <input type="date" value={value} max={max} aria-label={label}
           onChange={(e) => setValue(e.target.value)}
           className="w-full outline-none transition-colors"
-          style={{ height: 38, padding: '0 10px', fontSize: 14, color: INK, background: WHITE, border: `1px solid ${showErr ? '#b4453a' : LINE}`, borderRadius: 8, fontVariantNumeric: 'tabular-nums', cursor: 'pointer' }}
-          onFocus={(e) => { if (!showErr) e.currentTarget.style.borderColor = INK; }} onBlur={(e) => { e.currentTarget.style.borderColor = showErr ? '#b4453a' : LINE; }} />
-        {showErr && <div style={{ fontSize: 12, color: '#991b1b', marginTop: 5 }}>{error}</div>}
+          style={{ height: 38, padding: '0 10px', fontSize: 14, color: INK, background: WHITE, border: `1px solid ${showErr ? colors.banner.error.accentHover : LINE}`, borderRadius: 8, fontVariantNumeric: 'tabular-nums', cursor: 'pointer' }}
+          onFocus={(e) => { if (!showErr) e.currentTarget.style.borderColor = INK; }} onBlur={(e) => { e.currentTarget.style.borderColor = showErr ? colors.banner.error.accentHover : LINE; }} />
+        {showErr && <div style={{ fontSize: 12, color: colors.feedback.destructive.base, marginTop: 5 }}>{error}</div>}
       </div>
     );
   };
@@ -1726,7 +1727,7 @@ function PeriodModal({ mode, defaultStart, defaultEnd, onClose, onSubmit, modify
                 <Sparkles className="w-4 h-4 flex-shrink-0" style={{ color: INTRANT }} strokeWidth={1.75} />
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontSize: 12.5, fontWeight: 600, color: INTRANT, lineHeight: '16px', fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(suggested.start)} → {fmtDateNum(suggested.end)}</div>
-                  <div style={{ fontSize: 11.5, color: '#3a5488', lineHeight: '15px', marginTop: 1 }}>Période repérée par l'agent d'après {suggested.source}</div>
+                  <div style={{ fontSize: 11.5, color: colors.accents.slate.text, lineHeight: '15px', marginTop: 1 }}>Période repérée par l'agent d'après {suggested.source}</div>
                 </div>
                 {applied
                   ? <span className="inline-flex items-center gap-1 flex-shrink-0" style={{ fontSize: 12, fontWeight: 600, color: INTRANT }}><Check className="w-3.5 h-3.5" /> Appliquée</span>
@@ -1743,9 +1744,9 @@ function PeriodModal({ mode, defaultStart, defaultEnd, onClose, onSubmit, modify
             {v.valid ? <>Durée : <strong style={{ fontWeight: 700, color: ACCENT_DK }}>{v.days} jours</strong></> : 'Renseignez les deux dates pour continuer.'}
           </div>
           {hasEntries && (
-            <div className="flex items-start gap-2 rounded-lg" style={{ marginTop: 14, padding: '10px 12px', background: '#fbf3e0', border: '1px solid #e8d8a6' }}>
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#8a6d1f', marginTop: 1 }} />
-              <div style={{ fontSize: 12.5, lineHeight: '17px', color: '#6f5a1f' }}>Des heures sont déjà saisies sur ce relevé. Modifier les dates réinitialisera les saisies en dehors de la nouvelle période.</div>
+            <div className="flex items-start gap-2 rounded-lg" style={{ marginTop: 14, padding: '10px 12px', background: colors.banner.warning.bgFrom, border: `1px solid ${colors.avatar[3].bg}` }}>
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: colors.accents.sand.base, marginTop: 1 }} />
+              <div style={{ fontSize: 12.5, lineHeight: '17px', color: colors.accents.sand.base }}>Des heures sont déjà saisies sur ce relevé. Modifier les dates réinitialisera les saisies en dehors de la nouvelle période.</div>
             </div>
           )}
         </div>
@@ -1780,7 +1781,7 @@ function ReleveNotesJP() {
       <div style={{ padding: '16px 0', borderTop: `1px solid ${LINE}` }}>
         <div style={monoHead}>Notes / Argumentaire</div>
         <div className="rounded-md" style={{ border: `1px solid ${LINE}`, background: WHITE, marginTop: 12, padding: '17px 16px' }}>
-          <div className="inline-flex" style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)', marginBottom: 14 }}>
+          <div className="inline-flex" style={{ boxShadow: shadows.xs, marginBottom: 14 }}>
             {toggle(Bold, 'first')}{toggle(Italic, 'mid')}{toggle(Underline, 'last')}
           </div>
           <div style={{ fontSize: 14, color: INK, lineHeight: '27px' }}>
@@ -1821,7 +1822,7 @@ function ReleveNotesJP() {
 // value. Default = outlined; emphasized = cream-filled (« Total période »).
 function TotalsPill({ label, value, emphasized }) {
   return (
-    <div className="inline-flex items-center flex-shrink-0" style={{ height: 36, gap: emphasized ? 8 : 10, padding: '0 12px', borderRadius: 8, background: emphasized ? CREAM : WHITE, border: `1px solid ${emphasized ? LINE : '#cbc7c4'}` }}>
+    <div className="inline-flex items-center flex-shrink-0" style={{ height: 36, gap: emphasized ? 8 : 10, padding: '0 12px', borderRadius: 8, background: emphasized ? CREAM : WHITE, border: `1px solid ${emphasized ? LINE : colors.semantic.borderStrong}` }}>
       <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.02em', color: emphasized ? INK : MUTE, whiteSpace: 'nowrap' }}>{label}</span>
       <span style={{ fontSize: 14, fontWeight: 500, color: emphasized ? INK : INK2, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{value}</span>
     </div>
@@ -1923,8 +1924,8 @@ export function ReleveEditor({ onBack, demo, inset = { x: 32, top: 24 } } = {}) 
           <div className="flex items-end justify-between" style={{ paddingBottom: 16, gap: 16 }}>
             <div className="flex flex-col items-start" style={{ gap: 8 }}>
               <span style={{ fontSize: 14, fontWeight: 500, color: INK }}>Période</span>
-              <button onClick={() => setPeriodModal('log')} title="Modifier la période" className="inline-flex items-center gap-2 transition-colors" style={{ height: 36, padding: '0 12px', background: WHITE, fontSize: 14, border: `1px solid ${LINE}`, borderRadius: 8, cursor: 'pointer', boxShadow: '0px 1px 2px rgba(26,26,26,0.05)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#cbc7c4'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = LINE; }}>
+              <button onClick={() => setPeriodModal('log')} title="Modifier la période" className="inline-flex items-center gap-2 transition-colors" style={{ height: 36, padding: '0 12px', background: WHITE, fontSize: 14, border: `1px solid ${LINE}`, borderRadius: 8, cursor: 'pointer', boxShadow: shadows.xs }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.semantic.borderStrong; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = LINE; }}>
                 <CalendarRange className="w-4 h-4" style={{ color: MUTE }} />
                 <span style={{ color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(period.start)} <span style={{ color: MUTE }}>→</span> {fmtDateNum(period.end)}</span>
                 <Pencil className="w-3.5 h-3.5" style={{ color: MUTE, marginLeft: 2 }} />
@@ -2089,8 +2090,8 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
                 onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; }} onMouseLeave={(e) => { e.currentTarget.style.background = WHITE; }}>
                 <Home className="w-4 h-4" style={{ color: MUTE }} />
               </button>
-              <span className="inline-flex items-center gap-1.5 rounded-full" style={{ height: 22, padding: '0 9px', background: '#e9f1ea', fontSize: 11.5, fontWeight: 600, color: '#4a7256' }}>
-                <span style={{ width: 6, height: 6, borderRadius: 3, background: '#5a9469' }} /> En cours
+              <span className="inline-flex items-center gap-1.5 rounded-full" style={{ height: 22, padding: '0 9px', background: colors.feedback.success.subtle, fontSize: 11.5, fontWeight: 600, color: colors.accents.emerald.base }}>
+                <span style={{ width: 6, height: 6, borderRadius: 3, background: colors.feedback.success.base }} /> En cours
               </span>
               <span className="inline-flex items-center gap-1 rounded-full" style={{ height: 22, padding: '0 9px', background: CREAM, color: INK2, fontSize: 11.5, fontWeight: 600 }}>
                 <Scale className="w-3 h-3" /> Droit social
@@ -2132,7 +2133,7 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
               {/* content sub-header */}
               <div className="px-7 flex items-center flex-shrink-0" style={{ height: 60, gap: 16, background: WHITE, borderBottom: `1px solid ${LINE}` }}>
                 <div className="flex items-center gap-2.5 flex-shrink-0">
-                  <span className="inline-flex items-center justify-center rounded-full" style={{ width: 32, height: 32, background: '#dbeafe', color: '#1e3a8a', fontSize: 12, fontWeight: 600 }}>{MATTER.initials}</span>
+                  <span className="inline-flex items-center justify-center rounded-full" style={{ width: 32, height: 32, background: colors.piece.medical.bg, color: colors.feedback.info.text, fontSize: 12, fontWeight: 600 }}>{MATTER.initials}</span>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 14.5, fontWeight: 600, color: INK, lineHeight: '16px' }}>Relevé d'heures</div>
                     <div className="truncate" style={{ fontSize: 11.5, color: MUTE, lineHeight: '15px', maxWidth: 300 }}>{MATTER.client} · {MATTER.role.toLowerCase()} — {MATTER.objet}</div>
@@ -2152,7 +2153,7 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
                   <div className="flex items-center" style={{ position: 'sticky', top: 0, zIndex: 5, background: PAPER, paddingTop: 2, paddingBottom: 16 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT, marginRight: 10, flexShrink: 0 }}>Période</span>
                     <button onClick={() => setPeriodModal('log')} title={`Période du relevé — celle travaillée par ${MATTER.client}, sur laquelle saisir les heures. Cliquer pour modifier.`} className="inline-flex items-center gap-2 rounded-lg transition-colors" style={{ height: 34, padding: '0 10px 0 12px', background: CREAM, fontSize: 13, border: 'none', cursor: 'pointer' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = '#e4e1da'; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
+                      onMouseEnter={(e) => { e.currentTarget.style.background = colors.semantic.input; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
                       <CalendarRange className="w-3.5 h-3.5" style={{ color: MUTE }} />
                       <span style={{ fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(period.start)} → {fmtDateNum(period.end)}</span>
                       <span style={{ color: MUTE }}>· {daysBetween(period.start, period.end)} j</span>
@@ -2163,12 +2164,12 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
                       {/* completion indicator — overall fill progress for the period */}
                       <div className="flex items-center gap-2.5 flex-shrink-0" title={`${lawyerStats.decided} jours renseignés sur ${lawyerStats.totalDays} · ${fmtHM(lawyerStats.min)} saisies`}>
                         {lawyerStats.complete
-                          ? <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#3f7d5f' }} />
+                          ? <Check className="w-4 h-4 flex-shrink-0" style={{ color: colors.accents.emerald.base }} />
                           : <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT }}>Complété</span>}
                         <div style={{ width: 84, height: 6, borderRadius: 99, background: CREAM, overflow: 'hidden' }}>
-                          <div style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK, transition: 'width .35s ease' }} />
+                          <div style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK, transition: 'width .35s ease' }} />
                         </div>
-                        <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
+                        <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
                         <span style={{ fontSize: 12, color: MUTE, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.decided}/{lawyerStats.totalDays} j</span>
                       </div>
                       {lawyerYears.length > 1 && (
@@ -2182,8 +2183,8 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
               ) : (
                 <div className="flex-1 flex items-center justify-center rh-fade" style={{ padding: 40 }}>
                   <div className="flex flex-col items-center text-center" style={{ gap: 22, maxWidth: 460 }}>
-                    <span className="flex items-center justify-center" style={{ width: 56, height: 56, borderRadius: 9999, background: '#eeece6', border: '1px solid #cbc7c4', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-                      <CalendarClock className="w-6 h-6" style={{ color: '#78716c' }} strokeWidth={1.5} />
+                    <span className="flex items-center justify-center" style={{ width: 56, height: 56, borderRadius: 9999, background: colors.semantic.muted, border: `1px solid ${colors.semantic.borderStrong}`, boxShadow: shadows.xs }}>
+                      <CalendarClock className="w-6 h-6" style={{ color: colors.semantic.mutedForeground }} strokeWidth={1.5} />
                     </span>
                     <div className="flex flex-col items-center" style={{ gap: 5 }}>
                       <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 19, fontWeight: 500, color: INK, letterSpacing: '-0.5px', lineHeight: '25px', margin: 0 }}>Commencer le relevé d'heures</p>
@@ -2320,9 +2321,9 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
           </span>
           <span className="inline-flex items-center gap-2" style={{ flex: 1, minWidth: 150 }}>
             <span style={{ flex: 1, height: 6, borderRadius: 99, background: CREAM, overflow: 'hidden' }}>
-              <span className="block" style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK }} />
+              <span className="block" style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK }} />
             </span>
-            <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
           </span>
         </div>
         <div style={{ fontSize: 13, color: MUTE }}>Total saisi <strong style={{ color: INK, fontFamily: "'IBM Plex Mono', monospace" }}>{fmtHM(lawyerStats.min)}</strong> · {lawyerStats.decided}/{lawyerStats.totalDays} j renseignés</div>
@@ -2434,14 +2435,14 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
   );
   const dRow = (a, b, last) => <div className="flex" style={last ? undefined : { borderBottom: `1px solid ${LINE}` }}>{a}{b}</div>;
   const dCard = (Icon, title, children, right) => (
-    <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>{dHead(Icon, title, right)}{children}</div>
+    <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: shadows.xs, overflow: 'hidden' }}>{dHead(Icon, title, right)}{children}</div>
   );
   // full-width stacked cards (drop-first dossier layout) — the PLATO chat owns the right
   const renderDossier = () => (
     <div className="flex flex-col" style={{ gap: 16, maxWidth: 960, margin: '0 auto' }}>
       {dCard(User, 'Salarié', <>
         {dRow(dField('Nom', 'Aubert'), dField('Prénom', 'Camille'))}
-        {dRow(dField('Sexe', 'Féminin'), dField('Date de naissance', <span className="inline-flex items-center gap-2">14/03/1989 <span style={{ width: 4, height: 4, borderRadius: 2, background: '#d9d9d9' }} /> <span style={{ color: MUTE, fontWeight: 400 }}>35 ans</span></span>))}
+        {dRow(dField('Sexe', 'Féminin'), dField('Date de naissance', <span className="inline-flex items-center gap-2">14/03/1989 <span style={{ width: 4, height: 4, borderRadius: 2, background: colors.semantic.borderAlt }} /> <span style={{ color: MUTE, fontWeight: 400 }}>35 ans</span></span>))}
         {dRow(dField('Poste occupé', 'Cariste'), dField('Ancienneté', '3 ans · 2 mois'), true)}
       </>)}
       {dCard(Briefcase, 'Relation de travail', <>
@@ -2503,7 +2504,7 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
         {/* tab nav */}
         <div className="flex items-stretch px-4 flex-shrink-0" style={{ height: 56, borderBottom: `1px solid ${LINE}`, background: WHITE }}>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="inline-flex items-center justify-center rounded-full" style={{ width: 30, height: 30, background: '#dbeafe', color: '#1e3a8a', fontSize: 11.5, fontWeight: 600 }}>{MATTER.initials}</span>
+            <span className="inline-flex items-center justify-center rounded-full" style={{ width: 30, height: 30, background: colors.piece.medical.bg, color: colors.feedback.info.text, fontSize: 11.5, fontWeight: 600 }}>{MATTER.initials}</span>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 13.5, fontWeight: 600, color: INK, lineHeight: '15px' }}>{MATTER.client}</div>
               <div className="truncate" style={{ fontSize: 11, color: MUTE, lineHeight: '14px', maxWidth: 240 }}>c/ {MATTER.adverse}</div>
@@ -2542,8 +2543,8 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
         ) : (
           <div className="flex-1 flex items-center justify-center rh-fade" style={{ padding: 40 }}>
             <div className="flex flex-col items-center text-center" style={{ gap: 14, maxWidth: 380 }}>
-              <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: '#eeece6', border: '1px solid #cbc7c4' }}>
-                {tab === 'pieces' ? <FileText className="w-6 h-6" style={{ color: '#78716c' }} strokeWidth={1.5} /> : <Pencil className="w-6 h-6" style={{ color: '#78716c' }} strokeWidth={1.5} />}
+              <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: colors.semantic.muted, border: `1px solid ${colors.semantic.borderStrong}` }}>
+                {tab === 'pieces' ? <FileText className="w-6 h-6" style={{ color: colors.semantic.mutedForeground }} strokeWidth={1.5} /> : <Pencil className="w-6 h-6" style={{ color: colors.semantic.mutedForeground }} strokeWidth={1.5} />}
               </span>
               <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: INK, margin: 0 }}>{tab === 'pieces' ? 'Pièces' : 'Actes'}</p>
               <p style={{ fontSize: 13.5, color: MUTE, lineHeight: '19px', margin: 0 }}>Hors périmètre de cette maquette, centrée sur le placement du relevé d’heures.</p>
@@ -2573,7 +2574,7 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
             <div className="flex items-center" style={{ position: 'sticky', top: 0, zIndex: 5, background: PAPER, paddingTop: 2, paddingBottom: 16 }}>
               <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT, marginRight: 10, flexShrink: 0 }}>Période</span>
               <button onClick={() => setPeriodModal('log')} title="Modifier la période" className="inline-flex items-center gap-2 rounded-lg transition-colors" style={{ height: 34, padding: '0 10px 0 12px', background: CREAM, fontSize: 13, border: 'none', cursor: 'pointer' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#e4e1da'; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
+                onMouseEnter={(e) => { e.currentTarget.style.background = colors.semantic.input; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
                 <CalendarRange className="w-3.5 h-3.5" style={{ color: MUTE }} />
                 <span style={{ fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(period.start)} → {fmtDateNum(period.end)}</span>
                 <span style={{ color: MUTE }}>· {daysBetween(period.start, period.end)} j</span>
@@ -2582,12 +2583,12 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
               <div className="ml-auto flex items-center" style={{ gap: 16 }}>
                 <div className="flex items-center gap-2.5 flex-shrink-0">
                   {lawyerStats.complete
-                    ? <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#3f7d5f' }} />
+                    ? <Check className="w-4 h-4 flex-shrink-0" style={{ color: colors.accents.emerald.base }} />
                     : <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT }}>Complété</span>}
                   <div style={{ width: 84, height: 6, borderRadius: 99, background: CREAM, overflow: 'hidden' }}>
-                    <div style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK, transition: 'width .35s ease' }} />
+                    <div style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK, transition: 'width .35s ease' }} />
                   </div>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
                   <span style={{ fontSize: 12, color: MUTE, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.decided}/{lawyerStats.totalDays} j</span>
                 </div>
                 {lawyerYears.length > 1 && <YearDropdown years={lawyerYears} value={year} onChange={setLawyerYear} />}
@@ -2625,9 +2626,9 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
 // relevé d'heures — inputs that feed the calc, appear on demand, never summed).
 // A switcher offers 3 visual directions for that distinction.
 // ════════════════════════════════════════════════════════════════════════
-const INTRANT = '#1e3a8a';        // blue « info » — the « intrant » / variable nature (matches Figma CHIFFRAGE > LABOR)
-const INTRANT_BG = '#dfe8f5';
-const INTRANT_BORDER = '#aabcd5';
+const INTRANT = colors.feedback.info.text;        // blue « info » — the « intrant » / variable nature (matches Figma CHIFFRAGE > LABOR)
+const INTRANT_BG = colors.piece.expertise.bg;
+const INTRANT_BORDER = colors.feedback.info.border;
 
 export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
   useLabStyles();
@@ -2764,7 +2765,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
   // shared chiffrage styles — mirror the real app chiffrage exactly (App.js colHeaderStyle / serifAmountStyle)
   const colHead = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
   const serifAmt = { fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 18, letterSpacing: '-0.5px', fontWeight: 400, color: INK };
-  const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+  const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: shadows.xs };
   // section title — 32px square (avatar / icon) + mono eyebrow + title (+ optional sub) + right slot.
   // shared by the « Salarié » (postes) header and the « Bases de calcul » (intrants) header.
   const sectionHead = ({ visual, eyebrow, title, sub, right }) => (
@@ -2802,7 +2803,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
   const postesBlock = (
     <>
       {sectionHead({
-        visual: <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: '#e9f1ea', color: '#4a7256', fontSize: 12, fontWeight: 600 }}>{MATTER.initials}</span>,
+        visual: <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: colors.feedback.success.subtle, color: colors.accents.emerald.base, fontSize: 12, fontWeight: 600 }}>{MATTER.initials}</span>,
         eyebrow: 'Salarié',
         title: MATTER.client,
         right: <span style={serifAmt}>{fmtEur(total)}</span>,
@@ -2826,7 +2827,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
         })}
       </div>
       {/* dark grand-total bar — « Indemnisation total » (Figma CHIFFRAGE > LABOR) */}
-      <div className="flex items-center justify-between" style={{ background: INK, borderRadius: 8, padding: '14px 16px', marginTop: 16, boxShadow: '0px 1px 2px rgba(26,26,26,0.05)' }}>
+      <div className="flex items-center justify-between" style={{ background: INK, borderRadius: 8, padding: '14px 16px', marginTop: 16, boxShadow: shadows.xs }}>
         <div className="flex items-center" style={{ gap: 8 }}>
           <Calculator className="w-5 h-5" style={{ color: WHITE }} strokeWidth={1.75} />
           <span style={{ fontSize: 14, fontWeight: 500, color: WHITE }}>Indemnisation total</span>
@@ -2857,7 +2858,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
       {direction === 'sections' ? intrantsCard : (
         <div className="rounded-lg flex items-center gap-2" style={{ border: `1px solid ${INTRANT}40`, background: INTRANT_BG, padding: '11px 14px', marginBottom: 16 }}>
           <SlidersHorizontal className="w-3.5 h-3.5 flex-shrink-0" style={{ color: INTRANT }} />
-          <span style={{ fontSize: 12.5, color: '#4f5b6e', lineHeight: '17px' }}>Les <strong style={{ color: INTRANT }}>bases de calcul</strong> (salaire de référence, relevé d’heures) sont renseignées dans le <button onClick={() => setTab('dossier')} style={{ color: INTRANT, fontWeight: 600, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>Dossier</button>.</span>
+          <span style={{ fontSize: 12.5, color: colors.piece.administratif.fg, lineHeight: '17px' }}>Les <strong style={{ color: INTRANT }}>bases de calcul</strong> (salaire de référence, relevé d’heures) sont renseignées dans le <button onClick={() => setTab('dossier')} style={{ color: INTRANT, fontWeight: 600, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>Dossier</button>.</span>
         </div>
       )}
       {postesBlock}
@@ -2879,21 +2880,21 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
   );
   const dRow = (a, b, last) => <div className="flex" style={last ? undefined : { borderBottom: `1px solid ${LINE}` }}>{a}{b}</div>;
   const dCard = (Icon, title, children) => (
-    <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>{dHead(Icon, title)}{children}</div>
+    <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: shadows.xs, overflow: 'hidden' }}>{dHead(Icon, title)}{children}</div>
   );
   // reconstructed contract-history timeline (droit social) — Plato rebuilds it from the pièces; each event cites its source
   const contratTimelineCard = (() => {
     const events = [
-      { date: '02/05/2020', title: 'Embauche', desc: 'CDI · poste de Cariste · statut Employée · 2 100 € brut mensuel.', src: 'Pièce 1 · Contrat de travail', dot: '#4a7256' },
+      { date: '02/05/2020', title: 'Embauche', desc: 'CDI · poste de Cariste · statut Employée · 2 100 € brut mensuel.', src: 'Pièce 1 · Contrat de travail', dot: colors.accents.emerald.base },
       { date: '01/09/2021', title: 'Avenant n°1', desc: 'Passage en horaires postés (équipes 2×8).', src: 'Pièce 3 · Avenant', dot: MUTE },
       { date: 'Janv. 2022 → juin 2023', title: 'Heures supplémentaires non rémunérées', desc: 'Dépassements réguliers de l’amplitude journalière, reconstitués à partir des badges d’accès et des e-mails.', src: 'Relevé d’heures', dot: INTRANT, intrant: true },
       { date: '01/04/2023', title: 'Augmentation', desc: 'Salaire mensuel porté à 2 350 € brut.', src: 'Pièce 5 · Bulletins de salaire', dot: MUTE },
       { date: '15/06/2023', title: 'Entretien préalable', desc: 'Convocation à un entretien préalable au licenciement.', src: 'Pièce 10 · Convocation', dot: MUTE },
-      { date: '30/06/2023', title: 'Licenciement', desc: 'Rupture du CDI notifiée (motif : insuffisance professionnelle).', src: 'Pièce 12 · Lettre de licenciement', dot: '#b4593f' },
+      { date: '30/06/2023', title: 'Licenciement', desc: 'Rupture du CDI notifiée (motif : insuffisance professionnelle).', src: 'Pièce 12 · Lettre de licenciement', dot: colors.brand.subtleForeground },
       { date: '12/09/2023', title: 'Saisine du conseil de prud’hommes', desc: 'CPH de Nanterre · tentative de conciliation échouée.', src: 'Pièce 14 · Requête', dot: INK },
     ];
     return (
-      <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>
+      <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: shadows.xs, overflow: 'hidden' }}>
         <div className="flex items-center gap-2.5" style={{ padding: '13px 16px', borderBottom: `1px solid ${LINE}`, background: WHITE }}>
           <CalendarClock className="w-4 h-4" style={{ color: MUTE }} strokeWidth={1.5} />
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Chronologie du contrat</span>
@@ -2930,7 +2931,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
     <div className="flex flex-col" style={{ gap: 16, maxWidth: 960, margin: '0 auto' }}>
       {dCard(User, 'Salarié', <>
         {dRow(dField('Nom', 'Aubert'), dField('Prénom', 'Camille'))}
-        {dRow(dField('Sexe', 'Féminin'), dField('Date de naissance', <span className="inline-flex items-center gap-2">14/03/1989 <span style={{ width: 4, height: 4, borderRadius: 2, background: '#d9d9d9' }} /> <span style={{ color: MUTE, fontWeight: 400 }}>35 ans</span></span>))}
+        {dRow(dField('Sexe', 'Féminin'), dField('Date de naissance', <span className="inline-flex items-center gap-2">14/03/1989 <span style={{ width: 4, height: 4, borderRadius: 2, background: colors.semantic.borderAlt }} /> <span style={{ color: MUTE, fontWeight: 400 }}>35 ans</span></span>))}
         {dRow(dField('Poste occupé', 'Cariste'), dField('Ancienneté', '3 ans · 2 mois'), true)}
       </>)}
       {dCard(Briefcase, 'Relation de travail', <>
@@ -2951,7 +2952,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
       </>)}
       {contratTimelineCard}
       {direction === 'dossier' && (
-        <div className="rounded-lg" style={{ border: `1px solid ${INTRANT}40`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>
+        <div className="rounded-lg" style={{ border: `1px solid ${INTRANT}40`, background: WHITE, boxShadow: shadows.xs, overflow: 'hidden' }}>
           <div className="flex items-center gap-2.5" style={{ padding: '13px 16px', borderBottom: `1px solid ${INTRANT}33`, background: INTRANT_BG }}>
             <Clock className="w-4 h-4" style={{ color: INTRANT }} strokeWidth={1.5} />
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: INTRANT, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Suivi des heures</span>{tagPill}
@@ -3085,7 +3086,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
       {/* matter tab nav (kept across the chiffrage + the relevé sub-view) */}
       <div className="flex items-stretch px-4 flex-shrink-0" style={{ height: 56, borderBottom: `1px solid ${LINE}`, background: WHITE }}>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="inline-flex items-center justify-center rounded-full" style={{ width: 30, height: 30, background: '#dbeafe', color: '#1e3a8a', fontSize: 11.5, fontWeight: 600 }}>{MATTER.initials}</span>
+          <span className="inline-flex items-center justify-center rounded-full" style={{ width: 30, height: 30, background: colors.piece.medical.bg, color: colors.feedback.info.text, fontSize: 11.5, fontWeight: 600 }}>{MATTER.initials}</span>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13.5, fontWeight: 600, color: INK, lineHeight: '15px' }}>{MATTER.client}</div>
             <div className="truncate" style={{ fontSize: 11, color: MUTE, lineHeight: '14px', maxWidth: 240 }}>c/ {MATTER.adverse}</div>
@@ -3135,7 +3136,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
                 <div className="flex items-center" style={{ position: 'sticky', top: 0, zIndex: 5, background: PAPER, paddingTop: 2, paddingBottom: 16 }}>
                   <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT, marginRight: 10, flexShrink: 0 }}>Période</span>
                   <button onClick={() => setPeriodModal('log')} title="Modifier la période" className="inline-flex items-center gap-2 rounded-lg transition-colors" style={{ height: 34, padding: '0 10px 0 12px', background: CREAM, fontSize: 13, border: 'none', cursor: 'pointer' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#e4e1da'; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
+                    onMouseEnter={(e) => { e.currentTarget.style.background = colors.semantic.input; }} onMouseLeave={(e) => { e.currentTarget.style.background = CREAM; }}>
                     <CalendarRange className="w-3.5 h-3.5" style={{ color: MUTE }} />
                     <span style={{ fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtDateNum(period.start)} → {fmtDateNum(period.end)}</span>
                     <span style={{ color: MUTE }}>· {daysBetween(period.start, period.end)} j</span>
@@ -3144,9 +3145,9 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
                   <div className="ml-auto flex items-center" style={{ gap: 16 }}>
                     {lawyerYears.length > 1 && (() => { const ym = weeks.reduce((a, w) => a + w.days.filter((d) => d.yearN === year && period && d.iso >= period.start && d.iso <= period.end).reduce((s, d) => s + dayMin(d), 0), 0); return <span style={{ fontSize: 12.5, color: MUTE, whiteSpace: 'nowrap' }}>Total période <strong style={{ fontWeight: 700, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtHM(lawyerStats.min)}</strong> · {year} <strong style={{ fontWeight: 700, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtHM(ym)}</strong></span>; })()}
                     <div className="flex items-center gap-2.5 flex-shrink-0">
-                      {lawyerStats.complete ? <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#3f7d5f' }} /> : <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT }}>Complété</span>}
-                      <div style={{ width: 84, height: 6, borderRadius: 99, background: CREAM, overflow: 'hidden' }}><div style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK, transition: 'width .35s ease' }} /></div>
-                      <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? '#3f7d5f' : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
+                      {lawyerStats.complete ? <Check className="w-4 h-4 flex-shrink-0" style={{ color: colors.accents.emerald.base }} /> : <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT }}>Complété</span>}
+                      <div style={{ width: 84, height: 6, borderRadius: 99, background: CREAM, overflow: 'hidden' }}><div style={{ width: `${lawyerStats.pct}%`, height: '100%', borderRadius: 99, background: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK, transition: 'width .35s ease' }} /></div>
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: lawyerStats.complete ? colors.accents.emerald.base : ACCENT_DK, fontVariantNumeric: 'tabular-nums' }}>{lawyerStats.pct}%</span>
                     </div>
                     {lawyerYears.length > 1 && <YearDropdown years={lawyerYears} value={year} onChange={setLawyerYear} />}
                   </div>
@@ -3203,8 +3204,8 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
           ) : (
             <div className="flex-1 flex items-center justify-center rh-fade" style={{ padding: 40 }}>
               <div className="flex flex-col items-center text-center" style={{ gap: 12, maxWidth: 380 }}>
-                <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: '#eeece6', border: '1px solid #cbc7c4' }}>
-                  {(PL_TABS.find((t) => t.id === tab) || {}).Icon && React.createElement((PL_TABS.find((t) => t.id === tab)).Icon, { className: 'w-6 h-6', style: { color: '#78716c' }, strokeWidth: 1.5 })}
+                <span className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: 9999, background: colors.semantic.muted, border: `1px solid ${colors.semantic.borderStrong}` }}>
+                  {(PL_TABS.find((t) => t.id === tab) || {}).Icon && React.createElement((PL_TABS.find((t) => t.id === tab)).Icon, { className: 'w-6 h-6', style: { color: colors.semantic.mutedForeground }, strokeWidth: 1.5 })}
                 </span>
                 <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: INK, margin: 0 }}>{(PL_TABS.find((t) => t.id === tab) || {}).label}</p>
                 <p style={{ fontSize: 13.5, color: MUTE, lineHeight: '19px', margin: 0 }}>Hors périmètre de cette maquette.</p>
