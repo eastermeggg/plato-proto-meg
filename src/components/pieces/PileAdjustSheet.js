@@ -642,7 +642,7 @@ function SommaireRenameInput({ initial, onCommit, onCancel }) {
         if (e.key === 'Enter') { e.preventDefault(); onCommit(draft); }
         else if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
       }}
-      className="w-full text-[14px] leading-[20px] font-medium text-foreground-strong bg-surface rounded px-1.5 py-0.5 -ml-1.5 outline-none ring-2 ring-foreground-strong/15"
+      className="w-full text-[14px] leading-[20px] font-medium text-foreground-strong bg-surface rounded px-1.5 py-0.5 -ml-1.5 outline-none ring-2 ring-[color-mix(in_srgb,var(--semantic-foregroundStrong)_15%,transparent)]"
       style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
     />
   );
