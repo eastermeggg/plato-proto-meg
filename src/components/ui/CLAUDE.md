@@ -121,6 +121,10 @@ The catalog of every component (built or planned) lives at
 | Slider | [Slider.js](./Slider.js) | [Slider.md](./Slider.md) | 2819:30565 | simple · range 2 poignées, contrôlé/non contrôlé |
 | DropZone | [DropZone.js](./DropZone.js) | [DropZone.md](./DropZone.md) | 35747:41445 | panel · inline · empty × default/hover/drop/extraction |
 | Input (Field) | [Input.js](./Input.js) | [Input.md](./Input.md) | 33541:69574 | vertical · horizontal · slot · error/warning |
+| Textarea | [Textarea.js](./Textarea.js) | [Textarea.md](./Textarea.md) | 2819:31164 | multi-lignes · label/helper · error |
+| Checkbox | [Checkbox.js](./Checkbox.js) | [Checkbox.md](./Checkbox.md) | 2819:21779 | off · on · indeterminate · disabled |
+| Switch | [Switch.js](./Switch.js) | [Switch.md](./Switch.md) | 2819:30732 | off · on · disabled |
+| Separator | [Separator.js](./Separator.js) | [Separator.md](./Separator.md) | 2819:30252 | horizontal · label · vertical |
 | SourceBadge | [SourceBadge.js](./SourceBadge.js) | [SourceBadge.md](./SourceBadge.md) | — | 10 types de source (piece · jp · loi …) |
 | TopBar | [TopBar.js](./TopBar.js) | [TopBar.md](./TopBar.md) | 37497:56098 | chrome fixe : leading · left · right |
 | PageHeader | [PageHeader.js](./PageHeader.js) | [PageHeader.md](./PageHeader.md) | 37511:1436 | Dossiers · Conversations · Dossier |

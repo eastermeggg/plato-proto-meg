@@ -458,6 +458,39 @@
         "demo": "`/ui-kit/c/ChatComposerNotice` — les 3 variants."
       }
     },
+    "Checkbox": {
+      "name": "Checkbox",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Case à cocher 16px - off / on / indéterminé (tri-state)",
+      "description": "Case 16px radius sm. États off, on (Check), indéterminé (Minus), disabled. Coché = fond + bordure foreground, glyphe white. Remplace les cases inline copiées (SaveDestinationPopover, JPAddStepper, ImportEmailDialog).",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-21779",
+      "file": "src/components/ui/Checkbox.js",
+      "source": "src/components/ui/Checkbox.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Checkbox",
+      "states": [
+        "off",
+        "on",
+        "indeterminate",
+        "disabled"
+      ],
+      "tokens": [
+        "colors.semantic.foreground",
+        "colors.semantic.border",
+        "colors.semantic.card",
+        "colors.semantic.white",
+        "radius.sm"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Checkbox.md",
+      "sections": {
+        "pattern": "### When to use\n- Sélection multiple indépendante (liste, filtres, options).\n- État parent partiel d'un groupe → `indeterminate`.\n\n### When NOT to use\n- **Choix exclusif** → `RadioGroup` / `RadioPricing`.\n- **On/off d'un réglage immédiat** → `Switch`.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `checked` | `false` | état coché |\n| `indeterminate` | `false` | état partiel (Minus) |\n| `label` | - | libellé cliquable |\n| `disabled` | `false` | désactivé |\n| `onChange` | - | `(next: boolean) => void` |\n\n### Examples\n```jsx\nimport Checkbox from 'src/components/ui/Checkbox';\n\n<Checkbox checked={v} label=\"Pièces adverses\" onChange={setV} />\n<Checkbox indeterminate label=\"Tout sélectionner\" onChange={selectAll} />\n```\n\n### Tokens used\n`colors.semantic.foreground` (coché) · `colors.semantic.border` (repos) ·\n`colors.semantic.card` (fond) · `colors.semantic.white` (glyphe) · `radius.sm`.",
+        "explos": "- Promu le 24/09/2026 depuis `ui-kit/previews.jsx`, tokenisé + ajout `indeterminate` (relevé du besoin tri-state d'ImportEmailDialog, audit DS cat. 2).",
+        "demo": "`/ui-kit/c/Checkbox`"
+      }
+    },
     "CiteRow": {
       "name": "CiteRow",
       "package": "plato",
@@ -1404,6 +1437,36 @@
         "demo": "`/ui-kit/c/RadioPricing` — sandbox live : états + presets licence."
       }
     },
+    "Separator": {
+      "name": "Separator",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Filet de séparation - horizontal, vertical, ou avec libellé mono",
+      "description": "Filet 1px issu du token border. Trois formes : horizontal pleine largeur, horizontal avec libellé mono uppercase centré, vertical (hauteur 16, aligné au texte). Remplace les `<hr>` bruts et les hairlines inline bg-foreground/10.",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30252",
+      "file": "src/components/ui/Separator.js",
+      "source": "src/components/ui/Separator.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Separator",
+      "variants": [
+        "horizontal",
+        "horizontal-label",
+        "vertical"
+      ],
+      "tokens": [
+        "colors.semantic.border",
+        "colors.semantic.foregroundMuted",
+        "typography.fontFamily.mono"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Separator.md",
+      "sections": {
+        "pattern": "### When to use\n- Séparer deux blocs / groupes de liste (horizontal).\n- Séparer deux éléments inline (vertical, ex. barre d'outils).\n- Titre de section discret : forme `label` (mono uppercase encadré de filets).\n\n### When NOT to use\n- **Bordure d'un conteneur** → `border` Tailwind sur le conteneur, pas un Separator.\n- **Espacement seul** → utiliser le gap / margin, pas un filet invisible.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `orientation` | `'horizontal'` | horizontal / vertical |\n| `label` | - | libellé mono centré (horizontal only) |\n| `className` / `style` | - | passthrough |\n\n### Examples\n```jsx\nimport Separator from 'src/components/ui/Separator';\n\n<Separator />\n<Separator label=\"Métadonnées\" />\n<Separator orientation=\"vertical\" />\n```\n\n### Tokens used\n`colors.semantic.border` (filet) · `colors.semantic.foregroundMuted` (libellé) ·\n`typography.fontFamily.mono` (libellé 11px uppercase).",
+        "explos": "- Promu le 24/09/2026 depuis `ui-kit/previews.jsx` (esquisse validée look-and-feel), tokenisé. Cible d'adoption : `<hr>` bruts + hairlines `bg-foreground/10` (audit DS cat. 1).",
+        "demo": "`/ui-kit/c/Separator`"
+      }
+    },
     "SidebarUserInfo": {
       "name": "SidebarUserInfo",
       "package": "plato",
@@ -1589,6 +1652,69 @@
         "pattern": "### When to use\n- Header of a multi-step modal (e.g. « Nouveau dossier » : Nom du dossier ·\n  Pièces client · Pièces adverses).\n- Any linear 2-5 step flow where the user must see where they are and what\n  remains.\n\n### When NOT to use\n- **Vertical / reasoning progressions** → `ReasoningStepper` (chat traces).\n- **Tabs between peer views** (no order, freely switchable) → Tabs.\n- **Progress of a background task** → `Progress` / `Spinner`.\n- **More than ~5 steps** - the horizontal row with 40px connectors stops\n  scanning well; rethink the flow.\n\n### States (derived from `current`)\n| State | Circle | Number / icon | Label |\n|-------|--------|---------------|-------|\n| `done` (i < current) | filled `success.text` (#064e3b) | white `Check` 12px | `mutedForeground` |\n| `active` (i === current) | filled `primary` | number, mono 11 `primaryForeground` | `foreground` + `aria-current=\"step\"` |\n| `upcoming` (i > current) | 1px `border` outline | number, mono 11 `mutedForeground` | `mutedForeground` |\n\nGeometry: circle 24px (full radius) · circle↔label gap 8 · step↔connector\ngap 12 · connector 40 × 1px `border`. Numbers are IBM Plex Mono Medium 11\nuppercase; labels Inter Medium 14/20.\n\n### Props\n| Prop | Type | Default | Notes |\n|------|------|---------|-------|\n| `steps` | `[{ label }]` | `[]` | ordered step descriptors |\n| `current` | `number` | `0` | index of the active step |\n| `onStepClick` | `(index) => void` | — | if set, DONE steps become clickable (backwards nav only); upcoming steps are never clickable |\n| `className` / `style` | — | — | geometry escape hatches only, never colors |\n\n### Examples\n```jsx\nimport Stepper from 'src/components/ui/Stepper';\n\n<Stepper\n  steps={[{ label: 'Nom du dossier' }, { label: 'Pièces client' }, { label: 'Pièces adverses' }]}\n  current={1}\n  onStepClick={(i) => setStep(i)}\n/>\n```\n\n### Tokens used\n`colors.feedback.success.text` (done circle) · `colors.semantic.primary` /\n`primaryForeground` (active) · `colors.semantic.border` (upcoming outline +\nconnectors) · `colors.semantic.foreground` / `mutedForeground` (labels) ·\n`colors.semantic.white` (check) · `typography.fontFamily.mono` (numbers)",
         "explos": "- Extracted 09/2026 from the « Create Matter - New Dossier Modal » Figma\n  section (3698:29234) : the 3-step « Nouveau dossier » modal is its first\n  consumer (`src/components/ui-kit/import/CreateMatterModal.js`, lab\n  `/ui-kit/import-dossier`).\n- `src/components/jp/JPAddStepper.js` is an older ad-hoc stepper (JP flow,\n  different anatomy - dots + progress line); candidates for convergence later.",
         "demo": "Playable in the « Import email » lab: `/ui-kit/import-dossier` → launcher\n« Nouveau dossier (3 étapes) » - the modal header drives all three states."
+      }
+    },
+    "Switch": {
+      "name": "Switch",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Bascule on/off d'un réglage à effet immédiat",
+      "description": "Bascule 36x20, pouce 16px. ON = piste foreground, OFF = piste cream, pouce white (élévation shadows.xs). Remplace les toggles CSS inline peer-checked (App.js ×6, ReleveHeuresLab).",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30732",
+      "file": "src/components/ui/Switch.js",
+      "source": "src/components/ui/Switch.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Switch",
+      "states": [
+        "off",
+        "on",
+        "disabled"
+      ],
+      "tokens": [
+        "colors.semantic.foreground",
+        "colors.semantic.cream",
+        "colors.semantic.white",
+        "shadows.xs"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Switch.md",
+      "sections": {
+        "pattern": "### When to use\n- Activer/désactiver un réglage avec **effet immédiat** (pas de submit).\n\n### When NOT to use\n- **Sélection dans un formulaire à valider** → `Checkbox`.\n- **Choix exclusif** → `RadioGroup`.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `checked` | `false` | état on |\n| `label` | - | libellé cliquable |\n| `disabled` | `false` | désactivé |\n| `onChange` | - | `(next: boolean) => void` |\n\n### Examples\n```jsx\nimport Switch from 'src/components/ui/Switch';\n\n<Switch checked={v} label=\"Jour chômé\" onChange={setV} />\n```\n\n### Tokens used\n`colors.semantic.foreground` (ON) · `colors.semantic.cream` (OFF) ·\n`colors.semantic.white` (pouce) · `shadows.xs` (élévation pouce).",
+        "explos": "- Promu le 24/09/2026 depuis `ui-kit/previews.jsx`, tokenisé (l'ombre inline du pouce passe au token `shadows.xs`). Cible d'adoption : 6 toggles `peer-checked` d'App.js (audit DS cat. 2).",
+        "demo": "`/ui-kit/c/Switch`"
+      }
+    },
+    "Textarea": {
+      "name": "Textarea",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Zone de texte multi-lignes redimensionnable (label + helper + error)",
+      "description": "Zone de texte multi-lignes, resize vertical. Label et helper optionnels, état error. Même palette qu'Input (fond card, bordure border, error badge.destructive.bg). Remplace les `<textarea>` bruts.",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-31164",
+      "file": "src/components/ui/Textarea.js",
+      "source": "src/components/ui/Textarea.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Textarea",
+      "states": [
+        "default",
+        "error",
+        "disabled"
+      ],
+      "tokens": [
+        "colors.semantic.card",
+        "colors.semantic.border",
+        "colors.semantic.foreground",
+        "colors.badge.destructive.bg",
+        "radius.lg"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Textarea.md",
+      "sections": {
+        "pattern": "### When to use\n- Saisie libre longue : note, motif, description, commentaire.\n\n### When NOT to use\n- **Saisie courte sur une ligne** → `Input`.\n- **Composer de chat riche** (toolbar, pièces, tokens) → `AssistantComposer`.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` | `''` | valeur contrôlée |\n| `placeholder` | - | texte indicatif |\n| `rows` | `4` | hauteur initiale |\n| `label` | - | libellé au-dessus |\n| `helperText` | - | aide sous le champ |\n| `error` | `false` | bordure + helper destructifs |\n| `disabled` | `false` | désactivé (fond backgroundSubtle) |\n| `onChange` | - | handler natif |\n\n### Examples\n```jsx\nimport Textarea from 'src/components/ui/Textarea';\n\n<Textarea label=\"Motif\" value={v} onChange={e => setV(e.target.value)} />\n<Textarea error helperText=\"Champ requis\" value={v} onChange={...} />\n```\n\n### Tokens used\n`colors.semantic.card` (fond) · `colors.semantic.border` (bordure) ·\n`colors.semantic.foreground` (texte) · `colors.badge.destructive.bg` (error) · `radius.lg`.",
+        "explos": "- Promu le 24/09/2026 depuis `ui-kit/previews.jsx`, tokenisé (fond `#ffffff`→`card`, error `#991b1b`→`badge.destructive.bg`). Cible d'adoption : `<textarea>` bruts (audit DS cat. 1).",
+        "demo": "`/ui-kit/c/Textarea`"
       }
     },
     "TopBar": {

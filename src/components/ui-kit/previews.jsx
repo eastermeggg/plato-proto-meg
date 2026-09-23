@@ -14,6 +14,10 @@ import { Check, X as XIcon, Upload, Sparkles, Inbox, FileText, Plus, Calendar, E
 import { colors } from '../../design-system/tokens';
 import BadgeReal from '../ui/Badge';
 import InputReal from '../ui/Input';
+import SeparatorReal from '../ui/Separator';
+import CheckboxReal from '../ui/Checkbox';
+import SwitchReal from '../ui/Switch';
+import TextareaReal from '../ui/Textarea';
 
 // ============== BUTTON ==============
 const BUTTON_VARIANTS = {
@@ -65,34 +69,7 @@ export function Button({ variant = 'primary', size = 'md', icon: Icon, iconPosit
 export const Input = InputReal;
 
 // ============== TEXTAREA ==============
-export function Textarea({ value = '', placeholder, disabled, rows = 4, onChange, label, helperText, error }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%', maxWidth: 480 }}>
-      {label && <label style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary }}>{label}</label>}
-      <textarea
-        value={value}
-        rows={rows}
-        placeholder={placeholder}
-        disabled={disabled}
-        onChange={onChange}
-        style={{
-          width: '100%', resize: 'vertical',
-          padding: '8px 12px',
-          fontSize: 14, lineHeight: '20px',
-          color: colors.semantic.foreground,
-          background: disabled ? colors.semantic.backgroundSubtle : '#ffffff',
-          border: `1px solid ${error ? '#991b1b' : colors.semantic.border}`,
-          borderRadius: 8,
-          outline: 'none',
-          fontFamily: 'inherit',
-        }}
-      />
-      {helperText && (
-        <span style={{ fontSize: 11, color: error ? '#991b1b' : colors.semantic.foregroundSecondary }}>{helperText}</span>
-      )}
-    </div>
-  );
-}
+export const Textarea = TextareaReal;
 
 // ============== BADGE ==============
 // Promoted to a real component at src/components/ui/Badge.js.
@@ -100,67 +77,10 @@ export function Textarea({ value = '', placeholder, disabled, rows = 4, onChange
 export const Badge = BadgeReal;
 
 // ============== CHECKBOX ==============
-export function Checkbox({ checked = false, label, disabled, onChange }) {
-  return (
-    <label
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        userSelect: 'none',
-      }}
-    >
-      <button
-        type="button"
-        onClick={() => !disabled && onChange?.(!checked)}
-        style={{
-          width: 16, height: 16,
-          padding: 0,
-          borderRadius: 4,
-          border: `1px solid ${checked ? colors.semantic.foreground : colors.semantic.border}`,
-          background: checked ? colors.semantic.foreground : '#ffffff',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'inherit',
-        }}
-        aria-checked={checked}
-        role="checkbox"
-      >
-        {checked && <Check style={{ width: 11, height: 11, color: '#ffffff' }} strokeWidth={3} />}
-      </button>
-      {label && <span style={{ fontSize: 14, color: colors.semantic.foreground }}>{label}</span>}
-    </label>
-  );
-}
+export const Checkbox = CheckboxReal;
 
 // ============== SWITCH ==============
-export function Switch({ checked = false, label, disabled, onChange }) {
-  return (
-    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}>
-      <button
-        type="button"
-        onClick={() => !disabled && onChange?.(!checked)}
-        style={{
-          position: 'relative', width: 36, height: 20, padding: 0,
-          borderRadius: 10, border: 'none',
-          background: checked ? colors.semantic.foreground : colors.semantic.cream,
-          transition: 'background 150ms ease',
-          cursor: 'inherit',
-          flexShrink: 0,
-        }}
-        role="switch"
-        aria-checked={checked}
-      >
-        <span style={{
-          position: 'absolute', top: 2, left: checked ? 18 : 2,
-          width: 16, height: 16, borderRadius: 8, background: '#fff',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-          transition: 'left 150ms ease',
-        }} />
-      </button>
-      {label && <span style={{ fontSize: 14, color: colors.semantic.foreground }}>{label}</span>}
-    </label>
-  );
-}
+export const Switch = SwitchReal;
 
 // ============== RADIO GROUP ==============
 export function RadioGroup({ value, options = [], onChange, name = 'radio' }) {
@@ -263,21 +183,7 @@ export function Avatar({ size = 'md', initials, image, color = 'cream', shape = 
 }
 
 // ============== SEPARATOR ==============
-export function Separator({ orientation = 'horizontal', label }) {
-  if (orientation === 'vertical') {
-    return <span style={{ display: 'inline-block', width: 1, height: 16, background: colors.semantic.border, verticalAlign: 'middle' }} />;
-  }
-  if (label) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-        <span style={{ flex: 1, height: 1, background: colors.semantic.border }} />
-        <span style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.05em', color: colors.semantic.foregroundMuted, fontWeight: 500 }}>{label}</span>
-        <span style={{ flex: 1, height: 1, background: colors.semantic.border }} />
-      </div>
-    );
-  }
-  return <hr style={{ width: '100%', height: 1, background: colors.semantic.border, border: 'none', margin: 0 }} />;
-}
+export const Separator = SeparatorReal;
 
 // ============== SKELETON ==============
 export function Skeleton({ width = '100%', height = 14, radius = 4, count = 1 }) {
