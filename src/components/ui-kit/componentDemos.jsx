@@ -81,6 +81,8 @@ import DialogReal from '../ui/Dialog';
 import DropdownReal from '../ui/Dropdown';
 import TabsReal from '../ui/Tabs';
 import CardReal, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/Card';
+import DrawerReal, { DrawerSection } from '../ui/Drawer';
+import AvatarDemoReal from '../ui/Avatar';
 import ButtonGroupReal from '../ui/ButtonGroup';
 import ItemReal from '../ui/Item';
 import CalendarReal from '../ui/Calendar';
@@ -616,6 +618,43 @@ function DialogTrigger(props) {
     </ScopedDialogFrame>
   );
 }
+
+function DrawerTrigger({ size, title, withFooter }) {
+  const [open, setOpen] = useState(true);
+  React.useEffect(() => { setOpen(true); }, [size, title, withFooter]);
+  return (
+    <ScopedDialogFrame width={640} height={420} isOpen={open} onReopen={() => setOpen(true)}>
+      <DrawerReal
+        open={open}
+        onOpenChange={setOpen}
+        size={size === 'wide' ? 420 : 320}
+        title={title}
+        avatar={<AvatarDemoReal name={title} size={24} shape="square" color="blue" />}
+        respectChatOffset={false}
+        footer={withFooter ? (
+          <>
+            <ButtonReal variant="destructive-subtle" label="Retirer du cabinet" onClick={() => setOpen(false)} />
+            <ButtonReal label="Enregistrer" onClick={() => setOpen(false)} />
+          </>
+        ) : null}
+      >
+        <DrawerSection title="Détail" bordered>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, lineHeight: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">Membre depuis</span><span className="text-foreground">03 févr. 2026</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">E-mail</span><span className="text-foreground">antoine.mercier@cabinet.com</span></div>
+          </div>
+        </DrawerSection>
+        <DrawerSection title="Licence" actionLabel="Modifier" actionIcon={PencilLine} onAction={() => {}} bordered>
+          <ProgressReal size="sm" value={63} width="100%" label="Quota hebdomadaire" />
+        </DrawerSection>
+        <DrawerSection title="Notes et justificatifs">
+          <P.Textarea placeholder="Justification : contexte, échanges, consigne du manager…" rows={3} />
+        </DrawerSection>
+      </DrawerReal>
+    </ScopedDialogFrame>
+  );
+}
+
 
 function SheetTrigger(props) {
   const [open, setOpen] = useState(true);
@@ -1446,6 +1485,15 @@ export const componentDemos = {
       </CardReal>
     ),
   },
+  Drawer: {
+    description: "Master des panneaux latéraux (Figma 37749:1024) : scrim et panneau s'arrêtent à var(--chat-offset) - le chat reste visible pour piloter l'agent. Tailles sm 408 / wide 860, header serif + close 26 secondary, sections DrawerSection (mono 11, 4 types), footer slot. Fiche Drawer.md.",
+    controls: {
+      size:   { type: 'select',  default: 'sm', options: ['sm', 'wide'], description: 'sm 408 · wide 860.' },
+      title:  { type: 'text',    default: 'Antoine Mercier', description: 'Titre serif du header.' },
+      footer: { type: 'boolean', default: true, description: 'Footer border-t (secondary/primary).' },
+    },
+    render: v => <DrawerTrigger size={v.size} title={v.title} withFooter={v.footer} />,
+  },
   Dropdown: {
     description: "Menu d'actions ancré à un déclencheur - skin STRICTEMENT identique au menu du Select (panel 13:2034, rows 37122:19624) : il compose SelectMenuPanel/Item/Label. Figma 2819:24797 · fiche Dropdown.md. Choisir une valeur -> Select.",
     controls: {
@@ -1506,15 +1554,6 @@ export const componentDemos = {
     ),
   },
 
-  Drawer: {
-    description: 'Generic side-mounted drawer. Same primitive as Sheet — semantic alias.',
-    controls: {
-      side:  { type: 'select', default: 'right', options: ['right', 'left'], description: 'Side.' },
-      title: { type: 'text',   default: 'Drawer',                            description: 'Header.' },
-      width: { type: 'select', default: '360', options: ['280', '360', '480'], description: 'Width.' },
-    },
-    render: v => <SheetTrigger side={v.side} title={v.title} width={parseInt(v.width, 10)} />,
-  },
 
   Sheet: {
     description: 'Side / bottom sheet for secondary content.',

@@ -2588,13 +2588,12 @@
       "layer": "shadcn",
       "category": "layout",
       "family": "Overlays & menus",
-      "filePath": null,
-      "exists": false,
-      "figmaPage": "",
-      "figmaRef": "",
-      "figmaTodo": "a-dessiner",
-      "notes": "shadcn drawer ; page absente du kit Figma",
-      "status": "missing",
+      "filePath": "src/components/ui/Drawer.js",
+      "exists": true,
+      "figmaPage": "Panel",
+      "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37749-1024",
+      "notes": "Promu 24/09/2026 depuis le master Figma « Panel » (SidePanel sm 408/wide 860, Section Header 4 types, 8 sections d'exemple). Overlay qui ne recouvre JAMAIS le chat (var(--chat-offset)). Remplace le chantier [a-dessiner] ; l'entrée DSAEditDrawer (réf invalide, SIGNALEMENTS §12) est retirée. Cible : 3 drawers classés + panneau bordereau 860.",
+      "status": "pending",
       "used": false
     },
     {
@@ -2822,19 +2821,6 @@
       "notes": "Carte-option radio (radio shadcn etendu) pour les licences : toggle 16 + icone + libelle + description, carte radius 12. Etats Default/Hover/Active/Disabled. Construite le 23/09 depuis 36915:6122 ; LicencePicker (billing) devra la composer. Fiche : RadioPricing.md. Demo /ui-kit/c/RadioPricing.",
       "status": "validated",
       "used": true
-    },
-    {
-      "id": "DSAEditDrawer",
-      "layer": "custom",
-      "category": "domain",
-      "family": "Overlays & menus",
-      "filePath": null,
-      "exists": false,
-      "figmaPage": "Archive",
-      "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=1-22",
-      "notes": "6 écrans DSA/Edit (Ponctual/Periodic/Scroll) parqués dans Archive: Utility - à ranger côté Figma",
-      "status": "missing",
-      "used": false
     },
     {
       "id": "DropZone",
