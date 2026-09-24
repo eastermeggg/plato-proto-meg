@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import CategoryHeader from './CategoryHeader';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Move selected pieces / folders into a destination folder. Tree picker with
 // expand/collapse + search. `excludeIds` hides those nodes (used when moving a
@@ -136,7 +136,7 @@ export default function MoveToFolderModal({
         onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-[640px] bg-surface rounded-[12px] overflow-hidden"
         style={{
-          boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
+          boxShadow: shadows['2xl'],
           border: `1px solid ${colors.semantic.border}`,
         }}
       >

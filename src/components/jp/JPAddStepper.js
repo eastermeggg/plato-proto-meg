@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { X, Search, Link as LinkIcon, FileUp, Tag, ChevronRight, Check, Loader2, FolderOpen, Landmark } from 'lucide-react';
 import DECISIONS, { formatDateLong, getPrimaryAmount } from '../../data/mockDecisions';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 const MODES = [
   { id: 'search', icon: Search,   label: 'Rechercher',     hint: 'Dans Plato JP ou réf. libre' },
@@ -149,7 +149,7 @@ export default function JPAddStepper({
     <div className="w-full">
       <div
         className="bg-surface rounded-lg border border-border overflow-hidden"
-        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+        style={{ boxShadow: shadows['md'] }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle" style={{ backgroundColor: colors.banner.neutral.bgFrom }}>

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Pin } from 'lucide-react';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Floating sommaire (table-of-contents) for an acte — Notion-style minimap.
 //
@@ -160,7 +160,7 @@ export default function ActOutline({ headings, scrollRef, side = 'left', default
             backgroundColor: colors.semantic.white,
             border: `1px solid ${colors.semantic.border}`,
             borderRadius: 12,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08)',
+            boxShadow: shadows['lg'],
             padding: '8px',
             display: 'flex',
             flexDirection: 'column',

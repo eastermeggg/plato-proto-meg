@@ -631,6 +631,41 @@
         "demo": "`/ui-kit/c/CiteRow` - sandbox live (citation active)."
       }
     },
+    "Combobox": {
+      "name": "Combobox",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Sélecteur avec recherche - taper pour filtrer une longue liste",
+      "description": "shadcn BRUT mappé sur les tokens, aucun design custom (décision steward) : trigger bouton (valeur/placeholder + chevrons-up-down) + panel du Select avec rangée Command Search en tête (border-b, loupe 16, texte 14 muted) + liste filtrée (rows du Select, Check sur la sélection) + état vide.",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-22160",
+      "file": "src/components/ui/Combobox.js",
+      "source": "src/components/ui/Combobox.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Combobox",
+      "states": [
+        "closed",
+        "open",
+        "filtering",
+        "empty",
+        "disabled"
+      ],
+      "tokens": [
+        "via SelectMenuPanel/Item + colors.semantic.card",
+        "colors.semantic.input",
+        "colors.semantic.border",
+        "colors.semantic.mutedForeground",
+        "radius.lg",
+        "shadows.2xs"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Combobox.md",
+      "sections": {
+        "pattern": "### When to use\n- Choisir UNE option dans une liste LONGUE (postes, juridictions, membres) où\n  la frappe filtre.\n\n### When NOT to use\n- **Liste courte (< ~10)** → `Select`.\n- **Actions** → `Dropdown`.\n- **Recherche transverse multi-sources** → palette de commande (pattern à part).\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` / `onChange` | - | contrôle |\n| `options` | `[]` | `{ value, label, icon?, disabled? }` |\n| `placeholder` | `'Rechercher…'` | trigger + input |\n| `emptyText` | `'Aucun résultat.'` | état vide |\n| `width` | `280` | largeur |\n| `disabled` | `false` | trigger désactivé |\n\n### Examples\n```jsx\nimport Combobox from 'src/components/ui/Combobox';\n\n<Combobox value={poste} onChange={setPoste} placeholder=\"Rechercher un poste…\"\n  options={POSTES.map(p => ({ value: p.id, label: p.label }))} />\n```\n\n### Tokens used\nTrigger : `card` / `input` / `radius.lg` / `shadows['2xs']`. Recherche :\n`border` (filet), `mutedForeground` (loupe, placeholder). Liste : panel/rows\ndu Select (fiche Select). Aucune valeur propre.",
+        "explos": "- Promu le 24/09/2026 (« raw shadcn as-is, only mapped to our tokens »).\n  L'esquisse input-first est remplacée par la forme shadcn canonique\n  (bouton + recherche dans le panel), API préservée.",
+        "demo": "`/ui-kit/c/Combobox`"
+      }
+    },
     "DataTableCell": {
       "name": "DataTableCell",
       "package": "plato",

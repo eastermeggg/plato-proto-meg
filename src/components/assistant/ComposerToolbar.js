@@ -165,7 +165,7 @@ export default function ComposerToolbar({
       className="inline-flex items-center justify-center w-[26px] h-[26px] rounded-[4px] flex-shrink-0"
       style={{
         backgroundColor: canSend ? colors.semantic.primary : colors.semantic.background,
-        boxShadow: canSend ? '0px 1px 2px 0px rgba(26,26,26,0.1)' : 'none',
+        boxShadow: canSend ? shadows['xs'] : 'none',
         cursor: canSend ? 'pointer' : 'default',
         transition: 'background-color 150ms ease',
       }}
@@ -277,7 +277,7 @@ export default function ComposerToolbar({
               <div
                 ref={attachMenuRef}
                 className="fixed z-[100] border border-border rounded-[8px] overflow-hidden"
-                style={{ left: attachRect.left, bottom: attachRect.bottom, width: attachRect.width, backgroundColor: colors.semantic.popover, boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.08), 0px 12px 24px -8px rgba(26,26,26,0.16)' }}
+                style={{ left: attachRect.left, bottom: attachRect.bottom, width: attachRect.width, backgroundColor: colors.semantic.popover, boxShadow: shadows['2xl'] }}
               >
                 <div
                   className="flex items-center px-[10px]"

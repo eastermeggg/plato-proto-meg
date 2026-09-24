@@ -63,7 +63,7 @@ function PreferenceSlot({ id, value, onChange, extra }) {
   return (
     <div
       className="bg-surface rounded-lg border border-border p-5 flex flex-col gap-4"
-      style={{ boxShadow: '0 2px 4px -2px rgba(26,26,26,0.05), 0 4px 6px -1px rgba(26,26,26,0.05)' }}
+      style={{ boxShadow: shadows['md'] }}
     >
       <div className="flex items-center gap-3">
         <div

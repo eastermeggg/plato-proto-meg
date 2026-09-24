@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { formatDateLong, getPrimaryAmount } from '../../data/mockDecisions';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 export default function JPPopoverCard({
   decision,
@@ -63,7 +63,7 @@ export default function JPPopoverCard({
         overflow: 'hidden',
         backgroundColor: 'white',
         border: `1px solid ${colors.semantic.border}`,
-        boxShadow: '0 8px 24px rgba(41, 37, 36, 0.08), 0 2px 8px rgba(41, 37, 36, 0.04)',
+        boxShadow: shadows['lg'],
       }}>
 
         {/* ── Identity: jurisdiction + date + number ──────── */}

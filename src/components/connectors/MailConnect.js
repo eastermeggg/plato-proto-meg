@@ -215,7 +215,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
         <div
           onClick={(e) => e.stopPropagation()}
           className="relative bg-surface rounded-xl border border-border overflow-hidden animate-fadeIn"
-          style={{ width: 560, maxWidth: '100%', boxShadow: '0 32px 72px -16px rgba(28,25,23,0.34)' }}
+          style={{ width: 560, maxWidth: '100%', boxShadow: shadows['4xl'] }}
         >
           {!busy && (
             <button

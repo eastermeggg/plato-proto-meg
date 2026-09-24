@@ -3,7 +3,7 @@ import { Search, X, Check } from 'lucide-react';
 import { buildTreeViewRows } from '../../data/piecesModel';
 import CategoryHeader from '../pieces/CategoryHeader';
 import PieceRow from '../pieces/PieceRow';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 // "Ajouter une pièce" — reuses the Pièces tab's tree (same `buildTreeViewRows`
 // engine, same `CategoryHeader` and `PieceRow` components) so the browsing
@@ -133,7 +133,7 @@ export default function AddPieceSearchModal({
         onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-[640px] bg-surface rounded-[12px] overflow-hidden"
         style={{
-          boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
+          boxShadow: shadows['2xl'],
           border: `1px solid ${colors.semantic.border}`,
         }}
       >

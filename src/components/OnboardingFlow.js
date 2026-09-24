@@ -102,7 +102,7 @@ function PrimaryButton({ children, onClick, disabled, full, icon: Icon = ArrowRi
         color: colors.semantic.white,
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.6 : 1,
-        boxShadow: disabled ? 'none' : '0 1px 2px rgba(41,37,36,0.18)',
+        boxShadow: disabled ? 'none' : shadows['xs'],
       }}
       onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = colors.semantic.foreground; }}
       onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.background = C.fg; }}
@@ -145,7 +145,7 @@ function TextInput(props) {
 // shows its summary and a chevron.
 function AccordionRow({ n, title, optional, open, summary, onToggle, children }) {
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${open ? C.borderStrong : C.border}`, background: C.surface, boxShadow: open ? '0 2px 8px rgba(41,37,36,0.06)' : 'none', transition: 'box-shadow 150ms' }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${open ? C.borderStrong : C.border}`, background: C.surface, boxShadow: open ? shadows['md'] : 'none', transition: 'box-shadow 150ms' }}>
       <button onClick={onToggle} className="w-full flex items-center gap-3 px-4 text-left" style={{ height: 52 }}>
         <div className="flex items-center justify-center rounded-full flex-shrink-0" style={{ width: 22, height: 22, fontSize: 11, fontWeight: 600, fontFamily: MONO, background: open ? C.fg : C.cream, color: open ? colors.semantic.white : C.fg2 }}>{n}</div>
         <span style={{ fontSize: 14, fontWeight: 600, color: C.fg }}>{title}</span>
@@ -189,7 +189,7 @@ function PlanDropdown({ value, onChange, includeFree = false, height = 38 }) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-1.5 rounded-xl overflow-hidden" style={{ width: 244, background: C.surface, border: `1px solid ${C.borderStrong}`, boxShadow: '0 8px 24px rgba(41,37,36,0.12)' }}>
+          <div className="absolute right-0 z-50 mt-1.5 rounded-xl overflow-hidden" style={{ width: 244, background: C.surface, border: `1px solid ${C.borderStrong}`, boxShadow: shadows['lg'] }}>
             {opts.map((o, i) => {
               const on = o.id === value;
               return (
@@ -484,7 +484,7 @@ function StripeModal({ open, totalMonthly, licenceCount, billingDate, defaultEma
         role="dialog"
         aria-modal="true"
         className="rounded-2xl overflow-hidden"
-        style={{ width: '100%', maxWidth: 440, background: C.surface, boxShadow: '0 20px 50px rgba(28,25,23,0.30)' }}
+        style={{ width: '100%', maxWidth: 440, background: C.surface, boxShadow: shadows['4xl'] }}
         onClick={(e) => e.stopPropagation()}
       >
         {phase === 'success' ? (

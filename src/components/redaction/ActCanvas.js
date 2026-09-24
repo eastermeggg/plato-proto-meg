@@ -4,7 +4,7 @@ import JPPill from '../jp/JPPill';
 import { getDecisionById } from '../../data/mockDecisions';
 import { parseActStructure } from './actStructure';
 import ActOutline from './ActOutline';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Simple markdown-aware line renderer (bold, italic, pièce + JP citations)
 const renderInlineMarkdown = (text) => {
@@ -213,7 +213,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
             backgroundColor: 'white',
             borderRadius: 3,
             border: `1px solid ${colors.semantic.border}`,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.025)',
+            boxShadow: shadows['2xl'],
             padding: '48px 64px',
             minHeight: 600,
             cursor: 'text',

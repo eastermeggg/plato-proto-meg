@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Search as SearchIcon } from 'lucide-react';
 import { SCENARIO_LIST } from '../../data/demoScenarios';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 export default function SlashCommandPalette({ query, onSelect, onDismiss, scenarios }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -58,7 +58,7 @@ export default function SlashCommandPalette({ query, onSelect, onDismiss, scenar
         backgroundColor: 'white',
         borderRadius: 8,
         border: `1px solid ${colors.semantic.border}`,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+        boxShadow: shadows['lg'],
         overflow: 'hidden',
         zIndex: 40,
       }}

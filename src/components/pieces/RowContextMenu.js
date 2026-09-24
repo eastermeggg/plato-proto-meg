@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { colors, typography } from '../../design-system/tokens';
+import {colors, typography, shadows } from '../../design-system/tokens';
 
 // Floating menu shown on right-click or via a kebab anchor. `position`
 // is {x, y} screen coords; `items` is [{ icon, label, onClick, destructive?, separator? }].
@@ -42,7 +42,7 @@ export default function RowContextMenu({ open, position, items, onClose }) {
         backgroundColor: colors.semantic.white,
         border: `1px solid ${colors.semantic.border}`,
         borderRadius: 8,
-        boxShadow: '0px 4px 6px rgba(26,26,26,0.05), 0px 10px 15px rgba(26,26,26,0.05)',
+        boxShadow: shadows['lg'],
         padding: 4,
         minWidth: menuW,
       }}

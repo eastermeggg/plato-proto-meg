@@ -142,7 +142,7 @@ export function MailFloatingPromo({ onOpen, onConnect, onDismiss }) {
             couvre le centre. */}
         <div
           className="relative overflow-hidden"
-          style={{ borderRadius: 13, padding: 1.5, boxShadow: '0 18px 40px -14px rgba(28,25,23,0.32)' }}
+          style={{ borderRadius: 13, padding: 1.5, boxShadow: shadows['2xl'] }}
         >
           <div
             aria-hidden
@@ -288,7 +288,7 @@ export function MailConnectDialog({ open, onClose, providers, onPick }) {
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative bg-surface rounded-xl border border-border flex flex-col overflow-hidden"
-        style={{ width: 460, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}
+        style={{ width: 460, boxShadow: shadows['4xl'] }}
       >
         <button
           type="button"

@@ -46,7 +46,7 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
         style={{
           width: 520,
           borderRadius: 12,
-          boxShadow: '0 2px 4px -2px rgba(26,26,26,0.05), 0 4px 6px -1px rgba(26,26,26,0.05)',
+          boxShadow: shadows['md'],
         }}
       >
         {/* Header */}

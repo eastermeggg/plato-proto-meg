@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, Check, Stamp, FileText } from 'lucide-react';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Télécharger dropdown for the bordereau header. The export ALWAYS bundles the
 // acte + its bordereau + pièces — they're never downloaded apart, so there's
@@ -42,7 +42,7 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
         style={{
           backgroundColor: open ? colors.semantic.foregroundTertiary : colors.semantic.primary,
           color: colors.semantic.white,
-          boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)',
+          boxShadow: shadows['xs'],
         }}
         title="Télécharger"
       >
@@ -62,7 +62,7 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
       {open && (
         <div
           className="absolute right-0 top-10 z-50 bg-surface rounded-[10px] border border-border overflow-hidden"
-          style={{ width: 300, boxShadow: '0px 4px 8px -2px rgba(26,26,26,0.06), 0px 8px 24px -4px rgba(26,26,26,0.08)' }}
+          style={{ width: 300, boxShadow: shadows['lg'] }}
         >
           {/* What gets exported — always the full bundle, never one alone. */}
           <div className="px-3 pt-3 pb-2.5 flex items-start gap-2">
@@ -94,7 +94,7 @@ export default function ExportBordereauMenu({ onConfirm, variant = 'subheader' }
             <button
               onClick={confirm}
               className="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-[8px] text-[13px] font-medium text-primary-foreground bg-foreground hover:bg-foreground-tertiary transition-colors"
-              style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)' }}
+              style={{ boxShadow: shadows['xs'] }}
             >
               <Download className="w-3.5 h-3.5" strokeWidth={1.75} />
               Télécharger

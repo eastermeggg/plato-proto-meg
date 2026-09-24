@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { X, Scissors, Link2, Check, Pencil, Trash2, FileText, ChevronLeft, Play, RotateCcw, FoldHorizontal, Sparkles, Calendar } from 'lucide-react';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Design tokens lifted from the Plato "DocumentPanelCut" Figma frame.
 const SHADOW_LG = '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 10px 15px -3px rgba(26,26,26,0.05)';
@@ -738,7 +738,7 @@ function CutBoundary({ onHeal, onHoverChange }) {
         className="absolute left-1/2 top-1/2 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium text-white whitespace-nowrap"
         style={{
           background: colors.semantic.foreground,
-          boxShadow: '0 2px 8px rgba(28,25,23,0.25), 0 8px 24px -6px rgba(28,25,23,0.3)',
+          boxShadow: shadows['lg'],
           opacity: hover ? 1 : 0,
           transform: hover ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -50%) scale(0.85)',
           transition: 'opacity 130ms, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -777,7 +777,7 @@ function GhostCut({ onCut }) {
         className="relative inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium text-white whitespace-nowrap"
         style={{
           background: colors.semantic.foreground,
-          boxShadow: '0 2px 8px rgba(28,25,23,0.25), 0 8px 24px -6px rgba(28,25,23,0.3)',
+          boxShadow: shadows['lg'],
           opacity: hover ? 1 : 0,
           transform: hover ? 'scale(1) translateY(0)' : 'scale(0.85) translateY(2px)',
           transition: 'opacity 130ms, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)',

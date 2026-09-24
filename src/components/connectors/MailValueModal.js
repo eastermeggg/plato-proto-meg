@@ -14,7 +14,7 @@ import React, { useEffect } from 'react';
 import { ArrowRight, Mail, Paperclip, Plug2, Search, ShieldCheck, X } from 'lucide-react';
 import { ConnectorHero } from './ConnectorArt';
 import { GuaranteeChips, SyncSoonTeaser } from './ConnectorPromo';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
 const MONO = "'IBM Plex Mono', monospace";
@@ -70,7 +70,7 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
         aria-modal="true"
         aria-labelledby="mail-value-title"
         className="relative bg-surface rounded-xl border border-border flex flex-col overflow-hidden animate-fade-up"
-        style={{ width: 600, maxWidth: '100%', boxShadow: '0 32px 72px -16px rgba(28,25,23,0.34)' }}
+        style={{ width: 600, maxWidth: '100%', boxShadow: shadows['4xl'] }}
       >
         <button
           type="button"

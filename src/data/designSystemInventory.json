@@ -2392,12 +2392,12 @@
       "layer": "shadcn",
       "category": "primitive",
       "family": "Formulaires",
-      "filePath": null,
-      "exists": false,
+      "filePath": "src/components/ui/Combobox.js",
+      "exists": true,
       "figmaPage": "Combobox",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-22160",
-      "notes": "Esquisse code dans ui-kit/previews.jsx",
-      "status": "missing",
+      "notes": "Promu 24/09/2026 - shadcn brut mappé tokens, aucun design custom (décision steward). Trigger bouton + panel du Select avec Command Search en tête + liste filtrée + état vide. Esquisse code dans ui-kit/previews.jsx",
+      "status": "pending",
       "used": false
     },
     {

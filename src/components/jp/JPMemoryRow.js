@@ -99,7 +99,7 @@ export default function JPMemoryRow({
       }}
       onMouseOver={interactive ? (e) => {
         e.currentTarget.style.backgroundColor = colors.banner.neutral.bgFrom;
-        if (bordered) e.currentTarget.style.boxShadow = '0px 12px 32px -6px rgba(26,26,26,0.10), 0px 4px 10px -4px rgba(26,26,26,0.05)';
+        if (bordered) e.currentTarget.style.boxShadow = shadows['2xl'];
       } : undefined}
       onMouseOut={interactive ? (e) => {
         e.currentTarget.style.backgroundColor = colors.semantic.white;

@@ -133,7 +133,7 @@ export default function SplitVariantsLab() {
               className="px-4 h-8 rounded-md text-[13px] font-medium transition-all"
               style={
                 variant === v.key
-                  ? { background: colors.semantic.primary, color: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }
+                  ? { background: colors.semantic.primary, color: 'white', boxShadow: shadows['xs'] }
                   : { background: 'transparent', color: colors.semantic.mutedForeground }
               }
             >
@@ -191,7 +191,7 @@ function MiniStack({ fan, banded }) {
               background: 'white',
               border: `1px solid ${colors.accents.sand.border}`,
               borderRadius: 4,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              boxShadow: shadows['xs'],
               transform: `rotate(${t.r}deg) translateX(${t.x}px)`,
               transition: 'transform 260ms cubic-bezier(0.34, 1.3, 0.5, 1)',
               transformOrigin: '50% 80%',
@@ -556,7 +556,7 @@ function PageThumb({ pg }) {
         width: 92,
         height: 122,
         borderColor: pg.seg.anomaly ? AMBER : colors.accents.sand.border,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
+        boxShadow: shadows['xs'],
         animation: pg.seg.anomaly ? 'lab-pulse-once 900ms ease-out 300ms 1' : 'none',
       }}
       title={segLabel(pg.seg)}

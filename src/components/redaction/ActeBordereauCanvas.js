@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ListOrdered, Sparkles, X } from 'lucide-react';
 import { numberEntries } from '../../data/bordereauModel';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Read-only canvas for a `kind: 'bordereau'` artefact.
 //
@@ -384,7 +384,7 @@ function PieceRow({
               transform: btnHover ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(2px)',
               transition: 'opacity 120ms, transform 120ms',
               pointerEvents: 'none',
-              boxShadow: '0px 2px 6px rgba(26,26,26,0.18)',
+              boxShadow: shadows['md'],
             }}
           >
             Exclure du bordereau
@@ -436,7 +436,7 @@ function EmptyState({ onGenerate, source }) {
         <button
           onClick={onGenerate}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-[8px] text-[14px] font-medium text-primary-foreground bg-foreground hover:bg-foreground-tertiary transition-colors mt-5"
-          style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)' }}
+          style={{ boxShadow: shadows['xs'] }}
         >
           <Sparkles className="w-4 h-4" strokeWidth={1.75} />
           Générer mon bordereau

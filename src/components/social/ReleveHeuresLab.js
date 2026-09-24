@@ -458,7 +458,7 @@ function SharePopover({ onOpenClient, open, onOpenChange }) {
         Partager au client <ArrowUpRight className="w-4 h-4" />
       </button>
       {open && (
-        <div className="absolute right-0 z-30 rounded-xl rh-pop" style={{ top: 42, width: 340, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0 12px 32px rgba(41,37,36,0.16)', padding: 16 }}>
+        <div className="absolute right-0 z-30 rounded-xl rh-pop" style={{ top: 42, width: 340, background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['2xl'], padding: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: INK, marginBottom: 2 }}>Lien de partage externe</div>
           <p style={{ fontSize: 12.5, color: MUTE, lineHeight: '17px', marginBottom: 12 }}>
             Envoyez le lien et le mot de passe à {MATTER.client}. Elle complète son relevé et vos modifications restent synchronisées.
@@ -563,7 +563,7 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
         <button role="switch" aria-checked={day.rest} onClick={() => ops.setDayStatus(wi, di, day.rest ? 'todo' : 'rest')}
           className="inline-flex items-center gap-2.5" style={{ marginTop: day.rest ? 0 : 16, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}>
           <span className="relative flex-shrink-0" style={{ width: 34, height: 20, borderRadius: 99, background: day.rest ? INK : colors.semantic.borderStrong, transition: 'background .15s' }}>
-            <span className="absolute" style={{ top: 2, left: day.rest ? 16 : 2, width: 16, height: 16, borderRadius: 99, background: WHITE, transition: 'left .15s ease', boxShadow: '0 1px 2px rgba(26,26,26,0.25)' }} />
+            <span className="absolute" style={{ top: 2, left: day.rest ? 16 : 2, width: 16, height: 16, borderRadius: 99, background: WHITE, transition: 'left .15s ease', boxShadow: shadows['xs'] }} />
           </span>
           <span className="inline-flex items-center gap-1.5" style={{ fontSize: 13, fontWeight: day.rest ? 600 : 500, color: day.rest ? INK : MUTE }}>
             <Coffee className="w-3.5 h-3.5" style={{ color: day.rest ? colors.accents.sand.base : FAINT }} /> Jour non travaillé
@@ -608,7 +608,7 @@ function YearDropdown({ years, value, onChange }) {
         {value}<ChevronDown className="w-3.5 h-3.5" style={{ color: MUTE, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
       </button>
       {open && (
-        <div className="absolute right-0 rh-pop rounded-lg" style={{ top: 38, minWidth: 104, maxHeight: 240, overflowY: 'auto', background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0 8px 24px rgba(26,26,26,0.14)', padding: 4, zIndex: 40 }}>
+        <div className="absolute right-0 rh-pop rounded-lg" style={{ top: 38, minWidth: 104, maxHeight: 240, overflowY: 'auto', background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['lg'], padding: 4, zIndex: 40 }}>
           {years.map((y) => {
             const active = y === value;
             return (
@@ -680,7 +680,7 @@ function MonthDuplicateDialog({ srcY, srcM, periodStart, periodEnd, ops, onClose
   return createPortal((
     <div className="fixed inset-0 z-[300] flex items-start justify-center px-5" style={{ paddingTop: '13vh' }} onClick={onClose}>
       <div className="absolute inset-0 rh-dim" style={{ backgroundColor: 'rgba(26,26,26,0.32)' }} />
-      <div onClick={(e) => e.stopPropagation()} className="relative rh-pop flex flex-col rounded-2xl" style={{ width: '100%', maxWidth: 460, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)' }}>
+      <div onClick={(e) => e.stopPropagation()} className="relative rh-pop flex flex-col rounded-2xl" style={{ width: '100%', maxWidth: 460, background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['2xl'] }}>
         <div className="flex items-start gap-3 px-6 pt-6">
           <div className="flex-1 min-w-0">
             <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, letterSpacing: '-0.4px', lineHeight: '26px', color: INK, margin: 0 }}>Dupliquer {srcLabel}</h2>
@@ -1460,7 +1460,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
       <div className="fixed inset-0 z-[200] flex items-center justify-center px-5" style={{ background: PAPER, fontFamily: "'Inter', system-ui, sans-serif", color: INK }}>
         {exitBtn}
         <ClientAccessBackdrop />
-        <div className="rh-pop rounded-2xl flex flex-col items-center text-center" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 392, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.08), 0px 16px 40px -8px rgba(26,26,26,0.12)', padding: '36px 28px' }}>
+        <div className="rh-pop rounded-2xl flex flex-col items-center text-center" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 392, background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['2xl'], padding: '36px 28px' }}>
           <span className="inline-flex items-center justify-center rounded-full" style={{ width: 52, height: 52, background: colors.feedback.destructive.subtle, marginBottom: 18 }}><AlertTriangle className="w-6 h-6" style={{ color: colors.banner.error.accentHover }} /></span>
           <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 23, fontWeight: 500, letterSpacing: '-0.4px', color: INK, margin: 0 }}>{expired ? 'Lien expiré' : 'Lien invalide'}</h1>
           <p style={{ fontSize: 13.5, lineHeight: '19px', color: MUTE, marginTop: 8, maxWidth: 300 }}>
@@ -1482,7 +1482,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
       <div className="fixed inset-0 z-[200] flex items-center justify-center px-5" style={{ background: PAPER, fontFamily: "'Inter', system-ui, sans-serif", color: INK }}>
         {exitBtn}
         <ClientAccessBackdrop />
-        <div className="rh-pop rounded-2xl" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 388, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.08), 0px 16px 40px -8px rgba(26,26,26,0.12)', padding: '32px 28px' }}>
+        <div className="rh-pop rounded-2xl" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 388, background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['2xl'], padding: '32px 28px' }}>
           <div className="flex items-center gap-2.5" style={{ marginBottom: 20 }}>
             <span className="inline-flex items-center justify-center rounded-xl" style={{ width: 38, height: 38, background: INK }}><PlatoMark size={18} color={WHITE} /></span>
             <div style={{ minWidth: 0 }}>
@@ -1521,7 +1521,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
       <div className="fixed inset-0 z-[200] flex items-center justify-center px-5" style={{ background: PAPER, fontFamily: "'Inter', system-ui, sans-serif", color: INK }}>
         {exitBtn}
         <ClientAccessBackdrop />
-        <div className="rh-pop rounded-2xl" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 412, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.08), 0px 16px 40px -8px rgba(26,26,26,0.12)', padding: '32px 28px' }}>
+        <div className="rh-pop rounded-2xl" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 412, background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['2xl'], padding: '32px 28px' }}>
           <div className="flex items-center gap-2.5" style={{ marginBottom: 22 }}>
             <span className="inline-flex items-center justify-center rounded-xl" style={{ width: 38, height: 38, background: INK }}><PlatoMark size={18} color={WHITE} /></span>
             <div style={{ minWidth: 0 }}>
@@ -1704,7 +1704,7 @@ function PeriodModal({ mode, defaultStart, defaultEnd, onClose, onSubmit, modify
   return (
     <div className="fixed inset-0 z-[120] flex items-start justify-center px-5" style={{ paddingTop: '13vh' }} onClick={onClose}>
       <div className="absolute inset-0 rh-dim" style={{ backgroundColor: 'rgba(26,26,26,0.32)' }} />
-      <div onClick={(e) => e.stopPropagation()} className="relative rh-pop flex flex-col rounded-2xl" style={{ width: '100%', maxWidth: 470, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)' }}>
+      <div onClick={(e) => e.stopPropagation()} className="relative rh-pop flex flex-col rounded-2xl" style={{ width: '100%', maxWidth: 470, background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['2xl'] }}>
         <div className="flex items-start gap-3 px-6 pt-6">
           <div className="flex-1 min-w-0">
             <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 23, fontWeight: 500, letterSpacing: '-0.4px', lineHeight: '27px', color: INK, margin: 0 }}>{modify ? 'Modifier la période' : 'Définir la période'}</h2>
@@ -2493,7 +2493,7 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
         <span style={{ fontSize: 11.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT }}>Placement du relevé · exploration</span>
         <div className="ml-auto inline-flex items-center rounded-lg p-1" style={{ background: CREAM }}>
           {[['poste', 'Chiffrage · poste'], ['source', 'Chiffrage · source'], ['dossier', 'Dossier · widget']].map(([v, label]) => (
-            <button key={v} onClick={() => switchVariant(v)} className="rounded-md transition-all" style={{ height: 28, padding: '0 12px', fontSize: 12.5, fontWeight: 500, color: variant === v ? INK : MUTE, background: variant === v ? WHITE : 'transparent', boxShadow: variant === v ? '0px 1px 3px rgba(26,26,26,0.08)' : 'none', border: 'none', cursor: 'pointer' }}>{label}</button>
+            <button key={v} onClick={() => switchVariant(v)} className="rounded-md transition-all" style={{ height: 28, padding: '0 12px', fontSize: 12.5, fontWeight: 500, color: variant === v ? INK : MUTE, background: variant === v ? WHITE : 'transparent', boxShadow: variant === v ? shadows['xs'] : 'none', border: 'none', cursor: 'pointer' }}>{label}</button>
           ))}
         </div>
       </div>
@@ -3077,7 +3077,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
           <span style={{ fontSize: 11.5, color: FAINT }}>Où placer le relevé</span>
           <div className="inline-flex items-center rounded-lg p-1" style={{ background: CREAM }}>
             {[['sections', 'Sections (chiffrage)'], ['dossier', 'Dossier · widget']].map(([v, label]) => (
-              <button key={v} onClick={() => { setDirection(v); setTab(v === 'dossier' ? 'dossier' : 'chiffrage'); setEditorOpen(false); setSalaireOpen(false); }} className="rounded-md transition-all" style={{ height: 26, padding: '0 11px', fontSize: 12, fontWeight: 500, color: direction === v ? INK : MUTE, background: direction === v ? WHITE : 'transparent', boxShadow: direction === v ? '0px 1px 3px rgba(26,26,26,0.08)' : 'none', border: 'none', cursor: 'pointer' }}>{label}</button>
+              <button key={v} onClick={() => { setDirection(v); setTab(v === 'dossier' ? 'dossier' : 'chiffrage'); setEditorOpen(false); setSalaireOpen(false); }} className="rounded-md transition-all" style={{ height: 26, padding: '0 11px', fontSize: 12, fontWeight: 500, color: direction === v ? INK : MUTE, background: direction === v ? WHITE : 'transparent', boxShadow: direction === v ? shadows['xs'] : 'none', border: 'none', cursor: 'pointer' }}>{label}</button>
             ))}
           </div>
         </div>
@@ -3184,7 +3184,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
                   <Button variant="primary" size="md" icon={Plus} label="Nouveau poste" onClick={() => setAddPoste((o) => !o)} />
                 </div>
                 {addPoste && (
-                  <div className="absolute rh-pop rounded-lg" style={{ right: 28, top: 50, minWidth: 340, background: WHITE, border: `1px solid ${LINE}`, boxShadow: '0 8px 24px rgba(26,26,26,0.14)', padding: 4, zIndex: 30 }}>
+                  <div className="absolute rh-pop rounded-lg" style={{ right: 28, top: 50, minWidth: 340, background: WHITE, border: `1px solid ${LINE}`, boxShadow: shadows['lg'], padding: 4, zIndex: 30 }}>
                     {absentPostes.map((p) => (
                       <button key={p.id} onClick={() => { setPosteIds((ids) => [...ids, p.id]); setAddPoste(false); }} className="w-full text-left rounded-md transition-colors flex items-center gap-2" style={{ padding: '8px 9px', background: 'transparent', border: 'none', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
                         <span style={{ width: 44, flexShrink: 0, fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, fontWeight: 600, color: MUTE }}>{p.acro}</span>
