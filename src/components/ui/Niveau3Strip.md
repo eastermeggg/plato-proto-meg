@@ -1,68 +1,64 @@
 ---
 name: Niveau3Strip
 package: plato
-type: layout
-status: draft
-usage: La barre de contexte niveau 3 (poste / acte / JP / documents) sous les onglets
-description: >
-  La bande d'en-tête d'un objet niveau 3 (Figma « Navigation / Context bar »
-  37447:5922) : fond background, filet bas, padding 16. Retour NOMMÉ 12 medium
-  (unique retour du cran), code + titre serif 20 (-0.6) + montant serif 16 (-0.5),
-  précédent/suivant parmi les frères. Cinq kinds par page/onglet (Poste / Actes /
-  Acte / Documents / JP), tous composés des briques : BreadcrumbReturn,
-  StripTitle, StripAmount, SiblingNav, CodeBadge, StripDivider.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37447-5922
-file: src/components/shell/Niveau3Strip.js
+status: stable
+usage: The level-3 context bar (poste / acte / JP / documents) below the tabs
 source: src/components/shell/Niveau3Strip.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: Niveau3Strip
-variants: [Post, ActLevel, Act, Documents, JP]
-tokens: [colors.semantic.background, colors.semantic.border, colors.semantic.muted, colors.semantic.secondaryForeground, colors.semantic.mutedForeground]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37447-5922
 ---
 
 # Niveau3Strip
 
-> **Type** Layout · **Status** Pending · **Usage** barre de contexte niveau 3
-> **Figma** [Niveau 3 Strip](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37447-5922) · **File** `src/components/shell/Niveau3Strip.js`
+The bar placed below the dossier tabs when you enter an object (poste, acte,
+JP…): a named return, code, serif title, value, and previous/next among
+siblings. You compose THIS, never an inline `border-b` context bar. A new
+level-3 object = content passed to `Niveau3Strip` + its building blocks, not a
+new bar by hand (see `AGENTS.md`, shell rules). It's the proto's
+`renderContentSubHeader` that composes it.
 
-La bande posée sous les onglets du dossier quand on entre dans un objet (poste,
-acte, JP…). C'est `renderContentSubHeader` du proto qui la compose.
+## When to use
+- The header of a level-3 object: named return + code + title + value + siblings.
 
-## Pattern / Variants / Examples
+## When NOT to use
+- The PAGE header (listing) → `PageHeader`.
+- The dossier's fixed chrome (breadcrumb + view tabs) → `TopBar`.
 
-### When to use
-- L'en-tête d'un objet niveau 3 : retour nommé + code + titre + valeur + frères.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `back` | node | — | return on the first line (gap 10) |
+| `justify` | `between \| start` | — | title ↔ actions, or left-packed |
+| `children` | node | — | left/right content composed from the building blocks below |
 
-### When NOT to use
-- L'en-tête de PAGE (listing) → `PageHeader`.
-- Le chrome fixe du dossier (breadcrumb + onglets de vue) → `TopBar`.
+Building block exports (composed inside `Niveau3Strip`):
 
-> **On compose CECI, jamais une bande de contexte `border-b` inline.** Un nouvel
-> objet niveau 3 (poste, acte, autre) = du contenu passé à `Niveau3Strip` + ses
-> briques, pas une nouvelle barre à la main. Cf. `AGENTS.md` § « Shell, nav & barres ».
+| Export | Role |
+|--------|------|
+| `BreadcrumbReturn` | named return: arrow + label medium muted (hover foreground) |
+| `StripTitle` | serif title |
+| `StripAmount` | serif amount |
+| `SiblingNav` | previous/next + counter « n / N » mono |
+| `CodeBadge` | code badge muted fill, secondary-foreground |
+| `StripDivider` | vertical divider (`tall`, before the primary action) |
 
-### Kinds (nœud 37447:5922 - anatomie par page/onglet)
-| Kind | Gauche | Droite |
-|---|---|---|
-| Poste | retour ↵ CodeBadge + StripTitle | SiblingNav · StripAmount · divider tall · action primaire |
-| Actes | StripTitle (« X actes ») | action primaire « Nouvel acte » |
-| Acte | retour ↵ StripTitle | tabs Acte/Bordereau + actions |
-| Documents | recherche 14 muted | « Nouveau dossier » (outline) + « Ajouter des docs » (primaire) |
-| JP | StripTitle | action primaire « Rechercher » |
+Full-width bar, `flex-shrink-0`, placed below `TopBar` (or at the top of the
+content if there's no TopBar), above the scrollable body. NEVER stacks with
+another return: a single return level visible at a time. No max-width. Page
+contract: block fiche `/ui-kit/b/shell`.
 
-### Briques (exports)
-| Export | Rôle |
-|---|---|
-| `Niveau3Strip` | la bande - fond background, filet bas, p-16 ; `back` = retour sur 1re ligne (gap 10) ; `justify` between/start |
-| `BreadcrumbReturn` | le retour nommé : flèche 12 + libellé 12 medium muted (hover foreground) |
-| `StripTitle` | titre serif 20, tracking -0.6, leading 28 |
-| `StripAmount` | montant serif 16, tracking -0.5 |
-| `SiblingNav` | précédent/suivant + compteur « n / N » mono |
-| `CodeBadge` | badge code fond muted, 12 medium secondary-foreground |
-| `StripDivider` | filet vertical 1x16 / 1x18 (`tall`, avant l'action primaire) |
+Five kinds per page/tab (all composed from the blocks):
 
-### Examples
+| Kind | Left | Right |
+|------|------|-------|
+| Poste | return ↵ CodeBadge + StripTitle | SiblingNav · StripAmount · tall divider · primary action |
+| Actes | StripTitle ("X actes") | primary action "Nouvel acte" |
+| Acte | return ↵ StripTitle | Acte/Bordereau tabs + actions |
+| Documents | search muted | "Nouveau dossier" (outline) + "Ajouter des docs" (primary) |
+| JP | StripTitle | primary action "Rechercher" |
+
+## Examples
 ```jsx
 import Niveau3Strip, { BreadcrumbReturn, CodeBadge, StripTitle, StripAmount, StripDivider, SiblingNav } from '../ui/Niveau3Strip';
 
@@ -79,28 +75,3 @@ import Niveau3Strip, { BreadcrumbReturn, CodeBadge, StripTitle, StripAmount, Str
   </div>
 </Niveau3Strip>
 ```
-
-### Gabarit / dimensions
-Bande de contexte **pleine largeur**, `flex-shrink-0`, posée SOUS `TopBar` (ou en tête
-du contenu si pas de TopBar), au-dessus du corps scrollable :
-| Propriété | Valeur |
-|---|---|
-| Padding | `p-4` (16px sur les 4 côtés) |
-| Gap items | `gap-3` (12px) ; `mt-2.5` si retour + rangée titre empilés |
-| Fond / filet | `bg-background` + `border-b border-border` |
-| Alignement | `justify="between"` (titre ↔ actions) ou `"start"` |
-
-Ne s'empile JAMAIS avec un autre retour (breadcrumb / retour de page) : un seul niveau
-de retour visible à la fois. Aucun max-width. Contrat de page : fiche block **`/ui-kit/b/shell`**.
-
-### Tokens used
-`colors.semantic.background` (fond), `border` (filet), `muted` (CodeBadge),
-`secondaryForeground` / `mutedForeground` (textes).
-
-## Sprint / Explos
-
-- Surfacé le 22/09. Comportement : behaviour map §1.4. Voisins : `TopBar`, `PageHeader`.
-
-## Proto demo
-
-Visible en contexte : l'en-tête d'un poste / acte / JP dans un dossier du proto.

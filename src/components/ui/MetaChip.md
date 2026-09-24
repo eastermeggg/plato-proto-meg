@@ -1,62 +1,46 @@
 ---
 name: MetaChip
 package: plato
-type: primitive
-status: draft
-usage: Le chip de métadonnée du Doc Preview (14 types canoniques)
-description: >
-  Atome du Doc Preview : chip h-28 (px-10, radius 6, bord) - icône 14 + label
-  12 muted (tracking 0.12) + valeur 12 medium foreground, aside « · … »
-  truncable, marqueur ✦ IA, action lien. Deux variants : default (fond
-  canvas) · strong (fond cream, chip d'identité). 14 types canoniques dans
-  META_CHIP_TYPES (date, pièce, type, découpage, source, juridiction, n°,
-  objet, messages, pièces jointes, code, en vigueur, période, web) - un type
-  = une icône + un label, partout les mêmes.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9177
-file: src/components/preview/PreviewAtoms.js
+status: beta
+usage: The Doc Preview metadata chip (14 canonical types)
 source: src/components/preview/PreviewAtoms.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: MetaChip
-variants: [default, strong]
-states: [default, hover, disabled, ai, aside, action]
-tokens: [colors.semantic.cream, colors.semantic.border, colors.banner.ai.accent]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9177
 ---
 
 # MetaChip
 
-> **Type** Primitive · **Status** Pending · **Usage** chip de métadonnée du Doc Preview
-> **Figma** [37375:9177](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9177) · **File** `src/components/preview/PreviewAtoms.js`
+Doc Preview atom: a bordered chip pairing an icon + muted label + medium foreground value, with an optional truncable `· …` aside, an IA marker (✦), and a link action. Two variants: `default` (canvas fill) · `strong` (cream fill, identity chip). 14 canonical types in `META_CHIP_TYPES` (date, pièce, type, découpage, source, juridiction, n°, objet, messages, pièces jointes, code, en vigueur, période, web) - one type = one icon + one label, the same everywhere.
 
-## Pattern / Variants / Examples
+_Beta - label contrast holds `foreground-secondary` because `foreground-muted` falls under the WCAG floor on canvas/cream (issue #__)._
 
-### When to use
-- La barre méta d'un panneau de préviz (MetaBar h-52) et les en-têtes de cartes
-  qui remontent des métadonnées clé-valeur.
+## When to use
+- The metadata bar of a preview panel (MetaBar) and card headers that surface key-value metadata.
 
-### When NOT to use
-- Statut / sévérité / catégorie → `Badge`.
-- Type de source interactif → `SourceBadge`.
+## When NOT to use
+- Status / severity / category → `Badge`.
+- Interactive source type → `SourceBadge`.
 
-### Props
-`type` (clé de `META_CHIP_TYPES` - fournit icon/label/variant) · `icon` /
-`label` / `variant` (surcharges) · `value` (ReactNode) · `aside` · `ai` ·
-`action` `{ label, onClick }` OU `onClick` (chip entier bouton) · `disabled`.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `type` | key of `META_CHIP_TYPES` | — | provides default icon / label / variant |
+| `icon` | Lucide component | preset | override the type icon |
+| `label` | string | preset | override the type label |
+| `variant` | `default \| strong` | preset or `default` | `strong` = cream identity chip |
+| `value` | ReactNode | — | the metadata value (medium foreground) |
+| `aside` | ReactNode | — | truncable `· …` trailing text |
+| `ai` | bool | — | ✦ IA marker |
+| `action` | `{ label, onClick }` | — | trailing text link |
+| `onClick` | fn | — | makes the whole chip a button |
+| `disabled` | bool | — | |
+| `title` / `className` | - | - | passthrough |
 
-### Examples
+## Examples
 ```jsx
 import { MetaChip } from 'src/components/preview/PreviewAtoms';
 <MetaChip type="date" value="15/03/2023" ai />
 <MetaChip type="piece" value="I - MEDICAL · n° 2" />
 <MetaChip type="decoupage" aside="rapport_expertise.pdf" action={{ label: 'Ajuster', onClick }} />
 ```
-
-### Tokens used
-`cream` (strong) / `background-canvas` (default) · `border` ·
-`banner.ai.accent` (✦) · foreground-secondary / foreground.
-
-## Sprint / Explos
-- Extrait de PreviewPanel le 23/09 (chantier atomes Doc Preview).
-
-## Proto demo
-`/ui-kit/c/MetaChip` - sandbox live (type, ai, action).

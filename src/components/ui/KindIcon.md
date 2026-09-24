@@ -1,53 +1,37 @@
 ---
 name: KindIcon
 package: plato
-type: primitive
-status: draft
-usage: La puce d'identité du Doc Preview - icône 16 sur fond subtle par kind
-description: >
-  Atome du Doc Preview : carré arrondi 6 (28px, padding 6) portant l'icône 16
-  du kind sur son fond subtle. Accents canoniques via colors.accents :
-  piece / modele / email indigo · jp emerald · loi violet · ligne sand ·
-  web neutre. Rendu par PanelHeader ; jamais une puce colorée inline.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9147
-file: src/components/preview/PreviewAtoms.js
+status: beta
+usage: The Doc Preview identity chip - an icon on a per-kind subtle fill
 source: src/components/preview/PreviewAtoms.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: KindIcon
-variants: [piece, modele, email, jp, loi, ligne, web]
-tokens: [colors.accents.indigo, colors.accents.emerald, colors.accents.violet, colors.accents.sand, colors.semantic.backgroundSubtle]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9147
 ---
 
 # KindIcon
 
-> **Type** Primitive · **Status** Pending · **Usage** puce d'identité du Doc Preview
-> **Figma** [37375:9147](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9147) · **File** `src/components/preview/PreviewAtoms.js`
+Doc Preview atom: a rounded square carrying the kind's icon on its subtle fill. Canonical accents via `colors.accents`: piece / modele / email indigo · jp emerald · loi violet · ligne sand · web neutral. Rendered by `PanelHeader`; never an inline colored chip.
 
-## Pattern / Variants / Examples
+_Beta - pending steward validation (issue #__)._
 
-### When to use
-- La puce de kind d'un panneau de préviz (PanelHeader) ou d'une carte source.
+## When to use
+- The kind chip of a preview panel (`PanelHeader`) or a source card.
 
-### When NOT to use
-- Une pilule source interactive → `SourceBadge`.
-- Un badge de statut / catégorie → `Badge`.
+## When NOT to use
+- An interactive source pill → `SourceBadge`.
+- A status / category badge → `Badge`.
 
-### Props
-`kind` (clé de `KIND_ACCENTS`) · `icon` (composant Lucide) · `accent`
-(surcharge `{ bg, fg }`).
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `kind` | key of `KIND_ACCENTS` | `piece` (fallback) | picks the accent (`piece`/`modele`/`email`/`jp`/`loi`/`ligne`/`web`) |
+| `icon` | Lucide component | — | the icon rendered inside |
+| `accent` | `{ bg, fg }` | — | overrides the kind accent |
+| `className` | string | `''` | passthrough |
 
-### Examples
+## Examples
 ```jsx
 import { KindIcon } from 'src/components/preview/PreviewAtoms';
 <KindIcon kind="jp" icon={Scale} />
 ```
-
-### Tokens used
-`colors.accents.*` (subtle + text) - les mêmes valeurs que les variables Figma.
-
-## Sprint / Explos
-- Extrait de PreviewPanel le 23/09 (chantier atomes Doc Preview).
-
-## Proto demo
-`/ui-kit/c/KindIcon` - sandbox live (kind).

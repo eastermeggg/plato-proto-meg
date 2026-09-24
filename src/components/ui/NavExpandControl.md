@@ -1,62 +1,39 @@
 ---
 name: NavExpandControl
 package: plato
-type: composite
-status: draft
-usage: Le contrôle « Menu » de réouverture du rail quand la nav est masquée
-description: >
-  Contrôle présentationnel visible UNIQUEMENT nav masquée : logo Plato 28 (→
-  accueil) + bouton « Menu » h-32 px-12 r-8 (glyphe panel 16 + libellé 14
-  medium muted). Survol = peek immédiat, clic = réouverture. `absolute` pour
-  l'ancrer en haut à gauche des surfaces sans barre. Rendu par TopBar quand
-  navCollapsed (nœud 37443:5796).
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37443-5724
-file: src/components/shell/NavExpandControl.js
+status: stable
+usage: The « Menu » control that reopens the rail when the nav is hidden
 source: src/components/shell/NavExpandControl.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: NavExpandControl
-states: [default, hover]
-tokens: [colors.semantic.cream, colors.semantic.foregroundSecondary]
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37443-5724
 ---
 
 # NavExpandControl
 
-> **Type** Composite · **Status** Pending · **Usage** réouverture du rail (nav masquée)
-> **Figma** [Nav Collapse/Expand Control](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37443-5724) · **File** `src/components/shell/NavExpandControl.js`
+Presentational control visible ONLY when the nav is hidden: Plato logo (→ home) + « Menu » button (panel glyph + label). Hover = immediate peek, click = reopen. Use `absolute` to anchor it top-left on barless surfaces. Rendered by `TopBar` when `navCollapsed`.
 
-## Pattern / Variants / Examples
+## When to use
+- Rendered by the parent when `navHidden`: keeps a brand anchor + reopens the rail.
+- Page with `PageHeader` (listing): a dedicated band ABOVE the title; the `PageHeader` then receives `className="pt-3"`.
+- Page with `TopBar` (dossier): the `TopBar` renders it itself (via `navCollapsed`), followed by a hairline - do not compose it by hand. Full page contract: block fiche `/ui-kit/b/shell`.
 
-### When to use
-- Rendu par le parent quand `navHidden` : garde une ancre de marque + rouvre le rail.
+## When NOT to use
+- Collapsing the nav (button in the open header) → `PanelToggleIcon` in the header.
+- As an overlay on the page title → use the canonical placements above.
 
-### When NOT to use
-- Le repli DE la nav (bouton du header ouvert) → `PanelToggleIcon` dans le header.
-
-### Props
-| Prop | Type | Rôle |
+## Props
+| Prop | Type | Role |
 |---|---|---|
-| `onExpand` | () => void | clic = réouverture |
-| `onPeekEnter` / `onPeekLeave` | () => void | survol = peek |
-| `onHome` | () => void | clic logo = accueil |
-| `absolute` | bool | ancrage haut-gauche (surfaces sans barre) |
+| `onExpand` | () => void | click = reopen |
+| `onPeekEnter` / `onPeekLeave` | () => void | hover = peek |
+| `onHome` | () => void | logo click = home |
+| `absolute` | bool | top-left anchoring (barless surfaces) |
 
-### Gabarit / placement
-Rendu UNIQUEMENT quand la nav est masquée, pour rouvrir le rail. Deux emplacements
-canoniques - jamais en overlay sur le titre :
-- **Page avec `PageHeader`** (listing) : bande dédiée AU-DESSUS du titre, `px-8 pt-3 pb-1
-  flex-shrink-0` ; le `PageHeader` reçoit alors `className="pt-3"`.
-- **Page avec `TopBar`** (dossier) : la `TopBar` le rend elle-même en tête (via
-  `navCollapsed`), suivi d'une hairline - ne pas le composer à la main.
+## Examples
+```jsx
+import NavExpandControl from 'src/components/ui/NavExpandControl';
 
-Contrat de page complet : fiche block **`/ui-kit/b/shell`**.
-
-### Tokens used
-`colors.semantic.cream` (survol), `foregroundSecondary` (glyphe + libellé).
-
-## Sprint / Explos
-
-- Surfacé le 22/09. Voisins : `AppSidebar` (peek), `PanelToggleIcon` (glyphe).
-
-## Proto demo
-
-Visible en contexte : coin haut-gauche des surfaces du proto quand la nav est masquée.
+<NavExpandControl onExpand={openNav} onPeekEnter={peek} onPeekLeave={unpeek} onHome={goHome} />
+<NavExpandControl absolute onExpand={openNav} onHome={goHome} />
+```

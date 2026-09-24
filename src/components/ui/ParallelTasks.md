@@ -1,54 +1,49 @@
 ---
 name: ParallelTasks
 package: plato
-type: custom
-status: draft
+status: stable
 usage: Grouped pile for concurrent sub-agent tasks (line + inline/panel)
-description: >
-  Pile groupée de sous-agents simultanés : une ligne compacte (« N tâches
-  simultanément en cours ») qui se déplie inline ou en panneau flottant ;
-  chaque tâche enveloppe un ReasoningStepper. Code-first.
-figma: null
-file: src/components/ParallelTasks.js
 source: src/components/ParallelTasks.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: ParallelTasks
-variants: [inline, panel]
-composes: [ReasoningStepper]
-tokens: [colors.step]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: null
 ---
 
 # ParallelTasks
 
-> **Type** Custom · **Status** Pending (2026-09-23) · **Usage** pile de tâches parallèles dans le fil
-> **Figma** aucun - code-first · **File** `src/components/ParallelTasks.js`
+Grouped pile of concurrent sub-agents: a compact line (« N tâches simultanément
+en cours ») that expands inline or into a floating panel; each task wraps a
+`ReasoningStepper`. Code-first.
 
-## Pattern / Variants / Examples
+## When to use
+- The conversation thread when the agent launches several concurrent sub-tasks:
+  one discreet, expandable line instead of N stacked steppers.
 
-### When to use
-- Le fil de conversation quand l'agent lance **plusieurs sous-tâches
-  simultanées** : une seule ligne discrète, dépliable, au lieu de N steppers
-  empilés.
+## When NOT to use
+- A single task → `ReasoningStepper` directly.
+- Pièce ingestion tasks → the chat shows them via the « À vérifier » zone
+  (memory `project_ingest_review_zone`).
 
-### When NOT to use
-- **Une seule tâche** → `ReasoningStepper` directement.
-- **Tâches d'ingestion de pièces** → le chat les montre via la zone
-  « À vérifier » (memory `project_ingest_review_zone`).
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `tasks` | `[{ id, label, status: 'loading'\|'done'\|'error', steps, summary }]` | — | the concurrent tasks |
+| `variant` | `inline \| panel` | — | expand inline or into a floating panel |
+| `defaultOpen` | bool | — | start expanded |
+| `title` | string | — | pile title |
+| `onClear` | fn | — | clear the pile |
 
-### Props
-`tasks` (`[{ id, label, status: 'loading'|'done'|'error', steps, summary }]`)
-· `variant` ('inline' | 'panel') · `defaultOpen` · `title` · `onClear`.
-Exports nommés : `ParallelTasksLine`, `ParallelTasksPanel`, `deriveCounters`.
+Named exports: `ParallelTasksLine`, `ParallelTasksPanel`, `deriveCounters`.
 
-### Tokens used
-`colors.step.*` (via STEP_COLORS de ReasoningStepper).
+## Examples
+```jsx
+import ParallelTasks from '../ParallelTasks';
 
-## Sprint / Explos
-
-- Memory `project_parallel_tasks_stack` : stack + drawer panel, wrappe
-  ReasoningStepper.
-
-## Proto demo
-
-`/ui-kit/c/ParallelTasks` — inline ouvert/fermé, cas d'erreur.
+<ParallelTasks
+  variant="inline"
+  tasks={[
+    { id: 'a', label: 'Analyse des pièces', status: 'done', steps, summary },
+    { id: 'b', label: 'Recherche JP', status: 'loading', steps },
+  ]}
+/>
+```
