@@ -13,7 +13,7 @@ file: src/components/ui/Badge.js
 source: src/components/ui/Badge.js
 demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Badge
-variants: [default, secondary, outline, destructive, ai, success, info, warning]
+variants: [default, secondary, outline, destructive, ai, success, info, warning, accent]
 sizes: [sm, md]
 modes: [label, number, icon-only]
 tokens: [colors.badge, radius.md, radius.full, typography.scale.caption-medium]
@@ -68,7 +68,7 @@ import { Sparkles } from 'lucide-react';
 ```
 
 ### Tokens used
-`colors.badge.*` (bg + fg per variant) · `colors.semantic.foregroundSecondary` (outline number/icon-only fg) · `radius.md` (label) / `radius.full` (number, icon-only) · `typography.scale['caption-medium']`
+`colors.badge.*` (bg + fg per variant) · `colors.brand.subtle` + `colors.brand.darker.subtleForeground` (variant `accent` - fg AA 6.38:1 light / 8.66:1 dark à taille caption, validé steward 24/09/2026 ; jamais `accents.ochre`, sous AA) · `colors.semantic.foregroundSecondary` (outline number/icon-only fg) · `radius.md` (label) / `radius.full` (number, icon-only) · `typography.scale['caption-medium']`
 
 ## Sprint / Explos
 

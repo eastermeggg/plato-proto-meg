@@ -9,8 +9,10 @@ import { colors, radius, typography } from '../../design-system/tokens';
  *  - Number:          pill (radius full) with a count, height 20/24px.
  *  - Icon-only:       pill (radius full) with a single icon, height 20/24px.
  *
- * 8 variants, mapped 1:1 to the Figma design system:
+ * 9 variants — 8 mapped 1:1 to the Figma design system:
  *   Default · Secondary · Outline · Destructive · AI · Success · Info · Warning
+ * + `accent` (code-first, validé steward 24/09/2026) : famille brand chaude
+ *   pour les tags décoratifs (postes, « JP de référence », « Fiche cabinet »).
  *
  * All colors / spacing / radius / typography come from src/design-system/tokens.js.
  */
@@ -26,6 +28,11 @@ const VARIANTS = {
   success:     { bg: colors.badge.success.bg,     fg: colors.badge.success.fg,     border: null,                          numberFg: colors.badge.success.fg },
   info:        { bg: colors.badge.info.bg,        fg: colors.badge.info.fg,        border: null,                          numberFg: colors.badge.info.fg },
   warning:     { bg: colors.badge.warning.bg,     fg: colors.badge.warning.fg,     border: null,                          numberFg: colors.badge.warning.fg },
+  // accent — famille brand chaude (tags de postes, « JP de référence », « Fiche
+  // cabinet »). fg = brand.darker.subtleForeground et non accents.ochre :
+  // contraste AA à taille caption (6.38:1 light / 8.66:1 dark), validé steward
+  // 24/09/2026 (SIGNALEMENTS §16, accent-chip-check).
+  accent:      { bg: colors.brand.subtle,          fg: colors.brand.darker.subtleForeground, border: null,                numberFg: colors.brand.darker.subtleForeground },
 };
 
 // Per-mode dimensions, exactly matching the Figma frame heights.

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import Badge from '../ui/Badge';
 import { colors, shadows } from '../../design-system/tokens';
 
 // JP list-item / standalone card.
@@ -44,31 +45,12 @@ const formatDateNumeric = (isoDate) => {
 // Heuristic — status text containing "décéd" renders destructive.
 const isDestructiveStatus = (s) => /décéd/i.test(String(s || ''));
 
-function Badge({ children, tone = 'secondary' }) {
-  const palette = {
-    secondary:   { backgroundColor: colors.semantic.muted, color: colors.semantic.foregroundTertiary },
-    info:        { backgroundColor: colors.piece.expertise.bg, color: colors.feedback.info.text },
-    accent:      { backgroundColor: colors.brand.subtle, color: colors.accents.ochre },
-    destructive: { backgroundColor: colors.badge.destructive.bg, color: colors.semantic.white },
-    outlined:    { backgroundColor: 'transparent', color: colors.semantic.foregroundTertiary, border: `1px solid ${colors.semantic.border}` },
-  }[tone] || { backgroundColor: colors.semantic.muted, color: colors.semantic.foregroundTertiary };
-  return (
-    <span
-      className="inline-flex items-center justify-center"
-      style={{
-        ...palette,
-        padding: '2px 8px',
-        borderRadius: 6,
-        fontFamily: "'Inter', system-ui, sans-serif",
-        fontSize: 12, fontWeight: 500, lineHeight: '16px',
-        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        maxWidth: 220,
-      }}
-    >
-      {children}
-    </span>
-  );
-}
+// Badges : composant DS (ui/Badge). L'ancienne Badge locale (5 tons) est
+// remplacée par les variants DS — secondary/destructive exacts, info/outline
+// convergent d'un demi-cran, accent = variant DS validé steward 24/09 (fg
+// brand.darker.subtleForeground, AA — l'ochre local était sous AA).
+const BADGE_MAX = { maxWidth: 220 };
+const toneToVariant = (tone) => (tone === 'outlined' ? 'outline' : tone || 'accent');
 
 export default function JPMemoryRow({
   decision,
@@ -186,15 +168,22 @@ export default function JPMemoryRow({
         <div className="flex items-center" style={{ gap: 10 }}>
           <div className="flex flex-wrap items-center" style={{ gap: 6, flex: '1 0 0', minWidth: 0 }}>
             {extraBadges.map((b, i) => (
-              <Badge key={`x-${i}`} tone={b.tone || 'accent'}>{b.label}</Badge>
+              <Badge key={`x-${i}`} variant={toneToVariant(b.tone)} label={b.label} style={BADGE_MAX} />
             ))}
-            {decision.category && <Badge tone="secondary">{decision.category}</Badge>}
-            {decision.status && <Badge tone={statusTone}>{decision.status}</Badge>}
+            {decision.category && <Badge variant="secondary" label={decision.category} style={BADGE_MAX} />}
+            {decision.status && <Badge variant={statusTone} label={decision.status} style={BADGE_MAX} />}
             {amounts.map((a, i) => (
-              <Badge key={`a-${i}`} tone="info">
-                <span>{a.poste}{' '}</span>
-                <span style={{ color: statusTone === 'destructive' ? colors.feedback.info.text : colors.semantic.foregroundTertiary }}>{a.displayValue}</span>
-              </Badge>
+              <Badge
+                key={`a-${i}`}
+                variant="info"
+                style={BADGE_MAX}
+                label={
+                  <>
+                    <span>{a.poste}{' '}</span>
+                    <span style={{ color: statusTone === 'destructive' ? colors.feedback.info.text : colors.semantic.foregroundTertiary }}>{a.displayValue}</span>
+                  </>
+                }
+              />
             ))}
           </div>
           {resolvedTagsAction && (
@@ -272,7 +261,7 @@ export default function JPMemoryRow({
               {footerRight
                 ? footerRight
                 : footerChips.map((c, i) => (
-                    <Badge key={`fc-${i}`} tone="outlined">{c}</Badge>
+                    <Badge key={`fc-${i}`} variant="outline" label={c} style={BADGE_MAX} />
                   ))}
             </div>
           )}

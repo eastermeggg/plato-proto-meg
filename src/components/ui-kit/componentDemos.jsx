@@ -1204,7 +1204,7 @@ export const componentDemos = {
       icon:          { type: 'icon',    default: 'Sparkles',                                                       description: 'Icon for label-mode left/right and icon-only mode.' },
       hasLeftIcon:   { type: 'boolean', default: false,                                                            description: 'Show the leading icon (label mode).' },
       hasRightIcon:  { type: 'boolean', default: false,                                                            description: 'Show the trailing icon (label mode).' },
-      variant:       { type: 'select',  default: 'default', options: ['default', 'secondary', 'outline', 'destructive', 'ai', 'success', 'info', 'warning'], description: 'Color variant.' },
+      variant:       { type: 'select',  default: 'default', options: ['default', 'secondary', 'outline', 'destructive', 'ai', 'success', 'info', 'warning', 'accent'], description: 'Color variant.' },
       size:          { type: 'select',  default: 'sm',      options: ['sm', 'md'],                                 description: 'Size.' },
     },
     render: v => {
