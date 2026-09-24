@@ -7,7 +7,7 @@ import Bordereau, { Line, FolderBloc, GroupChapeau } from './import-v2/Bordereau
 import { useBordereau } from './import-v2/useBordereau';
 import { threadImportInfo, detectionFor } from './import/labData';
 import { folderModel, folderStats, folderBreadcrumbV2, buildFolderTree } from './import-v2/harvestData';
-import { Badge } from './import-v2/pieceRow';
+import Badge from '../ui/Badge';
 
 // « Import email - V2 Récolte & Bordereau ». La relecture du même problème
 // (gestes C / C bis / B, douleurs identifiées) avec le cadrage inversé : le
@@ -173,13 +173,13 @@ function ComponentGallery() {
         </Spec>
         <Spec label="Chapeau - depuis votre boîte" note="Pièce versée depuis une boîte personnelle : le chip porte le signal d'exposition - visible par le cabinet une fois dans le dossier. Un toast le dit aussi, une seule fois, au premier versement.">
           <div className="rounded-lg border border-border bg-white overflow-hidden">
-            <GroupChapeau title="Compte rendu d'imagerie - Centre Imagerie Sud" tag={<Badge tone="secondary" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier.">Depuis votre boîte</Badge>} onRemove={noop} />
+            <GroupChapeau title="Compte rendu d'imagerie - Centre Imagerie Sud" tag={<Badge variant="secondary" label="Depuis votre boîte" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier." className="flex-shrink-0" />} onRemove={noop} />
             <Line line={dl({ kind: 'body', title: 'Corps du mail', provenance: '1 message' })} api={NOOP_API} />
           </div>
         </Spec>
         <Spec label="Chapeau - reçu dans deux boîtes" note="Fil dédoublonné au bordereau : une seule pièce versée, la double provenance reste dite.">
           <div className="rounded-lg border border-border bg-white overflow-hidden">
-            <GroupChapeau title="Notification d'audience - TJ Paris" tag={<Badge tone="secondary" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce.">Aussi dans votre boîte</Badge>} onRemove={noop} />
+            <GroupChapeau title="Notification d'audience - TJ Paris" tag={<Badge variant="secondary" label="Aussi dans votre boîte" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce." className="flex-shrink-0" />} onRemove={noop} />
             <Line line={dl({ kind: 'body', title: 'Corps du mail', provenance: '2 messages' })} api={NOOP_API} />
           </div>
         </Spec>

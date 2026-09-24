@@ -12,7 +12,9 @@ import {
   HARVEST_GROUPS, PROPOSED_TIDS, deltaInfoOf, MAILBOXES, mailboxOf,
   FOLDER_CANDIDATE_IDS, folderModel, folderStats, folderDelta, folderDeltaKeys, childFolderModels,
 } from './harvestData';
-import { kindColor, V2, Badge, SmallBtn, HoverReveal, MetaDot } from './pieceRow';
+import Badge from '../../ui/Badge';
+import Button from '../../ui/Button';
+import { kindColor, V2, HoverReveal, MetaDot } from './pieceRow';
 
 // Liste façon boîte de réception : PAS de carte - des lignes pleine largeur
 // séparées par un filet fin (bords haut/bas de la liste). On gagne toute la
@@ -39,16 +41,16 @@ export function FolderCandidateCard({ fid, added, deltaAdded, onAddFolder, onRem
   const dimmed = added || linkedTo || deltaAdded;
 
   let badge = null;
-  if (linkedTo) badge = <Badge tone="secondary" className="!opacity-100">{`Déjà lié à ${linkedTo}`}</Badge>;
-  else if (hasDelta) badge = <Badge tone="indigo">Nouveau</Badge>;
-  else if (deltaAdded) badge = <Badge tone="success">Complément ajouté</Badge>;
-  else if (added) badge = <Badge tone="success">Ajouté</Badge>;
+  if (linkedTo) badge = <Badge variant="secondary" label={`Déjà lié à ${linkedTo}`} className="!opacity-100 flex-shrink-0" />;
+  else if (hasDelta) badge = <Badge variant="info" label="Nouveau" className="flex-shrink-0" />;
+  else if (deltaAdded) badge = <Badge variant="success" label="Complément ajouté" className="flex-shrink-0" />;
+  else if (added) badge = <Badge variant="success" label="Ajouté" className="flex-shrink-0" />;
 
   let hoverBtn = null;
-  if (added) hoverBtn = <SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveFolder(fid)} title="Retirer le dossier du bordereau">Retirer</SmallBtn>;
-  else if (deltaAdded) hoverBtn = <SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveFolder(fid)} title="Retirer le complément">Retirer</SmallBtn>;
-  else if (hasDelta) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddFolderDelta(fid)} title={`Ajouter les ${delta.newCount} nouvelles pièces`}>Ajouter</SmallBtn>;
-  else if (!linkedTo) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddFolder(fid)} title="Ajouter le dossier en entier, sous-dossiers compris">Ajouter</SmallBtn>;
+  if (added) hoverBtn = <Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveFolder(fid); }} title="Retirer le dossier du bordereau" label="Retirer" />;
+  else if (deltaAdded) hoverBtn = <Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveFolder(fid); }} title="Retirer le complément" label="Retirer" />;
+  else if (hasDelta) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddFolderDelta(fid); }} title={`Ajouter les ${delta.newCount} nouvelles pièces`} label="Ajouter" />;
+  else if (!linkedTo) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddFolder(fid); }} title="Ajouter le dossier en entier, sous-dossiers compris" label="Ajouter" />;
 
   return (
     <div
@@ -108,7 +110,7 @@ function ReadonlyThreadRow({ tid }) {
           <p className="text-[12px] leading-4 line-clamp-2 pl-2 border-l-2" style={{ color: V2.muted, letterSpacing: 0.12, borderColor: V2.ai }}>{excerpt}</p>
         )}
       </div>
-      <Badge tone="success">Ajouté</Badge>
+      <Badge variant="success" label="Ajouté" className="flex-shrink-0" />
     </div>
   );
 }
@@ -146,19 +148,19 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
   // Badge d'état (toujours visible) : Ajouté vert · Nouveau indigo ·
   // n/N ajouté et Déjà inclus en secondaire.
   let badge = null;
-  if (all) badge = <Badge tone="success">Ajouté</Badge>;
-  else if (deltaAdded) badge = <Badge tone="success">Complément ajouté</Badge>;
-  else if (hasDelta) badge = <Badge tone="indigo" className="cursor-pointer" title={`${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`}>Nouveau</Badge>;
-  else if (partial) badge = <Badge tone="secondary">{nTaken}/{total} ajouté{nTaken > 1 ? 's' : ''}</Badge>;
-  else if (covered) badge = <Badge tone="secondary" title="Cet échange entre avec le dossier - curation dans le bloc du bordereau">Déjà inclus</Badge>;
-  else if (upToDate) badge = <Badge tone="secondary" title="Tout ce fil est déjà au dossier, rien de neuf depuis">À jour</Badge>;
+  if (all) badge = <Badge variant="success" label="Ajouté" className="flex-shrink-0" />;
+  else if (deltaAdded) badge = <Badge variant="success" label="Complément ajouté" className="flex-shrink-0" />;
+  else if (hasDelta) badge = <Badge variant="info" label="Nouveau" className="cursor-pointer flex-shrink-0" title={`${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`} />;
+  else if (partial) badge = <Badge variant="secondary" label={`${nTaken}/${total} ajouté${nTaken > 1 ? 's' : ''}`} className="flex-shrink-0" />;
+  else if (covered) badge = <Badge variant="secondary" label="Déjà inclus" title="Cet échange entre avec le dossier - curation dans le bloc du bordereau" className="flex-shrink-0" />;
+  else if (upToDate) badge = <Badge variant="secondary" label="À jour" title="Tout ce fil est déjà au dossier, rien de neuf depuis" className="flex-shrink-0" />;
 
   // Le geste au survol (planche Hover) : « + Ajouter » sombre, « ✕ Retirer »
   // destructif subtil sur un fil déjà ajouté.
   let hoverBtn = null;
-  if (all || deltaAdded) hoverBtn = <SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveThread(tid)} title="Retirer du bordereau">Retirer</SmallBtn>;
-  else if (hasDelta) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddThreadDelta(tid)} title={`Ajouter les ${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`}>Ajouter</SmallBtn>;
-  else if (!settled) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddThread(tid)} title={partial ? 'Ajouter le reste de l\'échange' : 'Ajouter l\'échange au bordereau'}>Ajouter</SmallBtn>;
+  if (all || deltaAdded) hoverBtn = <Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveThread(tid); }} title="Retirer du bordereau" label="Retirer" />;
+  else if (hasDelta) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddThreadDelta(tid); }} title={`Ajouter les ${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`} label="Ajouter" />;
+  else if (!settled) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddThread(tid); }} title={partial ? 'Ajouter le reste de l\'échange' : 'Ajouter l\'échange au bordereau'} label="Ajouter" />;
 
   return (
     <div className="bg-surface">
@@ -180,7 +182,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
             <div className="flex items-center gap-1.5 min-w-0">
               <p className={`min-w-0 text-[14px] leading-5 font-medium truncate ${tv.illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{tv.subject}</p>
               {tv.illegible && (
-                <Badge tone="secondary" className="!text-[10px] uppercase" title={`L'objet d'origine du mail (« ${raw?.subject} ») est illisible - ce titre est un résumé de son contenu.`}>Objet illisible</Badge>
+                <Badge variant="secondary" label="Objet illisible" className="!text-[10px] uppercase flex-shrink-0" title={`L'objet d'origine du mail (« ${raw?.subject} ») est illisible - ce titre est un résumé de son contenu.`} />
               )}
             </div>
             {/* Ligne 2 : date · expéditeur · trombone + compte (mono). */}
@@ -260,7 +262,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
                 <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${inB ? 'font-medium' : ''} ${atDossier ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{p.name}</p>
                 {info && (
                   deltaEntry ? (
-                    <Badge tone="warning">{deltaEntry.reason === 'actualisé' ? `actualisé · +${deltaEntry.newMessages} messages` : 'nouvelle'}</Badge>
+                    <Badge variant="warning" label={deltaEntry.reason === 'actualisé' ? `actualisé · +${deltaEntry.newMessages} messages` : 'nouvelle'} className="flex-shrink-0" />
                   ) : (
                     <span className="text-[12px] leading-4 flex-shrink-0" style={{ color: V2.muted }}>Au dossier · {info.importedOn}</span>
                   )
@@ -359,7 +361,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
         <ChevronRight className={`w-3 h-3 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.muted }} />
         <FolderOpen className={`w-4 h-4 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.folder }} />
         <p className={`flex-1 min-w-0 text-[14px] leading-5 font-medium truncate ${added ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{sf.name}</p>
-        {added && <Badge tone="success">Ajouté</Badge>}
+        {added && <Badge variant="success" label="Ajouté" className="flex-shrink-0" />}
       </div>
     );
   };
@@ -436,8 +438,8 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
                         </div>
                         <div className="flex-shrink-0 pt-0.5">
                           {added
-                            ? <span className="inline-flex items-center gap-1.5"><Badge tone="success">Ajouté</Badge><SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveThread(tid)} title="Retirer du bordereau">Retirer</SmallBtn></span>
-                            : <span className="inline-flex items-center gap-1.5"><Badge tone="indigo">Nouveau</Badge><SmallBtn variant="primary" icon={Plus} onClick={() => names.forEach(n => onAddPiece(tid, pjKey(tid, n)))} title="Ajouter ces nouvelles PJ au bordereau">Ajouter</SmallBtn></span>}
+                            ? <span className="inline-flex items-center gap-1.5"><Badge variant="success" label="Ajouté" className="flex-shrink-0" /><Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveThread(tid); }} title="Retirer du bordereau" label="Retirer" /></span>
+                            : <span className="inline-flex items-center gap-1.5"><Badge variant="info" label="Nouveau" className="flex-shrink-0" /><Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); names.forEach(n => onAddPiece(tid, pjKey(tid, n))); }} title="Ajouter ces nouvelles PJ au bordereau" label="Ajouter" /></span>}
                         </div>
                       </div>
                     );

@@ -13,13 +13,13 @@ file: src/components/ui/Button.js
 source: src/components/ui/Button.js
 demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Button
-variants: [primary, secondary, ghost, outline, destructive, link, warning-link, success-link, neutral-link]
+variants: [primary, secondary, ghost, outline, destructive, destructive-subtle, ai-subtle, link, warning-link, success-link, neutral-link]
 sizes: [xs, sm, md, lg, icon-xs, icon-sm, icon, icon-lg]
 states: [enabled, hover, focus-visible, active, loading, disabled]
 figmaVariants: [Default, Secondary, Destructive, Outline, Ghost, Link, Warning Link, Success Link, Neutral Link]
 figmaSizes: [XS, Small, Default, Large, Icon XS, Icon Small, Icon, Icon Large]
 figmaStates: [Enabled, Hover, Focus, Active, Loading, Disabled]
-tokens: [colors.semantic.primary, colors.semantic.muted, colors.semantic.border, colors.feedback.destructive, colors.banner.neutral]
+tokens: [colors.semantic.primary, colors.semantic.muted, colors.semantic.border, colors.feedback.destructive, colors.feedback.ai, colors.banner.neutral]
 promotedFrom: src/components/ui-kit/previews.jsx
 ---
 
@@ -42,6 +42,12 @@ it's a `Badge`.
   - `ghost` — low-emphasis inline action (no fill until hover).
   - `outline` — neutral bordered action (white + border).
   - `destructive` — irreversible / dangerous action (red).
+  - `destructive-subtle` — action de retrait douce dans une rangée / carte
+    (fond `feedback.destructive.subtle`, texte `.text`) - promu de l'ex-SmallBtn
+    de l'import V2 (24/09/2026). Réservé aux contextes denses ; le destructif
+    plein reste la norme pour les confirmations.
+  - `ai-subtle` — action liée à un geste IA (découpe, suggestion) : fond
+    `feedback.ai.subtle`, texte `.text`. Même origine.
 
 ### When NOT to use
 - **Navigation of the app shell** → use the nav item components, not a Button.
@@ -54,7 +60,7 @@ it's a `Badge`.
 ### Props
 | Prop | Type | Default | Notes |
 |------|------|---------|-------|
-| `variant` | `primary \| secondary \| ghost \| outline \| destructive` | `primary` | intent |
+| `variant` | `primary \| secondary \| ghost \| outline \| destructive \| destructive-subtle \| ai-subtle \| link \| *-link` | `primary` | intent |
 | `size` | `sm \| md \| lg` | `md` | |
 | `icon` | Lucide icon | — | rendered at the size's `iconSize` |
 | `iconPosition` | `leading \| trailing` | `leading` | |

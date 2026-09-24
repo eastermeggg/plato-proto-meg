@@ -18,6 +18,11 @@ const VARIANTS = {
   ghost:       { bg: 'transparent', bgHover: colors.banner.neutral.bgFrom, fg: colors.semantic.foregroundTertiary, border: 'transparent' },
   outline:     { bg: colors.semantic.white, bgHover: colors.banner.neutral.bgFrom, fg: colors.semantic.foreground, border: colors.semantic.border },
   destructive: { bg: colors.feedback.destructive.text, bgHover: colors.feedback.destructive.text, fg: colors.semantic.white, border: 'transparent' },
+  // Variants subtils (promotion SmallBtn import V2, steward 24/09/2026) :
+  // fond feedback.subtle + texte feedback.text — actions douces dans les rangées
+  // (« Retirer » destructif, « Sera découpé » ai).
+  'destructive-subtle': { bg: colors.feedback.destructive.subtle, bgHover: colors.feedback.destructive.subtle, fg: colors.feedback.destructive.text, border: 'transparent' },
+  'ai-subtle':          { bg: colors.feedback.ai.subtle, bgHover: colors.feedback.ai.subtle, fg: colors.feedback.ai.text, border: 'transparent' },
   // Famille Link (Figma) : bouton-texte, transparent, souligné au survol.
   link:           { bg: 'transparent', bgHover: 'transparent', fg: colors.feedback.info.text, border: 'transparent', linkStyle: true },
   'warning-link': { bg: 'transparent', bgHover: 'transparent', fg: colors.feedback.warning.text, border: 'transparent', linkStyle: true },

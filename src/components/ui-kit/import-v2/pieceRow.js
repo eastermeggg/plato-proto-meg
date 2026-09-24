@@ -1,11 +1,13 @@
-// Primitives partagées de l'import V2, calées AU PIXEL sur les planches Figma
-// 3278-36997 (« Import / Inbox / * » + « Import / Bordereau / * ») :
+// Atomes partagés de l'import V2, calés AU PIXEL sur les planches Figma
+// 3278-36997 (« Import / Inbox / * » + « Import / Bordereau / * »).
+// POURQUOI LOCAL (ds-promote 24/09/2026) : pas d'équivalent DS - V2 est la
+// palette theme-aware des planches, HoverReveal un pattern de rangée (voile
+// dégradé), MetaDot un micro-atome. Les badges d'état utilisent ui/Badge
+// (l'ex-Badge locale, doublon de la primitive, a été résorbée).
 // - une COULEUR par nature (folder vert · mail muet · PJ bleu · découpe violette)
-// - Badge (états : Ajouté vert · Nouveau indigo · partiel/inclus secondaire ·
-//   Erreur destructive · Doublon warning)
-// - SmallBtn : LE bouton 26px des rangées (primaire sombre · secondaire crème ·
-//   outline blanc · destructif subtil · ai subtil)
 // - HoverReveal : le voile dégradé qui pose le bouton au survol d'une rangée.
+// L'ex-SmallBtn (bouton 26px des rangées) est résorbé dans ui/Button size=sm
+// (variants destructive-subtle / ai-subtle ajoutés, steward 24/09/2026).
 
 import React from 'react';
 import { FileText, FolderOpen, Mail, Paperclip } from 'lucide-react';
@@ -16,7 +18,6 @@ import { FileText, FolderOpen, Mail, Paperclip } from 'lucide-react';
 export const V2 = {
   foreground: 'var(--semantic-foreground, #292524)',
   muted: 'var(--semantic-mutedForeground, #78716c)',
-  border: 'var(--semantic-border, #dfdcd9)',
   accent: 'var(--semantic-background, #f8f7f5)',
   secondary: 'var(--semantic-secondary, #eeece6)',
   secondaryText: 'var(--semantic-secondaryForeground, #44403c)',
@@ -27,16 +28,9 @@ export const V2 = {
   aiIcon: 'var(--feedback-ai-base, #7e22ce)',
   aiSubtle: 'var(--feedback-ai-subtle, #ebe3f2)',
   indigo: 'var(--accents-indigo-base, #3b5bdb)',
-  indigoSubtle: 'var(--accents-indigo-subtle, #e3e6f2)',
-  indigoText: 'var(--accents-indigo-text, #2143cc)',
-  successSubtle: 'var(--feedback-success-subtle, #e3f2ee)',
-  successText: 'var(--feedback-success-text, #064e3b)',
-  destructive: 'var(--feedback-destructive-base, #991b1b)',
   destructiveSubtle: 'var(--feedback-destructive-subtle, #f2e3e3)',
   destructiveText: 'var(--feedback-destructive-text, #7f1d1d)',
   warning: 'var(--feedback-warning-base, #bd6c1a)',
-  warningSubtle: 'var(--feedback-warning-subtle, #f2ebe3)',
-  warningText: 'var(--feedback-warning-text, #855b31)',
   hoverFade: 'var(--semantic-background, #f7f6f3)',
   // Carte (rangées) : « white » theme-aware → carte sombre en dark.
   card: 'var(--semantic-card, #ffffff)',
@@ -64,52 +58,6 @@ export const KIND_COLORS = {
   file: V2.pj,
 };
 export const kindColor = (kind) => KIND_COLORS[kind] || V2.muted;
-
-// Badge d'état (planche « Badge » shadcn) : px-6 py-2, rounded-6, texte 12 medium.
-const BADGE_TONES = {
-  success: { backgroundColor: V2.successSubtle, color: V2.successText },
-  indigo: { backgroundColor: V2.indigoSubtle, color: V2.indigoText },
-  secondary: { backgroundColor: V2.secondary, color: V2.secondaryText },
-  destructive: { backgroundColor: V2.destructive, color: '#ffffff' },
-  warning: { backgroundColor: V2.warningSubtle, color: V2.warningText },
-  ai: { backgroundColor: V2.aiSubtle, color: V2.ai },
-};
-// `wide` : les badges Erreur / Doublon de la planche Flat Objects sont à px-8
-// (vs px-6 pour les badges d'état courants).
-export function Badge({ tone = 'secondary', wide = false, children, className = '' }) {
-  return (
-    <span
-      className={`inline-flex items-center justify-center ${wide ? 'px-2' : 'px-1.5'} py-0.5 rounded-md text-[12px] leading-4 font-medium whitespace-nowrap flex-shrink-0 ${className}`}
-      style={BADGE_TONES[tone]}
-    >
-      {children}
-    </span>
-  );
-}
-
-// LE bouton 26px des rangées et chapeaux (h-26, px-8, py-5, rounded-4,
-// icône 14, texte 12 medium) - toutes les variantes de la planche.
-const BTN_VARIANTS = {
-  primary: { backgroundColor: V2.foreground, color: V2.primaryForeground, boxShadow: '0 1px 1px rgba(26,26,26,0.05)' },
-  secondary: { backgroundColor: V2.secondary, color: V2.secondaryText },
-  outline: { backgroundColor: V2.card, color: V2.foreground, border: `1px solid ${V2.border}`, boxShadow: '0 1px 1px rgba(26,26,26,0.05)' },
-  'destructive-subtle': { backgroundColor: V2.destructiveSubtle, color: V2.destructiveText },
-  'ai-subtle': { backgroundColor: V2.aiSubtle, color: V2.ai },
-};
-export function SmallBtn({ variant = 'secondary', icon: Icon, children, onClick, title, className = '' }) {
-  return (
-    <button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-      className={`inline-flex items-center justify-center gap-1.5 h-[26px] px-2 rounded text-[12px] leading-4 font-medium transition-opacity hover:opacity-90 flex-shrink-0 ${className}`}
-      style={BTN_VARIANTS[variant]}
-      title={title}
-    >
-      {Icon && <Icon className="w-3.5 h-3.5" strokeWidth={2} />}
-      {children}
-    </button>
-  );
-}
 
 // Voile de survol (planche Threads/Folder « Hover ») : dégradé transparent →
 // #f7f6f3 posé au bord droit, le bouton flotte dessus - la rangée garde toute

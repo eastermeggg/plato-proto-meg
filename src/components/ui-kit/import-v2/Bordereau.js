@@ -12,7 +12,9 @@ import { AlertCircle, AlertTriangle, ChevronDown, ChevronRight, FileText, Folder
 import { Checkbox, LabSwitch } from '../import/atoms';
 import { treeCounts, treeState, treeThreadTotals } from '../import/labData';
 import { treeDecoupableKeys } from './useBordereau';
-import { V2, Badge, SmallBtn, HoverReveal, kindColor } from './pieceRow';
+import Badge from '../../ui/Badge';
+import Button from '../../ui/Button';
+import { V2, HoverReveal, kindColor } from './pieceRow';
 
 // LE chapeau de bloc : icône 16 teintée par nature · titre 14 medium, UNE
 // ligne · pastille « ✕ Retirer » (26px secondaire). `tag` : chip d'état inline.
@@ -25,7 +27,7 @@ export function GroupChapeau({ kind = 'body', title, illegible = false, tag = nu
         <p className={`text-[14px] leading-5 font-medium truncate ${illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{title}</p>
         {tag}
       </div>
-      {onRemove && <SmallBtn variant="secondary" icon={X} onClick={onRemove} title={removeTitle}>Retirer</SmallBtn>}
+      {onRemove && <Button variant="secondary" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemove(); }} title={removeTitle} label="Retirer" />}
     </div>
   );
 }
@@ -109,11 +111,11 @@ export function Line({ line, api }) {
           <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
           <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
           <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.destructiveText }}>{line.title}</p>
-          <Badge tone="destructive" wide>Erreur</Badge>
+          <Badge variant="destructive" label="Erreur" className="flex-shrink-0" />
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <SmallBtn variant="secondary" onClick={() => api.retryLine(line.id)} title="Relancer le téléversement">Réessayer</SmallBtn>
-          <SmallBtn variant="secondary" onClick={() => api.toggleIncluded(line.id)} title="Écarter cette pièce du versement">Ignorer</SmallBtn>
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.retryLine(line.id); }} title="Relancer le téléversement" label="Réessayer" />
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.toggleIncluded(line.id); }} title="Écarter cette pièce du versement" label="Ignorer" />
         </div>
       </div>
     );
@@ -128,12 +130,12 @@ export function Line({ line, api }) {
           <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
           <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
           <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }} title={line.doublon.note}>{line.title}</p>
-          <Badge tone="warning" wide title={line.doublon.note}>Doublon identifié</Badge>
+          <Badge variant="warning" label="Doublon identifié" title={line.doublon.note} className="flex-shrink-0" />
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <SmallBtn variant="secondary" onClick={() => api.resolveDoublon(line.id, 'keep')} title="Verser quand même - la pièce du dossier reste">Garder les deux</SmallBtn>
-          <SmallBtn variant="secondary" onClick={() => api.resolveDoublon(line.id, 'ignore')} title="Ne pas verser cette pièce">Supprimer</SmallBtn>
-          <SmallBtn variant="secondary" onClick={() => {}} title={line.doublon.note}>Voir</SmallBtn>
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.resolveDoublon(line.id, 'keep'); }} title="Verser quand même - la pièce du dossier reste" label="Garder les deux" />
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.resolveDoublon(line.id, 'ignore'); }} title="Ne pas verser cette pièce" label="Supprimer" />
+          <Button variant="secondary" size="sm" onClick={(e) => e.stopPropagation()} title={line.doublon.note} label="Voir" />
         </div>
       </div>
     );
@@ -153,13 +155,11 @@ export function Line({ line, api }) {
             <Checkbox checked onToggle={() => api.toggleIncluded(line.id)} title="Ne pas ajouter ces pièces" />
             <Scissors className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.aiIcon }} />
             <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{line.title}</p>
-            {line.tag && <Badge tone="warning">{line.tag}</Badge>}
+            {line.tag && <Badge variant="warning" label={line.tag} className="flex-shrink-0" />}
           </div>
-          <SmallBtn variant="ai-subtle" icon={Scissors} onClick={() => api.toggleDecoupe(line.id)} title="Sera découpée à l'aperçu - cliquer pour annuler">
-            Sera découpé
-          </SmallBtn>
+          <Button variant="ai-subtle" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleDecoupe(line.id); }} title="Sera découpée à l'aperçu - cliquer pour annuler" label="Sera découpé" />
           <HoverReveal>
-            <SmallBtn variant="outline" icon={Scissors} onClick={() => api.toggleDecoupe(line.id)} title="Annuler la découpe">Annuler le découpage</SmallBtn>
+            <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleDecoupe(line.id); }} title="Annuler la découpe" label="Annuler le découpage" />
           </HoverReveal>
         </div>
         {/* Les pièces PRODUITES restent de vraies lignes, indentées. */}
@@ -199,11 +199,11 @@ export function Line({ line, api }) {
         <FileText className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.docRed }} />
       )}
       <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${line.included ? 'font-medium' : 'opacity-50'}`} style={{ color: V2.foreground }}>{line.title}</p>
-      {line.tag && line.included && <Badge tone="warning">{line.tag}</Badge>}
-      {resolvedNote && <Badge tone="secondary" title={line.doublon?.note}>{resolvedNote}</Badge>}
+      {line.tag && line.included && <Badge variant="warning" label={line.tag} className="flex-shrink-0" />}
+      {resolvedNote && <Badge variant="secondary" label={resolvedNote} title={line.doublon?.note} className="flex-shrink-0" />}
       {canCut && !line.decoupe && (
         <HoverReveal>
-          <SmallBtn variant="outline" icon={Scissors} onClick={() => api.toggleDecoupe(line.id)} title="Scinder ce document en pièces">Découper</SmallBtn>
+          <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleDecoupe(line.id); }} title="Scinder ce document en pièces" label="Découper" />
         </HoverReveal>
       )}
     </div>
@@ -216,14 +216,12 @@ function TreePjDecoupe({ leafKey, name, decoupe, api, detectionFor }) {
   const det = detectionFor ? detectionFor(name) : null;
   if (on) {
     return (
-      <SmallBtn variant="ai-subtle" icon={Scissors} onClick={() => api.toggleFolderDecoupe(leafKey)} title="Sera découpée - cliquer pour annuler">
-        Sera découpé
-      </SmallBtn>
+      <Button variant="ai-subtle" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleFolderDecoupe(leafKey); }} title="Sera découpée - cliquer pour annuler" label="Sera découpé" />
     );
   }
   return (
     <HoverReveal>
-      <SmallBtn variant="outline" icon={Scissors} onClick={() => api.toggleFolderDecoupe(leafKey)} title="Découper cette PJ en pièces">Découper</SmallBtn>
+      <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleFolderDecoupe(leafKey); }} title="Découper cette PJ en pièces" label="Découper" />
     </HoverReveal>
   );
 }
@@ -235,12 +233,12 @@ function TreeNodeDecoupe({ node, decoupe, api }) {
   const allOn = keys.every(k => decoupe.has(k));
   if (allOn) {
     return (
-      <SmallBtn variant="ai-subtle" icon={Scissors} onClick={() => api.setFolderDecoupeMany(keys, false)} title="Annuler la découpe de ces PJ">Sera découpé</SmallBtn>
+      <Button variant="ai-subtle" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.setFolderDecoupeMany(keys, false); }} title="Annuler la découpe de ces PJ" label="Sera découpé" />
     );
   }
   return (
     <HoverReveal>
-      <SmallBtn variant="outline" icon={Scissors} onClick={() => api.setFolderDecoupeMany(keys, true)} title={`Découper les ${keys.length} PJ de ce niveau`}>Tout découper</SmallBtn>
+      <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.setFolderDecoupeMany(keys, true); }} title={`Découper les ${keys.length} PJ de ce niveau`} label="Tout découper" />
     </HoverReveal>
   );
 }
@@ -411,10 +409,10 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
   // - both : reçu dans deux boîtes, dédoublonné - une seule pièce versée.
   const mailboxTag = (g) => {
     if (g.mailbox === 'personal') {
-      return <Badge tone="secondary" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier.">Depuis votre boîte</Badge>;
+      return <Badge variant="secondary" label="Depuis votre boîte" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier." className="flex-shrink-0" />;
     }
     if (g.mailbox === 'both') {
-      return <Badge tone="secondary" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce.">Aussi dans votre boîte</Badge>;
+      return <Badge variant="secondary" label="Aussi dans votre boîte" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce." className="flex-shrink-0" />;
     }
     return null;
   };
@@ -482,7 +480,7 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
                   illegible={g.illegible}
                   tag={<>
                     {mailboxTag(g)}
-                    {g.topUp && <Badge tone="warning">Complément de l'import du {g.topUp}</Badge>}
+                    {g.topUp && <Badge variant="warning" label={`Complément de l'import du ${g.topUp}`} className="flex-shrink-0" />}
                   </>}
                   onRemove={() => api.removeThread(g.threadId)}
                   removeTitle="Retirer cet échange du bordereau"
