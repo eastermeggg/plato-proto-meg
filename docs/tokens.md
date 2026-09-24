@@ -303,15 +303,15 @@ Light par défaut ; la colonne Dark n'apparaît que si la valeur change (archite
 
 | Token | Valeur | Usage |
 |---|---|---|
-| `2xs` | `0px 1px 1px rgba(26,26,26,0.05)` | Élévation la plus légère - filets d'appui (chips, rangées) |
-| `xs` | `0 1px 2px rgba(26,26,26,0.05)` | Élévation minimale (alignée Figma shadow/xs) |
-| `sm` | `0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)` | Élévation basse - cartes au repos, menus discrets |
-| `md` | `0 2px 6px -1px rgba(26,26,26,0.10), 0 1px 2px rgba(26,26,26,0.06)` | Élévation basse appuyée (cluster L1, validé 24/09) - cartes actives, rangées soulevées |
-| `lg` | `0 6px 16px -4px rgba(26,26,26,0.12), 0 2px 6px -2px rgba(26,26,26,0.08)` | Élévation moyenne (cluster L2) - menus, popovers ancrés |
-| `xl` | `0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)` | Élévation haute - la carte du composer (2 couches Figma) |
-| `2xl` | `0 14px 36px -8px rgba(26,26,26,0.14), 0 4px 10px -4px rgba(26,26,26,0.08)` | Élévation très haute (cluster L3) - panneaux flottants, dropdowns larges |
-| `3xl` | `0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)` | Élévation douce diffuse (relevé Previewer) - drawers / panneaux détachés |
-| `4xl` | `0 24px 60px -14px rgba(28,25,23,0.28), 0 8px 20px -8px rgba(28,25,23,0.18)` | Élévation maximale (cluster L4, teinte stone) - modales plein contexte |
+| `2xs` | `0px 1px 1px rgba(26,26,26,0.05)` | L0 contrôles - filets d'appui (chips, boutons, rangées) |
+| `xs` | `0 1px 2px rgba(26,26,26,0.05)` | L0 contrôles - élévation minimale (alignée Figma shadow/xs : toggles, poignées) |
+| `sm` | `0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)` | L1 cards & surfaces - cartes au repos (jamais un menu : L2) |
+| `md` | `0 2px 6px -1px rgba(26,26,26,0.10), 0 1px 2px rgba(26,26,26,0.06)` | L1 cards & surfaces (cluster validé 24/09) - cartes actives, rangées soulevées |
+| `lg` | `0 6px 16px -4px rgba(26,26,26,0.12), 0 2px 6px -2px rgba(26,26,26,0.08)` | L2 menus / dropdowns / popovers / context menus / command palettes |
+| `xl` | `0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)` | Hors grille par rôle (hérité) - la carte du composer (2 couches Figma) ; ne pas viser pour les rôles L0-L4 |
+| `2xl` | `0 14px 36px -8px rgba(26,26,26,0.14), 0 4px 10px -4px rgba(26,26,26,0.08)` | L3 panneaux flottants - toasts, feuilles, notifications (jamais un dropdown : L2, ni une modale : L4) |
+| `3xl` | `0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)` | Hors grille par rôle (hérité, relevé Previewer) - drawers / panneaux détachés ; ne pas viser pour les rôles L0-L4 |
+| `4xl` | `0 24px 60px -14px rgba(28,25,23,0.28), 0 8px 20px -8px rgba(28,25,23,0.18)` | L4 dialogs - modales centrées (teinte stone) |
 | `bannerButton` | `0 1px 2px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05), inset 0 -1px 2px rgba(0,0,0,0.04)` | Bouton de bandeau (repos) |
 | `bannerButtonHover` | `0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(0,0,0,0.04)` | Bouton de bandeau (survol) |
 | `glowPulseStart` | `0 0 8px rgba(99, 102, 241, 0.3)` | Début du pulse de glow (indigo) |

@@ -98,16 +98,20 @@ const RAD_USAGE = {
   sm: '4px - surlignage (is-highlighted)', xs: '5px - zones surlignées', md: '6px - badges, petits contrôles',
   lg: '8px - boutons', xl: '12px - cartes et bannières (Figma --radius)', full: 'Pill / cercle (badges number, avatars)',
 };
+// Le cran se choisit par le RÔLE, jamais par la géométrie d'origine
+// (règle steward 24/09, conventions §10) : L0 2xs/xs contrôles · L1 sm/md
+// cards/surfaces · L2 lg menus/dropdowns/popovers · L3 2xl panneaux flottants ·
+// L4 4xl dialogs. xl/3xl = crans hérités hors grille par rôle.
 const SHADOW_USAGE = {
-  '2xs': 'Élévation la plus légère - filets d\'appui (chips, rangées)',
-  xs: 'Élévation minimale (alignée Figma shadow/xs)',
-  sm: 'Élévation basse - cartes au repos, menus discrets',
-  md: 'Élévation basse appuyée (cluster L1, validé 24/09) - cartes actives, rangées soulevées',
-  lg: 'Élévation moyenne (cluster L2) - menus, popovers ancrés',
-  xl: 'Élévation haute - la carte du composer (2 couches Figma)',
-  '2xl': 'Élévation très haute (cluster L3) - panneaux flottants, dropdowns larges',
-  '3xl': 'Élévation douce diffuse (relevé Previewer) - drawers / panneaux détachés',
-  '4xl': 'Élévation maximale (cluster L4, teinte stone) - modales plein contexte',
+  '2xs': 'L0 contrôles - filets d\'appui (chips, boutons, rangées)',
+  xs: 'L0 contrôles - élévation minimale (alignée Figma shadow/xs : toggles, poignées)',
+  sm: 'L1 cards & surfaces - cartes au repos (jamais un menu : L2)',
+  md: 'L1 cards & surfaces (cluster validé 24/09) - cartes actives, rangées soulevées',
+  lg: 'L2 menus / dropdowns / popovers / context menus / command palettes',
+  xl: 'Hors grille par rôle (hérité) - la carte du composer (2 couches Figma) ; ne pas viser pour les rôles L0-L4',
+  '2xl': 'L3 panneaux flottants - toasts, feuilles, notifications (jamais un dropdown : L2, ni une modale : L4)',
+  '3xl': 'Hors grille par rôle (hérité, relevé Previewer) - drawers / panneaux détachés ; ne pas viser pour les rôles L0-L4',
+  '4xl': 'L4 dialogs - modales centrées (teinte stone)',
   bannerButton: 'Bouton de bandeau (repos)', bannerButtonHover: 'Bouton de bandeau (survol)',
   glowPulseStart: 'Début du pulse de glow (indigo)', glowPulseEnd: 'Fin du pulse de glow',
 };

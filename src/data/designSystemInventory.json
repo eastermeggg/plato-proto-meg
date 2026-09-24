@@ -2045,7 +2045,7 @@
         "id": "shadow.2xs",
         "name": "2xs",
         "value": "0px 1px 1px rgba(26,26,26,0.05)",
-        "usage": "Élévation la plus légère - filets d'appui (chips, rangées)",
+        "usage": "L0 contrôles - filets d'appui (chips, boutons, rangées)",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2054,7 +2054,7 @@
         "id": "shadow.xs",
         "name": "xs",
         "value": "0 1px 2px rgba(26,26,26,0.05)",
-        "usage": "Élévation minimale (alignée Figma shadow/xs)",
+        "usage": "L0 contrôles - élévation minimale (alignée Figma shadow/xs : toggles, poignées)",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2063,7 +2063,7 @@
         "id": "shadow.sm",
         "name": "sm",
         "value": "0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)",
-        "usage": "Élévation basse - cartes au repos, menus discrets",
+        "usage": "L1 cards & surfaces - cartes au repos (jamais un menu : L2)",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2072,7 +2072,7 @@
         "id": "shadow.md",
         "name": "md",
         "value": "0 2px 6px -1px rgba(26,26,26,0.10), 0 1px 2px rgba(26,26,26,0.06)",
-        "usage": "Élévation basse appuyée (cluster L1, validé 24/09) - cartes actives, rangées soulevées",
+        "usage": "L1 cards & surfaces (cluster validé 24/09) - cartes actives, rangées soulevées",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2081,7 +2081,7 @@
         "id": "shadow.lg",
         "name": "lg",
         "value": "0 6px 16px -4px rgba(26,26,26,0.12), 0 2px 6px -2px rgba(26,26,26,0.08)",
-        "usage": "Élévation moyenne (cluster L2) - menus, popovers ancrés",
+        "usage": "L2 menus / dropdowns / popovers / context menus / command palettes",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2090,7 +2090,7 @@
         "id": "shadow.xl",
         "name": "xl",
         "value": "0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)",
-        "usage": "Élévation haute - la carte du composer (2 couches Figma)",
+        "usage": "Hors grille par rôle (hérité) - la carte du composer (2 couches Figma) ; ne pas viser pour les rôles L0-L4",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2099,7 +2099,7 @@
         "id": "shadow.2xl",
         "name": "2xl",
         "value": "0 14px 36px -8px rgba(26,26,26,0.14), 0 4px 10px -4px rgba(26,26,26,0.08)",
-        "usage": "Élévation très haute (cluster L3) - panneaux flottants, dropdowns larges",
+        "usage": "L3 panneaux flottants - toasts, feuilles, notifications (jamais un dropdown : L2, ni une modale : L4)",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2108,7 +2108,7 @@
         "id": "shadow.3xl",
         "name": "3xl",
         "value": "0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)",
-        "usage": "Élévation douce diffuse (relevé Previewer) - drawers / panneaux détachés",
+        "usage": "Hors grille par rôle (hérité, relevé Previewer) - drawers / panneaux détachés ; ne pas viser pour les rôles L0-L4",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
@@ -2117,7 +2117,7 @@
         "id": "shadow.4xl",
         "name": "4xl",
         "value": "0 24px 60px -14px rgba(28,25,23,0.28), 0 8px 20px -8px rgba(28,25,23,0.18)",
-        "usage": "Élévation maximale (cluster L4, teinte stone) - modales plein contexte",
+        "usage": "L4 dialogs - modales centrées (teinte stone)",
         "figmaRef": "",
         "notes": "",
         "status": "pending"
