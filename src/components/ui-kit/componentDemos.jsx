@@ -626,19 +626,13 @@ function DrawerTrigger({ example, size }) {
   React.useEffect(() => { setOpen(true); }, [example, size]);
   const frameW = size === 'wide' ? 1120 : 760;
 
-  const timeInput = (v) => (
-    <input
-      defaultValue={v}
-      className="text-[14px] text-foreground bg-surface text-center focus:outline-none focus:border-foreground-muted"
-      style={{ width: 64, padding: '7px 0', border: '1px solid var(--semantic-border, #dfdcd9)', borderRadius: 8 }}
-    />
-  );
+  const timeInput = (v) => <P.Input defaultValue={v} width={64} />;
   const docRow = (name, current = false) => (
     <div key={name} className={`flex items-center gap-2.5 px-3 py-2 rounded-md ${current ? 'bg-background border border-border' : ''}`}>
       <Paperclip className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
       <span className={`flex-1 min-w-0 truncate text-[14px] ${current ? 'font-medium' : ''} text-foreground`}>{name}</span>
-      <Download className="w-4 h-4 text-foreground-muted flex-shrink-0 cursor-pointer" strokeWidth={1.75} />
-      <Trash2 className="w-4 h-4 text-foreground-muted flex-shrink-0 cursor-pointer" strokeWidth={1.75} />
+      <ButtonReal size="icon-xs" variant="ghost" icon={Download} title="Télécharger" />
+      <ButtonReal size="icon-xs" variant="ghost" icon={Trash2} title="Retirer" />
     </div>
   );
 
@@ -700,9 +694,9 @@ function DrawerTrigger({ example, size }) {
                 </div>
               ))}
               <div className="flex items-center" style={{ gap: 10 }}>
-                <button className="flex items-center gap-2 text-[14px] font-medium" style={{ color: 'var(--feedback-info-text, #1e3a8a)' }}><Plus className="w-4 h-4" strokeWidth={1.75} /> Ajouter un créneau</button>
-                <span className="w-px h-4 bg-border" />
-                <button className="flex items-center gap-2 text-[14px] font-medium text-foreground-secondary"><Copy className="w-4 h-4" strokeWidth={1.75} /> Copier sur la semaine</button>
+                <ButtonReal variant="link" icon={Plus} label="Ajouter un créneau" onClick={() => {}} />
+                <P.Separator orientation="vertical" />
+                <ButtonReal variant="neutral-link" icon={Copy} label="Copier sur la semaine" onClick={() => {}} />
               </div>
               <P.Switch checked={dayOff} onChange={setDayOff} label="Jour non travaillé" />
             </div>
