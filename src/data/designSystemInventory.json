@@ -2405,12 +2405,12 @@
       "layer": "shadcn",
       "category": "primitive",
       "family": "Formulaires",
-      "filePath": null,
-      "exists": false,
+      "filePath": "src/components/ui/Dropdown.js",
+      "exists": true,
       "figmaPage": "Dropdown Menu",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-24797",
-      "notes": "shadcn dropdown-menu ; pas encore en code",
-      "status": "missing",
+      "notes": "Promu 24/09/2026 - skin strictement identique au menu du Select (6729:4904, décision steward) : compose SelectMenuPanel/Item/Label. Réf page d'origine 2819:24797. Cible d'harmonisation : ExportBordereauMenu, ComposerMenu, SuggestionsMenu, RowContextMenu, menus custom OnboardingFlow/ReleveHeuresLab.",
+      "status": "pending",
       "used": false
     },
     {

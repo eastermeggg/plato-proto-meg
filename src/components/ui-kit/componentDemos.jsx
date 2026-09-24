@@ -77,6 +77,7 @@ import SpinnerReal from '../ui/Spinner';
 import ProgressReal from '../ui/Progress';
 import StepperReal from '../ui/Stepper';
 import DialogReal from '../ui/Dialog';
+import DropdownReal from '../ui/Dropdown';
 import ButtonGroupReal from '../ui/ButtonGroup';
 import ItemReal from '../ui/Item';
 import CalendarReal from '../ui/Calendar';
@@ -1413,36 +1414,25 @@ export const componentDemos = {
   },
 
   Dropdown: {
-    description: 'Context menu / action dropdown. Click the trigger to open.',
+    description: "Menu d'actions ancré à un déclencheur - skin STRICTEMENT identique au menu du Select (panel 13:2034, rows 37122:19624) : il compose SelectMenuPanel/Item/Label. Figma 2819:24797 · fiche Dropdown.md. Choisir une valeur -> Select.",
     controls: {
-      triggerLabel: { type: 'text', default: 'Actions', description: 'Trigger button label.' },
+      triggerLabel: { type: 'text',    default: 'Actions', description: 'Libellé du bouton déclencheur.' },
+      withShortcuts:{ type: 'boolean', default: true,      description: 'Raccourcis clavier sur les rows.' },
+      align:        { type: 'select',  default: 'start', options: ['start', 'end'], description: 'Alignement du panneau.' },
     },
     render: v => (
-      <P.Popover
-        anchor={<P.Button variant="outline" label={v.triggerLabel} />}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 180 }}>
-          {[
-            { icon: Edit,   label: 'Renommer' },
-            { icon: Eye,    label: 'Voir détails' },
-            { icon: Trash2, label: 'Supprimer' },
-          ].map((it, i) => (
-            <button
-              key={i}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '6px 8px', borderRadius: 6,
-                fontSize: 14, color: '#292524',
-                background: 'transparent', border: 'none', textAlign: 'left',
-                cursor: 'pointer',
-              }}
-            >
-              <it.icon style={{ width: 14, height: 14, color: '#44403c' }} strokeWidth={1.75} />
-              {it.label}
-            </button>
-          ))}
-        </div>
-      </P.Popover>
+      <div style={{ minHeight: 220, display: 'flex', alignItems: 'flex-start' }}>
+        <DropdownReal
+          align={v.align}
+          trigger={<ButtonReal variant="outline" label={v.triggerLabel} icon={ChevronDown} iconPosition="trailing" />}
+          items={[
+            { key: 'rename', label: 'Renommer', icon: Edit,   shortcut: v.withShortcuts ? '⌘R' : undefined },
+            { key: 'view',   label: 'Voir détails', icon: Eye, shortcut: v.withShortcuts ? '⌘O' : undefined },
+            { key: 'move',   label: 'Déplacer', icon: FolderOpen, group: 'Organisation' },
+            { key: 'delete', label: 'Supprimer', icon: Trash2, group: 'Organisation', disabled: true },
+          ]}
+        />
+      </div>
     ),
   },
 

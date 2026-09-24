@@ -779,6 +779,44 @@
         "demo": "`/ui-kit/c/DropZone` — sandbox : contexte panel / inline / empty, état auto\n(survol + drag réels) ou forcé (drop, extraction)."
       }
     },
+    "Dropdown": {
+      "name": "Dropdown",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Menu d'actions / navigation ancré à un déclencheur (skin du menu Select)",
+      "description": "Menu d'actions ouvert par un déclencheur libre (Button, icône). Skin STRICTEMENT identique au menu du Select (décision steward 24/09) : compose SelectMenuPanel / SelectMenuItem / SelectMenuLabel - popover bordé border, radius 8, ombre xl, rows px-8 py-6 radius 6 hover accent, raccourcis 12 muted, labels de section mono 11 uppercase. Zéro style propre.",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-24797",
+      "file": "src/components/ui/Dropdown.js",
+      "source": "src/components/ui/Dropdown.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Dropdown",
+      "states": [
+        "closed",
+        "open",
+        "item-hover",
+        "item-disabled",
+        "item-selected"
+      ],
+      "tokens": [
+        "via SelectMenuPanel/Item/Label - colors.semantic.popover",
+        "colors.semantic.border",
+        "colors.semantic.accent",
+        "colors.semantic.foreground",
+        "colors.semantic.mutedForeground",
+        "radius.lg",
+        "radius.md",
+        "shadows.xl",
+        "typography.fontFamily.mono"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Dropdown.md",
+      "sections": {
+        "pattern": "### When to use\n- Actions contextuelles derrière un bouton/icône (renommer, déplacer,\n  supprimer…), avec raccourcis et sections.\n\n### When NOT to use\n- **Choisir une valeur affichée dans le champ** → `Select`.\n- **Menu contextuel au clic droit positionné au curseur** → même skin, mais\n  positionnement libre : composer `SelectMenuPanel` (cf. RowContextMenu).\n- **Contenu riche non-menu** → Popover ([a-dessiner]).\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `trigger` | - | nœud déclencheur (un `Button` DS, une icône…) |\n| `items` | `[]` | `{ key, label, icon?, shortcut?, disabled?, selected?, group?, onSelect? }` |\n| `onSelect` | - | callback global `(item) => void` |\n| `align` | `'start'` | `start` / `end` (bord d'ancrage du panneau) |\n| `width` | `200` | largeur du panneau |\n\n### Examples\n```jsx\nimport Dropdown from 'src/components/ui/Dropdown';\nimport Button from 'src/components/ui/Button';\n\n<Dropdown\n  trigger={<Button variant=\"outline\" label=\"Actions\" icon={ChevronDown} iconPosition=\"trailing\" />}\n  items={[\n    { key: 'rename', label: 'Renommer', icon: Edit, shortcut: '⌘R', onSelect: rename },\n    { key: 'delete', label: 'Supprimer', icon: Trash2, group: 'Danger', onSelect: remove },\n  ]}\n/>\n```\n\n### Tokens used\nAucun style propre : tout vient de `SelectMenuPanel` / `SelectMenuItem` /\n`SelectMenuLabel` (voir fiche Select). C'est la garantie « même panel, même\nrows, mêmes états » de la décision steward.",
+        "explos": "- Promu le 24/09/2026 en second du couple Select/Dropdown. Cible\n  d'harmonisation (passe dédiée) : ExportBordereauMenu, ComposerMenu,\n  SuggestionsMenu, RowContextMenu, menus custom OnboardingFlow /\n  ReleveHeuresLab, et les ~9 menus positionnés d'App.js.",
+        "demo": "`/ui-kit/c/Dropdown`"
+      }
+    },
     "IVAvatar": {
       "name": "IVAvatar",
       "package": "plato",

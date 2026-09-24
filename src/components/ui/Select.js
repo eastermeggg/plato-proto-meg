@@ -43,7 +43,7 @@ export function SelectMenuLabel({ children }) {
   );
 }
 
-export function SelectMenuItem({ label, icon: Icon, selected = false, disabled = false, onSelect }) {
+export function SelectMenuItem({ label, icon: Icon, shortcut, selected = false, disabled = false, onSelect }) {
   const [hover, setHover] = useState(false);
   return (
     <button
@@ -83,6 +83,20 @@ export function SelectMenuItem({ label, icon: Icon, selected = false, disabled =
       >
         {label}
       </span>
+      {shortcut && (
+        <span
+          style={{
+            flexShrink: 0,
+            fontFamily: typography.fontFamily.sans,
+            fontSize: 12,
+            lineHeight: '16px',
+            letterSpacing: '0.12px',
+            color: colors.semantic.mutedForeground,
+          }}
+        >
+          {shortcut}
+        </span>
+      )}
       {selected && <Check style={{ width: 16, height: 16, flexShrink: 0, color: colors.semantic.foreground }} strokeWidth={2} />}
     </button>
   );
