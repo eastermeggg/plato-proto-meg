@@ -32,18 +32,22 @@ lastValidated: 2026-09-24
 ## Pattern / Variants / Examples
 
 ### When to use
-- Inspect or edit an object WITHOUT leaving the screen: detail of a
-  cotisation, workspace member, day entry (relevé), any side panel.
+- **MODIFY an existing object** - the doctrine (steward 24/09) is
+  **Dialog to CREATE, Drawer to MODIFY**: editing an org user, a day entry
+  of the relevé d'heures, a chiffrage line, a cotisation… any side edit.
 - **The chat stays visible**: scrim and panel stop at `var(--chat-offset)` -
   the user can ask the agent to modify what the drawer shows.
 - Build any new panel by stacking `DrawerSection`s; the 8 Figma content
   variants (Time Slots, Licence, Role, Detail, Notes, Expense, Form) are
   compositions of existing primitives (Input, Textarea, Switch, Progress,
-  Checkbox, DropZone…) - never bespoke markup.
+  Checkbox, DropZone…) - never bespoke markup. Three ready-made examples in
+  the demo: `membre` (org user), `journee` (relevé day), `ligne`
+  (chiffrage line + justificatifs).
 
 ### When NOT to use
-- **Interrupting decision** → `AlertDialog`. **Centered content form** →
-  `Dialog`. **Document preview panel** → `PreviewPanel` (own anatomy).
+- **CREATE a new object** → `Dialog` (creation flows are centered modals).
+- **Interrupting decision** → `AlertDialog`.
+- **Document preview panel** → `PreviewPanel` (own anatomy).
 
 ### Props
 | Prop | Default | Role |

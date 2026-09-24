@@ -4,7 +4,7 @@ import {
   Heart, Scale, Mail, Bell, Settings, User, Trash2, Edit, Filter, Eye,
   LayoutGrid, Layers, PanelRight, ClipboardList, FolderPlus, PencilLine,
   Home, FolderOpen, MessageCircle, MessageCirclePlus, ChevronDown, BadgeCheck,
-  ArrowUp, Scissors, X,
+  ArrowUp, Scissors, X, Clock4, Paperclip, Copy, ArrowRight,
 } from 'lucide-react';
 import { colors } from '../../design-system/tokens';
 import { AppSidebar, SidebarBrand, SidebarGroup, NavItem, NavSectionHeader } from '../ui/AppSidebar';
@@ -619,38 +619,155 @@ function DialogTrigger(props) {
   );
 }
 
-function DrawerTrigger({ size, title, withFooter }) {
+function DrawerTrigger({ example, size }) {
   const [open, setOpen] = useState(true);
-  React.useEffect(() => { setOpen(true); }, [size, title, withFooter]);
+  const [dayOff, setDayOff] = useState(false);
+  const [role, setRole] = useState('membre');
+  React.useEffect(() => { setOpen(true); }, [example, size]);
   const frameW = size === 'wide' ? 1120 : 760;
+
+  const timeInput = (v) => (
+    <input
+      defaultValue={v}
+      className="text-[14px] text-foreground bg-surface text-center focus:outline-none focus:border-foreground-muted"
+      style={{ width: 64, padding: '7px 0', border: '1px solid var(--semantic-border, #dfdcd9)', borderRadius: 8 }}
+    />
+  );
+  const docRow = (name, current = false) => (
+    <div key={name} className={`flex items-center gap-2.5 px-3 py-2 rounded-md ${current ? 'bg-background border border-border' : ''}`}>
+      <Paperclip className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
+      <span className={`flex-1 min-w-0 truncate text-[14px] ${current ? 'font-medium' : ''} text-foreground`}>{name}</span>
+      <Download className="w-4 h-4 text-foreground-muted flex-shrink-0 cursor-pointer" strokeWidth={1.75} />
+      <Trash2 className="w-4 h-4 text-foreground-muted flex-shrink-0 cursor-pointer" strokeWidth={1.75} />
+    </div>
+  );
+
+  const EXAMPLES = {
+    membre: {
+      title: 'Antoine Mercier',
+      avatar: <AvatarDemoReal name="Antoine Mercier" size={24} shape="square" color="blue" />,
+      footer: (
+        <>
+          <ButtonReal variant="destructive-subtle" label="Retirer du cabinet" onClick={() => setOpen(false)} />
+          <ButtonReal label="Enregistrer" onClick={() => setOpen(false)} />
+        </>
+      ),
+      body: (
+        <>
+          <DrawerSection title="Détail" bordered>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, lineHeight: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">Membre depuis</span><span className="text-foreground">03 févr. 2026</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">E-mail</span><span className="text-foreground">antoine.mercier@cabinet.com</span></div>
+            </div>
+          </DrawerSection>
+          <DrawerSection title="Rôle" bordered>
+            <div className="flex gap-2">
+              <ButtonReal variant={role === 'membre' ? 'primary' : 'outline'} icon={User} label="Membre" onClick={() => setRole('membre')} />
+              <ButtonReal variant={role === 'admin' ? 'primary' : 'outline'} icon={BadgeCheck} label="Admin" onClick={() => setRole('admin')} />
+            </div>
+          </DrawerSection>
+          <DrawerSection title="Licence" actionLabel="Modifier" actionIcon={PencilLine} onAction={() => {}} bordered>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, lineHeight: '20px' }}>
+                <span className="text-foreground">Quota hebdomadaire</span>
+                <span className="text-foreground-secondary font-medium">63% utilisé</span>
+              </div>
+              <ProgressReal size="sm" value={63} width="100%" label="Quota hebdomadaire" />
+            </div>
+          </DrawerSection>
+        </>
+      ),
+    },
+    journee: {
+      title: 'Jeudi 14 mars 2026',
+      icon: Clock4,
+      footer: (
+        <>
+          <ButtonReal variant="destructive-subtle" label="Vider la journée" onClick={() => setOpen(false)} />
+          <ButtonReal label="Enregistrer" onClick={() => setOpen(false)} />
+        </>
+      ),
+      body: (
+        <>
+          <DrawerSection title="Créneaux travaillés" icon={Clock4} subtitle="total 8H" bordered>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {[['09:00', '13:00'], ['16:00', '18:00']].map(([a, b], i) => (
+                <div key={i} className="flex items-center" style={{ gap: 10 }}>
+                  <ButtonReal size="icon" variant="outline" icon={X} title="Retirer le créneau" />
+                  {timeInput(a)}
+                  <ArrowRight className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />
+                  {timeInput(b)}
+                </div>
+              ))}
+              <div className="flex items-center" style={{ gap: 10 }}>
+                <button className="flex items-center gap-2 text-[14px] font-medium" style={{ color: 'var(--feedback-info-text, #1e3a8a)' }}><Plus className="w-4 h-4" strokeWidth={1.75} /> Ajouter un créneau</button>
+                <span className="w-px h-4 bg-border" />
+                <button className="flex items-center gap-2 text-[14px] font-medium text-foreground-secondary"><Copy className="w-4 h-4" strokeWidth={1.75} /> Copier sur la semaine</button>
+              </div>
+              <P.Switch checked={dayOff} onChange={setDayOff} label="Jour non travaillé" />
+            </div>
+          </DrawerSection>
+          <DrawerSection title="Notes et justificatifs" icon={FileText}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <P.Textarea placeholder="Justification : contexte, échanges, consigne du manager…" rows={3} />
+              <DropZoneReal variant="inline" label="Déposez ou cliquez pour ajouter un justificatif" />
+            </div>
+          </DrawerSection>
+        </>
+      ),
+    },
+    ligne: {
+      title: 'Salaires - période de référence',
+      icon: FileText,
+      footer: (
+        <>
+          <ButtonReal variant="destructive-subtle" label="Écarter la ligne" onClick={() => setOpen(false)} />
+          <ButtonReal label="Enregistrer" onClick={() => setOpen(false)} />
+        </>
+      ),
+      body: (
+        <>
+          <DrawerSection title="Informations" bordered>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="flex" style={{ gap: 16 }}>
+                <div className="flex-1 min-w-0"><P.Input label="Libellé" placeholder="Salaire net imposable - juillet 2022" /></div>
+                <div className="flex-1 min-w-0"><P.Input label="Montant" placeholder="2 435 €" helperText="Info. manquante pour calculer" /></div>
+              </div>
+              <div className="flex" style={{ gap: 16 }}>
+                <div className="flex-1 min-w-0"><P.Input label="Période" placeholder="Juillet 2022" /></div>
+                <div className="flex-1 min-w-0"><P.Input label="Revalorisation" placeholder="2 532 €" /></div>
+              </div>
+            </div>
+          </DrawerSection>
+          <DrawerSection title="Pièces justificatives">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <P.Input placeholder="Recherchez une pièce..." />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {docRow('Bulletin de salaire - juillet 2022')}
+                {docRow('Bulletin de salaire - août 2022')}
+                {docRow('Bulletin de salaire - septembre 2022', true)}
+              </div>
+            </div>
+          </DrawerSection>
+        </>
+      ),
+    },
+  };
+  const ex = EXAMPLES[example] || EXAMPLES.membre;
+
   return (
     <ScopedDialogFrame width={frameW} height={620} isOpen={open} onReopen={() => setOpen(true)}>
       <DrawerReal
         open={open}
         onOpenChange={setOpen}
         size={size}
-        title={title}
-        avatar={<AvatarDemoReal name={title} size={24} shape="square" color="blue" />}
+        title={ex.title}
+        icon={ex.icon}
+        avatar={ex.avatar}
         respectChatOffset={false}
-        footer={withFooter ? (
-          <>
-            <ButtonReal variant="destructive-subtle" label="Retirer du cabinet" onClick={() => setOpen(false)} />
-            <ButtonReal label="Enregistrer" onClick={() => setOpen(false)} />
-          </>
-        ) : null}
+        footer={ex.footer}
       >
-        <DrawerSection title="Détail" bordered>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, lineHeight: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">Membre depuis</span><span className="text-foreground">03 févr. 2026</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">E-mail</span><span className="text-foreground">antoine.mercier@cabinet.com</span></div>
-          </div>
-        </DrawerSection>
-        <DrawerSection title="Licence" actionLabel="Modifier" actionIcon={PencilLine} onAction={() => {}} bordered>
-          <ProgressReal size="sm" value={63} width="100%" label="Quota hebdomadaire" />
-        </DrawerSection>
-        <DrawerSection title="Notes et justificatifs">
-          <P.Textarea placeholder="Justification : contexte, échanges, consigne du manager…" rows={3} />
-        </DrawerSection>
+        {ex.body}
       </DrawerReal>
     </ScopedDialogFrame>
   );
@@ -1487,13 +1604,12 @@ export const componentDemos = {
     ),
   },
   Drawer: {
-    description: "Master des panneaux latéraux (Figma 37749:1024) : scrim et panneau s'arrêtent à var(--chat-offset) - le chat reste visible pour piloter l'agent. Tailles sm 408 / wide 860, header serif + close 26 secondary, sections DrawerSection (mono 11, 4 types), footer slot. Fiche Drawer.md.",
+    description: "Master des panneaux latéraux (Figma 37749:1024). Doctrine : Dialog pour CRÉER, Drawer pour MODIFIER un objet existant - le chat reste visible (var(--chat-offset)) pour piloter l'agent sur ce que le panneau montre. 3 exemples assemblés en DrawerSection + primitives existantes. Fiche Drawer.md.",
     controls: {
-      size:   { type: 'select',  default: 'sm', options: ['sm', 'wide'], description: 'sm 408 · wide 860.' },
-      title:  { type: 'text',    default: 'Antoine Mercier', description: 'Titre serif du header.' },
-      footer: { type: 'boolean', default: true, description: 'Footer border-t (secondary/primary).' },
+      example: { type: 'select', default: 'membre', options: ['membre', 'journee', 'ligne'], description: 'membre = éditer un utilisateur org · journee = ligne du relevé d\'heures · ligne = ligne de chiffrage + justificatifs.' },
+      size:    { type: 'select', default: 'sm', options: ['sm', 'wide'], description: 'sm 408 · wide 860.' },
     },
-    render: v => <DrawerTrigger size={v.size} title={v.title} withFooter={v.footer} />,
+    render: v => <DrawerTrigger example={v.example} size={v.size} />,
   },
   Dropdown: {
     description: "Menu d'actions ancré à un déclencheur - skin STRICTEMENT identique au menu du Select (panel 13:2034, rows 37122:19624) : il compose SelectMenuPanel/Item/Label. Figma 2819:24797 · fiche Dropdown.md. Choisir une valeur -> Select.",
