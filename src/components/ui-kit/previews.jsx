@@ -17,6 +17,8 @@ import InputReal from '../ui/Input';
 import SeparatorReal from '../ui/Separator';
 import CheckboxReal from '../ui/Checkbox';
 import SwitchReal from '../ui/Switch';
+import RadioGroupReal from '../ui/RadioGroup';
+import TooltipReal from '../ui/Tooltip';
 import TextareaReal from '../ui/Textarea';
 import SelectReal from '../ui/Select';
 import TabsReal from '../ui/Tabs';
@@ -87,73 +89,12 @@ export const Checkbox = CheckboxReal;
 export const Switch = SwitchReal;
 
 // ============== RADIO GROUP ==============
-export function RadioGroup({ value, options = [], onChange, name = 'radio' }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {options.map(opt => {
-        const checked = value === opt.value;
-        return (
-          <label key={opt.value} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <span
-              role="radio"
-              aria-checked={checked}
-              onClick={() => onChange?.(opt.value)}
-              style={{
-                width: 16, height: 16, borderRadius: 8,
-                border: `1px solid ${checked ? colors.semantic.foreground : colors.semantic.border}`,
-                background: '#fff',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              }}
-            >
-              {checked && <span style={{ width: 8, height: 8, borderRadius: 4, background: colors.semantic.foreground }} />}
-            </span>
-            <span style={{ fontSize: 14, color: colors.semantic.foreground }}>{opt.label}</span>
-            <input type="radio" name={name} value={opt.value} checked={checked} onChange={() => onChange?.(opt.value)} style={{ display: 'none' }} />
-          </label>
-        );
-      })}
-    </div>
-  );
-}
+// Promu -> src/components/ui/RadioGroup.js (fiche RadioGroup.md, tokenisé, variantes list + card).
+export const RadioGroup = RadioGroupReal;
 
 // ============== TOOLTIP ==============
-export function Tooltip({ content, side = 'top', children }) {
-  const [show, setShow] = useState(false);
-  const positions = {
-    top:    { bottom: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)' },
-    bottom: { top:    'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)' },
-    left:   { right:  'calc(100% + 6px)', top:  '50%', transform: 'translateY(-50%)' },
-    right:  { left:   'calc(100% + 6px)', top:  '50%', transform: 'translateY(-50%)' },
-  };
-  return (
-    <span
-      style={{ position: 'relative', display: 'inline-flex' }}
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
-    >
-      {children}
-      {show && (
-        <span
-          style={{
-            position: 'absolute',
-            ...positions[side],
-            padding: '5px 8px',
-            borderRadius: 6,
-            background: '#292524',
-            color: '#fff',
-            fontSize: 12, lineHeight: '16px', fontWeight: 500,
-            whiteSpace: 'nowrap',
-            zIndex: 10,
-            pointerEvents: 'none',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-          }}
-        >
-          {content}
-        </span>
-      )}
-    </span>
-  );
-}
+// Promu -> src/components/ui/Tooltip.js (fiche Tooltip.md, tokenisé, surface dérivée).
+export const Tooltip = TooltipReal;
 
 // ============== AVATAR ==============
 // Promu -> src/components/ui/Avatar.js (fiche Avatar.md, palettes tokens colors.avatar).
