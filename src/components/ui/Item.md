@@ -1,68 +1,44 @@
 ---
 name: Item
 package: plato
-type: shadcn
-status: draft
-usage: Rangee generique de liste / menu (media + titre + description + actions)
-description: >
-  Rangee radius 12 a slots - media (boite icone cadree ou node libre), titre
-  body-medium, description muted, actions a droite, header visuel et footer
-  optionnels. Deux types (default, outline), deux tailles, hover accent quand
-  interactive. Export ItemGroup pour empiler.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=32847-5869
-file: src/components/ui/Item.js
+status: stable
+usage: Generic list / menu row (media + title + description + actions)
 source: src/components/ui/Item.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: Item
-variants: [default, outline]
-sizes: [md, sm]
-states: [enabled, hover]
-tokens: [colors.semantic.foreground, colors.semantic.mutedForeground, colors.semantic.muted, colors.semantic.border, colors.semantic.accent, radius.xl, radius.lg, radius.md, typography.scale.body, typography.scale.body-medium]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=32847-5869
 ---
 
 # Item
 
-> **Type** shadcn · **Status** Pending (2026-09-23) · **Usage** rangée générique de liste / menu
-> **Figma** [32847:5869](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=32847-5869) · **File** `src/components/ui/Item.js`
+The do-it-all row: media on the left, title + description in the center, actions on the right. Two types (default, outline), two sizes, accent hover when interactive. The hover (bg accent) only kicks in if the row is interactive.
 
-La rangée à tout faire : media à gauche, titre + description au centre,
-actions à droite. Padding 16, gap 16, radius 12 (taille `md`). Le hover
-(bg accent) ne s'active que si la rangée est interactive.
+## When to use
+- Lists of settings, connectors, notifications (title + description + action).
+- Clickable row of a rich menu or a panel (with `onClick`).
+- Light self-contained card → `variant="outline"` (+ `header` / `footer` if needed).
+- Homogeneous stacks → `ItemGroup` (named export, Items joined).
 
-## Pattern / Variants / Examples
+## When NOT to use
+- **Data tables** (typed columns, sorting) → `DataTableCell` / DomainTableRows.
+- **Rail navigation** → `NavItem` (canonical shell, never re-rolled).
+- **JP cards** → `JPListing` ; **statuses** → `Badge`.
 
-### When to use
-- Listes de réglages, de connecteurs, de notifications (titre + description + action).
-- Rangée cliquable d'un menu riche ou d'un panneau (avec `onClick`).
-- Carte légère autoportante → `variant="outline"` (+ `header` / `footer` si besoin).
-- Piles homogènes → `ItemGroup` (export nommé, Items collés).
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `variant` | `default \| outline` | `default` | `outline` adds a border |
+| `size` | `md \| sm` | `md` | `md` = Figma Default, `sm` = Figma Small (avatar media) |
+| `icon` | Lucide icon | - | icon in the framed media box (bg muted, border) |
+| `media` | node | - | free node in place of the box (avatar, image, `Spinner`) |
+| `title` | string | `Title` | body-medium foreground |
+| `description` | string | `Description` | body muted-foreground |
+| `actions` | node | - | node(s) on the right (`Button` size `sm`, usually) |
+| `header` / `footer` | node | - | full-width slots (visual header / row) |
+| `onClick` / `pinHover` | fn / bool | - | makes it interactive (role button) / pins the hover |
+| `className` / `style` | - | - | passthrough |
 
-### When NOT to use
-- **Tables de données** (colonnes typées, tri) → `DataTableCell` / DomainTableRows.
-- **Navigation du rail** → `NavItem` (shell canonique, jamais re-roulé).
-- **Cartes JP** → `JPListing` ; **statuts** → `Badge`.
-
-### Variants / Sizes / States
-`default` (fond transparent) · `outline` (bord 1px border) ·
-`md` (pad 16, gap 16) · `sm` (pad 8, gap 10, contenu gap 2, media avatar) ·
-`enabled` · `hover` (bg accent, si `onClick` ou `pinHover`)
-
-### Props
-| Prop | Défaut | Rôle |
-|------|--------|------|
-| `variant` | `'default'` | `default` / `outline` |
-| `size` | `'md'` | `md` (Figma Default) / `sm` (Figma Small) |
-| `icon` | - | icône lucide dans la boîte média cadrée (bg muted, bord, 16px) |
-| `media` | - | node libre à la place de la boîte (avatar, image, `Spinner`) |
-| `title` | `'Title'` | body-medium foreground |
-| `description` | `'Description'` | body muted-foreground |
-| `actions` | - | node(s) à droite (`Button` size `sm`, 32px, en général) |
-| `header` / `footer` | - | slots pleine largeur (visuel h128 / rangée gap 8) |
-| `onClick` / `pinHover` | - | rend interactif (role button) / fige le hover |
-| `className` / `style` | - | passthrough |
-
-### Examples
+## Examples
 ```jsx
 import Item, { ItemGroup } from 'src/components/ui/Item';
 import Button from 'src/components/ui/Button';
@@ -83,17 +59,3 @@ import { BadgeCheck } from 'lucide-react';
   <Item title="Pièce n° 13" description="Relevé" onClick={open} />
 </ItemGroup>
 ```
-
-### Tokens used
-`colors.semantic.foreground` / `mutedForeground` (textes) · `muted` + `border`
-(boîte média) · `accent` (hover) · `border` (outline) · `radius.xl` (rangée) /
-`radius.lg` (boîte média) / `radius.md` (header) ·
-`typography.scale['body-medium']` / `body`
-
-## Sprint / Explos
-
-- Construit le 23/09 depuis l'inventaire DS (nœud validé par la steward, set Figma Type × Size × State + slots .Item Media / Header / Actions / Footer).
-
-## Proto demo
-
-`/ui-kit/c/Item`

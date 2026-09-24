@@ -1,59 +1,39 @@
 ---
 name: Kbd
 package: plato
-type: shadcn
-status: draft
-usage: Raccourci clavier inline (touche seule ou combinaison)
-description: >
-  Chip 20px pour afficher une touche clavier (Inter Medium 12, bg muted).
-  Deux variants (default, reversed pour surfaces sombres) et un export
-  KbdGroup pour les combinaisons (juxtaposees ou reliees par un +).
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=29794-42330
-file: src/components/ui/Kbd.js
+status: stable
+usage: Inline keyboard shortcut (single key or combination)
 source: src/components/ui/Kbd.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: Kbd
-variants: [default, reversed]
-modes: [single, group, group-separated]
-tokens: [colors.semantic.muted, colors.semantic.mutedForeground, colors.semantic.background, colors.semantic.white, colors.semantic.foreground, radius.md, typography.scale.caption-medium, typography.scale.caption]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=29794-42330
 ---
 
 # Kbd
 
-> **Type** shadcn · **Status** Pending (2026-09-23) · **Usage** raccourci clavier inline
-> **Figma** [29794:42330](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=29794-42330) · **File** `src/components/ui/Kbd.js`
+Compact chip that renders a keyboard key inside text, a tooltip or a menu. Two variants (default, reversed for dark surfaces) and a `KbdGroup` export for combinations. Non-interactive - it's a label, not a button.
 
-Chip compact (h 20, radius 6) qui matérialise une touche clavier dans du texte,
-un tooltip ou un menu. Non interactif - c'est une étiquette, pas un bouton.
+## When to use
+- Show a shortcut next to a command (command palette, menus, tooltips).
+- Document a combination (`KbdGroup`: `⌘` `K`, or `Ctrl + Opt + F` in `separated` mode).
+- On a dark surface (tooltip, primary button) → variant `reversed`.
 
-## Pattern / Variants / Examples
+## When NOT to use
+- **Status / category badge** → `Badge`.
+- **Clickable button** → `Button`; Kbd has no interactive state.
+- **Inline code / technical values** → mono typography, not Kbd.
 
-### When to use
-- Afficher un raccourci à côté d'une commande (palette de commandes, menus, tooltips).
-- Documenter une combinaison (`KbdGroup` : `⌘` `K`, ou `Ctrl + Opt + F` en mode `separated`).
-- Sur surface sombre (tooltip, bouton primaire) → variant `reversed`.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `variant` | `default \| reversed` | `default` | `reversed` = bg white 20%, background text (dark surfaces) |
+| `label` | string \| node | `⌘` | key content |
+| `leftIcon` / `rightIcon` | Lucide icon | - | optional icon |
+| `className` / `style` / `title` | - | - | passthrough |
 
-### When NOT to use
-- **Badge de statut / catégorie** → `Badge`.
-- **Bouton cliquable** → `Button` ; Kbd n'a aucun état interactif.
-- **Code inline / valeurs techniques** → typographie mono, pas Kbd.
+`KbdGroup` (named export): `keys` (default `['⌘','⇧','⌥','⌃']`), `separated` (default `false` - inserts a `+` foreground separator), `variant`.
 
-### Variants (2)
-`default` (bg muted, texte muted-foreground) · `reversed` (bg blanc 20 %, texte background - surfaces sombres)
-
-### Props
-| Prop | Défaut | Rôle |
-|------|--------|------|
-| `variant` | `'default'` | `default` / `reversed` |
-| `label` | `'⌘'` | contenu de la touche (string ou node) |
-| `leftIcon` / `rightIcon` | - | icône lucide 12px optionnelle |
-| `className` / `style` / `title` | - | passthrough |
-
-`KbdGroup` (export nommé) : `keys` (défaut `['⌘','⇧','⌥','⌃']`), `separated`
-(défaut `false` - insère un `+` Inter Regular 12 foreground), `variant`.
-
-### Examples
+## Examples
 ```jsx
 import Kbd, { KbdGroup } from 'src/components/ui/Kbd';
 
@@ -62,17 +42,3 @@ import Kbd, { KbdGroup } from 'src/components/ui/Kbd';
 <KbdGroup keys={['Ctrl', 'Opt', 'F']} separated />
 <Kbd variant="reversed" label="Entrée" />
 ```
-
-### Tokens used
-`colors.semantic.muted` (bg) · `colors.semantic.mutedForeground` (texte) ·
-`colors.semantic.background` + `colors.semantic.white` (reversed, via color-mix 20 %) ·
-`colors.semantic.foreground` (séparateur +) · `radius.md` ·
-`typography.scale['caption-medium']` / `caption`
-
-## Sprint / Explos
-
-- Construit le 23/09 depuis l'inventaire DS (nœud validé par la steward, set Figma « Kbd » + « Kbd Group »).
-
-## Proto demo
-
-`/ui-kit/c/Kbd`

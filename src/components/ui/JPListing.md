@@ -1,57 +1,49 @@
 ---
 name: JPListing
 package: plato
-type: domain
-status: draft
+status: stable
 usage: Canonical JP decision card (4 contexts) + listing stack
-description: >
-  La carte de décision de jurisprudence canonique : en-tête juridiction/date/
-  bookmark, profil, tags (Badge), bloc « Apport de la décision », pied n° +
-  badges de postes. 4 contextes : detail, dropdown, added, tab.
-figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=2219-19197
-file: src/components/jp/JPListing.js
 source: src/components/jp/JPListing.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: JPListing
-variants: [detail, dropdown, added, tab]
-composes: [Badge, Button]
-tokens: [colors.semantic.border, colors.semantic.borderHover, colors.semantic.borderAlt, colors.feedback.info, colors.accents.ochre, radius.md, typography.scale.body-medium, typography.scale.caption]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=2219-19197
 ---
 
 # JPListing
 
-> **Type** Domain · **Status** Pending (2026-09-23) · **Usage** carte JP canonique + empilement
-> **Figma** [2219:19197](https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=2219-19197) (fichier Plato---Design) · **File** `src/components/jp/JPListing.js`
+The canonical jurisprudence decision card, one anatomy for 4 product contexts: juridiction/date/bookmark header, profile, tags (`Badge`), « Apport de la décision » block, footer n° + poste badges. The context drives what shows, never the structure.
 
-La carte de décision JP, une seule anatomie pour 4 contextes produits. Le
-contexte pilote ce qui s'affiche, jamais la structure.
-
-## Pattern / Variants / Examples
-
-### When to use
-| Variant | Contexte produit |
+## When to use
+| Variant | Product context |
 |---|---|
-| `detail` | Matter / page détail poste - carte complète, badges de pied au survol |
-| `dropdown` | Org / dropdown « mémoire pref » - rangée compacte + bouton Ajouter |
-| `added` | Org / mémoire pref ajoutée - carte complète |
-| `tab` | Matter / onglet JP - carte complète, badges de pied toujours visibles |
+| `detail` | Matter / poste detail page - full card, footer badges on hover |
+| `dropdown` | Org / « mémoire pref » dropdown - compact row + Ajouter button |
+| `added` | Org / mémoire pref added - full card |
+| `tab` | Matter / JP tab - full card, footer badges always visible |
 
-### When NOT to use
-- **Citation inline dans une phrase** → `JPPill`.
-- **Mini-table de résultats dans le chat** → `JPListingChat` (chrome de carte +
-  rangées denses).
-- **Le drawer de lecture complet** → `DecisionDrawer`.
+## When NOT to use
+- **Inline citation within a sentence** → `JPPill`.
+- **Mini results table in chat** → `JPListingChat` (card chrome + dense rows).
+- **The full reading drawer** → `DecisionDrawer`.
 
-### Props
-`variant` · `jurisdiction` · `date` · `numero` · `profile` · `tags`
-(`[{ label, tone?: 'destructive' }]`) · `quantum` (`{ poste, value }`) ·
-`note` / `noteTitle` (bloc apport) · `posteChips` · `saved` (bookmark ochre) ·
-`onAdd` (dropdown) · `onClick` · `pinHover` · `width` · extensions app
-(au-delà du nœud, 23/09) : `selected` (drawer ouvert - ring ochre + fond
-brand subtle) et `onRemove`/`removeTitle` (X révélé au survol)
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `variant` | `detail \| dropdown \| added \| tab` | — | drives context, not structure |
+| `jurisdiction` / `date` / `numero` | string | — | header + footer identity |
+| `profile` | node | — | decision profile line |
+| `tags` | `[{ label, tone?: 'destructive' }]` | — | rendered as `Badge` |
+| `quantum` | `{ poste, value }` | — | info-tone quantum badge |
+| `note` / `noteTitle` | string | — | « apport » block |
+| `posteChips` | node | — | footer poste badges |
+| `saved` | bool | — | ochre bookmark |
+| `onAdd` | fn | — | dropdown Ajouter action |
+| `onClick` / `pinHover` | fn / bool | — | interactive / pin hover |
+| `selected` | bool | — | drawer open (ochre ring + brand subtle fill); app extension |
+| `onRemove` / `removeTitle` | fn / string | — | X revealed on hover; app extension |
+| `width` | — | — | passthrough |
 
-### Examples
+## Examples
 ```jsx
 import JPListing, { JPListingStack } from 'src/components/jp/JPListing';
 
@@ -63,23 +55,3 @@ import JPListing, { JPListingStack } from 'src/components/jp/JPListing';
 
 <JPListing variant="dropdown" onAdd={addToMemoire} />
 ```
-
-### Tokens used
-`radius.md` (carte 6) · `colors.semantic.border` (carte, pied) · Badge
-secondary/destructive (tags) · `feedback.info.subtle/text` (badge quantum) ·
-`accents.ochre` (bookmark) · mono 11 uppercase (n°, titre d'apport) ·
-`colors.cream[400]` (filet du bloc apport, token promu 23/09) · divider
-d'en-tête #d9d9d9 → `borderAlt` (le plus proche, assumé).
-
-## Sprint / Explos
-
-- Migration faite (23/09) : `JPListingPosteDetail` rend désormais cette carte
-  (mapping Decision → props dans le wrapper). `JPRow` reste la rangée DENSE de
-  la mini-table du chat (`JPListingChat`) - un autre composant Figma, pas un
-  doublon de la carte.
-- Séparation des scopes JP cabinet / matter : les variants `dropdown`/`added`
-  servent la mémoire d'org, `detail`/`tab` le dossier.
-
-## Proto demo
-
-`/ui-kit/c/JPListing` — sandbox live : 4 variants + états.

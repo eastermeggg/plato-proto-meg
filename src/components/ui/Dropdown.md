@@ -1,52 +1,38 @@
 ---
 name: Dropdown
 package: plato
-type: primitive
-status: draft
-usage: Menu d'actions / navigation ancré à un déclencheur (skin du menu Select)
-description: >
-  Menu d'actions ouvert par un déclencheur libre (Button, icône). Skin
-  STRICTEMENT identique au menu du Select (décision steward 24/09) : compose
-  SelectMenuPanel / SelectMenuItem / SelectMenuLabel - popover bordé border,
-  radius 8, ombre xl, rows px-8 py-6 radius 6 hover accent, raccourcis 12
-  muted, labels de section mono 11 uppercase. Zéro style propre.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-24797
-file: src/components/ui/Dropdown.js
+status: beta
+usage: Actions / navigation menu anchored to a trigger (Select menu skin)
 source: src/components/ui/Dropdown.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: Dropdown
-states: [closed, open, item-hover, item-disabled, item-selected]
-tokens: [via SelectMenuPanel/Item/Label - colors.semantic.popover, colors.semantic.border, colors.semantic.accent, colors.semantic.foreground, colors.semantic.mutedForeground, radius.lg, radius.md, shadows.xl, typography.fontFamily.mono]
-lastValidated: 2026-09-24
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-24797
 ---
 
 # Dropdown
 
-> **Type** Primitive · **Status** Pending (2026-09-24) · **Usage** menu d'actions ancré
-> **Figma** [2819:24797](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-24797) (skin : menu Select [6729:4904](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6729-4904)) · **File** `src/components/ui/Dropdown.js`
+Actions menu opened by a free trigger (Button, icon). Skin strictly identical to the Select menu (steward decision 24/09): composes `SelectMenuPanel` / `SelectMenuItem` / `SelectMenuLabel` with zero styling of its own.
 
-## Pattern / Variants / Examples
+_Beta - pending steward validation (issue #__)._
 
-### When to use
-- Actions contextuelles derrière un bouton/icône (renommer, déplacer,
-  supprimer…), avec raccourcis et sections.
+## When to use
+- Contextual actions behind a button/icon (rename, move, delete…), with shortcuts and sections.
 
-### When NOT to use
-- **Choisir une valeur affichée dans le champ** → `Select`.
-- **Menu contextuel au clic droit positionné au curseur** → même skin, mais
-  positionnement libre : composer `SelectMenuPanel` (cf. RowContextMenu).
-- **Contenu riche non-menu** → Popover ([a-dessiner]).
+## When NOT to use
+- **Pick a value shown in the field** → `Select`.
+- **Right-click context menu positioned at the cursor** → same skin, but free positioning: compose `SelectMenuPanel` (cf. RowContextMenu).
+- **Rich non-menu content** → Popover (not promoted).
 
-### Props
-| Prop | Défaut | Rôle |
-|------|--------|------|
-| `trigger` | - | nœud déclencheur (un `Button` DS, une icône…) |
-| `items` | `[]` | `{ key, label, icon?, shortcut?, disabled?, selected?, group?, onSelect? }` |
-| `onSelect` | - | callback global `(item) => void` |
-| `align` | `'start'` | `start` / `end` (bord d'ancrage du panneau) |
-| `width` | `200` | largeur du panneau |
+## Props
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `trigger` | node | — | trigger node (a DS `Button`, an icon…) |
+| `items` | array | `[]` | `{ key, label, icon?, shortcut?, disabled?, selected?, group?, onSelect? }` |
+| `onSelect` | fn | — | global callback `(item) => void` |
+| `align` | `start \| end` | `start` | panel anchor edge |
+| `width` | number | `200` | panel width |
 
-### Examples
+## Examples
 ```jsx
 import Dropdown from 'src/components/ui/Dropdown';
 import Button from 'src/components/ui/Button';
@@ -59,19 +45,3 @@ import Button from 'src/components/ui/Button';
   ]}
 />
 ```
-
-### Tokens used
-Aucun style propre : tout vient de `SelectMenuPanel` / `SelectMenuItem` /
-`SelectMenuLabel` (voir fiche Select). C'est la garantie « même panel, même
-rows, mêmes états » de la décision steward.
-
-## Sprint / Explos
-
-- Promu le 24/09/2026 en second du couple Select/Dropdown. Cible
-  d'harmonisation (passe dédiée) : ExportBordereauMenu, ComposerMenu,
-  SuggestionsMenu, RowContextMenu, menus custom OnboardingFlow /
-  ReleveHeuresLab, et les ~9 menus positionnés d'App.js.
-
-## Proto demo
-
-`/ui-kit/c/Dropdown`
