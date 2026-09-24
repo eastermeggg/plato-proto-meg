@@ -1,6 +1,7 @@
-// Le BORDEREAU de la V2, calé AU PIXEL sur les planches Figma 3278-36997 :
-// - « Import / Bordereau / Body PJs » : rangée 44px, case · icône (mail muet /
-//   PJ bleue / ciseaux violets quand découpée) · nom 14 ; états hover /
+// Le BORDEREAU de la V2, calé AU PIXEL sur les masters Figma :
+// - « Import / Bordereau / Flat Objects 2 » (4181:22036) : rangée 40px, grip ·
+//   icône par nature (mail ambre / doc rouge / ciseaux violets quand découpée)
+//   · nom 14 regular ; au survol d'un doc la case remplace l'icône ; états
 //   Sera découpé (ai) / Annuler le découpage / Loading / Erreur / Doublon.
 // - « Import / Bordereau / Folders » : arbre à cases tri-state, dossiers VERTS,
 //   « Découper » en bouton blanc au survol du rang.
@@ -8,7 +9,7 @@
 //   sélectionner »), bande de dépôt, portes d'entrée + « Tout découper » global.
 
 import React, { useState } from 'react';
-import { AlertCircle, AlertTriangle, ChevronDown, ChevronRight, FileText, FolderOpen, Loader2, Mail, Paperclip, Plus, Scissors, Upload, X } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ChevronDown, ChevronRight, FileText, FolderOpen, GripVertical, Loader2, Mail, Paperclip, Plus, Scissors, Upload, X } from 'lucide-react';
 import { Checkbox, LabSwitch } from '../import/atoms';
 import { treeCounts, treeState, treeThreadTotals } from '../import/labData';
 import { treeDecoupableKeys } from './useBordereau';
@@ -81,7 +82,15 @@ function SelectionBar({ state, onToggle, pairs, decoupe }) {
   );
 }
 
-// ── Rangée de pièce (planche « Import / Bordereau / Body PJs », 12 états) ──
+// La poignée de rangée (master « Flat Objects 2 » 4181:22036) : grip-vertical
+// 12px muet à 50 % - l'affordance de tri, présente sur toute rangée posée.
+function Grip() {
+  return <GripVertical className="w-3 h-3 flex-shrink-0 opacity-50" strokeWidth={2.66} style={{ color: V2.muted }} aria-hidden />;
+}
+
+// ── Rangée de pièce (master « Import / Bordereau / Flat Objects 2 »
+// 4181:22036, rangée 40px : grip · icône par nature · nom 14 regular ;
+// au survol d'un doc, l'icône cède sa place à la case) ──
 export function Line({ line, api }) {
   const isUploading = line.status === 'uploading';
   const isError = line.status === 'error';
@@ -90,25 +99,26 @@ export function Line({ line, api }) {
   const canCut = (line.detection || line.decoupable) && line.included && !isError && !isUploading;
   const excluded = !line.included;
 
-  // Téléversement (État=Loading) : la case tient sa place invisible, spinner,
-  // nom en italique estompé - rien n'est cochable tant que le fichier arrive.
+  // Téléversement (État=Loading, 4181:22053) : spinner 16 muet en tête de
+  // rangée (pas de poignée tant que le fichier n'est pas là), nom italique 40 %.
   if (isUploading) {
     return (
-      <div className="flex items-center gap-2 h-11 px-4 bg-surface">
-        <span className="w-4 flex-shrink-0" aria-hidden />
+      <div className="flex items-center gap-2 h-10 px-4 bg-surface">
         <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" strokeWidth={2} style={{ color: V2.muted }} />
         <p className="flex-1 min-w-0 text-[14px] leading-5 italic truncate opacity-40" style={{ color: V2.foreground }}>{line.title}</p>
       </div>
     );
   }
 
-  // Échec (État=error) : icône alerte + nom rouge + badge « Erreur », actions
-  // toujours visibles - un échec n'est jamais silencieux, rien n'est entré.
+  // Échec (État=error, 4181:22083) : alerte + trombone + nom rouges, badge
+  // « Erreur » plein, actions toujours visibles - un échec n'est jamais
+  // silencieux, rien n'est entré.
   if (isError) {
     return (
-      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-surface">
+      <div className="flex items-center justify-between gap-3 h-10 px-4 bg-surface">
         <div className="flex items-center gap-2 min-w-0">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
+          <Grip />
+          <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2.25} style={{ color: V2.destructiveText }} />
           <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
           <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.destructiveText }}>{line.title}</p>
           <Badge variant="destructive" label="Erreur" className="flex-shrink-0" />
@@ -121,15 +131,17 @@ export function Line({ line, api }) {
     );
   }
 
-  // Doublon à trancher (État=doublon) : alerte ambre + badge « Doublon
-  // identifié », trois actions - le versement attend la décision.
+  // Doublon à trancher (État=doublon, 4181:22094) : alerte + trombone ambre
+  // (warning-base), nom en warning-text, badge « Doublon identifié », trois
+  // actions - le versement attend la décision.
   if (isDoublon) {
     return (
-      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-surface">
+      <div className="flex items-center justify-between gap-3 h-10 px-4 bg-surface">
         <div className="flex items-center gap-2 min-w-0">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
+          <Grip />
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={2.25} style={{ color: V2.warning }} />
           <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
-          <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }} title={line.doublon.note}>{line.title}</p>
+          <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.warningText }} title={line.doublon.note}>{line.title}</p>
           <Badge variant="warning" label="Doublon identifié" title={line.doublon.note} className="flex-shrink-0" />
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -141,20 +153,26 @@ export function Line({ line, api }) {
     );
   }
 
-  // Découpe armée (État=added-cut) : les ciseaux VIOLETS remplacent le
-  // trombone, « Sera découpé » en chip ai ; au survol, « Annuler le découpage ».
+  // Découpe armée (État=Def Doc Cut 4181:22071 / hover 4181:22077) : grip ·
+  // ciseaux VIOLETS · nom 14 regular · « Sera découpé » en chip ai ; au
+  // survol, la case remplace les ciseaux et « Annuler le découpage » le chip.
   if (cut) {
     return (
       <div>
         <div
-          className="group relative flex items-center justify-between gap-3 h-11 px-4 bg-surface transition-colors"
+          className="group relative flex items-center justify-between gap-3 h-10 px-4 bg-surface transition-colors"
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Checkbox checked onToggle={() => api.toggleIncluded(line.id)} title="Ne pas ajouter ces pièces" />
-            <Scissors className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.aiIcon }} />
-            <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{line.title}</p>
+            <Grip />
+            <span className="inline-flex group-hover:hidden flex-shrink-0">
+              <Scissors className="w-4 h-4" strokeWidth={2} style={{ color: V2.aiIcon }} />
+            </span>
+            <span className="hidden group-hover:inline-flex flex-shrink-0">
+              <Checkbox checked onToggle={() => api.toggleIncluded(line.id)} title="Ne pas ajouter ces pièces" />
+            </span>
+            <p className="min-w-0 text-[14px] leading-5 truncate" style={{ color: V2.foreground }}>{line.title}</p>
             {line.tag && <Badge variant="warning" label={line.tag} className="flex-shrink-0" />}
           </div>
           <Button variant="ai-subtle" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleDecoupe(line.id); }} title="Sera découpée à l'aperçu - cliquer pour annuler" label="Sera découpé" />
@@ -177,28 +195,37 @@ export function Line({ line, api }) {
     );
   }
 
-  // Rangée nominale (Def / added / hover) : case · icône · nom (medium quand
-  // retenue) ; « ✂ Découper » se révèle au survol d'une pièce découpable.
+  // Rangée nominale (Def Mail 4181:22037 / Def Doc 4181:22049 / hover) :
+  // grip · icône par nature · nom 14 regular. Corps de mail = mail AMBRE
+  // (l'icône reste au survol) ; doc = file-text ROUGE identité doc, et au
+  // survol la case remplace l'icône (hover Doc 4181:22065). Une pièce écartée
+  // garde sa case apparente pour revenir.
   const resolvedNote = line.doublonStatus === 'kept' ? 'Conservée' : line.doublonStatus === 'ignored' ? 'Ignorée' : null;
+  const checkbox = (
+    <Checkbox
+      checked={line.included}
+      onToggle={() => api.toggleIncluded(line.id)}
+      title={line.included ? 'Ne pas ajouter cette pièce' : 'Ajouter cette pièce'}
+    />
+  );
   return (
     <div
-      className="group relative flex items-center gap-2 h-11 px-4 bg-surface transition-colors"
+      className="group relative flex items-center gap-2 h-10 px-4 bg-surface transition-colors"
       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
     >
-      <Checkbox
-        checked={line.included}
-        onToggle={() => api.toggleIncluded(line.id)}
-        title={line.included ? 'Ne pas ajouter cette pièce' : 'Ajouter cette pièce'}
-      />
-      {/* Planche Flat Objects : corps de mail = mail AMBRE, PJ / fichier =
-          file-text ROUGE identité doc. */}
+      <Grip />
       {line.kind === 'body' ? (
-        <Mail className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.mailBody }} />
+        excluded ? checkbox : <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.mailBody }} />
       ) : (
-        <FileText className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.docRed }} />
+        <>
+          <span className={`${excluded ? 'hidden' : 'inline-flex group-hover:hidden'} flex-shrink-0`}>
+            <FileText className="w-4 h-4" strokeWidth={2} style={{ color: V2.docRed }} />
+          </span>
+          <span className={`${excluded ? 'inline-flex' : 'hidden group-hover:inline-flex'} flex-shrink-0`}>{checkbox}</span>
+        </>
       )}
-      <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${line.included ? 'font-medium' : 'opacity-50'}`} style={{ color: V2.foreground }}>{line.title}</p>
+      <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${excluded ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{line.title}</p>
       {line.tag && line.included && <Badge variant="warning" label={line.tag} className="flex-shrink-0" />}
       {resolvedNote && <Badge variant="secondary" label={resolvedNote} title={line.doublon?.note} className="flex-shrink-0" />}
       {canCut && !line.decoupe && (
@@ -250,27 +277,35 @@ function TreeNode({ node, depth, fid, decoupe, api, detectionFor }) {
   const toggle = () => api.toggleFolderNode(fid, node.key, st !== 'all');
   const isFolder = node.kind === 'folder';
   const decoupablePj = node.kind === 'pj' && node.decoupable && node.included;
-  // Réf. Figma : nœud à 16 + 20 par niveau ; une feuille s'aligne sous l'icône
-  // de son échange (padding du parent + 50).
-  const padLeft = leaf ? 16 + 20 * (depth - 1) + 50 : 16 + 20 * depth;
+  // Réf. Figma : nœud à 16 + 20 par niveau ; une feuille s'aligne sous le nom
+  // de son échange (padding du parent + chevron 12 + gap 8 + icône 16 + gap 8).
+  const padLeft = leaf ? 16 + 20 * (depth - 1) + 44 : 16 + 20 * depth;
   const Icon = isFolder ? FolderOpen : node.kind === 'pj' ? FileText : Mail;
   const iconColor = isFolder ? V2.folder : node.kind === 'pj' ? V2.pj : V2.muted;
 
+  // Master « Collapsible Objects 2 » (4181:21993 Default 36px / 21999 Hover) :
+  // chevron 12 muet · icône 16 · nom 14 - au survol (ou dès que la sélection
+  // n'est plus entière), la CASE remplace l'icône, comme sur les rangées plates.
+  const checkboxVisible = st !== 'all';
   return (
     <div>
       <div
-        className={`group relative flex items-center gap-2.5 pr-2 transition-colors ${leaf ? 'py-3' : 'py-2'} ${st === 'none' ? '' : ''}`}
+        className={`group relative flex items-center gap-2 pr-2 transition-colors ${leaf ? 'py-2.5' : 'py-2'}`}
         style={{ paddingLeft: padLeft }}
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
       >
         {!leaf ? (
           <button type="button" onClick={() => setOpen(o => !o)} className="flex-shrink-0" style={{ color: V2.muted }} aria-label={open ? 'Replier' : 'Déplier'}>
-            {open ? <ChevronDown className="w-3.5 h-3.5" strokeWidth={2} /> : <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />}
+            {open ? <ChevronDown className="w-3 h-3" strokeWidth={2.66} /> : <ChevronRight className="w-3 h-3" strokeWidth={2.66} />}
           </button>
         ) : null}
-        <Checkbox checked={st === 'all'} partial={st === 'some'} onToggle={toggle} title={st === 'all' ? 'Écarter' : 'Reprendre'} />
-        <Icon className={`w-4 h-4 flex-shrink-0 ${st === 'none' ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: iconColor }} />
+        <span className={`${checkboxVisible ? 'hidden' : 'inline-flex group-hover:hidden'} flex-shrink-0`}>
+          <Icon className={`w-4 h-4 ${st === 'none' ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: iconColor }} />
+        </span>
+        <span className={`${checkboxVisible ? 'inline-flex' : 'hidden group-hover:inline-flex'} flex-shrink-0`}>
+          <Checkbox checked={st === 'all'} partial={st === 'some'} onToggle={toggle} title={st === 'all' ? 'Écarter' : 'Reprendre'} />
+        </span>
         <span className={`flex-1 min-w-0 truncate text-[14px] leading-5 ${isFolder || node.kind === 'thread' ? 'font-medium' : ''} ${st === 'none' ? 'opacity-50' : ''} ${node.illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{node.name}</span>
         {decoupablePj && <TreePjDecoupe leafKey={node.key} name={node.name} decoupe={decoupe} api={api} detectionFor={detectionFor} />}
         {!leaf && <TreeNodeDecoupe node={node} decoupe={decoupe} api={api} />}

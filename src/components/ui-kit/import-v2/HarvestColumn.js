@@ -22,7 +22,9 @@ import { kindColor, V2, HoverReveal, MetaDot } from './pieceRow';
 // DÉFINI AU MODULE : un composant inline serait recréé à chaque rendu et
 // démonterait les lignes (perte de l'état « déplié » des cartes).
 function Rows({ children }) {
-  return <div className="divide-y divide-border-subtle border-y border-border-subtle">{children}</div>;
+  // Filet des rangées : rôle « border » (Figma --border sur les masters
+  // Threads/Folder), pas le divider subtil.
+  return <div className="divide-y divide-border border-y border-border">{children}</div>;
 }
 
 // ── Carte dossier Outlook ───────────────────────────────────────────────────
@@ -63,8 +65,8 @@ export function FolderCandidateCard({ fid, added, deltaAdded, onAddFolder, onRem
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
       title={`Ouvrir le dossier · ${stats.threads} échanges · ≈ ${stats.pieces} pièces${stats.folders > 0 ? ` · ${stats.folders} sous-dossiers` : ''}`}
     >
-      <ChevronRight className={`w-3 h-3 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.muted }} />
-      <FolderOpen className={`w-4 h-4 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.folder }} />
+      <ChevronRight className={`w-3 h-3 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2.66} style={{ color: V2.muted }} />
+      <FolderOpen className={`w-4 h-4 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.folder }} />
       <p className={`flex-1 min-w-0 text-[14px] leading-5 font-medium truncate ${dimmed ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{m.name}</p>
       {badge}
       {hoverBtn && (
@@ -86,7 +88,7 @@ function ReadonlyThreadRow({ tid }) {
   return (
     <div className="flex items-start gap-2 p-3.5 bg-surface">
       <span className="flex items-center py-1 flex-shrink-0 opacity-50">
-        <ChevronRight className="w-3 h-3" strokeWidth={2} style={{ color: V2.muted }} />
+        <ChevronRight className="w-3 h-3" strokeWidth={2.66} style={{ color: V2.muted }} />
       </span>
       <div className="flex-1 min-w-0 flex flex-col gap-2 opacity-50">
         <div className="flex flex-col gap-0.5 min-w-0">
@@ -99,7 +101,7 @@ function ReadonlyThreadRow({ tid }) {
               <>
                 <MetaDot />
                 <span className="inline-flex items-center gap-1 flex-shrink-0">
-                  <Paperclip className="w-3 h-3 opacity-60" strokeWidth={1.75} style={{ color: V2.pjMini }} />
+                  <Paperclip className="w-3 h-3 opacity-60" strokeWidth={2.66} style={{ color: V2.pjMini }} />
                   <span className="uppercase leading-none" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: V2.muted }}>{tv.pj}</span>
                 </span>
               </>
@@ -174,7 +176,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = open ? V2.accent : ''; }}
       >
         <span className={`flex items-center py-1 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`}>
-          <ChevronRight className={`w-3 h-3 transition-transform ${open ? 'rotate-90' : ''}`} strokeWidth={2} style={{ color: V2.muted }} />
+          <ChevronRight className={`w-3 h-3 transition-transform ${open ? 'rotate-90' : ''}`} strokeWidth={2.66} style={{ color: V2.muted }} />
         </span>
         <div className={`flex-1 min-w-0 flex flex-col gap-2 ${dimmed ? 'opacity-50' : ''}`}>
           <div className="flex flex-col gap-0.5 min-w-0">
@@ -194,7 +196,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
                 <>
                   <MetaDot />
                   <span className="inline-flex items-center gap-1 flex-shrink-0">
-                    <Paperclip className="w-3 h-3 opacity-60" strokeWidth={1.75} style={{ color: V2.pjMini }} />
+                    <Paperclip className="w-3 h-3 opacity-60" strokeWidth={2.66} style={{ color: V2.pjMini }} />
                     <span className="uppercase leading-none" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: V2.muted }}>{tv.pj}</span>
                   </span>
                 </>
@@ -258,8 +260,10 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
                 ) : (
                   <Checkbox checked={inB} onToggle={() => onTogglePiece(tid, addKey)} title={inB ? 'Retirer cette pièce du bordereau' : 'Ajouter cette pièce au bordereau'} />
                 )}
-                <Icon className={`w-4 h-4 flex-shrink-0 ${atDossier ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: p.kind === 'body' ? V2.muted : V2.pj }} />
-                <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${inB ? 'font-medium' : ''} ${atDossier ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{p.name}</p>
+                {/* Master Body PJs (3332:33035 / 3336:34913) : icône 16 (mail
+                    muet / trombone info-text), nom 14 REGULAR - cochée ou non. */}
+                <Icon className={`w-4 h-4 flex-shrink-0 ${atDossier ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: p.kind === 'body' ? V2.muted : V2.pj }} />
+                <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${atDossier ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{p.name}</p>
                 {info && (
                   deltaEntry ? (
                     <Badge variant="warning" label={deltaEntry.reason === 'actualisé' ? `actualisé · +${deltaEntry.newMessages} messages` : 'nouvelle'} className="flex-shrink-0" />
@@ -358,8 +362,8 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
         title={`Ouvrir le sous-dossier · ${st.threads} échanges · ≈ ${st.pieces} pièces`}
       >
-        <ChevronRight className={`w-3 h-3 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.muted }} />
-        <FolderOpen className={`w-4 h-4 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.folder }} />
+        <ChevronRight className={`w-3 h-3 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2.66} style={{ color: V2.muted }} />
+        <FolderOpen className={`w-4 h-4 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.folder }} />
         <p className={`flex-1 min-w-0 text-[14px] leading-5 font-medium truncate ${added ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{sf.name}</p>
         {added && <Badge variant="success" label="Ajouté" className="flex-shrink-0" />}
       </div>
@@ -431,7 +435,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
                         className="flex items-start gap-2 p-3 bg-surface"
                         style={added ? undefined : { borderLeft: `3px solid ${V2.indigo}`, paddingLeft: 9 }}
                       >
-                        <Paperclip className={`w-4 h-4 mt-[2px] flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.pj }} />
+                        <Paperclip className={`w-4 h-4 mt-[2px] flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.pj }} />
                         <div className={`flex-1 min-w-0 ${added ? 'opacity-50' : ''}`}>
                           <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{threadViewById(tid)?.subject}</p>
                           <p className="text-[12px] leading-4 truncate mt-0.5" style={{ color: V2.muted }}>{names.length} nouvelle{names.length > 1 ? 's' : ''} PJ : {names.join(', ')}</p>
@@ -576,7 +580,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
               ))}
             </p>
             <div className="flex items-center gap-1.5 min-w-0">
-              <FolderOpen className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.folder }} />
+              <FolderOpen className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.folder }} />
               <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{drillChain[drillChain.length - 1]?.name}</p>
             </div>
           </div>

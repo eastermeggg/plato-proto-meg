@@ -21,9 +21,11 @@ export const V2 = {
   accent: 'var(--semantic-background, #f8f7f5)',
   secondary: 'var(--semantic-secondary, #eeece6)',
   secondaryText: 'var(--semantic-secondaryForeground, #44403c)',
-  folder: 'var(--accents-emerald-text, #065f46)',
-  pj: 'var(--accents-indigo-text, #1e40af)',
-  pjMini: 'var(--accents-indigo-text, #1e3a8a)',
+  // Folder VERT : Figma #065f46 (planches Inbox/Folder) = token icon.success.
+  folder: 'var(--icon-success, #065f46)',
+  // PJ / trombone : Figma #1e3a8a (Body PJs + méta des threads) = feedback.info.text.
+  pj: 'var(--feedback-info-text, #1e3a8a)',
+  pjMini: 'var(--feedback-info-text, #1e3a8a)',
   ai: 'var(--feedback-ai-text, #581c87)',
   aiIcon: 'var(--feedback-ai-base, #7e22ce)',
   aiSubtle: 'var(--feedback-ai-subtle, #ebe3f2)',
@@ -31,6 +33,7 @@ export const V2 = {
   destructiveSubtle: 'var(--feedback-destructive-subtle, #f2e3e3)',
   destructiveText: 'var(--feedback-destructive-text, #7f1d1d)',
   warning: 'var(--feedback-warning-base, #bd6c1a)',
+  warningText: 'var(--feedback-warning-text, #855b31)',
   hoverFade: 'var(--semantic-background, #f7f6f3)',
   // Carte (rangées) : « white » theme-aware → carte sombre en dark.
   card: 'var(--semantic-card, #ffffff)',
