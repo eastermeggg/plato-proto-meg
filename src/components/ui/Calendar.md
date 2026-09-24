@@ -13,6 +13,8 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Monthly date-picker grid: week starting on Monday, French labels (`Intl`), previous/next month navigation, greyed-out outside days, today marked, selected day on a primary background. Single mode only (the Figma set does not mock up a range).
 
+_Focus halo aligned on `shadows.focusRing` (arbitrage 24/09) - visual change: the ring softens from full `borderHover` to the shared 50 % halo._
+
 ## When to use
 - Pick ONE date: deadline, hearing date, pièce date, time filter.
 - In a popover below a date field, or placed inside a filter panel.

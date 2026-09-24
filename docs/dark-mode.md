@@ -50,6 +50,24 @@ Les bordures dark (~1.4:1) sont des dividers **volontairement discrets** (norme
 dark type Linear/GitHub) ; `borderStrong`/`borderHover` donnent plus de contraste
 là où c'est un contour de composant.
 
+## Ombres et élévation en dark
+
+Tranché le 24/09/2026 (arbitrage délégué, board `/ui-kit/arbitrages`) : les
+9 crans `shadows.2xs -> 4xl` sont **identiques light/dark** - aucun fork.
+En dark, une ombre stone est quasi invisible sur fond sombre et l'opacifier
+produit des halos boueux : l'élévation se lit par la **surface** (doctrine B,
+validée steward) :
+
+| Niveau (rôle) | Surface light | Surface dark |
+|---|---|---|
+| L0/L1 - contrôles, cards | `card` | `card` (#211f1d) |
+| L2 - menus, popovers | `popover` | `popover` (#262320) |
+| L3/L4 - panneaux flottants, dialogs | `surfaceRaised` | `surfaceRaised` (#302e2c) |
+
+Les ombres restent posées en dark (elles coûtent zéro et gardent un liseré
+de séparation) mais ne portent JAMAIS l'élévation seules : la surface du bon
+niveau est obligatoire.
+
 ## Modifier le dark
 
 Éditer `darkOverrides` dans `tokens.js` (seuls les tokens qui changent ; le

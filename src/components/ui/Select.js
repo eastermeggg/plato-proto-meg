@@ -23,7 +23,8 @@ import { colors, radius, shadows, typography } from '../../design-system/tokens'
  * disabled (+ option.group, option.icon, option.disabled).
  */
 
-const FOCUS_RING = `0 0 0 3px color-mix(in srgb, ${colors.semantic.foregroundMuted} 50%, transparent)`;
+// Focus : token unique shadows.focusRing (arbitrage 24/09) - jamais de halo local.
+const FOCUS_RING = shadows.focusRing;
 
 export function SelectMenuLabel({ children }) {
   return (

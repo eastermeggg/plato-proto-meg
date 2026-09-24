@@ -180,9 +180,16 @@ Règles d'arbitrage :
   41,37,36) reprennent la teinte du cran (26,26,26). L'opacité ne départage pas.
 - `xl` et `3xl` sont des crans intermédiaires hérités, **hors grille par rôle** :
   ne pas les viser pour les 5 rôles ci-dessus.
+- **Pendant dark — tranché 24/09/2026** : AUCUN fork dark des crans. Les 9
+  valeurs sont identiques light/dark ; en dark l'élévation se lit par la
+  SURFACE (doctrine B) : L0/L1 → `card`, L2 → `popover`, L3/L4 →
+  `surfaceRaised`. Ne jamais opacifier une ombre « pour le dark ».
 - **Hors élévation** (glows, focus rings via `:focus-visible`, keyframes de
   pulsation, insets, illustrations in-code) : ne passent JAMAIS par l'échelle —
-  ce ne sont pas des ombres de profondeur.
+  ce ne sont pas des ombres de profondeur. Focus : tokens dédiés
+  `shadows.focusRing` / `focusRingError` (halo 3px borderHover 50 % / accent
+  erreur 40 %, bord `ring`) — jamais un halo local ; Button et ParamPill
+  gardent leurs états Figma propres (outline 2px / halo background).
 - **Tiroirs horizontaux** (`-20px 0 …`) : aucun cran dans l'échelle actuelle,
   `[a-dessiner]` en attendant une spec drawer + token dédié.
 

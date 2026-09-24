@@ -487,8 +487,11 @@ export const shadows = {
   sm:                '0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)',
   // md / lg / 2xl / 4xl — crans validés steward 24/09/2026 (clustering des 91
   // ombres inline : L1→md, L2→lg, L3→2xl, L4→4xl, SHADOW-CLUSTERS.md).
-  // Pendant dark : EN ATTENTE du choix steward (ombres plus opaques vs
-  // élévation par surfaces claires) — ne pas migrer les inline avant ce choix.
+  // Pendant dark — TRANCHÉ 24/09/2026 (arbitrage délégué, board /ui-kit/arbitrages) :
+  // AUCUN fork dark. Les 9 crans sont identiques light/dark ; en dark
+  // l'élévation se lit par la SURFACE (doctrine B) : L0/L1 → card,
+  // L2 → popover, L3/L4 → surfaceRaised. Opacifier les ombres en dark a été
+  // rendu et refusé (halos boueux, élévation illisible).
   md:                '0 2px 6px -1px rgba(26,26,26,0.10), 0 1px 2px rgba(26,26,26,0.06)',
   lg:                '0 6px 16px -4px rgba(26,26,26,0.12), 0 2px 6px -2px rgba(26,26,26,0.08)',
   // shadows/xl (2 couches) — l'élévation de la carte du composer.
@@ -502,6 +505,15 @@ export const shadows = {
   bannerButtonHover: '0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(0,0,0,0.04)',
   glowPulseStart:    '0 0 8px rgba(99, 102, 241, 0.3)',
   glowPulseEnd:      '0 0 20px rgba(99, 102, 241, 0.5)',
+  // ── Focus — TRANCHÉ 24/09/2026 (arbitrage délégué, board /ui-kit/arbitrages).
+  // UN seul style de focus pour les contrôles de saisie (Input, InputGroup,
+  // Select, Combobox, Slider, Calendar…) : halo 3px borderHover à 50 %
+  // (Figma custom/focus rgba(163,163,163,.5)) + bord `ring`. Erreur : même
+  // géométrie sur l'accent erreur à 40 %. Theme-aware via var() + color-mix.
+  // Hors périmètre (états Figma propres) : Button (outline 2px ring offset 2),
+  // ParamPill (halo background). Jamais recodé localement : ces deux tokens.
+  focusRing:         `0 0 0 3px color-mix(in srgb, ${colors.semantic.borderHover} 50%, transparent)`,
+  focusRingError:    `0 0 0 3px color-mix(in srgb, ${colors.banner.error.accent} 40%, transparent)`,
 };
 
 // ─────────────────────────────────────────────────────────────────────────

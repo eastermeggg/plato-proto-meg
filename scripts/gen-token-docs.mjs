@@ -113,6 +113,8 @@ const SHADOW_USAGE = {
   '3xl': 'Hors grille par rôle (hérité, relevé Previewer) - drawers / panneaux détachés ; ne pas viser pour les rôles L0-L4',
   '4xl': 'L4 dialogs - modales centrées (teinte stone)',
   bannerButton: 'Bouton de bandeau (repos)', bannerButtonHover: 'Bouton de bandeau (survol)',
+  focusRing: 'Focus des contrôles de saisie - halo 3px borderHover 50 % + bord ring (arbitrage 24/09) ; jamais un halo local',
+  focusRingError: 'Focus état erreur - halo 3px accent erreur 40 % (InputGroup error)',
   glowPulseStart: 'Début du pulse de glow (indigo)', glowPulseEnd: 'Fin du pulse de glow',
 };
 const DUR_USAGE = {

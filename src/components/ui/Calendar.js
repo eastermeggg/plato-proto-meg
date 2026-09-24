@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { colors, radius, typography } from '../../design-system/tokens';
+import { colors, radius, shadows, typography } from '../../design-system/tokens';
 
 /**
  * Calendar — Plato design system. Source de vérité : page Figma « Calendar »
@@ -19,8 +19,8 @@ import { colors, radius, typography } from '../../design-system/tokens';
  *  - Jour hors-mois ou désactivé (état Disabled) : muted-foreground, opacité 50 %.
  *  - Survol : fond accent (rendu ici avec colors.semantic.muted — dans la
  *    palette du repo, accent == background, le survol serait invisible).
- *  - Focus : anneau 3px custom/focus rgba(163,163,163,.5) — rendu avec
- *    colors.semantic.borderHover (pas de token alpha), via :focus-visible.
+ *  - Focus : anneau 3px custom/focus rgba(163,163,163,.5) — token
+ *    shadows.focusRing (arbitrage 24/09), via :focus-visible.
  *  - Flèches : 32x32, chevron lucide 16, opacité 50 % au repos, pleine + fond
  *    au survol. Bouton local (Button `icon` fait 34px et n'a pas l'état
  *    « repos à 50 % » — géométrie Figma non alignée, cf. fiche).
@@ -53,12 +53,12 @@ function ensureCalCss() {
     // Jour — survol (Figma State=Hover : bg accent) ; le fond sélectionné est
     // posé en inline (il gagne), le survol ne s'applique donc qu'aux autres.
     `.ds-cal-day:hover:not(:disabled){background:${colors.semantic.muted}}`,
-    `.ds-cal-day:focus-visible{outline:none;box-shadow:0 0 0 3px ${colors.semantic.borderHover}}`,
+    `.ds-cal-day:focus-visible{outline:none;box-shadow:${shadows.focusRing}}`,
     // Flèches — repos à 50 % (Figma State=Enabled), plein + fond au survol.
     // (fonds posés ici, pas en inline, pour que :hover puisse les surcharger)
     `.ds-cal-nav{opacity:.5;background:${colors.semantic.background}}`,
     `.ds-cal-nav:hover:not(:disabled){opacity:1;background:${colors.semantic.muted}}`,
-    `.ds-cal-nav:focus-visible{outline:none;opacity:1;box-shadow:0 0 0 3px ${colors.semantic.borderHover}}`,
+    `.ds-cal-nav:focus-visible{outline:none;opacity:1;box-shadow:${shadows.focusRing}}`,
     `.ds-cal-nav:disabled{opacity:.5;cursor:not-allowed}`,
   ].join('\n');
   document.head.appendChild(s);
