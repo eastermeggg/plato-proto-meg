@@ -14,6 +14,8 @@ import PromptSuggestionCard from '../PromptSuggestionCard';
 import Button from '../ui/Button';
 import DropZone from '../ui/DropZone';
 import Badge from '../ui/Badge';
+import Textarea from '../ui/Textarea';
+import Drawer from '../ui/Drawer';
 import { colors, shadows } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -402,12 +404,12 @@ function PeriodsEditor({ day, ops, wi, di, compact }) {
 function Justification({ day, ops, wi, di }) {
   return (
     <div className="flex flex-col gap-2.5">
-      <textarea
+      <Textarea
         value={day.note}
         onChange={(e) => ops.setNote(wi, di, e.target.value)}
         placeholder="Justification - contexte, échanges, consigne du manager…"
-        className="w-full rounded-lg outline-none resize-none rh-scroll"
-        style={{ minHeight: 64, padding: '9px 11px', fontSize: 14, lineHeight: '20px', color: INK2, background: SUBTLE, border: `1px solid ${LINE}` }}
+        className="rh-scroll"
+        style={{ minHeight: 64, resize: 'none' }}
       />
       {/* attached documents — listed as document rows */}
       {day.attachments.length > 0 && (
@@ -494,12 +496,7 @@ function SharePopover({ onOpenClient, open, onOpenChange }) {
 // backdrop (overlay, per the design system). The lawyer adds a day (declares
 // hours on an empty day) or modifies one: serif title, créneaux + justification.
 function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
+  // Escape + scrim close are handled by the Drawer primitive.
   const total = dayMin(day);
   // for an empty day, suggest the nearest sibling worked day's hours (earlier first)
   const suggestion = useMemo(() => {
@@ -512,26 +509,26 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
   }, [week, di, day.worked, day.rest]);
 
   return (
-    <div className="fixed inset-0 z-[100]" onClick={onClose}>
-      <div className="absolute inset-0 rh-dim" style={{ backgroundColor: 'rgba(26,26,26,0.32)' }} />
-      <div onClick={(e) => e.stopPropagation()} className="absolute top-0 right-0 bottom-0 flex flex-col rh-slide-r" style={{ width: 408, maxWidth: '92vw', background: WHITE, borderLeft: `1px solid ${LINE}`, boxShadow: '-12px 0 32px -8px rgba(26,26,26,0.18)' }}>
-      {/* header — title + the (fixed) day, since the row was clicked directly */}
-      <div className="flex items-center gap-3 flex-shrink-0" style={{ minHeight: 56, padding: '11px 20px', borderBottom: `1px solid ${LINE}` }}>
-        <div className="flex-1 min-w-0">
-          <div style={{ fontSize: 12, fontWeight: 500, color: MUTE, marginBottom: 1 }}>
-            {day.worked ? 'Modifier le jour' : 'Saisir la journée'}
-          </div>
-          <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.3px', color: INK, margin: 0, lineHeight: '24px', fontVariantNumeric: 'tabular-nums' }}>
-            {day.dow} {day.dateNum === 1 ? '1er' : day.dateNum} {MONTHS[day.month].toLowerCase()} {day.yearN}
-          </h2>
-        </div>
-        <button onClick={onClose} className="p-1.5 rounded-md transition-colors flex-shrink-0" style={{ color: FAINT }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = SUBTLE; e.currentTarget.style.color = INK; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = FAINT; }}>
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+    <Drawer
+      open
+      onOpenChange={(o) => { if (!o) onClose(); }}
+      side="right"
+      size="sm"
+      title={`${day.dow} ${day.dateNum === 1 ? '1er' : day.dateNum} ${MONTHS[day.month].toLowerCase()} ${day.yearN}`}
+      footer={(
+        <>
+          <span />
+          <button onClick={onClose} className="rounded-lg transition-colors" style={{ height: 34, padding: '0 16px', fontSize: 13, fontWeight: 600, color: WHITE, background: INK }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = INK2; }} onMouseLeave={(e) => { e.currentTarget.style.background = INK; }}>Terminé</button>
+        </>
+      )}
+    >
       {/* body */}
-      <div className="px-5 py-5 overflow-y-auto rh-scroll" style={{ flex: 1 }}>
+      <div className="px-5 py-5 rh-scroll">
+        {/* eyebrow — état de la journée (was above the serif title in the header) */}
+        <div style={{ fontSize: 12, fontWeight: 500, color: MUTE, marginBottom: 14 }}>
+          {day.worked ? 'Modifier le jour' : 'Saisir la journée'}
+        </div>
         {!day.rest && (
           <>
             {suggestion && !day.worked && (
@@ -580,13 +577,7 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT, marginBottom: 14 }}>Note & justificatif</div>
         <Justification day={day} ops={ops} wi={wi} di={di} />
       </div>
-      {/* footer */}
-      <div className="flex items-center justify-end px-5 py-3.5 flex-shrink-0" style={{ borderTop: `1px solid ${LINE}` }}>
-        <button onClick={onClose} className="rounded-lg transition-colors" style={{ height: 34, padding: '0 16px', fontSize: 13, fontWeight: 600, color: WHITE, background: INK }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = INK2; }} onMouseLeave={(e) => { e.currentTarget.style.background = INK; }}>Terminé</button>
-      </div>
-      </div>
-    </div>
+    </Drawer>
   );
 }
 

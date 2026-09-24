@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FileText, MoreVertical, Loader2, Check, Download, Scissors, Mail } from 'lucide-react';
+import { FileText, MoreVertical, Check, Download, Scissors, Mail } from 'lucide-react';
+import Spinner from '../ui/Spinner';
 import { colors, typography } from '../../design-system/tokens';
 
 // Doc row aligned with Figma "Row Documents" - 64px tall.
@@ -96,7 +97,7 @@ export default function PieceRow({
         {(hover || selected) ? (
           <SelectionBox checked={selected} />
         ) : piece._processing ? (
-          <Loader2 className="animate-spin" style={{ width: 15, height: 15 }} strokeWidth={1.5} />
+          <Spinner size="sm" color={colors.semantic.foregroundMuted} />
         ) : isSplitDoc ? (
           <Scissors style={{ width: 15, height: 15 }} strokeWidth={1.5} />
         ) : emailSource?.kind === 'body' ? (

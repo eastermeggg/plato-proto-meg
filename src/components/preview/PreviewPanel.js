@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   FileText, FileType2, Image as ImageIcon, LayoutTemplate, Gavel, Mail, Stamp, Globe,
-  ChevronRight, ChevronDown, Calendar, Hash,
+  ChevronRight, Calendar, Hash,
   Sparkle, Scissors, Download, Trash2,
   ExternalLink, Search, Paperclip, PencilLine, Check,
   Table, Calculator,
@@ -9,6 +9,7 @@ import {
 import Input from '../ui/Input';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
+import Select from '../ui/Select';
 import IVAvatar from '../IVAvatar';
 import { colors, typography } from '../../design-system/tokens';
 import { COT_BADGE_TOKENS } from '../../data/cotisationsSocial';
@@ -626,6 +627,15 @@ export const PREVIEW_KINDS = {
 // (bouton « Modifier la pièce »).
 const LIGNE_INPUT = 'w-full h-9 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg shadow-xs outline-none focus:border-foreground-muted transition-colors';
 
+// Champ « select » de la ligne : adopte le Select canonique (trigger + panel DS).
+// Contrôlé localement (le panneau de préviz est une maquette statique, comme les
+// autres champs en defaultValue) : la valeur initiale reste f.value.
+function LigneSelect({ f }) {
+  const [value, setValue] = useState(f.value);
+  const options = (f.options || [f.value]).map((o) => ({ value: o, label: o }));
+  return <Select value={value} onChange={setValue} options={options} width="100%" />;
+}
+
 function LigneField({ f }) {
   // Repère « sourcé » : signale que la valeur a été extraite du document ouvert
   // à gauche (date / montant). Rappelle que la donnée vient de la pièce.
@@ -655,7 +665,7 @@ function LigneField({ f }) {
     return (<div>{label}<div className="relative"><input defaultValue={f.value} className={`${LIGNE_INPUT} tabular-nums ${suffix ? 'pr-8' : ''}`} />{suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-[14px]">{suffix}</span>}</div>{helper}</div>);
   }
   if (f.type === 'select') {
-    return (<div>{label}<div className="relative"><select defaultValue={f.value} className={`${LIGNE_INPUT} appearance-none pr-8`}>{(f.options || [f.value]).map((o) => <option key={o}>{o}</option>)}</select><ChevronDown className="w-4 h-4 text-foreground-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" /></div>{helper}</div>);
+    return (<div>{label}<LigneSelect f={f} />{helper}</div>);
   }
   return (<div>{label}<input defaultValue={f.value} className={LIGNE_INPUT} />{helper}</div>);
 }

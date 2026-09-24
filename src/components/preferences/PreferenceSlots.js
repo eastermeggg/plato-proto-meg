@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calculator, Pencil, Type, Scissors, ListOrdered, IterationCcw } from 'lucide-react';
 import { colors, shadows } from '../../design-system/tokens';
+import Textarea from '../ui/Textarea';
 
 export const PREFERENCE_SLOT_IDS = ['chiffrage', 'redaction', 'bordereau', 'nommage', 'decoupage'];
 
@@ -110,20 +111,13 @@ function PreferenceSlot({ id, value, onChange, extra }) {
         </button>
       </div>
       {extra}
-      <textarea
+      <Textarea
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-md bg-background-canvas border border-border focus:outline-none focus:border-foreground-muted transition-colors placeholder:text-foreground-muted"
         style={{
-          fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: 14,
-          lineHeight: '20px',
-          color: colors.semantic.foreground,
-          padding: '10px 12px',
           minHeight: 176,
           maxHeight: 208,
-          resize: 'vertical',
           overflowY: 'auto',
           boxShadow: shadows.xs,
         }}

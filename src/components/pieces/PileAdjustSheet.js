@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { X, Scissors, Link2, Check, Pencil, Trash2, FileText, ChevronLeft, Play, RotateCcw, FoldHorizontal, Sparkles, Calendar } from 'lucide-react';
 import {colors, shadows } from '../../design-system/tokens';
+import Textarea from '../ui/Textarea';
+import Spinner from '../ui/Spinner';
 
 // Design tokens lifted from the Plato "DocumentPanelCut" Figma frame.
 const SHADOW_LG = '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 10px 15px -3px rgba(26,26,26,0.05)';
@@ -554,21 +556,14 @@ function SplitPromptSection({ defaultPrompt }) {
       <span className="text-[11px] uppercase text-foreground-secondary" style={{ fontFamily: MONO }}>
         Consignes de découpage
       </span>
-      <textarea
+      <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={applying}
         placeholder="Décrivez comment découper ce document…"
-        className="w-full rounded-md bg-surface border border-border focus:outline-none focus:border-foreground-muted transition-colors"
         style={{
-          fontFamily: SANS,
-          fontSize: 14,
-          lineHeight: '20px',
-          color: colors.semantic.foreground,
-          padding: '10px 12px',
           minHeight: 80,
           maxHeight: 160,
-          resize: 'vertical',
           overflowY: 'auto',
           boxShadow: SHADOW_XS,
           opacity: applying ? 0.6 : 1,
@@ -595,7 +590,7 @@ function SplitPromptSection({ defaultPrompt }) {
         >
           {applying ? (
             <>
-              <span className="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-border-strong border-t-foreground-secondary animate-spin" />
+              <Spinner size="sm" color={colors.semantic.foregroundSecondary} />
               Analyse…
             </>
           ) : appliedFlash ? (

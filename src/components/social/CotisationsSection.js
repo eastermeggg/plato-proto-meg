@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, X, ExternalLink, Percent, FileText, Gavel, Stamp, ArrowUpRight, SlidersHorizontal, Globe, Diamond, Plus, Minus, Equal } from 'lucide-react';
 import { BreadcrumbReturn, CodeBadge } from '../shell/Niveau3Strip';
 import {
@@ -7,6 +7,7 @@ import {
   sourceFamille, COT_BADGE_TOKENS, pageSections, pageLignes,
 } from '../../data/cotisationsSocial';
 import { SectionCaptions } from '../ui/tables/CotisationsRows';
+import Drawer from '../ui/Drawer';
 import { colors, shadows, typeStyle } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -494,52 +495,31 @@ export function ProseText({ paragraphs = [], onNavigateValue, compact = false })
 // une valeur manque, la prose dit quoi, pourquoi, et comment la fournir : une
 // phrase renvoyant à la conversation, jamais un bouton ni un champ éditable.
 export function LinePanel({ resolved, onClose, onNavigateValue, onNavigatePage }) {
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose && onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
   if (!resolved) return null;
   const { label, valeur, etat, qualificatif, valeurSecondaire, prose } = resolved;
   const ecartee = etat === 'ecartee';
   const motif = fmtCotManque(valeur);
   return (
-    <div className="fixed inset-0 z-50" onClick={onClose} style={{ right: 'var(--chat-offset, 0px)' }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(41,37,36,0.15)' }} />
-      <div
-        className="absolute top-0 right-0 bottom-0 bg-surface flex flex-col"
-        style={{ width: 400, maxWidth: '92vw', borderLeft: `1px solid ${LINE}`, boxShadow: '-8px 0 24px rgba(26,26,26,0.08)' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* 1. le titre */}
-        <div className="flex items-start gap-3" style={{ padding: '18px 20px 14px', borderBottom: `1px solid ${LINE}` }}>
-          <div className="flex-1 min-w-0" style={{ fontSize: 15, fontWeight: 600, color: INK, lineHeight: '20px' }}>{label}</div>
-          <button onClick={onClose} aria-label="Fermer" className="p-1.5 rounded-md hover:bg-background transition-colors flex-shrink-0" style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
-            <X className="w-4 h-4" style={{ color: MUTE }} />
-          </button>
+    <Drawer open={!!resolved} onOpenChange={(o) => { if (!o) onClose && onClose(); }} side="right" size="sm" title={label}>
+      {/* 2. le montant */}
+      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${LINE}` }}>
+        <div style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 28, color: ecartee || !valeur || valeur.value == null ? MUTE : INK, letterSpacing: '-0.5px', lineHeight: '32px' }}>
+          {ecartee && qualificatif ? qualificatif : fmtCotValeur(valeur)}
         </div>
-        <div className="flex-1 overflow-y-auto">
-          {/* 2. le montant */}
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${LINE}` }}>
-            <div style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 28, color: ecartee || !valeur || valeur.value == null ? MUTE : INK, letterSpacing: '-0.5px', lineHeight: '32px' }}>
-              {ecartee && qualificatif ? qualificatif : fmtCotValeur(valeur)}
-            </div>
-            {ecartee && valeurSecondaire != null && (
-              <div style={{ fontFamily: MONO, fontSize: 13, color: FAINT, textDecoration: 'line-through', marginTop: 4 }}>{fmtCot(valeurSecondaire)}</div>
-            )}
-            {!ecartee && motif && (
-              <div style={{ fontSize: 12, color: MUTE, marginTop: 4 }}>{motif}</div>
-            )}
-          </div>
-          {/* 3. l'explication - en prose, montants et sources cliquables en ligne */}
-          {prose && (
-            <div style={{ padding: '16px 20px 20px' }}>
-              <ProseText paragraphs={prose} onNavigateValue={onNavigateValue} />
-            </div>
-          )}
-        </div>
+        {ecartee && valeurSecondaire != null && (
+          <div style={{ fontFamily: MONO, fontSize: 13, color: FAINT, textDecoration: 'line-through', marginTop: 4 }}>{fmtCot(valeurSecondaire)}</div>
+        )}
+        {!ecartee && motif && (
+          <div style={{ fontSize: 12, color: MUTE, marginTop: 4 }}>{motif}</div>
+        )}
       </div>
-    </div>
+      {/* 3. l'explication - en prose, montants et sources cliquables en ligne */}
+      {prose && (
+        <div style={{ padding: '16px 20px 20px' }}>
+          <ProseText paragraphs={prose} onNavigateValue={onNavigateValue} />
+        </div>
+      )}
+    </Drawer>
   );
 }
 

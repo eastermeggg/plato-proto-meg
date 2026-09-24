@@ -1,6 +1,7 @@
 import React from 'react';
-import { Scissors, Loader2 } from 'lucide-react';
+import { Scissors } from 'lucide-react';
 import { CardShell, CardIcon, CardLabel, btnLight } from './CardShell';
+import Spinner from '../../ui/Spinner';
 import { colors } from '../../../design-system/tokens';
 
 // Posteriori split — a document split after upload (from the doc panel). Two
@@ -11,7 +12,7 @@ export default function PosterioriSplitCard({ name, state, count = 0, onKeepAsOn
   if (state === 'splitting') {
     return (
       <CardShell>
-        <CardIcon bg={colors.semantic.backgroundSubtle} color={colors.semantic.foregroundTertiary}><Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.75} /></CardIcon>
+        <CardIcon bg={colors.semantic.backgroundSubtle} color={colors.semantic.foregroundTertiary}><Spinner size="sm" color={colors.semantic.foregroundTertiary} /></CardIcon>
         <CardLabel name={name} state="Découpage en cours…" />
       </CardShell>
     );

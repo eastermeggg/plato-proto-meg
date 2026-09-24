@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import JPMemoryRow from './JPMemoryRow';
 import Dialog from '../ui/Dialog';
 import Button from '../ui/Button';
-import { colors, shadows } from '../../design-system/tokens';
+import Textarea from '../ui/Textarea';
+import { colors } from '../../design-system/tokens';
 
 // Chato pre-fills a draft rationale from the decision's metadata.
 function draftRationaleFor(decision) {
@@ -65,27 +66,14 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
         </div>
 
         {/* Apport */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="jp-rationale-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
-            Apport de la décision
-          </label>
-          <textarea
-            id="jp-rationale-impact"
-            value={rationale}
-            onChange={(e) => setRationale(e.target.value)}
-            rows={6}
-            placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
-            className="w-full px-3 py-2 text-[14px] text-foreground bg-surface placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
-            style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
-              lineHeight: '24px',
-              border: `1px solid ${colors.semantic.border}`,
-              borderRadius: 8,
-              boxShadow: shadows.xs,
-              minHeight: 140,
-            }}
-          />
-        </div>
+        <Textarea
+          label="Apport de la décision"
+          value={rationale}
+          onChange={(e) => setRationale(e.target.value)}
+          rows={6}
+          placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
+          style={{ minHeight: 140 }}
+        />
       </div>
     </Dialog>
   );

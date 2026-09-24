@@ -14,11 +14,12 @@
 // ne se verse sans votre geste, réversible - hébergé en UE.
 
 import React, { useEffect, useState } from 'react';
-import { Loader2, Lock, ShieldCheck, X } from 'lucide-react';
+import { Lock, ShieldCheck, X } from 'lucide-react';
 import { CONNECTOR_PROVIDERS, SCOPE_READS } from './connectorData';
 import { ConnectorHero, ProviderMark, OAuthWindow } from './ConnectorArt';
 import { BENEFITS } from './MailValueModal';
 import { SyncSoonTeaser } from './ConnectorPromo';
+import Spinner from '../ui/Spinner';
 import { colors, shadows } from '../../design-system/tokens';
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
@@ -195,7 +196,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
         <div className="flex flex-col items-center gap-5 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
           <OAuthWindow provider={provider}>
             <div className="flex flex-col items-center gap-2.5">
-              <Loader2 className="w-5 h-5 animate-spin" style={{ color: p.fg }} strokeWidth={1.75} />
+              <Spinner size="md" color={p.fg} />
               <p className="text-[13px] font-medium text-foreground">Autorisation chez {p.vendor}…</p>
               <p className="text-[12px] text-foreground-secondary leading-[18px]" style={{ maxWidth: 260 }}>
                 Validez la lecture seule dans cette fenêtre. Plato ne voit ni votre mot de passe,
@@ -315,7 +316,7 @@ export function MailConnectRun({ provider = 'outlook', account = null, scope = '
             {/* ── IMAP : vérification serveur (travail in-app de Plato) ── */}
             {step === 'connecting' && isImap && (
               <div className="flex flex-col items-center justify-center gap-3.5 text-center" style={{ padding: '28px 0' }}>
-                <Loader2 className="w-6 h-6 animate-spin" style={{ color: colors.semantic.foregroundQuaternary }} strokeWidth={1.75} />
+                <Spinner size="lg" color={colors.semantic.foregroundQuaternary} />
                 <p className="text-[13px] font-medium text-foreground">Connexion à {imapHost}…</p>
                 <p className="text-[12px] text-foreground-secondary leading-[18px]" style={{ maxWidth: 280 }}>
                   Vérification de vos identifiants, en lecture seule.

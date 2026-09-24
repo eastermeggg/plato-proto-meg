@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowRight, Loader2, Zap } from 'lucide-react';
+import { ArrowRight, Zap } from 'lucide-react';
+import Spinner from '../ui/Spinner';
 import { colors } from '../../design-system/tokens';
 
 // ── ComposerSystemHeader ─────────────────────────────────────────────
@@ -26,7 +27,7 @@ export default function ComposerSystemHeader({ state }) {
 
   const icon =
     state.kind === 'inProgress' ? (
-      <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" style={{ color }} strokeWidth={1.75} />
+      <Spinner size="sm" color={color} />
     ) : (
       <Zap className="w-4 h-4 flex-shrink-0" style={{ color }} fill={color} strokeWidth={0} />
     );

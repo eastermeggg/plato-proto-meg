@@ -5,6 +5,7 @@ import LicencePicker from './billing/LicencePicker';
 import { ProviderMark } from './connectors/ConnectorArt';
 import { CONNECTOR_PROVIDERS } from './connectors/connectorData';
 import { colors, shadows } from '../design-system/tokens';
+import Badge from './ui/Badge';
 
 // ───────────────────────────────────────────────────────────────────────────
 // OnboardingFlow - first-run experience for a newly provisioned account.
@@ -739,12 +740,8 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
             {step === 'plan' && (
               <div>
                 <Stepper activeIndex={activeIndex} />
-                <div
-                  className="inline-flex items-center gap-1.5 mb-4 px-2.5 py-1 rounded-full"
-                  style={{ background: C.blueBg, border: `1px solid ${C.blueBorder}` }}
-                >
-                  <Clock className="w-3.5 h-3.5" style={{ color: C.blue }} strokeWidth={2} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>Essai gratuit de {TRIAL_DAYS} jours</span>
+                <div className="mb-4">
+                  <Badge variant="info" leftIcon={Clock} label={`Essai gratuit de ${TRIAL_DAYS} jours`} />
                 </div>
                 <h1 style={{ fontFamily: SERIF, fontSize: 27, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', marginBottom: 6 }}>
                   Choisissez votre licence
@@ -848,8 +845,8 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
             {/* ══ DONE (payment cleared) - auto-launch into Plato ══ */}
             {step === 'connect' && (
               <div>
-                <div className="inline-flex items-center px-2.5 py-1 rounded-full mb-5" style={{ background: C.blueBg, border: `1px solid ${C.blueBorder}` }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>Dernière étape · optionnel</span>
+                <div className="mb-5">
+                  <Badge variant="info" label="Dernière étape · optionnel" />
                 </div>
                 <h1 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', lineHeight: '36px', marginBottom: 10, maxWidth: 460 }}>
                   Connectez votre boîte mail
@@ -891,8 +888,8 @@ export default function OnboardingFlow({ onEnter, onSelectPlan }) {
 
             {step === 'done' && (
               <div>
-                <div className="inline-flex items-center px-2.5 py-1 rounded-full mb-5" style={{ background: C.blueBg, border: `1px solid ${C.blueBorder}` }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.blue }}>{mailConnected ? 'Boîte connectée · Essai activé' : 'Paiement confirmé · Essai activé'}</span>
+                <div className="mb-5">
+                  <Badge variant="success" leftIcon={Check} label={mailConnected ? 'Boîte connectée · Essai activé' : 'Paiement confirmé · Essai activé'} />
                 </div>
                 <h1 style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color: C.fgStrong, letterSpacing: '-0.5px', lineHeight: '36px', marginBottom: 10, maxWidth: 460 }}>
                   Votre essai sur Plato commence maintenant&nbsp;!

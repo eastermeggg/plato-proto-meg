@@ -3,6 +3,7 @@ import { Upload, FileText, Link as LinkIcon } from 'lucide-react';
 import Dialog from '../ui/Dialog';
 import Button from '../ui/Button';
 import Separator from '../ui/Separator';
+import Textarea from '../ui/Textarea';
 import { colors, shadows } from '../../design-system/tokens';
 
 /**
@@ -141,26 +142,13 @@ export default function FicheCabinetModal({ reference, existing, onClose, onSave
         </div>
 
         {/* Apport */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="fiche-cabinet-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
-            Apport de la décision
-          </label>
-          <textarea
-            id="fiche-cabinet-impact"
-            value={impact}
-            onChange={(e) => setImpact(e.target.value)}
-            rows={6}
-            placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
-            className="w-full px-3 py-2 text-[14px] text-foreground bg-surface placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
-            style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
-              lineHeight: '20px',
-              border: `1px solid ${colors.semantic.border}`,
-              borderRadius: 8,
-              boxShadow: shadows.xs,
-            }}
-          />
-        </div>
+        <Textarea
+          label="Apport de la décision"
+          value={impact}
+          onChange={(e) => setImpact(e.target.value)}
+          rows={6}
+          placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
+        />
       </div>
     </Dialog>
   );
