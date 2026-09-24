@@ -13,6 +13,7 @@ import ConversationTopBar from '../shell/ConversationTopBar';
 import SettingsSidebar from '../shell/SettingsSidebar';
 import { DomainTableRowsDemo } from './componentDemos';
 import { InfosTabContent, ChiffrageTabContent, PosteDetailContent, MatterChatPanel, ConversationContent } from './matterTabContents';
+import GabaritContent from './gabaritContent';
 
 // Rendu d'une famille de rangées du système de tables (assemblage complet),
 // centré dans la sandbox du block.
@@ -94,7 +95,7 @@ const matterLeading = (menu) => (menu
 
 // Le canvas interactif d'un shell : ouverte / masquée / peek. `block` fournit
 // active, renderRail (optionnel), renderColumn, initial, height.
-function ShellCanvas({ block, interactive = true, height }) {
+function ShellCanvas({ block, interactive = true, height, trapFixed = false }) {
   const [st, setSt] = useState(block.initial || 'ouverte');
   const shell = { open: () => setSt('ouverte'), collapse: () => setSt('masquee'), peek: () => setSt('peek') };
   const menu = <NavExpandControl onExpand={shell.open} onHome={shell.open} onPeekEnter={shell.peek} onPeekLeave={shell.collapse} />;
@@ -102,7 +103,10 @@ function ShellCanvas({ block, interactive = true, height }) {
   const open = st === 'ouverte';
   const renderRailNode = () => (block.renderRail ? block.renderRail(shell) : <Rail active={block.active} onCollapse={shell.collapse} />);
   return (
-    <div style={{ height: h, border: `1px solid ${colors.semantic.borderStrong}`, borderRadius: 12, overflow: 'hidden', display: 'flex', position: 'relative', background: colors.semantic.background, boxShadow: '0 1px 2px rgba(26,26,26,0.05)', pointerEvents: interactive ? 'auto' : 'none' }}>
+    // trapFixed : un `transform` fait du canvas le bloc englobant des enfants
+    // `position: fixed` (Dialog / Drawer / AlertDialog) — ils restent DANS le
+    // block au lieu de couvrir la fenêtre (même mécanique que ScopedDialogFrame).
+    <div style={{ height: h, border: `1px solid ${colors.semantic.borderStrong}`, borderRadius: 12, overflow: 'hidden', display: 'flex', position: 'relative', background: colors.semantic.background, boxShadow: '0 1px 2px rgba(26,26,26,0.05)', pointerEvents: interactive ? 'auto' : 'none', ...(trapFixed ? { transform: 'translateZ(0)' } : null) }}>
       <style>{'@keyframes ds-peek-slide{from{transform:translateX(-26px);opacity:.35}to{transform:translateX(0);opacity:1}}'}</style>
       {/* Rail en flux - largeur + opacité animées (collapse fluide, courbe de la nav).
           Le rail garde une largeur FIXE à l'intérieur (ne s'écrase pas pendant l'anim). */}
@@ -318,11 +322,82 @@ const MATTER_DEMO = {
   },
 };
 
+// ── LE gabarit d'écran CRUD (état + couche) ───────────────────────────────
+// Un écran de référence complet, composé UNIQUEMENT de primitives du DS :
+// shell + PageHeader + table + Dropdown de ligne + Dialog de création + Drawer
+// de modification + AlertDialog de suppression + les 5 états d'un écran de
+// données. C'est CE block qu'un PM / dev copie (jamais un écran d'App.js).
+const GABARIT_STATE_BY_LABEL = { Idéal: 'ideal', Vide: 'empty', Chargement: 'loading', Erreur: 'error', Partiel: 'partial' };
+const GABARIT_LAYER_BY_LABEL = { Aucune: 'none', 'Dialog création': 'create', 'Drawer modification': 'edit', 'Confirmation suppression': 'delete' };
+const GABARIT_DEMO = {
+  controls: {
+    etat:   { group: 'Données', type: 'select', default: 'Idéal', options: ['Idéal', 'Vide', 'Chargement', 'Erreur', 'Partiel'], description: 'Les 5 états d\'un écran de données (règle §6) : idéal (table pleine), vide (EmptyState + CTA), chargement (skeleton), erreur (Alert + réessayer), partiel (bannière + table réduite).' },
+    couche: { group: 'Couche',  type: 'select', default: 'Aucune', options: ['Aucune', 'Dialog création', 'Drawer modification', 'Confirmation suppression'], description: 'Force une couche ouverte pour la juger : Dialog = créer, Drawer = modifier, AlertDialog = confirmer. L\'écran reste jouable (Nouveau / ⋯ ouvrent les vraies couches).' },
+  },
+  render: (v) => {
+    const state = GABARIT_STATE_BY_LABEL[v.etat] || 'ideal';
+    const layer = GABARIT_LAYER_BY_LABEL[v.couche] || 'none';
+    const block = {
+      active: 'dossiers', initial: 'ouverte', height: SHELL_CANVAS_H,
+      renderColumn: (menu) => <GabaritContent menu={floatMenu(menu)} state={state} forcedOverlay={layer} />,
+    };
+    return (
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <div style={{ minWidth: 1080 }}>
+          <ShellCanvas key={`${state}-${layer}`} block={block} interactive trapFixed />
+        </div>
+      </div>
+    );
+  },
+};
+
 // ── Registre ────────────────────────────────────────────────────────────────
 // Chaque block = mêmes clés qu'une entrée d'inventaire composant (id, title,
 // family, status, filePath, figmaRef, description) + un `demo` (le playground)
 // et une `doc` (fiche markdown rendue dans la page, comme componentDocs).
 export const SHELL_BLOCKS = [
+  {
+    id: 'ecran-gabarit',
+    family: 'Shell & pages',
+    title: 'Écran-gabarit (CRUD + 5 états)',
+    kind: 'shell',
+    status: 'validated',
+    filePath: 'src/components/ui-kit/gabaritContent.jsx',
+    figmaRef: 'https://www.figma.com/design/?node-id=4127-30731',
+    figmaPage: 'App Shell',
+    description: 'L\'écran de référence à copier : shell + PageHeader + table + menu de ligne (Dropdown) + Dialog de création + Drawer de modification + AlertDialog de suppression + les 5 états. Zéro élément brut, zéro barre inline.',
+    demo: GABARIT_DEMO,
+    doc: `### Rôle
+Le **gabarit d'un écran CRUD** produit, composé UNIQUEMENT de primitives du DS. Un PM / dev / designer le **copie** pour un nouvel écran (liste + création + modification + suppression) sans rien redécider. C'est la référence : on imite CE block, jamais un écran d'\`App.js\` (qui porte des anti-patterns hérités).
+
+### Controls
+- **état** - les **5 états** d'un écran de données (règle §6, obligatoire) :
+  - **Idéal** : la table pleine (\`Badge\` de type/statut, \`Dropdown\` d'actions par ligne).
+  - **Vide** : \`EmptyState\` centré (icône + titre + aide + action primaire).
+  - **Chargement** : skeleton de rangées + \`Spinner\`.
+  - **Erreur** : \`Alert\` destructif + action « Réessayer ».
+  - **Partiel** : bannière \`Alert\` warning + table réduite.
+- **couche** - force une couche ouverte pour la juger : **Dialog création** (modale centrée), **Drawer modification** (panneau latéral), **Confirmation suppression** (\`AlertDialog\`). L'écran reste jouable : « Nouveau dossier » ouvre le Dialog, le menu ⋯ d'une ligne ouvre le Drawer (Modifier) ou l'AlertDialog (Supprimer).
+
+### La doctrine des couches (à ne pas redécider)
+| Geste | Composant | Forme |
+|---|---|---|
+| **Créer** un objet | \`Dialog\` | modale **centrée** |
+| **Modifier** un objet | \`Drawer\` | panneau **latéral** (le chat reste visible) |
+| **Confirmer** une suppression | \`AlertDialog\` | interruption centrée, action destructive |
+| **Menu d'actions** sur une ligne | \`Dropdown\` | menu ancré (JAMAIS un Popover recodé) |
+
+### Le gabarit (structure)
+1. **\`PageHeader\`** - titre serif + action primaire (« Nouveau dossier ») + onglets. Padding intégré \`px-8 pt-7\`.
+2. **Zone de contenu scrollable** \`flex-1 overflow-y-auto px-8 py-6\` - la table (ou l'un des 4 autres états). Pleine largeur, aucun \`max-width\`.
+3. **Couches** (Dialog / Drawer / AlertDialog) - montées à la racine de l'écran, jamais imbriquées dans une rangée.
+
+### Un agent NE fait jamais
+Pas de \`<button>\`/\`<input>\`/\`<select>\` brut (primitives \`Button\` / \`Input\` / \`Select\`) ; pas de menu d'actions recodé (\`Dropdown\`) ; pas de panneau latéral inline (\`Drawer\`) ; pas de modale de création à la main (\`Dialog\`) ; pas de \`<table>\` sans en-têtes mono ni \`Badge\` pour les statuts ; jamais moins de 5 états sur un écran de données.
+
+### Doctrine
+Voir le block **Shell** pour le gabarit de page (châssis + valeurs canoniques) et \`AGENTS.md\` § « Imiter /ui-kit, jamais App.js ».`,
+  },
   {
     id: 'shell',
     family: 'Shell & pages',

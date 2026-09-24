@@ -49,6 +49,7 @@ import Button from './components/ui/Button';
 import Progress from './components/ui/Progress';
 import Spinner from './components/ui/Spinner';
 import Badge from './components/ui/Badge';
+import Drawer from './components/ui/Drawer';
 import Avatar, { avatarColorAt } from './components/ui/Avatar';
 import IVAvatar from './components/IVAvatar';
 import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
@@ -20827,26 +20828,31 @@ export default function App() {
     };
     const cardLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.04em' };
     return (
-      <>
-        {/* Backdrop */}
-        <div onClick={close} className="fixed inset-0 z-40" style={{ background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
-        {/* Right-side drawer */}
-        <div className="fixed top-0 right-0 h-screen bg-surface border-l border-border z-40 flex flex-col overflow-hidden" style={{ width: 460, maxWidth: '100vw', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
-          {/* Header - avatar + name + close */}
-          <div className="px-6 pt-6 pb-5 flex items-center gap-3.5 relative flex-shrink-0">
-            {userAvatar(idx, m.role, 40, m.name)}
-            <div className="min-w-0 flex-1 pr-8 flex items-center gap-2 flex-wrap">
-              <h2 style={{ ...typeStyle('display-sm'), color: dsColors.semantic.foreground }}>{m.name}</h2>
-              {isSelf && <span className="badge badge-sm badge-outline">Vous</span>}
-              {m.pending && <span className="badge badge-sm badge-warning">Invité</span>}
-            </div>
-            <button onClick={close} className="absolute top-5 right-4 w-8 h-8 rounded-lg flex items-center justify-center bg-background-subtle hover:bg-cream transition-colors">
-              <X className="w-4 h-4 text-foreground-secondary" />
-            </button>
-          </div>
-
-          {/* Body - flat sections separated by hairlines */}
-          <div className="flex-1 overflow-y-auto">
+      <Drawer
+        open
+        onOpenChange={(o) => { if (!o) close(); }}
+        side="right"
+        size={460}
+        title={m.name}
+        avatar={userAvatar(idx, m.role, 24, m.name)}
+        footer={!isSelf ? (
+          <Button
+            variant="destructive-subtle"
+            size="sm"
+            label={m.pending ? "Annuler l'invitation" : 'Supprimer'}
+            onClick={m.pending ? cancelInvite : removeMember}
+          />
+        ) : null}
+      >
+        {/* Body - flat sections separated by hairlines */}
+        <div>
+            {/* Membership badges (moved out of the re-rolled header) */}
+            {(isSelf || m.pending) && (
+              <div className="px-6 pt-5 flex items-center gap-2">
+                {isSelf && <Badge variant="outline" label="Vous" />}
+                {m.pending && <Badge variant="warning" label="Invité" />}
+              </div>
+            )}
             {/* Pending invite - awaiting the collaborator finishing setup */}
             {m.pending && (
               <div className="px-6 py-4 border-t border-border" style={{ background: `linear-gradient(180deg, ${dsColors.brand.darker.subtle} 0%, ${dsColors.semantic.card} 100%)` }}>
@@ -20940,18 +20946,8 @@ export default function App() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Footer - cancel invite (pending) or remove (active); others only */}
-          {!isSelf && (
-            <div className="px-6 py-4 border-t border-border flex items-center justify-end flex-shrink-0">
-              <button onClick={m.pending ? cancelInvite : removeMember} className="h-9 px-4 rounded-lg text-[13px] font-medium text-danger bg-danger-subtle hover:bg-danger-border transition-colors">
-                {m.pending ? "Annuler l'invitation" : 'Supprimer'}
-              </button>
-            </div>
-          )}
         </div>
-      </>
+      </Drawer>
     );
   };
 
