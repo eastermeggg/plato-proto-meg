@@ -63,6 +63,14 @@ const light = {
     accent:              '#f8f7f5', // cream/50 — hover/focus accent
     accentForeground:    '#292524',
     white:               '#ffffff',
+    // surfaceRaised — surface des éléments à élévation maximale (cran shadow
+    // 4xl : modales, overlays). En light = card ; en dark, l'élévation se lit
+    // par la surface (doctrine B validée steward 24/09) : un cran plus clair.
+    surfaceRaised:       '#ffffff',
+    // overlay — scrim derrière Dialog/AlertDialog (validé steward 24/09).
+    // Voile stone en light, noir plus dense en dark. Toujours ce token,
+    // jamais un bg-black/40 ad hoc.
+    overlay:             'rgba(41,37,36,0.40)',
 
     // Legacy aliases kept so existing consumers keep resolving.
     foregroundSecondary:  '#78716c',
@@ -269,6 +277,8 @@ const darkOverrides = {
     accent:              '#2d2a26',
     accentForeground:    '#f2f0ee',
     white:               '#211f1d', // « white » = surface → carte sombre en dark
+    surfaceRaised:       '#302e2c', // foreground 7% sur card, résolu (doctrine B)
+    overlay:             'rgba(0,0,0,0.60)',
     foregroundSecondary:  '#a8a29e',
     foregroundMuted:      '#78716c',
     foregroundTertiary:   '#d6d3d1',

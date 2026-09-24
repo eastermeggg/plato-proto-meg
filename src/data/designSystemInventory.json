@@ -224,6 +224,28 @@
         "status": "pending"
       },
       {
+        "id": "color.semantic.surface-raised",
+        "name": "surface-raised",
+        "value": "#ffffff",
+        "valueDark": "#302e2c",
+        "category": "semantic",
+        "usage": "Surface des éléments à élévation maximale (shadow 4xl) - en dark, un cran plus clair que card (doctrine B)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "color.semantic.overlay",
+        "name": "overlay",
+        "value": "rgba(41,37,36,0.40)",
+        "valueDark": "rgba(0,0,0,0.60)",
+        "category": "semantic",
+        "usage": "Scrim derrière Dialog/AlertDialog - jamais un bg-black/NN ad hoc",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
         "id": "color.semantic.foreground-secondary",
         "name": "foreground-secondary",
         "value": "#78716c",
@@ -2522,17 +2544,16 @@
       "used": false
     },
     {
-      "id": "Modal",
+      "id": "Dialog",
       "layer": "shadcn",
       "category": "primitive",
       "family": "Overlays & menus",
-      "filePath": null,
-      "exists": false,
-      "figmaPage": "",
-      "figmaRef": "",
-      "figmaTodo": "a-dessiner",
-      "notes": "shadcn dialog - esquisse previews.jsx ; page absente du kit Figma",
-      "status": "missing",
+      "filePath": "src/components/ui/Dialog.js",
+      "exists": true,
+      "figmaPage": "Dialog",
+      "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6831-11140",
+      "notes": "Promu 24/09/2026 depuis Figma 6831:11140 (composant 2759:16962). Modale de CONTENU - scrim token overlay, surface surfaceRaised, ombre 4xl, slots header/body défilant/footer. Décision steward : pas de Modal générique (AlertDialog / Dialog / Drawer).",
+      "status": "pending",
       "used": false
     },
     {
@@ -2924,7 +2945,7 @@
       "figmaPage": "",
       "figmaRef": "",
       "figmaTodo": "a-dessiner",
-      "notes": "Variants: primary, destructive. Icon variants: default, destructive, warning, success, info.",
+      "notes": "Variants: primary, destructive. Icon variants: default, destructive, warning, success, info. Aligné Figma 24/09 (1:78 + exemples 7005:45447) : scrim overlay, ombre token lg, primary token, warning border feedback, breakpoint Small empilé.",
       "status": "validated",
       "used": true
     },

@@ -36,6 +36,8 @@ const SEM_USAGE = {
   accent: 'Fond hover/focus discret',
   'accent-foreground': 'Texte sur accent',
   white: 'Blanc de surface - devient une surface sombre en dark (ne pas utiliser comme texte)',
+  'surface-raised': 'Surface des éléments à élévation maximale (shadow 4xl) - en dark, un cran plus clair que card (doctrine B)',
+  overlay: 'Scrim derrière Dialog/AlertDialog - jamais un bg-black/NN ad hoc',
   'foreground-secondary': 'Alias hérité de muted-foreground',
   'foreground-muted': 'Texte tertiaire clair (stone/400) - placeholders, méta',
   'foreground-tertiary': "Texte d'appui (stone/700) - libellés, boutons secondaires",

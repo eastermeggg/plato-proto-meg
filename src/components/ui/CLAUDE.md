@@ -125,6 +125,8 @@ The catalog of every component (built or planned) lives at
 | Checkbox | [Checkbox.js](./Checkbox.js) | [Checkbox.md](./Checkbox.md) | 2819:21779 | off · on · indeterminate · disabled |
 | Switch | [Switch.js](./Switch.js) | [Switch.md](./Switch.md) | 2819:30732 | off · on · disabled |
 | Separator | [Separator.js](./Separator.js) | [Separator.md](./Separator.md) | 2819:30252 | horizontal · label · vertical |
+| Dialog | [Dialog.js](./Dialog.js) | [Dialog.md](./Dialog.md) | 6831:11140 | modale de contenu : header serif · body défilant · footer |
+| AlertDialog | [AlertDialog.js](./AlertDialog.js) → ../AlertDialog.js | [AlertDialog.md](./AlertDialog.md) | 6724:21154 | confirmation : intents × Small/Medium |
 | SourceBadge | [SourceBadge.js](./SourceBadge.js) | [SourceBadge.md](./SourceBadge.md) | — | 10 types de source (piece · jp · loi …) |
 | TopBar | [TopBar.js](./TopBar.js) | [TopBar.md](./TopBar.md) | 37497:56098 | chrome fixe : leading · left · right |
 | PageHeader | [PageHeader.js](./PageHeader.js) | [PageHeader.md](./PageHeader.md) | 37511:1436 | Dossiers · Conversations · Dossier |

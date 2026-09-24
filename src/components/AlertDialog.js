@@ -17,7 +17,9 @@ const ICON_COLORS = {
 // (Figma 3402:3576 : geste destructeur en subtil + « Rester » primaire).
 const ACTION_VARIANTS = {
   primary: {
-    actionBg: colors.semantic.ring, actionBgHover: colors.semantic.foregroundTertiary, actionFg: 'white',
+    // Figma 1:78 : bouton primaire = token primary (l'ancien `ring` rendait la
+    // même valeur mais détournait un token de focus — realigné 24/09).
+    actionBg: colors.semantic.primary, actionBgHover: colors.semantic.foregroundTertiary, actionFg: colors.semantic.primaryForeground,
   },
   destructive: {
     actionBg: colors.feedback.destructive.text, actionBgHover: colors.feedback.destructive.text, actionFg: 'white',
@@ -95,24 +97,26 @@ export default function AlertDialog({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-overlay flex items-center justify-center z-50 p-4"
       onClick={() => onOpenChange?.(false)}
       role="dialog"
       aria-modal="true"
       aria-labelledby="alert-dialog-title"
     >
-      {/* Figma 3402:3576 : carte p-24 gap-16, radius 12, shadow lg, sans bord. */}
+      {/* Figma 1:78 (Medium and up) / 2759:16913 (Small, empilé centré) :
+          carte p-24 gap-16, radius 12, élévation token shadows.lg, sans bord.
+          Scrim = token overlay (validé steward 24/09). */}
       <div
-        className="bg-surface rounded-xl flex flex-col gap-4 p-6 w-full max-w-[512px] relative"
-        style={{ boxShadow: '0px 4px 6px 0px rgba(26,26,26,0.05), 0px 10px 15px 0px rgba(26,26,26,0.05)' }}
+        className="bg-surface-raised rounded-xl flex flex-col gap-4 p-6 w-full max-w-[512px] relative"
+        style={{ boxShadow: shadows.lg }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header row */}
-        <div className="flex gap-4 items-start">
+        {/* Header row — Small : colonne centrée ; sm+ : rangée (Figma) */}
+        <div className="flex flex-col items-center text-center gap-2 sm:flex-row sm:items-start sm:text-left sm:gap-4">
           {!hideIcon && Icon && (
             <Icon className="w-6 h-6 flex-shrink-0" style={{ color: iconColor }} strokeWidth={1.75} />
           )}
-          <div className="flex-1 min-w-0 flex flex-col gap-2 pr-6">
+          <div className="flex-1 min-w-0 flex flex-col gap-2 sm:pr-6">
             {/* Titre = display-xs (Figma : serif medium 16/20, -0.5). */}
             <h2
               id="alert-dialog-title"
@@ -138,7 +142,7 @@ export default function AlertDialog({
             {warning && (
               <div
                 className="flex items-center pl-2.5"
-                style={{ borderLeft: `1.33px solid ${colors.brand.darker.border}` }}
+                style={{ borderLeft: `1.33px solid ${colors.feedback.warning.border}` }}
               >
                 <p
                   className="flex-1"
@@ -159,11 +163,11 @@ export default function AlertDialog({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex gap-2 items-center justify-end">
+        {/* Footer — Small : boutons empilés pleine largeur ; sm+ : rangée à droite */}
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
           <button
             onClick={onCancel || (() => onOpenChange?.(false))}
-            className="h-9 px-4 rounded-lg flex items-center justify-center transition-colors"
+            className="h-9 px-4 rounded-lg flex items-center justify-center transition-colors w-full sm:w-auto"
             style={{ backgroundColor: cv.cancelBg, color: cv.cancelFg, fontSize: 14, fontWeight: 500, lineHeight: '20px' }}
             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = cv.cancelBgHover; }}
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = cv.cancelBg; }}
@@ -173,7 +177,7 @@ export default function AlertDialog({
           <button
             onClick={onAction}
             disabled={actionDisabled}
-            className="h-9 px-4 rounded-lg flex items-center justify-center transition-colors disabled:bg-border-strong disabled:cursor-not-allowed"
+            className="h-9 px-4 rounded-lg flex items-center justify-center transition-colors disabled:bg-border-strong disabled:cursor-not-allowed w-full sm:w-auto"
             style={{
               backgroundColor: actionDisabled ? undefined : v.actionBg,
               color: v.actionFg,

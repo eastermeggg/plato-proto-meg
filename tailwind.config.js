@@ -31,6 +31,8 @@ module.exports = {
             // Surfaces theme-aware (basculent en dark via --semantic-*). `surface`
             // remplace `bg-white` : #ffffff en light, carte sombre en dark.
             "surface": "var(--semantic-card, #ffffff)",
+            "surface-raised": "var(--semantic-surfaceRaised, #ffffff)",
+            "overlay": "var(--semantic-overlay, rgba(41,37,36,0.40))",
             "card": {
                     "DEFAULT": "var(--semantic-card, #ffffff)",
                     "foreground": "var(--semantic-cardForeground, #292524)"

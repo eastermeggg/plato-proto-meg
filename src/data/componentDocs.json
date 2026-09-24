@@ -48,6 +48,46 @@
         "demo": "`/ui-kit/c/Alert` - sandbox : 4 variants x action / sans icône / titre seul."
       }
     },
+    "AlertDialog": {
+      "name": "AlertDialog",
+      "package": "plato",
+      "type": "primitive",
+      "status": "stable",
+      "usage": "Confirmation / action destructive - icône, titre serif, description, deux boutons",
+      "description": "Modale de confirmation qui interrompt avec une décision. Carte p-24 gap-16 radius 12 (ombre token lg, scrim token overlay), icône 24px teintée par intent, titre serif display-xs (16/20 -0.5), description muted, footer cancel/action h-36. Le cancel suit l'intent (destructive-subtle si action destructive, cream sinon). Breakpoint Small : colonne centrée, boutons empilés pleine largeur.",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6724-21154",
+      "file": "src/components/AlertDialog.js",
+      "source": "src/components/AlertDialog.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "AlertDialog",
+      "variants": [
+        "primary",
+        "destructive"
+      ],
+      "states": [
+        "closed",
+        "open",
+        "action-disabled"
+      ],
+      "tokens": [
+        "colors.semantic.overlay",
+        "colors.semantic.surfaceRaised",
+        "colors.semantic.primary",
+        "colors.feedback.destructive.subtle",
+        "colors.feedback.destructive.text",
+        "colors.feedback.warning.border",
+        "colors.feedback.warning.text",
+        "shadows.lg",
+        "radius.xl"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/AlertDialog.md",
+      "sections": {
+        "pattern": "### When to use\n- Confirmer une action, surtout destructive (suppression, sortie sans\n  sauvegarde) : icône d'intent + titre + description + cancel/action.\n\n### When NOT to use\n- **Formulaire ou contenu riche** → `Dialog` (body défilant, slots).\n- **Information sans décision** → `Alert` (bandeau inline).\n\n### Props (inchangées - alignement visuel seul)\n`open` / `onOpenChange` · `icon` + `iconVariant` (default/destructive/warning/\nsuccess/info) · `title` · `description` · `warning` (bloc bordure warning) ·\n`cancelLabel` / `cancelVariant` / `onCancel` · `actionLabel` / `actionVariant`\n(primary/destructive) / `actionDisabled` / `onAction` · `showClose` · `hideIcon`.\n\n### Alignement Figma du 24/09 (validé steward)\n- scrim `bg-black/50` → token `overlay` ; surface → `surfaceRaised`\n- ombre inline (91-liste) → token `shadows.lg` (nom aligné sur le shadow/lg du nœud)\n- bouton primaire `semantic.ring` → `semantic.primary` (+ `primaryForeground`)\n- bordure du bloc warning `brand.darker.border` → `feedback.warning.border`\n- breakpoint Small ajouté (colonne centrée, boutons empilés, classes `sm:`)\n\n### Tokens used\n`overlay` · `surfaceRaised` · `primary`/`primaryForeground` ·\n`feedback.destructive.subtle`/`.text` (cancel destructif) · `feedback.warning.border`/`.text` ·\n`shadows.lg` · `radius.xl` · titre `display-xs` serif.",
+        "explos": "- Établi pré-kit (3402:3576), realigné 24/09 sur le set 1:78 / 2759:16913 /\n  7005:45447. Cible d'adoption : les petites confirmations hand-roll\n  (JPRationaleModal, FicheCabinetModal…) - classement :\n  `.context/steward-review/MODAL-CLASSIFICATION.md`.",
+        "demo": "`/ui-kit/c/AlertDialog`"
+      }
+    },
     "AppSidebar": {
       "name": "AppSidebar",
       "package": "plato",
@@ -628,6 +668,40 @@
         "pattern": "### When to use\n- En tête de **chaque colonne** d'une table métier Plato (bordereau, chiffrage,\n  cotisations, relevé d'heures…).\n- Colonne triable → `type=\"button\"` (libellé + arrow-up-down, `onClick`).\n- Colonne de sélection → `type=\"checkbox\"` (`checked` + `onChange`, largeur 36).\n- La bande « Section Captions » des cotisations (PIÈCE · OPÉ. + libellé\n  colonne valeur en `rightAlign`).\n\n### When NOT to use\n- **Un en-tête de section dans le corps de la table** → `DataTableCell\n  type=\"SectionBandeau\"`.\n- **Un tri complexe avec menu** → composer avec un vrai menu ; cette cellule ne\n  porte qu'un clic.\n- **Un `<th>` shadcn** → les tables Plato sont custom (docs/table-system.md).\n\n### Props\n| Prop | Rôle |\n|---|---|\n| `type` | `'text'` (défaut) · `'button'` · `'checkbox'` |\n| `label` | libellé (text / button) - tronqué ellipsis |\n| `rightAlign` | aligne à droite (colonnes de montants) |\n| `checked` / `onChange` | état de la checkbox |\n| `onClick` | clic de tri (button) |\n| `pinHover` | force le visuel hover (démos) |\n| `width` | défaut 144 (36 pour checkbox) |\n\n### Examples\n```jsx\nimport DataTableHeader from 'src/components/ui/DataTableHeader';\n\n<DataTableHeader type=\"checkbox\" checked={all} onChange={setAll} />\n<DataTableHeader label=\"Dossier\" />\n<DataTableHeader type=\"button\" label=\"Date\" onClick={sortByDate} />\n<DataTableHeader label=\"Montant\" rightAlign />\n```\n\n### Tokens used\n`typography.scale['caption-header-cols']` (mono 11 medium) · `colors.semantic.mutedForeground` · `colors.semantic.border` (filet bas) · `colors.semantic.muted` (fond hover, sous voile blanc 50 %) · `colors.semantic.primary` / `input` / `white` + `shadows.xs` (checkbox)",
         "explos": "- Système de tables Plato (`docs/table-system.md`) : `DataTableCell` (fait) +\n  `DataTableHeader` (ici) + rangées métier `src/components/ui/tables/`.\n- Les en-têtes inline existants (`TreeColumnHeader` de BordereauTable, etc.)\n  migreront vers cette cellule (chantier staged).",
         "demo": "`/ui-kit/c/DataTableHeader` — sandbox live : type × rightAlign × hover épinglé."
+      }
+    },
+    "Dialog": {
+      "name": "Dialog",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Modale de contenu (formulaire, liste, texte) - header serif, body défilant, footer d'actions",
+      "description": "Fenêtre modale de CONTENU posée sur un scrim token overlay. Panneau surface-raised (card en light ; en dark l'élévation se lit par la surface, doctrine B), bordure border, radius 12, ombre 4xl. Header titre serif display-sm + description muted + slot d'action, body défilant (max-h 85vh), footer d'actions à droite, croix 16px opacité 70 %.",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6831-11140",
+      "file": "src/components/ui/Dialog.js",
+      "source": "src/components/ui/Dialog.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Dialog",
+      "states": [
+        "closed",
+        "open"
+      ],
+      "tokens": [
+        "colors.semantic.overlay",
+        "colors.semantic.surfaceRaised",
+        "colors.semantic.border",
+        "colors.semantic.cardForeground",
+        "colors.semantic.mutedForeground",
+        "radius.xl",
+        "shadows.4xl",
+        "typography.fontFamily.serif"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Dialog.md",
+      "sections": {
+        "pattern": "### When to use\n- Formulaire, liste ou contenu riche qui interrompt le flux (création de\n  dossier, édition, recherche modale).\n- Le body défile ; header et footer restent fixes.\n\n### When NOT to use\n- **Confirmation / action destructive** (icône + titre + 2 boutons) → `AlertDialog`.\n- **Panneau latéral** (contexte conservé à côté) → Drawer ([a-dessiner], spec steward en cours).\n- **Menu / popover ancré** → Dropdown / Popover (non promus).\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `open` / `onOpenChange` | - | contrôle (Escape et clic scrim ferment) |\n| `title` | - | titre serif display-sm du header |\n| `description` | - | description muted sous le titre |\n| `headerAction` | - | slot à droite du header (lien, bouton) |\n| `children` | - | body défilant |\n| `footer` | - | actions à droite (passer des `Button` DS) |\n| `width` | `480` | largeur du panneau (Figma : 423) |\n| `showClose` | `true` | croix 16px |\n\n### Examples\n```jsx\nimport Dialog from 'src/components/ui/Dialog';\nimport Button from 'src/components/ui/Button';\n\n<Dialog\n  open={open}\n  onOpenChange={setOpen}\n  title=\"Nouveau dossier\"\n  description=\"Renseignez les informations du dossier.\"\n  footer={<><Button variant=\"ghost\" label=\"Annuler\" onClick={close} /><Button label=\"Créer\" onClick={create} /></>}\n>\n  {/* formulaire */}\n</Dialog>\n```\n\n### Tokens used\n`colors.semantic.overlay` (scrim) · `colors.semantic.surfaceRaised` (panneau) ·\n`colors.semantic.border` · `colors.semantic.cardForeground` / `mutedForeground` ·\n`radius.xl` (12) · `shadows['4xl']` · `typography.fontFamily.serif` (titre 20/28 -0.6).",
+        "explos": "- Promu le 24/09/2026 depuis Figma 6831:11140 (anatomie 2759:16962) ; consomme\n  les tokens `overlay` + `surfaceRaised` créés le même jour (conditions steward\n  de la doctrine ombres dark B). Cible d'adoption : les ~17 modales de contenu\n  hand-roll d'App.js + FusePieces/MoveToFolder/AddPieceSearch/ImportEmail…\n  (classement complet : `.context/steward-review/MODAL-CLASSIFICATION.md`).",
+        "demo": "`/ui-kit/c/Dialog`"
       }
     },
     "DomainTableRows": {

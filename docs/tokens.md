@@ -32,6 +32,8 @@ Light par défaut ; la colonne Dark n'apparaît que si la valeur change (archite
 | `accent` | `#f8f7f5` | `#2d2a26` | Fond hover/focus discret |
 | `accent-foreground` | `#292524` | `#f2f0ee` | Texte sur accent |
 | `white` | `#ffffff` | `#211f1d` | Blanc de surface - devient une surface sombre en dark (ne pas utiliser comme texte) |
+| `surface-raised` | `#ffffff` | `#302e2c` | Surface des éléments à élévation maximale (shadow 4xl) - en dark, un cran plus clair que card (doctrine B) |
+| `overlay` | `rgba(41,37,36,0.40)` | `rgba(0,0,0,0.60)` | Scrim derrière Dialog/AlertDialog - jamais un bg-black/NN ad hoc |
 | `foreground-secondary` | `#78716c` | `#a8a29e` | Alias hérité de muted-foreground |
 | `foreground-muted` | `#a8a29e` | `#78716c` | Texte tertiaire clair (stone/400) - placeholders, méta |
 | `foreground-tertiary` | `#44403c` | `#d6d3d1` | Texte d'appui (stone/700) - libellés, boutons secondaires |

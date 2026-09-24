@@ -76,6 +76,7 @@ import KbdReal, { KbdGroup } from '../ui/Kbd';
 import SpinnerReal from '../ui/Spinner';
 import ProgressReal from '../ui/Progress';
 import StepperReal from '../ui/Stepper';
+import DialogReal from '../ui/Dialog';
 import ButtonGroupReal from '../ui/ButtonGroup';
 import ItemReal from '../ui/Item';
 import CalendarReal from '../ui/Calendar';
@@ -587,17 +588,26 @@ function AlertDialogTrigger({ title, description, iconVariant, actionLabel, acti
   );
 }
 
-function ModalTrigger(props) {
+function DialogTrigger(props) {
   const [open, setOpen] = useState(true);
-  React.useEffect(() => { setOpen(true); }, [props.title, props.description, props.size]);
+  React.useEffect(() => { setOpen(true); }, [props.title, props.description, props.width]);
   return (
-    <ScopedDialogFrame width={520} height={300} isOpen={open} onReopen={() => setOpen(true)}>
-      <P.Modal {...props} open={open} onClose={() => setOpen(false)}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <P.Button variant="ghost" label="Cancel" onClick={() => setOpen(false)} />
-          <P.Button variant="primary" label="Confirm" onClick={() => setOpen(false)} />
-        </div>
-      </P.Modal>
+    <ScopedDialogFrame width={560} height={340} isOpen={open} onReopen={() => setOpen(true)}>
+      <DialogReal
+        open={open}
+        onOpenChange={setOpen}
+        title={props.title}
+        description={props.description}
+        width={props.width}
+        footer={
+          <>
+            <ButtonReal variant="ghost" label="Annuler" onClick={() => setOpen(false)} />
+            <ButtonReal label="Confirmer" onClick={() => setOpen(false)} />
+          </>
+        }
+      >
+        {props.children}
+      </DialogReal>
     </ScopedDialogFrame>
   );
 }
@@ -1456,14 +1466,21 @@ export const componentDemos = {
     ),
   },
 
-  Modal: {
-    description: 'Modal overlay scoped to the sandbox area.',
+  Dialog: {
+    description: "Modale de CONTENU (formulaire, liste, texte) : scrim token overlay, surface surface-raised, ombre 4xl, header serif + description, body défilant, footer d'actions. Figma 2759:16962 · fiche Dialog.md. Confirmation destructive -> AlertDialog ; panneau latéral -> Drawer (a-dessiner).",
     controls: {
-      title:       { type: 'text',   default: 'Modal title',                                                       description: 'Header.' },
-      description: { type: 'text',   default: 'Generic modal body. Replace with the AlertDialog for confirmations.', description: 'Body text.' },
-      size:        { type: 'select', default: 'md', options: ['sm', 'md', 'lg'],                                    description: 'Width preset.' },
+      title:       { type: 'text',   default: 'Nouveau dossier',   description: 'Titre serif du header.' },
+      description: { type: 'text',   default: 'Renseignez les informations du dossier.', description: 'Description sous le titre.' },
+      width:       { type: 'select', default: '480', options: ['380', '480', '640'], description: 'Largeur du panneau.' },
     },
-    render: v => <ModalTrigger title={v.title} description={v.description} size={v.size} />,
+    render: v => (
+      <DialogTrigger title={v.title} description={v.description} width={parseInt(v.width, 10)}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <P.Input label="Nom" placeholder="Martel / AXA" />
+          <P.Input label="Référence" placeholder="00001" />
+        </div>
+      </DialogTrigger>
+    ),
   },
 
   Drawer: {
