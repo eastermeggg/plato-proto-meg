@@ -1,48 +1,32 @@
 ---
 name: PlatoAssistantButton
 package: plato
-type: composite
-status: draft
-usage: Le CTA d'ouverture de l'assistant Plato (pilule blanche + halo brand)
-description: >
-  Pilule blanche « Plato Assistant » : glyphe Sparkle IA, libellé Inter Medium 14,
-  halo orange flouté clippé au bas + anneau à comète brand (fallbacks bord statique
-  sans conic-gradient / en reduced-motion).
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37444-5885
-file: src/components/shell/PlatoAssistantButton.js
+status: stable
+usage: The CTA to open the Plato assistant (white pill + brand halo)
 source: src/components/shell/PlatoAssistantButton.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: PlatoAssistantButton
-states: [default, hover]
-tokens: [colors.brand.DEFAULT, colors.semantic.foreground, colors.semantic.borderStrong]
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37444-5885
 ---
 
 # PlatoAssistantButton
 
-> **Type** Composite · **Status** Pending · **Usage** ouvrir le rail Plato Assistant
-> **Figma** [Plato Assistant Button](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37444-5885) · **File** `src/components/shell/PlatoAssistantButton.js`
+White « Plato Assistant » pill with a Sparkle AI glyph, blurred brand halo, and comet ring - the sanctioned way to reopen the assistant rail. It is a brand CTA, never re-rolled as a plain button.
 
-## Pattern / Variants / Examples
+## When to use
+- Reopen the Plato assistant from a dossier's TopBar when the rail is closed.
 
-### When to use
-- Rouvrir l'assistant Plato depuis la TopBar d'un dossier quand le rail est fermé.
+## When NOT to use
+- A generic action → `Button`. This is a brand CTA, reserved for the assistant.
 
-### When NOT to use
-- Une action générique → `Button`. C'est un CTA de marque, réservé à l'assistant.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `onClick` | () => void | — | opens the assistant rail |
 
-### Props
-| Prop | Type | Rôle |
-|---|---|---|
-| `onClick` | () => void | ouvre le rail assistant |
+## Examples
+```jsx
+import PlatoAssistantButton from 'src/components/shell/PlatoAssistantButton';
 
-### Tokens used
-`colors.brand.DEFAULT` (halo + comète), `colors.semantic.foreground` (glyphe +
-libellé), `colors.semantic.borderStrong` (anneau de base / fallback).
-
-## Sprint / Explos
-
-- Surfacé le 22/09. Déclinaison pilule du glow hero (BrandOrangeLab). Utilisé par `TopBar`.
-
-## Proto demo
-
-Visible en contexte : à droite de la TopBar d'un dossier quand l'assistant est fermé.
+<PlatoAssistantButton onClick={openAssistant} />
+```

@@ -1,53 +1,36 @@
 ---
 name: SidebarUserInfo
 package: plato
-type: composite
-status: draft
-usage: Le pied « profil » du rail (avatar + prénom + cabinet + chevrons)
-description: >
-  Le pied du rail (Sidebar Custom Items / Region=UserInfo) : avatar + prénom +
-  cabinet + chevrons, états Default/Hover ; mode collapsed = avatar seul + tooltip.
-  Présentationnel - le menu déroulant (contenu app) est passé en children et
-  affiché par le parent.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-37493
-file: src/components/shell/SidebarUserInfo.js
+status: stable
+usage: The rail « profile » footer (avatar + first name + cabinet + chevrons)
 source: src/components/shell/SidebarUserInfo.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: SidebarUserInfo
-states: [default, hover]
-modes: [expanded, collapsed]
-tokens: [colors.semantic.cream, colors.semantic.foreground, colors.semantic.foregroundSecondary, colors.semantic.border]
-composedBy: [AppSidebar]
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-37493
 ---
 
 # SidebarUserInfo
 
-> **Type** Composite · **Status** Pending · **Usage** pied « profil » du rail
-> **Figma** [Sidebar Custom Items / UserInfo](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-37493) · **File** `src/components/shell/SidebarUserInfo.js`
+The rail footer (avatar + first name + cabinet + chevrons), the sanctioned identity block at the bottom of `AppSidebar`. Presentational: the avatar and the dropdown menu stay supplied by the caller, who knows the user and the menu content.
 
-Le pied du rail. Le proto le compose (l'avatar et le menu déroulant restent
-fournis par l'appelant, qui connaît l'utilisateur et le contenu du menu).
+## When to use
+- The footer of `AppSidebar`: identity + access to the account menu.
 
-## Pattern / Variants / Examples
+## When NOT to use
+- A nav item → `NavItem`. A section header → `NavSectionHeader`.
 
-### When to use
-- Le footer d'`AppSidebar` : identité + accès au menu compte.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `avatar` | node | — | the rendered avatar (expanded / collapsed) |
+| `name` | string | — | label (first name) |
+| `org` | string | — | cabinet / organisation |
+| `collapsed` | bool | `false` | reduced mode (avatar + tooltip) |
+| `onClick` | () => void | — | opens/closes the menu |
+| `tooltipLabel` / `showTooltip` | — | — | tooltip in reduced mode |
+| `children` | node | — | the dropdown panel (rendered by the parent when open) |
 
-### When NOT to use
-- Un item de nav → `NavItem`. Un en-tête de section → `NavSectionHeader`.
-
-### Props
-| Prop | Type | Rôle |
-|---|---|---|
-| `avatar` | node | l'avatar rendu (24 déplié / 32 replié) |
-| `name` | string | libellé (prénom) |
-| `org` | string | cabinet / organisation |
-| `collapsed` | bool | mode réduit (avatar + tooltip) |
-| `onClick` | () => void | ouvre/ferme le menu |
-| `tooltipLabel` / `showTooltip` | — | tooltip en mode réduit |
-| `children` | node | le panneau déroulant (rendu par le parent quand ouvert) |
-
-### Examples
+## Examples
 ```jsx
 import { SidebarUserInfo } from '../ui/AppSidebar';
 
@@ -55,15 +38,3 @@ import { SidebarUserInfo } from '../ui/AppSidebar';
   {open && <UserMenu />}
 </SidebarUserInfo>
 ```
-
-### Tokens used
-`colors.semantic.cream` (survol), `foreground` / `foregroundSecondary` (nom + org),
-`border` (filet haut).
-
-## Sprint / Explos
-
-- Extrait du rail proto le 22/09 (markup à l'identique - bascule sans delta visuel). Voisin : `AppSidebar`.
-
-## Proto demo
-
-Visible en contexte : le pied du rail gauche du proto.

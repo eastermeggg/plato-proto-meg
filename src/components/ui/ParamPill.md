@@ -1,85 +1,49 @@
 ---
 name: ParamPill
 package: plato
-type: primitive
 status: beta
-usage: Pilule de paramètre de calcul togglable (label + valeur quand actif)
-description: >
-  Pilule radius full pour un paramètre de calcul : OFF = libellé medium muted
-  bordé borderStrong ; ON = fond info.bg, bord info.border, libellé medium +
-  valeur regular info.text. Halo 3px background au clic/focus. Icône lucide
-  circle-arrow-up par défaut. State Diff du set Figma non couvert (tokens
-  manquants, SIGNALEMENTS §19).
-figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1095-15027
-file: src/components/ui/ParamPill.js
+usage: Togglable calculation-parameter pill (label + value when active)
 source: src/components/ui/ParamPill.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: ParamPill
-variants: [off, on]
-states: [default, clicked (halo :active/:focus-visible), diff (non couvert)]
-tokens: [colors.feedback.info, colors.semantic.borderStrong, colors.semantic.mutedForeground, colors.semantic.background, radius.full, typography.scale.body-medium]
-promotedFrom: Badge info/secondary dévoyés (matterTabContents, SIGNALEMENTS §13)
-lastValidated: 2026-09-24
+replacedBy: null
+figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1095-15027
 ---
 
 # ParamPill
 
-> **Type** Primitive · **Status** Pending (2026-09-24) · **Usage** paramètre de calcul togglable
-> **Figma** [1095:15027](https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1095-15027) (« Reference Text », section LOCAL COMPONENTS > PARAMS [1613:113399](https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1613-113399)) · **File** `src/components/ui/ParamPill.js`
+The calculation-parameter pill: PGP rows (« Revalo », « Barème », « Capit »,
+« Base journalière ») and the params strip above the composer. OFF = available
+parameter (label only, muted); ON = active parameter (info tint, label + value).
 
-La pilule des paramètres de calcul : rangées PGP (« Revalo », « Barème »,
-« Capit », « Base journalière ») et strip de params au-dessus du composer.
-OFF = paramètre disponible (libellé seul, muted) ; ON = paramètre actif
-(teinte info, libellé + valeur).
+_Beta - the Figma set's Diff state (orange diamond) is not covered: the diff tint family has no tokens (issue #__)._
 
-## Pattern / Variants / Examples
-
-### When to use
-- Un paramètre de calcul activable dont la valeur s'affiche quand il est actif
+## When to use
+- A toggleable calculation parameter whose value shows when it's active
   (revalorisation, barème, taux de capitalisation, base journalière…).
-- Le strip de params d'un chat / d'une rangée de référence PGP.
+- The params strip of a chat / of a PGP reference row.
 
-### When NOT to use
-- **Statut / catégorie non interactifs** → `Badge`.
-- **Type de source cliquable** (pièce, JP, loi…) → `SourceBadge`.
-- **Choix exclusif dans un formulaire** → `RadioGroup` / `Select`, pas une
-  rangée de pilules.
-- **Action** (déclenche un geste, pas un état) → `Button`.
+## When NOT to use
+- Non-interactive status / category → `Badge`.
+- Clickable source type (pièce, JP, loi…) → `SourceBadge`.
+- Exclusive choice in a form → `RadioGroup` / `Select`, not a row of pills.
+- Action (triggers a gesture, not a state) → `Button`.
 
-### Props
-| Prop | Défaut | Rôle |
-|------|--------|------|
-| `label` | — | libellé du paramètre (medium) |
-| `value` | — | valeur affichée quand `on` (regular) |
-| `on` | `false` | variant ON/OFF du set Figma (`aria-pressed`) |
-| `icon` | `CircleArrowUp` | icône 14 de la maquette ; `null` pour sans icône |
-| `onClick` / `title` / `disabled` | — | interaction |
-| `className` / `style` | — | échappatoires géométrie (jamais les couleurs) |
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `label` | string | — | parameter label (medium) |
+| `value` | node | — | value shown when `on` (regular) |
+| `on` | bool | `false` | ON/OFF variant (`aria-pressed`) |
+| `icon` | Lucide | `CircleArrowUp` | leading icon; `null` for none |
+| `onClick` | fn | — | interaction |
+| `title` | string | — | native tooltip |
+| `disabled` | bool | — | disabled state |
+| `className` / `style` | — | — | geometry escape hatches (never the colors) |
 
-### Examples
+## Examples
 ```jsx
 import ParamPill from 'src/components/ui/ParamPill';
 
 <ParamPill label="Revaloriser" value="IPC Annuel" on onClick={toggle} />
 <ParamPill label="Perte de chance · 100 %" onClick={toggle} />
 ```
-
-### Tokens used
-`colors.feedback.info.bg/.border/.text` (ON) · `colors.semantic.borderStrong` /
-`mutedForeground` (OFF) · `colors.semantic.background` (halo clic + fond OFF
-cliqué) · `radius.full` · `typography.scale['body-medium']` / `body`.
-
-**Écarts déclarés** : bord OFF Figma #d6d3d1 rendu `borderStrong` #cbc7c4
-(demi-cran du thème, ΔE faible) ; state **Diff** (losange orange
-`feedback.warning.base`, teintes #fcf4ef / #d4845a / #a6592e) non couvert -
-famille de tokens absente, consignée SIGNALEMENTS §19.
-
-## Sprint / Explos
-
-- Promu le 24/09/2026 (ds-promote, batch « prêts ») : remplace les `Badge`
-  info/secondary dévoyés du strip de params de `matterTabContents.jsx`
-  (SIGNALEMENTS §13 « ParamPill »).
-
-## Proto demo
-
-`/ui-kit/c/ParamPill`
