@@ -138,3 +138,36 @@ CONTENU passé à ces composants (un `NavItem` de plus, un `tab` de plus, un slo
 flex-col` à la main. Si le besoin ne rentre dans aucun composant, c'est une
 évolution du composant (fiche + `ds-decide`), pas un re-roll local. Vitrine
 vivante : `/ui-kit/shell` ; comportement : `src/components/shell/NAV-BEHAVIOR.md`.
+
+## §10 Élévation — échelle `shadows` par rôle
+
+Jamais de chaîne `box-shadow` rgba inline : classe `shadow-2xs…shadow-4xl` ou
+token `shadows.*`. Le cran se choisit par le **RÔLE** de l'élément, pas par la
+valeur d'origine — une ombre inline improvisée est souvent sous- ou
+sur-dimensionnée ; le rôle prime sur la géométrie brute.
+
+| Niveau | Cran | Rôle |
+|---|---|---|
+| **L0** | `2xs` · `xs` | Contrôles — boutons, toggles, poignées, chips, thumbs |
+| **L1** | `sm` · `md` | Cards & surfaces — cartes de contenu, panneaux ancrés au flux, en-têtes |
+| **L2** | `lg` | Menus, dropdowns, popovers, context menus, command palettes |
+| **L3** | `2xl` | Panneaux flottants — toasts, panneaux ancrés, feuilles, notifications |
+| **L4** | `4xl` | Dialogs — modales centrées |
+
+Règles d'arbitrage :
+- **Le rôle décide le niveau ; la géométrie ne sert qu'à départager dans un
+  niveau.** Une modale porte L4 même si son ombre d'origine était petite ; un
+  dropdown porte L2 même si sa valeur rgba tombait géométriquement sur `md`.
+- **Teinte neutralisée** : les ombres hors échelle (stone chaudes 28,25,23 /
+  41,37,36) reprennent la teinte du cran (26,26,26). L'opacité ne départage pas.
+- `xl` et `3xl` sont des crans intermédiaires hérités, **hors grille par rôle** :
+  ne pas les viser pour les 5 rôles ci-dessus.
+- **Hors élévation** (glows, focus rings via `:focus-visible`, keyframes de
+  pulsation, insets, illustrations in-code) : ne passent JAMAIS par l'échelle —
+  ce ne sont pas des ombres de profondeur.
+- **Tiroirs horizontaux** (`-20px 0 …`) : aucun cran dans l'échelle actuelle,
+  `[a-dessiner]` en attendant une spec drawer + token dédié.
+
+Échelle source : `src/design-system/tokens.js` (`shadows`, 2xs→4xl) ; miroir
+Tailwind `tailwind.config.js`. Le doctor signale toute chaîne rgba inline
+(`shadow-inline`).
