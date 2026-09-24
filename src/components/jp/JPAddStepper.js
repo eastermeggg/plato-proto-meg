@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { X, Search, Link as LinkIcon, FileUp, Tag, ChevronRight, Check, Loader2, FolderOpen, Landmark } from 'lucide-react';
 import DECISIONS, { formatDateLong, getPrimaryAmount } from '../../data/mockDecisions';
 import {colors, shadows } from '../../design-system/tokens';
+import Stepper from '../ui/Stepper';
 
 const MODES = [
   { id: 'search', icon: Search,   label: 'Rechercher',     hint: 'Dans Plato JP ou réf. libre' },
@@ -161,34 +162,12 @@ export default function JPAddStepper({
           </button>
         </div>
 
-        {/* Step indicators (hidden when only one step) */}
+        {/* Step indicators (hidden when only one step) - Stepper DS tel quel
+            (décision steward 24/09) : icônes par étape supprimées
+            (décoratives), done = vert canonique, plus d'ochre local. */}
         {steps.length > 1 && (
-          <div className="flex items-center gap-0 px-4 py-2.5 border-b border-border-subtle">
-            {steps.map((s, i) => {
-              const StepIcon = s.icon;
-              const isActive = step === s.num;
-              const isDone = step > s.num;
-              return (
-                <React.Fragment key={s.num}>
-                  {i > 0 && <div className="w-6 h-px mx-1" style={{ backgroundColor: isDone ? colors.accents.ochre : colors.semantic.input }} />}
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: isDone ? colors.accents.ochre : isActive ? colors.semantic.primary : colors.semantic.muted }}
-                    >
-                      {isDone ? (
-                        <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
-                      ) : (
-                        <StepIcon className="w-2.5 h-2.5" style={{ color: isActive ? 'white' : colors.semantic.foregroundMuted }} />
-                      )}
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: isActive ? 500 : 400, color: isActive ? colors.semantic.foreground : isDone ? colors.accents.ochre : colors.semantic.foregroundMuted }}>
-                      {s.label}
-                    </span>
-                  </div>
-                </React.Fragment>
-              );
-            })}
+          <div className="px-4 py-2.5 border-b border-border-subtle">
+            <Stepper steps={steps.map((s) => ({ label: s.label }))} current={step - 1} />
           </div>
         )}
 
