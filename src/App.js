@@ -46,6 +46,7 @@ import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import Input from './components/ui/Input';
 import Button from './components/ui/Button';
+import Progress from './components/ui/Progress';
 import Avatar, { avatarColorAt } from './components/ui/Avatar';
 import IVAvatar from './components/IVAvatar';
 import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
@@ -10268,9 +10269,7 @@ export default function App() {
                     })}
                   </div>
                 </div>
-                <div className="w-24 h-1.5 bg-cream rounded-full overflow-hidden flex-shrink-0">
-                  <div className="h-full bg-foreground-muted rounded-full transition-all duration-700 ease-out" style={{ width: `${extractionState.progress}%` }} />
-                </div>
+                <Progress value={extractionState.progress} size="sm" width={96} tone="muted" label="Extraction en cours" className="flex-shrink-0" />
               </div>
             </div>
           );
@@ -11125,9 +11124,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-[70px] h-1 bg-cream rounded-full overflow-hidden">
-                    <div className="h-full bg-foreground rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
-                  </div>
+                  <Progress value={(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100} size="sm" width={70} label="Extraction des documents du poste" />
                   <span className="text-counter text-foreground-secondary">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
                 </div>
               </div>
@@ -12024,9 +12021,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <div className="w-[70px] h-1 bg-cream rounded-full overflow-hidden">
-                      <div className="h-full bg-foreground rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
-                    </div>
+                    <Progress value={(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100} size="sm" width={70} label="Extraction des documents du poste" />
                     <span className="text-counter text-foreground-secondary">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
                   </div>
                 </div>

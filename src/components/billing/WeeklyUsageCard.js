@@ -1,7 +1,8 @@
 import React from 'react';
 import { Eye, Clock } from 'lucide-react';
 import { quotaTone } from '../../data/pricing';
-import { colors } from '../../design-system/tokens';
+import {colors, shadows } from '../../design-system/tokens';
+import Progress from '../ui/Progress';
 
 // Weekly usage / quota gauge - shared by settings ("Mon usage", sidebar
 // indicator) and the onboarding flow. Pure: pass `trial` ({ tone, daysRemaining })
@@ -17,7 +18,7 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
     // Pas d'arrondi en variante sidebar : la carte touche le bord de l'app.
     borderRadius: compact ? 0 : 4,
     border: compact ? 'none' : (tone.warn ? '1px solid rgba(238,185,126,0.5)' : `1px solid ${colors.semantic.border}`),
-    boxShadow: compact ? 'none' : '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)',
+    boxShadow: compact ? 'none' : shadows['lg'],
     backgroundColor: compact ? 'transparent' : colors.semantic.white,
   };
 
@@ -90,11 +91,13 @@ export default function WeeklyUsageCard({ plan, pct = 0, variant = 'full', trial
               : (compact ? 'utilisé - recharge lundi 9h' : 'utilisé cette semaine - se recharge lundi, 9h')}
           </div>
         </div>
-        <div style={{ height: 4, width: '100%', borderRadius: 999, overflow: 'hidden', backgroundColor: tone.warn ? tone.fill : tone.track }}>
-          {!tone.warn && (
-            <div style={{ height: '100%', width: `${Math.min(100, pct)}%`, backgroundColor: tone.fill, borderRadius: 999, transition: 'width 0.5s ease' }} />
-          )}
-        </div>
+        <Progress
+          value={Math.min(100, pct)}
+          size="sm"
+          width="100%"
+          tone={tone.warn ? 'warn' : pct >= 70 ? 'caution' : 'default'}
+          label="Usage hebdomadaire"
+        />
       </div>
     </div>
   );

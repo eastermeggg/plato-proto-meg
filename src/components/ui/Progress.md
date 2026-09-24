@@ -14,7 +14,9 @@ source: src/components/ui/Progress.js
 demo: src/components/ui-kit/componentDemos.jsx
 inventoryId: Progress
 variants: [determinate]
-tokens: [colors.semantic.secondary, colors.semantic.primary, radius.full, motion.duration.base]
+sizes: [md, sm]
+tones: [default, caution, warn, muted]
+tokens: [colors.semantic.secondary, colors.semantic.primary, colors.semantic.foregroundMuted, colors.banner.warning.accent, colors.feedback.warning, radius.full, motion.duration.base]
 lastValidated: 2026-09-23
 ---
 
@@ -44,6 +46,8 @@ décline 0 % → 100 % par pas de 10 - en code, `value` est continue.
 | `value` | `0` | valeur courante (premier variant du set Figma) |
 | `max` | `100` | borne haute |
 | `width` | `400` | largeur du variant Figma ; passer `'100%'` en usage fluide |
+| `size` | `md` | `md` h8 (Figma) · `sm` h4 (jauges compactes : quota sidebar, rangées) |
+| `tone` | `default` | `default` primary · `caution` pré-alerte (proposition sémantique, arbitrage 24/09 : « un token de marque ne porte pas d'état ») · `warn` alerte (`feedback.warning.base` sur piste `warning.subtle`) · `muted` progression discrète (`foregroundMuted`) |
 | `label` | - | aria-label |
 | `className` / `style` | - | passthrough |
 
@@ -54,6 +58,8 @@ import Progress from 'src/components/ui/Progress';
 <Progress value={40} />
 <Progress value={70} width="100%" label="Import des pièces" />
 <Progress value={100} />
+// Jauge de quota (WeeklyUsageCard) : compacte, tone par palier
+<Progress value={92} size="sm" width="100%" tone="warn" label="Usage hebdomadaire" />
 ```
 
 ### Tokens used
@@ -63,6 +69,16 @@ import Progress from 'src/components/ui/Progress';
 ## Sprint / Explos
 
 - Construit le 23/09 depuis l'inventaire DS (nœud validé par la steward, set Figma « Progress » 0-100 %).
+- 24/09 : extensions code-first validées steward (SIGNALEMENTS §16) - `size sm`
+  (h4) + tone `warn` pour les jauges de quota. Adopté par `WeeklyUsageCard`
+  (remplace sa barre inline ; en warn la barre montre le vrai % sur piste
+  `warning.subtle`, l'ancienne version saturait la piste entière) et les 2
+  barres d'extraction de poste d'App.js.
+- 24/09 (arbitrage steward) : le tone `accent` initialement proposé pour le
+  palier ≥70 % est refusé (« un token de marque ne porte pas d'état ») →
+  renommé `caution`, proposition sémantique à valider. Tone `muted` validé et
+  adopté sur la barre d'extraction du banner App.js ; reste la barre quotas
+  membres (L~9333, deux remplissages par état) hors périmètre.
 
 ## Proto demo
 
