@@ -1,66 +1,53 @@
 ---
 name: BordereauTable
 package: plato
-type: domain
-status: draft
+status: beta
 usage: The bordereau de pièces table - real instance of the custom table system
-description: >
-  Table métier « bordereau de pièces » : arborescence dossiers/pièces, tri,
-  sélection multiple (barre d'actions inversée sombre), menus contextuels,
-  fusion/découpage. Instance réelle du système de tables custom - migrera
-  vers les familles ui/tables/.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670
-file: src/components/pieces/BordereauTable.js
 source: src/components/pieces/BordereauTable.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: BordereauTable
-composes: [CategoryHeader, PieceRow, RowContextMenu, MoveToFolderModal, DeleteWarningModal]
-tokens: [colors.semantic, typography.fontFamily.mono]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670
 ---
 
 # BordereauTable
 
-> **Type** Domain · **Status** Pending (2026-09-23) · **Usage** bordereau de pièces du dossier
-> **Figma** [Row Bordereau, ComponentTable 36554:7670](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670) · **File** `src/components/pieces/BordereauTable.js`
+The dossier's pièces table: dossier tree, pièce rows (including split piles and
+rows being processed), column sorting, multi-select with an inverted action bar
+(ink fill), context menus, move/rename/delete modals.
 
-La table des pièces du dossier : arborescence de dossiers, rangées de pièces
-(dont piles découpées et rangées en cours de traitement), tri par colonnes,
-sélection multiple avec barre d'actions inversée (fond encre), menus
-contextuels, modales de déplacement/renommage/suppression.
+_Beta - this table must migrate onto the canonical `ui/tables/RowBordereau` families (issue #__)._
 
-## Pattern / Variants / Examples
+## When to use
+- A dossier's Pièces tab - this is THE bordereau table, with its mutations (`setPieces` / `setCategories`).
 
-### When to use
-- L'onglet Pièces d'un dossier - c'est LA table du bordereau, avec ses
-  mutations (`setPieces` / `setCategories`).
+## When NOT to use
+- **A simple document listing** → compose the `ui/tables/RowDocuments` / `RowFolders` families.
+- **The bordereau inside a generated acte** → documentary render, not this table.
 
-### When NOT to use
-- **Un listing simple de documents** → composer les familles
-  `ui/tables/RowDocuments` / `RowFolders`.
-- **Le bordereau dans un acte généré** → rendu documentaire, pas cette table.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `pieces` / `categories` | array | — | data |
+| `setPieces` / `setCategories` | fn | — | mutations |
+| `onOpenPiecePreview` | fn | — | open a pièce preview |
+| `onAddFiles` / `onImportEmails` | fn | — | ingestion entry points |
+| `onAskChato` | fn | — | selection → chat context |
+| `onFusePieces` | fn | — | merge selected pièces |
+| `onToggleDocSplit` / `onBulkToggleDocSplit` / `onRequestDocSplit` | fn | — | split gestures |
+| `reviewZone` | node | `null` | « À vérifier » zone |
+| `forceExpandAll` | bool | `false` | force every folder open (search) |
+| `initialExpandedIds` | array | `null` | initial expanded folder ids |
 
-### Props (principales)
-`pieces` / `categories` + `setPieces` / `setCategories` ·
-`onOpenPiecePreview` · `onAddFiles` / `onImportEmails` · `onAskChato`
-(sélection → contexte du chat) · `onFusePieces` · `onToggleDocSplit` /
-`onBulkToggleDocSplit` / `onRequestDocSplit` · `reviewZone` (zone
-« À vérifier ») · `forceExpandAll` · `initialExpandedIds`.
+## Examples
+```jsx
+import BordereauTable from '../pieces/BordereauTable';
 
-### Tokens used
-Tokens sémantiques + mono 11 uppercase (en-têtes de colonnes) ; barre de
-sélection : fond `foreground` + typographie `cream`.
-
-## Sprint / Explos
-
-- Instance réelle du système de tables custom (`docs/table-system.md`) : la
-  famille canonique `ui/tables/RowBordereau.js` est portée depuis le même
-  nœud - la migration de cette table vers les familles est le chantier
-  staged.
-- Split docs : rangées plates classées, pas de bandeau de groupe (memory
-  `project_split_docs_no_folder`).
-
-## Proto demo
-
-`/ui-kit/c/BordereauTable` — démo interactive sur données locales (2
-dossiers, 4 pièces).
+<BordereauTable
+  pieces={pieces}
+  categories={categories}
+  setPieces={setPieces}
+  setCategories={setCategories}
+  onOpenPiecePreview={openPreview}
+  onAskChato={sendToChat}
+/>
+```

@@ -1,70 +1,63 @@
 ---
 name: AlertDialog
 package: plato
-type: primitive
 status: stable
-usage: Confirmation / action destructive - icône, titre serif, description, deux boutons
-description: >
-  Modale de confirmation qui interrompt avec une décision. Carte p-24 gap-16
-  radius 12 (ombre token lg, scrim token overlay), icône 24px teintée par
-  intent, titre serif display-xs (16/20 -0.5), description muted, footer
-  cancel/action h-36. Le cancel suit l'intent (destructive-subtle si action
-  destructive, cream sinon). Breakpoint Small : colonne centrée, boutons
-  empilés pleine largeur.
-figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6724-21154
-file: src/components/AlertDialog.js
+usage: Confirmation / destructive action - icon, serif title, description, two buttons
 source: src/components/AlertDialog.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: AlertDialog
-variants: [primary, destructive]
-states: [closed, open, action-disabled]
-tokens: [colors.semantic.overlay, colors.semantic.surfaceRaised, colors.semantic.primary, colors.feedback.destructive.subtle, colors.feedback.destructive.text, colors.feedback.warning.border, colors.feedback.warning.text, shadows.lg, radius.xl]
-lastValidated: 2026-09-24
+replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6724-21154
 ---
 
 # AlertDialog
 
-> **Type** Primitive · **Status** Validated (aligné Figma 24/09/2026) · **Usage** confirmation
-> **Figma** [6724:21154](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6724-21154) (composant 1:78 + Small 2759:16913, exemples 7005:45447) · **File** `src/components/AlertDialog.js` (porte `ui/AlertDialog.js`)
+Confirmation modal that interrupts with a decision: intent icon + serif title +
+description + cancel/action footer. Steward decision 24/09: no generic Modal -
+confirmation here, rich content → `Dialog`, lateral → `Drawer`.
 
-Décision steward 24/09 : pas de Modal générique — confirmation ici, contenu →
-`Dialog`, latéral → Drawer ([a-dessiner]).
+## When to use
+- Confirm an action, especially a destructive one (deletion, exit without
+  save): intent icon + title + description + cancel/action.
 
-## Pattern / Variants / Examples
+## When NOT to use
+- **Form or rich content** → `Dialog` (scrolling body, slots).
+- **Information without a decision** → `Alert` (inline banner).
 
-### When to use
-- Confirmer une action, surtout destructive (suppression, sortie sans
-  sauvegarde) : icône d'intent + titre + description + cancel/action.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `open` | bool | - | controlled visibility |
+| `onOpenChange` | fn | - | `(open) => void` |
+| `icon` | Lucide icon | `CircleAlert` | leading icon |
+| `iconVariant` | `default \| destructive \| warning \| success \| info` | `default` | icon tint |
+| `title` | string | - | required, serif display-xs |
+| `description` | string | - | muted body |
+| `warning` | string | - | amber left-bordered block under the description |
+| `children` | node | - | extra body content after the description |
+| `cancelLabel` | string | `Annuler` | secondary button label |
+| `cancelVariant` | `neutral \| destructive` | follows `actionVariant` | force secondary button style |
+| `onCancel` | fn | close | secondary button action |
+| `actionLabel` | string | - | required, primary button label |
+| `actionVariant` | `primary \| destructive` | `primary` | primary intent |
+| `actionDisabled` | bool | `false` | disable primary button |
+| `onAction` | fn | - | primary button action |
+| `showClose` | bool | `true` | top-right X |
+| `hideIcon` | bool | `false` | hide leading icon |
 
-### When NOT to use
-- **Formulaire ou contenu riche** → `Dialog` (body défilant, slots).
-- **Information sans décision** → `Alert` (bandeau inline).
+## Examples
+```jsx
+import AlertDialog from '../AlertDialog';
+import { Trash2 } from 'lucide-react';
 
-### Props (inchangées - alignement visuel seul)
-`open` / `onOpenChange` · `icon` + `iconVariant` (default/destructive/warning/
-success/info) · `title` · `description` · `warning` (bloc bordure warning) ·
-`cancelLabel` / `cancelVariant` / `onCancel` · `actionLabel` / `actionVariant`
-(primary/destructive) / `actionDisabled` / `onAction` · `showClose` · `hideIcon`.
-
-### Alignement Figma du 24/09 (validé steward)
-- scrim `bg-black/50` → token `overlay` ; surface → `surfaceRaised`
-- ombre inline (91-liste) → token `shadows.lg` (nom aligné sur le shadow/lg du nœud)
-- bouton primaire `semantic.ring` → `semantic.primary` (+ `primaryForeground`)
-- bordure du bloc warning `brand.darker.border` → `feedback.warning.border`
-- breakpoint Small ajouté (colonne centrée, boutons empilés, classes `sm:`)
-
-### Tokens used
-`overlay` · `surfaceRaised` · `primary`/`primaryForeground` ·
-`feedback.destructive.subtle`/`.text` (cancel destructif) · `feedback.warning.border`/`.text` ·
-`shadows.lg` · `radius.xl` · titre `display-xs` serif.
-
-## Sprint / Explos
-
-- Établi pré-kit (3402:3576), realigné 24/09 sur le set 1:78 / 2759:16913 /
-  7005:45447. Cible d'adoption : les petites confirmations hand-roll
-  (JPRationaleModal, FicheCabinetModal…) - classement :
-  `.context/steward-review/MODAL-CLASSIFICATION.md`.
-
-## Proto demo
-
-`/ui-kit/c/AlertDialog`
+<AlertDialog
+  open={open}
+  onOpenChange={setOpen}
+  icon={Trash2}
+  iconVariant="destructive"
+  title="Supprimer cette pièce ?"
+  description="Cette action est irréversible."
+  actionLabel="Supprimer"
+  actionVariant="destructive"
+  onAction={remove}
+/>
+```

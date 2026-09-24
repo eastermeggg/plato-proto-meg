@@ -1,88 +1,62 @@
 ---
 name: AssistantComposer
 package: plato
-type: domain
-status: draft
+status: stable
 usage: The rich Plato assistant composer (input + toolbar + scope + attachments)
-description: >
-  Le composer riche de l'assistant Plato : textarea auto-grow, en-tête
-  système, chip de scope, toolbar (rattachement, pièces/modèles, ampoule
-  suggestions), docs agrafés, tokens inline. Porté du modèle Plato Nav.
-figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1081-50926
-file: src/components/assistant/AssistantComposer.js
 source: src/components/assistant/AssistantComposer.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: AssistantComposer
-variants: [standard, elevated]
-states: [scope-flash, staged-docs, suggestions-open, system-state]
-tokens: [colors.semantic, colors.brand, typography.fontFamily.sans]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1081-50926
 ---
 
 # AssistantComposer
 
-> **Type** Domain (gros bloc, nombreux sous-composants) · **Status** Pending (2026-09-23) · **Usage** composer riche de l'assistant
-> **Figma** [1081:50926](https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1081-50926) (fichier Plato---Design, « Chat Input ») · **File** `src/components/assistant/AssistantComposer.js`
+The Plato assistant composer, ported from the Plato Nav model: auto-grow textarea
++ `ComposerSystemHeader` (system state) + `ScopeChip` (attached dossier) +
+`ComposerToolbar` (attach, Pièces / Modèles, suggestions bulb) + stapled docs +
+`InlineToken`. One composer, parameterized - never an ad hoc textarea.
 
-Le composer de l'assistant Plato, porté du modèle Plato Nav (muscat-v1) :
-textarea auto-grow + `ComposerSystemHeader` (état système) + `ScopeChip`
-(dossier rattaché) + `ComposerToolbar` (rattachement, Pièces / Modèles,
-ampoule de suggestions) + docs agrafés + `InlineToken`.
+## When to use
+- **Any prompt input** to the assistant: home, dossier rail, full-page conversation.
 
-## Pattern / Variants / Examples
+## When NOT to use
+- **Form field** → `Input`.
+- **Search** → a dedicated search field, not the composer.
+- **Direct upload in chat** → forbidden: two labelled buttons Pièces / Modèles link existing docs (« composer attach split » decision).
 
-### When to use
-- **Toute saisie de prompt** vers l'assistant : accueil, rail dossier,
-  conversation pleine page. Un seul composer, paramétré - jamais un textarea
-  ad hoc.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `variant` | `standard \| hero` | `standard` | |
+| `scope` | `{dossierId, vertical}` | — | filters the mention catalogue only |
+| `dossierLabel` | string | — | attached dossier label |
+| `scopeFlash` / `onScopeFlashEnd` | bool / fn | `false` | flash the scope chip |
+| `systemState` | `null \| {kind, label, detail?, onOpen?}` | `null` | `kind`: inProgress/warning/blocked |
+| `catalog` | `{objects, intentions}` | — | mentions, precomputed by caller |
+| `onSend` | fn | — | `({body, tokens, segments}) => void` |
+| `onAttach` | fn | — | attach action |
+| `attachDossiers` / `onAttachToDossier` / `onCreateDossier` | — | — | attach popover |
+| `onRunIntention` | fn | — | `(intention) => void` |
+| `onDropFiles` | fn | — | `(files) => void` |
+| `placeholder` / `placeholderNode` | string / node | `Demander à Plato...` | |
+| `autoFocus` | bool | `false` | |
+| `stagedDocs` / `onRemoveStagedDoc` | — | — | stapled docs |
+| `contextItems` | `[{id, label, icon?}]` | — | CONTEXT banner (work scope) |
+| `running` / `onStop` | bool / fn | `false` | agent generating: toolbar frozen, send → stop |
+| `userAsk` | `{question, proposals, step, total, answered?}` | `null` | agent question card |
+| `suggestions` | `[{icon, label, text?, onPick?}]` | — | bulb menu |
+| `elevated` | bool | `false` | kept for compat, same elevation |
 
-### Metrics (nœud 1081:50926)
-Carte blanche rounded-6 · ring 1px border-strong + `shadows.xl` (Default) ·
-ring 2px info-border au focus (Active) · zone d'appel pb-32 au repos, pb-12
-avec contenu · toolbar p-12 : boutons libellés h-26 (12 medium muted),
-groupe droite gap-2px, envoi/stop 26x26 rounded-4 · bandeau système : fond
-teinté enveloppant (px/pb 1px), icône 16, texte 12 medium · docs badges
-secondary px-8 py-4 · CONTEXT chips mono 11 uppercase, p-6, max-w-180.
-`elevated` est conservé pour compat mais rend la même élévation (`shadows.xl`).
+Ref exposes `{ insertText, focus }`.
 
-### When NOT to use
-- **Champ de formulaire** → `Input`.
-- **Recherche** → un champ de recherche dédié, pas le composer.
-- **Upload direct dans le chat** → interdit : deux boutons libellés Pièces /
-  Modèles lient des docs existants (décision « composer attach split »).
-
-### Props (principales)
-`variant` (`standard`/`elevated` via prop `elevated`) · `scope` +
-`dossierLabel` + `scopeFlash` · `systemState` · `catalog` (mentions) ·
-`onSend` · `onAttach` / `attachDossiers` / `onAttachToDossier` /
-`onCreateDossier` · `onDropFiles` · `stagedDocs` + `onRemoveStagedDoc` ·
-`suggestions` (`[{ icon, label, text?, onPick? }]`) · `placeholder` /
-`placeholderNode` · `autoFocus` · ref exposant `{ insertText, focus }`.
-
-### Examples
+## Examples
 ```jsx
 import AssistantComposer from 'src/components/assistant/AssistantComposer';
+import { Sparkles } from 'lucide-react';
 
 <AssistantComposer
-  scope="dossier" dossierLabel="Martin c/ AXA"
-  onSend={(text) => send(text)}
+  scope={{ dossierId: 'axa', vertical: 'corporel' }} dossierLabel="Martin c/ AXA"
+  onSend={({ body }) => send(body)}
   suggestions={[{ icon: Sparkles, label: 'Résume ce dossier' }]}
 />
 ```
-
-### Tokens used
-Tokens sémantiques (fond carte, bordures, textes) · `colors.brand` (accents
-Plato) · sous-composants documentés dans leurs fichiers :
-`ComposerSystemHeader`, `ComposerToolbar`, `ScopeChip`, `InlineToken`.
-
-## Sprint / Explos
-
-- Port in-app du modèle Plato Nav : shell 4 états + composer riche
-  (memory `project_plato_assistant_nav_port`, PORT-NOTES.md).
-- Pas de trombone : « Pièces / Modèles » lient l'existant (memory
-  `project_composer_attach_split`).
-
-## Proto demo
-
-`/ui-kit/c/AssistantComposer` — sandbox live (scope, suggestions, staged
-docs) ; le shell complet vit dans l'app (`/app`).
