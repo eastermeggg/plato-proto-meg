@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Horizontal determinate bar: `secondary` track, `primary` fill whose width tracks the value. The Figma set steps from 0 % to 100 % in increments of 10; in code, `value` is continuous.
 
-_Beta - `caution` tone is a semantic proposal pending steward validation (issue #__)._
+_Beta - `caution` tone is a semantic proposal pending steward validation (issue #85)._
 
 ## When to use
 - Measurable progress: upload, ingestion de pièces, import completion.

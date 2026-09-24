@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 The second family of pills: identity by source TYPE (icon + family tint), interactive - clicking opens the source in the PreviewPanel. The generic `Badge` stays for status / severity / category. `JPPill` is a SourceBadge of type `jp` with its citation slots.
 
-_Beta - tints translated to closest tokens, exact Figma fills not yet reconciled (issue #__)._
+_Beta - tints translated to closest tokens, exact Figma fills not yet reconciled (issue #86)._
 
 ## When to use
 - Any clickable reference to a **source**: pièce, jurisprudence, loi, code article, modèle, email, web page, calculation line, PASS, assiette.

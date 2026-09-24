@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Inline tabs (variant chosen by the steward): medium label, rest muted with an invisible indicator, active foreground with a primary top-rounded indicator. Per-tab options: icon, count pill, disabled. A `padded` variant adds top padding. The segmented style is not this component → `ButtonGroup`.
 
-_Beta - pending steward validation; SM set (2819:31095) still to arbitrate (issue #__)._
+_Beta - pending steward validation; SM set (2819:31095) still to arbitrate (issue #87)._
 
 ## When to use
 - Switch between VIEWS of a single object (dossier tabs, sections of a panel) - content per tab, one active.

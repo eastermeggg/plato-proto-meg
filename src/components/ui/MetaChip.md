@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Doc Preview atom: a bordered chip pairing an icon + muted label + medium foreground value, with an optional truncable `· …` aside, an IA marker (✦), and a link action. Two variants: `default` (canvas fill) · `strong` (cream fill, identity chip). 14 canonical types in `META_CHIP_TYPES` (date, pièce, type, découpage, source, juridiction, n°, objet, messages, pièces jointes, code, en vigueur, période, web) - one type = one icon + one label, the same everywhere.
 
-_Beta - label contrast holds `foreground-secondary` because `foreground-muted` falls under the WCAG floor on canvas/cream (issue #__)._
+_Beta - label contrast holds `foreground-secondary` because `foreground-muted` falls under the WCAG floor on canvas/cream (issue #82)._
 
 ## When to use
 - The metadata bar of a preview panel (MetaBar) and card headers that surface key-value metadata.

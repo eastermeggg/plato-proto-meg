@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 « Chess-piece » avatar: tinted container, ChessIcons silhouette seated on the bottom edge. Each person in the dossier gets a piece + a color - an identity, not a status. Full Figma set: 6 pieces (knight/bishop/rook/pawn/king/queen) × 6 palettes.
 
-_Beta - the cream palette lacks dedicated tokens for two tints (SIGNALEMENTS), à combler (issue #__)._
+_Beta - the cream palette lacks dedicated tokens for two tints (SIGNALEMENTS), à combler (issue #80)._
 
 ## When to use
 - Represent a **victime indirecte** (`IV` table cell, victim lists) or a **user** (`User` cell, profile headers).

@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 The atomic unit of **every** table in the product. Plato tables do not derive from the shadcn `<table>` (removed from the DS): they are div-based compositional systems whose every row is made **only** of `DataTableCell` instances. A `type` prop selects one of ~30 domain roles. Full context: `docs/table-system.md`.
 
-_Beta - amounts render in Inter (sans) per Figma while `docs/table-system.md` calls for RL Para; divergence logged in SIGNALEMENTS, not arbitrated (issue #__)._
+_Beta - amounts render in Inter (sans) per Figma while `docs/table-system.md` calls for RL Para; divergence logged in SIGNALEMENTS, not arbitrated (issue #78)._
 
 ## When to use
 - Build **any row** of a Plato domain table (chiffrage, PGP, IV, cotisations, bordereau, relevé d'heures…): compose cells, do not re-roll a `<td>`.

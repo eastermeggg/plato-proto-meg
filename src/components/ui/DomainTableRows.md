@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 The domain row families of the Plato table system, ported from the Figma « ComponentTable » section. One file per family in `src/components/ui/tables/`; each family assembles only typed cells (`DataTableCell`) + `DataTableHeader`, never ad hoc cell markup.
 
-_Beta - serif-on-title amount divergences pending steward arbitration (issue #__)._
+_Beta - serif-on-title amount divergences pending steward arbitration (issue #78)._
 
 ## Ported families (one file = one family, Figma node in JSDoc)
 

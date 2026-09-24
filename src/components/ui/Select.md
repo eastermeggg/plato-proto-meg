@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Field trigger (card fill, input border, chevron-down) + popover panel with mono uppercase group labels and rows that highlight on hover, selection marked by a Check. The panel and rows are exported (`SelectMenuPanel` / `SelectMenuItem` / `SelectMenuLabel`) and reused by the `Dropdown` (same skin, steward decision).
 
-_Beta - pending steward validation (issue #__)._
+_Beta - halo focus/erreur sans token dédié (custom/focus), contournement color-mix (issue #81)._
 
 ## When to use
 - Pick ONE option from a list (dossier type, format, licence…).

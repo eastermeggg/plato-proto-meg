@@ -17,7 +17,7 @@ composes and re-exports the battle-tested proto pieces (`NavItem`,
 `NavSectionHeader`) behind a single import door; the only new part is the rail
 chrome (header + scroll + footer).
 
-_Beta - proto nav + settings sub-rail still assemble the rail inline, migration onto the AppSidebar chrome is staged (issue #__)._
+_Beta - proto nav + settings sub-rail still assemble the rail inline, migration onto the AppSidebar chrome is staged (issue #76)._
 
 ## When to use
 - Any left navigation rail: the DS platform, the proto, the settings sub-rail.

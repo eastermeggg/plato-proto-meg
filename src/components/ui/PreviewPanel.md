@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 One shell (serif header, scrollable body, meta bar, shared citations rail with scroll-to-citation), and a body + metadata plugged per source kind via `PREVIEW_KINDS`: piece · modele · jp · email · loi · ligne · web. It composes the `PreviewAtoms.js` atoms (KindIcon, PanelHeader, MetaChip, CiteRow / CitesPanel, Previewer / PreviewerPage), never an inline redefinition.
 
-_Beta - local CHESS_PATHS avatar duplicate to resorb toward `IVAvatar` (issue #__)._
+_Beta - local CHESS_PATHS avatar duplicate to resorb toward `IVAvatar` (issue #84)._
 
 ## When to use
 - **Any source preview** opened from the chat, the bordereau, a poste or a citation - one panel, never an ad hoc viewer.

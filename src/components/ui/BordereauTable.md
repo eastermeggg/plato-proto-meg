@@ -15,7 +15,7 @@ The dossier's pièces table: dossier tree, pièce rows (including split piles an
 rows being processed), column sorting, multi-select with an inverted action bar
 (ink fill), context menus, move/rename/delete modals.
 
-_Beta - this table must migrate onto the canonical `ui/tables/RowBordereau` families (issue #__)._
+_Beta - this table must migrate onto the canonical `ui/tables/RowBordereau` families (issue #77)._
 
 ## When to use
 - A dossier's Pièces tab - this is THE bordereau table, with its mutations (`setPieces` / `setCategories`).

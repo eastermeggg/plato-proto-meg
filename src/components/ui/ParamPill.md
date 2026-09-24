@@ -15,7 +15,7 @@ The calculation-parameter pill: PGP rows (« Revalo », « Barème », « Capit 
 « Base journalière ») and the params strip above the composer. OFF = available
 parameter (label only, muted); ON = active parameter (info tint, label + value).
 
-_Beta - the Figma set's Diff state (orange diamond) is not covered: the diff tint family has no tokens (issue #__)._
+_Beta - the Figma set's Diff state (orange diamond) is not covered: the diff tint family has no tokens (issue #83)._
 
 ## When to use
 - A toggleable calculation parameter whose value shows when it's active

@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 The canonical empty state: an icon, a short serif title, a muted line of copy, and up to two actions. This is the sanctioned way to render the "vide" state required on every data screen (AGENTS.md §6) - never re-roll a centered icon + text block inline.
 
-_Beta - actions use inline `<button>`s instead of the `Button` primitive, à migrer (issue #__)._
+_Beta - actions use inline `<button>`s instead of the `Button` primitive, à migrer (issue #79)._
 
 ## When to use
 - The **empty** state of any data screen: no dossiers yet, no pièces imported, an empty search or filter result.

@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 A single bordered container for the field AND its segments: search icon, `https://` prefix, ⌘ shortcut, validation check, send button. The addons live INSIDE the field border, never joined on the outside.
 
-_Beta - Figma focus/error halos mapped to closest tokens; dedicated halo token candidate for promotion (issue #__)._
+_Beta - Figma focus/error halos mapped to closest tokens; dedicated halo token candidate for promotion (issue #81)._
 
 ## When to use
 - Field with a visual prefix/suffix: URL, amount, unit, domain.
