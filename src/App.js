@@ -16842,52 +16842,60 @@ export default function App() {
       <NavItem key={key} variant="create" icon={icon} label={label} onClick={onClick} title={title} />
     );
 
+    // Rail composé sur le shell canonique AppSidebar (src/components/ui/AppSidebar.js) :
+    // la coquille (bord, largeur, fond), le header (h-12 + toggle via onCollapse)
+    // et le footer sont fournis par le composant. Le mode replié (48px) n'est plus
+    // utilisé (tous les appels passent collapsed:false) - la nav est pleine largeur
+    // ou masquée (renderNavSlot anime 264→0).
     return (
-      <div
-        className="border-r border-border flex flex-col flex-shrink-0 overflow-hidden h-full"
-        style={{
-          width: collapsed ? 48 : NAV_WIDTH,
-          // Nav finale (Plato---System 37416:1376) : fond plat #f8f7f5, bord #dfdcd9.
-          background: dsColors.semantic.background,
-        }}
-      >
-        {/* Header - wordmark vectorisé (→ accueil) + contrôle de masquage (spec 5 §2) */}
-        <div
-          className={`h-12 border-b border-border flex items-center flex-shrink-0 ${collapsed ? 'justify-center' : 'pl-4 pr-3 gap-2'}`}
-        >
+      <AppSidebar
+        width={NAV_WIDTH}
+        header={
           <button
             onClick={() => setCurrentPage('home')}
-            className={`flex items-center hover:opacity-80 transition-opacity ${collapsed ? '' : 'flex-1 min-w-0 gap-2'}`}
+            className="flex items-center flex-1 min-w-0 gap-2 hover:opacity-80 transition-opacity"
             title="Accueil"
           >
-            {collapsed ? (
-              <PlatoIcon size={24} />
-            ) : (
-              // Wordmark recoloré via masque : la forme du SVG remplie par le token
-              // foreground → bascule light/dark (l'img seule ne peut pas être recolorée).
-              <span
-                role="img"
-                aria-label="Plato"
-                className="block h-6 flex-shrink-0"
-                style={{
-                  width: 75,
-                  backgroundColor: dsColors.semantic.foreground,
-                  WebkitMask: 'url(/logo-plato-wordmark.svg) left center / contain no-repeat',
-                  mask: 'url(/logo-plato-wordmark.svg) left center / contain no-repeat',
-                }}
+            {/* Wordmark recoloré via masque : la forme du SVG remplie par le token
+                foreground → bascule light/dark (l'img seule ne peut pas être recolorée). */}
+            <span
+              role="img"
+              aria-label="Plato"
+              className="block h-6 flex-shrink-0"
+              style={{
+                width: 75,
+                backgroundColor: dsColors.semantic.foreground,
+                WebkitMask: 'url(/logo-plato-wordmark.svg) left center / contain no-repeat',
+                mask: 'url(/logo-plato-wordmark.svg) left center / contain no-repeat',
+              }}
+            />
+          </button>
+        }
+        onCollapse={inPeek ? expandNav : hideNav}
+        footer={
+          <>
+            {!parrainagePromoHidden && (
+              <NavPromoBanner
+                icon={Gift}
+                label="-10% à chaque parrainage"
+                edge="bottom"
+                title="Programme de parrainage"
+                onClick={() => setParrainageModalOpen(true)}
               />
             )}
-          </button>
-          {!collapsed && (
-            <button
-              onClick={inPeek ? expandNav : hideNav}
-              className="group p-1.5 rounded-md hover:bg-background-subtle transition-colors flex-shrink-0"
-              title={inPeek ? 'Épingler la navigation' : 'Masquer la navigation'}
+            <SidebarUserInfo
+              collapsed={false}
+              onClick={() => setUserMenuOpen(o => !o)}
+              name={currentUser?.name?.split(' ')[0] || 'Mon compte'}
+              org={orgName}
+              showTooltip={!userMenuOpen}
+              avatar={userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 24, currentUser?.name)}
             >
-              <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
-            </button>
-          )}
-        </div>
+              {userMenuOpen && renderUserDropdownPanel('above')}
+            </SidebarUserInfo>
+          </>
+        }
+      >
 
         {/* Bannière « Connectez votre boîte mail » (frame Plato-Design 3757:24847) -
             dégradé bleu horizontal, sous le header, tant qu'aucune boîte n'est
@@ -17005,31 +17013,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Pied du rail - nav FINALE (37416:1376) : bannière parrainage puis
-            compte, RIEN d'autre (le quota hebdomadaire vit dans Mon usage). */}
-        {!collapsed && !parrainagePromoHidden && (
-          <NavPromoBanner
-            icon={Gift}
-            label="-10% à chaque parrainage"
-            edge="bottom"
-            title="Programme de parrainage"
-            onClick={() => setParrainageModalOpen(true)}
-          />
-        )}
-
-        {/* Pied « profil » - composant canonique (ui/SidebarUserInfo, Figma
-            36097:37493). Le menu déroulant (contenu app) reste porté ici en slot. */}
-        <SidebarUserInfo
-          collapsed={collapsed}
-          onClick={() => setUserMenuOpen(o => !o)}
-          name={currentUser?.name?.split(' ')[0] || 'Mon compte'}
-          org={orgName}
-          showTooltip={!userMenuOpen}
-          avatar={userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', collapsed ? 32 : 24, currentUser?.name)}
-        >
-          {userMenuOpen && renderUserDropdownPanel(collapsed ? 'right' : 'above')}
-        </SidebarUserInfo>
-      </div>
+      </AppSidebar>
     );
   };
 
