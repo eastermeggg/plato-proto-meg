@@ -5,13 +5,14 @@
 import React, { createContext, useContext, useState } from 'react';
 import { ArrowDown, Check, Minus, Plus, Scissors, AlertTriangle, X } from 'lucide-react';
 import { ConnectorPromoPanel } from '../../connectors/ConnectorPromo';
+import { V2 } from '../import-v2/pieceRow';
 
 // ── Phase (le calque sync se lève d'un flag - rien ne change de place) ──────
 export const PhaseContext = createContext(2);
 export const usePhase2 = () => useContext(PhaseContext) === 2;
 
 // ── Typo utilitaire ─────────────────────────────────────────────────────────
-export const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: '#78716c' };
+export const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: V2.muted };
 
 export function SectionLabel({ children, right, className = '' }) {
   return (
@@ -33,9 +34,9 @@ export function LabSwitch({ checked, onChange, disabled = false }) {
       disabled={disabled}
       onClick={(e) => { e.stopPropagation(); if (!disabled) onChange?.(!checked); }}
       className="relative flex-shrink-0"
-      style={{ width: 36, height: 20, borderRadius: 999, border: 'none', padding: 0, cursor: disabled ? 'not-allowed' : 'pointer', backgroundColor: checked ? '#292524' : '#e0ddd5', opacity: disabled ? 0.5 : 1, transition: 'background-color 150ms' }}
+      style={{ width: 36, height: 20, borderRadius: 999, border: 'none', padding: 0, cursor: disabled ? 'not-allowed' : 'pointer', backgroundColor: checked ? V2.foreground : 'var(--semantic-input, #e0ddd5)', opacity: disabled ? 0.5 : 1, transition: 'background-color 150ms' }}
     >
-      <span className="absolute" style={{ top: 2, left: checked ? 18 : 2, width: 16, height: 16, borderRadius: 999, backgroundColor: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.18)', transition: 'left 150ms' }} />
+      <span className="absolute" style={{ top: 2, left: checked ? 18 : 2, width: 16, height: 16, borderRadius: 999, backgroundColor: V2.card, boxShadow: '0 1px 2px rgba(0,0,0,0.18)', transition: 'left 150ms' }} />
     </button>
   );
 }
@@ -44,13 +45,13 @@ export function LabSeg({ options, value, onChange }) {
   const seg = (active) => ({
     height: '100%', padding: '0 10px', display: 'flex', alignItems: 'center',
     borderRadius: 6, border: 'none', cursor: 'pointer', transition: 'all 150ms',
-    background: active ? '#ffffff' : 'transparent',
+    background: active ? V2.card : 'transparent',
     boxShadow: active ? '0 1px 4px 0 rgba(26,26,26,0.05), 0 1px 2px 0 rgba(26,26,26,0.05)' : 'none',
     fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500,
-    color: active ? '#292524' : '#78716c', textTransform: 'uppercase', whiteSpace: 'nowrap',
+    color: active ? V2.foreground : V2.muted, textTransform: 'uppercase', whiteSpace: 'nowrap',
   });
   return (
-    <div className="flex items-center h-7 rounded-lg p-0.5 flex-shrink-0" style={{ backgroundColor: '#eeece6' }}>
+    <div className="flex items-center h-7 rounded-lg p-0.5 flex-shrink-0" style={{ backgroundColor: V2.secondary }}>
       {options.map(o => (
         <button key={o.value} type="button" onClick={() => onChange(o.value)} style={seg(value === o.value)}>{o.label}</button>
       ))}
@@ -65,7 +66,7 @@ export function Checkbox({ checked, partial = false, disabled = false, onToggle,
     return (
       <span
         className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border border-border flex-shrink-0 ${className}`}
-        style={{ backgroundColor: '#f5f4f1' }}
+        style={{ backgroundColor: 'var(--semantic-backgroundSubtle, #f5f4f1)' }}
         title={title}
         aria-hidden
       />
@@ -82,54 +83,69 @@ export function Checkbox({ checked, partial = false, disabled = false, onToggle,
       aria-checked={partial ? 'mixed' : checked}
       role="checkbox"
     >
-      <span className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border transition-colors ${on ? 'bg-foreground border-foreground' : 'bg-white border-border-strong'}`} style={on ? undefined : { boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}>
-        {partial ? <Minus className="w-3 h-3 text-white" strokeWidth={3} /> : checked ? <Check className="w-3 h-3 text-white" strokeWidth={3} /> : null}
+      {/* Figma Checkbox (978:50010/12) : 16px, rounded-4, bord input, coche 14. */}
+      <span className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border transition-colors ${on ? 'bg-primary border-primary' : 'bg-surface border-border'}`} style={{ boxShadow: '0px 1px 1px rgba(26,26,26,0.05)' }}>
+        {partial ? <Minus className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={2.5} /> : checked ? <Check className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={2.5} /> : null}
       </span>
     </button>
   );
 }
 
-// Badge « Ajouté » - GRIS neutre (le vert est réservé à « Suivi »). Cliquable
-// pour retirer : il vire au rouge au survol pour annoncer le retrait. Sert
-// d'affordance sur toute ligne entièrement prise (colonne mail).
+// Badge « Ajouté » (planche Threads/Folder, état added) : VERT success-subtle,
+// texte 12 medium, px-6 py-2 rounded-6. Cliquable pour retirer : au survol il
+// devient le bouton 26px « ✕ Retirer » destructive-subtle (état added-hover).
 export function AjouteBadge({ onRemove, title = 'Retirer', label = 'Ajouté' }) {
   const [hover, setHover] = useState(false);
+  if (hover) {
+    return (
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
+        onMouseLeave={() => setHover(false)}
+        className="inline-flex items-center justify-center gap-1.5 h-[26px] px-2 rounded bg-danger-subtle text-danger-text text-[12px] leading-4 font-medium flex-shrink-0"
+        title={title}
+      >
+        <X className="w-3.5 h-3.5" strokeWidth={2} />
+        Retirer
+      </button>
+    );
+  }
   return (
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
       onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0 transition-colors"
-      style={hover
-        ? { backgroundColor: '#fbe9e7', color: '#b4483c' }
-        : { backgroundColor: '#eeece6', color: '#78716c' }}
+      className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-md bg-success-subtle text-success-text text-[12px] leading-4 font-medium flex-shrink-0 whitespace-nowrap"
       title={title}
     >
-      {hover ? <X className="w-2.5 h-2.5" strokeWidth={2.5} /> : <Check className="w-2.5 h-2.5" strokeWidth={2.5} />}
-      {hover ? 'Retirer' : label}
+      {label}
     </button>
   );
 }
 
 // LE contrôle de prise de la colonne mail (il n'y a pas de case à gauche : la
 // gauche prend des objets entiers, une case qui ne se coche jamais serait un
-// mensonge de contrôle). Il ne réserve PAS d'espace : il flotte en absolu au
-// bord droit et n'apparaît qu'au survol / focus, POSÉ sur le contenu (fond
-// plein + ombre) - la ligne garde toute sa largeur pour son contenu.
+// mensonge de contrôle). Il ne réserve PAS d'espace : il n'apparaît qu'au
+// survol / focus, posé sur un voile dégradé au bord droit (planche Threads,
+// état Hover : bouton primaire sombre 26px « + Ajouter » sur fade #f7f6f3).
 export function AjouterChip({ onAdd, label = 'Ajouter', title }) {
   return (
-    <button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
-      className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 inline-flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto transition-opacity"
-      style={{ backgroundColor: '#ffffff', border: '1px solid #cbc7c4', color: '#292524', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.16), 0 1px 2px rgba(28,25,23,0.10)' }}
-      title={title}
-      aria-label={title || label}
+    <span
+      className="absolute inset-y-px right-px z-10 flex items-center justify-end pr-3 pl-16 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto focus-within:opacity-100 focus-within:pointer-events-auto transition-opacity"
+      style={{ background: `linear-gradient(to right, rgba(247,246,243,0) 0%, ${V2.hoverFade} 38%)` }}
     >
-      <Plus className="w-3 h-3" strokeWidth={2.5} />
-      {label}
-    </button>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
+        className="inline-flex items-center justify-center gap-1.5 h-[26px] px-2 rounded bg-primary text-primary-foreground text-[12px] leading-4 font-medium"
+        style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}
+        title={title}
+        aria-label={title || label}
+      >
+        <Plus className="w-3.5 h-3.5" strokeWidth={2} />
+        {label}
+      </button>
+    </span>
   );
 }
 
@@ -137,8 +153,8 @@ export function AjouterChip({ onAdd, label = 'Ajouter', title }) {
 
 export function SuiviBadge() {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium flex-shrink-0" style={{ color: '#4a9168' }}>
-      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4a9168' }} aria-hidden /> Suivi
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium flex-shrink-0" style={{ color: 'var(--accents-meadow, #4a9168)' }}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--accents-meadow, #4a9168)' }} aria-hidden /> Suivi
     </span>
   );
 }
@@ -146,34 +162,38 @@ export function SuiviBadge() {
 export function NonSuiviBadge() {
   return (
     <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground-muted flex-shrink-0">
-      <span className="w-1.5 h-1.5 rounded-full border" style={{ borderColor: '#a8a29e' }} aria-hidden /> Non suivi
+      <span className="w-1.5 h-1.5 rounded-full border" style={{ borderColor: 'var(--semantic-borderHover, #a8a29e)' }} aria-hidden /> Non suivi
     </span>
   );
 }
 
-// « Déjà importé » : le fil a déjà été pioché une fois (snapshot). GRIS neutre
-// (pas de vert : ce n'est pas un suivi). Constat, non cliquable.
+// « Déjà importé » : le fil a déjà été pioché une fois (snapshot). SECONDAIRE
+// neutre (même siège que « Déjà inclu » / « 1/3 ajouté » de la planche Badge :
+// px-6 py-2 rounded-6, texte 12 medium). Constat, non cliquable.
 export function DejaImporteBadge() {
   return (
-    <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#eeece6', color: '#78716c', opacity: 1 }}>
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-secondary text-secondary-foreground text-[12px] leading-4 font-medium flex-shrink-0 whitespace-nowrap">
       Déjà importé
     </span>
   );
 }
 
 // Sur ligne inerte : la ligne est estompée, le badge reste à pleine opacité.
+// Même siège que la planche Badge (px-6 py-2 rounded-6, 12 medium), teinte
+// success-subtle - le vert reste réservé aux états « suivi / ajouté ».
 export function DejaSuiviBadge() {
   return (
-    <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#e4efe8', color: '#3d7a57', opacity: 1 }}>
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-success-subtle text-success-text text-[12px] leading-4 font-medium flex-shrink-0 whitespace-nowrap">
       Déjà suivi
     </span>
   );
 }
 
-// « Nouveau » : pièce arrivée par sync - BLEU (spec §2).
+// « Nouveau » : pièce arrivée par sync - INDIGO (planche Threads/Folder, état
+// new : indigo-subtle #e3e6f2 / indigo-text #2143cc).
 export function NouveauBadge() {
   return (
-    <span className="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium flex-shrink-0" style={{ backgroundColor: '#dfe8f5', color: '#1e3a8a' }}>
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-indigo-subtle text-indigo-text text-[12px] leading-4 font-medium flex-shrink-0 whitespace-nowrap">
       Nouveau
     </span>
   );
@@ -182,7 +202,7 @@ export function NouveauBadge() {
 export function CountBadge({ n }) {
   if (!n) return null;
   return (
-    <span className="inline-flex items-center h-5 px-1.5 rounded-full text-[10px] font-medium tabular-nums flex-shrink-0" style={{ backgroundColor: '#dfe8f5', color: '#1e3a8a' }}>
+    <span className="inline-flex items-center h-5 px-1.5 rounded-full bg-indigo-subtle text-indigo-text text-[10px] font-medium tabular-nums flex-shrink-0">
       +{n}
     </span>
   );
@@ -191,7 +211,7 @@ export function CountBadge({ n }) {
 export function WarnBadge({ n, title }) {
   if (!n) return null;
   return (
-    <span className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-full text-[10px] font-medium tabular-nums flex-shrink-0" style={{ backgroundColor: '#fbe9e7', color: '#b4483c' }} title={title}>
+    <span className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-full text-[10px] font-medium tabular-nums flex-shrink-0" style={{ backgroundColor: 'var(--feedback-destructive-subtle, #fbe9e7)', color: 'var(--feedback-destructive-text, #b4483c)' }} title={title}>
       <AlertTriangle className="w-2.5 h-2.5" strokeWidth={2} /> {n}
     </span>
   );
@@ -213,8 +233,7 @@ export function DecoupeControl({ on, onToggle }) {
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
-        className="inline-flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors"
-        style={{ backgroundColor: '#292524', color: '#f5f4f1' }}
+        className="inline-flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors bg-primary text-primary-foreground"
         title="Sera découpé - cliquer pour annuler"
       >
         <Scissors className="w-3 h-3" strokeWidth={2} />
@@ -249,12 +268,12 @@ export function ModalOverlay({ onClose, children }) {
 
 export function DropOverlay() {
   return (
-    <div className="absolute inset-2 z-30 rounded-xl flex flex-col items-center justify-center gap-4 pointer-events-none" style={{ backgroundColor: 'rgba(238,236,230,0.94)', border: '2px dashed #a8a29e' }}>
-      <div className="bg-white border shadow-sm rounded-full p-4" style={{ borderColor: '#cbc7c4' }}>
-        <ArrowDown className="w-6 h-6 text-stone-600" strokeWidth={1.75} />
+    <div className="absolute inset-2 z-30 rounded-xl flex flex-col items-center justify-center gap-4 pointer-events-none" style={{ backgroundColor: 'color-mix(in srgb, var(--semantic-background, #eeece6) 94%, transparent)', border: '2px dashed var(--semantic-borderHover, #a8a29e)' }}>
+      <div className="bg-surface border shadow-sm rounded-full p-4" style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)' }}>
+        <ArrowDown className="w-6 h-6 text-foreground-secondary" strokeWidth={1.75} />
       </div>
-      <p className="text-base font-medium text-stone-800">Déposer pour ajouter au dossier</p>
-      <p className="text-sm text-stone-500">PDF, images, .eml, .msg, zip d'export Outlook</p>
+      <p className="text-base font-medium text-foreground">Déposer pour ajouter au dossier</p>
+      <p className="text-sm text-foreground-tertiary">PDF, images, .eml, .msg, zip d'export Outlook</p>
     </div>
   );
 }
@@ -282,7 +301,7 @@ export function Droppable({ onFiles, className, style, children, ...rest }) {
 export function ConfirmDialog({ title, children, onClose }) {
   return (
     <div className="absolute inset-0 z-[60] flex items-center justify-center" style={{ backgroundColor: 'rgba(28,25,23,0.32)' }} onClick={(e) => { e.stopPropagation(); onClose?.(); }}>
-      <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl border border-border flex flex-col" style={{ width: 420, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}>
+      <div onClick={(e) => e.stopPropagation()} className="bg-surface rounded-xl border border-border flex flex-col" style={{ width: 420, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}>
         <p className="px-5 pt-4 pb-1 text-[15px] font-semibold text-foreground">{title}</p>
         {children}
       </div>
@@ -301,7 +320,7 @@ export function ConnectScreen({ onConnect, compact = false }) {
 export function Elbow() {
   return (
     <span className="flex-shrink-0" aria-hidden style={{ width: 18, height: 18 }}>
-      <span className="block" style={{ width: 15, height: 18, marginLeft: 3, borderLeft: '1.11px solid #cbc7c4', borderBottom: '1.11px solid #cbc7c4', borderBottomLeftRadius: 5 }} />
+      <span className="block" style={{ width: 15, height: 18, marginLeft: 3, borderLeft: '1.11px solid var(--semantic-borderStrong, #cbc7c4)', borderBottom: '1.11px solid var(--semantic-borderStrong, #cbc7c4)', borderBottomLeftRadius: 5 }} />
     </span>
   );
 }

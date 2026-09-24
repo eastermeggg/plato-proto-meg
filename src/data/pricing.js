@@ -10,6 +10,7 @@ import {
   Folder, Users, Sparkles, Calculator, BookOpen, ClipboardList, ShieldCheck, Download,
   Scale, FileSpreadsheet, Stamp,
 } from 'lucide-react';
+import { colors } from '../design-system/tokens';
 
 export const PRICING_PLANS = [
   // weeklyEuros = euro-equivalent of real AI usage the weekly quota covers (admin-facing
@@ -24,9 +25,9 @@ export const PLAN_BY_ID = Object.fromEntries(PRICING_PLANS.map((p) => [p.id, p])
 // Weekly-usage gauge ramp - on-brand stone → amber → peach as the week fills.
 // No green/red: stays inside the stone+cream+peach palette.
 export const quotaTone = (pct) => {
-  if (pct >= 90) return { fill: '#bd6c1a', text: '#855b31', track: '#f1e4d3', warn: true };
-  if (pct >= 70) return { fill: '#c98a3c', text: '#855b31', track: '#eeece6', warn: false };
-  return { fill: '#292524', text: '#78716c', track: '#eeece6', warn: false };
+  if (pct >= 90) return { fill: colors.feedback.warning.base, text: colors.feedback.warning.text, track: colors.piece.factures.bg, warn: true };
+  if (pct >= 70) return { fill: colors.banner.warning.accent, text: colors.feedback.warning.text, track: colors.semantic.muted, warn: false };
+  return { fill: colors.semantic.foreground, text: colors.semantic.mutedForeground, track: colors.semantic.muted, warn: false };
 };
 
 // Demo weekly-usage % for the current user, driven by the billing demo switcher.

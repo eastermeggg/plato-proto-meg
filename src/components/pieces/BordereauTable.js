@@ -590,7 +590,7 @@ function SelectionActionBar({ count, onMove, onDelete, onDownload, onClear, onAs
         marginRight: 10,
         userSelect: 'none',
       }}>
-        <span style={{ color: '#ffffff' }}>{count}</span>
+        <span style={{ color: colors.semantic.white }}>{count}</span>
         {' '}sélectionné{count > 1 ? 's' : ''}
       </span>
 
@@ -623,11 +623,11 @@ function ActionIcon({ icon: Icon, title, onClick, destructive, tone }) {
   const dark = tone === 'dark';
   let restColor, hoverColor;
   if (destructive) {
-    restColor  = dark ? '#fca5a5' : '#991b1b';
-    hoverColor = dark ? '#fecaca' : '#7f1d1d';
+    restColor  = dark ? colors.banner.error.border : colors.feedback.destructive.base;
+    hoverColor = dark ? colors.banner.error.border : colors.feedback.destructive.text;
   } else if (dark) {
     restColor  = 'rgba(238, 236, 230, 0.72)';
-    hoverColor = '#ffffff';
+    hoverColor = colors.semantic.card;
   } else {
     restColor  = colors.semantic.foregroundSecondary;
     hoverColor = colors.semantic.foreground;
@@ -687,7 +687,7 @@ function SelectionBarButton({ icon: Icon, label, title, onClick }) {
         color: colors.semantic.cream,
         transition: 'background 120ms ease-out, color 120ms ease-out',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(238, 236, 230, 0.18)'; e.currentTarget.style.color = '#ffffff'; }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(238, 236, 230, 0.18)'; e.currentTarget.style.color = colors.semantic.white; }}
       onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(238, 236, 230, 0.10)'; e.currentTarget.style.color = colors.semantic.cream; }}
     >
       <Icon style={{ width: 15, height: 15 }} strokeWidth={1.75} />
@@ -734,8 +734,8 @@ function PileProcessingRow({ piece, depth }) {
 function AddToContextButton({ tone, onClick }) {
   const dark = tone === 'dark';
   // On dark bg: light info-blue (#93c5fd) reads clearly; on light bg keep the existing info accent.
-  const restColor  = dark ? '#93c5fd' : colors.banner.info.accent;
-  const hoverColor = dark ? '#bfdbfe' : colors.banner.info.accentHover;
+  const restColor  = dark ? colors.chart[0] : colors.banner.info.accent;
+  const hoverColor = dark ? colors.banner.info.border : colors.banner.info.accentHover;
   return (
     <button
       type="button"

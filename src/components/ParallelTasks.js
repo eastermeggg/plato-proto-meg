@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, X, Layers } from 'lucide-react';
 import ReasoningStepper, { STEP_COLORS } from './ReasoningStepper';
+import { colors } from '../design-system/tokens';
 
 // ── ParallelTasks ────────────────────────────────────────────────────
 // Several ReasoningStepper traces running at once (one per sub-agent),
@@ -120,7 +121,7 @@ const TaskSection = ({ task, defaultOpen, card }) => {
 
   const trace = open && (
     <div style={card
-      ? { padding: '8px 12px 12px 34px', backgroundColor: '#fcfbfa', borderTop: '1px solid #dfdcda' }
+      ? { padding: '8px 12px 12px 34px', backgroundColor: colors.banner.neutral.bgFrom, borderTop: `1px solid ${colors.semantic.borderAlt}` }
       : { paddingLeft: 24, paddingBottom: 4 }}>
       <ReasoningStepper status="streaming" steps={task.steps} loadingIndicator="dot" onToggle={() => {}} />
     </div>
@@ -128,7 +129,7 @@ const TaskSection = ({ task, defaultOpen, card }) => {
 
   if (card) {
     return (
-      <div className="rounded-lg border border-border bg-white overflow-hidden">
+      <div className="rounded-lg border border-border bg-surface overflow-hidden">
         {header}
         {trace}
       </div>
@@ -140,7 +141,7 @@ const TaskSection = ({ task, defaultOpen, card }) => {
 // ── Inline expansion (unfolds in the chat) ───────────────────────────
 
 const InlineTasks = ({ tasks = [] }) => (
-  <div className="reasoning-children-expand" style={{ marginLeft: 8, paddingLeft: 12, borderLeft: '1px solid #dfdcda' }}>
+  <div className="reasoning-children-expand" style={{ marginLeft: 8, paddingLeft: 12, borderLeft: `1px solid ${colors.semantic.borderAlt}` }}>
     {tasks.map((task, i) => (
       <TaskSection
         key={task.id != null ? task.id : i}
@@ -173,7 +174,7 @@ export const ParallelTasksPanel = ({ tasks = [], onClose, onClear, title = 'Tâc
         }}
       />
       <div
-        className="fixed top-0 h-screen bg-white border-l border-border flex flex-col"
+        className="fixed top-0 h-screen bg-surface border-l border-border flex flex-col"
         style={{
           width: 480,
           maxWidth: 'calc(100vw - var(--chat-offset, 0px))',
@@ -204,7 +205,7 @@ export const ParallelTasksPanel = ({ tasks = [], onClose, onClear, title = 'Tâc
           </button>
         </div>
         {/* Body — grouped by status, one calm card per sub-agent */}
-        <div className="flex-1 overflow-y-auto px-4" style={{ backgroundColor: '#faf9f7' }}>
+        <div className="flex-1 overflow-y-auto px-4" style={{ backgroundColor: colors.semantic.background }}>
           {running.length > 0 && (
             <section>
               <div className="pt-4 pb-1.5"><span style={SECTION_LABEL}>En cours d'exécution</span></div>

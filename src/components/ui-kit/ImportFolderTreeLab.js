@@ -58,7 +58,7 @@ function TreeNode({ node, depth, excluded, expanded, onToggleNode, onToggleExpan
   return (
     <>
       <div
-        className="group flex items-center gap-2 rounded-lg transition-colors hover:bg-cream/60"
+        className="group flex items-center gap-2 rounded-lg transition-colors hover:bg-background-subtle"
         style={{ paddingLeft: 8 + depth * 18, paddingRight: 8, height: 34 }}
       >
         {/* Chevron (ou espace) */}

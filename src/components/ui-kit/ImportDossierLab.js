@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { PhaseContext, LabSeg, LabSwitch, monoLabel } from './import/atoms';
 import GesteCModal from './import/GesteCModal';
 import GesteBModal from './import/GesteBModal';
+import CreateMatterModal, { createMatterRecap } from './import/CreateMatterModal';
 import PiecesPage from './import/PiecesPage';
 import {
   seedPieces, seedSources, seedSuggestions, PENDING_ARRIVALS, mkPiece,
@@ -370,6 +371,22 @@ export default function ImportDossierLab() {
     ].filter(Boolean).join(' · '));
   };
 
+  // ── Commit du geste B v2 (modale 3 étapes) : le dossier vit hors du store
+  // Leblanc - toast avec la répartition par camp. ──
+  const commitCreateMatter = ({ nom, clientItems, adverseItems, decoupe }) => {
+    setModal(null);
+    if (clientItems.length === 0 && adverseItems.length === 0) {
+      showToast(`Dossier « ${nom} » créé sans contenu - déposez les pièces quand vous voulez`);
+      return;
+    }
+    const { nC, nA } = createMatterRecap({ clientItems, adverseItems, decoupe });
+    showToast([
+      `Dossier « ${nom} » créé`,
+      nC ? `≈ ${nC} pièce${nC > 1 ? 's' : ''} client` : null,
+      nA ? `≈ ${nA} pièce${nA > 1 ? 's' : ''} adverse${nA > 1 ? 's' : ''}` : null,
+    ].filter(Boolean).join(' · '));
+  };
+
   const dejaSuiviFolderIds = useMemo(() => new Set(sources.filter(s => s.kind === 'folder' && s.followed && s.refId).map(s => s.refId)), [sources]);
   const dejaSuiviThreadIds = useMemo(() => new Set(sources.filter(s => s.kind === 'thread' && s.followed && s.refId).map(s => s.refId)), [sources]);
   // Fils déjà importés une fois dans Leblanc (snapshot) - certains ont grossi
@@ -433,6 +450,12 @@ export default function ImportDossierLab() {
               title="Nouveau dossier"
               desc="B = C + fiche, en deux étapes : la fiche (nom, client, « Créer sans contenu »), puis le contenu initial - même colonne mail, même panier. Nom prérempli par le premier dossier Outlook ajouté ; un dossier ajouté ici est suivi par défaut (création = miroir). Un échange, lui, est un objet importé - jamais une source."
               onOpen={() => setModal('b')}
+            />
+            <LauncherCard
+              badge="Geste B v2 · nouveau dossier"
+              title="Nouveau dossier (3 étapes)"
+              desc="La modale de création pixel-perfect Figma : stepper horizontal (Nom du dossier · Pièces client · Pièces adverses), question serif centrée, puis dépôt par camp - colonne mail repliable + bordereau (DOCUMENTS EMAILS / uploadés), drop inline, découpe. Deux paniers séparés : client et adverse ne se mélangent jamais."
+              onOpen={() => setModal('nv')}
             />
             {SYNC_ENABLED && (
               <LauncherCard
@@ -602,6 +625,14 @@ export default function ImportDossierLab() {
           <GesteBModal
             onClose={() => setModal(null)}
             onCommit={commitGesteB}
+            connected={connected}
+            onConnect={() => setConnected(true)}
+          />
+        )}
+        {modal === 'nv' && (
+          <CreateMatterModal
+            onClose={() => setModal(null)}
+            onCommit={commitCreateMatter}
             connected={connected}
             onConnect={() => setConnected(true)}
           />

@@ -1,5 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import Badge from '../ui/Badge';
+import { colors, shadows } from '../../design-system/tokens';
 
 // JP list-item / standalone card.
 // Figma:
@@ -43,31 +45,12 @@ const formatDateNumeric = (isoDate) => {
 // Heuristic — status text containing "décéd" renders destructive.
 const isDestructiveStatus = (s) => /décéd/i.test(String(s || ''));
 
-function Badge({ children, tone = 'secondary' }) {
-  const palette = {
-    secondary:   { backgroundColor: '#eeece6', color: '#44403c' },
-    info:        { backgroundColor: '#dfe8f5', color: '#1e3a8a' },
-    accent:      { backgroundColor: '#fdf3ec', color: '#b9703f' },
-    destructive: { backgroundColor: '#991b1b', color: '#ffffff' },
-    outlined:    { backgroundColor: 'transparent', color: '#44403c', border: '1px solid #dfdcd9' },
-  }[tone] || { backgroundColor: '#eeece6', color: '#44403c' };
-  return (
-    <span
-      className="inline-flex items-center justify-center"
-      style={{
-        ...palette,
-        padding: '2px 8px',
-        borderRadius: 6,
-        fontFamily: "'Inter', system-ui, sans-serif",
-        fontSize: 12, fontWeight: 500, lineHeight: '16px',
-        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        maxWidth: 220,
-      }}
-    >
-      {children}
-    </span>
-  );
-}
+// Badges : composant DS (ui/Badge). L'ancienne Badge locale (5 tons) est
+// remplacée par les variants DS — secondary/destructive exacts, info/outline
+// convergent d'un demi-cran, accent = variant DS validé steward 24/09 (fg
+// brand.darker.subtleForeground, AA — l'ochre local était sous AA).
+const BADGE_MAX = { maxWidth: 220 };
+const toneToVariant = (tone) => (tone === 'outlined' ? 'outline' : tone || 'accent');
 
 export default function JPMemoryRow({
   decision,
@@ -95,32 +78,32 @@ export default function JPMemoryRow({
 
   const containerStyle = bordered
     ? {
-        border: '1px solid #dfdcd9',
+        border: `1px solid ${colors.semantic.border}`,
         borderRadius: 8,
         padding: 13,
-        boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.04)',
+        boxShadow: shadows.xs,
       }
     : {
-        borderBottom: '1px solid #dfdcd9',
+        borderBottom: `1px solid ${colors.semantic.border}`,
         padding: '12px 12px 13px 12px',
       };
 
   return (
     <div
       onClick={onClick}
-      className="bg-white group"
+      className="bg-surface group"
       style={{
         ...containerStyle,
         cursor: interactive ? 'pointer' : 'default',
         transition: 'background-color 0.18s ease, box-shadow 0.24s ease',
       }}
       onMouseOver={interactive ? (e) => {
-        e.currentTarget.style.backgroundColor = '#fafaf9';
-        if (bordered) e.currentTarget.style.boxShadow = '0px 12px 32px -6px rgba(26,26,26,0.10), 0px 4px 10px -4px rgba(26,26,26,0.05)';
+        e.currentTarget.style.backgroundColor = colors.banner.neutral.bgFrom;
+        if (bordered) e.currentTarget.style.boxShadow = shadows['2xl'];
       } : undefined}
       onMouseOut={interactive ? (e) => {
-        e.currentTarget.style.backgroundColor = '#ffffff';
-        if (bordered) e.currentTarget.style.boxShadow = '0px 1px 2px 0px rgba(26,26,26,0.04)';
+        e.currentTarget.style.backgroundColor = colors.semantic.white;
+        if (bordered) e.currentTarget.style.boxShadow = shadows.xs;
       } : undefined}
     >
       <div className="flex flex-col" style={{ gap: 14 }}>
@@ -132,7 +115,7 @@ export default function JPMemoryRow({
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                color: '#292524', margin: 0,
+                color: colors.semantic.foreground, margin: 0,
               }}
             >
               {title}
@@ -143,7 +126,7 @@ export default function JPMemoryRow({
                   style={{
                     fontFamily: "'Inter', system-ui, sans-serif",
                     fontSize: 12, fontWeight: 400, lineHeight: '16px',
-                    color: '#78716c', letterSpacing: '0.12px',
+                    color: colors.semantic.mutedForeground, letterSpacing: '0.12px',
                     margin: 0, whiteSpace: 'nowrap',
                   }}
                 >
@@ -152,15 +135,15 @@ export default function JPMemoryRow({
               )}
               {onRemove && (
                 <>
-                  <span style={{ width: 1, height: 12, backgroundColor: '#d9d9d9' }} />
+                  <span style={{ width: 1, height: 12, backgroundColor: colors.semantic.borderAlt }} />
                   <button
                     onClick={(e) => { e.stopPropagation(); onRemove(decision); }}
                     title={removeTitle}
                     aria-label={removeTitle}
                     className="inline-flex items-center justify-center rounded transition-colors"
-                    style={{ width: 20, height: 20, color: '#a8a29e', backgroundColor: 'transparent' }}
-                    onMouseOver={(e) => { e.currentTarget.style.color = '#7f1d1d'; e.currentTarget.style.backgroundColor = '#fef2f2'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.color = '#a8a29e'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    style={{ width: 20, height: 20, color: colors.semantic.foregroundMuted, backgroundColor: 'transparent' }}
+                    onMouseOver={(e) => { e.currentTarget.style.color = colors.feedback.destructive.text; e.currentTarget.style.backgroundColor = colors.step.red.bg; }}
+                    onMouseOut={(e) => { e.currentTarget.style.color = colors.semantic.foregroundMuted; e.currentTarget.style.backgroundColor = 'transparent'; }}
                   >
                     <X className="w-3.5 h-3.5" strokeWidth={1.75} />
                   </button>
@@ -173,7 +156,7 @@ export default function JPMemoryRow({
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 fontSize: 12, fontWeight: 400, lineHeight: '16px',
-                color: '#78716c', letterSpacing: '0.12px', margin: 0,
+                color: colors.semantic.mutedForeground, letterSpacing: '0.12px', margin: 0,
               }}
             >
               {subtitle}
@@ -185,15 +168,22 @@ export default function JPMemoryRow({
         <div className="flex items-center" style={{ gap: 10 }}>
           <div className="flex flex-wrap items-center" style={{ gap: 6, flex: '1 0 0', minWidth: 0 }}>
             {extraBadges.map((b, i) => (
-              <Badge key={`x-${i}`} tone={b.tone || 'accent'}>{b.label}</Badge>
+              <Badge key={`x-${i}`} variant={toneToVariant(b.tone)} label={b.label} style={BADGE_MAX} />
             ))}
-            {decision.category && <Badge tone="secondary">{decision.category}</Badge>}
-            {decision.status && <Badge tone={statusTone}>{decision.status}</Badge>}
+            {decision.category && <Badge variant="secondary" label={decision.category} style={BADGE_MAX} />}
+            {decision.status && <Badge variant={statusTone} label={decision.status} style={BADGE_MAX} />}
             {amounts.map((a, i) => (
-              <Badge key={`a-${i}`} tone="info">
-                <span>{a.poste}{' '}</span>
-                <span style={{ color: statusTone === 'destructive' ? '#1e3a8a' : '#44403c' }}>{a.displayValue}</span>
-              </Badge>
+              <Badge
+                key={`a-${i}`}
+                variant="info"
+                style={BADGE_MAX}
+                label={
+                  <>
+                    <span>{a.poste}{' '}</span>
+                    <span style={{ color: statusTone === 'destructive' ? colors.feedback.info.text : colors.semantic.foregroundTertiary }}>{a.displayValue}</span>
+                  </>
+                }
+              />
             ))}
           </div>
           {resolvedTagsAction && (
@@ -211,7 +201,7 @@ export default function JPMemoryRow({
           <div style={{ padding: '0 2px' }}>
             <div
               style={{
-                borderLeft: '2px solid #ac9e8b',
+                borderLeft: `2px solid ${colors.semantic.borderHover}`,
                 paddingLeft: 15, paddingTop: 4, paddingBottom: 4,
                 display: 'flex', flexDirection: 'column', gap: 10,
               }}
@@ -219,7 +209,7 @@ export default function JPMemoryRow({
               <div
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 11, fontWeight: 500, color: '#78716c',
+                  fontSize: 11, fontWeight: 500, color: colors.semantic.mutedForeground,
                   textTransform: 'uppercase', letterSpacing: 0,
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}
@@ -230,7 +220,7 @@ export default function JPMemoryRow({
                 style={{
                   fontFamily: "'Inter', system-ui, sans-serif",
                   fontSize: 12, fontWeight: 400, lineHeight: '16px',
-                  color: '#292524', letterSpacing: '0.12px', margin: 0,
+                  color: colors.semantic.foreground, letterSpacing: '0.12px', margin: 0,
                   display: '-webkit-box',
                   WebkitLineClamp: 4,
                   WebkitBoxOrient: 'vertical',
@@ -249,7 +239,7 @@ export default function JPMemoryRow({
         <div
           className="flex items-center justify-between"
           style={{
-            borderTop: '1px solid #dfdcd9',
+            borderTop: `1px solid ${colors.semantic.border}`,
             marginTop: 14,
             paddingTop: 10,
             paddingLeft: 2,
@@ -259,7 +249,7 @@ export default function JPMemoryRow({
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 11, fontWeight: 500,
-              color: '#78716c', textTransform: 'uppercase',
+              color: colors.semantic.mutedForeground, textTransform: 'uppercase',
               letterSpacing: 0, margin: 0,
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}
@@ -271,7 +261,7 @@ export default function JPMemoryRow({
               {footerRight
                 ? footerRight
                 : footerChips.map((c, i) => (
-                    <Badge key={`fc-${i}`} tone="outlined">{c}</Badge>
+                    <Badge key={`fc-${i}`} variant="outline" label={c} style={BADGE_MAX} />
                   ))}
             </div>
           )}

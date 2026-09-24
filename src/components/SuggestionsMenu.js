@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors } from '../design-system/tokens';
 
 /**
  * SuggestionsMenu — Plato design system.
@@ -27,7 +28,7 @@ export default function SuggestionsMenu({
 }) {
   return (
     <div
-      className={`bg-white border border-border rounded-[8px] overflow-hidden ${className}`}
+      className={`bg-surface border border-border rounded-[8px] overflow-hidden ${className}`}
       style={{
         boxShadow:
           '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
@@ -37,8 +38,8 @@ export default function SuggestionsMenu({
         className="flex items-center px-[10px]"
         style={{
           height: 32,
-          backgroundColor: '#f8f7f5',
-          borderBottom: '1px solid #dfdcd9',
+          backgroundColor: colors.semantic.background,
+          borderBottom: `1px solid ${colors.semantic.border}`,
         }}
       >
         <span
@@ -46,7 +47,7 @@ export default function SuggestionsMenu({
             fontFamily: "'IBM Plex Mono', monospace",
             fontSize: 11,
             fontWeight: 500,
-            color: '#78716c',
+            color: colors.semantic.mutedForeground,
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
           }}
@@ -65,7 +66,7 @@ export default function SuggestionsMenu({
                 type="button"
                 onClick={it.onClick}
                 disabled={isDisabled}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-[6px] hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface transition-colors"
               >
                 {Icon && (
                   <Icon

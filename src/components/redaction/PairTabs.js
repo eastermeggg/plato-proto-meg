@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors } from '../../design-system/tokens';
 
 // Segmented control for a linked acte/bordereau pair. Matches the
 // "Par poste / Par victime" toggle used in the IV-victim chiffrage block
@@ -19,7 +20,7 @@ export default function PairTabs({ acte, bordereau, activeId, onSwitch }) {
   return (
     <div
       className="inline-flex items-center gap-0 h-8 rounded-lg p-1 flex-shrink-0"
-      style={{ backgroundColor: '#eeece6' }}
+      style={{ backgroundColor: colors.semantic.muted }}
     >
       <Segment
         label="Acte"
@@ -44,14 +45,14 @@ function Segment({ label, active, onClick, tooltip }) {
       title={tooltip}
       className={`h-full px-3 min-w-[72px] flex items-center justify-center rounded-md transition-all ${
         active
-          ? 'bg-white shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent'
+          ? 'bg-surface shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent'
           : ''
       }`}
       style={{
         fontFamily: "'IBM Plex Mono', monospace",
         fontSize: 11,
         fontWeight: 500,
-        color: active ? '#292524' : '#78716c',
+        color: active ? colors.semantic.foreground : colors.semantic.mutedForeground,
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
       }}

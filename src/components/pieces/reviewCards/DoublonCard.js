@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Copy, Check, Undo2, FileText } from 'lucide-react';
 import { CardShell, CardIcon, CardLabel, DismissBar, DISMISS_MS, btnLight } from './CardShell';
+import { colors } from '../../../design-system/tokens';
 
 // Possible-duplicate card with two phases in the same shell:
 //   • choice — new ≈ existing filenames + Garder les deux / Ignorer / Voir.
@@ -18,7 +19,7 @@ export default function DoublonCard({ name, ofName, onKeepBoth, onIgnore, onView
   if (done) {
     return (
       <CardShell>
-        <CardIcon bg="#e7f3ec" color="#4a9168"><Check className="w-3.5 h-3.5" strokeWidth={2.25} /></CardIcon>
+        <CardIcon bg={colors.feedback.success.subtle} color={colors.accents.meadow}><Check className="w-3.5 h-3.5" strokeWidth={2.25} /></CardIcon>
         <CardLabel name={done === 'ignored' ? 'Doublon ignoré' : 'Les deux conservés'} state={name} />
         <button onClick={() => setDone(null)} className={btnLight}>
           <Undo2 className="w-3.5 h-3.5" strokeWidth={1.75} />Annuler
@@ -29,7 +30,7 @@ export default function DoublonCard({ name, ofName, onKeepBoth, onIgnore, onView
   }
   return (
     <CardShell>
-      <CardIcon bg="#fdf4e7" color="#b45309"><Copy className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
+      <CardIcon bg={colors.feedback.warning.subtle} color={colors.banner.warning.accentHover}><Copy className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
       <div className="flex-1 min-w-0">
         <div className="text-[13px] leading-[16px] font-medium text-foreground-strong">Doublon possible</div>
         <div className="mt-1 flex items-center gap-1.5 text-[12px] leading-[16px] text-foreground-secondary min-w-0">

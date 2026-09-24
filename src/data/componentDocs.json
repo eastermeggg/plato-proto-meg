@@ -1,0 +1,917 @@
+{
+  "_doc": "GÉNÉRÉ depuis src/components/ui/*.md par scripts/gen-component-docs.mjs — ne pas éditer à la main.",
+  "generatedFrom": "src/components/ui",
+  "components": {
+    "Alert": {
+      "name": "Alert",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Inline non-blocking message banner - icon + title + description, 4 semantic variants",
+      "source": "src/components/ui/Alert.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2813-9373",
+      "docFile": "src/components/ui/Alert.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "AlertDialog": {
+      "name": "AlertDialog",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Confirmation / destructive action - icon, serif title, description, two buttons",
+      "source": "src/components/AlertDialog.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6724-21154",
+      "docFile": "src/components/ui/AlertDialog.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "AppSidebar": {
+      "name": "AppSidebar",
+      "package": "plato",
+      "status": "beta",
+      "usage": "THE canonical navigation shell (left rail) - compose, never re-roll",
+      "source": "src/components/ui/AppSidebar.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-42882",
+      "docFile": "src/components/ui/AppSidebar.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "AssistantComposer": {
+      "name": "AssistantComposer",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The rich Plato assistant composer (input + toolbar + scope + attachments)",
+      "source": "src/components/assistant/AssistantComposer.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1081-50926",
+      "docFile": "src/components/ui/AssistantComposer.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Avatar": {
+      "name": "Avatar",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Generic person avatar - initials or image, round or square, 7 token palettes",
+      "source": "src/components/ui/Avatar.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11240",
+      "docFile": "src/components/ui/Avatar.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Badge": {
+      "name": "Badge",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Inline status / tag / count label (non-interactive)",
+      "source": "src/components/ui/Badge.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=136-1178",
+      "docFile": "src/components/ui/Badge.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "BordereauTable": {
+      "name": "BordereauTable",
+      "package": "plato",
+      "status": "beta",
+      "usage": "The bordereau de pièces table - real instance of the custom table system",
+      "source": "src/components/pieces/BordereauTable.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670",
+      "docFile": "src/components/ui/BordereauTable.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Button": {
+      "name": "Button",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The single action affordance - anything the user clicks to DO something",
+      "source": "src/components/ui/Button.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11933",
+      "docFile": "src/components/ui/Button.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "ButtonGroup": {
+      "name": "ButtonGroup",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Segmented button group (related actions, split button)",
+      "source": "src/components/ui/ButtonGroup.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=28685-126219",
+      "docFile": "src/components/ui/ButtonGroup.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Calendar": {
+      "name": "Calendar",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Pick a date from a monthly grid (forms, filters, deadlines)",
+      "source": "src/components/ui/Calendar.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-19886",
+      "docFile": "src/components/ui/Calendar.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Card": {
+      "name": "Card",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Surface carte générique - Header (titre + description) / Content / Footer",
+      "source": "src/components/ui/Card.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "null",
+      "docFile": "src/components/ui/Card.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Chart": {
+      "name": "Chart",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Data visualization (bars, lines, areas, pies) on the chart ramp",
+      "source": "src/components/ui/Chart.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-21571",
+      "docFile": "src/components/ui/Chart.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "ChatComposerNotice": {
+      "name": "ChatComposerNotice",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Status banner above the chat composer (analyzing / quota)",
+      "source": "src/components/ChatComposerNotice.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "null",
+      "docFile": "src/components/ui/ChatComposerNotice.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Checkbox": {
+      "name": "Checkbox",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Case à cocher - off / on / indéterminé (tri-state)",
+      "source": "src/components/ui/Checkbox.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-21779",
+      "docFile": "src/components/ui/Checkbox.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "CiteRow": {
+      "name": "CiteRow",
+      "package": "plato",
+      "status": "stable",
+      "usage": "One row of the Doc Preview \"Extraits cités\" rail",
+      "source": "src/components/preview/PreviewAtoms.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-8836",
+      "docFile": "src/components/ui/CiteRow.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Combobox": {
+      "name": "Combobox",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Search-driven picker - type to filter a long list",
+      "source": "src/components/ui/Combobox.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-22160",
+      "docFile": "src/components/ui/Combobox.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "DataTableCell": {
+      "name": "DataTableCell",
+      "package": "plato",
+      "status": "beta",
+      "usage": "The atomic typed cell — the only building block of every Plato custom table row",
+      "source": "src/components/ui/DataTableCell.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-5657",
+      "docFile": "src/components/ui/DataTableCell.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "DataTableHeader": {
+      "name": "DataTableHeader",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Column header cell of the custom Plato tables (text, sort button, select checkbox)",
+      "source": "src/components/ui/DataTableHeader.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2768-27447",
+      "docFile": "src/components/ui/DataTableHeader.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Dialog": {
+      "name": "Dialog",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Content modal (form, list, text) - serif header, scrolling body, action footer",
+      "source": "src/components/ui/Dialog.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6831-11140",
+      "docFile": "src/components/ui/Dialog.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "DomainTableRows": {
+      "name": "DomainTableRows",
+      "package": "plato",
+      "status": "beta",
+      "usage": "The domain row families of every Plato table - composed ONLY from DataTableCell instances",
+      "source": "src/components/ui/tables/",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670",
+      "docFile": "src/components/ui/DomainTableRows.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Drawer": {
+      "name": "Drawer",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Master side panel (right/left) - overlay that never hides the chat",
+      "source": "src/components/ui/Drawer.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37749-1024",
+      "docFile": "src/components/ui/Drawer.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "DropZone": {
+      "name": "DropZone",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Drag-and-drop / click-to-browse file input surface",
+      "source": "src/components/ui/DropZone.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=35747-41445",
+      "docFile": "src/components/ui/DropZone.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Dropdown": {
+      "name": "Dropdown",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Actions / navigation menu anchored to a trigger (Select menu skin)",
+      "source": "src/components/ui/Dropdown.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-24797",
+      "docFile": "src/components/ui/Dropdown.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "EmptyState": {
+      "name": "EmptyState",
+      "package": "plato",
+      "status": "beta",
+      "usage": "The empty state of a data screen - icon + copy + up to two actions",
+      "source": "src/components/EmptyState.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=33462-36283",
+      "docFile": "src/components/ui/EmptyState.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "IVAvatar": {
+      "name": "IVAvatar",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Chess-piece avatar for victims (IV) and users",
+      "source": "src/components/IVAvatar.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36533-7935",
+      "docFile": "src/components/ui/IVAvatar.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Labelled form control - a label + optional helper wrapping an input slot",
+      "source": "src/components/ui/Input.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=33541-69574",
+      "docFile": "src/components/ui/Input.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "InputGroup": {
+      "name": "InputGroup",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Field with addons joined inside a single bordered container (icon, prefix, Kbd, button)",
+      "source": "src/components/ui/InputGroup.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=27510-119942",
+      "docFile": "src/components/ui/InputGroup.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Item": {
+      "name": "Item",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Generic list / menu row (media + title + description + actions)",
+      "source": "src/components/ui/Item.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=32847-5869",
+      "docFile": "src/components/ui/Item.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "JPListing": {
+      "name": "JPListing",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Canonical JP decision card (4 contexts) + listing stack",
+      "source": "src/components/jp/JPListing.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=2219-19197",
+      "docFile": "src/components/ui/JPListing.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Kbd": {
+      "name": "Kbd",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Inline keyboard shortcut (single key or combination)",
+      "source": "src/components/ui/Kbd.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=29794-42330",
+      "docFile": "src/components/ui/Kbd.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "KindIcon": {
+      "name": "KindIcon",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The Doc Preview identity chip - an icon on a per-kind subtle fill",
+      "source": "src/components/preview/PreviewAtoms.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9147",
+      "docFile": "src/components/ui/KindIcon.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "LoiHoverCard": {
+      "name": "LoiHoverCard",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Identity card of an article de loi shown on hover of an inline reference",
+      "source": "src/components/ui/LoiHoverCard.js",
+      "demo": "src/components/ui-kit/LoiHoverLab.js",
+      "replacedBy": "null",
+      "docFile": "src/components/ui/LoiHoverCard.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "MetaChip": {
+      "name": "MetaChip",
+      "package": "plato",
+      "status": "beta",
+      "usage": "The Doc Preview metadata chip (14 canonical types)",
+      "source": "src/components/preview/PreviewAtoms.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9177",
+      "docFile": "src/components/ui/MetaChip.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "NavExpandControl": {
+      "name": "NavExpandControl",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The « Menu » control that reopens the rail when the nav is hidden",
+      "source": "src/components/shell/NavExpandControl.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37443-5724",
+      "docFile": "src/components/ui/NavExpandControl.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "NavItem": {
+      "name": "NavItem",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The org nav row (Plato rail) - destination / recent / create / see-all",
+      "source": "src/components/shell/NavItem.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37441-55015",
+      "docFile": "src/components/ui/NavItem.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "NavPromoBanner": {
+      "name": "NavPromoBanner",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Contextual rail promo banner (mailbox not connected / referral)",
+      "source": "src/components/shell/NavPromoBanner.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37471-1271",
+      "docFile": "src/components/ui/NavPromoBanner.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "NavSectionHeader": {
+      "name": "NavSectionHeader",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The mono header of a rail section (« DOSSIERS RÉCENTS ») + optional action",
+      "source": "src/components/shell/NavSectionHeader.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37457-4903",
+      "docFile": "src/components/ui/NavSectionHeader.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Niveau3Strip": {
+      "name": "Niveau3Strip",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The level-3 context bar (poste / acte / JP / documents) below the tabs",
+      "source": "src/components/shell/Niveau3Strip.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37447-5922",
+      "docFile": "src/components/ui/Niveau3Strip.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "PageHeader": {
+      "name": "PageHeader",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The page header (serif title + action + optional tabs) above the content",
+      "source": "src/components/ui/PageHeader.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37511-1436",
+      "docFile": "src/components/ui/PageHeader.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "PanelHeader": {
+      "name": "PanelHeader",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The Doc Preview title bar - kind chip + serif title | nav + actions",
+      "source": "src/components/preview/PreviewAtoms.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-8723",
+      "docFile": "src/components/ui/PanelHeader.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "ParallelTasks": {
+      "name": "ParallelTasks",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Grouped pile for concurrent sub-agent tasks (line + inline/panel)",
+      "source": "src/components/ParallelTasks.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "null",
+      "docFile": "src/components/ui/ParallelTasks.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "ParamPill": {
+      "name": "ParamPill",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Togglable calculation-parameter pill (label + value when active)",
+      "source": "src/components/ui/ParamPill.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1095-15027",
+      "docFile": "src/components/ui/ParamPill.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "PlatoAssistantButton": {
+      "name": "PlatoAssistantButton",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The CTA to open the Plato assistant (white pill + brand halo)",
+      "source": "src/components/shell/PlatoAssistantButton.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37444-5885",
+      "docFile": "src/components/ui/PlatoAssistantButton.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "PreviewPanel": {
+      "name": "PreviewPanel",
+      "package": "plato",
+      "status": "beta",
+      "usage": "One preview shell for every source kind (piece/modele/jp/email/loi/ligne/web)",
+      "source": "src/components/preview/PreviewPanel.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9330",
+      "docFile": "src/components/ui/PreviewPanel.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Progress": {
+      "name": "Progress",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Determinate progress bar (0 to 100 %)",
+      "source": "src/components/ui/Progress.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-29134",
+      "docFile": "src/components/ui/Progress.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "RadioPricing": {
+      "name": "RadioPricing",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Radio card option for licence / pricing choices",
+      "source": "src/components/ui/RadioPricing.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36915-6122",
+      "docFile": "src/components/ui/RadioPricing.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Select": {
+      "name": "Select",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Pick one option from a field-anchored dropdown list",
+      "source": "src/components/ui/Select.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6729-4904",
+      "docFile": "src/components/ui/Select.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Separator": {
+      "name": "Separator",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Divider rule - horizontal, vertical, or with a mono label",
+      "source": "src/components/ui/Separator.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30252",
+      "docFile": "src/components/ui/Separator.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "SidebarUserInfo": {
+      "name": "SidebarUserInfo",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The rail « profile » footer (avatar + first name + cabinet + chevrons)",
+      "source": "src/components/shell/SidebarUserInfo.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-37493",
+      "docFile": "src/components/ui/SidebarUserInfo.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Slider": {
+      "name": "Slider",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Horizontal slider - rail, filled range, draggable handle(s); single or range",
+      "source": "src/components/ui/Slider.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30565",
+      "docFile": "src/components/ui/Slider.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "SourceBadge": {
+      "name": "SourceBadge",
+      "package": "plato",
+      "status": "beta",
+      "usage": "INTERACTIVE source pill - clicking opens the source (pièce, JP, loi, email…)",
+      "source": "src/components/ui/SourceBadge.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11330",
+      "docFile": "src/components/ui/SourceBadge.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Spinner": {
+      "name": "Spinner",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Inline loading indicator (spinning loader-circle icon)",
+      "source": "src/components/ui/Spinner.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=33609-22857",
+      "docFile": "src/components/ui/Spinner.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Stepper": {
+      "name": "Stepper",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Horizontal step indicator for multi-step flows (modal wizards)",
+      "source": "src/components/ui/Stepper.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=4226-63220",
+      "docFile": "src/components/ui/Stepper.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Switch": {
+      "name": "Switch",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Bascule on/off d'un réglage à effet immédiat",
+      "source": "src/components/ui/Switch.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30732",
+      "docFile": "src/components/ui/Switch.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Tabs": {
+      "name": "Tabs",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Inline tabs - medium label + indicator, optional count and icon",
+      "source": "src/components/ui/Tabs.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36099-45289",
+      "docFile": "src/components/ui/Tabs.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Textarea": {
+      "name": "Textarea",
+      "package": "plato",
+      "status": "stable",
+      "usage": "Resizable multi-line text area (label + helper + error)",
+      "source": "src/components/ui/Textarea.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-31164",
+      "docFile": "src/components/ui/Textarea.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "TopBar": {
+      "name": "TopBar",
+      "package": "plato",
+      "status": "stable",
+      "usage": "The fixed top bar (dossier nav V2) - slotted chrome + built-in nav control",
+      "source": "src/components/ui/TopBar.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37443-5796",
+      "docFile": "src/components/ui/TopBar.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    }
+  }
+}

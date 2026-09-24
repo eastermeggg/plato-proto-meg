@@ -27,18 +27,18 @@ const DECISIONS = [
       consolidation: '16 novembre 2023',
       items: [
         { label: 'Attestation tierce personne', detail: 'Mme Dupont, aide à domicile' },
-        { label: 'Expertise Dr. Martin', detail: '12/04/2023 — besoin 4h/jour' },
+        { label: 'Expertise Dr. Martin', detail: '12/04/2023 - besoin 4h/jour' },
       ],
     },
     prejudices: {
       temporaires: [
-        { label: 'DSA — Dépenses de santé actuelles', montant: 4_280 },
-        { label: 'ATPT — Assistance tierce personne temp.', montant: 38_077, highlighted: true },
-        { label: 'DFT — Déficit fonctionnel temporaire', montant: 7_200 },
+        { label: 'DSA - Dépenses de santé actuelles', montant: 4_280 },
+        { label: 'ATPT - Assistance tierce personne temp.', montant: 38_077, highlighted: true },
+        { label: 'DFT - Déficit fonctionnel temporaire', montant: 7_200 },
       ],
       permanents: [
-        { label: 'DFP — Déficit fonctionnel permanent', montant: 35_250 },
-        { label: 'PGPF — Pertes de gains prof. futurs', montant: 148_581 },
+        { label: 'DFP - Déficit fonctionnel permanent', montant: 35_250 },
+        { label: 'PGPF - Pertes de gains prof. futurs', montant: 148_581 },
       ],
     },
     textSections: [

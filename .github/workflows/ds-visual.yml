@@ -1,0 +1,45 @@
+# Régression visuelle du kitchen-sink (conventions §11).
+# - Sur chaque PR : compare aux baselines. Tout diff échoue ; le rapport montre avant/après.
+# - Label « ds-baselines » posé par le steward : régénère les baselines en CI et les committe
+#   sur la branche (commit dédié). Jamais depuis un poste local : le rendu dépend de l'OS.
+name: ds-visual
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    permissions: { contents: write, pull-requests: write }
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, ref: "${{ github.head_ref }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install (package manager détecté par lockfile)
+        run: |
+          corepack enable
+          if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile
+          elif [ -f yarn.lock ]; then yarn install --immutable
+          elif [ -f bun.lockb ] || [ -f bun.lock ]; then npx -y bun install --frozen-lockfile
+          else npm ci; fi
+      - run: npx playwright install --with-deps chromium
+
+      - name: Régénérer les baselines (label ds-baselines)
+        if: contains(github.event.pull_request.labels.*.name, 'ds-baselines')
+        run: |
+          npx playwright test tests/visual --update-snapshots
+          git config user.name "ds-bot"; git config user.email "ds-bot@users.noreply.github.com"
+          git add tests/visual/__snapshots__
+          git diff --cached --quiet || git commit -m "test(ds): baselines — ${{ github.head_ref }}"
+          git push
+          gh pr edit ${{ github.event.pull_request.number }} --remove-label ds-baselines
+        env: { GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+
+      - name: Comparer aux baselines
+        if: "!contains(github.event.pull_request.labels.*.name, 'ds-baselines')"
+        run: npx playwright test tests/visual
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: { name: ds-visual-report, path: playwright-report, retention-days: 14 }

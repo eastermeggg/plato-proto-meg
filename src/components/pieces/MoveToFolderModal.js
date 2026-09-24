@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import CategoryHeader from './CategoryHeader';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Move selected pieces / folders into a destination folder. Tree picker with
 // expand/collapse + search. `excludeIds` hides those nodes (used when moving a
@@ -133,20 +134,20 @@ export default function MoveToFolderModal({
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[640px] bg-white rounded-[12px] overflow-hidden"
+        className="relative w-full max-w-[640px] bg-surface rounded-[12px] overflow-hidden"
         style={{
-          boxShadow: '0px 8px 16px -4px rgba(26,26,26,0.10), 0px 16px 40px -8px rgba(26,26,26,0.14)',
-          border: '1px solid #dfdcd9',
+          boxShadow: shadows['2xl'],
+          border: `1px solid ${colors.semantic.border}`,
         }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
           <div>
-            <h2 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
+            <h2 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 15, fontWeight: 600, color: colors.semantic.foreground, margin: 0 }}>
               Déplacer vers un dossier
             </h2>
             {selectionLabel && (
-              <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
+              <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: colors.semantic.mutedForeground, margin: '2px 0 0' }}>
                 {selectionLabel}
               </p>
             )}
@@ -164,7 +165,7 @@ export default function MoveToFolderModal({
         <div className="px-4 pb-3">
           <div
             className="flex items-center gap-2 px-3 h-10 rounded-[8px]"
-            style={{ border: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
+            style={{ border: `1px solid ${colors.semantic.border}`, backgroundColor: colors.banner.neutral.bgFrom }}
           >
             <Search className="w-4 h-4 text-foreground-muted" strokeWidth={1.75} />
             <input
@@ -175,7 +176,7 @@ export default function MoveToFolderModal({
               placeholder="Rechercher un dossier…"
               style={{
                 flex: 1, border: 'none', outline: 'none', background: 'transparent',
-                fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: '#292524',
+                fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: colors.semantic.foreground,
               }}
             />
             {query && (
@@ -191,9 +192,9 @@ export default function MoveToFolderModal({
         </div>
 
         {/* Folder tree */}
-        <div style={{ maxHeight: '60vh', overflowY: 'auto', borderTop: '1px solid #dfdcd9' }}>
+        <div style={{ maxHeight: '60vh', overflowY: 'auto', borderTop: `1px solid ${colors.semantic.border}` }}>
           {nothingToShow ? (
-            <div className="py-14 px-4 text-center" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: '#a8a29e' }}>
+            <div className="py-14 px-4 text-center" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: colors.semantic.foregroundMuted }}>
               Aucun dossier ne correspond à votre recherche.
             </div>
           ) : (
@@ -217,9 +218,9 @@ export default function MoveToFolderModal({
         {/* Footer */}
         <div
           className="flex items-center justify-between px-4 py-3"
-          style={{ borderTop: '1px solid #dfdcd9', backgroundColor: '#fafaf9' }}
+          style={{ borderTop: `1px solid ${colors.semantic.border}`, backgroundColor: colors.banner.neutral.bgFrom }}
         >
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: colors.semantic.mutedForeground }}>
             {selectedId ? 'Destination sélectionnée' : 'Choisissez un dossier'}
           </span>
           <div className="flex items-center gap-2">
@@ -233,7 +234,7 @@ export default function MoveToFolderModal({
               onClick={() => { if (selectedId) { onConfirm?.(selectedId); onOpenChange?.(false); } }}
               disabled={!selectedId}
               className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-[8px] text-[13px] font-medium text-white transition-colors"
-              style={{ backgroundColor: selectedId ? '#292524' : '#cbc7c4', cursor: selectedId ? 'pointer' : 'not-allowed' }}
+              style={{ backgroundColor: selectedId ? colors.semantic.primary : colors.semantic.borderStrong, cursor: selectedId ? 'pointer' : 'not-allowed' }}
             >
               Déplacer
             </button>

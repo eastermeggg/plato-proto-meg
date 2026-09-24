@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, ChevronRight, CornerDownRight } from 'lucide-react';
+import { colors } from '../../design-system/tokens';
 
 // ── NavItem ──────────────────────────────────────────────────────────
 // LA ligne de la nav org (sidebar Plato). Quatre variantes :
@@ -32,14 +33,16 @@ export default function NavItem({
   collapsed = false,
   onClick,
   title,
+  trailing = null,
+  muted = false,
 }) {
   // Liseré de marque sur l'item actif - fin trait orange Plato à gauche
-  // (nav finale : 2×15, ancré sur le bord, coins droits r-2).
+  // (nav finale 37416:1376 : 3×15, ancré sur le bord, coins droits r-2).
   const activeAccent = (
     <span
       aria-hidden
       className="absolute top-1/2 -translate-y-1/2"
-      style={{ left: -1, width: 2, height: 15, borderRadius: '0 2px 2px 0', backgroundColor: '#f47a2c', boxShadow: '0 0 6px rgba(244,122,44,0.38)' }}
+      style={{ left: -1, width: 3, height: 15, borderRadius: '0 2px 2px 0', backgroundColor: colors.brand.DEFAULT, boxShadow: '0 0 6px rgba(244,122,44,0.38)' }}
     />
   );
   // Chevron de fin - apparaît au survol des items destination / recent
@@ -52,18 +55,21 @@ export default function NavItem({
   );
 
   if (variant === 'create') {
-    // Icône paramétrable (nav finale : folder-plus / message-circle-plus en
-    // brand) ; la rotation au survol est réservée au « + » générique.
+    // Nav ACTUELLE (37416:1376, relevé 23/09) : rangée PLATE en tête de liste -
+    // icône (plus / folder-plus / message-circle-plus) à 70 %, libellé 14
+    // medium muted. Plus de bouton blanc bordé (l'ancien style, encore décrit
+    // sur le composant Figma, est retiré du frame Current - cf. SIGNALEMENTS).
+    // Jamais d'état actif ; le « + » générique pivote toujours au survol.
     const CreateIcon = Icon || Plus;
     return (
       <button
         onClick={onClick}
         title={title ?? label}
-        className="group/new relative h-8 flex items-center gap-2 w-full px-2.5 mb-1 text-left border border-border-strong bg-white text-foreground hover:bg-[linear-gradient(90deg,#eeece6_0%,white_52.5%)] transition-all duration-150 ease-out shadow-[0px_1px_0.5px_0px_rgba(26,26,26,0.03)]"
+        className="group/new relative h-8 flex items-center gap-2 w-full px-2.5 text-left text-foreground-secondary hover:bg-background-subtle transition-all duration-150 ease-out"
         style={{ borderRadius: 6, fontSize: 14 }}
       >
         <CreateIcon
-          className={`w-4 h-4 flex-shrink-0 text-brand ${Icon ? '' : 'transition-transform duration-200 ease-out group-hover/new:rotate-90'}`}
+          className={`w-4 h-4 flex-shrink-0 opacity-70 ${Icon ? '' : 'transition-transform duration-200 ease-out group-hover/new:rotate-90'}`}
           strokeWidth={Icon ? 1.75 : 2.25}
         />
         <span className="truncate flex-1 min-w-0 font-medium">{label}</span>
@@ -86,11 +92,13 @@ export default function NavItem({
   }
 
   if (variant === 'recent') {
+    // Avec trail (h-11) : l'icône s'aligne sur la PREMIÈRE ligne (Figma :
+    // items-start, icône calée sur le titre), pas au centre des deux lignes.
     return (
       <button
         onClick={onClick}
-        className={`group/row relative flex items-center gap-2 w-full px-2.5 text-left transition-all duration-150 ease-out border ${
-          trail ? 'h-11' : 'h-8'
+        className={`group/row relative flex gap-2 w-full px-2.5 text-left transition-all duration-150 ease-out border ${
+          trail ? 'h-11 items-start pt-1.5' : 'h-8 items-center'
         } ${
           active
             ? 'bg-cream text-foreground font-medium border-border-strong'
@@ -102,14 +110,14 @@ export default function NavItem({
       >
         {active && activeAccent}
         {Icon && (
-          <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${active ? 'text-brand' : 'text-foreground-secondary'}`} strokeWidth={active ? 2 : 1.75} />
+          <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${trail ? 'mt-0.5' : ''} ${active ? 'text-brand' : 'text-foreground-secondary'}`} strokeWidth={active ? 2 : 1.75} />
         )}
         {/* Titre + (marqueur dossier en sous-titre). Fil libre = une seule ligne. */}
         <span className="flex-1 min-w-0 flex flex-col justify-center">
           <span className="truncate" style={{ lineHeight: '18px' }}>{label}</span>
           {trail && (
             <span className="flex items-center gap-1 min-w-0 opacity-70">
-              <CornerDownRight className="w-2.5 h-2.5 flex-shrink-0" strokeWidth={1.75} style={{ color: '#78716c' }} />
+              <CornerDownRight className="w-2.5 h-2.5 flex-shrink-0" strokeWidth={1.75} style={{ color: colors.semantic.mutedForeground }} />
               <span className="truncate text-[12px] text-foreground-secondary" style={{ lineHeight: '15px', letterSpacing: '0.12px' }}>{trail}</span>
             </span>
           )}
@@ -128,8 +136,8 @@ export default function NavItem({
       } ${
         active
           ? 'bg-cream text-foreground font-medium border border-border-strong'
-          : 'text-foreground hover:bg-cream/60 border border-transparent'
-      }`}
+          : 'text-foreground hover:bg-background-subtle border border-transparent'
+      } ${muted && !active ? 'opacity-55' : ''}`}
       style={{ borderRadius: 6, fontSize: 14 }}
       title={collapsed ? undefined : (title ?? label)}
     >
@@ -141,7 +149,8 @@ export default function NavItem({
         />
       )}
       {!collapsed && <span className="truncate flex-1 min-w-0">{label}</span>}
-      {!collapsed && !active && hoverChevron('group-hover/nav:opacity-100')}
+      {!collapsed && trailing && <span className="flex-shrink-0 flex items-center">{trailing}</span>}
+      {!collapsed && !active && !trailing && hoverChevron('group-hover/nav:opacity-100')}
     </button>
   );
   if (!collapsed) return <div>{btn}</div>;
@@ -150,7 +159,7 @@ export default function NavItem({
       {btn}
       <span
         role="tooltip"
-        className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[12px] font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
+        className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[12px] font-medium text-primary-foreground opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
       >
         {label}
       </span>

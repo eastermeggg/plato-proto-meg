@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Building2, Folder } from 'lucide-react';
+import { colors } from '../../design-system/tokens';
 
 const Checkmark = () => (
   <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -11,7 +12,7 @@ function Checkbox({ checked }) {
   return (
     <div
       className="w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0"
-      style={{ borderColor: checked ? '#b9703f' : '#cbc7c4', backgroundColor: checked ? '#b9703f' : 'white' }}
+      style={{ borderColor: checked ? colors.accents.ochre : colors.semantic.borderStrong, backgroundColor: checked ? colors.accents.ochre : 'white' }}
     >
       {checked && <Checkmark />}
     </div>
@@ -61,7 +62,7 @@ export default function SaveDestinationPopover({
   return (
     <div
       ref={ref}
-      className={`${className} w-[300px] bg-white border border-border rounded-lg shadow-lg overflow-hidden`}
+      className={`${className} w-[300px] bg-surface border border-border rounded-lg shadow-lg overflow-hidden`}
       style={{ zIndex: 50 }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -69,7 +70,7 @@ export default function SaveDestinationPopover({
       <div className="px-3 pt-3 pb-2">
         <span style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 11, fontWeight: 500, color: '#a8a29e',
+          fontSize: 11, fontWeight: 500, color: colors.semantic.foregroundMuted,
           textTransform: 'uppercase', letterSpacing: '0.04em',
         }}>
           Sauvegarder la décision au niveau
@@ -84,7 +85,7 @@ export default function SaveDestinationPopover({
         >
           <Checkbox checked={workspacePinned} />
           <Building2 className="w-4 h-4 flex-shrink-0" strokeWidth={1.5}
-            style={{ color: workspacePinned ? '#b9703f' : '#78716c' }} />
+            style={{ color: workspacePinned ? colors.accents.ochre : colors.semantic.mutedForeground }} />
           <span className="text-body-medium flex-1 truncate" title="Cabinet">Cabinet</span>
         </button>
       )}
@@ -97,7 +98,7 @@ export default function SaveDestinationPopover({
         >
           <Checkbox checked={matterPinned} />
           <Folder className="w-4 h-4 flex-shrink-0" strokeWidth={1.5}
-            style={{ color: matterPinned ? '#b9703f' : '#78716c' }} />
+            style={{ color: matterPinned ? colors.accents.ochre : colors.semantic.mutedForeground }} />
           <span className="text-body-medium flex-1 truncate" title="Dossier (transverse)">Dossier (transverse)</span>
         </button>
       )}

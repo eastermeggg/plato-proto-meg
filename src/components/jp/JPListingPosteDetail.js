@@ -1,33 +1,64 @@
 import React from 'react';
 import { Landmark, Search } from 'lucide-react';
-import { getDecisionsByIds } from '../../data/mockDecisions';
-import JPRow from './JPRow';
+import { getDecisionsByIds, getPrimaryAmount } from '../../data/mockDecisions';
+import JPListing from './JPListing';
 import EmptyState from '../EmptyState';
+import { colors } from '../../design-system/tokens';
 
 // Section wrapper for PosteDetailView. Renders:
 //   - Section header  : "Jurisprudences retenues" + count + search CTA
 //   - Empty state     : icon + message + "Rechercher une JP" button
-//   - Rows            : stack of JPRow with `asCard` (each row = own card chrome)
-//
-// Designed for chat-narrow widths where the column-aligned mini-table is too
-// dense. Each card stands alone with its own border + shadow.
+//   - Cards           : stack of the canonical JPListing card (Figma « JP
+//                       Cards » 2219:19197) - migré depuis JPRow asCard le
+//                       23/09 (SIGNALEMENTS §9). Le mapping Decision → props
+//                       de carte vit ici ; JPRow reste la rangée dense de la
+//                       mini-table du chat (JPListingChat).
 //
 // Props:
 //   - pinnedJP[]         : [{ decisionId, posteIds[] }] — used to derive decisions
 //   - decisionsOverride[]: skip the lookup and pass decisions directly
 //   - selectedDecisionId : id whose card renders in the selected state
 //   - currentPosteId     : pick the amount matching this poste
-//   - getFavorited(id)   : (decisionId) => bool — show ⭐ for this row
-//   - getBookmarked(id)  : (decisionId) => bool — show 🔖 for this row
-//   - getRationale(id)   : (decisionId) => string|null — POURQUOI? block content
-//   - getPosteChips(id)  : (decisionId) => string[]|null — render poste-acronym chips
-//                          on line 2 right (cross-poste view) instead of the quantum
+//   - getFavorited(id)   : (decisionId) => bool — bookmark d'en-tête
+//   - getBookmarked(id)  : (decisionId) => bool — bookmark d'en-tête
+//   - getRationale(id)   : (decisionId) => string|null — bloc « Apport »
+//   - getPosteChips(id)  : (decisionId) => string[]|null — badges de pied
+//                          (vue cross-poste) ; la carte passe alors en variant
+//                          `tab` (pied toujours visible) et masque le quantum
 //   - onOpenDrawer(id, ids[]) : open the drawer with the result set
 //   - onSearchJP()       : invoked from the header search link
 //   - onEmptySearchJP()  : invoked from the empty state CTA (falls back to onSearchJP)
 //   - sectionTitle       : optional override (default "Jurisprudences retenues")
 //   - emptyMessage       : optional empty-state message override
 //   - showHeader         : when false, drops the section header (parent owns it)
+
+// dd/mm/yyyy depuis l'ISO des mocks.
+const formatDateShort = (iso) => {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+};
+
+const isDeceased = (s) => s === 'Décédé' || s === 'Décédée';
+
+// Decision (mockDecisions) → props de la carte JPListing.
+function decisionToCardProps(d, { currentPosteId, chips }) {
+  const amount = currentPosteId
+    ? d.amounts?.find(a => a.poste.toLowerCase() === String(currentPosteId).toLowerCase()) || getPrimaryAmount(d)
+    : getPrimaryAmount(d);
+  const tags = [];
+  if (d.category) tags.push({ label: d.category });
+  if (d.status) tags.push({ label: d.status, tone: isDeceased(d.status) ? 'destructive' : undefined });
+  return {
+    jurisdiction: d.chambre ? `${d.jurisdiction} · ${d.chambre}` : d.jurisdiction,
+    date: formatDateShort(d.date),
+    numero: `n°${d.numero}`,
+    profile: d.victimProfile || '',
+    tags,
+    quantum: !chips && amount ? { poste: amount.poste, value: amount.displayValue } : null,
+    posteChips: chips || [],
+  };
+}
 
 export default function JPListingPosteDetail({
   pinnedJP = [],
@@ -51,7 +82,7 @@ export default function JPListingPosteDetail({
   const decisions = decisionsOverride || getDecisionsByIds(decisionIds);
 
   const headerLabel = (
-    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: colors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
       {sectionTitle}
     </span>
   );
@@ -80,7 +111,7 @@ export default function JPListingPosteDetail({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
             {headerLabel}
-            <span className="text-[11px] text-[#c8c5c0]">{decisions.length}</span>
+            <span className="text-[11px] text-border-strong">{decisions.length}</span>
           </div>
           {onSearchJP && (
             <button
@@ -88,13 +119,13 @@ export default function JPListingPosteDetail({
               className="inline-flex items-center gap-1.5 transition-colors"
               style={{
                 height: 24, padding: '0 8px', borderRadius: 6,
-                backgroundColor: 'transparent', color: '#78716c',
+                backgroundColor: 'transparent', color: colors.semantic.mutedForeground,
                 border: 'none',
                 fontFamily: "'Inter', system-ui, sans-serif",
                 fontSize: 12, fontWeight: 500, lineHeight: '16px',
               }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#eeece6'; e.currentTarget.style.color = '#292524'; }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#78716c'; }}
+              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = colors.semantic.muted; e.currentTarget.style.color = colors.semantic.foreground; }}
+              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = colors.semantic.mutedForeground; }}
             >
               <Search className="w-3 h-3" strokeWidth={2} />
               Rechercher
@@ -106,20 +137,17 @@ export default function JPListingPosteDetail({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2" style={{ maxWidth: 960 }}>
         {decisions.map((d) => {
           const chips = getPosteChips ? getPosteChips(d.id) : null;
+          const card = decisionToCardProps(d, { currentPosteId, chips });
           return (
-            <JPRow
+            <JPListing
               key={d.id}
-              asCard
-              decision={d}
-              isSelected={d.id === selectedDecisionId}
-              currentPosteId={currentPosteId}
-              favorited={getFavorited ? !!getFavorited(d.id) : false}
-              bookmarked={getBookmarked ? !!getBookmarked(d.id) : false}
-              posteChips={chips}
-              showAmount={!chips}
-              rationale={getRationale ? getRationale(d.id) : null}
+              variant={chips ? 'tab' : 'detail'}
+              {...card}
+              note={getRationale ? getRationale(d.id) : null}
+              saved={!!((getFavorited && getFavorited(d.id)) || (getBookmarked && getBookmarked(d.id)))}
+              selected={d.id === selectedDecisionId}
               onClick={() => onOpenDrawer?.(d.id, decisionIds)}
-              onRemove={onRemove ? (dec) => onRemove(dec.id) : undefined}
+              onRemove={onRemove ? () => onRemove(d.id) : undefined}
               removeTitle={removeTitle}
             />
           );

@@ -10,7 +10,7 @@ export default function SuggestionPill({ icon: Icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 h-8 pl-2.5 pr-3 rounded-lg border border-border bg-white text-[13px] text-foreground-secondary hover:text-foreground hover:border-border-strong hover:bg-cream/40 transition-colors"
+      className="inline-flex items-center gap-1.5 h-8 pl-2.5 pr-3 rounded-lg border border-border bg-surface text-[13px] text-foreground-secondary hover:text-foreground hover:border-border-strong hover:bg-background-canvas transition-colors"
     >
       {Icon && <Icon className="w-3.5 h-3.5 text-foreground-tertiary flex-shrink-0" strokeWidth={1.75} />}
       {label}

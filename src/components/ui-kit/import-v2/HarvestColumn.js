@@ -12,7 +12,9 @@ import {
   HARVEST_GROUPS, PROPOSED_TIDS, deltaInfoOf, MAILBOXES, mailboxOf,
   FOLDER_CANDIDATE_IDS, folderModel, folderStats, folderDelta, folderDeltaKeys, childFolderModels,
 } from './harvestData';
-import { kindColor, V2, Badge, SmallBtn, HoverReveal, MetaDot } from './pieceRow';
+import Badge from '../../ui/Badge';
+import Button from '../../ui/Button';
+import { kindColor, V2, HoverReveal, MetaDot } from './pieceRow';
 
 // Liste façon boîte de réception : PAS de carte - des lignes pleine largeur
 // séparées par un filet fin (bords haut/bas de la liste). On gagne toute la
@@ -20,7 +22,9 @@ import { kindColor, V2, Badge, SmallBtn, HoverReveal, MetaDot } from './pieceRow
 // DÉFINI AU MODULE : un composant inline serait recréé à chaque rendu et
 // démonterait les lignes (perte de l'état « déplié » des cartes).
 function Rows({ children }) {
-  return <div className="divide-y divide-border-subtle border-y border-border-subtle">{children}</div>;
+  // Filet des rangées : rôle « border » (Figma --border sur les masters
+  // Threads/Folder), pas le divider subtil.
+  return <div className="divide-y divide-border border-y border-border">{children}</div>;
 }
 
 // ── Carte dossier Outlook ───────────────────────────────────────────────────
@@ -39,30 +43,30 @@ export function FolderCandidateCard({ fid, added, deltaAdded, onAddFolder, onRem
   const dimmed = added || linkedTo || deltaAdded;
 
   let badge = null;
-  if (linkedTo) badge = <Badge tone="secondary" className="!opacity-100">{`Déjà lié à ${linkedTo}`}</Badge>;
-  else if (hasDelta) badge = <Badge tone="indigo">Nouveau</Badge>;
-  else if (deltaAdded) badge = <Badge tone="success">Complément ajouté</Badge>;
-  else if (added) badge = <Badge tone="success">Ajouté</Badge>;
+  if (linkedTo) badge = <Badge variant="secondary" label={`Déjà lié à ${linkedTo}`} className="!opacity-100 flex-shrink-0" />;
+  else if (hasDelta) badge = <Badge variant="info" label="Nouveau" className="flex-shrink-0" />;
+  else if (deltaAdded) badge = <Badge variant="success" label="Complément ajouté" className="flex-shrink-0" />;
+  else if (added) badge = <Badge variant="success" label="Ajouté" className="flex-shrink-0" />;
 
   let hoverBtn = null;
-  if (added) hoverBtn = <SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveFolder(fid)} title="Retirer le dossier du bordereau">Retirer</SmallBtn>;
-  else if (deltaAdded) hoverBtn = <SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveFolder(fid)} title="Retirer le complément">Retirer</SmallBtn>;
-  else if (hasDelta) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddFolderDelta(fid)} title={`Ajouter les ${delta.newCount} nouvelles pièces`}>Ajouter</SmallBtn>;
-  else if (!linkedTo) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddFolder(fid)} title="Ajouter le dossier en entier, sous-dossiers compris">Ajouter</SmallBtn>;
+  if (added) hoverBtn = <Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveFolder(fid); }} title="Retirer le dossier du bordereau" label="Retirer" />;
+  else if (deltaAdded) hoverBtn = <Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveFolder(fid); }} title="Retirer le complément" label="Retirer" />;
+  else if (hasDelta) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddFolderDelta(fid); }} title={`Ajouter les ${delta.newCount} nouvelles pièces`} label="Ajouter" />;
+  else if (!linkedTo) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddFolder(fid); }} title="Ajouter le dossier en entier, sous-dossiers compris" label="Ajouter" />;
 
   return (
     <div
       role="button" tabIndex={0}
       onClick={() => onEnter?.(fid)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEnter?.(fid); } }}
-      className="group relative flex items-center gap-2 p-3 bg-white cursor-pointer transition-colors"
+      className="group relative flex items-center gap-2 p-3 bg-surface cursor-pointer transition-colors"
       style={hasDelta ? { borderLeft: `3px solid ${V2.indigo}`, paddingLeft: 9 } : undefined}
       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
       title={`Ouvrir le dossier · ${stats.threads} échanges · ≈ ${stats.pieces} pièces${stats.folders > 0 ? ` · ${stats.folders} sous-dossiers` : ''}`}
     >
-      <ChevronRight className={`w-3 h-3 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.muted }} />
-      <FolderOpen className={`w-4 h-4 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.folder }} />
+      <ChevronRight className={`w-3 h-3 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2.66} style={{ color: V2.muted }} />
+      <FolderOpen className={`w-4 h-4 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.folder }} />
       <p className={`flex-1 min-w-0 text-[14px] leading-5 font-medium truncate ${dimmed ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{m.name}</p>
       {badge}
       {hoverBtn && (
@@ -82,9 +86,9 @@ function ReadonlyThreadRow({ tid }) {
   if (!tv) return null;
   const excerpt = tv.illegible ? null : tv.summary;
   return (
-    <div className="flex items-start gap-2 p-3.5 bg-white">
+    <div className="flex items-start gap-2 p-3.5 bg-surface">
       <span className="flex items-center py-1 flex-shrink-0 opacity-50">
-        <ChevronRight className="w-3 h-3" strokeWidth={2} style={{ color: V2.muted }} />
+        <ChevronRight className="w-3 h-3" strokeWidth={2.66} style={{ color: V2.muted }} />
       </span>
       <div className="flex-1 min-w-0 flex flex-col gap-2 opacity-50">
         <div className="flex flex-col gap-0.5 min-w-0">
@@ -97,7 +101,7 @@ function ReadonlyThreadRow({ tid }) {
               <>
                 <MetaDot />
                 <span className="inline-flex items-center gap-1 flex-shrink-0">
-                  <Paperclip className="w-3 h-3 opacity-60" strokeWidth={1.75} style={{ color: V2.pjMini }} />
+                  <Paperclip className="w-3 h-3 opacity-60" strokeWidth={2.66} style={{ color: V2.pjMini }} />
                   <span className="uppercase leading-none" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: V2.muted }}>{tv.pj}</span>
                 </span>
               </>
@@ -108,7 +112,7 @@ function ReadonlyThreadRow({ tid }) {
           <p className="text-[12px] leading-4 line-clamp-2 pl-2 border-l-2" style={{ color: V2.muted, letterSpacing: 0.12, borderColor: V2.ai }}>{excerpt}</p>
         )}
       </div>
-      <Badge tone="success">Ajouté</Badge>
+      <Badge variant="success" label="Ajouté" className="flex-shrink-0" />
     </div>
   );
 }
@@ -146,22 +150,22 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
   // Badge d'état (toujours visible) : Ajouté vert · Nouveau indigo ·
   // n/N ajouté et Déjà inclus en secondaire.
   let badge = null;
-  if (all) badge = <Badge tone="success">Ajouté</Badge>;
-  else if (deltaAdded) badge = <Badge tone="success">Complément ajouté</Badge>;
-  else if (hasDelta) badge = <Badge tone="indigo" className="cursor-pointer" title={`${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`}>Nouveau</Badge>;
-  else if (partial) badge = <Badge tone="secondary">{nTaken}/{total} ajouté{nTaken > 1 ? 's' : ''}</Badge>;
-  else if (covered) badge = <Badge tone="secondary" title="Cet échange entre avec le dossier - curation dans le bloc du bordereau">Déjà inclus</Badge>;
-  else if (upToDate) badge = <Badge tone="secondary" title="Tout ce fil est déjà au dossier, rien de neuf depuis">À jour</Badge>;
+  if (all) badge = <Badge variant="success" label="Ajouté" className="flex-shrink-0" />;
+  else if (deltaAdded) badge = <Badge variant="success" label="Complément ajouté" className="flex-shrink-0" />;
+  else if (hasDelta) badge = <Badge variant="info" label="Nouveau" className="cursor-pointer flex-shrink-0" title={`${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`} />;
+  else if (partial) badge = <Badge variant="secondary" label={`${nTaken}/${total} ajouté${nTaken > 1 ? 's' : ''}`} className="flex-shrink-0" />;
+  else if (covered) badge = <Badge variant="secondary" label="Déjà inclus" title="Cet échange entre avec le dossier - curation dans le bloc du bordereau" className="flex-shrink-0" />;
+  else if (upToDate) badge = <Badge variant="secondary" label="À jour" title="Tout ce fil est déjà au dossier, rien de neuf depuis" className="flex-shrink-0" />;
 
   // Le geste au survol (planche Hover) : « + Ajouter » sombre, « ✕ Retirer »
   // destructif subtil sur un fil déjà ajouté.
   let hoverBtn = null;
-  if (all || deltaAdded) hoverBtn = <SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveThread(tid)} title="Retirer du bordereau">Retirer</SmallBtn>;
-  else if (hasDelta) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddThreadDelta(tid)} title={`Ajouter les ${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`}>Ajouter</SmallBtn>;
-  else if (!settled) hoverBtn = <SmallBtn variant="primary" icon={Plus} onClick={() => onAddThread(tid)} title={partial ? 'Ajouter le reste de l\'échange' : 'Ajouter l\'échange au bordereau'}>Ajouter</SmallBtn>;
+  if (all || deltaAdded) hoverBtn = <Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveThread(tid); }} title="Retirer du bordereau" label="Retirer" />;
+  else if (hasDelta) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddThreadDelta(tid); }} title={`Ajouter les ${delta} nouvelle${delta > 1 ? 's' : ''} pièce${delta > 1 ? 's' : ''} depuis le ${info.importedOn}`} label="Ajouter" />;
+  else if (!settled) hoverBtn = <Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); onAddThread(tid); }} title={partial ? 'Ajouter le reste de l\'échange' : 'Ajouter l\'échange au bordereau'} label="Ajouter" />;
 
   return (
-    <div className="bg-white">
+    <div className="bg-surface">
       <div
         role="button" tabIndex={0}
         onClick={() => setOpen(o => !o)}
@@ -172,7 +176,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = open ? V2.accent : ''; }}
       >
         <span className={`flex items-center py-1 flex-shrink-0 ${dimmed ? 'opacity-50' : ''}`}>
-          <ChevronRight className={`w-3 h-3 transition-transform ${open ? 'rotate-90' : ''}`} strokeWidth={2} style={{ color: V2.muted }} />
+          <ChevronRight className={`w-3 h-3 transition-transform ${open ? 'rotate-90' : ''}`} strokeWidth={2.66} style={{ color: V2.muted }} />
         </span>
         <div className={`flex-1 min-w-0 flex flex-col gap-2 ${dimmed ? 'opacity-50' : ''}`}>
           <div className="flex flex-col gap-0.5 min-w-0">
@@ -180,7 +184,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
             <div className="flex items-center gap-1.5 min-w-0">
               <p className={`min-w-0 text-[14px] leading-5 font-medium truncate ${tv.illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{tv.subject}</p>
               {tv.illegible && (
-                <Badge tone="secondary" className="!text-[10px] uppercase" title={`L'objet d'origine du mail (« ${raw?.subject} ») est illisible - ce titre est un résumé de son contenu.`}>Objet illisible</Badge>
+                <Badge variant="secondary" label="Objet illisible" className="!text-[10px] uppercase flex-shrink-0" title={`L'objet d'origine du mail (« ${raw?.subject} ») est illisible - ce titre est un résumé de son contenu.`} />
               )}
             </div>
             {/* Ligne 2 : date · expéditeur · trombone + compte (mono). */}
@@ -192,7 +196,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
                 <>
                   <MetaDot />
                   <span className="inline-flex items-center gap-1 flex-shrink-0">
-                    <Paperclip className="w-3 h-3 opacity-60" strokeWidth={1.75} style={{ color: V2.pjMini }} />
+                    <Paperclip className="w-3 h-3 opacity-60" strokeWidth={2.66} style={{ color: V2.pjMini }} />
                     <span className="uppercase leading-none" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: V2.muted }}>{tv.pj}</span>
                   </span>
                 </>
@@ -247,7 +251,7 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
             return (
               <div
                 key={key}
-                className="flex items-center gap-2 pl-8 pr-3.5 py-2 bg-white transition-colors"
+                className="flex items-center gap-2 pl-8 pr-3.5 py-2 bg-surface transition-colors"
                 onMouseEnter={(e) => { if (!atDossier) e.currentTarget.style.backgroundColor = V2.accent; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
               >
@@ -256,11 +260,13 @@ export function CandidateCard({ tid, covered, taken, demoInfo, mailboxNote, onAd
                 ) : (
                   <Checkbox checked={inB} onToggle={() => onTogglePiece(tid, addKey)} title={inB ? 'Retirer cette pièce du bordereau' : 'Ajouter cette pièce au bordereau'} />
                 )}
-                <Icon className={`w-4 h-4 flex-shrink-0 ${atDossier ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: p.kind === 'body' ? V2.muted : V2.pj }} />
-                <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${inB ? 'font-medium' : ''} ${atDossier ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{p.name}</p>
+                {/* Master Body PJs (3332:33035 / 3336:34913) : icône 16 (mail
+                    muet / trombone info-text), nom 14 REGULAR - cochée ou non. */}
+                <Icon className={`w-4 h-4 flex-shrink-0 ${atDossier ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: p.kind === 'body' ? V2.muted : V2.pj }} />
+                <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${atDossier ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{p.name}</p>
                 {info && (
                   deltaEntry ? (
-                    <Badge tone="warning">{deltaEntry.reason === 'actualisé' ? `actualisé · +${deltaEntry.newMessages} messages` : 'nouvelle'}</Badge>
+                    <Badge variant="warning" label={deltaEntry.reason === 'actualisé' ? `actualisé · +${deltaEntry.newMessages} messages` : 'nouvelle'} className="flex-shrink-0" />
                   ) : (
                     <span className="text-[12px] leading-4 flex-shrink-0" style={{ color: V2.muted }}>Au dossier · {info.importedOn}</span>
                   )
@@ -351,15 +357,15 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
         key={sf.id} role="button" tabIndex={0}
         onClick={() => setDrill(sf.id)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDrill(sf.id); } }}
-        className="flex items-center gap-2 p-3 bg-white cursor-pointer transition-colors"
+        className="flex items-center gap-2 p-3 bg-surface cursor-pointer transition-colors"
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
         title={`Ouvrir le sous-dossier · ${st.threads} échanges · ≈ ${st.pieces} pièces`}
       >
-        <ChevronRight className={`w-3 h-3 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.muted }} />
-        <FolderOpen className={`w-4 h-4 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.folder }} />
+        <ChevronRight className={`w-3 h-3 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2.66} style={{ color: V2.muted }} />
+        <FolderOpen className={`w-4 h-4 flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.folder }} />
         <p className={`flex-1 min-w-0 text-[14px] leading-5 font-medium truncate ${added ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{sf.name}</p>
-        {added && <Badge tone="success">Ajouté</Badge>}
+        {added && <Badge variant="success" label="Ajouté" className="flex-shrink-0" />}
       </div>
     );
   };
@@ -393,7 +399,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
           onClick={onClick}
           className="w-full h-9 rounded-lg flex items-center justify-center gap-2 text-[14px] leading-5 font-medium transition-opacity hover:opacity-90"
           style={variant === 'primary'
-            ? { backgroundColor: V2.foreground, color: '#ffffff', boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }
+            ? { backgroundColor: V2.foreground, color: V2.primaryForeground, boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }
             : variant === 'destructive'
               ? { backgroundColor: V2.destructiveSubtle, color: V2.destructiveText }
               : { backgroundColor: V2.secondary, color: V2.secondaryText }}
@@ -426,18 +432,18 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
                     return (
                       <div
                         key={tid}
-                        className="flex items-start gap-2 p-3 bg-white"
+                        className="flex items-start gap-2 p-3 bg-surface"
                         style={added ? undefined : { borderLeft: `3px solid ${V2.indigo}`, paddingLeft: 9 }}
                       >
-                        <Paperclip className={`w-4 h-4 mt-[2px] flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.pj }} />
+                        <Paperclip className={`w-4 h-4 mt-[2px] flex-shrink-0 ${added ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: V2.pj }} />
                         <div className={`flex-1 min-w-0 ${added ? 'opacity-50' : ''}`}>
                           <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{threadViewById(tid)?.subject}</p>
                           <p className="text-[12px] leading-4 truncate mt-0.5" style={{ color: V2.muted }}>{names.length} nouvelle{names.length > 1 ? 's' : ''} PJ : {names.join(', ')}</p>
                         </div>
                         <div className="flex-shrink-0 pt-0.5">
                           {added
-                            ? <span className="inline-flex items-center gap-1.5"><Badge tone="success">Ajouté</Badge><SmallBtn variant="destructive-subtle" icon={X} onClick={() => onRemoveThread(tid)} title="Retirer du bordereau">Retirer</SmallBtn></span>
-                            : <span className="inline-flex items-center gap-1.5"><Badge tone="indigo">Nouveau</Badge><SmallBtn variant="primary" icon={Plus} onClick={() => names.forEach(n => onAddPiece(tid, pjKey(tid, n)))} title="Ajouter ces nouvelles PJ au bordereau">Ajouter</SmallBtn></span>}
+                            ? <span className="inline-flex items-center gap-1.5"><Badge variant="success" label="Ajouté" className="flex-shrink-0" /><Button variant="destructive-subtle" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemoveThread(tid); }} title="Retirer du bordereau" label="Retirer" /></span>
+                            : <span className="inline-flex items-center gap-1.5"><Badge variant="info" label="Nouveau" className="flex-shrink-0" /><Button variant="primary" size="sm" icon={Plus} onClick={(e) => { e.stopPropagation(); names.forEach(n => onAddPiece(tid, pjKey(tid, n))); }} title="Ajouter ces nouvelles PJ au bordereau" label="Ajouter" /></span>}
                         </div>
                       </div>
                     );
@@ -527,7 +533,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher un échange ou une pièce jointe…"
-            className="w-full h-9 pl-9 pr-8 rounded-lg border border-border bg-white text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
+            className="w-full h-9 pl-9 pr-8 rounded-lg border border-border bg-surface text-[13px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-border-strong"
           />
           {query !== '' && (
             <button
@@ -556,7 +562,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
           <button
             type="button"
             onClick={() => setDrill(drillParent ? drillParent.id : null)}
-            className="w-9 h-9 rounded-[10px] border border-border bg-white flex items-center justify-center hover:bg-cream transition-colors flex-shrink-0"
+            className="w-9 h-9 rounded-[10px] border border-border bg-surface flex items-center justify-center hover:bg-cream transition-colors flex-shrink-0"
             style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}
             title={drillParent ? `Revenir à « ${drillParent.name} »` : 'Revenir à la boîte de réception'}
             aria-label={drillParent ? `Revenir à « ${drillParent.name} »` : 'Revenir à la boîte de réception'}
@@ -574,7 +580,7 @@ export default function HarvestColumn({ threadState, coveredTids, addedFolderIds
               ))}
             </p>
             <div className="flex items-center gap-1.5 min-w-0">
-              <FolderOpen className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.folder }} />
+              <FolderOpen className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.folder }} />
               <p className="text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{drillChain[drillChain.length - 1]?.name}</p>
             </div>
           </div>

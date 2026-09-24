@@ -7,7 +7,9 @@
 - [Design tokens](src/design-system/tokens.js): canonical color, spacing, typography, shadow and radius tokens — the single source of truth.
 - [Global styles](src/index.css): CSS custom properties, badge variants, base element styles.
 - [Tailwind config](tailwind.config.js): theme extension exposing tokens as utilities.
-- [Component manifest](lyse.components.json): machine-readable list of components and their source files.
+- [Component & token catalog](src/data/designSystemInventory.json): machine-readable inventory (statut, Figma, notes) surfaced at `/ui-kit`.
+- [Component docs](src/data/componentDocs.json): généré depuis les fiches `src/components/ui/*.md` (`npm run ds:docs`).
+- [Token usage docs](docs/tokens.md): usage de chaque token, généré par `npm run ds:tokens`.
 
 ## Components
 

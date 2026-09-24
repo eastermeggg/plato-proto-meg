@@ -4,6 +4,7 @@ import JPPill from '../jp/JPPill';
 import { getDecisionById } from '../../data/mockDecisions';
 import { parseActStructure } from './actStructure';
 import ActOutline from './ActOutline';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Simple markdown-aware line renderer (bold, italic, pièce + JP citations)
 const renderInlineMarkdown = (text) => {
@@ -29,7 +30,7 @@ const renderInlineMarkdown = (text) => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
-            backgroundColor: '#dfe8f5',
+            backgroundColor: colors.piece.expertise.bg,
             borderRadius: 6,
             padding: '2px 8px',
             verticalAlign: 'middle',
@@ -37,11 +38,11 @@ const renderInlineMarkdown = (text) => {
             margin: '0 2px',
           }}
         >
-          <FileText style={{ width: 12, height: 12, color: '#1e3a8a', flexShrink: 0 }} strokeWidth={1.5} />
+          <FileText style={{ width: 12, height: 12, color: colors.feedback.info.text, flexShrink: 0 }} strokeWidth={1.5} />
           <span style={{
             fontSize: 12,
             fontWeight: 500,
-            color: '#1e3a8a',
+            color: colors.feedback.info.text,
             fontFamily: "'Inter', system-ui, sans-serif",
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -71,7 +72,7 @@ const renderInlineMarkdown = (text) => {
 // post-stream by useRedactionCommands. ActCanvas no longer renders an inline
 // [bordereau] block — that content path was removed in the bordereau branch.
 
-export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZone }) {
+export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZone, outlinePinned = false }) {
   const scrollRef = useRef(null);
   const pageRef = useRef(null);
   const [highlightRects, setHighlightRects] = useState([]);
@@ -130,7 +131,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
         <div className="flex items-center justify-center py-20">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-            <span style={{ fontSize: 13, color: '#a8a29e' }}>Rédaction en cours...</span>
+            <span style={{ fontSize: 13, color: colors.semantic.foregroundMuted }}>Rédaction en cours...</span>
           </div>
         </div>
       );
@@ -147,41 +148,41 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
 
       // H1 — first few all-caps lines
       if (trimmed === trimmed.toUpperCase() && trimmed.length > 3 && !trimmed.startsWith('-') && i < 3) {
-        return <h1 key={i} style={{ fontFamily: font, fontSize: 24, fontWeight: 700, color: '#1a1a1a', margin: '0 0 4px', lineHeight: '32px' }}>{trimmed}</h1>;
+        return <h1 key={i} style={{ fontFamily: font, fontSize: 24, fontWeight: 700, color: colors.semantic.foreground, margin: '0 0 4px', lineHeight: '32px' }}>{trimmed}</h1>;
       }
 
       // H2 — all-caps section titles
       if (trimmed === trimmed.toUpperCase() && trimmed.length > 3 && !trimmed.startsWith('-')) {
-        return <h2 key={i} style={{ fontFamily: font, fontSize: 18, fontWeight: 600, color: '#1a1a1a', margin: '28px 0 8px', lineHeight: '26px' }}>{trimmed}</h2>;
+        return <h2 key={i} style={{ fontFamily: font, fontSize: 18, fontWeight: 600, color: colors.semantic.foreground, margin: '28px 0 8px', lineHeight: '26px' }}>{trimmed}</h2>;
       }
 
       // H3 — roman numeral sections (I. II. III.)
       if (/^[IVX]+\.\s/.test(trimmed)) {
-        return <h3 key={i} style={{ fontFamily: font, fontSize: 16, fontWeight: 600, color: '#1a1a1a', margin: '24px 0 6px', lineHeight: '24px' }}>{renderInlineMarkdown(trimmed)}</h3>;
+        return <h3 key={i} style={{ fontFamily: font, fontSize: 16, fontWeight: 600, color: colors.semantic.foreground, margin: '24px 0 6px', lineHeight: '24px' }}>{renderInlineMarkdown(trimmed)}</h3>;
       }
 
       // Numbered items (1° 2°)
       if (/^\d+°\s/.test(trimmed)) {
-        return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: '#37352f', margin: '4px 0', paddingLeft: 24 }}>{renderInlineMarkdown(trimmed)}</p>;
+        return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: colors.semantic.secondaryForeground, margin: '4px 0', paddingLeft: 24 }}>{renderInlineMarkdown(trimmed)}</p>;
       }
 
       // Numbered list (1. 2. 3.)
       if (/^\d+\.\s/.test(trimmed)) {
-        return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: '#37352f', margin: '3px 0', paddingLeft: 24 }}>{renderInlineMarkdown(trimmed)}</p>;
+        return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: colors.semantic.secondaryForeground, margin: '3px 0', paddingLeft: 24 }}>{renderInlineMarkdown(trimmed)}</p>;
       }
 
       // Bullet points
       if (trimmed.startsWith('- ')) {
-        return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: '#37352f', margin: '2px 0', paddingLeft: 28, textIndent: -14 }}>{renderInlineMarkdown(trimmed)}</p>;
+        return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: colors.semantic.secondaryForeground, margin: '2px 0', paddingLeft: 28, textIndent: -14 }}>{renderInlineMarkdown(trimmed)}</p>;
       }
 
       // Horizontal rule
-      if (/^[—─\-]{3,}$/.test(trimmed)) {
-        return <hr key={i} style={{ border: 'none', borderTop: '1px solid #dfdcd9', margin: '20px 0' }} />;
+      if (/^[-─\-]{3,}$/.test(trimmed)) {
+        return <hr key={i} style={{ border: 'none', borderTop: `1px solid ${colors.semantic.border}`, margin: '20px 0' }} />;
       }
 
       // Regular paragraph
-      return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: '#37352f', margin: '3px 0' }}>{renderInlineMarkdown(trimmed)}</p>;
+      return <p key={i} style={{ fontFamily: font, fontSize: 14, lineHeight: '22px', color: colors.semantic.secondaryForeground, margin: '3px 0' }}>{renderInlineMarkdown(trimmed)}</p>;
     };
 
     // Anchor detected heading lines so the sommaire can target them.
@@ -193,12 +194,12 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
   };
 
   return (
-    <div className="h-full relative" style={{ backgroundColor: '#f8f7f5' }}>
+    <div className="h-full relative" style={{ backgroundColor: colors.semantic.background }}>
       {/* Floating sommaire — overlays the margin, anchored to the stable wrapper
           so it stays put while the acte scrolls underneath. Pinned to the right
           edge, vertically centered. Hidden while streaming to avoid jitter as
           the structure forms. */}
-      {!streaming && <ActOutline headings={structure} scrollRef={scrollRef} side="right" />}
+      {!streaming && <ActOutline headings={structure} scrollRef={scrollRef} side="right" defaultPinned={outlinePinned} />}
       <div
         ref={scrollRef}
         className="h-full overflow-y-auto"
@@ -211,8 +212,8 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
           style={{
             backgroundColor: 'white',
             borderRadius: 3,
-            border: '1px solid #dfdcd9',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.025)',
+            border: `1px solid ${colors.semantic.border}`,
+            boxShadow: shadows['2xl'],
             padding: '48px 64px',
             minHeight: 600,
             cursor: 'text',
@@ -230,7 +231,7 @@ export default function ActCanvas({ content, streaming, onZoneSelect, hasActiveZ
                 left: r.left,
                 width: r.width,
                 height: r.height,
-                backgroundColor: '#dbeafe',
+                backgroundColor: colors.piece.medical.bg,
                 opacity: 0.5,
                 borderRadius: 2,
                 pointerEvents: 'none',

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Scissors, Check, Undo2 } from 'lucide-react';
 import { CardShell, CardIcon, CardLabel, DismissBar, DISMISS_MS, btnLight } from './CardShell';
+import { colors } from '../../../design-system/tokens';
 
 // One card per pile awaiting review. Two phases in the SAME shell:
 //   • choice — filename + count + the binary CTAs (+ Ajuster).
@@ -33,7 +34,7 @@ export default function SplitReviewCard({ pile, rule, onApply, onUndo, onDismiss
     const doneLabel = doneMode === 'exploded' ? `Éclaté en ${aggregate.count} pièces` : 'Gardé en 1 pièce';
     return (
       <CardShell fade="fadeIn 220ms ease">
-        <CardIcon bg="#e7f3ec" color="#4a9168"><Check className="w-3.5 h-3.5" strokeWidth={2.25} /></CardIcon>
+        <CardIcon bg={colors.feedback.success.subtle} color={colors.accents.meadow}><Check className="w-3.5 h-3.5" strokeWidth={2.25} /></CardIcon>
         <CardLabel name={doneLabel} state={originalName} />
         <button onClick={() => onUndo()} className={`${btnLight} flex-shrink-0`}>
           <Undo2 className="w-3.5 h-3.5" strokeWidth={1.75} />Annuler
@@ -45,7 +46,7 @@ export default function SplitReviewCard({ pile, rule, onApply, onUndo, onDismiss
 
   return (
     <CardShell>
-      <CardIcon bg="#f5f5f4" color="#44403c"><Scissors className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
+      <CardIcon bg={colors.semantic.backgroundSubtle} color={colors.semantic.foregroundTertiary}><Scissors className="w-3.5 h-3.5" strokeWidth={1.75} /></CardIcon>
       <div className="flex-1 min-w-0 text-[13px] leading-[18px] truncate" title={`${originalName} · ${aggregate.count} pièces détectées`}>
         <span className="font-medium text-foreground-strong">{originalName}</span>
         <span className="text-foreground-secondary tabular-nums"> · {aggregate.count} pièces détectées</span>

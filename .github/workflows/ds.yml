@@ -1,0 +1,16 @@
+name: ds
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  ds-doctor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Zéro dépendance : le doctor tourne sans npm install.
+      # Échoue sur tout hex en dur hors whitelist (ds-hex-ok / doctor.pendingHex).
+      - run: node scripts/ds-doctor.mjs

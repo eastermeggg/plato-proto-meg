@@ -37,7 +37,7 @@ export default function InventoryRow({ preview, name, meta, status, figmaRef, no
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: colors.semantic.foreground }}>
             {name}
           </span>
-          <StatusPill status={status} />
+          {status ? <StatusPill status={status} /> : null}
         </div>
         {meta && (
           <div style={{ fontSize: 12, color: colors.semantic.foregroundSecondary, lineHeight: '16px' }}>{meta}</div>

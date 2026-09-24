@@ -42,7 +42,7 @@ export default function PromptSuggestionCard({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`group/psc relative w-full max-w-[320px] flex items-center bg-white border border-border rounded-[4px] transition-shadow duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${pinHover ? '' : 'hover:shadow-[0px_4px_6px_0px_rgba(26,26,26,0.05),0px_10px_15px_0px_rgba(26,26,26,0.05)] disabled:hover:shadow-[0px_1px_4px_0px_rgba(26,26,26,0.05),0px_1px_2px_0px_rgba(26,26,26,0.05)]'} ${className}`}
+      className={`group/psc relative w-full max-w-[320px] flex items-center bg-surface border border-border rounded-[4px] transition-shadow duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${pinHover ? '' : 'hover:shadow-[0px_4px_6px_0px_rgba(26,26,26,0.05),0px_10px_15px_0px_rgba(26,26,26,0.05)] disabled:hover:shadow-[0px_1px_4px_0px_rgba(26,26,26,0.05),0px_1px_2px_0px_rgba(26,26,26,0.05)]'} ${className}`}
       style={{
         paddingLeft: 9,
         paddingRight: 17,

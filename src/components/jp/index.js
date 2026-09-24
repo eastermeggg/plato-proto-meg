@@ -6,7 +6,6 @@ export { default as JPListingPosteDetail } from './JPListingPosteDetail';
 export { default as JPMemoryRow } from './JPMemoryRow';
 export { default as JPAddStepper } from './JPAddStepper';
 export { default as SlashCommandPalette } from './SlashCommandPalette';
-export { default as JPSearchView } from './JPSearchView';
 export { default as SaveDestinationPopover } from './SaveDestinationPopover';
 export { default as FicheCabinetModal } from './FicheCabinetModal';
 export { default as JPRationaleModal } from './JPRationaleModal';

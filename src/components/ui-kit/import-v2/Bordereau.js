@@ -1,6 +1,7 @@
-// Le BORDEREAU de la V2, calé AU PIXEL sur les planches Figma 3278-36997 :
-// - « Import / Bordereau / Body PJs » : rangée 44px, case · icône (mail muet /
-//   PJ bleue / ciseaux violets quand découpée) · nom 14 ; états hover /
+// Le BORDEREAU de la V2, calé AU PIXEL sur les masters Figma :
+// - « Import / Bordereau / Flat Objects 2 » (4181:22036) : rangée 40px, grip ·
+//   icône par nature (mail ambre / doc rouge / ciseaux violets quand découpée)
+//   · nom 14 regular ; au survol d'un doc la case remplace l'icône ; états
 //   Sera découpé (ai) / Annuler le découpage / Loading / Erreur / Doublon.
 // - « Import / Bordereau / Folders » : arbre à cases tri-state, dossiers VERTS,
 //   « Découper » en bouton blanc au survol du rang.
@@ -8,24 +9,26 @@
 //   sélectionner »), bande de dépôt, portes d'entrée + « Tout découper » global.
 
 import React, { useState } from 'react';
-import { AlertCircle, AlertTriangle, ChevronDown, ChevronRight, FileText, FolderOpen, Loader2, Mail, Paperclip, Plus, Scissors, Upload, X } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ChevronDown, ChevronRight, FileText, FolderOpen, GripVertical, Loader2, Mail, Paperclip, Plus, Scissors, Upload, X } from 'lucide-react';
 import { Checkbox, LabSwitch } from '../import/atoms';
 import { treeCounts, treeState, treeThreadTotals } from '../import/labData';
 import { treeDecoupableKeys } from './useBordereau';
-import { V2, Badge, SmallBtn, HoverReveal, kindColor } from './pieceRow';
+import Badge from '../../ui/Badge';
+import Button from '../../ui/Button';
+import { V2, HoverReveal, kindColor } from './pieceRow';
 
 // LE chapeau de bloc : icône 16 teintée par nature · titre 14 medium, UNE
 // ligne · pastille « ✕ Retirer » (26px secondaire). `tag` : chip d'état inline.
 export function GroupChapeau({ kind = 'body', title, illegible = false, tag = null, divided = true, onRemove, removeTitle = 'Retirer' }) {
   const Icon = kind === 'folder' ? FolderOpen : kind === 'file' ? FileText : Mail;
   return (
-    <div className={`bg-white pl-4 pr-2.5 py-3 flex items-center justify-between gap-3 ${divided ? 'border-b border-border' : ''}`}>
+    <div className={`bg-surface pl-4 pr-2.5 py-3 flex items-center justify-between gap-3 ${divided ? 'border-b border-border' : ''}`}>
       <div className={`flex items-center min-w-0 ${kind === 'folder' ? 'gap-2.5' : 'gap-3'}`}>
-        <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: kindColor(kind) }} />
+        <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: kindColor(kind) }} />
         <p className={`text-[14px] leading-5 font-medium truncate ${illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{title}</p>
         {tag}
       </div>
-      {onRemove && <SmallBtn variant="secondary" icon={X} onClick={onRemove} title={removeTitle}>Retirer</SmallBtn>}
+      {onRemove && <Button variant="secondary" size="sm" icon={X} onClick={(e) => { e.stopPropagation(); onRemove(); }} title={removeTitle} label="Retirer" />}
     </div>
   );
 }
@@ -60,15 +63,18 @@ function GhostBtn({ icon: Icon, children, onClick, title, active = false }) {
   );
 }
 
-// La barre « Tout sélectionner » qui ouvre le corps de chaque bloc.
+// La barre « Tout sélectionner » qui ouvre le corps de chaque bloc (planche
+// « Import / Barre d'action (carte dossier) » 3284:2068) : fond subtil
+// #f5f4f1, rounded-6, pl-12 pr-8 py-6, label 12 medium, compteur + découpe
+// serrés à droite (gap 5).
 function SelectionBar({ state, onToggle, pairs, decoupe }) {
   return (
-    <div className="w-full rounded-lg pl-4 pr-2 flex items-center justify-between gap-3 flex-shrink-0" style={{ backgroundColor: V2.accent, height: 50 }}>
+    <div className="w-full rounded-md bg-background-subtle pl-3 pr-2 py-1.5 flex items-center justify-between gap-3 flex-shrink-0">
       <div className="flex items-center gap-2">
         <Checkbox checked={state === 'all'} partial={state === 'some'} onToggle={onToggle} title={state === 'all' ? 'Tout écarter' : 'Tout sélectionner'} />
-        <span className="text-[14px] leading-5 font-medium" style={{ color: V2.foreground }}>Tout sélectionner</span>
+        <span className="text-[12px] leading-4 font-medium" style={{ color: V2.foreground }}>Tout sélectionner</span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-[5px]">
         <BarCounter pairs={pairs} />
         {decoupe}
       </div>
@@ -76,7 +82,15 @@ function SelectionBar({ state, onToggle, pairs, decoupe }) {
   );
 }
 
-// ── Rangée de pièce (planche « Import / Bordereau / Body PJs », 12 états) ──
+// La poignée de rangée (master « Flat Objects 2 » 4181:22036) : grip-vertical
+// 12px muet à 50 % - l'affordance de tri, présente sur toute rangée posée.
+function Grip() {
+  return <GripVertical className="w-3 h-3 flex-shrink-0 opacity-50" strokeWidth={2.66} style={{ color: V2.muted }} aria-hidden />;
+}
+
+// ── Rangée de pièce (master « Import / Bordereau / Flat Objects 2 »
+// 4181:22036, rangée 40px : grip · icône par nature · nom 14 regular ;
+// au survol d'un doc, l'icône cède sa place à la case) ──
 export function Line({ line, api }) {
   const isUploading = line.status === 'uploading';
   const isError = line.status === 'error';
@@ -85,86 +99,93 @@ export function Line({ line, api }) {
   const canCut = (line.detection || line.decoupable) && line.included && !isError && !isUploading;
   const excluded = !line.included;
 
-  // Téléversement (État=Loading) : la case tient sa place invisible, spinner,
-  // nom en italique estompé - rien n'est cochable tant que le fichier arrive.
+  // Téléversement (État=Loading, 4181:22053) : spinner 16 muet en tête de
+  // rangée (pas de poignée tant que le fichier n'est pas là), nom italique 40 %.
   if (isUploading) {
     return (
-      <div className="flex items-center gap-2 h-11 px-4 bg-white">
-        <span className="w-4 flex-shrink-0" aria-hidden />
-        <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" strokeWidth={1.33} style={{ color: V2.muted }} />
+      <div className="flex items-center gap-2 h-10 px-4 bg-surface">
+        <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" strokeWidth={2} style={{ color: V2.muted }} />
         <p className="flex-1 min-w-0 text-[14px] leading-5 italic truncate opacity-40" style={{ color: V2.foreground }}>{line.title}</p>
       </div>
     );
   }
 
-  // Échec (État=error) : icône alerte + nom rouge + badge « Erreur », actions
-  // toujours visibles - un échec n'est jamais silencieux, rien n'est entré.
+  // Échec (État=error, 4181:22083) : alerte + trombone + nom rouges, badge
+  // « Erreur » plein, actions toujours visibles - un échec n'est jamais
+  // silencieux, rien n'est entré.
   if (isError) {
     return (
-      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-white">
+      <div className="flex items-center justify-between gap-3 h-10 px-4 bg-surface">
         <div className="flex items-center gap-2 min-w-0">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.destructiveText }} />
-          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.destructiveText }} />
+          <Grip />
+          <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2.25} style={{ color: V2.destructiveText }} />
+          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.destructiveText }} />
           <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.destructiveText }}>{line.title}</p>
-          <Badge tone="destructive">Erreur</Badge>
+          <Badge variant="destructive" label="Erreur" className="flex-shrink-0" />
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <SmallBtn variant="secondary" onClick={() => api.retryLine(line.id)} title="Relancer le téléversement">Réessayer</SmallBtn>
-          <SmallBtn variant="secondary" onClick={() => api.toggleIncluded(line.id)} title="Écarter cette pièce du versement">Ignorer</SmallBtn>
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.retryLine(line.id); }} title="Relancer le téléversement" label="Réessayer" />
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.toggleIncluded(line.id); }} title="Écarter cette pièce du versement" label="Ignorer" />
         </div>
       </div>
     );
   }
 
-  // Doublon à trancher (État=doublon) : alerte ambre + badge « Doublon
-  // identifié », trois actions - le versement attend la décision.
+  // Doublon à trancher (État=doublon, 4181:22094) : alerte + trombone ambre
+  // (warning-base), nom en warning-text, badge « Doublon identifié », trois
+  // actions - le versement attend la décision.
   if (isDoublon) {
     return (
-      <div className="flex items-center justify-between gap-3 h-11 px-4 bg-white">
+      <div className="flex items-center justify-between gap-3 h-10 px-4 bg-surface">
         <div className="flex items-center gap-2 min-w-0">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.warning }} />
-          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.warning }} />
-          <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }} title={line.doublon.note}>{line.title}</p>
-          <Badge tone="warning" title={line.doublon.note}>Doublon identifié</Badge>
+          <Grip />
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={2.25} style={{ color: V2.warning }} />
+          <Paperclip className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.warning }} />
+          <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.warningText }} title={line.doublon.note}>{line.title}</p>
+          <Badge variant="warning" label="Doublon identifié" title={line.doublon.note} className="flex-shrink-0" />
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <SmallBtn variant="secondary" onClick={() => api.resolveDoublon(line.id, 'keep')} title="Verser quand même - la pièce du dossier reste">Garder les deux</SmallBtn>
-          <SmallBtn variant="secondary" onClick={() => api.resolveDoublon(line.id, 'ignore')} title="Ne pas verser cette pièce">Supprimer</SmallBtn>
-          <SmallBtn variant="secondary" onClick={() => {}} title={line.doublon.note}>Voir</SmallBtn>
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.resolveDoublon(line.id, 'keep'); }} title="Verser quand même - la pièce du dossier reste" label="Garder les deux" />
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); api.resolveDoublon(line.id, 'ignore'); }} title="Ne pas verser cette pièce" label="Supprimer" />
+          <Button variant="secondary" size="sm" onClick={(e) => e.stopPropagation()} title={line.doublon.note} label="Voir" />
         </div>
       </div>
     );
   }
 
-  // Découpe armée (État=added-cut) : les ciseaux VIOLETS remplacent le
-  // trombone, « Sera découpé » en chip ai ; au survol, « Annuler le découpage ».
+  // Découpe armée (État=Def Doc Cut 4181:22071 / hover 4181:22077) : grip ·
+  // ciseaux VIOLETS · nom 14 regular · « Sera découpé » en chip ai ; au
+  // survol, la case remplace les ciseaux et « Annuler le découpage » le chip.
   if (cut) {
     return (
       <div>
         <div
-          className="group relative flex items-center justify-between gap-3 h-11 px-4 bg-white transition-colors"
+          className="group relative flex items-center justify-between gap-3 h-10 px-4 bg-surface transition-colors"
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Checkbox checked onToggle={() => api.toggleIncluded(line.id)} title="Ne pas ajouter ces pièces" />
-            <Scissors className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.aiIcon }} />
-            <p className="min-w-0 text-[14px] leading-5 font-medium truncate" style={{ color: V2.foreground }}>{line.title}</p>
-            {line.tag && <Badge tone="warning">{line.tag}</Badge>}
+            <Grip />
+            <span className="inline-flex group-hover:hidden flex-shrink-0">
+              <Scissors className="w-4 h-4" strokeWidth={2} style={{ color: V2.aiIcon }} />
+            </span>
+            <span className="hidden group-hover:inline-flex flex-shrink-0">
+              <Checkbox checked onToggle={() => api.toggleIncluded(line.id)} title="Ne pas ajouter ces pièces" />
+            </span>
+            <p className="min-w-0 text-[14px] leading-5 truncate" style={{ color: V2.foreground }}>{line.title}</p>
+            {line.tag && <Badge variant="warning" label={line.tag} className="flex-shrink-0" />}
           </div>
-          <SmallBtn variant="ai-subtle" icon={Scissors} onClick={() => api.toggleDecoupe(line.id)} title="Sera découpée à l'aperçu - cliquer pour annuler">
-            Sera découpé
-          </SmallBtn>
+          <Button variant="ai-subtle" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleDecoupe(line.id); }} title="Sera découpée à l'aperçu - cliquer pour annuler" label="Sera découpé" />
           <HoverReveal>
-            <SmallBtn variant="outline" icon={Scissors} onClick={() => api.toggleDecoupe(line.id)} title="Annuler la découpe">Annuler le découpage</SmallBtn>
+            <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleDecoupe(line.id); }} title="Annuler la découpe" label="Annuler le découpage" />
           </HoverReveal>
         </div>
         {/* Les pièces PRODUITES restent de vraies lignes, indentées. */}
         {line.detection && (
           <div className="flex flex-col">
             {line.detection.pieces.map((p) => (
-              <div key={p.name} className="flex items-center gap-2 h-9 pl-10 pr-4 bg-white">
-                <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={1.33} style={{ color: V2.pj }} />
+              <div key={p.name} className="flex items-center gap-2 h-9 pl-10 pr-4 bg-surface">
+                <FileText className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.docRed }} />
                 <p className="flex-1 min-w-0 text-[13px] leading-5 truncate" style={{ color: V2.foreground }}>{p.name}</p>
               </div>
             ))}
@@ -174,33 +195,42 @@ export function Line({ line, api }) {
     );
   }
 
-  // Rangée nominale (Def / added / hover) : case · icône · nom (medium quand
-  // retenue) ; « ✂ Découper » se révèle au survol d'une pièce découpable.
+  // Rangée nominale (Def Mail 4181:22037 / Def Doc 4181:22049 / hover) :
+  // grip · icône par nature · nom 14 regular. Corps de mail = mail AMBRE
+  // (l'icône reste au survol) ; doc = file-text ROUGE identité doc, et au
+  // survol la case remplace l'icône (hover Doc 4181:22065). Une pièce écartée
+  // garde sa case apparente pour revenir.
   const resolvedNote = line.doublonStatus === 'kept' ? 'Conservée' : line.doublonStatus === 'ignored' ? 'Ignorée' : null;
+  const checkbox = (
+    <Checkbox
+      checked={line.included}
+      onToggle={() => api.toggleIncluded(line.id)}
+      title={line.included ? 'Ne pas ajouter cette pièce' : 'Ajouter cette pièce'}
+    />
+  );
   return (
     <div
-      className="group relative flex items-center gap-2 h-11 px-4 bg-white transition-colors"
+      className="group relative flex items-center gap-2 h-10 px-4 bg-surface transition-colors"
       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
     >
-      <Checkbox
-        checked={line.included}
-        onToggle={() => api.toggleIncluded(line.id)}
-        title={line.included ? 'Ne pas ajouter cette pièce' : 'Ajouter cette pièce'}
-      />
+      <Grip />
       {line.kind === 'body' ? (
-        <Mail className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.muted }} />
-      ) : line.kind === 'pj' ? (
-        <Paperclip className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.pj }} />
+        excluded ? checkbox : <Mail className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: V2.mailBody }} />
       ) : (
-        <FileText className={`w-4 h-4 flex-shrink-0 ${excluded ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: V2.pj }} />
+        <>
+          <span className={`${excluded ? 'hidden' : 'inline-flex group-hover:hidden'} flex-shrink-0`}>
+            <FileText className="w-4 h-4" strokeWidth={2} style={{ color: V2.docRed }} />
+          </span>
+          <span className={`${excluded ? 'inline-flex' : 'hidden group-hover:inline-flex'} flex-shrink-0`}>{checkbox}</span>
+        </>
       )}
-      <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${line.included ? 'font-medium' : 'opacity-50'}`} style={{ color: V2.foreground }}>{line.title}</p>
-      {line.tag && line.included && <Badge tone="warning">{line.tag}</Badge>}
-      {resolvedNote && <Badge tone="secondary" title={line.doublon?.note}>{resolvedNote}</Badge>}
+      <p className={`flex-1 min-w-0 text-[14px] leading-5 truncate ${excluded ? 'opacity-50' : ''}`} style={{ color: V2.foreground }}>{line.title}</p>
+      {line.tag && line.included && <Badge variant="warning" label={line.tag} className="flex-shrink-0" />}
+      {resolvedNote && <Badge variant="secondary" label={resolvedNote} title={line.doublon?.note} className="flex-shrink-0" />}
       {canCut && !line.decoupe && (
         <HoverReveal>
-          <SmallBtn variant="outline" icon={Scissors} onClick={() => api.toggleDecoupe(line.id)} title="Scinder ce document en pièces">Découper</SmallBtn>
+          <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleDecoupe(line.id); }} title="Scinder ce document en pièces" label="Découper" />
         </HoverReveal>
       )}
     </div>
@@ -213,14 +243,12 @@ function TreePjDecoupe({ leafKey, name, decoupe, api, detectionFor }) {
   const det = detectionFor ? detectionFor(name) : null;
   if (on) {
     return (
-      <SmallBtn variant="ai-subtle" icon={Scissors} onClick={() => api.toggleFolderDecoupe(leafKey)} title="Sera découpée - cliquer pour annuler">
-        Sera découpé
-      </SmallBtn>
+      <Button variant="ai-subtle" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleFolderDecoupe(leafKey); }} title="Sera découpée - cliquer pour annuler" label="Sera découpé" />
     );
   }
   return (
     <HoverReveal>
-      <SmallBtn variant="outline" icon={Scissors} onClick={() => api.toggleFolderDecoupe(leafKey)} title="Découper cette PJ en pièces">Découper</SmallBtn>
+      <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.toggleFolderDecoupe(leafKey); }} title="Découper cette PJ en pièces" label="Découper" />
     </HoverReveal>
   );
 }
@@ -232,12 +260,12 @@ function TreeNodeDecoupe({ node, decoupe, api }) {
   const allOn = keys.every(k => decoupe.has(k));
   if (allOn) {
     return (
-      <SmallBtn variant="ai-subtle" icon={Scissors} onClick={() => api.setFolderDecoupeMany(keys, false)} title="Annuler la découpe de ces PJ">Sera découpé</SmallBtn>
+      <Button variant="ai-subtle" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.setFolderDecoupeMany(keys, false); }} title="Annuler la découpe de ces PJ" label="Sera découpé" />
     );
   }
   return (
     <HoverReveal>
-      <SmallBtn variant="outline" icon={Scissors} onClick={() => api.setFolderDecoupeMany(keys, true)} title={`Découper les ${keys.length} PJ de ce niveau`}>Découper</SmallBtn>
+      <Button variant="outline" size="sm" icon={Scissors} onClick={(e) => { e.stopPropagation(); api.setFolderDecoupeMany(keys, true); }} title={`Découper les ${keys.length} PJ de ce niveau`} label="Tout découper" />
     </HoverReveal>
   );
 }
@@ -249,27 +277,35 @@ function TreeNode({ node, depth, fid, decoupe, api, detectionFor }) {
   const toggle = () => api.toggleFolderNode(fid, node.key, st !== 'all');
   const isFolder = node.kind === 'folder';
   const decoupablePj = node.kind === 'pj' && node.decoupable && node.included;
-  // Réf. Figma : nœud à 16 + 20 par niveau ; une feuille s'aligne sous l'icône
-  // de son échange (padding du parent + 50).
-  const padLeft = leaf ? 16 + 20 * (depth - 1) + 50 : 16 + 20 * depth;
+  // Réf. Figma : nœud à 16 + 20 par niveau ; une feuille s'aligne sous le nom
+  // de son échange (padding du parent + chevron 12 + gap 8 + icône 16 + gap 8).
+  const padLeft = leaf ? 16 + 20 * (depth - 1) + 44 : 16 + 20 * depth;
   const Icon = isFolder ? FolderOpen : node.kind === 'pj' ? FileText : Mail;
   const iconColor = isFolder ? V2.folder : node.kind === 'pj' ? V2.pj : V2.muted;
 
+  // Master « Collapsible Objects 2 » (4181:21993 Default 36px / 21999 Hover) :
+  // chevron 12 muet · icône 16 · nom 14 - au survol (ou dès que la sélection
+  // n'est plus entière), la CASE remplace l'icône, comme sur les rangées plates.
+  const checkboxVisible = st !== 'all';
   return (
     <div>
       <div
-        className={`group relative flex items-center gap-2.5 pr-2 transition-colors ${leaf ? 'py-3' : 'py-2'} ${st === 'none' ? '' : ''}`}
+        className={`group relative flex items-center gap-2 pr-2 transition-colors ${leaf ? 'py-2.5' : 'py-2'}`}
         style={{ paddingLeft: padLeft }}
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = V2.accent; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
       >
         {!leaf ? (
           <button type="button" onClick={() => setOpen(o => !o)} className="flex-shrink-0" style={{ color: V2.muted }} aria-label={open ? 'Replier' : 'Déplier'}>
-            {open ? <ChevronDown className="w-3.5 h-3.5" strokeWidth={2} /> : <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />}
+            {open ? <ChevronDown className="w-3 h-3" strokeWidth={2.66} /> : <ChevronRight className="w-3 h-3" strokeWidth={2.66} />}
           </button>
         ) : null}
-        <Checkbox checked={st === 'all'} partial={st === 'some'} onToggle={toggle} title={st === 'all' ? 'Écarter' : 'Reprendre'} />
-        <Icon className={`w-4 h-4 flex-shrink-0 ${st === 'none' ? 'opacity-50' : ''}`} strokeWidth={1.33} style={{ color: iconColor }} />
+        <span className={`${checkboxVisible ? 'hidden' : 'inline-flex group-hover:hidden'} flex-shrink-0`}>
+          <Icon className={`w-4 h-4 ${st === 'none' ? 'opacity-50' : ''}`} strokeWidth={2} style={{ color: iconColor }} />
+        </span>
+        <span className={`${checkboxVisible ? 'inline-flex' : 'hidden group-hover:inline-flex'} flex-shrink-0`}>
+          <Checkbox checked={st === 'all'} partial={st === 'some'} onToggle={toggle} title={st === 'all' ? 'Écarter' : 'Reprendre'} />
+        </span>
         <span className={`flex-1 min-w-0 truncate text-[14px] leading-5 ${isFolder || node.kind === 'thread' ? 'font-medium' : ''} ${st === 'none' ? 'opacity-50' : ''} ${node.illegible ? 'italic' : ''}`} style={{ color: V2.foreground }}>{node.name}</span>
         {decoupablePj && <TreePjDecoupe leafKey={node.key} name={node.name} decoupe={decoupe} api={api} detectionFor={detectionFor} />}
         {!leaf && <TreeNodeDecoupe node={node} decoupe={decoupe} api={api} />}
@@ -282,7 +318,7 @@ function TreeNode({ node, depth, fid, decoupe, api, detectionFor }) {
 // Enveloppe carte d'un bloc (rounded-6, bord, ombre 2xs).
 function BlocCard({ children }) {
   return (
-    <section className="rounded-md border border-border bg-white overflow-hidden" style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
+    <section className="rounded-md border border-border bg-surface overflow-hidden" style={{ boxShadow: '0 1px 1px rgba(26,26,26,0.05)' }}>
       {children}
     </section>
   );
@@ -350,7 +386,7 @@ function DropStrip({ onClick, creating }) {
       type="button"
       onClick={onClick}
       className="w-full h-10 rounded-lg border border-dashed flex items-center justify-center gap-2 text-[12px] transition-colors hover:bg-cream flex-shrink-0"
-      style={{ borderColor: '#cbc7c4', color: V2.muted }}
+      style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', color: V2.muted }}
     >
       <Upload className="w-3.5 h-3.5" strokeWidth={1.75} />
       {creating
@@ -365,10 +401,10 @@ function DropZoneLarge({ onClick, creating }) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex-1 min-h-0 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors hover:bg-cream/40"
-      style={{ borderColor: '#cbc7c4', background: 'linear-gradient(180deg, rgba(238,236,230,0.35) 0%, rgba(238,236,230,0) 30%)' }}
+      className="w-full flex-1 min-h-0 rounded-xl border border-dashed flex flex-col items-center justify-center gap-3 transition-colors hover:bg-background-subtle"
+      style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', background: 'linear-gradient(180deg, rgba(238,236,230,0.35) 0%, rgba(238,236,230,0) 30%)' }}
     >
-      <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border" style={{ borderColor: '#cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
+      <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-surface border" style={{ borderColor: 'var(--semantic-borderStrong, #cbc7c4)', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
         <Upload className="w-5 h-5" strokeWidth={1.75} style={{ color: V2.foreground }} />
       </span>
       <span className="text-[14px] font-medium" style={{ color: V2.foreground }}>
@@ -408,10 +444,10 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
   // - both : reçu dans deux boîtes, dédoublonné - une seule pièce versée.
   const mailboxTag = (g) => {
     if (g.mailbox === 'personal') {
-      return <Badge tone="secondary" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier.">Depuis votre boîte</Badge>;
+      return <Badge variant="secondary" label="Depuis votre boîte" title="Versé depuis votre boîte - visible par le cabinet une fois dans le dossier." className="flex-shrink-0" />;
     }
     if (g.mailbox === 'both') {
-      return <Badge tone="secondary" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce.">Aussi dans votre boîte</Badge>;
+      return <Badge variant="secondary" label="Aussi dans votre boîte" title="Reçu par la boîte cabinet et dans votre boîte - dédoublonné : une seule pièce." className="flex-shrink-0" />;
     }
     return null;
   };
@@ -440,7 +476,7 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
               <button
                 type="button"
                 onClick={onToggleMail}
-                className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-white text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
+                className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-surface text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
                 style={{ color: V2.foreground }}
                 title="Parcourir vos emails et la récolte proposée"
               >
@@ -451,7 +487,7 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
             <button
               type="button"
               onClick={api.addLocalFile}
-              className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-white text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-[15px] rounded-lg border border-border bg-surface text-[14px] leading-5 font-medium hover:bg-cream transition-colors"
               style={{ color: V2.foreground }}
             >
               <Plus className="w-4 h-4" strokeWidth={2} />
@@ -479,7 +515,7 @@ export default function Bordereau({ api, mailOpen, onToggleMail, detectionFor, c
                   illegible={g.illegible}
                   tag={<>
                     {mailboxTag(g)}
-                    {g.topUp && <Badge tone="warning">Complément de l'import du {g.topUp}</Badge>}
+                    {g.topUp && <Badge variant="warning" label={`Complément de l'import du ${g.topUp}`} className="flex-shrink-0" />}
                   </>}
                   onRemove={() => api.removeThread(g.threadId)}
                   removeTitle="Retirer cet échange du bordereau"

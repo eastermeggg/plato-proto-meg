@@ -174,26 +174,6 @@ body {
 .diff-row-chevron { opacity: 0; transition: opacity 0.15s; }
 *:hover > .diff-row-chevron { opacity: 1; }
 
-/* ===== DROP ZONE STATES ===== */
-/* Hover — all contexts */
-.dropzone-container:hover,
-.dropzone-inline:hover { border-color: #a8a29e !important; }
-.dropzone-container:hover .dropzone-default-content { background: linear-gradient(to top, rgba(238,236,230,0) 0%, #eeece6 100%) !important; }
-.dropzone-inline:hover { background: #f8f7f5; }
-
-/* Drop state — toggled via JS class */
-.dropzone-container.dropzone-drop,
-.dropzone-inline.dropzone-drop { border-color: #a8a29e !important; }
-.dropzone-inline.dropzone-drop { background: #f8f7f5; }
-
-/* Drop state — swap content visibility */
-.dropzone-container.dropzone-drop .dropzone-default-content { display: none !important; }
-.dropzone-container.dropzone-drop .dropzone-drop-content { display: flex !important; }
-.dropzone-inline.dropzone-drop .dropzone-icon-default { display: none !important; }
-.dropzone-inline.dropzone-drop .dropzone-icon-drop { display: block !important; }
-.dropzone-inline.dropzone-drop .dropzone-text-default { display: none !important; }
-.dropzone-inline.dropzone-drop .dropzone-text-drop { display: block !important; }
-
 /* ===== TYPESCALE SYSTEM ===== */
 
 /* Display — Serif */

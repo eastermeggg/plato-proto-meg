@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors } from '../../design-system/tokens';
 
 // ── InlineToken ──────────────────────────────────────────────────────
 // Typed, non-breaking reference token inserted in the composer's rich
@@ -19,7 +20,7 @@ const FAMILY_GLYPH = {
 
 const TOKEN_CLASS =
   'inline-block whitespace-nowrap max-w-full overflow-hidden text-ellipsis align-baseline ' +
-  'rounded bg-cream text-foreground text-[13px] leading-[18px] px-1.5 border border-border/70 select-none';
+  'rounded bg-cream text-foreground text-[13px] leading-[18px] px-1.5 border border-border select-none';
 
 export function createTokenSpan(token) {
   const span = document.createElement('span');
@@ -36,7 +37,7 @@ export function createTokenSpan(token) {
     g.textContent = glyph;
     g.style.fontFamily = "'IBM Plex Mono', monospace";
     g.style.fontSize = '10px';
-    g.style.color = '#78716c';
+    g.style.color = colors.semantic.mutedForeground;
     g.style.marginRight = '4px';
     span.appendChild(g);
   }

@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, PanelRight, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal, MessageCircle, CornerDownRight, FolderPlus, MessageCirclePlus, ChevronsUpDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, PanelRight, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal, MessageCircle, CornerDownRight, FolderPlus, MessageCirclePlus, ChevronsUpDown, Sun, Moon, ArrowUpRight } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import ParallelTasks, { ParallelTasksLine } from './components/ParallelTasks';
 import ChatComposerNotice, { NOTICE_WRAP_BG } from './components/ChatComposerNotice';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { JPPill, DecisionDrawer, JPRow, JPListingChat, JPListingPosteDetail, JPMemoryRow, JPAddStepper, SlashCommandPalette, JPSearchView, FicheCabinetModal, JPRationaleModal } from './components/jp';
+import { JPPill, DecisionDrawer, JPRow, JPListingChat, JPListingPosteDetail, JPMemoryRow, JPAddStepper, SlashCommandPalette, FicheCabinetModal, JPRationaleModal } from './components/jp';
+import { colors, shadows as dsShadows, typeStyle } from './design-system/tokens';
+import dsInventory from './data/designSystemInventory.json';
+import { applyTheme } from './design-system/theme';
 import useDemoCommands from './hooks/useDemoCommands';
 import useThreads, { deriveThreadTitle, isThreadArchived, formatThreadActivity } from './hooks/useThreads';
 import assistantAgent from './services/assistantAgent';
@@ -30,9 +33,10 @@ import SuggestionPill from './components/assistant/SuggestionPill';
 import PlatoIcon from './components/shell/PlatoIcon';
 import PlatoAssistantButton from './components/shell/PlatoAssistantButton';
 import DossierTab from './components/shell/DossierTab';
+import SidebarUserInfo from './components/shell/SidebarUserInfo';
 import ConversationTopBar from './components/shell/ConversationTopBar';
 import ConversationsIndexPage from './components/shell/ConversationsIndexPage';
-import { Niveau3Strip, BreadcrumbReturn, SiblingNav, CodeBadge, StripDivider } from './components/shell/Niveau3Strip';
+import { Niveau3Strip, BreadcrumbReturn, SiblingNav, CodeBadge, StripDivider, StripTitle, StripAmount } from './components/shell/Niveau3Strip';
 import mockDecisionsAll, { getDecisionById, formatDateShort } from './data/mockDecisions';
 import { parseJPReferences, customFirmIdFor } from './utils/parseJPReferences';
 import { getTPScenario, TP_COMMAND_LIST, TP_COMMAND_MAP } from './data/tpScenarios';
@@ -42,6 +46,14 @@ import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import Input from './components/ui/Input';
 import Button from './components/ui/Button';
+import Progress from './components/ui/Progress';
+import Spinner from './components/ui/Spinner';
+import Badge from './components/ui/Badge';
+import Avatar, { avatarColorAt } from './components/ui/Avatar';
+import IVAvatar from './components/IVAvatar';
+import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
+import TopBar from './components/ui/TopBar';
+import PageHeader from './components/ui/PageHeader';
 import PairTabs from './components/redaction/PairTabs';
 import ExportBordereauMenu from './components/redaction/ExportBordereauMenu';
 import { extractCitations, buildEntriesFromCitations, addPieceToEntries, removeEntryAt, countCitationsForIntitule, stripCitationsForIntitule, numberEntries } from './data/bordereauModel';
@@ -54,6 +66,11 @@ import AlertDialog from './components/AlertDialog';
 import TokensSection from './components/ui-kit/TokensSection';
 import ComponentsInventorySection from './components/ui-kit/ComponentsInventorySection';
 import ComponentDetailPage from './components/ui-kit/ComponentDetailPage';
+import BlocksSection from './components/ui-kit/BlocksSection';
+import IllustrationsSection from './components/ui-kit/IllustrationsSection';
+import BlockDetailPage from './components/ui-kit/BlockDetailPage';
+import { BLOCKS as DS_BLOCKS } from './components/ui-kit/blocks';
+import CommandPalette from './components/ui-kit/CommandPalette';
 import SommaireActeLab from './components/ui-kit/SommaireActeLab';
 import ImportDossierLab from './components/ui-kit/ImportDossierLab';
 import ImportFolderTreeLab from './components/ui-kit/ImportFolderTreeLab';
@@ -103,6 +120,7 @@ import {
   PREFERENCE_SLOT_LABELS,
   PREFERENCE_SLOT_DEFAULTS,
 } from './components/preferences/PreferenceSlots';
+const dsColors = colors;
 
 const DEFAULT_PREFERENCE_SLOTS = { ...PREFERENCE_SLOT_DEFAULTS };
 
@@ -528,7 +546,7 @@ function TriStateCheckbox({ state, onClick, label }) {
     >
       <span
         className={`inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px] border transition-colors ${
-          filled ? 'bg-foreground border-foreground text-white' : 'bg-white border-border-strong hover:border-foreground-muted'
+          filled ? 'bg-foreground border-foreground text-primary-foreground' : 'bg-surface border-border-strong hover:border-foreground-muted'
         }`}
       >
         {state === 'checked' && <Check className="w-3 h-3" strokeWidth={3} />}
@@ -559,19 +577,19 @@ function SplitSegmentedControl({ value, onChange }) {
     border: 'none',
     cursor: 'pointer',
     transition: 'all 150ms',
-    background: active ? '#ffffff' : 'transparent',
-    boxShadow: active ? '0 1px 4px 0 rgba(26,26,26,0.05), 0 1px 2px 0 rgba(26,26,26,0.05)' : 'none',
+    background: active ? dsColors.semantic.white : 'transparent',
+    boxShadow: active ? dsShadows.sm : 'none',
     fontFamily: "'IBM Plex Mono', monospace",
     fontSize: 11,
     fontWeight: 500,
-    color: active ? '#292524' : '#78716c',
+    color: active ? dsColors.semantic.foreground : dsColors.semantic.mutedForeground,
     textTransform: 'uppercase',
     whiteSpace: 'nowrap',
   });
   return (
     <div
       className="flex items-center h-8 rounded-lg p-1 flex-shrink-0"
-      style={{ backgroundColor: '#eeece6' }}
+      style={{ backgroundColor: dsColors.semantic.muted }}
       role="group"
       onClick={(e) => e.stopPropagation()}
     >
@@ -606,7 +624,7 @@ function genericSplits(totalPages) {
 }
 
 function buildDropFirstSplitRows(parentId, originalName, fakeSize, isRapport, poolEntry, renamedBase) {
-  const baseName = renamedBase || poolEntry.cleanName.split(/\s[-—]\s/)[0].trim();
+  const baseName = renamedBase || poolEntry.cleanName.split(/\s[\u2014-]\s/)[0].trim();
   return poolEntry.splits.map((split, si) => ({
     id: `${parentId}-split-${si}`,
     originalName,
@@ -1166,13 +1184,13 @@ const MOCK_DIFF_STORE = {
  *
  * ========================================================================= */
 const PILL_SCHEMES = {
-  info:        { bg: '#eef3fa', border: '#aabcd5', text: '#1e3a8a' },
-  neutral:     { bg: 'transparent', border: '#cbc7c4', text: '#78716c' },
-  success:     { bg: '#dcfce7', border: '#a7f3d0', text: '#064e3b' },
-  warning:     { bg: '#f9ecd6', border: '#eeb97e', text: '#855b31' },
-  destructive: { bg: 'transparent', border: '#fecaca', text: '#7f1d1d' },
+  info:        { bg: dsColors.banner.info.bgFrom, border: dsColors.feedback.info.border, text: dsColors.feedback.info.text },
+  neutral:     { bg: 'transparent', border: dsColors.semantic.borderStrong, text: dsColors.semantic.mutedForeground },
+  success:     { bg: dsColors.piece.revenus.bg, border: dsColors.banner.success.border, text: dsColors.feedback.success.text },
+  warning:     { bg: dsColors.piece.factures.bg, border: dsColors.brand.darker.border, text: dsColors.feedback.warning.text },
+  destructive: { bg: 'transparent', border: dsColors.banner.error.border, text: dsColors.feedback.destructive.text },
 };
-const DIAMOND_COLORS = { add: '#059669', edit: '#bd6c1a', delete: '#991b1b' };
+const DIAMOND_COLORS = { add: dsColors.feedback.success.base, edit: dsColors.feedback.warning.base, delete: dsColors.feedback.destructive.base };
 
 /* ============================================================================
  * TABLE ROW DIFF - SPEC
@@ -1230,7 +1248,7 @@ const DIAMOND_COLORS = { add: '#059669', edit: '#bd6c1a', delete: '#991b1b' };
  *  Appear on row hover (opacity 0→1 transition).
  *
  * ========================================================================= */
-const ROW_DIFF_COLORS = { add: '#059669', edit: '#bd6c1a', delete: '#991b1b' };
+const ROW_DIFF_COLORS = colors.diff;
 
 const ZONE_LABELS = { infos_dossier: 'Info dossier', postes: 'Postes', pieces: 'Pièces' };
 const posteIconMap = {
@@ -1246,12 +1264,12 @@ const posteIconMap = {
 
 const PIECE_TYPE_COLORS = {
   'Expertise': 'bg-info-subtle text-link',
-  'Décision': 'bg-[#ede9fe] text-[#5b21b6]',
-  'Revenus': 'bg-[#dcfce7] text-[#166534]',
-  'Factures': 'bg-[#f9ecd6] text-[#855b31]',
-  'Médical': 'bg-[#dbeafe] text-[#1e40af]',
+  'Décision': 'bg-piece-decision-bg text-piece-decision-fg',
+  'Revenus': 'bg-piece-revenus-bg text-piece-revenus-fg',
+  'Factures': 'bg-piece-factures-bg text-piece-factures-fg',
+  'Médical': 'bg-piece-medical-bg text-piece-medical-fg',
   'Correspondance': 'bg-cream text-foreground-tertiary',
-  'Administratif': 'bg-[#f1f5f9] text-[#475569]',
+  'Administratif': 'bg-piece-administratif-bg text-piece-administratif-fg',
 };
 
 const PIECE_TYPE_OPTIONS = ['Expertise', 'Factures', 'Revenus', 'Décision', 'Médical', 'Correspondance', 'Administratif'];
@@ -1288,7 +1306,7 @@ function DocPreviewSkeleton({ title, date }) {
       </div>
       <div className="px-6 space-y-[7px]">
         {rows.map((w, i) => (
-          <div key={i} className="h-[5px] rounded-full" style={{ width: `${Math.round(w * 100)}%`, background: i % 6 === 5 ? 'transparent' : '#f1f0ee' }} />
+          <div key={i} className="h-[5px] rounded-full" style={{ width: `${Math.round(w * 100)}%`, background: i % 6 === 5 ? 'transparent' : dsColors.semantic.backgroundSubtle }} />
         ))}
       </div>
     </div>
@@ -1398,12 +1416,12 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
             ...(align === 'right' ? { right: 0 } : align === 'left' ? { left: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
             width: 260,
             borderRadius: 6,
-            backgroundColor: '#292524',
+            backgroundColor: dsColors.semantic.primary,
             border: 'none',
-            boxShadow: '0 8px 24px rgba(41,37,36,0.20), 0 2px 8px rgba(41,37,36,0.12)',
+            boxShadow: dsShadows['lg'],
             padding: '10px 12px',
             fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: 12, fontWeight: 400, color: '#ffffff',
+            fontSize: 12, fontWeight: 400, color: dsColors.semantic.white,
             lineHeight: '17px',
             letterSpacing: 'normal',
             textTransform: 'none',
@@ -1418,7 +1436,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
               position: 'absolute',
               ...(align === 'right' ? { right: 14, transform: 'rotate(45deg)' } : align === 'left' ? { left: 14, transform: 'rotate(45deg)' } : { left: '50%', transform: 'translateX(-50%) rotate(45deg)' }),
               width: 8, height: 8,
-              backgroundColor: '#292524',
+              backgroundColor: dsColors.semantic.primary,
               border: 'none',
               ...(placement === 'top'
                 ? { bottom: -5 }
@@ -1436,28 +1454,13 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
 const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'loi-hover', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion'];
-const UI_KIT_SUBSECTION_SLUGS = [
-  'tokens',
-  'inventory',
-  'buttons',
-  'prompt-suggestion-card',
-  'suggestions-menu',
-  'badges-pills',
-  'diff-rows',
-  'panel-diff-inputs',
-  'field-streaming',
-  'reasoning',
-  'chat-messages',
-  'artifact-cards',
-  'bareme-components',
-  'jp',
-  'split-variants',
-  'film-social',
-];
+const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp'];
 
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
-  if (clean === '/' || clean === '') return { page: 'home', section: null };
+  // Le playground DS est le point d'entrée de la plateforme ; le proto vit sur /app.
+  if (clean === '/' || clean === '') return { page: 'components', section: 'inventory' };
+  if (clean === '/app' || clean === '/home') return { page: 'home', section: null };
   if (clean === '/dossiers') return { page: 'dossiers', section: null };
   if (clean === '/conversations') return { page: 'conversations', section: null };
   if (clean.startsWith('/conversations/')) {
@@ -1467,29 +1470,33 @@ function pathToPage(pathname) {
   if (clean === '/settings') return { page: 'settings', section: null };
   if (clean === '/welcome') return { page: 'welcome', section: null };
   if (clean === '/dossier') return { page: 'dossier', section: null };
-  if (clean === '/ui-kit') return { page: 'components', section: null };
+  if (clean === '/ui-kit') return { page: 'components', section: 'inventory' };
   if (clean.startsWith('/ui-kit/c/')) {
     const componentId = clean.slice('/ui-kit/c/'.length);
     return { page: 'component-detail', section: null, componentId };
+  }
+  if (clean.startsWith('/ui-kit/b/')) {
+    const blockId = clean.slice('/ui-kit/b/'.length);
+    return { page: 'block-detail', section: null, blockId };
   }
   if (clean.startsWith('/ui-kit/')) {
     const slug = clean.slice('/ui-kit/'.length);
     if (UI_KIT_DEDICATED_PAGES.includes(slug)) return { page: slug, section: null };
     if (UI_KIT_SUBSECTION_SLUGS.includes(slug)) return { page: 'components', section: slug };
-    return { page: 'components', section: null };
+    return { page: 'components', section: 'inventory' };
   }
-  return { page: 'home', section: null };
+  return { page: 'components', section: 'inventory' };
 }
 
 function pageToPath(page) {
-  if (page === 'home') return '/';
+  if (page === 'home') return '/app';
   // Compat : « list » (ancienne home « Mes dossiers ») vit désormais sur /dossiers.
   if (page === 'list' || page === 'dossiers') return '/dossiers';
   if (page === 'conversations') return '/conversations';
   if (page === 'settings') return '/settings';
   if (page === 'welcome') return '/welcome';
   if (page === 'dossier') return '/dossier';
-  if (page === 'components') return '/ui-kit';
+  if (page === 'components') return '/';
   if (UI_KIT_DEDICATED_PAGES.includes(page)) return `/ui-kit/${page}`;
   return '/';
 }
@@ -1508,13 +1515,29 @@ export default function App() {
   // ========== STATE ==========
   // currentPage and componentsSection are derived from the URL.
   // setCurrentPage(page) calls navigate() so the URL stays the source of truth.
-  const { page: currentPage, section: componentsSection, componentId: detailComponentId, threadId: routeThreadId } = pathToPage(location.pathname);
+  const { page: currentPage, section: componentsSection, componentId: detailComponentId, blockId: detailBlockId, threadId: routeThreadId } = pathToPage(location.pathname);
   const setCurrentPage = (page) => navigate(pageToPath(page));
   // TEMP CAPTURE - ?capture=<mode> skips the localStorage restore for Figma
   // captures (l'ancienne SAS drop-first et ses fichiers d'exemple ont été
   // remplacés par la modale Import V2).
   const captureMode = new URLSearchParams(location.search).get('capture');
   const [activeDossierId, setActiveDossierId] = useState(null);
+
+  // Cmd+K - palette de navigation du DS (composants, tokens, pages). Active
+  // uniquement sur les surfaces du design system (« from the DS »).
+  const [dsPaletteOpen, setDsPaletteOpen] = useState(false);
+  const onDSSurface = currentPage === 'components' || currentPage === 'component-detail' || currentPage === 'block-detail' || UI_KIT_DEDICATED_PAGES.includes(currentPage);
+  useEffect(() => {
+    if (!onDSSurface) { setDsPaletteOpen(false); return undefined; }
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setDsPaletteOpen(o => !o);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onDSSurface]);
 
   // ========== CONVERSATIONS (fils) ==========
   // Store des threads (persistant) + fil actif. chatMessages (plus bas) reste la
@@ -1538,6 +1561,9 @@ export default function App() {
   // le peek et son verrou ne sont jamais persistés.
   const NAV_WIDTH = 264;
   const [navHidden, setNavHidden] = useState(false);
+  // Rail du playground DS : même grammaire (ouvert / disparu), état séparé du
+  // shell proto — les deux surfaces ne partagent pas le même « masqué ».
+  const [dsNavHidden, setDsNavHidden] = useState(false);
   const [peekOpen, setPeekOpen] = useState(false);
   const peekOpenRef = useRef(false);
   peekOpenRef.current = peekOpen;
@@ -1607,6 +1633,11 @@ export default function App() {
 
   // ========== SETTINGS ==========
   const [settingsSection, setSettingsSection] = useState('general'); // 'general' | 'maboite' | 'connecteurs' | 'tampon' | 'users' | 'preferences' | 'billing' | 'baremes' | 'templates'
+  // Thème (Apparence) — light par défaut, dark opt-in mémorisé (voir design-system/theme.js).
+  const [themeMode, setThemeMode] = useState(
+    () => (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) ? 'dark' : 'light'
+  );
+  const setTheme = (mode) => { applyTheme(mode, true); setThemeMode(mode); };
   // Parrainage - modal-only feature triggered from the sidebar promo card
   const [parrainageModalOpen, setParrainageModalOpen] = useState(false);
   const [parrainageForm, setParrainageForm] = useState({ prenom: '', nom: '', email: '' });
@@ -1669,8 +1700,8 @@ export default function App() {
   // when more than half the trial is gone (<=3 days remaining).
   const trialUrgent = isTrialing && trialDaysRemaining <= 3;
   const trialTone = trialUrgent
-    ? { text: '#855b31', bg: '#f9ecd6', gradient: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)', bar: '#bd6c1a', barTrack: 'rgba(133,91,49,0.15)', border: 'rgba(238,185,126,0.5)' }
-    : { text: '#1e3a8a', bg: '#e0eaf6', gradient: 'linear-gradient(180deg, #e0eaf6 0%, #ffffff 100%)', bar: '#1e3a8a', barTrack: 'rgba(30,58,138,0.15)', border: '#d7e2f2' };
+    ? { text: dsColors.feedback.warning.text, bg: dsColors.piece.factures.bg, gradient: `linear-gradient(180deg, ${dsColors.brand.darker.subtle} 0%, ${dsColors.semantic.card} 100%)`, bar: dsColors.feedback.warning.base, barTrack: 'rgba(133,91,49,0.15)', border: 'rgba(238,185,126,0.5)' }
+    : { text: dsColors.feedback.info.text, bg: dsColors.piece.expertise.bg, gradient: `linear-gradient(180deg, ${dsColors.piece.expertise.bg} 0%, ${dsColors.semantic.card} 100%)`, bar: dsColors.feedback.info.text, barTrack: 'rgba(30,58,138,0.15)', border: dsColors.piece.expertise.bg };
   // Account monthly total = every active licence × its price (one per collaborator).
   const accountMonthlyTotal = PRICING_PLANS.reduce((s, p) => s + (licencesAssigned[p.id] || 0) * p.monthly, 0);
   const applyAssignPlan = (memberId, planId) => {
@@ -1733,7 +1764,7 @@ export default function App() {
   const [preferenceSlots, setPreferenceSlots] = useState(DEFAULT_PREFERENCE_SLOTS);
   const setPreferenceSlot = (id, value) => setPreferenceSlots(prev => ({ ...prev, [id]: value }));
   const preferenceMasterPrompt = PREFERENCE_SLOT_IDS
-    .map(id => `— ${PREFERENCE_SLOT_LABELS[id]}\n${preferenceSlots[id] || ''}`)
+    .map(id => `- ${PREFERENCE_SLOT_LABELS[id]}\n${preferenceSlots[id] || ''}`)
     .join('\n\n');
   const [savedJurisprudences, setSavedJurisprudences] = useState([]);
   const [preferenceDragOver, setPreferenceDragOver] = useState(false);
@@ -1968,77 +1999,44 @@ export default function App() {
   const tauxFinal = tpScenario.tauxResponsabilite ?? 100;
 
   // Shared style for all column/table headers - IBM Plex Mono, uppercase, small
-  const colHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
+  const colHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' };
   // Section headers: DETAIL DU CALCUL, NOTES / ARGUMENTAIRE, JURISPRUDENCES
-  const sectionHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '1px' };
+  const sectionHeaderStyle = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '1px' };
   // Serif amounts for card titles and totals
   const serifAmountStyle = { fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', letterSpacing: '-0.5px', fontWeight: 400 };
   // Reusable card block class
-  const cardBlockClass = "bg-white rounded-lg border border-border overflow-hidden shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]";
+  const cardBlockClass = "bg-surface rounded-lg border border-border overflow-hidden shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]";
   // Total block class
   const totalBlockClass = "bg-cream border border-border rounded-lg shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] p-4";
 
-  // ========== CHESS PIECE AVATARS ==========
-  const CHESS_PATHS = {
-    knight: { vb: '0 0 24.19 27.63', d: 'M14.18 0c.02.11.01 1.02.01 1.17l-.001 2.8c.4.29 1.01.66 1.44.93l2.64 1.72c.16.56.29 1.14.43 1.7.06.23.1.49.2.71.14.34 1.84 1.93 2.23 2.32l-4.52 4.45-4.05-.02c-.28-.25-.6-.59-.88-.86-.47-.46-.93-.93-1.4-1.4.04-.87.01-2 .01-2.88-.44.01-.88.01-1.33.01-.04 1.1-.01 2.4-.01 3.51.62.66 1.31 1.29 1.94 1.94l.33.36 2.2-.002c.95 1.35 2.12 2.82 3.13 4.16l.003 2.72c.39.36 1.02.84 1.45 1.19.01.8.003 1.63 0 2.44l-7-0.001-8.74.004-.002-2.45c.45-.4.98-.79 1.44-1.19l-.004-2.73-4.41-.007c.08-.34.13-.79.19-1.15l.3-1.97c.78-.61 1.84-1.23 2.61-1.87.01-.15.04-.36.06-.52-.73.23-1.7.69-2.45.97.13-1.04.34-2.2.5-3.26.82-.42 1.65-.8 2.47-1.22.01-.16.02-.32.03-.48-.76.2-1.56.38-2.33.57.04-.2.07-.43.1-.64.17-1.27.44-2.55.59-3.81.75.25 1.49.5 2.23.76l.18-.37c-.6-.5-1.28-.97-1.87-1.47l2.37-2.33c.39-.39.81-.81 1.21-1.18.45-.03 1.16-.01 1.62-.01l3-.008c.23-.21.49-.49.72-.72.88-.85 1.74-1.75 2.62-2.59zm7.93 12.35c.16.08 1.84 1.82 2.08 2.06l-.04 3.04c-.44.37-.93.75-1.38 1.11-.36-.22-.68-.46-1.03-.7l-1.53-1.05-.31.3c.29.43.64.9.95 1.32.23.32.46.64.68.96l-2.84-.03c-.26-.8-.72-1.84-1.03-2.66.56-.58 1.24-1.23 1.83-1.8.86-.83 1.74-1.73 2.61-2.54zm-.19 2.46l-.004.68.57.06c.07.12.14.23.2.35.13.22.25.45.37.67l.02-1.74c-.04-.03-.02-.03-.06-.03-.35.01-.71.02-1.06.02zm-8.05-7.02c.31.21.64.37.94.56.01.24.01.5.03.74.21.15.48.29.72.41.25-.11.47-.22.72-.35.2.09.41.19.6.29l.21.11-.95-1.76h-2.27z' },
-    bishop: { vb: '0 0 12.98 27.86', d: 'M12.67 20.83v3.08h-1.6l.81 3.95H1.1l.83-3.95H.31v-3.08h12.36zM6.49 0c.16.18.5.63.65.84.4.57.91 1.2 1.28 1.78L6.59 7.69c-.37 1.03-.79 2.12-1.13 3.15.12.39.31.87.45 1.25.18.51.37 1.07.57 1.56.13-.28.28-.77.38-1.07.26-.71.52-1.43.77-2.14l2.12-5.88c.19.26.41.6.59.87.38.57.76 1.14 1.13 1.72.3.47.6.95.89 1.43.21.33.43.69.6 1.05-.17.88-.41 1.87-.61 2.75-.11.47-.2.98-.31 1.46-.2.9-.39 1.8-.58 2.69-.12.6-.35 1.43-.43 2l-9.12.002c-.05-.34-.19-.92-.27-1.27-.12-.54-.24-1.08-.35-1.62l-.63-2.86C.46 11.74.24 10.68 0 9.63c.1-.23.33-.58.46-.8.38-.63.77-1.25 1.17-1.86 1.02-1.59 2.07-3.15 3.16-4.68.37-.53.75-1.05 1.14-1.56.19-.25.36-.49.56-.73z' },
-    rook: { vb: '0 0 23.58 32.41', d: 'M21.14 27.17c.73.82 1.71 1.66 2.44 2.48l.005 2.76-2.49-.001-21.08.003C-.001 31.49.01 30.58 0 29.65c.79-.83 1.69-1.64 2.46-2.48.02-.6-.001-1.32.006-1.93l18.68-.002c-.004.65-.004 1.29 0 1.94zm-1.97-3.45c-.51.01-1.04.004-1.55.005l-13.18-.005 1.13-8.12c.13-.97.29-1.93.4-2.9l11.63-.002 1.56 11.03zm-.01-12.53H4.43c.004-.64.004-1.29 0-1.93h14.73l-.01 1.93zM6.1.01c.01 1.25-.001 2.54-.001 3.8 1.11.02 2.3 0 3.42.005l-.007-3.8 4.56.004v3.8l3.41-.002-.002-3.8c.32.001 3.56-.02 3.66.03l.002 7.7-18.69-.003-.004-7.72C3.61-.02 4.93.01 6.1.01z' },
-    pawn: { vb: '0 0 28 28', d: 'M14 2a4 4 0 00-4 4c0 1.2.53 2.27 1.37 3H9.5a1.5 1.5 0 000 3h1.09A5.99 5.99 0 008 17v1h12v-1a5.99 5.99 0 00-2.59-4.93H18.5a1.5 1.5 0 000-3h-1.87A3.98 3.98 0 0018 6a4 4 0 00-4-4zM6 20v2h16v-2H6zm-2 4v2h20v-2H4z' },
-    crown: { vb: '0 0 27.86 27.86', d: 'M19.85 21.59v2.79h-1.39l.7 3.48H8.71l.7-3.48H8.01v-2.79h11.84zM17.79 13.61l2.76-2.47 2.09 1.39-3.83 6.97H9.05l-3.83-6.97 2.09-1.39 2.76 2.47 3.86-3.86 3.86 3.86zM16.37 5.92l-2.44 2.44-2.44-2.44 2.44-2.44 2.44 2.44z' },
-    queen: { vb: '0 0 28 28', d: 'M14 2a3 3 0 00-1 5.83V10H9L6 5l-4 9h3l1 8h16l1-8h3L22 5l-3 5h-4V7.83A3 3 0 0014 2zM6 24v2h16v-2H6z' },
-    king: { vb: '0 0 28 28', d: 'M15 2h-2v3h-3v2h3v3h2V7h3V5h-3V2zM9 12a5 5 0 0110 0v1H9v-1zm-2 3h14l1 7H6l1-7zm-2 9h18v2H5v-2z' },
-  };
+  // ========== AVATARS ==========
+  // Convergence 24/09 (décision steward) : IVAvatar est la SEULE source des
+  // vecteurs d'échecs (identités métier VI/VD - même mouvement que PartyAvatar,
+  // SIGNALEMENTS §8) ; les personnes « neutres » (membres du workspace)
+  // passent sur l'Avatar générique du DS (initiales). Les CHESS_PATHS locaux
+  // et chessPiece() sont supprimés.
+  const VI_AVATAR_PALETTE = colors.avatar;
   const LIEN_PIECE = { 'Épouse': 'queen', 'Époux': 'king', 'Concubin': 'king', 'Concubine': 'queen', 'Partenaire': 'crown', 'Enfant': 'knight', 'Parent': 'rook', 'Père': 'rook', 'Mère': 'rook', 'Frère': 'bishop', 'Sœur': 'bishop', 'Grand-parent': 'rook', 'Autre': 'pawn' };
-  const VI_AVATAR_PALETTE = [
-    { bg: '#cce6d9', fill: '#064E3B' }, // green
-    { bg: '#dbeafe', fill: '#1e3a8a' }, // blue
-    { bg: '#ece0eb', fill: '#581c87' }, // plum
-    { bg: '#efdec4', fill: '#78350f' }, // orange
-    { bg: '#ffe4e6', fill: '#881337' }, // rose/plum
-    { bg: '#eeece6', fill: '#44403c' }, // cream/stone
-  ];
-  const VD_AVATAR = { bg: '#cce6d9', fill: '#064E3B' }; // green - matching Figma
-
-  const chessPiece = (piece, fill, size) => {
-    const p = CHESS_PATHS[piece] || CHESS_PATHS.knight;
-    return (
-      <svg viewBox={p.vb} fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80%', height: '80%', display: 'block' }}>
-        <path d={p.d} fill={fill} />
-      </svg>
-    );
+  // Le set canonique IVAvatar n'a pas de palette « rose » : cran remappé.
+  const IV_COLOR_FALLBACK = { rose: 'plum' };
+  const ivColorAt = (idx) => {
+    const name = VI_AVATAR_PALETTE[(idx >= 0 ? idx : 0) % VI_AVATAR_PALETTE.length].name;
+    return IV_COLOR_FALLBACK[name] || name;
   };
 
   const viAvatar = (vi, size = 28) => {
     const idx = victimesIndirectes.findIndex(v => v.id === vi.id);
-    const pal = VI_AVATAR_PALETTE[(idx >= 0 ? idx : 0) % VI_AVATAR_PALETTE.length];
-    const piece = LIEN_PIECE[vi.lien] || 'knight';
-    return (
-      <div className="flex items-end justify-center flex-shrink-0 overflow-hidden" style={{ width: size, height: size, borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8, backgroundColor: pal.bg, paddingTop: 2 }}>
-        {chessPiece(piece, pal.fill, size)}
-      </div>
-    );
+    return <IVAvatar size={size} color={ivColorAt(idx)} type={LIEN_PIECE[vi.lien] || 'knight'} />;
   };
 
-  const vdAvatar = (size = 32) => (
-    <div className="flex items-end justify-center flex-shrink-0 overflow-hidden" style={{ width: size, height: size, borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8, backgroundColor: VD_AVATAR.bg, paddingTop: 2 }}>
-      {chessPiece('crown', VD_AVATAR.fill, size)}
-    </div>
+  const vdAvatar = (size = 32) => <IVAvatar size={size} color="green" type="crown" />;
+
+  // Membre du workspace : Avatar générique (initiales), palette cyclique par
+  // index. `role` conservé dans la signature (call sites) mais l'encodage
+  // pièce-par-rôle disparaît avec les échecs.
+  const userAvatar = (idx, role, size = 32, name = '') => (
+    <Avatar size={size} shape="square" color={avatarColorAt(idx >= 0 ? idx : 0)} name={name} />
   );
-
-  // Workspace member avatar - same square-box + chess piece pattern as viAvatar.
-  // Palette cycles by member index; piece reflects role (Admin → king, Membre → pawn).
-  const userAvatar = (idx, role, size = 32) => {
-    const pal = VI_AVATAR_PALETTE[(idx >= 0 ? idx : 0) % VI_AVATAR_PALETTE.length];
-    const piece = role === 'Admin' ? 'king' : 'pawn';
-    return (
-      <div
-        className="flex items-end justify-center flex-shrink-0 overflow-hidden"
-        style={{ width: size, height: size, borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8, backgroundColor: pal.bg, paddingTop: 2 }}
-      >
-        {chessPiece(piece, pal.fill, size)}
-      </div>
-    );
-  };
 
   const typesFaitGenerateur = ['Accident de la route', 'Accident du travail', 'Accident médical', 'Agression', 'Accident domestique', 'Autre'];
 
@@ -3001,7 +2999,7 @@ export default function App() {
       if (!trimmed) return <br key={li} />;
       // Bullet points (— or -)
       const isBullet = trimmed.startsWith('— ') || trimmed.startsWith('- ');
-      const bulletContent = isBullet ? trimmed.replace(/^[—-]\s/, '') : trimmed;
+      const bulletContent = isBullet ? trimmed.replace(/^[\u2014-]\s/, '') : trimmed;
       // Parse inline: bold **text** and doc references « text »
       const parts = bulletContent.split(/(\*\*[^*]+\*\*|«\s*[^»]+\s*»)/g);
       const rendered = parts.map((part, pi) => {
@@ -3014,7 +3012,7 @@ export default function App() {
             <span
               key={pi}
               className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] cursor-pointer hover:bg-border transition-colors align-middle"
-              style={{ backgroundColor: '#eeece6', verticalAlign: 'baseline', lineHeight: '18px' }}
+              style={{ backgroundColor: dsColors.semantic.muted, verticalAlign: 'baseline', lineHeight: '18px' }}
               onClick={() => {
                 const piece = pieces.find(p => p.nom === docName || p.intitule === docName) || dropFirstPieces.find(p => (p.cleanName || p.originalName) === docName);
                 if (piece) {
@@ -3028,8 +3026,8 @@ export default function App() {
                 }
               }}
             >
-              <FileText className="w-3 h-3 flex-shrink-0" style={{ color: '#78716c' }} strokeWidth={1.5} />
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>{docName}</span>
+              <FileText className="w-3 h-3 flex-shrink-0" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={1.5} />
+              <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{docName}</span>
             </span>
           );
         }
@@ -3046,7 +3044,7 @@ export default function App() {
   // Matter type of the active dossier — drives the Dossier + Chiffrage layout fork (corporel vs droit social).
   const activeMatterType = (dossiers.find(d => d.id === activeDossierId) || {}).matterType || 'corporel';
 
-  const fmt = (n) => n != null ? n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '— €';
+  const fmt = (n) => n != null ? n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '- €';
   const getPieceLabel = (pieceId) => {
     const idx = pieces.findIndex(p => p.id === pieceId);
     return idx >= 0 ? `P${idx + 1}` : '?';
@@ -3071,14 +3069,14 @@ export default function App() {
   // ========== PIECES HELPERS ==========
   const getTypeColor = (type) => {
     const colors = {
-      'Facture': 'bg-blue-100 text-link',
-      'Bulletin': 'bg-green-100 text-green-700',
-      'Attestation': 'bg-purple-100 text-purple-700',
-      'Expertise': 'bg-amber-100 text-amber-700',
-      'Imagerie': 'bg-pink-100 text-pink-700',
-      'Ordonnance': 'bg-cyan-100 text-cyan-700'
+      'Facture': 'bg-piece-medical-bg text-link',
+      'Bulletin': 'bg-piece-revenus-bg text-success',
+      'Attestation': 'bg-piece-decision-bg text-ai',
+      'Expertise': 'bg-warning-subtle text-brand-subtle-foreground',
+      'Imagerie': 'bg-ai-subtle text-danger',
+      'Ordonnance': 'bg-info-subtle text-slate'
     };
-    return colors[type] || 'bg-background-canvas text-gray-700';
+    return colors[type] || 'bg-background-canvas text-foreground';
   };
 
   const getPieceUsage = (pieceId) => {
@@ -3160,7 +3158,7 @@ export default function App() {
               }}
               className={`flex items-center gap-2.5 h-[32px] px-3 text-[11px] font-medium uppercase tracking-wide rounded-[7px] transition-all ${
                 piecesSortMode === 'chrono'
-                  ? 'bg-info-subtle border border-[#aabcd5] text-link shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)]'
+                  ? 'bg-info-subtle border border-info-border text-link shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)]'
                   : 'bg-cream text-foreground-secondary hover:text-foreground-tertiary border border-transparent'
               }`}
               style={{ fontFamily: "'IBM Plex Mono', monospace" }}
@@ -3173,7 +3171,7 @@ export default function App() {
               )}
             </button>
             {/* Divider */}
-            <div className="w-px h-5 bg-[#d9d9d9]" />
+            <div className="w-px h-5 bg-border-alt" />
             <div className="relative" ref={downloadMenuRef}>
               <button
                 onClick={() => setDownloadMenuOpen(o => !o)}
@@ -3185,11 +3183,11 @@ export default function App() {
 
               {downloadMenuOpen && (
                 <div
-                  className="absolute right-0 top-10 z-50 bg-white rounded-[8px] border border-border overflow-hidden"
-                  style={{ width: 260, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}
+                  className="absolute right-0 top-10 z-50 bg-surface rounded-[8px] border border-border overflow-hidden"
+                  style={{ width: 260, boxShadow: dsShadows['md'] }}
                 >
                   <div className="px-3 pt-2.5 pb-1.5">
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Télécharger le bordereau...
                     </span>
                   </div>
@@ -3213,7 +3211,7 @@ export default function App() {
             {dossierStatut !== 'fermé' && (
               <button
                 onClick={copyBordereau}
-                className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
+                className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
               >
                 <Copy className="w-4 h-4" strokeWidth={1.5} />
                 Copier bordereau
@@ -3260,7 +3258,7 @@ export default function App() {
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(e) => { e.preventDefault(); setIsDragging(false); acceptDroppedFiles(e.dataTransfer.files); }}
                   className={`mb-4 flex items-center justify-center gap-4 h-16 border border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? 'border-border-strong bg-background-subtle' : 'border-border-strong hover:border-foreground-muted'}`}
-                  style={{ background: isDragging ? '#f5f5f4' : 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}
+                  style={{ background: isDragging ? dsColors.semantic.backgroundSubtle : `linear-gradient(to top, rgba(238,236,230,0) 50%, ${dsColors.semantic.accent} 100%)` }}
                 >
                   <Upload className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />
                   <span className="text-sm">
@@ -3280,7 +3278,7 @@ export default function App() {
               <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
               <button
                 onClick={() => { setPiecesSortMode('manuel'); setShowReorderHint(false); }}
-                className="ml-auto px-3 py-1.5 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
+                className="ml-auto px-3 py-1.5 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
               >
                 Désactiver Chrono
               </button>
@@ -3293,7 +3291,7 @@ export default function App() {
           {/* Table */}
           <div className="border border-border rounded-md overflow-hidden">
             {/* Column headers */}
-            <div className="flex items-center bg-white border-b border-border">
+            <div className="flex items-center bg-surface border-b border-border">
               <div className="w-[38px] h-10 shrink-0" />
               <div className="w-[50px] shrink-0 px-3 py-3 text-center" style={colHeaderStyle}>N°</div>
               <div className="flex-1 min-w-0 px-3 py-3" style={colHeaderStyle}>Nom du document</div>
@@ -3313,7 +3311,7 @@ export default function App() {
                 <React.Fragment key={piece.id}>
                   {/* Drop indicator line */}
                   {piecesDragState.over === piece.id && piecesDragState.dragging !== piece.id && (
-                    <div className="h-0.5 bg-[#f59e0b] rounded-full mx-2" />
+                    <div className="h-0.5 rounded-full mx-2" style={{ backgroundColor: dsColors.banner.warning.accent }} />
                   )}
                   <div
                     draggable={piecesSortMode === 'manuel'}
@@ -3350,7 +3348,7 @@ export default function App() {
                       }
                       setPiecesDragState({ dragging: null, over: null });
                     }}
-                    className={`flex items-center h-14 bg-white border-b border-border last:border-b-0 hover:bg-background cursor-pointer group ${isDragging ? 'opacity-20 bg-[#f4f4f5]' : ''}`}
+                    className={`flex items-center h-14 bg-surface border-b border-border last:border-b-0 hover:bg-background cursor-pointer group ${isDragging ? 'opacity-20 bg-background-subtle' : ''}`}
                     onClick={() => setEditPanel({ type: 'piece-detail', data: { ...piece, index: displayIndex, usages } })}
                   >
                     {/* Grip */}
@@ -3390,7 +3388,7 @@ export default function App() {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-foreground-muted">—</span>
+                        <span className="text-xs text-foreground-muted">-</span>
                       )}
                     </div>
                     {/* Options */}
@@ -3409,7 +3407,7 @@ export default function App() {
               >
                 <GripVertical className="w-3 h-3 text-foreground-secondary" strokeWidth={1.5} />
                 <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-foreground-tertiary text-border-strong text-xs font-semibold rounded-md">{piecesDragState.num || '?'}</span>
-                <span className="text-sm font-medium text-white truncate max-w-[250px]">{piecesDragState.name}</span>
+                <span className="text-sm font-medium text-primary-foreground truncate max-w-[250px]">{piecesDragState.name}</span>
                 {piecesDragState.type && (
                   <span className={`px-2 py-0.5 text-xs font-medium rounded-md bg-foreground-tertiary text-border-strong`}>{piecesDragState.type}</span>
                 )}
@@ -4338,7 +4336,7 @@ export default function App() {
         type: 'user', text: '/prp'
       }, {
         type: 'ai',
-        text: "Pour calculer les **Pertes de Revenus des Proches**, j'ai besoin des documents suivants :\n\n— **Acte de décès** (obligatoire)\n— **Avis d'imposition** du défunt et du conjoint (3 dernières années si possible)\n— **Bulletins de salaire** du défunt (12 derniers mois)\n— **Décompte Sécu / CARSAT** (pension de réversion, capital décès)\n— **Livret de famille** (composition du foyer)\n\nVous pouvez les déposer directement dans le chat ou taper `/prp-compute` pour lancer le calcul avec les données déjà au dossier."
+        text: "Pour calculer les **Pertes de Revenus des Proches**, j'ai besoin des documents suivants :\n\n- **Acte de décès** (obligatoire)\n- **Avis d'imposition** du défunt et du conjoint (3 dernières années si possible)\n- **Bulletins de salaire** du défunt (12 derniers mois)\n- **Décompte Sécu / CARSAT** (pension de réversion, capital décès)\n- **Livret de famille** (composition du foyer)\n\nVous pouvez les déposer directement dans le chat ou taper `/prp-compute` pour lancer le calcul avec les données déjà au dossier."
       }]);
       return;
     }
@@ -4362,7 +4360,7 @@ export default function App() {
         type: 'user', text: '/prp-compute'
       }, {
         type: 'ai',
-        text: '**Raisonnement :**\n\n— ' + reasoning.join('\n— ') + `\n\n**Résultat :** ${fmt(Math.round(total))} en capital${totalRente > 0 ? ` + ${fmt(Math.round(totalRente))} / an de rentes` : ''}.\n\nJ'ai mis à jour la cascade dans le panneau de droite. Tapez \`/prp-alerts\` pour voir les zones potentiellement attaquables.`
+        text: '**Raisonnement :**\n\n- ' + reasoning.join('\n- ') + `\n\n**Résultat :** ${fmt(Math.round(total))} en capital${totalRente > 0 ? ` + ${fmt(Math.round(totalRente))} / an de rentes` : ''}.\n\nJ'ai mis à jour la cascade dans le panneau de droite. Tapez \`/prp-alerts\` pour voir les zones potentiellement attaquables.`
       }]);
       // Open PRP poste view
       navigateTo({ id: 'prp', title: 'PRP', fullTitle: 'Pertes de revenus des proches', type: 'poste', montant: total });
@@ -4373,19 +4371,19 @@ export default function App() {
       const lignes = ivPosteData['prp']?.lignes || [];
       const foyer = computePrpFoyer(shared, victimesIndirectes);
       const alerts = [];
-      if (foyer.partAutoConso > 35) alerts.push(`⚠️ Auto-consommation à ${foyer.partAutoConso}% - supérieur à la fourchette habituelle (15-35%), attaquable.`);
-      if (foyer.partAutoConso < 15 && foyer.partAutoConso > 0) alerts.push(`ℹ️ Auto-consommation à ${foyer.partAutoConso}% - en dessous des seuils habituels.`);
+      if (foyer.partAutoConso > 35) alerts.push(`Attention : auto-consommation à ${foyer.partAutoConso}% - supérieur à la fourchette habituelle (15-35%), attaquable.`);
+      if (foyer.partAutoConso < 15 && foyer.partAutoConso > 0) alerts.push(`Auto-consommation à ${foyer.partAutoConso}% - en dessous des seuils habituels.`);
       const conjointVI = victimesIndirectes.find(v => ['Épouse','Époux','Concubin','Concubine','Partenaire'].includes(v.lien));
       const conjointLigne = conjointVI ? lignes.find(l => l.victimeId === conjointVI.id) : null;
       if (conjointVI && conjointLigne && !(conjointLigne.deductionsTP || []).some(d => d.type === 'pension-reversion' && (d.montantAnnuel || 0) > 0)) {
-        alerts.push(`⚠️ Pension de réversion non déclarée pour ${conjointVI.prenom} ${conjointVI.nom} - risque de rejet par la défense.`);
+        alerts.push(`Attention : pension de réversion non déclarée pour ${conjointVI.prenom} ${conjointVI.nom} - risque de rejet par la défense.`);
       }
       const sumParts = lignes.reduce((s, l) => s + (l.partIndividuelle || 0), 0);
-      if (sumParts !== 100 && sumParts > 0) alerts.push(`⚠️ Somme des parts : ${sumParts}% (devrait être 100%).`);
+      if (sumParts !== 100 && sumParts > 0) alerts.push(`Attention : somme des parts : ${sumParts}% (devrait être 100%).`);
       const missingCoeff = lignes.find(l => (l.mode || 'capitalisation') === 'capitalisation' && !l.coeffCapitalisation);
       if (missingCoeff) {
         const vi = victimesIndirectes.find(v => v.id === missingCoeff.victimeId);
-        if (vi) alerts.push(`⚠️ Coefficient de capitalisation manquant pour ${vi.prenom} ${vi.nom}.`);
+        if (vi) alerts.push(`Attention : coefficient de capitalisation manquant pour ${vi.prenom} ${vi.nom}.`);
       }
       setChatMessages(prev => [...prev, {
         type: 'user', text: '/prp-alerts'
@@ -4393,7 +4391,7 @@ export default function App() {
         type: 'ai',
         text: alerts.length > 0
           ? '**Points d\'attention sur le calcul PRP :**\n\n' + alerts.map(a => '— ' + a).join('\n')
-          : '✅ Aucune zone attaquable détectée sur le calcul PRP en l\'état.'
+          : 'Aucune zone attaquable détectée sur le calcul PRP en l\'état.'
       }]);
       return;
     }
@@ -5085,126 +5083,116 @@ export default function App() {
     const isClosed = dossierStatut === 'fermé';
     const activeDossier = dossiers.find(d => d.id === activeDossierId) || null;
     const displayName = `${victimeData.prenom || ''} ${victimeData.nom || ''}`.trim() || activeDossier?.reference || 'Dossier';
+
+    // Onglets du dossier (cluster gauche de la TopBar).
+    const tabs = tabsConfig.dossier.map(tab => {
+      const tabKey = tabLabelToKey(tab);
+      const isActive = currentLevel?.type === 'dossier'
+        ? currentLevel.activeTab === tabKey
+        : navStack[0]?.activeTab === tabKey;
+      const label = tab === 'Dossier' ? 'Informations' : tab === 'Jurisprudence' ? 'JP' : tab;
+      const count = tab === 'Pièces' ? (activeMatterType === 'social' ? socialPieces.length : pieces.length) : null;
+      const tabZoneMap = { dossier: 'infos_dossier', chiffrage: 'postes', 'pièces': 'pieces' };
+      const tabZone = tabZoneMap[tabKey];
+      const zoneDiffs = tabZone && !isClosed ? activeDiffs.filter(d => d.zone === tabZone && !d.approved && !d.rejected) : [];
+      const hasAdds = zoneDiffs.some(d => d.type === 'add');
+      const hasEdits = zoneDiffs.some(d => d.type === 'edit');
+      const hasDeletes = zoneDiffs.some(d => d.type === 'delete');
+      const diffDiamondColor = hasEdits ? ROW_DIFF_COLORS.edit : hasDeletes ? ROW_DIFF_COLORS.delete : hasAdds ? ROW_DIFF_COLORS.add : null;
+      const showDiffDiamond = zoneDiffs.length > 0;
+      const hasExtracted = tab === 'Dossier' && infoDossierStreaming?.fieldsRevealed?.length > 0;
+      const showStreamingDot = hasExtracted && !isActive && !showDiffDiamond && !isClosed;
+      const handleClick = () => {
+        if (jp.jpState.drawerDecisionId) jp.closeDrawer();
+        if (currentLevel?.type === 'poste') {
+          navigateToStackLevel(0);
+          setTimeout(() => setActiveTab(tab), 0);
+        } else {
+          setActiveTab(tab);
+        }
+      };
+      return (
+        <DossierTab
+          key={tab}
+          label={label}
+          active={isActive}
+          count={count}
+          diamondColor={showDiffDiamond ? diffDiamondColor : null}
+          streamingDot={showStreamingDot}
+          onClick={handleClick}
+        />
+      );
+    });
+
     return (
-      <div className="w-full flex-shrink-0">
-      {/* Top Bar V2 (Figma Plato---System 37497) : une seule bande fixe -
-          [Menu si nav masquée] · 📁 Mes dossiers │ nom du dossier (ancre serif)
-          │ onglets ┈┈ Plato Assistant · ⋮. Le breadcrumb, le nom et les onglets
-          fusionnent (fini les 3 bandes empilées). Le Niveau 3 Strip (objet)
-          reste rendu en dessous, dans le contenu. */}
-      <div className="w-full h-12 px-8 flex items-stretch justify-between gap-4 border-b border-border flex-shrink-0">
-        <div className="flex items-stretch gap-3 min-w-0">
-          {navHidden && (
-            <div className="flex items-center gap-3 flex-shrink-0">
-              {renderNavExpandControl()}
-              <span aria-hidden className="w-px h-4 bg-border-strong" />
-            </div>
-          )}
-          {/* Breadcrumb : Mes dossiers (retour) │ nom du dossier (ancre serif) */}
-          <div className="flex items-center gap-2.5 min-w-0 flex-shrink-0">
-            <button onClick={backToList} title="Retour à mes dossiers" className="flex items-center gap-1.5 text-[13.5px] text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0">
-              <FolderOpen className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} /> Mes dossiers
-            </button>
-            <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0" />
-            <DossierSwitcher
-              dossiers={dossiers}
-              activeDossierId={activeDossierId}
-              onSelect={(d) => openDossier(d)}
-              onCreate={() => openImportV2('create')}
-              trigger="anchor"
-              label={displayName}
-            />
-          </div>
-          <div className="flex items-center"><span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0" /></div>
-          {/* Onglets - pleine hauteur (items-stretch) : libellé centré sur la
-              ligne du breadcrumb, soulignement de l'onglet actif au FILET DU BAS
-              de la bande. Restent allumés au niveau 3. */}
-          <div className="flex items-stretch gap-6 min-w-0">
-          {tabsConfig.dossier.map(tab => {
-            const tabKey = tabLabelToKey(tab);
-            const isActive = currentLevel?.type === 'dossier'
-              ? currentLevel.activeTab === tabKey
-              : navStack[0]?.activeTab === tabKey;
-            const label = tab === 'Dossier' ? 'Informations' : tab === 'Jurisprudence' ? 'JP' : tab;
-            const count = tab === 'Pièces' ? (activeMatterType === 'social' ? socialPieces.length : pieces.length) : null;
-
-            // Diamant de diff (porté de l'ancienne top bar) - masqué dossier fermé.
-            const tabZoneMap = { dossier: 'infos_dossier', chiffrage: 'postes', 'pièces': 'pieces' };
-            const tabZone = tabZoneMap[tabKey];
-            const zoneDiffs = tabZone && !isClosed ? activeDiffs.filter(d => d.zone === tabZone && !d.approved && !d.rejected) : [];
-            const hasAdds = zoneDiffs.some(d => d.type === 'add');
-            const hasEdits = zoneDiffs.some(d => d.type === 'edit');
-            const hasDeletes = zoneDiffs.some(d => d.type === 'delete');
-            const diffDiamondColor = hasEdits ? ROW_DIFF_COLORS.edit : hasDeletes ? ROW_DIFF_COLORS.delete : hasAdds ? ROW_DIFF_COLORS.add : null;
-            const showDiffDiamond = zoneDiffs.length > 0;
-            const hasExtracted = tab === 'Dossier' && infoDossierStreaming?.fieldsRevealed?.length > 0;
-            const showStreamingDot = hasExtracted && !isActive && !showDiffDiamond && !isClosed;
-
-            const handleClick = () => {
-              if (jp.jpState.drawerDecisionId) jp.closeDrawer();
-              if (currentLevel?.type === 'poste') {
-                navigateToStackLevel(0);
-                setTimeout(() => setActiveTab(tab), 0);
-              } else {
-                setActiveTab(tab);
-              }
-            };
-
-            return (
-              <DossierTab
-                key={tab}
-                label={label}
-                active={isActive}
-                count={count}
-                diamondColor={showDiffDiamond ? diffDiamondColor : null}
-                streamingDot={showStreamingDot}
-                onClick={handleClick}
+      <TopBar
+        navCollapsed={navHidden}
+        onNavExpand={expandNav}
+        onNavHome={() => setCurrentPage('home')}
+        onNavPeekEnter={openPeek}
+        onNavPeekLeave={schedulePeekClose}
+        left={(
+          <>
+            {/* Breadcrumb : Mes dossiers (retour) │ nom du dossier (ancre serif) */}
+            <div className="flex items-center gap-2.5 min-w-0 flex-shrink-0">
+              <button onClick={backToList} title="Retour à mes dossiers" className="flex items-center gap-1.5 pl-1.5 text-[12px] leading-4 tracking-[0.01em] text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0">
+                <FolderOpen className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} /> Mes dossiers
+              </button>
+              <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0" />
+              <DossierSwitcher
+                dossiers={dossiers}
+                activeDossierId={activeDossierId}
+                onSelect={(d) => openDossier(d)}
+                onCreate={() => openImportV2('create')}
+                trigger="anchor"
+                label={displayName}
               />
-            );
-          })}
-          </div>
-        </div>
-
-        {/* Outils de workspace : Plato Assistant (rail fermé) + menu ⋮ */}
-        <div className="flex items-center gap-2 justify-end flex-shrink-0">
-          {!isClosed && !chatSidebarOpen && (
-            <PlatoAssistantButton onClick={() => setChatSidebarOpen(true)} />
-          )}
-          <div className="relative" ref={dossierMenuRef}>
-            <button
-              onClick={() => setDossierMenuOpen(prev => !prev)}
-              className={`p-1.5 rounded-lg transition-colors ${dossierMenuOpen ? 'bg-stone-100' : 'hover:bg-stone-100'}`}
-              title="Plus d'options"
-            >
-              <MoreVertical className="w-5 h-5 text-stone-500" strokeWidth={1.5} />
-            </button>
-            {dossierMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 z-50 bg-white rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
-                <div className="p-1">
-                  {isClosed ? (
-                    <button
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
-                      onClick={() => { setDossierMenuOpen(false); setReopenConfirmOpen(true); }}
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.5} />
-                      <span className="text-[14px] text-foreground">Reprendre le dossier</span>
-                    </button>
-                  ) : (
-                    <button
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-danger-subtle transition-colors"
-                      onClick={() => { setDossierMenuOpen(false); setCloseConfirmOpen(true); }}
-                    >
-                      <AlertTriangle className="w-3.5 h-3.5 text-danger" strokeWidth={1.5} />
-                      <span className="text-[14px] text-danger">Marquer comme terminé</span>
-                    </button>
-                  )}
-                </div>
-              </div>
+            </div>
+            <div className="flex items-center"><span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0" /></div>
+            {/* Onglets - pleine hauteur, soulignement de l'actif au filet du bas (Figma gap 16). */}
+            <div className="flex items-stretch gap-4 min-w-0">{tabs}</div>
+          </>
+        )}
+        right={(
+          <>
+            {!isClosed && !chatSidebarOpen && (
+              <PlatoAssistantButton onClick={() => setChatSidebarOpen(true)} />
             )}
-          </div>
-        </div>
-      </div>
-      </div>
+            <div className="relative" ref={dossierMenuRef}>
+              <button
+                onClick={() => setDossierMenuOpen(prev => !prev)}
+                className={`p-1.5 rounded-lg transition-colors ${dossierMenuOpen ? 'bg-background-subtle' : 'hover:bg-background-subtle'}`}
+                title="Plus d'options"
+              >
+                <MoreVertical className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />
+              </button>
+              {dossierMenuOpen && (
+                <div className="absolute top-full right-0 mt-1 z-50 bg-surface rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: dsShadows['md'] }}>
+                  <div className="p-1">
+                    {isClosed ? (
+                      <button
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
+                        onClick={() => { setDossierMenuOpen(false); setReopenConfirmOpen(true); }}
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 text-foreground-secondary" strokeWidth={1.5} />
+                        <span className="text-[14px] text-foreground">Reprendre le dossier</span>
+                      </button>
+                    ) : (
+                      <button
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-danger-subtle transition-colors"
+                        onClick={() => { setDossierMenuOpen(false); setCloseConfirmOpen(true); }}
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5 text-danger" strokeWidth={1.5} />
+                        <span className="text-[14px] text-danger">Marquer comme terminé</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      />
     );
   };
 
@@ -5479,22 +5467,22 @@ export default function App() {
         {/* Draggable resize handle */}
         <div
           className="w-[6px] flex-shrink-0 cursor-col-resize group relative border-l border-r border-border"
-          style={{ backgroundColor: '#F8F7F5' }}
+          style={{ backgroundColor: dsColors.semantic.background }}
           onMouseDown={handleChatResizeStart}
         >
-          <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-stone-300/30 transition-colors" />
+          <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-stone-border/30 transition-colors" />
         </div>
-        <div className="flex-shrink-0 flex flex-col h-full" style={{ width: chatWidth, backgroundColor: '#F8F7F5' }}>
+        <div className="flex-shrink-0 flex flex-col h-full" style={{ width: chatWidth, backgroundColor: dsColors.semantic.background }}>
           {/* Header - collapse · Plato logo · switcher des conversations DU dossier.
               Le switcher ne liste que les fils de ce dossier (jamais de pièces,
               d'actes ni d'ancres), chaque entrée est ouvrable, + création. */}
-          <div className="px-3 h-12 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: '#dfdcd9' }}>
+          <div className="px-3 h-12 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: dsColors.semantic.border }}>
             <button
               onClick={() => setChatSidebarOpen(false)}
-              className="p-1.5 hover:bg-stone-100 rounded-md transition-colors flex-shrink-0"
+              className="p-1.5 hover:bg-background-subtle rounded-md transition-colors flex-shrink-0"
               title="Masquer le chat"
             >
-              <PanelRight className="w-4 h-4 text-stone-500" strokeWidth={1.75} />
+              <PanelRight className="w-4 h-4 text-foreground-secondary" strokeWidth={1.75} />
             </button>
             <PlatoIcon />
             <ConversationSwitcher
@@ -5514,7 +5502,7 @@ export default function App() {
           {/* Chat messages area */}
           <div
             className="flex-1 overflow-y-auto p-5 flex flex-col gap-2.5"
-            style={{ backgroundColor: '#F8F7F5' }}
+            style={{ backgroundColor: dsColors.semantic.background }}
             ref={chatScrollRef}
           >
             {chatMessages.length === 0 && (() => {
@@ -5544,10 +5532,10 @@ export default function App() {
                   <div className="mb-4">
                     <PlatoIcon size={20} />
                   </div>
-                  <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.4px', lineHeight: '28px', textAlign: 'center', maxWidth: 280 }}>
+                  <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.4px', lineHeight: '28px', textAlign: 'center', maxWidth: 280 }}>
                     Bonjour Meghan, je suis Plato.
                   </h2>
-                  <p style={{ fontSize: 13, color: '#78716c', textAlign: 'center', marginTop: 8, lineHeight: '18px', maxWidth: 280 }}>
+                  <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, textAlign: 'center', marginTop: 8, lineHeight: '18px', maxWidth: 280 }}>
                     Par où voulez-vous commencer&nbsp;?
                   </p>
                   <div className="mt-6 w-full max-w-[320px] flex flex-col gap-2">
@@ -5577,25 +5565,25 @@ export default function App() {
                     {msg.attachments && msg.attachments.length > 0 && (
                       <div className="flex flex-wrap gap-2 justify-end">
                         {msg.attachments.map((doc, di) => (
-                          <span key={di} className="inline-flex items-center gap-1 px-2 py-1" style={{ backgroundColor: '#eeece6', borderRadius: 6 }}>
-                            <Paperclip className="w-3 h-3" style={{ color: '#78716c' }} />
-                            <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>{doc.name}</span>
+                          <span key={di} className="inline-flex items-center gap-1 px-2 py-1" style={{ backgroundColor: dsColors.semantic.muted, borderRadius: 6 }}>
+                            <Paperclip className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} />
+                            <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{doc.name}</span>
                           </span>
                         ))}
                       </div>
                     )}
                     <div
                       style={{
-                        backgroundColor: '#292524',
+                        backgroundColor: dsColors.semantic.primary,
                         borderRadius: 2,
                         padding: '10px 12px',
-                        boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+                        boxShadow: dsShadows.xs,
                         position: 'relative',
                         maxWidth: '80%',
                         overflow: 'hidden',
                       }}
                     >
-                      <p style={{ fontSize: 14, lineHeight: '20px', color: 'white', margin: 0 }}>{msg.text}</p>
+                      <p style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.primaryForeground, margin: 0 }}>{msg.text}</p>
                       <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', boxShadow: 'inset 0px -5px 8px 0px rgba(255,255,255,0.12)', pointerEvents: 'none' }} />
                     </div>
                   </div>
@@ -5626,18 +5614,18 @@ export default function App() {
                 return (
                   <div key={i} className="flex items-center gap-2 py-0.5" style={{ paddingRight: 20 }}>
                     <div
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full cursor-pointer hover:bg-emerald-100/80 transition-colors"
-                      style={{ backgroundColor: '#ecfdf5', border: '1px solid #d1fae5' }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full cursor-pointer hover:bg-piece-revenus-bg/80 transition-colors"
+                      style={{ backgroundColor: dsColors.banner.success.bgFrom, border: `1px solid ${dsColors.piece.revenus.bg}` }}
                       onClick={() => {
                         setChatMessages(prev => prev.map((m, mi) => mi === i ? { ...m, expanded: !m.expanded } : m));
                       }}
                     >
-                      <div className="w-1.5 h-1.5" style={{ background: '#34d399', transform: 'rotate(45deg)' }} />
-                      <span style={{ fontSize: 11, fontWeight: 500, color: '#065f46', fontFamily: "'IBM Plex Mono', monospace" }}>{msg.tool}</span>
-                      {msg.detail && <span style={{ fontSize: 11, color: '#047857' }}>— {msg.detail}</span>}
+                      <div className="w-1.5 h-1.5" style={{ background: dsColors.banner.success.border, transform: 'rotate(45deg)' }} />
+                      <span style={{ fontSize: 11, fontWeight: 500, color: dsColors.icon.success, fontFamily: "'IBM Plex Mono', monospace" }}>{msg.tool}</span>
+                      {msg.detail && <span style={{ fontSize: 11, color: dsColors.banner.success.accentHover }}>- {msg.detail}</span>}
                     </div>
                     {msg.expanded && msg.expandedText && (
-                      <span style={{ fontSize: 12, color: '#78716c' }}>{msg.expandedText}</span>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>{msg.expandedText}</span>
                     )}
                   </div>
                 );
@@ -5647,10 +5635,10 @@ export default function App() {
               if (msg.type === 'upload-cta') {
                 return (
                   <div key={i} className="flex flex-col gap-2 items-start pb-3" style={{ paddingRight: 20 }}>
-                    <p style={{ fontSize: 14, lineHeight: '20px', color: '#292524', margin: 0 }}>{msg.text}</p>
+                    <p style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.foreground, margin: 0 }}>{msg.text}</p>
                     <button
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-stone-100"
-                      style={{ backgroundColor: '#f5f5f4', color: '#44403c', border: '1px solid #dfdcd9' }}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-background-subtle"
+                      style={{ backgroundColor: dsColors.semantic.backgroundSubtle, color: dsColors.semantic.foregroundTertiary, border: `1px solid ${dsColors.semantic.border}` }}
                     >
                       <Upload className="w-3.5 h-3.5" />
                       Ajouter des pièces
@@ -5716,7 +5704,7 @@ export default function App() {
                   // a divider above 2., 3., … but not above 1. or the intro.
                   let citationCount = 0;
                   inlineContent = (
-                    <div style={{ fontSize: 14, lineHeight: '22px', color: '#292524' }}>
+                    <div style={{ fontSize: 14, lineHeight: '22px', color: dsColors.semantic.foreground }}>
                       {lines.map((line, li) => {
                         const trimmed = line.trim();
                         if (!trimmed) return <div key={`br-${li}`} style={{ height: 8 }} />;
@@ -5728,14 +5716,14 @@ export default function App() {
                         return (
                           <React.Fragment key={`ln-${li}`}>
                             {showDividerAbove && (
-                              <div style={{ height: 1, backgroundColor: '#dfdcd9', margin: '12px 0' }} />
+                              <div style={{ height: 1, backgroundColor: dsColors.semantic.input, margin: '12px 0' }} />
                             )}
                             <div style={{
                               marginTop: li > 0 && !showDividerAbove ? 2 : 0,
                               // Citation header → medium weight so the whole title line
                               // reads as a unit (jurisdiction · date · n° · case title).
                               fontWeight: isCitationHeader ? 500 : undefined,
-                              color: isCitationHeader ? '#292524' : undefined,
+                              color: isCitationHeader ? dsColors.semantic.foreground : undefined,
                             }}>
                               {parts.map((part, pi) => {
                                 const jpMatch = part.match(/^\{\{jp:([^}:]+)(?::([a-z]+))?\}\}$/);
@@ -5746,7 +5734,7 @@ export default function App() {
                                   return <JPPill key={`p-${li}-${pi}`} {...pillProps(dec, tokenVariant)} />;
                                 }
                                 if (part.startsWith('**') && part.endsWith('**')) {
-                                  return <strong key={`b-${li}-${pi}`} style={{ fontWeight: 600, color: '#292524' }}>{part.slice(2, -2)}</strong>;
+                                  return <strong key={`b-${li}-${pi}`} style={{ fontWeight: 600, color: dsColors.semantic.foreground }}>{part.slice(2, -2)}</strong>;
                                 }
                                 return <React.Fragment key={`t-${li}-${pi}`}>{part}</React.Fragment>;
                               })}
@@ -5761,7 +5749,7 @@ export default function App() {
                   inlineContent = (
                     <>
                       {text && (
-                        <div style={{ fontSize: 14, lineHeight: '24px', color: '#292524', margin: 0 }}>{text}</div>
+                        <div style={{ fontSize: 14, lineHeight: '24px', color: dsColors.semantic.foreground, margin: 0 }}>{text}</div>
                       )}
                       <div className="flex flex-wrap gap-1.5" style={{ width: '100%', maxWidth: 560 }}>
                         {decisionsForPills.map((dec) => (
@@ -5805,21 +5793,21 @@ export default function App() {
                 const isActive = !answered && !dismissed && pendingRationale && pendingRationale.promptId === msg.promptId;
                 return (
                   <div key={i} className="flex flex-col gap-2 items-start pb-4" style={{ paddingRight: 20, width: '100%' }}>
-                    <div style={{ fontSize: 14, lineHeight: '22px', color: '#292524' }}>
+                    <div style={{ fontSize: 14, lineHeight: '22px', color: dsColors.semantic.foreground }}>
                       J'ai bien pris en compte ta sauvegarde. Pourquoi avoir sauvegardé{dec ? <> <strong style={{ fontWeight: 500 }}>{dec.jurisdiction}{dec.numero ? ` · ${dec.numero}` : ''}</strong></> : ' cette décision'} {msg.scopeLabel ? <>pour <strong style={{ fontWeight: 500 }}>{msg.scopeLabel}</strong></> : ''} ?
-                      <span style={{ color: '#78716c', marginLeft: 6, fontSize: 13 }}>Cette note t'aidera lors de la rédaction.</span>
+                      <span style={{ color: dsColors.semantic.mutedForeground, marginLeft: 6, fontSize: 13 }}>Cette note t'aidera lors de la rédaction.</span>
                     </div>
                     {answered ? (
-                      <div className="w-full" style={{ maxWidth: 560, borderLeft: '2px solid #ac9e8b', paddingLeft: 12, paddingTop: 4, paddingBottom: 4 }}>
-                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+                      <div className="w-full" style={{ maxWidth: 560, borderLeft: `2px solid ${dsColors.semantic.borderHover}`, paddingLeft: 12, paddingTop: 4, paddingBottom: 4 }}>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
                           NOTE DE PERTINENCE
                         </div>
-                        <p style={{ fontSize: 12, lineHeight: '18px', color: '#44403c', margin: 0 }}>{msg.answer}</p>
+                        <p style={{ fontSize: 12, lineHeight: '18px', color: dsColors.semantic.foregroundTertiary, margin: 0 }}>{msg.answer}</p>
                       </div>
                     ) : dismissed ? (
-                      <div style={{ fontSize: 12, color: '#a8a29e' }}>Tu pourras l'ajouter plus tard depuis la fiche de la décision.</div>
+                      <div style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>Tu pourras l'ajouter plus tard depuis la fiche de la décision.</div>
                     ) : isActive ? (
-                      <span style={{ fontSize: 12, color: '#78716c', fontStyle: 'italic' }}>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, fontStyle: 'italic' }}>
                         Réponds ci-dessous dans le chat pour enregistrer la note.
                       </span>
                     ) : null}
@@ -5834,15 +5822,15 @@ export default function App() {
                     {msg.thinkingLabel && (
                       <div className="flex flex-col gap-1.5 w-full">
                         <div className="flex items-center gap-3" style={{ paddingRight: 20 }}>
-                          <p style={{ fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'pre', margin: 0 }}>
+                          <p style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, lineHeight: '16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'pre', margin: 0 }}>
                             {msg.thinkingLabel}{'  >'}
                           </p>
                         </div>
-                        {msg.text && <div style={{ fontSize: 14, lineHeight: '20px', color: '#292524' }}>{renderChatMarkdown(msg.text)}</div>}
+                        {msg.text && <div style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.foreground }}>{renderChatMarkdown(msg.text)}</div>}
                       </div>
                     )}
                     {!msg.thinkingLabel && msg.text && (
-                      <div style={{ fontSize: 14, lineHeight: '20px', color: '#292524' }}>{renderChatMarkdown(msg.text)}</div>
+                      <div style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.foreground }}>{renderChatMarkdown(msg.text)}</div>
                     )}
 
                     {/* Action icons */}
@@ -5872,7 +5860,7 @@ export default function App() {
           {/* Bottom input - Chat Input component */}
           <div
             className="px-3 pb-3 flex-shrink-0"
-            style={{ backgroundColor: '#F8F7F5' }}
+            style={{ backgroundColor: dsColors.semantic.background }}
             onDragEnter={(e) => {
               e.preventDefault(); e.stopPropagation();
               if (e.dataTransfer.types.includes('Files')) {
@@ -5904,16 +5892,16 @@ export default function App() {
               {/* Zone de contexte acte - dockée au-dessus du composer */}
               {currentLevel.type === 'acte' && selectedActeZone && (
                 <div className="mb-1.5 flex flex-wrap gap-y-[7px] items-start">
-                  <div className="rounded-[6px] px-2 py-1.5 flex items-center gap-1.5 max-w-[320px] overflow-hidden bg-[#dbeafe] border border-[#93c5fd]">
-                    <Focus className="w-3 h-3 flex-shrink-0 text-[#3b82f6]" />
-                    <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#1d4ed8', textTransform: 'uppercase' }}>
+                  <div className="rounded-[6px] px-2 py-1.5 flex items-center gap-1.5 max-w-[320px] overflow-hidden bg-piece-medical-bg border border-chart-1">
+                    <Focus className="w-3 h-3 flex-shrink-0 text-chart-2" />
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.banner.info.accentHover, textTransform: 'uppercase' }}>
                       ACTE · {selectedActeZone}
                     </span>
                     <button
                       onClick={() => setSelectedActeZone(null)}
-                      className="flex-shrink-0 w-4 h-4 rounded flex items-center justify-center hover:bg-[#bfdbfe] transition-colors"
+                      className="flex-shrink-0 w-4 h-4 rounded flex items-center justify-center hover:bg-info-subtle transition-colors"
                     >
-                      <X className="w-3 h-3 text-[#3b82f6]" strokeWidth={2.5} />
+                      <X className="w-3 h-3 text-chart-2" strokeWidth={2.5} />
                     </button>
                   </div>
                 </div>
@@ -5924,14 +5912,14 @@ export default function App() {
                 <div className="mb-1.5">
                   <div
                     style={{
-                      border: '1px dashed #a8a29e', borderRadius: 8, height: 64,
+                      border: `1px dashed ${dsColors.semantic.borderHover}`, borderRadius: 8, height: 64,
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                      background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #eeece6 100%)',
+                      background: `linear-gradient(to top, rgba(238,236,230,0) 50%, ${dsColors.semantic.muted} 100%)`,
                       pointerEvents: 'none',
                     }}
                   >
                     <CircleArrowDown className="w-5 h-5 text-foreground" />
-                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#292524' }}>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: dsColors.semantic.foreground }}>
                       Déposez vos fichiers ici
                     </span>
                   </div>
@@ -5943,7 +5931,7 @@ export default function App() {
                   simultanées. Sinon : LE composer (même composant que la home,
                   périmètre dossier - seul le catalogue change). */}
               {userAskState.active ? (
-                <div className="bg-white rounded-[8px] border border-border px-3 pt-3 pb-3" style={{ boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)' }}>
+                <div className="bg-surface rounded-[8px] border border-border px-3 pt-3 pb-3" style={{ boxShadow: dsShadows.xl }}>
                   {(() => {
                 const { questions, currentIdx, selectedProposal, customText, answers } = userAskState;
                 const q = questions[currentIdx];
@@ -5989,16 +5977,16 @@ export default function App() {
                 return (
                   <>
                     {/* Question header */}
-                    <div style={{ borderBottom: '1px solid #dfdcd9', padding: 16, background: 'linear-gradient(to bottom, white 0%, #f8f7f5 100%)' }}>
+                    <div style={{ borderBottom: `1px solid ${dsColors.semantic.border}`, padding: 16, background: `linear-gradient(to bottom, white 0%, ${dsColors.semantic.background} 100%)` }}>
                       <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#9c8973', textTransform: 'uppercase' }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase' }}>
                           USER ASK - {currentIdx + 1}/{total}
                         </span>
                         <button onClick={dismiss} className="hover:opacity-70 transition-opacity">
-                          <X className="w-3.5 h-3.5" style={{ color: '#9c8973' }} strokeWidth={2} />
+                          <X className="w-3.5 h-3.5" style={{ color: dsColors.semantic.foregroundMuted }} strokeWidth={2} />
                         </button>
                       </div>
-                      <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', lineHeight: '20px', margin: 0 }}>
+                      <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.5px', lineHeight: '20px', margin: 0 }}>
                         {q.text}
                       </p>
                     </div>
@@ -6014,7 +6002,7 @@ export default function App() {
                             style={{
                               padding: '7px 10px',
                               borderRadius: 2,
-                              backgroundColor: isSelected ? '#eeece6' : 'transparent',
+                              backgroundColor: isSelected ? dsColors.semantic.muted : 'transparent',
                             }}
                             onClick={() => setUserAskState(s => ({ ...s, selectedProposal: pi, customText: '' }))}
                           >
@@ -6022,14 +6010,14 @@ export default function App() {
                               className="flex items-center justify-center flex-shrink-0"
                               style={{
                                 width: 24, height: 24, borderRadius: 2,
-                                backgroundColor: isSelected ? '#292524' : '#eeece6',
-                                color: isSelected ? 'white' : '#78716c',
+                                backgroundColor: isSelected ? dsColors.semantic.primary : dsColors.semantic.muted,
+                                color: isSelected ? 'white' : dsColors.semantic.mutedForeground,
                                 fontSize: 12, fontWeight: 500, lineHeight: '16px',
                               }}
                             >
                               {pi + 1}
                             </span>
-                            <span style={{ fontSize: 14, color: '#292524', lineHeight: '20px' }}>{prop}</span>
+                            <span style={{ fontSize: 14, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{prop}</span>
                           </button>
                         );
                       })}
@@ -6040,7 +6028,7 @@ export default function App() {
                         style={{
                           padding: '7px 10px',
                           borderRadius: 2,
-                          backgroundColor: isCustomMode ? '#eeece6' : 'transparent',
+                          backgroundColor: isCustomMode ? dsColors.semantic.muted : 'transparent',
                         }}
                         onClick={() => {
                           setUserAskState(s => ({ ...s, selectedProposal: 'custom' }));
@@ -6048,7 +6036,7 @@ export default function App() {
                         }}
                       >
                         <span className="flex items-center justify-center flex-shrink-0" style={{ width: 24, height: 24 }}>
-                          <Pencil className="w-4 h-4" style={{ color: '#78716c' }} strokeWidth={1.5} />
+                          <Pencil className="w-4 h-4" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={1.5} />
                         </span>
                         {isCustomMode ? (
                           <input
@@ -6062,7 +6050,7 @@ export default function App() {
                             onClick={(e) => e.stopPropagation()}
                           />
                         ) : (
-                          <span style={{ fontSize: 14, color: '#78716c', lineHeight: '20px' }}>Votre réponse...</span>
+                          <span style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, lineHeight: '20px' }}>Votre réponse...</span>
                         )}
                       </button>
                     </div>
@@ -6086,7 +6074,7 @@ export default function App() {
                               style={{
                                 width: 6, height: 6,
                                 transform: 'rotate(45deg)',
-                                backgroundColor: di === currentIdx ? '#292524' : (answers[di] ? '#78716c' : '#d9d9d9'),
+                                backgroundColor: di === currentIdx ? dsColors.semantic.primary : (answers[di] ? dsColors.semantic.mutedForeground : dsColors.semantic.borderAlt),
                                 transition: 'background-color 0.2s',
                               }}
                             />
@@ -6107,7 +6095,7 @@ export default function App() {
                         <button
                           onClick={skipQuestion}
                           className="flex items-center justify-center transition-colors hover:bg-border"
-                          style={{ height: 32, paddingLeft: 12, paddingRight: 12, borderRadius: 8, backgroundColor: '#eeece6', fontSize: 14, fontWeight: 500, color: '#44403c' }}
+                          style={{ height: 32, paddingLeft: 12, paddingRight: 12, borderRadius: 8, backgroundColor: dsColors.semantic.muted, fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}
                         >
                           Passer
                         </button>
@@ -6116,12 +6104,12 @@ export default function App() {
                           className="flex items-center justify-center transition-colors"
                           style={{
                             width: 32, height: 32, borderRadius: 8,
-                            backgroundColor: hasAnswer ? '#292524' : '#eeece6',
-                            boxShadow: hasAnswer ? '0px 1px 2px 0px rgba(26,26,26,0.05)' : 'none',
+                            backgroundColor: hasAnswer ? dsColors.semantic.primary : dsColors.semantic.muted,
+                            boxShadow: hasAnswer ? dsShadows.xs : 'none',
                             cursor: hasAnswer ? 'pointer' : 'default',
                           }}
                         >
-                          <ArrowUp className="w-4 h-4" style={{ color: hasAnswer ? 'white' : '#78716c' }} />
+                          <ArrowUp className="w-4 h-4" style={{ color: hasAnswer ? 'white' : dsColors.semantic.mutedForeground }} />
                         </button>
                       </div>
                     </div>
@@ -6234,17 +6222,15 @@ export default function App() {
         <Niveau3Strip justify="between" back={breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}>
           <div className="flex items-center gap-2.5 min-w-0">
             <CodeBadge>{currentLevel.title}</CodeBadge>
-            <span className="text-foreground truncate" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>{currentLevel.fullTitle || currentLevel.title}</span>
+            <StripTitle>{currentLevel.fullTitle || currentLevel.title}</StripTitle>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             {siblings.length > 1 && idx >= 0 && siblingNav({ index: idx, total: siblings.length, onPrev: () => goSibling(-1), onNext: () => goSibling(1) })}
-            {montant > 0 && <span style={serifAmountStyle} className="text-foreground">{fmt(montant)}</span>}
+            {montant > 0 && <StripAmount>{fmt(montant)}</StripAmount>}
             {dossierStatut !== 'fermé' && (
               <>
                 <StripDivider tall />
-                <button onClick={() => setShowExportModal(true)} className="h-8 flex items-center gap-2 px-3 text-[14px] font-medium text-white bg-foreground rounded-[6px] hover:bg-foreground-tertiary transition-colors" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-                  Copier chiffrage
-                </button>
+                <Button variant="primary" size="md" label="Copier chiffrage" onClick={() => setShowExportModal(true)} />
               </>
             )}
           </div>
@@ -6265,12 +6251,12 @@ export default function App() {
         <Niveau3Strip justify="between" back={breadcrumbReturn('Retour au chiffrage', () => navigateToStackLevel(navStack.length - 2))}>
           <div className="flex items-center gap-2.5 min-w-0">
             <CodeBadge>{currentLevel.title}</CodeBadge>
-            <span className="text-foreground truncate" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>{currentLevel.fullTitle || currentLevel.title}</span>
-            <span className="inline-flex items-center px-2 py-0.5 text-caption bg-cream text-foreground-secondary rounded-full flex-shrink-0">Victimes indirectes</span>
+            <StripTitle>{currentLevel.fullTitle || currentLevel.title}</StripTitle>
+            <Badge variant="secondary" label="Victimes indirectes" className="flex-shrink-0" />
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             {allIvPostes.length > 1 && idx >= 0 && siblingNav({ index: idx, total: allIvPostes.length, onPrev: () => goSibling(-1), onNext: () => goSibling(1) })}
-            <span style={serifAmountStyle} className="text-foreground">{fmt(ivPosteTotal)}</span>
+            <StripAmount>{fmt(ivPosteTotal)}</StripAmount>
           </div>
         </Niveau3Strip>
       );
@@ -6319,7 +6305,7 @@ export default function App() {
       return (
         <Niveau3Strip justify="start" back={breadcrumbReturn('Retour aux actes', backToActesList)}>
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <span className="text-foreground truncate flex-shrink-0" style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, fontWeight: 500, letterSpacing: '-0.01em' }}>{currentLevel.fullTitle || currentLevel.title}</span>
+              <StripTitle className="flex-shrink-0">{currentLevel.fullTitle || currentLevel.title}</StripTitle>
               {acteSiblings.length > 1 && acteIdx >= 0 && siblingNav({ index: acteIdx, total: acteSiblings.length, onPrev: () => goActeSibling(-1), onNext: () => goActeSibling(1) })}
               {acte?.templateName && (
                 <span className="text-[12px] text-foreground-muted truncate flex-shrink-0">{acte.templateName}</span>
@@ -6330,7 +6316,7 @@ export default function App() {
               {redaction.redactionState.canvasStreaming && (
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-                  <span style={{ fontSize: 11, color: '#b9703f', fontWeight: 500 }}>Rédaction...</span>
+                  <span style={{ fontSize: 11, color: dsColors.accents.ochre, fontWeight: 500 }}>Rédaction...</span>
                 </div>
               )}
             </div>
@@ -6357,7 +6343,7 @@ export default function App() {
             <div className="flex items-center gap-1 flex-shrink-0">
               <button
                 className="inline-flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-border"
-                style={{ backgroundColor: '#eeece6', color: '#44403c' }}
+                style={{ backgroundColor: dsColors.semantic.muted, color: dsColors.semantic.foregroundTertiary }}
                 title="Copier"
                 aria-label="Copier"
               >
@@ -6387,12 +6373,12 @@ export default function App() {
     // Cascade view sub-header
     if (currentLevel.type === 'cascade') {
       return (
-        <div className="border-b border-border bg-white flex-shrink-0">
+        <div className="border-b border-border bg-surface flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
-            <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-stone-100 rounded transition-colors">
+            <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-background-subtle rounded transition-colors">
               <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
             </button>
-            <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold rounded-[6px]" style={{ backgroundColor: '#eeece6', color: '#44403c', border: 'none' }}>
+            <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold rounded-[6px]" style={{ backgroundColor: dsColors.semantic.muted, color: dsColors.semantic.foregroundTertiary, border: 'none' }}>
               CASCADE
             </span>
             <span className="text-[14px] font-medium text-foreground">{currentLevel.fullTitle || 'Cascade d\'imputation'}</span>
@@ -6405,7 +6391,7 @@ export default function App() {
     if (currentLevel.subSection) {
       const subLabels = { 'revenus-ref': 'Revenus de référence', 'revenus-percus': 'Revenus perçus sur la période', 'ij': 'Indemnités journalières' };
       return (
-        <div className="border-b border-border bg-white flex-shrink-0">
+        <div className="border-b border-border bg-surface flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
             <button onClick={() => {
               setNavStack(prev => {
@@ -6413,7 +6399,7 @@ export default function App() {
                 delete newStack[newStack.length - 1].subSection;
                 return [...newStack];
               });
-            }} className="p-1 hover:bg-stone-100 rounded transition-colors">
+            }} className="p-1 hover:bg-background-subtle rounded transition-colors">
               <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
             </button>
             <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold border border-border text-foreground rounded-[6px]">
@@ -6512,7 +6498,7 @@ export default function App() {
         return (
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-[7px]">
             <span className="w-4 h-4 flex items-center justify-center flex-shrink-0 opacity-0">
-              <span className="w-4 h-4 rounded border border-border bg-white" />
+              <span className="w-4 h-4 rounded border border-border bg-surface" />
             </span>
             <span className="w-[22px] h-[22px] flex items-center justify-center flex-shrink-0">
               <span className="w-4 h-4 border-[1.5px] border-foreground-secondary border-t-transparent rounded-full animate-spin" />
@@ -6532,9 +6518,9 @@ export default function App() {
           <div className="flex items-center gap-3 min-w-0">
             {/* Checkbox */}
             <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-colors shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] ${
-              isSelected ? 'bg-foreground' : 'bg-white border border-border'
+              isSelected ? 'bg-foreground' : 'bg-surface border border-border'
             }`}>
-              {isSelected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+              {isSelected && <Check className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={3} />}
             </div>
             {/* Doc number badge */}
             <span className="w-[22px] h-[22px] flex items-center justify-center flex-shrink-0 bg-cream rounded-md text-xs font-semibold text-foreground-secondary">{index + 1}</span>
@@ -6572,7 +6558,7 @@ export default function App() {
       >
         {pickerDragging ? (
           <div className="flex items-center justify-center p-4 h-full">
-            <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 rounded-lg h-full" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 57%, #eeece6 100%)' }}>
+            <div className="flex-1 flex flex-col items-center justify-center gap-8 p-8 rounded-lg h-full" style={{ background: `linear-gradient(to top, rgba(238,236,230,0) 57%, ${dsColors.semantic.muted} 100%)` }}>
               <div className="w-14 h-14 rounded-full bg-cream border border-border-strong flex items-center justify-center shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]">
                 <ArrowDownCircle className="w-6 h-6 text-foreground" />
               </div>
@@ -6602,7 +6588,7 @@ export default function App() {
                     placeholder="Rechercher..."
                     value={pickerOpen === posteType ? pickerSearch : ''}
                     onChange={(e) => { setPickerSearch(e.target.value); if (pickerOpen !== posteType) setPickerOpen(posteType); }}
-                    className="w-full pl-9 pr-3 py-2 h-10 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-200 shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]"
+                    className="w-full pl-9 pr-3 py-2 h-10 border border-border rounded-lg text-sm bg-surface focus:outline-none focus:ring-2 focus:ring-stone-subtle shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]"
                   />
                 </div>
                 <button
@@ -6637,7 +6623,7 @@ export default function App() {
                 onClick={() => handleAddMultipleFromPieces(pickerSelected, posteType)}
                 disabled={!hasSelection}
                 className={`flex items-center justify-center gap-2 w-full h-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] ${
-                  hasSelection ? 'bg-foreground text-white hover:bg-foreground-tertiary' : 'bg-cream text-foreground-muted cursor-not-allowed'
+                  hasSelection ? 'bg-foreground text-primary-foreground hover:bg-foreground-tertiary' : 'bg-cream text-foreground-muted cursor-not-allowed'
                 }`}
               >
                 Commencer à calculer{hasSelection ? ` (${pickerSelected.length} pièce${pickerSelected.length > 1 ? 's' : ''})` : ''}
@@ -6650,7 +6636,7 @@ export default function App() {
         ) : (
           /* ===== Empty state (tables-empty/default variant) ===== */
           <div className="flex items-center justify-center p-1.5">
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 py-6 rounded-lg" style={{ background: 'linear-gradient(to top, rgba(238,236,230,0) 50%, #f8f7f5 100%)' }}>
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 py-6 rounded-lg" style={{ background: `linear-gradient(to top, rgba(238,236,230,0) 50%, ${dsColors.semantic.background} 100%)` }}>
               <Upload className="w-5 h-5 text-foreground-secondary" />
 
               <div className="flex flex-col items-center gap-1 text-center max-w-[512px] w-full">
@@ -6700,7 +6686,7 @@ export default function App() {
     
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4">
+        <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg mx-4">
           <div className="px-6 py-4 border-b flex items-center justify-between">
             <h3 className="text-heading-md">Ajouter une dépense</h3>
             <button onClick={() => setShowAddModal(null)} className="p-1 hover:bg-background-canvas rounded"><X className="w-5 h-5" /></button>
@@ -6714,7 +6700,7 @@ export default function App() {
               { id: 'manual', label: 'Saisie manuelle', icon: Edit3 }
             ].map(tab => (
               <button key={tab.id} onClick={() => setAddModalTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-body-medium ${addModalTab === tab.id ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-foreground-secondary hover:text-gray-700'}`}>
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-body-medium ${addModalTab === tab.id ? 'text-chart-3 border-b-2 border-chart-3 bg-info-bg' : 'text-foreground-secondary hover:text-foreground'}`}>
                 <tab.icon className="w-4 h-4" />{tab.label}
               </button>
             ))}
@@ -6728,16 +6714,16 @@ export default function App() {
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleUploadFiles(e.dataTransfer.files, showAddModal); }}
-                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging ? 'border-chart-2 bg-info-bg' : 'border-slate-border'}`}
                 >
-                  <Upload className={`w-10 h-10 mx-auto mb-3 ${isDragging ? 'text-blue-500' : 'text-foreground-muted'}`} />
+                  <Upload className={`w-10 h-10 mx-auto mb-3 ${isDragging ? 'text-chart-2' : 'text-foreground-muted'}`} />
                   <p className="text-foreground-secondary mb-3">Glissez vos documents ici</p>
                   <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => e.target.files && handleUploadFiles(e.target.files, showAddModal)} className="hidden" id="upload-input" />
-                  <label htmlFor="upload-input" className="px-4 py-2 bg-blue-600 text-white text-body rounded-lg cursor-pointer hover:bg-blue-700">Parcourir</label>
+                  <label htmlFor="upload-input" className="px-4 py-2 bg-chart-3 text-white text-body rounded-lg cursor-pointer hover:bg-chart-4">Parcourir</label>
                 </div>
-                <div className="mt-4 flex items-center gap-2 p-3 bg-amber-50 rounded-lg">
-                  <Sparkles className="w-5 h-5 text-amber-600" />
-                  <span className="text-body text-amber-800">L'IA extraira automatiquement les informations</span>
+                <div className="mt-4 flex items-center gap-2 p-3 bg-warning-subtle rounded-lg">
+                  <Sparkles className="w-5 h-5 text-warning" />
+                  <span className="text-body text-brand-darker-subtle-foreground">L'IA extraira automatiquement les informations</span>
                 </div>
               </div>
             )}
@@ -6754,13 +6740,13 @@ export default function App() {
                     <p className="text-center text-foreground-secondary py-4">Aucune pièce disponible</p>
                   ) : filteredPieces.map(p => (
                     <button key={p.id} onClick={() => handleAddFromPiece(p, showAddModal)}
-                      className="w-full flex items-center gap-3 p-3 border rounded-lg hover:border-blue-400 hover:bg-info-bg text-left">
+                      className="w-full flex items-center gap-3 p-3 border rounded-lg hover:border-info-border hover:bg-info-bg text-left">
                       <FileText className="w-8 h-8 text-foreground-muted" />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">{p.nom}</div>
                         <div className="text-caption text-foreground-secondary">{p.type} • {p.date}</div>
                       </div>
-                      <Plus className="w-5 h-5 text-blue-600" />
+                      <Plus className="w-5 h-5 text-chart-3" />
                     </button>
                   ))}
                 </div>
@@ -6772,7 +6758,7 @@ export default function App() {
               <div className="text-center py-6">
                 <FileQuestion className="w-12 h-12 mx-auto mb-3 text-foreground-muted" />
                 <p className="text-foreground-secondary mb-4">Créer une ligne sans document associé</p>
-                <button onClick={() => handleAddManual(showAddModal)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button onClick={() => handleAddManual(showAddModal)} className="px-4 py-2 bg-chart-3 text-white rounded-lg hover:bg-chart-4">
                   Créer une ligne manuelle
                 </button>
               </div>
@@ -6786,7 +6772,7 @@ export default function App() {
   // ========== EDIT PANEL ==========
   // Helper pour les styles de formulaire
   const FormSection = ({ title, children, noBorder }) => (
-    <div className={`${noBorder ? '' : 'pb-6 mb-6 border-b border-zinc-100'}`}>
+    <div className={`${noBorder ? '' : 'pb-6 mb-6 border-b border-background-subtle'}`}>
       {title && <h4 className="text-caption-medium font-semibold text-foreground-muted uppercase tracking-wider mb-4">{title}</h4>}
       {children}
     </div>
@@ -6800,8 +6786,8 @@ export default function App() {
     </div>
   );
   
-  const inputClass = "w-full px-3.5 py-2.5 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-zinc-400 transition-colors";
-  const selectClass = "w-full px-3.5 py-2.5 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-zinc-400 transition-colors appearance-none";
+  const inputClass = "w-full px-3.5 py-2.5 text-body border border-border rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-background-subtle focus:border-border-hover transition-colors";
+  const selectClass = "w-full px-3.5 py-2.5 text-body border border-border rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-background-subtle focus:border-border-hover transition-colors appearance-none";
 
   const renderEditPanel = () => {
     if (!editPanel) return null;
@@ -6813,21 +6799,21 @@ export default function App() {
         {/* Draggable resize handle */}
         <div
           className="w-[6px] flex-shrink-0 cursor-col-resize group relative border-l border-r border-border"
-          style={{ backgroundColor: '#F8F7F5' }}
+          style={{ backgroundColor: dsColors.semantic.background }}
           onMouseDown={handleChatResizeStart}
         >
-          <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-stone-300/30 transition-colors" />
+          <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-stone-border/30 transition-colors" />
         </div>
-        <div className="flex-shrink-0 flex flex-col h-full bg-white" style={{ width: chatWidth }}>
+        <div className="flex-shrink-0 flex flex-col h-full bg-surface" style={{ width: chatWidth }}>
           {/* Header */}
-          <div className="px-4 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#dfdcd9' }}>
+          <div className="px-4 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: dsColors.semantic.border }}>
             <div className="flex items-center gap-2 min-w-0">
-              {isPieceDetail && <span className="px-2 py-0.5 bg-zinc-800 text-white text-caption-medium rounded flex-shrink-0">P{data.index}</span>}
+              {isPieceDetail && <span className="px-2 py-0.5 bg-foreground text-primary-foreground text-caption-medium rounded flex-shrink-0">P{data.index}</span>}
               <h3 className="text-body-medium text-foreground truncate">{isPieceDetail ? (data.intitule || data.nom) : (editPanel.title || 'Édition')}</h3>
               {data?.diffType && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-caption-medium rounded-full flex-shrink-0" style={{
-                  background: data.diffType === 'add' ? '#dcfce7' : data.diffType === 'edit' ? '#fff7ed' : '#fef2f2',
-                  color: ROW_DIFF_COLORS[data.diffType] || '#bd6c1a',
+                  background: data.diffType === 'add' ? dsColors.piece.revenus.bg : data.diffType === 'edit' ? dsColors.feedback.warning.subtle : dsColors.step.red.bg,
+                  color: ROW_DIFF_COLORS[data.diffType] || dsColors.feedback.warning.base,
                 }}>
                   {data.diffType === 'add' ? 'Ajout' : data.diffType === 'edit' ? 'Modif.' : 'Suppr.'}
                 </span>
@@ -6846,8 +6832,8 @@ export default function App() {
                   // Diff helpers
                   const diffColor = data.diffType ? ROW_DIFF_COLORS[data.diffType] : null;
                   const diffLabel = data.diffType === 'add' ? 'Ligne ajoutée par l\'agent' : data.diffType === 'edit' ? 'Ligne modifiée par l\'agent' : data.diffType === 'delete' ? 'Ligne supprimée par l\'agent' : null;
-                  const diffBg = data.diffType === 'add' ? '#f0fdf4' : data.diffType === 'edit' ? '#fff7ed' : data.diffType === 'delete' ? '#fef2f2' : null;
-                  const diffBorder = data.diffType === 'add' ? '#bbf7d0' : data.diffType === 'edit' ? '#fed7aa' : data.diffType === 'delete' ? '#fecaca' : null;
+                  const diffBg = data.diffType === 'add' ? dsColors.banner.success.bgFrom : data.diffType === 'edit' ? dsColors.feedback.warning.subtle : data.diffType === 'delete' ? dsColors.step.red.bg : null;
+                  const diffBorder = data.diffType === 'add' ? dsColors.banner.success.border : data.diffType === 'edit' ? dsColors.brand.border : data.diffType === 'delete' ? dsColors.banner.error.border : null;
                   const ov = data.oldValues || {};
                   const hasDiff = (key) => data.diffType === 'edit' && ov[key] != null;
                   const isDeleted = data.diffType === 'delete';
@@ -6857,7 +6843,7 @@ export default function App() {
                   const needsValidation = data.status === 'pending';
                   const iaFieldClass = (fieldValue) => {
                     if (!isIaExtracted) return '';
-                    if (fieldValue == null || fieldValue === '') return 'border-amber-400 bg-amber-50/50';
+                    if (fieldValue == null || fieldValue === '') return 'border-brand-border bg-warning-subtle/50';
                     return '';
                   };
 
@@ -6873,15 +6859,15 @@ export default function App() {
                       {/* Bandeau IA si extraction */}
                       {isIaExtracted && !diffColor && (
                         <div className={`flex items-center gap-3 p-3 rounded-lg ${
-                          data.confidence >= 80 ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'
+                          data.confidence >= 80 ? 'bg-emerald-subtle border border-emerald-200' : 'bg-warning-subtle border border-warning-border'
                         }`}>
-                          <Sparkles className={`w-4 h-4 ${data.confidence >= 80 ? 'text-emerald-600' : 'text-amber-600'}`} />
+                          <Sparkles className={`w-4 h-4 ${data.confidence >= 80 ? 'text-success' : 'text-warning'}`} />
                           <div className="flex-1">
-                            <span className={`text-caption-medium ${data.confidence >= 80 ? 'text-emerald-700' : 'text-amber-700'}`}>
+                            <span className={`text-caption-medium ${data.confidence >= 80 ? 'text-emerald-700' : 'text-brand-subtle-foreground'}`}>
                               Extraction IA • Confiance {data.confidence}%
                             </span>
                             {needsValidation && (
-                              <p className="text-caption text-amber-600 mt-0.5">Vérifiez les champs surlignés</p>
+                              <p className="text-caption text-warning mt-0.5">Vérifiez les champs surlignés</p>
                             )}
                           </div>
                         </div>
@@ -6898,10 +6884,10 @@ export default function App() {
                           defaultValue={data.label || ''}
                           id="edit-label"
                           placeholder="Nom de la dépense"
-                          className={`w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.label)}`}
-                          style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                          className={`w-full px-3 py-2 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.label)}`}
+                          style={{ boxShadow: dsShadows.xs }}
                         />
-                        {hasDiff('label') && <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.label}</p>}
+                        {hasDiff('label') && <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.label}</p>}
                       </div>
 
                       {/* Pièces justificatives */}
@@ -6911,7 +6897,7 @@ export default function App() {
                           <div className="relative mb-2">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                             <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                              className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
+                              className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
                             {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
                           </div>
                         )}
@@ -6919,7 +6905,7 @@ export default function App() {
                           <div className="max-h-32 overflow-y-auto space-y-1 mb-2">
                             {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                               <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-white border border-border rounded-lg hover:bg-background-subtle transition-colors">
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-surface border border-border rounded-lg hover:bg-background-subtle transition-colors">
                                 <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                 <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
                                 <span className="text-caption text-foreground-muted">{piece.type}</span>
@@ -6930,7 +6916,7 @@ export default function App() {
                         <div className="border border-dashed border-border-strong rounded-lg p-3 flex items-center justify-center gap-2 text-body text-foreground-secondary hover:bg-background-subtle cursor-pointer transition-colors"
                           onClick={() => document.getElementById('panel-piece-upload').click()}>
                           <Upload className="w-4 h-4" />
-                          <span>Déposez ou <span className="text-[#E8713A] font-medium">cliquez</span> pour ajouter un justificatif</span>
+                          <span>Déposez ou <span className="text-brand font-medium">cliquez</span> pour ajouter un justificatif</span>
                         </div>
                         <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
@@ -6945,7 +6931,7 @@ export default function App() {
                                   <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                   <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                                     <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
-                                    <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                    <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
                                   </div>
                                 </div>
                               ) : null;
@@ -6966,13 +6952,13 @@ export default function App() {
                           <input type="text" defaultValue={data.date || ''} id="edit-date"
                             placeholder="JJ/MM/AAAA" maxLength={10}
                             onChange={(e) => { e.target.value = formatDateInput(e.target.value); }}
-                            className={`w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.date)}`}
-                            style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                            className={`w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.date)}`}
+                            style={{ boxShadow: dsShadows.xs }}
                           />
                           <input type="date" id="edit-date-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date')} />
                           <button type="button" onClick={() => openDatePicker('edit-date')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
-                        {hasDiff('date') && <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.date}</p>}
+                        {hasDiff('date') && <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.date}</p>}
                         {/* Champs période (masqués si ponctuelle) */}
                         <div id="dsa-periode-fields" style={{ display: data.isPeriodique ? 'block' : 'none' }}>
                           <div className="mt-3 space-y-3">
@@ -6982,7 +6968,7 @@ export default function App() {
                                 <input type="text" defaultValue={data.dateFin || ''} id="edit-date-fin"
                                   placeholder="JJ/MM/AAAA" maxLength={10}
                                   onChange={(e) => { e.target.value = formatDateInput(e.target.value); }}
-                                  className="w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-foreground-muted"
+                                  className="w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-surface focus:outline-none focus:ring-1 focus:ring-foreground-muted"
                                 />
                                 <input type="date" id="edit-date-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date-fin')} />
                                 <button type="button" onClick={() => openDatePicker('edit-date-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
@@ -7009,11 +6995,11 @@ export default function App() {
                             defaultValue={data.montant ?? ''}
                             id="edit-montant"
                             placeholder="0"
-                            className={`w-full pl-8 pr-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.montant)}`}
-                            style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                            className={`w-full pl-8 pr-3 py-2 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.montant)}`}
+                            style={{ boxShadow: dsShadows.xs }}
                           />
                         </div>
-                        {hasDiff('montant') && <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.montant} €</p>}
+                        {hasDiff('montant') && <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.montant} €</p>}
                       </div>
 
                       {/* Reste à charge */}
@@ -7030,7 +7016,7 @@ export default function App() {
                             defaultValue={data.dejaRembourse || 0}
                             id="edit-rembourse"
                             placeholder="0"
-                            className="w-full pl-8 pr-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-foreground-muted"
+                            className="w-full pl-8 pr-3 py-2 text-body border border-border rounded-lg bg-surface focus:outline-none focus:ring-1 focus:ring-foreground-muted"
                           />
                         </div>
                       </div>
@@ -7050,11 +7036,11 @@ export default function App() {
                 {editPanel.type === 'piece-detail' && (
                   <div className="flex gap-6 h-full">
                     {/* Left: Preview */}
-                    <div className="w-1/2 bg-gray-900 rounded-lg flex items-center justify-center p-6">
+                    <div className="w-1/2 bg-foreground-strong rounded-lg flex items-center justify-center p-6">
                       <div className="bg-white rounded-lg shadow-xl w-full max-w-[280px] aspect-[3/4] p-6 flex flex-col">
                         <div className="text-caption text-foreground-muted mb-3 uppercase tracking-wide">{data.type}</div>
-                        <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2 mb-6"></div>
+                        <div className="h-3 bg-slate-subtle rounded w-3/4 mb-2"></div>
+                        <div className="h-3 bg-slate-subtle rounded w-1/2 mb-6"></div>
                         <div className="flex-1 space-y-2">
                           <div className="h-2 bg-background-canvas rounded w-full"></div>
                           <div className="h-2 bg-background-canvas rounded w-5/6"></div>
@@ -7071,7 +7057,7 @@ export default function App() {
                     {/* Right: Details */}
                     <div className="w-1/2 space-y-4">
                       <div>
-                        <label className="text-body-medium text-gray-700">Intitulé</label>
+                        <label className="text-body-medium text-foreground">Intitulé</label>
                         <input
                           id="piece-intitule"
                           type="text"
@@ -7082,7 +7068,7 @@ export default function App() {
                       </div>
 
                       <div>
-                        <label className="text-body-medium text-gray-700">Nom du fichier original</label>
+                        <label className="text-body-medium text-foreground">Nom du fichier original</label>
                         <div className="mt-1 px-3 py-2 bg-background-canvas rounded-lg text-body text-foreground-secondary truncate">
                           {data.nomOriginal || data.nom}
                         </div>
@@ -7090,7 +7076,7 @@ export default function App() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-body-medium text-gray-700">Type</label>
+                          <label className="text-body-medium text-foreground">Type</label>
                           <select id="piece-type" defaultValue={data.type} className="mt-1 w-full px-3 py-2 border rounded-lg">
                             <option>Facture</option>
                             <option>Bulletin</option>
@@ -7105,34 +7091,34 @@ export default function App() {
 
                       {/* Utilisations */}
                       <div>
-                        <label className="text-body-medium text-gray-700 mb-2 block">Utilisé dans</label>
+                        <label className="text-body-medium text-foreground mb-2 block">Utilisé dans</label>
                         {data.usages && data.usages.length > 0 ? (
                           <div className="space-y-2">
                             {data.usages.includes('DSA') && (
-                              <div className="flex items-center justify-between p-2.5 bg-blue-50 rounded-lg">
+                              <div className="flex items-center justify-between p-2.5 bg-info-bg rounded-lg">
                                 <div className="flex items-center gap-2">
-                                  <FileText className="w-4 h-4 text-blue-600" />
-                                  <span className="text-body-medium text-blue-800">DSA</span>
+                                  <FileText className="w-4 h-4 text-chart-3" />
+                                  <span className="text-body-medium text-piece-medical-fg">DSA</span>
                                 </div>
-                                <span className="text-caption text-blue-600">Liquidation</span>
+                                <span className="text-caption text-chart-3">Liquidation</span>
                               </div>
                             )}
                             {data.usages.includes('PGPA') && (
-                              <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg">
+                              <div className="flex items-center justify-between p-2.5 bg-emerald-subtle rounded-lg">
                                 <div className="flex items-center gap-2">
-                                  <FileText className="w-4 h-4 text-green-600" />
-                                  <span className="text-body-medium text-green-800">PGPA</span>
+                                  <FileText className="w-4 h-4 text-success" />
+                                  <span className="text-body-medium text-piece-revenus-fg">PGPA</span>
                                 </div>
-                                <span className="text-caption text-green-600">Liquidation</span>
+                                <span className="text-caption text-success">Liquidation</span>
                               </div>
                             )}
                             {data.usages.includes('DFT') && (
-                              <div className="flex items-center justify-between p-2.5 bg-amber-50 rounded-lg">
+                              <div className="flex items-center justify-between p-2.5 bg-warning-subtle rounded-lg">
                                 <div className="flex items-center gap-2">
-                                  <FileText className="w-4 h-4 text-amber-600" />
-                                  <span className="text-body-medium text-amber-800">DFT</span>
+                                  <FileText className="w-4 h-4 text-warning" />
+                                  <span className="text-body-medium text-brand-darker-subtle-foreground">DFT</span>
                                 </div>
-                                <span className="text-caption text-amber-600">Liquidation</span>
+                                <span className="text-caption text-warning">Liquidation</span>
                               </div>
                             )}
                           </div>
@@ -7270,11 +7256,11 @@ export default function App() {
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Identité</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-body-medium text-gray-700">Nom</label>
+                          <label className="text-body-medium text-foreground">Nom</label>
                           <input type="text" id="vi-nom" defaultValue={data?.nom || ''} className="mt-1 w-full px-3 py-2 border rounded-lg" />
                         </div>
                         <div>
-                          <label className="text-body-medium text-gray-700">Prénom</label>
+                          <label className="text-body-medium text-foreground">Prénom</label>
                           <input type="text" id="vi-prenom" defaultValue={data?.prenom || ''} className="mt-1 w-full px-3 py-2 border rounded-lg" />
                         </div>
                       </div>
@@ -7284,14 +7270,14 @@ export default function App() {
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">État civil</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-body-medium text-gray-700">Sexe</label>
+                          <label className="text-body-medium text-foreground">Sexe</label>
                           <select id="vi-sexe" defaultValue={data?.sexe || 'Homme'} className="mt-1 w-full px-3 py-2 border rounded-lg">
                             <option>Homme</option>
                             <option>Femme</option>
                           </select>
                         </div>
                         <div>
-                          <label className="text-body-medium text-gray-700">Date de naissance</label>
+                          <label className="text-body-medium text-foreground">Date de naissance</label>
                           <div className="relative mt-1">
                             <input type="text" id="vi-naissance" defaultValue={data?.dateNaissance || ''} className="w-full px-3 py-2 pr-9 border rounded-lg" placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
                             <input type="date" id="vi-naissance-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'vi-naissance')} />
@@ -7304,7 +7290,7 @@ export default function App() {
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Lien avec la victime</h4>
                       <div>
-                        <label className="text-body-medium text-gray-700">Type de lien</label>
+                        <label className="text-body-medium text-foreground">Type de lien</label>
                         <select id="vi-lien" defaultValue={data?.lien || 'Conjoint'} className="mt-1 w-full px-3 py-2 border rounded-lg">
                           <option>Époux</option>
                           <option>Épouse</option>
@@ -7339,7 +7325,7 @@ export default function App() {
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant</h4>
                       <div>
-                        <label className="text-body-medium text-gray-700">Montant demandé</label>
+                        <label className="text-body-medium text-foreground">Montant demandé</label>
                         <div className="relative mt-1">
                           <input type="number" id="iv-ligne-montant" defaultValue={data?.montant || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
@@ -7387,8 +7373,8 @@ export default function App() {
                           const existing = (data?.attributions || []).find(a => a.viId === vi.id);
                           return (
                             <div key={vi.id} className="flex items-center gap-3">
-                              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#f5f5f4' }}>
-                                <span style={{ fontSize: 10, fontWeight: 600, color: '#78716c' }}>{`${(vi.prenom || '')[0] || ''}${(vi.nom || '')[0] || ''}`.toUpperCase()}</span>
+                              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: dsColors.semantic.backgroundSubtle }}>
+                                <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.mutedForeground }}>{`${(vi.prenom || '')[0] || ''}${(vi.nom || '')[0] || ''}`.toUpperCase()}</span>
                               </div>
                               <span className="flex-1 text-body text-foreground-tertiary truncate">{vi.prenom} {vi.nom}</span>
                               <div className="relative w-[100px]">
@@ -7419,7 +7405,7 @@ export default function App() {
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Mode</h4>
-                      <select id="iv-ligne-mode" defaultValue={data?.mode || 'capitalisation'} className="w-full px-3 py-2 border rounded-lg bg-white">
+                      <select id="iv-ligne-mode" defaultValue={data?.mode || 'capitalisation'} className="w-full px-3 py-2 border rounded-lg bg-surface">
                         <option value="capitalisation">Capital</option>
                         <option value="rente">Rente annuelle</option>
                       </select>
@@ -7431,18 +7417,18 @@ export default function App() {
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Coefficient de capitalisation</h4>
                       <input type="number" id="iv-ligne-coeff" defaultValue={data?.coeffCapitalisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="0.1" min="0" />
-                      <p className="mt-2" style={{ fontSize: 11, color: '#78716c' }}>
+                      <p className="mt-2" style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>
                         Réf : Gazette du Palais 2022, table A, taux 1,2 % - Cass. 2e civ. 14 nov. 2019 n°18-22.969
                       </p>
                     </div>
                     {data?.perteAnnuelle > 0 && (data?.partIndividuelle > 0 || data?.coeffCapitalisation > 0) && (
                       <div className="p-3 bg-background rounded-lg border border-border space-y-1">
-                        <div style={{ fontSize: 11, fontWeight: 600, color: '#44403c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Formule</div>
-                        <div style={{ fontSize: 12, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: dsColors.semantic.foregroundTertiary, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Formule</div>
+                        <div style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, fontFamily: "'IBM Plex Mono', monospace" }}>
                           Perte VI = {fmt(data.perteAnnuelle)} × {data.partIndividuelle || 0}% = {fmt(data.perteAnnuelle * ((data.partIndividuelle || 0) / 100))}
                         </div>
                         {(data.mode || 'capitalisation') === 'capitalisation' && (
-                          <div style={{ fontSize: 12, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>
+                          <div style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, fontFamily: "'IBM Plex Mono', monospace" }}>
                             À échoir = Perte VI × {data.coeffCapitalisation || 0} = {fmt(data.perteAnnuelle * ((data.partIndividuelle || 0) / 100) * (data.coeffCapitalisation || 0))}
                           </div>
                         )}
@@ -7456,7 +7442,7 @@ export default function App() {
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Type de déduction</h4>
-                      <select id="iv-tp-type" defaultValue={data?.type || 'pension-reversion'} className="w-full px-3 py-2 border rounded-lg bg-white">
+                      <select id="iv-tp-type" defaultValue={data?.type || 'pension-reversion'} className="w-full px-3 py-2 border rounded-lg bg-surface">
                         {PRP_TP_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                       </select>
                     </div>
@@ -7476,7 +7462,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="p-3 bg-background rounded-lg border border-border">
-                      <span style={{ fontSize: 11, color: '#78716c' }}>
+                      <span style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>
                         Imputation poste par poste - Cass. 2e civ. 16 mai 2013. La déduction s'applique à la perte indemnisable de cette VI.
                       </span>
                     </div>
@@ -7534,8 +7520,8 @@ export default function App() {
                 
                 {/* Panel PGPA - Revenu de référence */}
                 {editPanel.type === 'pgpa-revenu' && (() => {
-                  const pgpaRevInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
-                  const pgpaRevInputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
+                  const pgpaRevInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const pgpaRevInputShadow = { boxShadow: dsShadows.xs };
                   return (
                   <div className="space-y-6">
 
@@ -7548,35 +7534,35 @@ export default function App() {
                             const piece = getPiece(pid);
                             return piece ? (
                               <div key={pid} className="flex items-center gap-3 p-2.5 bg-background-canvas rounded-lg border group">
-                                <span className="w-8 h-8 bg-blue-100 text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                                <span className="w-8 h-8 bg-piece-medical-bg text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-blue-600 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
                               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                               <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-zinc-300" />
+                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-border-strong" />
                               {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                                 <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-info-bg hover:border-blue-300 transition-colors">
-                                  <span className="w-6 h-6 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-surface border rounded hover:bg-info-bg hover:border-chart-1 transition-colors">
+                                  <span className="w-6 h-6 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
                                   <span className="text-caption text-foreground-muted">{piece.type}</span>
-                                  <Plus className="w-4 h-4 text-blue-600" />
+                                  <Plus className="w-4 h-4 text-chart-3" />
                                 </button>
                               ))}
                             </div>
@@ -7585,7 +7571,7 @@ export default function App() {
                         <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                         <button onClick={() => document.getElementById('panel-piece-upload').click()}
-                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-white border border-border rounded-lg hover:bg-background hover:border-zinc-300 transition-colors">
+                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-surface border border-border rounded-lg hover:bg-background hover:border-border-strong transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
                         </button>
@@ -7663,13 +7649,13 @@ export default function App() {
                               <input id="pgpa-revenu-revalorise" type="number" step="0.01" defaultValue={data.revalorise || ''} className={`${pgpaRevInputCls} pr-8 bg-background-canvas font-medium`} style={pgpaRevInputShadow} readOnly />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
-                            <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Calculé automatiquement selon le barème</p>
+                            <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Calculé automatiquement selon le barème</p>
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between p-3 bg-background-canvas rounded-lg border">
                           <div className="flex items-center gap-3">
-                            <input type="checkbox" id="pgpa-revenu-revalo-checkbox" defaultChecked={data.aRevaloriser !== false} className="rounded text-blue-600" />
+                            <input type="checkbox" id="pgpa-revenu-revalo-checkbox" defaultChecked={data.aRevaloriser !== false} className="rounded text-chart-3" />
                             <label htmlFor="pgpa-revenu-revalo-checkbox" className="text-body-medium text-foreground">Appliquer la revalorisation</label>
                           </div>
                           <div className="text-body text-foreground-secondary">
@@ -7685,13 +7671,13 @@ export default function App() {
                 {editPanel.type === 'pgpa-revenu-percu' && (() => {
                   const prcDiffColor = data.diffType ? ROW_DIFF_COLORS[data.diffType] : null;
                   const prcDiffLabel = data.diffType === 'add' ? 'Ligne ajoutée par l\'agent' : data.diffType === 'edit' ? 'Ligne modifiée par l\'agent' : data.diffType === 'delete' ? 'Ligne supprimée par l\'agent' : null;
-                  const prcDiffBg = data.diffType === 'add' ? '#f0fdf4' : data.diffType === 'edit' ? '#fff7ed' : '#fef2f2';
-                  const prcDiffBorder = data.diffType === 'add' ? '#bbf7d0' : data.diffType === 'edit' ? '#fed7aa' : '#fecaca';
+                  const prcDiffBg = data.diffType === 'add' ? dsColors.banner.success.bgFrom : data.diffType === 'edit' ? dsColors.feedback.warning.subtle : dsColors.step.red.bg;
+                  const prcDiffBorder = data.diffType === 'add' ? dsColors.banner.success.border : data.diffType === 'edit' ? dsColors.brand.border : dsColors.banner.error.border;
                   const prcOv = data.oldValues || {};
                   const prcHasDiff = (key) => data.diffType === 'edit' && prcOv[key] != null;
-                  const prcInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
-                  const prcInputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
-                  const prcDescP = (text) => <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
+                  const prcInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const prcInputShadow = { boxShadow: dsShadows.xs };
+                  const prcDescP = (text) => <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
                   return (
                   <div className="space-y-6" style={data.diffType === 'delete' ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
                     {prcDiffColor && (
@@ -7710,35 +7696,35 @@ export default function App() {
                             const piece = getPiece(pid);
                             return piece ? (
                               <div key={pid} className="flex items-center gap-3 p-2.5 bg-background-canvas rounded-lg border group">
-                                <span className="w-8 h-8 bg-blue-100 text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                                <span className="w-8 h-8 bg-piece-medical-bg text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-blue-600 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
                               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                               <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-zinc-300" />
+                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-border-strong" />
                               {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                                 <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-info-bg hover:border-blue-300 transition-colors">
-                                  <span className="w-6 h-6 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-surface border rounded hover:bg-info-bg hover:border-chart-1 transition-colors">
+                                  <span className="w-6 h-6 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
                                   <span className="text-caption text-foreground-muted">{piece.type}</span>
-                                  <Plus className="w-4 h-4 text-blue-600" />
+                                  <Plus className="w-4 h-4 text-chart-3" />
                                 </button>
                               ))}
                             </div>
@@ -7747,7 +7733,7 @@ export default function App() {
                         <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                         <button onClick={() => document.getElementById('panel-piece-upload').click()}
-                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-white border border-border rounded-lg hover:bg-background hover:border-zinc-300 transition-colors">
+                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-surface border border-border rounded-lg hover:bg-background hover:border-border-strong transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
                         </button>
@@ -7816,9 +7802,9 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="p-3 bg-blue-50 rounded-lg flex items-center justify-between">
+                        <div className="p-3 bg-info-bg rounded-lg flex items-center justify-between">
                           <span className="text-body text-link">Durée calculée</span>
-                          <span className="font-semibold text-blue-900">{data.dureeJours || '—'} jours</span>
+                          <span className="font-semibold text-link">{data.dureeJours || '—'} jours</span>
                         </div>
                       </div>
                     </div>
@@ -7855,17 +7841,17 @@ export default function App() {
 
                         <div className="flex items-center justify-between p-3 bg-background-canvas rounded-lg border">
                           <div className="flex items-center gap-3">
-                            <input type="checkbox" id="pgpa-percu-no-revalo" defaultChecked={data.noRevalo || false} className="rounded text-blue-600" />
+                            <input type="checkbox" id="pgpa-percu-no-revalo" defaultChecked={data.noRevalo || false} className="rounded text-chart-3" />
                             <label htmlFor="pgpa-percu-no-revalo" className="text-body-medium text-foreground">Montant à ne pas revaloriser</label>
                           </div>
                         </div>
 
-                        <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                        <div className="p-3 bg-warning-subtle rounded-lg border border-warning-border">
                           <div className="flex items-center justify-between">
-                            <span className="text-body text-amber-800">Perte de gains sur la période</span>
-                            <span className="font-semibold text-amber-900">{fmt(data.perteGains || 0)}</span>
+                            <span className="text-body text-brand-darker-subtle-foreground">Perte de gains sur la période</span>
+                            <span className="font-semibold text-warning">{fmt(data.perteGains || 0)}</span>
                           </div>
-                          <p className="text-caption text-amber-600 mt-1">Revenu de référence − Revenu perçu</p>
+                          <p className="text-caption text-warning mt-1">Revenu de référence − Revenu perçu</p>
                         </div>
                       </div>
                     </div>
@@ -7876,13 +7862,13 @@ export default function App() {
                 {editPanel.type === 'pgpa-ij' && (() => {
                   const ijDiffColor = data.diffType ? ROW_DIFF_COLORS[data.diffType] : null;
                   const ijDiffLabel = data.diffType === 'add' ? 'Ligne ajoutée par l\'agent' : data.diffType === 'edit' ? 'Ligne modifiée par l\'agent' : data.diffType === 'delete' ? 'Ligne supprimée par l\'agent' : null;
-                  const ijDiffBg = data.diffType === 'add' ? '#f0fdf4' : data.diffType === 'edit' ? '#fff7ed' : '#fef2f2';
-                  const ijDiffBorder = data.diffType === 'add' ? '#bbf7d0' : data.diffType === 'edit' ? '#fed7aa' : '#fecaca';
+                  const ijDiffBg = data.diffType === 'add' ? dsColors.banner.success.bgFrom : data.diffType === 'edit' ? dsColors.feedback.warning.subtle : dsColors.step.red.bg;
+                  const ijDiffBorder = data.diffType === 'add' ? dsColors.banner.success.border : data.diffType === 'edit' ? dsColors.brand.border : dsColors.banner.error.border;
                   const ijOv = data.oldValues || {};
                   const ijHasDiff = (key) => data.diffType === 'edit' && ijOv[key] != null;
-                  const ijInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
-                  const ijInputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
-                  const ijDescP = (text) => <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
+                  const ijInputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const ijInputShadow = { boxShadow: dsShadows.xs };
+                  const ijDescP = (text) => <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
                   return (
                   <div className="space-y-6" style={data.diffType === 'delete' ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
                     {ijDiffColor && (
@@ -7901,35 +7887,35 @@ export default function App() {
                             const piece = getPiece(pid);
                             return piece ? (
                               <div key={pid} className="flex items-center gap-3 p-2.5 bg-background-canvas rounded-lg border group">
-                                <span className="w-8 h-8 bg-blue-100 text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                                <span className="w-8 h-8 bg-piece-medical-bg text-link text-caption-medium rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-blue-600 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
                         </div>
                       )}
-                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas/50">
+                      <div className="border-2 border-dashed rounded-lg p-3 space-y-3 bg-background-canvas">
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div>
                             <div className="relative mb-2">
                               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                               <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-zinc-300" />
+                                className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-border-strong" />
                               {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                                 <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-white border rounded hover:bg-info-bg hover:border-blue-300 transition-colors">
-                                  <span className="w-6 h-6 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
+                                  className="w-full flex items-center gap-2 p-2 text-left text-body bg-surface border rounded hover:bg-info-bg hover:border-chart-1 transition-colors">
+                                  <span className="w-6 h-6 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
                                   <span className="text-caption text-foreground-muted">{piece.type}</span>
-                                  <Plus className="w-4 h-4 text-blue-600" />
+                                  <Plus className="w-4 h-4 text-chart-3" />
                                 </button>
                               ))}
                             </div>
@@ -7938,7 +7924,7 @@ export default function App() {
                         <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                         <button onClick={() => document.getElementById('panel-piece-upload').click()}
-                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-white border border-border rounded-lg hover:bg-background hover:border-zinc-300 transition-colors">
+                          className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-surface border border-border rounded-lg hover:bg-background hover:border-border-strong transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
                         </button>
@@ -7955,7 +7941,7 @@ export default function App() {
                             {(data.diffType === 'add' || ijHasDiff('tiers')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
                           <select id="pgpa-ij-tiers" defaultValue={data.tiers || ''} className={ijInputCls} style={ijInputShadow}>
-                            <option value="">— Sélectionner —</option>
+                            <option value="">- Sélectionner -</option>
                             {chiffrageParams.tiersPayeurs.map((t, i) => (
                               <option key={i} value={t}>{t}</option>
                             ))}
@@ -8013,9 +7999,9 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="p-3 bg-blue-50 rounded-lg flex items-center justify-between">
+                        <div className="p-3 bg-info-bg rounded-lg flex items-center justify-between">
                           <span className="text-body text-link">Durée calculée</span>
-                          <span className="font-semibold text-blue-900">{data.jours || '—'} jours</span>
+                          <span className="font-semibold text-link">{data.jours || '—'} jours</span>
                         </div>
                       </div>
                     </div>
@@ -8049,20 +8035,20 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="p-3 bg-emerald-subtle rounded-lg border border-success-border">
                           <div className="flex items-center justify-between">
-                            <span className="text-body text-green-800">Indemnité nette perçue</span>
-                            <span className="font-semibold text-green-900">{fmt(data.montant || 0)}</span>
+                            <span className="text-body text-piece-revenus-fg">Indemnité nette perçue</span>
+                            <span className="font-semibold text-success">{fmt(data.montant || 0)}</span>
                           </div>
-                          <p className="text-caption text-green-600 mt-1">Brut − CSG-CRDS</p>
+                          <p className="text-caption text-success mt-1">Brut − CSG-CRDS</p>
                         </div>
 
-                        <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                        <div className="p-3 bg-ai-subtle rounded-lg border border-ai-border">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-body-medium text-purple-800">Créance du tiers payeur</span>
-                            <span className="font-bold text-purple-900">{fmt(data.montant || 0)}</span>
+                            <span className="text-body-medium text-ai">Créance du tiers payeur</span>
+                            <span className="font-bold text-ai-text">{fmt(data.montant || 0)}</span>
                           </div>
-                          <p className="text-caption text-purple-600">Ce montant sera déduit de l'indemnité victime et versé directement au tiers payeur</p>
+                          <p className="text-caption text-ai">Ce montant sera déduit de l'indemnité victime et versé directement au tiers payeur</p>
                         </div>
                       </div>
                     </div>
@@ -8073,13 +8059,13 @@ export default function App() {
                 {editPanel.type === 'dft-ligne' && (() => {
                   const dftDiffColor = data.diffType ? ROW_DIFF_COLORS[data.diffType] : null;
                   const dftDiffLabel = data.diffType === 'add' ? 'Ligne ajoutée par l\'agent' : data.diffType === 'edit' ? 'Ligne modifiée par l\'agent' : data.diffType === 'delete' ? 'Ligne supprimée par l\'agent' : null;
-                  const dftDiffBg = data.diffType === 'add' ? '#f0fdf4' : data.diffType === 'edit' ? '#fff7ed' : '#fef2f2';
-                  const dftDiffBorder = data.diffType === 'add' ? '#bbf7d0' : data.diffType === 'edit' ? '#fed7aa' : '#fecaca';
+                  const dftDiffBg = data.diffType === 'add' ? dsColors.banner.success.bgFrom : data.diffType === 'edit' ? dsColors.feedback.warning.subtle : dsColors.step.red.bg;
+                  const dftDiffBorder = data.diffType === 'add' ? dsColors.banner.success.border : data.diffType === 'edit' ? dsColors.brand.border : dsColors.banner.error.border;
                   const dftOv = data.oldValues || {};
                   const dftHasDiff = (key) => data.diffType === 'edit' && dftOv[key] != null;
-                  const inputShadow = { boxShadow: '0 1px 2px rgba(26,26,26,0.05)' };
-                  const inputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-white focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
-                  const descP = (text) => <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
+                  const inputShadow = { boxShadow: dsShadows.xs };
+                  const inputCls = "w-full px-3 py-2 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
+                  const descP = (text) => <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {text}</p>;
                   return (
                   <div className="space-y-5" style={data.diffType === 'delete' ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
                     {dftDiffColor && (
@@ -8107,7 +8093,7 @@ export default function App() {
                         <div className="relative mb-2">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
                           <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
-                            className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-white placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
+                            className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
                           {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
                         </div>
                       )}
@@ -8115,7 +8101,7 @@ export default function App() {
                         <div className="max-h-32 overflow-y-auto space-y-1 mb-2">
                           {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
                             <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-white border border-border rounded-lg hover:bg-background-subtle transition-colors">
+                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-surface border border-border rounded-lg hover:bg-background-subtle transition-colors">
                               <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                               <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
                               <span className="text-caption text-foreground-muted">{piece.type}</span>
@@ -8126,7 +8112,7 @@ export default function App() {
                       <div className="border border-dashed border-border-strong rounded-lg p-3 flex items-center justify-center gap-2 text-body text-foreground-secondary hover:bg-background-subtle cursor-pointer transition-colors"
                         onClick={() => document.getElementById('panel-piece-upload').click()}>
                         <Upload className="w-4 h-4" />
-                        <span>Déposez ou <span className="text-[#E8713A] font-medium">cliquez</span> pour ajouter un justificatif</span>
+                        <span>Déposez ou <span className="text-brand font-medium">cliquez</span> pour ajouter un justificatif</span>
                       </div>
                       <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                         onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
@@ -8141,7 +8127,7 @@ export default function App() {
                                 <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                                   <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
-                                  <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                  <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
                                 </div>
                               </div>
                             ) : null;
@@ -8231,7 +8217,7 @@ export default function App() {
                     {data.aRevalo && (
                       <div className="flex justify-between text-body">
                         <div className="flex items-center gap-1.5">
-                          <svg className="w-3.5 h-3.5 text-[#E8713A]" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                          <svg className="w-3.5 h-3.5 text-brand" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                           <span className="text-foreground-tertiary">Revalorisation</span>
                           <span className="text-caption text-foreground-muted">IPC Annuel · 1,08</span>
                         </div>
@@ -8285,10 +8271,10 @@ export default function App() {
               {/* Footer actions */}
               {editPanel.type === 'dsa-ligne' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
+                  <button onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                       const isPeriode = document.getElementById('edit-date-type')?.value === 'periode';
                       const dateVal = document.getElementById('edit-date')?.value || '';
                       const dateFinVal = isPeriode ? (document.getElementById('edit-date-fin')?.value || '') : '';
@@ -8305,7 +8291,7 @@ export default function App() {
                         tiers: document.getElementById('edit-tiers')?.value || '',
                         dejaRembourse: parseFloat(document.getElementById('edit-rembourse')?.value) || 0
                       });
-                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                    }} label="Enregistrer" />
                 </div>
               )}
               {editPanel.type === 'piece-detail' && (
@@ -8336,10 +8322,10 @@ export default function App() {
                         }))
                       }));
                       setEditPanel(null);
-                    }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
+                    }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                       Supprimer
                     </button>
-                    <button onClick={() => {
+                    <Button variant="primary" size="md" onClick={() => {
                       const updatedPiece = {
                         ...data,
                         intitule: document.getElementById('piece-intitule')?.value || data.intitule,
@@ -8348,14 +8334,14 @@ export default function App() {
                       };
                       setPieces(prev => prev.map(p => p.id === data.id ? updatedPiece : p));
                       setEditPanel(null);
-                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                    }} label="Enregistrer" />
                   </div>
                 </div>
               )}
               {(editPanel.type === 'victime' || editPanel.type === 'fait-generateur') && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     if (editPanel.type === 'victime') {
                       setVictimeData({
                         nom: document.getElementById('victime-nom')?.value || '',
@@ -8374,16 +8360,16 @@ export default function App() {
                       });
                     }
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {editPanel.type === 'dossier-expertise' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     setCommentaireExpertise(document.getElementById('proc-commentaire')?.value || '');
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {editPanel.type === 'victime-indirecte' && (
@@ -8409,14 +8395,14 @@ export default function App() {
                         return next;
                       });
                       setEditPanel(null);
-                    }} className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-2">
+                    }} className="px-4 py-2 text-danger hover:bg-danger-subtle rounded-lg flex items-center gap-2">
                       <Trash2 className="w-4 h-4" />Supprimer
                     </button>
                   )}
                   {!data && <div />}
                   <div className="flex gap-2">
                     <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                    <button onClick={() => {
+                    <Button variant="primary" size="md" onClick={() => {
                       const newVi = {
                         id: data?.id || `vi-${Date.now()}`,
                         nom: document.getElementById('vi-nom')?.value || '',
@@ -8442,7 +8428,7 @@ export default function App() {
                         setVictimesIndirectes(prev => [...prev, newVi]);
                       }
                       setEditPanel(null);
-                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                    }} label="Enregistrer" />
                   </div>
                 </div>
               )}
@@ -8450,7 +8436,7 @@ export default function App() {
               {editPanel.type === 'iv-ligne-a' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     const montant = parseFloat(document.getElementById('iv-ligne-montant')?.value) || 0;
                     const intitule = document.getElementById('iv-ligne-intitule')?.value || '';
                     const { victimeId, posteId, pieceIds = [] } = data;
@@ -8464,14 +8450,14 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {/* IV ligne save - Type B */}
               {editPanel.type === 'iv-ligne-b' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     const montant = parseFloat(document.getElementById('iv-ligne-montant')?.value) || 0;
                     const intitule = document.getElementById('iv-ligne-intitule')?.value || '';
                     const { id, victimeId, posteId, pieceIds = [] } = data;
@@ -8485,14 +8471,14 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {/* IV ligne save - Type C */}
               {editPanel.type === 'iv-ligne-c' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     const totalAmount = parseFloat(document.getElementById('iv-ligne-total-amount')?.value) || 0;
                     const label = document.getElementById('iv-ligne-label')?.value || '';
                     const { id, posteId, pieceIds = [] } = data;
@@ -8511,14 +8497,14 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {/* IV ligne save - Type D */}
               {editPanel.type === 'iv-ligne-d' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     const partIndividuelle = parseFloat(document.getElementById('iv-ligne-part')?.value) || 0;
                     const dureeIndemnisation = document.getElementById('iv-ligne-duree')?.value || '';
                     const mode = document.getElementById('iv-ligne-mode')?.value || 'capitalisation';
@@ -8536,14 +8522,14 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {/* IV ligne TP save - Type D (déduction TP per VI) */}
               {editPanel.type === 'iv-ligne-d-tp' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     const type = document.getElementById('iv-tp-type')?.value || 'pension-reversion';
                     const label = document.getElementById('iv-tp-label')?.value || '';
                     const organisme = document.getElementById('iv-tp-organisme')?.value || '';
@@ -8565,14 +8551,14 @@ export default function App() {
                       return { ...prev, [posteId]: { ...prev[posteId], lignes: newLignes } };
                     });
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {/* Panel nouvelle-procedure supprimé */}
               {editPanel.type === 'dossier-edit' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
                   <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                  <button onClick={() => {
+                  <Button variant="primary" size="md" onClick={() => {
                     setDossierRef(document.getElementById('dossier-ref')?.value || dossierRef);
                     setDossierIntitule(document.getElementById('dossier-intitule')?.value || dossierIntitule);
                     setDossierStatut(document.getElementById('dossier-statut')?.value || dossierStatut);
@@ -8580,7 +8566,7 @@ export default function App() {
                     setDossierAvocat(document.getElementById('dossier-avocat')?.value || dossierAvocat);
                     setDossierNotes(document.getElementById('dossier-notes')?.value || '');
                     setEditPanel(null);
-                  }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                  }} label="Enregistrer" />
                 </div>
               )}
               {/* ========== PANELS PGPA ========== */}
@@ -8598,12 +8584,12 @@ export default function App() {
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                    <button onClick={() => {
+                    <Button variant="primary" size="md" onClick={() => {
                       const updatedLigne = {
                         ...data,
                         type: document.getElementById('pgpa-revenu-type')?.value || data.type,
@@ -8625,7 +8611,7 @@ export default function App() {
                       }));
                       setEditPanel(null);
                       setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                    }} label="Enregistrer" />
                   </div>
                 </div>
               )}
@@ -8640,12 +8626,12 @@ export default function App() {
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                    <button onClick={() => {
+                    <Button variant="primary" size="md" onClick={() => {
                       const debutVal = document.getElementById('pgpa-percu-debut')?.value || data.periodeDebut;
                       const finVal = document.getElementById('pgpa-percu-fin')?.value || data.periodeFin;
                       const updatedLigne = {
@@ -8668,7 +8654,7 @@ export default function App() {
                       }));
                       setEditPanel(null);
                       setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                    }} label="Enregistrer" />
                   </div>
                 </div>
               )}
@@ -8683,12 +8669,12 @@ export default function App() {
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                    <button onClick={() => {
+                    <Button variant="primary" size="md" onClick={() => {
                       const montantBrut = parseFloat(document.getElementById('pgpa-ij-brut')?.value) || 0;
                       const csgCrds = parseFloat(document.getElementById('pgpa-ij-csg')?.value) || 0;
                       const debutVal = document.getElementById('pgpa-ij-debut')?.value || data.periodeDebut;
@@ -8713,7 +8699,7 @@ export default function App() {
                       }));
                       setEditPanel(null);
                       setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                    }} label="Enregistrer" />
                   </div>
                 </div>
               )}
@@ -8724,12 +8710,12 @@ export default function App() {
                   <button onClick={() => {
                     setDftLignes(prev => prev.filter(l => l.id !== data.id));
                     setEditPanel(null); setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-[#c45555] border border-danger-border bg-white hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
+                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
-                    <button onClick={() => {
+                    <Button variant="primary" size="md" onClick={() => {
                       const debutVal = document.getElementById('dft-debut')?.value || data.debut;
                       const finVal = document.getElementById('dft-fin')?.value || data.fin;
                       const jours = calcDaysBetween(debutVal, finVal) || data.jours || 0;
@@ -8748,7 +8734,7 @@ export default function App() {
                       };
                       setDftLignes(prev => prev.map(l => l.id === data.id ? updatedLigne : l));
                       setEditPanel(null); setEditingPieceIds([]);
-                    }} className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground-tertiary text-body-medium transition-colors">Enregistrer</button>
+                    }} label="Enregistrer" />
                   </div>
                 </div>
               )}
@@ -8785,22 +8771,22 @@ export default function App() {
       if (pieceCount === 0) return null;
       return (
         <div className="relative group/piece">
-          <span className="inline-flex items-center justify-center w-7 h-7 bg-blue-50 text-blue-600 rounded border border-blue-100 relative">
+          <span className="inline-flex items-center justify-center w-7 h-7 bg-info-bg text-chart-3 rounded border border-piece-medical-bg relative">
             <FileText className="w-3.5 h-3.5" />
             {pieceCount > 1 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-blue-600 text-white text-counter font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-chart-3 text-white text-counter font-bold rounded-full flex items-center justify-center">
                 {pieceCount}
               </span>
             )}
           </span>
-          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-surface border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
             <div className="text-counter text-foreground-muted uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
             <div className="space-y-1">
               {ligne.pieceIds?.map(pid => {
                 const piece = getPiece(pid);
                 return (
                   <div key={pid} className="flex items-center gap-2 text-caption">
-                    <span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                    <span className="w-5 h-5 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                     <span className="truncate text-foreground-tertiary">{piece?.intitule || piece?.nom || 'Document'}</span>
                   </div>
                 );
@@ -8825,7 +8811,7 @@ export default function App() {
 
         {/* Montant - PRIORITAIRE */}
         <span className="text-body-medium font-semibold text-foreground tabular-nums min-w-[90px] text-right flex-shrink-0">
-          {ligne.montant != null ? fmt(ligne.montant) : '— €'}
+          {ligne.montant != null ? fmt(ligne.montant) : '- €'}
         </span>
 
         {/* Actions en overlay au hover - minimaliste */}
@@ -8854,22 +8840,22 @@ export default function App() {
       if (pieceCount === 0) return null;
       return (
         <div className="relative group/piece">
-          <span className="inline-flex items-center justify-center w-7 h-7 bg-blue-50 text-blue-600 rounded border border-blue-100 relative">
+          <span className="inline-flex items-center justify-center w-7 h-7 bg-info-bg text-chart-3 rounded border border-piece-medical-bg relative">
             <FileText className="w-3.5 h-3.5" />
             {pieceCount > 1 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-blue-600 text-white text-counter font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-chart-3 text-white text-counter font-bold rounded-full flex items-center justify-center">
                 {pieceCount}
               </span>
             )}
           </span>
-          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-surface border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
             <div className="text-counter text-foreground-muted uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
             <div className="space-y-1">
               {ligne.pieceIds?.map(pid => {
                 const piece = getPiece(pid);
                 return (
                   <div key={pid} className="flex items-center gap-2 text-caption">
-                    <span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
+                    <span className="w-5 h-5 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span>
                     <span className="truncate text-foreground-tertiary">{piece?.intitule || piece?.nom || 'Document'}</span>
                   </div>
                 );
@@ -8928,8 +8914,8 @@ export default function App() {
   // ── TP rows injected inside a poste's Total Block expansion ──
   // Returns rows (not a card) - caller wraps in the existing expanded section
   // Shared row style for receipt sublines - 13px, consistent across all rows
-  const receiptRowStyle = { fontSize: 13, fontWeight: 400, color: '#78716c' };
-  const receiptAmountStyle = { fontSize: 13, fontWeight: 400, color: '#292524', fontFamily: "'IBM Plex Mono', monospace" };
+  const receiptRowStyle = { fontSize: 13, fontWeight: 400, color: dsColors.semantic.mutedForeground };
+  const receiptAmountStyle = { fontSize: 13, fontWeight: 400, color: dsColors.semantic.foreground, fontFamily: "'IBM Plex Mono', monospace" };
 
   // ── TP Lego Blocks: composable display primitives ──────────────
   // Small, single-purpose render helpers. Compose them to build any TP surface.
@@ -8937,9 +8923,9 @@ export default function App() {
   /** Generic receipt line: label + amount, flush left/right */
   const tpLine = (label, amount, { muted, unit, negative, bold, raw } = {}) => (
     <div className="flex items-center justify-between">
-      <span style={{ ...receiptRowStyle, ...(muted && { color: '#a8a29e' }), ...(bold && { fontWeight: 500, color: '#44403c' }) }}>{label}</span>
-      <span style={{ ...receiptAmountStyle, ...(muted && { color: '#a8a29e' }), ...(bold && { fontWeight: 500, color: '#292524' }) }}>
-        {negative && '\u2212 '}{raw || fmt(amount)}{unit && <span style={{ fontSize: 11, color: '#a8a29e', marginLeft: 4 }}>{unit}</span>}
+      <span style={{ ...receiptRowStyle, ...(muted && { color: dsColors.semantic.foregroundMuted }), ...(bold && { fontWeight: 500, color: dsColors.semantic.foregroundTertiary }) }}>{label}</span>
+      <span style={{ ...receiptAmountStyle, ...(muted && { color: dsColors.semantic.foregroundMuted }), ...(bold && { fontWeight: 500, color: dsColors.semantic.foreground }) }}>
+        {negative && '\u2212 '}{raw || fmt(amount)}{unit && <span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, marginLeft: 4 }}>{unit}</span>}
       </span>
     </div>
   );
@@ -8947,8 +8933,8 @@ export default function App() {
   /** Subtotal line with dashed border above - visually closes a section */
   const tpSubtotal = (label, amount) => (
     <div className="border-t border-dashed border-border-strong mt-1 pt-1 flex items-center justify-between">
-      <span style={{ fontSize: 13, fontWeight: 500, color: '#44403c' }}>{label}</span>
-      <span style={{ ...receiptAmountStyle, fontWeight: 500, color: '#292524' }}>{fmt(amount)}</span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{label}</span>
+      <span style={{ ...receiptAmountStyle, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(amount)}</span>
     </div>
   );
 
@@ -8959,10 +8945,10 @@ export default function App() {
   const tpDeduction = (sigle, amount, subLabel) => (
     <div>
       <div className="flex items-center justify-between">
-        <span style={{ fontSize: 13, fontWeight: 500, color: '#44403c' }}>Imputation {sigle}</span>
-        <span style={{ ...receiptAmountStyle, fontWeight: 500, color: '#292524' }}>{'\u2212'} {fmtTP(amount)}</span>
+        <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>Imputation {sigle}</span>
+        <span style={{ ...receiptAmountStyle, fontWeight: 500, color: dsColors.semantic.foreground }}>{'\u2212'} {fmtTP(amount)}</span>
       </div>
-      {subLabel && <span style={{ fontSize: 12, color: '#a8a29e' }}>{subLabel}</span>}
+      {subLabel && <span style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>{subLabel}</span>}
     </div>
   );
 
@@ -8970,19 +8956,19 @@ export default function App() {
   const tpPreference = (dp) => {
     if (!dp) return null;
     return (
-      <div className="mt-2 px-3 py-2.5 rounded-md" style={{ backgroundColor: '#f5f0e8', border: '1px solid #e2ddd4' }}>
+      <div className="mt-2 px-3 py-2.5 rounded-md" style={{ backgroundColor: dsColors.feedback.warning.subtle, border: `1px solid ${dsColors.semantic.border}` }}>
         <div className="flex justify-between items-baseline mb-2">
-          <span style={{ fontSize: 13, color: '#44403c', fontWeight: 600 }}>Droit de préférence</span>
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>taux {dp.taux} %</span>
+          <span style={{ fontSize: 13, color: dsColors.semantic.foregroundTertiary, fontWeight: 600 }}>Droit de préférence</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: dsColors.semantic.mutedForeground }}>taux {dp.taux} %</span>
         </div>
         <div className="space-y-1">
           {tpLine('Enveloppe disponible', dp.enveloppe, { bold: true })}
           {tpLine('Victime (prioritaire)', dp.victimePref, { bold: true })}
-          <div className="border-t border-dashed border-[#e2ddd4] mt-1 pt-1 space-y-0.5">
+          <div className="border-t border-dashed border-border mt-1 pt-1 space-y-0.5">
             {dp.tpDetails?.map((td, i) => (
               <div key={i} className="flex justify-between">
-                <span style={{ fontSize: 12, color: '#a8a29e' }}>{td.sigle} \u00b7 non recouvré</span>
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#a8a29e' }}>{fmtTP(td.nonRecouvre)}</span>
+                <span style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>{td.sigle} \u00b7 non recouvré</span>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: dsColors.semantic.foregroundMuted }}>{fmtTP(td.nonRecouvre)}</span>
               </div>
             ))}
           </div>
@@ -9006,14 +8992,14 @@ export default function App() {
       <div className={cardBlockClass}>
         {/* Title bar */}
         <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
-          <span className="inline-flex items-center justify-center w-7 h-7 bg-[#f5f0e8] rounded-md">
+          <span className="inline-flex items-center justify-center w-7 h-7 bg-warning-subtle rounded-md">
             <FileText className="w-4 h-4 text-foreground-secondary" />
           </span>
-          <span className="text-body-medium" style={{ color: '#292524' }}>Créances tiers payeurs</span>
+          <span className="text-body-medium" style={{ color: dsColors.semantic.foreground }}>Créances tiers payeurs</span>
         </div>
 
         {/* Column headers */}
-        <div className="flex items-center h-10 border-b border-border bg-white">
+        <div className="flex items-center h-10 border-b border-border bg-surface">
           <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
           <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
           <div className="w-[140px] flex-shrink-0 px-3" style={colHeaderStyle}>Tiers payeur</div>
@@ -9032,35 +9018,35 @@ export default function App() {
             return (
               <React.Fragment key={line.ligneId}>
                 <div
-                  className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white cursor-pointer hover:bg-background transition-colors"
+                  className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface cursor-pointer hover:bg-background transition-colors"
                   onClick={() => toggleCard(expandKey)}
                 >
                   <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
-                    <span className="inline-flex items-center justify-center w-7 h-7 bg-[#f5f0e8] rounded-md relative">
+                    <span className="inline-flex items-center justify-center w-7 h-7 bg-warning-subtle rounded-md relative">
                       <FileText className="w-4 h-4 text-foreground-secondary" />
-                      <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-foreground-secondary text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{subCount}</span>
+                      <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-foreground-secondary text-primary-foreground text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{subCount}</span>
                     </span>
                   </div>
                   <div className="flex-1 min-w-0 px-3 flex items-center gap-1.5">
-                    <span className="text-body-medium truncate" style={{ color: '#292524' }}>{line.libelle}</span>
+                    <span className="text-body-medium truncate" style={{ color: dsColors.semantic.foreground }}>{line.libelle}</span>
                     <ChevronRight className={`w-3.5 h-3.5 text-foreground-muted transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`} />
                   </div>
                   <div className="w-[140px] flex-shrink-0 px-3">
-                    <span className="text-body" style={{ color: '#78716c' }}>{line.sigle}</span>
+                    <span className="text-body" style={{ color: dsColors.semantic.mutedForeground }}>{line.sigle}</span>
                   </div>
                   <div className="w-[160px] px-3 text-right flex-shrink-0">
-                    <span className="text-body" style={{ color: '#44403c' }}>{fmt(line.montant)}</span>
+                    <span className="text-body" style={{ color: dsColors.semantic.foregroundTertiary }}>{fmt(line.montant)}</span>
                   </div>
                 </div>
                 {isExpanded && line.subLignes.map(sub => (
                   <div key={sub.id} className="flex items-center h-[44px] border-b border-border bg-background">
                     <div className="w-[52px] flex-shrink-0 pl-3" />
                     <div className="flex-1 min-w-0 px-3 pl-8">
-                      <span className="text-caption" style={{ color: '#78716c' }}>{sub.libelle}</span>
+                      <span className="text-caption" style={{ color: dsColors.semantic.mutedForeground }}>{sub.libelle}</span>
                     </div>
                     <div className="w-[140px] flex-shrink-0 px-3" />
                     <div className="w-[160px] px-3 text-right flex-shrink-0">
-                      <span className="text-caption" style={{ color: '#78716c' }}>{fmt(sub.montant)}</span>
+                      <span className="text-caption" style={{ color: dsColors.semantic.mutedForeground }}>{fmt(sub.montant)}</span>
                     </div>
                   </div>
                 ))}
@@ -9070,20 +9056,20 @@ export default function App() {
 
           // Standard line
           return (
-            <div key={line.ligneId} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white hover:bg-background transition-colors">
+            <div key={line.ligneId} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface hover:bg-background transition-colors">
               <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
-                <span className="inline-flex items-center justify-center w-7 h-7 bg-[#f5f0e8] text-foreground-secondary rounded-md">
+                <span className="inline-flex items-center justify-center w-7 h-7 bg-warning-subtle text-foreground-secondary rounded-md">
                   <FileText className="w-3.5 h-3.5" />
                 </span>
               </div>
               <div className="flex-1 min-w-0 px-3">
-                <span className="text-body-medium truncate block" style={{ color: '#292524' }}>{line.libelle}</span>
+                <span className="text-body-medium truncate block" style={{ color: dsColors.semantic.foreground }}>{line.libelle}</span>
               </div>
               <div className="w-[140px] flex-shrink-0 px-3">
-                <span className="text-body" style={{ color: '#78716c' }}>{line.sigle}</span>
+                <span className="text-body" style={{ color: dsColors.semantic.mutedForeground }}>{line.sigle}</span>
               </div>
               <div className="w-[160px] px-3 text-right flex-shrink-0">
-                <span className="text-body" style={{ color: isNeg ? '#b91c1c' : '#44403c' }}>
+                <span className="text-body" style={{ color: isNeg ? dsColors.banner.error.accentHover : dsColors.semantic.foregroundTertiary }}>
                   {isNeg ? '\u2212 ' : ''}{fmt(Math.abs(line.montant))}
                 </span>
               </div>
@@ -9096,11 +9082,11 @@ export default function App() {
           <div className="flex items-center h-10">
             <div className="w-[52px] flex-shrink-0 pl-3" />
             <div className="flex-1 min-w-0 px-3">
-              <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total créances</span>
+              <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>Total créances</span>
             </div>
             <div className="w-[140px] flex-shrink-0 px-3" />
             <div className="w-[160px] px-3 text-right flex-shrink-0">
-              <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>{fmt(totalCreances)}</span>
+              <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>{fmt(totalCreances)}</span>
             </div>
           </div>
         </div>
@@ -9139,8 +9125,8 @@ export default function App() {
                 <span style={receiptRowStyle} className="flex items-center gap-1.5">
                   {tp?.sigle || tp?.nom}
                   <span
-                    className="inline-flex items-center h-[16px] px-1 rounded cursor-pointer hover:bg-border-strong/40"
-                    style={{ fontSize: 10, fontWeight: 500, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.02em' }}
+                    className="inline-flex items-center h-[16px] px-1 rounded cursor-pointer hover:bg-[color-mix(in_srgb,var(--semantic-borderStrong)_40%,transparent)]"
+                    style={{ fontSize: 10, fontWeight: 500, color: dsColors.semantic.foregroundMuted, fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.02em' }}
                     onClick={() => {
                       if (imp.source === 'cascade' && tpScenario.cascade) {
                         navigateTo({ type: 'cascade', id: 'cascade-from-poste', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' });
@@ -9152,7 +9138,7 @@ export default function App() {
                     {imp.source}
                   </span>
                   {globalAmount != null && (
-                    <span style={{ fontSize: 10, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace" }}>· {fmtTP(globalAmount)}</span>
+                    <span style={{ fontSize: 10, color: dsColors.semantic.foregroundMuted, fontFamily: "'IBM Plex Mono', monospace" }}>· {fmtTP(globalAmount)}</span>
                   )}
                 </span>
                 <span style={receiptAmountStyle}>{fmt(imp.montantImpute)}</span>
@@ -9220,14 +9206,14 @@ export default function App() {
           {/* Header */}
           <div>
             <div className="flex items-center gap-2">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px' }}>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.3px' }}>
                 {cascade.label}
               </h2>
-              <span className="inline-flex items-center h-5 px-1.5 rounded" style={{ backgroundColor: '#eeece6', fontSize: 10, fontWeight: 500, color: '#44403c', fontFamily: "'IBM Plex Mono', monospace" }}>
+              <span className="inline-flex items-center h-5 px-1.5 rounded" style={{ backgroundColor: dsColors.semantic.muted, fontSize: 10, fontWeight: 500, color: dsColors.semantic.foregroundTertiary, fontFamily: "'IBM Plex Mono', monospace" }}>
                 CASCADE
               </span>
             </div>
-            <p style={{ fontSize: 13, color: '#78716c', marginTop: 4 }}>Cascade d'imputation</p>
+            <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, marginTop: 4 }}>Cascade d'imputation</p>
           </div>
 
           {/* Capitalisation */}
@@ -9236,30 +9222,30 @@ export default function App() {
               <span style={{ ...sectionHeaderStyle }}>Capitalisation</span>
             </div>
             <div className="px-5 py-4 space-y-2">
-              <div className="flex items-center gap-3 flex-wrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, color: '#292524' }}>
+              <div className="flex items-center gap-3 flex-wrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, color: dsColors.semantic.foreground }}>
                 <span>{cascade.renteAnnuelle.toLocaleString('fr-FR')} €/an</span>
-                <span style={{ color: '#a8a29e' }}>×</span>
+                <span style={{ color: dsColors.semantic.foregroundMuted }}>×</span>
                 <span>{cascade.coefficient}</span>
-                <span className="inline-flex items-center h-5 px-1.5 rounded border border-border" style={{ fontSize: 10, fontWeight: 500, color: '#78716c' }}>
+                <span className="inline-flex items-center h-5 px-1.5 rounded border border-border" style={{ fontSize: 10, fontWeight: 500, color: dsColors.semantic.mutedForeground }}>
                   {cascade.bareme}
                 </span>
-                <span style={{ color: '#a8a29e' }}>=</span>
-                <span style={{ fontWeight: 600, color: '#292524' }}>{fmtTP(cascade.capitalise)}</span>
+                <span style={{ color: dsColors.semantic.foregroundMuted }}>=</span>
+                <span style={{ fontWeight: 600, color: dsColors.semantic.foreground }}>{fmtTP(cascade.capitalise)}</span>
               </div>
               {/* Temporal breakdown */}
               {cascade.arreragesEchus != null && (
                 <div className="pt-2 border-t border-border-subtle space-y-1">
                   <div className="flex items-center justify-between">
-                    <span style={{ fontSize: 12, color: '#78716c' }}>Arrérages échus</span>
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmtTP(cascade.arreragesEchus)}</span>
+                    <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>Arrérages échus</span>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmtTP(cascade.arreragesEchus)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span style={{ fontSize: 12, color: '#78716c' }}>À échoir (capitalisé)</span>
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmtTP(cascade.arreragesAEchoir)}</span>
+                    <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>À échoir (capitalisé)</span>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmtTP(cascade.arreragesAEchoir)}</span>
                   </div>
                   <div className="flex items-center justify-between pt-1 border-t border-border-subtle">
-                    <span style={{ fontSize: 12, fontWeight: 500, color: '#292524' }}>Total créance</span>
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 600, color: '#292524' }}>{fmtTP(cascade.capitalise)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foreground }}>Total créance</span>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>{fmtTP(cascade.capitalise)}</span>
                   </div>
                 </div>
               )}
@@ -9270,7 +9256,7 @@ export default function App() {
           <div className={cardBlockClass}>
             <div className="px-5 py-3 bg-background border-b border-border-subtle flex items-center justify-between">
               <span style={{ ...sectionHeaderStyle }}>Ordre d'imputation</span>
-              <span style={{ fontSize: 11, color: '#a8a29e' }}>{cascade.etapes.map(e => e.label).join(' \u2192 ')}</span>
+              <span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted }}>{cascade.etapes.map(e => e.label).join(' \u2192 ')}</span>
             </div>
 
             {/* Waterfall steps */}
@@ -9282,21 +9268,21 @@ export default function App() {
                   <div key={etape.posteId} className="px-5 py-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: isEpuise ? '#eeece6' : '#fafaf9', border: isEpuise ? 'none' : '1px solid #dfdcd9' }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: isEpuise ? '#292524' : '#78716c' }}>{i + 1}</span>
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: isEpuise ? dsColors.semantic.muted : dsColors.banner.neutral.bgFrom, border: isEpuise ? 'none' : `1px solid ${dsColors.semantic.border}` }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: isEpuise ? dsColors.semantic.foreground : dsColors.semantic.mutedForeground }}>{i + 1}</span>
                         </span>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>{etape.label}</span>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>{etape.label}</span>
                         <span className="inline-flex items-center h-5 px-1.5 rounded" style={{
-                          backgroundColor: isEpuise ? '#eeece6' : '#fafaf9',
+                          backgroundColor: isEpuise ? dsColors.semantic.muted : dsColors.banner.neutral.bgFrom,
                           fontSize: 10, fontWeight: 500,
-                          color: isEpuise ? '#292524' : '#78716c',
+                          color: isEpuise ? dsColors.semantic.foreground : dsColors.semantic.mutedForeground,
                           fontFamily: "'IBM Plex Mono', monospace",
                           textTransform: 'uppercase',
                         }}>
                           {etape.statut}
                         </span>
                         {etape.jurisprudentiallyVariable && (
-                          <span className="inline-flex items-center h-5 px-1.5 rounded ml-2" style={{ backgroundColor: '#fef3c7', fontSize: 10, fontWeight: 500, color: '#92400e', fontFamily: "'IBM Plex Mono', monospace" }}>
+                          <span className="inline-flex items-center h-5 px-1.5 rounded ml-2" style={{ backgroundColor: dsColors.step.orange.bg, fontSize: 10, fontWeight: 500, color: dsColors.brand.darker.subtleForeground, fontFamily: "'IBM Plex Mono', monospace" }}>
                             JURISPRUDENCE VARIABLE
                           </span>
                         )}
@@ -9304,27 +9290,27 @@ export default function App() {
                     </div>
                     <div className="mt-3 grid grid-cols-3 gap-4">
                       <div>
-                        <span style={{ fontSize: 11, color: '#a8a29e', display: 'block' }}>Préjudice</span>
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmtTP(etape.prejudice)}</span>
+                        <span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, display: 'block' }}>Préjudice</span>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmtTP(etape.prejudice)}</span>
                       </div>
                       <div>
-                        <span style={{ fontSize: 11, color: '#a8a29e', display: 'block' }}>Absorbé</span>
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmtTP(etape.absorbe)}</span>
+                        <span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, display: 'block' }}>Absorbé</span>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmtTP(etape.absorbe)}</span>
                       </div>
                       <div>
-                        <span style={{ fontSize: 11, color: '#a8a29e', display: 'block' }}>Reste victime</span>
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmtTP(etape.prejudice - etape.absorbe)}</span>
+                        <span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, display: 'block' }}>Reste victime</span>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmtTP(etape.prejudice - etape.absorbe)}</span>
                       </div>
                     </div>
                     {etape.absorbeEchu != null && (
-                      <div className="mt-2 flex items-center gap-4" style={{ fontSize: 11, color: '#78716c' }}>
-                        <span>échu : <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: '#44403c' }}>{fmtTP(etape.absorbeEchu)}</span></span>
-                        <span>à échoir : <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: '#44403c' }}>{fmtTP(etape.absorbeAEchoir)}</span></span>
+                      <div className="mt-2 flex items-center gap-4" style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>
+                        <span>échu : <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{fmtTP(etape.absorbeEchu)}</span></span>
+                        <span>à échoir : <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{fmtTP(etape.absorbeAEchoir)}</span></span>
                       </div>
                     )}
                     {/* Progress bar */}
                     <div className="mt-2 h-1.5 rounded-full bg-border-subtle overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: isEpuise ? '#a8a29e' : '#cbc7c4' }} />
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: isEpuise ? dsColors.step.muted : dsColors.semantic.borderStrong }} />
                     </div>
                   </div>
                 );
@@ -9333,12 +9319,12 @@ export default function App() {
 
             {/* Total */}
             <div className="px-5 py-4 bg-background border-t border-border flex items-center justify-between">
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>Total absorbé</span>
+              <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>Total absorbé</span>
               <div className="flex items-center gap-2">
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 600, color: '#292524' }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>
                   {fmtTP(cascade.totalAbsorbe)}
                 </span>
-                <span style={{ fontSize: 12, color: '#a8a29e' }}>/ {fmtTP(cascade.capitalise)}</span>
+                <span style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>/ {fmtTP(cascade.capitalise)}</span>
               </div>
             </div>
           </div>
@@ -9352,22 +9338,22 @@ export default function App() {
   // → ③ cotisations et impôts (4 lignes, chacune ouvre sa page) → bloc de résultats.
   // Chaque étage se sert de celui du dessus ; on ne remonte jamais. =====
   const renderSocialChiffrage = () => {
-    const INFO = '#1e3a8a', INFO_BG = '#dfe8f5', INFO_BORDER = '#aabcd5';
+    const INFO = dsColors.feedback.info.text, INFO_BG = dsColors.piece.expertise.bg, INFO_BORDER = dsColors.feedback.info.border;
     const salaire = 2504, hours = 430;
     const hourly = salaire / 151.67;
     // Deux axes, distincts en droit : la NATURE qualifie le poste (rémunération
     // du travail → salariale ; réparation d'un préjudice → indemnitaire) ; le
     // RÉGIME en découle (dans l'assiette des cotisations, ou exclu).
     const NATURES = {
-      salariale:    { label: 'Salariale',    dot: '#a8a29e' },
-      indemnitaire: { label: 'Indemnitaire', dot: '#b3a4c9' },
+      salariale:    { label: 'Salariale',    dot: dsColors.semantic.borderHover },
+      indemnitaire: { label: 'Indemnitaire', dot: dsColors.feedback.ai.border },
     };
     // Trois régimes, du plus au moins soumis : la salariale entre en totalité,
     // l'indemnité de rupture est exclue sous plafonds, la réparation en est sortie.
     const REGIMES = {
-      soumis:  { label: 'soumise',  color: '#57534e', dot: '#a8a29e', assiette: 'Assiette salariale',    note: 'assujettie en totalité' },
-      exclu:   { label: 'exclue',   color: '#8a7cae', dot: '#b3a4c9', assiette: 'Assiette indemnitaire', note: 'exclue sous plafonds' },
-      exonere: { label: 'exonérée', color: '#6f8f78', dot: '#6f8f78', assiette: 'Assiette exonérée',     note: 'réparation · hors cotisations' },
+      soumis:  { label: 'soumise',  color: dsColors.semantic.foregroundQuaternary, dot: dsColors.semantic.borderHover, assiette: 'Assiette salariale',    note: 'assujettie en totalité' },
+      exclu:   { label: 'exclue',   color: dsColors.accents.slate.base, dot: dsColors.feedback.ai.border, assiette: 'Assiette indemnitaire', note: 'exclue sous plafonds' },
+      exonere: { label: 'exonérée', color: dsColors.step.green.icon, dot: dsColors.feedback.success.base, assiette: 'Assiette exonérée',     note: 'réparation · hors cotisations' },
     };
     const POSTES = [
       { cat: 'Rappels de salaire', acro: 'HS', label: 'Rappel d’heures supplémentaires', montant: Math.round(hours * hourly * 1.25), nature: 'salariale', regime: 'soumis' },
@@ -9388,7 +9374,7 @@ export default function App() {
       note: REGIMES[r].note,
     }));
     const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
-    const cardChrome = { border: '1px solid #dfdcd9', borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+    const cardChrome = { border: `1px solid ${dsColors.semantic.border}`, borderRadius: 12, overflow: 'hidden', boxShadow: dsShadows.xs };
     const intrants = [
       { key: 'salaire', name: 'Salaire de référence', Icon: Wallet, value: `${fmt(salaire)} /mois` },
       { key: 'releve', name: 'Heures supplémentaires cumulées', Icon: Clock, value: `${hours} h` },
@@ -9397,15 +9383,15 @@ export default function App() {
       <div className="space-y-6" data-zone-id="postes">
         {/* toolbar */}
         <div className="flex items-center gap-2 px-px">
-          <div className="h-8 px-2.5 flex items-center gap-1.5 border border-[#dfdcd9] rounded-lg whitespace-nowrap" style={{ backgroundColor: '#eeece6' }}>
-            <span style={{ fontSize: 11, fontWeight: 500, color: '#292524', letterSpacing: 0.1 }}>Total demandé</span>
-            <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, color: '#292524' }}>{fmt(total)}</span>
+          <div className="h-8 px-2.5 flex items-center gap-1.5 border border-border rounded-lg whitespace-nowrap" style={{ backgroundColor: dsColors.semantic.muted }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: 0.1 }}>Total demandé</span>
+            <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, color: dsColors.semantic.foreground }}>{fmt(total)}</span>
           </div>
           <div className="flex-1" />
-          <button className="h-9 px-3 flex items-center gap-2 border border-[#cbc7c4] rounded-lg hover:bg-stone-50 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#44403c' }}>
-            <Download className="w-3.5 h-3.5 text-[#78716c]" /> Exporter
+          <button className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg hover:bg-background transition-colors" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>
+            <Download className="w-3.5 h-3.5 text-foreground-secondary" /> Exporter
           </button>
-          <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: 'white', backgroundColor: '#292524' }}>
+          <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}>
             <Plus className="w-3.5 h-3.5" /> Nouveau poste
           </button>
         </div>
@@ -9417,24 +9403,24 @@ export default function App() {
               <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: INFO_BG, border: `1px solid ${INFO_BORDER}` }}><SlidersHorizontal className="w-4 h-4" style={{ color: INFO }} /></span>
               <div className="flex flex-col" style={{ gap: 5 }}>
                 <span style={{ ...colHeaderStyle, lineHeight: '1' }}>Constats</span>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px' }}>Bases de calcul</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '18px' }}>Bases de calcul</span>
               </div>
             </div>
-            <p style={{ fontSize: 12, color: '#78716c', lineHeight: '16px', textAlign: 'right', maxWidth: 365, margin: 0 }}>Ce que le cabinet a constaté, rien de ce qu’il demande. Corriger le salaire de référence met à jour presque tout en dessous.</p>
+            <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, lineHeight: '16px', textAlign: 'right', maxWidth: 365, margin: 0 }}>Ce que le cabinet a constaté, rien de ce qu’il demande. Corriger le salaire de référence met à jour presque tout en dessous.</p>
           </div>
           <div style={{ ...cardChrome, background: 'white' }}>
             {intrants.map((it, i) => (
               <button key={it.key} onClick={() => setSocialDetail(it.key)} className="group flex items-center w-full transition-colors" style={{ height: 56, background: 'white', border: 'none', borderBottom: i < intrants.length - 1 ? `1px solid ${ROW_DIVIDER}` : 'none', cursor: 'pointer', textAlign: 'left' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#fafaf9'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
+                onMouseEnter={(e) => { e.currentTarget.style.background = dsColors.banner.neutral.bgFrom; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
                 <div className="flex items-center flex-1 min-w-0" style={{ gap: 10, padding: '0 12px 0 14px' }}>
-                  <it.Icon className="w-4 h-4 flex-shrink-0" style={{ color: '#44403c' }} strokeWidth={1.75} />
-                  <span className="truncate" style={{ fontSize: 14, color: '#292524' }}>{it.name}</span>
+                  <it.Icon className="w-4 h-4 flex-shrink-0" style={{ color: dsColors.semantic.foregroundTertiary }} strokeWidth={1.75} />
+                  <span className="truncate" style={{ fontSize: 14, color: dsColors.semantic.foreground }}>{it.name}</span>
                 </div>
                 <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}>
                   <ValuePill>{it.value}</ValuePill>
                 </div>
                 <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}>
-                  <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#a8a29e' }} />
+                  <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: dsColors.semantic.foregroundMuted }} />
                 </div>
               </button>
             ))}
@@ -9447,13 +9433,13 @@ export default function App() {
         <div>
           <div className="flex items-center justify-between" style={{ padding: '0 6px', marginBottom: 16 }}>
             <div className="flex items-center" style={{ gap: 12 }}>
-              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: '#e9f1ea', color: '#4a7256', fontSize: 12, fontWeight: 600 }}>{(matterRef[0] || 'S').toUpperCase()}</span>
+              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, borderRadius: 8, background: dsColors.feedback.success.subtle, color: dsColors.accents.emerald.base, fontSize: 12, fontWeight: 600 }}>{(matterRef[0] || 'S').toUpperCase()}</span>
               <div className="flex flex-col" style={{ gap: 5 }}>
                 <span style={{ ...colHeaderStyle, lineHeight: '1' }}>Salarié</span>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px' }}>{matterRef}</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '18px' }}>{matterRef}</span>
               </div>
             </div>
-            <span style={{ ...serifAmountStyle, color: '#292524' }}>{fmt(total)}</span>
+            <span style={{ ...serifAmountStyle, color: dsColors.semantic.foreground }}>{fmt(total)}</span>
           </div>
           <div className="flex flex-col" style={{ gap: 16 }}>
             {CATS.map(cat => {
@@ -9461,7 +9447,7 @@ export default function App() {
               if (!rows.length) return null;
               return (
                 <div key={cat} style={{ ...cardChrome, background: 'white' }}>
-                  <div className="flex items-center" style={{ height: 40, padding: '0 16px', borderBottom: `1px solid ${ROW_DIVIDER}`, background: '#f8f7f5' }}>
+                  <div className="flex items-center" style={{ height: 40, padding: '0 16px', borderBottom: `1px solid ${ROW_DIVIDER}`, background: dsColors.semantic.background }}>
                     <span className="flex-1" style={colHeaderStyle}>{cat}</span>
                     <div className="flex items-center" style={{ width: 186, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Nature</span></div>
                     <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ ...colHeaderStyle, fontSize: 10 }}>Montant demandé</span></div>
@@ -9469,18 +9455,18 @@ export default function App() {
                   </div>
                   {rows.map((p, i) => (
                     <div key={p.acro} className="group flex items-center" style={{ height: 56, background: 'white', borderBottom: i < rows.length - 1 ? `1px solid ${ROW_DIVIDER}` : 'none' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = '#fafaf9'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
-                      <div className="flex-shrink-0" style={{ width: 64, padding: '0 16px' }}><span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>{p.acro}</span></div>
-                      <div className="flex-1 min-w-0" style={{ padding: '0 12px' }}><span className="truncate block" style={{ fontSize: 14, color: '#292524' }}>{p.label}</span></div>
+                      onMouseEnter={(e) => { e.currentTarget.style.background = dsColors.banner.neutral.bgFrom; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
+                      <div className="flex-shrink-0" style={{ width: 64, padding: '0 16px' }}><span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}>{p.acro}</span></div>
+                      <div className="flex-1 min-w-0" style={{ padding: '0 12px' }}><span className="truncate block" style={{ fontSize: 14, color: dsColors.semantic.foreground }}>{p.label}</span></div>
                       <div className="flex items-center" style={{ width: 186, padding: '0 12px', gap: 8 }}>
-                        <span className="inline-flex items-center" style={{ gap: 6, height: 22, padding: '0 8px 0 7px', borderRadius: 999, border: `1px solid ${ROW_DIVIDER}`, background: '#fafaf9' }}>
+                        <span className="inline-flex items-center" style={{ gap: 6, height: 22, padding: '0 8px 0 7px', borderRadius: 999, border: `1px solid ${ROW_DIVIDER}`, background: dsColors.banner.neutral.bgFrom }}>
                           <span className="flex-shrink-0" style={{ width: 6, height: 6, borderRadius: '50%', background: NATURES[p.nature].dot }} />
-                          <span style={{ fontSize: 12, color: '#57534e', whiteSpace: 'nowrap' }}>{NATURES[p.nature].label}</span>
+                          <span style={{ fontSize: 12, color: dsColors.semantic.foregroundQuaternary, whiteSpace: 'nowrap' }}>{NATURES[p.nature].label}</span>
                         </span>
                         <span style={{ fontSize: 11, color: REGIMES[p.regime].color, whiteSpace: 'nowrap' }}>{REGIMES[p.regime].label}</span>
                       </div>
-                      <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>{fmt(p.montant)}</span></div>
-                      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}><MoreVertical className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#a8a29e' }} /></div>
+                      <div className="flex items-center justify-end" style={{ width: 176, maxWidth: 176, padding: '0 12px' }}><span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, fontVariantNumeric: 'tabular-nums' }}>{fmt(p.montant)}</span></div>
+                      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44, paddingLeft: 12, paddingRight: 16 }}><MoreVertical className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: dsColors.semantic.foregroundMuted }} /></div>
                     </div>
                   ))}
                 </div>
@@ -9494,35 +9480,35 @@ export default function App() {
                 onClick={() => setSocialAssiettesOpen((o) => !o)}
                 aria-expanded={socialAssiettesOpen}
                 className="flex items-center w-full transition-colors"
-                style={{ minHeight: 52, background: '#f8f7f5', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#f1efe9'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#f8f7f5'; }}
+                style={{ minHeight: 52, background: dsColors.semantic.background, border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = dsColors.semantic.muted; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = dsColors.semantic.background; }}
               >
                 <div className="flex items-center justify-center flex-shrink-0" style={{ width: 46 }}>
-                  <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 22, height: 22, borderRadius: 9999, border: '2px solid rgba(41,37,36,0.1)', background: '#292524' }} aria-hidden>
-                    <Equal style={{ width: 10, height: 10, color: 'white' }} strokeWidth={2.75} />
+                  <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 22, height: 22, borderRadius: 9999, border: '2px solid rgba(41,37,36,0.1)', background: dsColors.semantic.primary }} aria-hidden>
+                    <Equal style={{ width: 10, height: 10, color: dsColors.semantic.primaryForeground }} strokeWidth={2.75} />
                   </span>
                 </div>
                 <div className="flex items-baseline min-w-0 flex-1" style={{ gap: 9, padding: '12px 12px' }}>
-                  <span className="flex-shrink-0" style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>Total demandé (brut)</span>
-                  {!socialAssiettesOpen && <span className="truncate" style={{ fontSize: 12, color: '#a8a29e' }}>{repartition.length} assiettes</span>}
+                  <span className="flex-shrink-0" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>Total demandé (brut)</span>
+                  {!socialAssiettesOpen && <span className="truncate" style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>{repartition.length} assiettes</span>}
                 </div>
                 <div className="flex items-center justify-end flex-shrink-0" style={{ width: 176, padding: '0 12px' }}>
-                  <span style={{ ...serifAmountStyle, color: '#292524' }}>{fmt(total)}</span>
+                  <span style={{ ...serifAmountStyle, color: dsColors.semantic.foreground }}>{fmt(total)}</span>
                 </div>
                 <div className="flex items-center justify-center flex-shrink-0" style={{ width: 44 }}>
-                  <ChevronRight className="w-4 h-4 transition-transform" style={{ color: '#a8a29e', transform: socialAssiettesOpen ? 'rotate(90deg)' : 'none' }} />
+                  <ChevronRight className="w-4 h-4 transition-transform" style={{ color: dsColors.semantic.foregroundMuted, transform: socialAssiettesOpen ? 'rotate(90deg)' : 'none' }} />
                 </div>
               </button>
               {socialAssiettesOpen && repartition.map((r) => (
                 <div key={r.key} className="flex items-center" style={{ height: 46, borderTop: `1px solid ${ROW_DIVIDER}`, background: 'white' }}>
                   <div className="flex items-center min-w-0 flex-1" style={{ gap: 9, padding: '0 12px 0 16px' }}>
                     <span className="flex-shrink-0" style={{ width: 7, height: 7, borderRadius: '50%', background: r.dot }} />
-                    <span className="flex-shrink-0" style={{ fontSize: 14, color: '#292524' }}>{r.label}</span>
-                    <span className="truncate" style={{ fontSize: 12, color: '#a8a29e' }}>{r.note}</span>
+                    <span className="flex-shrink-0" style={{ fontSize: 14, color: dsColors.semantic.foreground }}>{r.label}</span>
+                    <span className="truncate" style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>{r.note}</span>
                   </div>
                   <div className="flex items-center justify-end flex-shrink-0" style={{ width: 176, padding: '0 12px' }}>
-                    <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>{fmt(r.montant)}</span>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, fontVariantNumeric: 'tabular-nums' }}>{fmt(r.montant)}</span>
                   </div>
                   <span className="flex-shrink-0" style={{ width: 44 }} />
                 </div>
@@ -9554,7 +9540,7 @@ export default function App() {
 
   // ===== DROIT SOCIAL — native Dossier (salarié / relation de travail / contract timeline / employeur / procédure) =====
   const renderSocialDossier = () => {
-    const LINE = '#dfdcd9', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', WHITE = 'white', SUBTLE = '#fafaf9', INFO = '#1e3a8a';
+    const LINE = dsColors.semantic.border, INK = dsColors.semantic.foreground, INK2 = dsColors.semantic.foregroundTertiary, MUTE = dsColors.semantic.mutedForeground, FAINT = dsColors.semantic.foregroundMuted, WHITE = 'white', SUBTLE = dsColors.banner.neutral.bgFrom, INFO = dsColors.feedback.info.text;
     const matterRef = (dossiers.find(d => d.id === activeDossierId) || {}).reference || dossierIntitule || 'Salarié';
     const monoHead = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' };
     const dHead = (Icon, title, right) => (
@@ -9572,15 +9558,15 @@ export default function App() {
     );
     const dRow = (a, b, last) => <div className="flex" style={last ? undefined : { borderBottom: `1px solid ${LINE}` }}>{a}{b}</div>;
     const dCard = (Icon, title, children) => (
-      <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>{dHead(Icon, title)}{children}</div>
+      <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: dsShadows.xs, overflow: 'hidden' }}>{dHead(Icon, title)}{children}</div>
     );
     const events = [
-      { date: '02/05/2020', title: 'Embauche', desc: 'CDI · poste de Cariste · statut Employée · 2 100 € brut mensuel.', src: 'Pièce 1 · Contrat de travail', dot: '#4a7256' },
+      { date: '02/05/2020', title: 'Embauche', desc: 'CDI · poste de Cariste · statut Employée · 2 100 € brut mensuel.', src: 'Pièce 1 · Contrat de travail', dot: dsColors.accents.emerald.base },
       { date: '01/09/2021', title: 'Avenant n°1', desc: 'Passage en horaires postés (équipes 2×8).', src: 'Pièce 3 · Avenant', dot: MUTE },
       { date: 'Janv. 2022 → juin 2023', title: 'Heures supplémentaires non rémunérées', desc: 'Dépassements réguliers de l’amplitude journalière, reconstitués à partir des badges d’accès et des e-mails.', src: 'Relevé d’heures', dot: INFO },
       { date: '01/04/2023', title: 'Augmentation', desc: 'Salaire mensuel porté à 2 350 € brut.', src: 'Pièce 5 · Bulletins de salaire', dot: MUTE },
       { date: '15/06/2023', title: 'Entretien préalable', desc: 'Convocation à un entretien préalable au licenciement.', src: 'Pièce 10 · Convocation', dot: MUTE },
-      { date: '30/06/2023', title: 'Licenciement', desc: 'Rupture du CDI notifiée (motif : insuffisance professionnelle).', src: 'Pièce 12 · Lettre de licenciement', dot: '#b4593f' },
+      { date: '30/06/2023', title: 'Licenciement', desc: 'Rupture du CDI notifiée (motif : insuffisance professionnelle).', src: 'Pièce 12 · Lettre de licenciement', dot: dsColors.brand.subtleForeground },
       { date: '12/09/2023', title: 'Saisine du conseil de prud’hommes', desc: 'CPH de Nanterre · tentative de conciliation échouée.', src: 'Pièce 14 · Requête', dot: INK },
     ];
     return (
@@ -9599,7 +9585,7 @@ export default function App() {
           </div>
         </>)}
         {/* Chronologie du contrat — reconstructed timeline */}
-        <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: '0 1px 2px rgba(26,26,26,0.04)', overflow: 'hidden' }}>
+        <div className="rounded-lg" style={{ border: `1px solid ${LINE}`, background: WHITE, boxShadow: dsShadows.xs, overflow: 'hidden' }}>
           {dHead(Calendar, 'Chronologie du contrat', 'Reconstituée à partir des pièces')}
           <div style={{ padding: '18px 20px 6px' }}>
             {events.map((e, i) => {
@@ -9662,8 +9648,8 @@ export default function App() {
         </div>
       );
     }
-    const LINE = '#dfdcd9', INK = '#292524', MUTE = '#78716c', WHITE = 'white', PAPER = '#f8f7f5', INFO = '#1e3a8a', INFO_BG = '#dfe8f5';
-    const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' };
+    const LINE = dsColors.semantic.border, INK = dsColors.semantic.foreground, MUTE = dsColors.semantic.mutedForeground, WHITE = 'white', PAPER = dsColors.semantic.background, INFO = dsColors.feedback.info.text, INFO_BG = dsColors.piece.expertise.bg;
+    const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden', boxShadow: dsShadows.xs };
     if (socialDetail === 'salaire') {
       const BULLETINS = [
         { m: 'Juil. 2022', brut: 2300 }, { m: 'Août 2022', brut: 2300 }, { m: 'Sept. 2022', brut: 2300 },
@@ -9717,7 +9703,7 @@ export default function App() {
                 <div className="flex items-center flex-1 min-w-0" style={{ padding: '0 16px', gap: 10 }}>
                   <span className="inline-flex items-center justify-center rounded-md flex-shrink-0" style={{ width: 28, height: 28, background: PAPER, border: `1px solid ${LINE}` }}><FileText className="w-3.5 h-3.5" style={{ color: MUTE }} /></span>
                   <span style={{ fontSize: 13.5, color: INK }}>{b.m}</span>
-                  <span className="truncate" style={{ fontSize: 11.5, color: '#a8a29e' }}>Bulletin de paie.pdf</span>
+                  <span className="truncate" style={{ fontSize: 11.5, color: dsColors.semantic.foregroundMuted }}>Bulletin de paie.pdf</span>
                 </div>
                 <div className="flex items-center justify-end" style={{ width: 140, padding: '0 12px' }}><span style={{ fontSize: 13.5, fontWeight: 500, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmt(b.brut)}</span></div>
               </div>
@@ -9931,16 +9917,16 @@ export default function App() {
                   )}
                   {isRevealed(key) && !pendingDiff && (
                     <span className="relative group">
-                      <span className="inline-block w-1.5 h-1.5 cursor-help" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
+                      <span className="inline-block w-1.5 h-1.5 cursor-help" style={{ background: dsColors.accents.meadow, transform: 'rotate(45deg)' }} />
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20 pointer-events-none">
-                        <div className="bg-zinc-800 text-white rounded-lg px-3 py-2 shadow-lg w-[220px]">
+                        <div className="bg-foreground text-primary-foreground rounded-lg px-3 py-2 shadow-lg w-[220px]">
                           <p className="text-caption text-foreground-muted mb-1">Extrait depuis</p>
                           <div className="flex items-center gap-2">
-                            <FileText className="w-3.5 h-3.5 text-[#86efac] flex-shrink-0" />
-                            <span className="text-caption-medium text-white truncate">{rapportName}</span>
+                            <FileText className="w-3.5 h-3.5 text-success flex-shrink-0" />
+                            <span className="text-caption-medium text-primary-foreground truncate">{rapportName}</span>
                           </div>
                         </div>
-                        <div className="w-2 h-2 bg-zinc-800 rotate-45 mx-auto -mt-1"></div>
+                        <div className="w-2 h-2 bg-foreground rotate-45 mx-auto -mt-1"></div>
                       </div>
                     </span>
                   )}
@@ -9950,24 +9936,24 @@ export default function App() {
                 {pendingDiff ? (
                   <div>
                     {pendingDiff.before != null && (
-                      <div style={{ fontSize: 12, lineHeight: '16px', color: '#9CA3AF', opacity: 0.5, textDecoration: 'line-through' }}>
+                      <div style={{ fontSize: 12, lineHeight: '16px', color: dsColors.semantic.borderHover, opacity: 0.5, textDecoration: 'line-through' }}>
                         {pendingDiff.before}
                       </div>
                     )}
                     {pendingDiff.type !== 'delete' && pendingDiff.after != null && (
-                      <div style={{ fontSize: 14, lineHeight: '20px', fontWeight: 500, color: '#292524' }}>
+                      <div style={{ fontSize: 14, lineHeight: '20px', fontWeight: 500, color: dsColors.semantic.foreground }}>
                         {pendingDiff.after}
                       </div>
                     )}
                     {pendingDiff.type === 'delete' && (
-                      <div style={{ fontSize: 14, lineHeight: '20px', color: '#9CA3AF', textDecoration: 'line-through' }}>
+                      <div style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.borderHover, textDecoration: 'line-through' }}>
                         {pendingDiff.before}
                       </div>
                     )}
                   </div>
                 ) : rejectedDiff ? (
                   <div>
-                    <div style={{ fontSize: 12, lineHeight: '16px', color: '#9CA3AF', opacity: 0.5, textDecoration: 'line-through' }}>
+                    <div style={{ fontSize: 12, lineHeight: '16px', color: dsColors.semantic.borderHover, opacity: 0.5, textDecoration: 'line-through' }}>
                       {rejectedDiff.after}
                     </div>
                     <div className="text-body text-foreground">
@@ -9977,7 +9963,7 @@ export default function App() {
                 ) : (
                   <div className={`text-body ${hasValue || isActive ? 'text-foreground' : 'text-border-strong'} ${isLongText ? 'leading-relaxed' : ''}`}>
                     {isActive ? (
-                      <span>{streamingText}<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: '#4a9168' }}></span></span>
+                      <span>{streamingText}<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: dsColors.accents.meadow }}></span></span>
                     ) : hasValue ? (
                       value
                     ) : (
@@ -10006,15 +9992,15 @@ export default function App() {
               {isStreaming && (
                 <div className="banner banner-minimal banner-ai">
                   <div className="banner-body">
-                    <Loader2 className="w-4 h-4 banner-icon animate-spin" />
+                    <Spinner size="sm" color="var(--banner-accent)" />
                     <span className="banner-title">Extraction en cours depuis le rapport d'expertise...</span>
                   </div>
                 </div>
               )}
 
               {/* Section: Victime */}
-              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+              <div className="bg-surface rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-surface">
                   <User className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                   <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Victime</span>
                 </div>
@@ -10033,7 +10019,7 @@ export default function App() {
                   <div className="flex-1 px-5 py-4 space-y-1">
                     {renderField('dateNaissance', 'Date de naissance',
                       victimeData.dateNaissance
-                        ? <span className="flex items-center gap-2">{victimeData.dateNaissance}{calcAge(victimeData.dateNaissance) && <><span className="w-1 h-1 rounded-full bg-[#d9d9d9]"></span><span className="text-body text-foreground-secondary">{calcAge(victimeData.dateNaissance)} ans</span></>}</span>
+                        ? <span className="flex items-center gap-2">{victimeData.dateNaissance}{calcAge(victimeData.dateNaissance) && <><span className="w-1 h-1 rounded-full bg-border-alt"></span><span className="text-body text-foreground-secondary">{calcAge(victimeData.dateNaissance)} ans</span></>}</span>
                         : null
                     )}
                   </div>
@@ -10041,8 +10027,8 @@ export default function App() {
               </div>
 
               {/* Section: Fait générateur */}
-              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+              <div className="bg-surface rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-surface">
                   <AlertTriangle className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                   <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Fait générateur</span>
                 </div>
@@ -10068,8 +10054,8 @@ export default function App() {
 
                 {/* Sub-block: Fraction indemnisable */}
                 <div className="border-t border-border px-5 py-3">
-                  <span style={{ fontSize: 13, color: '#78716c' }}>Fraction indemnisable</span>
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: tauxFinal < 100 ? '#b9703f' : '#292524', marginTop: 4 }}>
+                  <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Fraction indemnisable</span>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: tauxFinal < 100 ? dsColors.accents.ochre : dsColors.semantic.foreground, marginTop: 4 }}>
                     {tauxFinal} %
                   </div>
                 </div>
@@ -10077,8 +10063,8 @@ export default function App() {
 
               {/* Section: Tiers payeurs (dossier-level) */}
               {hasTP && (
-                <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
-                  <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+                <div className="bg-surface rounded-[5px] border border-border shadow-sm overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-surface">
                     <Receipt className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                     <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Tiers payeurs</span>
                   </div>
@@ -10109,10 +10095,10 @@ export default function App() {
                         >
                           <div className="flex items-center gap-2">
                             {expanded ? <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} /> : <ChevronRight className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />}
-                            <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{tp.sigle}</span>
-                            <span style={{ fontSize: 11, color: '#a8a29e', fontFamily: "'Inter', sans-serif" }}>{tp.nom}</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{tp.sigle}</span>
+                            <span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, fontFamily: "'Inter', sans-serif" }}>{tp.nom}</span>
                           </div>
-                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(totalTP)}</span>
+                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(totalTP)}</span>
                         </div>
                         {expanded && (
                           <div className="px-5 pb-3 space-y-0.5">
@@ -10130,11 +10116,11 @@ export default function App() {
                                   }}
                                 >
                                   <div className="flex items-center gap-2">
-                                    <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>{acronym}</span>
-                                    <span style={{ fontSize: 12, color: '#78716c' }}>{label}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{acronym}</span>
+                                    <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>{label}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: '#44403c' }}>{fmt(ps.total)}</span>
+                                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{fmt(ps.total)}</span>
                                     <ChevronRight className="w-3 h-3 text-border-strong" />
                                   </div>
                                 </div>
@@ -10155,8 +10141,8 @@ export default function App() {
               )}
 
               {/* Section: Faits et procédure */}
-              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+              <div className="bg-surface rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2.5 px-3 py-3.5 border-b border-border bg-surface">
                   <Activity className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
                   <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Faits et procédure</span>
                 </div>
@@ -10166,8 +10152,8 @@ export default function App() {
               </div>
 
               {/* Section: Victimes indirectes */}
-              <div className="bg-white rounded-[5px] border border-border shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between gap-2.5 px-3 py-3.5 border-b border-border bg-white">
+              <div className="bg-surface rounded-[5px] border border-border shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between gap-2.5 px-3 py-3.5 border-b border-border bg-surface">
                   <div className="flex items-center gap-2.5">
                     <svg className="w-4 h-4 text-foreground-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -10222,7 +10208,7 @@ export default function App() {
                                 return next;
                               });
                             }}
-                            className="p-1 text-border-strong hover:text-red-500 rounded transition-colors"
+                            className="p-1 text-border-strong hover:text-danger rounded transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
@@ -10256,10 +10242,10 @@ export default function App() {
           ];
           const currentPhaseIndex = extractionPhases.findIndex(p => p.key === extractionState.phase);
           return (
-            <div className="border border-border rounded-xl p-4 mb-6 animate-fade-up" style={{ backgroundColor: '#f8f7f5' }}>
+            <div className="border border-border rounded-xl p-4 mb-6 animate-fade-up" style={{ backgroundColor: dsColors.semantic.background }}>
               <div className="flex items-center gap-4">
                 <div className="relative w-10 h-10 flex-shrink-0">
-                  <div className="absolute inset-0 rounded-full animate-spin-slow" style={{ background: 'conic-gradient(from 0deg, #71717a, #a1a1aa, #71717a, transparent 70%)' }} />
+                  <div className="absolute inset-0 rounded-full animate-spin-slow" style={{ background: `conic-gradient(from 0deg, ${dsColors.semantic.mutedForeground}, ${dsColors.semantic.borderHover}, ${dsColors.semantic.mutedForeground}, transparent 70%)` }} />
                   <div className="absolute inset-[2px] rounded-full bg-background-canvas flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-foreground-secondary animate-pulse" />
                   </div>
@@ -10276,18 +10262,16 @@ export default function App() {
                       const isDone = i < currentPhaseIndex;
                       return (
                         <div key={phase.key} className="flex items-center">
-                          <div className={`w-6 h-6 rounded flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-zinc-200' : isActive ? 'bg-zinc-200 scale-110' : 'bg-cream'}`}>
+                          <div className={`w-6 h-6 rounded flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-stone-subtle' : isActive ? 'bg-stone-subtle scale-110' : 'bg-cream'}`}>
                             {isDone ? <Check className="w-3 h-3 text-foreground-secondary" /> : <Icon className={`w-3 h-3 transition-colors duration-300 ${isActive ? 'text-foreground-tertiary' : 'text-foreground-muted'}`} />}
                           </div>
-                          {i < extractionPhases.length - 1 && <div className={`w-2 h-0.5 mx-0.5 transition-colors duration-500 ${isDone ? 'bg-zinc-400' : 'bg-zinc-200'}`} />}
+                          {i < extractionPhases.length - 1 && <div className={`w-2 h-0.5 mx-0.5 transition-colors duration-500 ${isDone ? 'bg-cream' : 'bg-stone-subtle'}`} />}
                         </div>
                       );
                     })}
                   </div>
                 </div>
-                <div className="w-24 h-1.5 bg-cream rounded-full overflow-hidden flex-shrink-0">
-                  <div className="h-full bg-foreground-muted rounded-full transition-all duration-700 ease-out" style={{ width: `${extractionState.progress}%` }} />
-                </div>
+                <Progress value={extractionState.progress} size="sm" width={96} tone="muted" label="Extraction en cours" className="flex-shrink-0" />
               </div>
             </div>
           );
@@ -10335,17 +10319,17 @@ export default function App() {
         // Reusable subtotal/total card component
         // rows: [{ label, amount, muted?, negative? }], totalRow: { label, amount }
         const renderTotalCard = (rows, totalRow) => (
-          <div className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+          <div className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: dsShadows.xs }}>
             {rows.map((row, i) => (
-              <div key={i} className={`flex items-center justify-between h-9 px-4 bg-white ${i > 0 ? 'border-t border-border' : ''}`}>
-                <span style={{ fontSize: 13, fontWeight: 400, color: row.muted ? '#a8a29e' : '#78716c' }}>{row.label}</span>
-                <span style={{ fontSize: 14, fontWeight: row.muted ? 400 : 500, color: row.muted ? '#a8a29e' : '#292524' }}>
+              <div key={i} className={`flex items-center justify-between h-9 px-4 bg-surface ${i > 0 ? 'border-t border-border' : ''}`}>
+                <span style={{ fontSize: 13, fontWeight: 400, color: row.muted ? dsColors.semantic.foregroundMuted : dsColors.semantic.mutedForeground }}>{row.label}</span>
+                <span style={{ fontSize: 14, fontWeight: row.muted ? 400 : 500, color: row.muted ? dsColors.semantic.foregroundMuted : dsColors.semantic.foreground }}>
                   {row.muted && row.amount === 0 ? '—' : `${row.negative ? '- ' : ''}${fmt(row.amount)}`}
                 </span>
               </div>
             ))}
-            <div className="flex items-center justify-between h-11 px-4 border-t border-border" style={{ backgroundColor: '#eeece6' }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{totalRow.label}</span>
+            <div className="flex items-center justify-between h-11 px-4 border-t border-border" style={{ backgroundColor: dsColors.semantic.muted }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{totalRow.label}</span>
               <span style={serifAmountStyle} className="text-foreground">{fmt(totalRow.amount)}</span>
             </div>
           </div>
@@ -10365,30 +10349,30 @@ export default function App() {
                 { label: 'TP', amount: totalTiers, muted: totalTiers === 0 },
               ].map((item, i) => (
                 <div key={i} className="h-8 px-2.5 flex items-center gap-1.5 border border-border rounded-lg whitespace-nowrap cursor-default">
-                  <span style={{ fontSize: 11, fontWeight: 400, color: item.muted ? '#a8a29e' : '#78716c', letterSpacing: 0.1, lineHeight: '16px' }}>{item.label}</span>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: item.muted ? '#a8a29e' : '#292524', lineHeight: '18px' }}>
+                  <span style={{ fontSize: 11, fontWeight: 400, color: item.muted ? dsColors.semantic.foregroundMuted : dsColors.semantic.mutedForeground, letterSpacing: 0.1, lineHeight: '16px' }}>{item.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: item.muted ? dsColors.semantic.foregroundMuted : dsColors.semantic.foreground, lineHeight: '18px' }}>
                     {item.muted && item.amount === 0 ? '—' : `${item.negative ? '− ' : ''}${fmt(item.amount)}`}
                   </span>
                 </div>
               ))}
               {/* Total pill - cream bg, prominent */}
-              <div className="h-8 px-2.5 flex items-center gap-1.5 border border-border rounded-lg whitespace-nowrap cursor-default" style={{ backgroundColor: '#eeece6' }}>
-                <span style={{ fontSize: 11, fontWeight: 500, color: '#292524', letterSpacing: 0.1, lineHeight: '16px' }}>Indemnisation totale</span>
-                <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{fmt(totalIndem)}</span>
+              <div className="h-8 px-2.5 flex items-center gap-1.5 border border-border rounded-lg whitespace-nowrap cursor-default" style={{ backgroundColor: dsColors.semantic.muted }}>
+                <span style={{ fontSize: 11, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: 0.1, lineHeight: '16px' }}>Indemnisation totale</span>
+                <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{fmt(totalIndem)}</span>
               </div>
               <div className="flex-1" />
               {dossierStatut !== 'fermé' && (
                 <>
                   <button
-                    className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg whitespace-nowrap hover:bg-stone-50 transition-colors"
-                    style={{ fontSize: 14, fontWeight: 500, color: '#44403c' }}
+                    className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg whitespace-nowrap hover:bg-background transition-colors"
+                    style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}
                   >
                     <Download className="w-3.5 h-3.5 text-foreground-secondary" />
                     Exporter
                   </button>
                   <button
                     className="h-9 px-3 flex items-center gap-2 rounded-lg whitespace-nowrap hover:opacity-90 transition-opacity"
-                    style={{ fontSize: 14, fontWeight: 500, color: 'white', backgroundColor: '#292524' }}
+                    style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}
                     onClick={() => setPosteSearchOpen(true)}
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -10408,17 +10392,17 @@ export default function App() {
                     <div className="flex items-center gap-3">
                       {vdAvatar(32)}
                       <div className="flex flex-col gap-1.5">
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', lineHeight: '1' }}>Victime directe</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>{victimeData.prenom} {victimeData.nom}</span>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', lineHeight: '1' }}>Victime directe</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{victimeData.prenom} {victimeData.nom}</span>
                       </div>
                     </div>
-                    <span style={{ ...serifAmountStyle, color: '#292524' }}>{fmt(allPostes.reduce((s, p) => s + (p.victimeAmount || 0), 0))}</span>
+                    <span style={{ ...serifAmountStyle, color: dsColors.semantic.foreground }}>{fmt(allPostes.reduce((s, p) => s + (p.victimeAmount || 0), 0))}</span>
                   </div>
                   <div className="space-y-4">
                     {vdCategories.map((cat) => (
-                      <div key={cat.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                      <div key={cat.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: dsShadows.xs }}>
                         {/* RowCalculation Header/Direct - category label + column headers */}
-                        <div className="h-10 px-4 flex items-center border-b border-border" style={{ backgroundColor: '#f8f7f5' }}>
+                        <div className="h-10 px-4 flex items-center border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                           <div className="flex-1">
                             <span style={colHeaderStyle}>{cat.title}</span>
                           </div>
@@ -10439,30 +10423,30 @@ export default function App() {
                               key={p.id}
                               data-entity-id={p.id}
                               onClick={() => navigateTo(p)}
-                              className={`w-full flex items-center h-14 bg-white hover:bg-background transition-colors group ${!isLast ? 'border-b border-border' : ''}`}
+                              className={`w-full flex items-center h-14 bg-surface hover:bg-background transition-colors group ${!isLast ? 'border-b border-border' : ''}`}
                             >
                               {/* Acronym cell */}
                               <div className="w-16 px-4 flex items-center">
-                                <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>{p.title}</span>
+                                <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, lineHeight: '16px' }}>{p.title}</span>
                               </div>
                               {/* Text cell */}
                               <div className="flex-1 px-3 flex items-center min-w-0">
-                                <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{p.fullTitle}</span>
+                                <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{p.fullTitle}</span>
                               </div>
                               {/* Tiers payeurs */}
                               {hasTP && (
                                 <div className="w-[140px] max-w-[140px] px-3 flex items-center justify-end">
                                   {p.tpAmount > 0 && (
-                                    <span style={{ fontSize: 13, fontWeight: 500, color: '#a8a29e', lineHeight: '20px' }}>{fmt(p.tpAmount)}</span>
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foregroundMuted, lineHeight: '20px' }}>{fmt(p.tpAmount)}</span>
                                   )}
                                 </div>
                               )}
                               {/* Indemnité victime */}
                               <div className="w-[176px] max-w-[176px] px-3 flex items-center justify-end">
                                 {p.victimeAmount > 0 ? (
-                                  <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>{fmt(p.victimeAmount)}</span>
+                                  <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{fmt(p.victimeAmount)}</span>
                                 ) : p.montant > 0 && p.tpAmount >= p.montant ? (
-                                  <span style={{ fontSize: 13, fontWeight: 500, color: '#a8a29e', lineHeight: '20px' }}>0 €</span>
+                                  <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foregroundMuted, lineHeight: '20px' }}>0 €</span>
                                 ) : null}
                               </div>
                               {/* Actions cell */}
@@ -10483,14 +10467,14 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between px-1.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#eeece6' }}>
+                      <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center" style={{ backgroundColor: dsColors.semantic.muted }}>
                         <svg className="w-4 h-4 text-foreground-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                         </svg>
                       </div>
-                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', lineHeight: '1' }}>Victime indirectes</span>
+                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', lineHeight: '1' }}>Victime indirectes</span>
                       {victimesIndirectes.length > 0 && (
-                        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full border border-border" style={{ fontSize: 12, fontWeight: 500, color: '#292524' }}>
+                        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full border border-border" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foreground }}>
                           {victimesIndirectes.length}
                         </span>
                       )}
@@ -10498,24 +10482,24 @@ export default function App() {
                     <div className="flex items-center gap-3">
                       {/* View mode toggle */}
                       {victimesIndirectes.length > 0 && ivDossierPostes.length > 0 && (
-                        <div className="flex items-center gap-0 h-8 rounded-lg p-1" style={{ backgroundColor: '#eeece6' }}>
+                        <div className="flex items-center gap-0 h-8 rounded-lg p-1" style={{ backgroundColor: dsColors.semantic.muted }}>
                           <button
                             onClick={() => setIvViewMode('poste')}
-                            className={`h-full px-2 min-w-[56px] flex items-center justify-center rounded-md transition-all ${ivViewMode === 'poste' ? 'bg-white shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent' : ''}`}
-                            style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: ivViewMode === 'poste' ? '#292524' : '#78716c', textTransform: 'uppercase', whiteSpace: 'nowrap' }}
+                            className={`h-full px-2 min-w-[56px] flex items-center justify-center rounded-md transition-all ${ivViewMode === 'poste' ? 'bg-surface shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent' : ''}`}
+                            style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: ivViewMode === 'poste' ? dsColors.semantic.foreground : dsColors.semantic.mutedForeground, textTransform: 'uppercase', whiteSpace: 'nowrap' }}
                           >
                             Par poste
                           </button>
                           <button
                             onClick={() => setIvViewMode('victime')}
-                            className={`h-full px-2 min-w-[56px] flex items-center justify-center rounded-md transition-all ${ivViewMode === 'victime' ? 'bg-white shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent' : ''}`}
-                            style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: ivViewMode === 'victime' ? '#292524' : '#78716c', textTransform: 'uppercase', whiteSpace: 'nowrap' }}
+                            className={`h-full px-2 min-w-[56px] flex items-center justify-center rounded-md transition-all ${ivViewMode === 'victime' ? 'bg-surface shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent' : ''}`}
+                            style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: ivViewMode === 'victime' ? dsColors.semantic.foreground : dsColors.semantic.mutedForeground, textTransform: 'uppercase', whiteSpace: 'nowrap' }}
                           >
                             Par victime
                           </button>
                         </div>
                       )}
-                      <span style={{ ...serifAmountStyle, color: totalIvChiffrage > 0 ? '#292524' : '#a8a29e' }}>{totalIvChiffrage > 0 ? fmt(totalIvChiffrage) : '—'}</span>
+                      <span style={{ ...serifAmountStyle, color: totalIvChiffrage > 0 ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{totalIvChiffrage > 0 ? fmt(totalIvChiffrage) : '—'}</span>
                     </div>
                   </div>
 
@@ -10525,9 +10509,9 @@ export default function App() {
                       {ivViewMode === 'poste' && (
                         <div className="space-y-4">
                           {ivCategories.map(cat => (
-                            <div key={cat.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                            <div key={cat.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: dsShadows.xs }}>
                               {/* RowCalculation Header/Direct - category label + column headers */}
-                              <div className="h-10 px-4 flex items-center border-b border-border" style={{ backgroundColor: '#f8f7f5' }}>
+                              <div className="h-10 px-4 flex items-center border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                                 <span style={colHeaderStyle}>{cat.title}</span>
                               </div>
                               {cat.postes.map((p, pIdx) => {
@@ -10537,7 +10521,7 @@ export default function App() {
                                   <div key={p.id}>
                                     <div
                                       data-entity-id={p.id}
-                                      className={`w-full flex items-center h-14 bg-white hover:bg-background transition-colors group ${!isLast && !isExpanded ? 'border-b border-border' : ''}`}
+                                      className={`w-full flex items-center h-14 bg-surface hover:bg-background transition-colors group ${!isLast && !isExpanded ? 'border-b border-border' : ''}`}
                                     >
                                       {/* Chevron cell */}
                                       <button
@@ -10552,16 +10536,16 @@ export default function App() {
                                       >
                                         {/* Acronym cell */}
                                         <div className="w-16 flex items-center">
-                                          <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>{p.title}</span>
+                                          <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, lineHeight: '16px' }}>{p.title}</span>
                                         </div>
                                         {/* Text cell */}
                                         <div className="flex-1 px-3 flex items-center min-w-0">
-                                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{p.fullTitle}</span>
+                                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{p.fullTitle}</span>
                                         </div>
                                         {/* Amount cell */}
                                         <div className="w-[176px] max-w-[176px] px-3 flex items-center justify-end">
                                           {p.montant > 0 && (
-                                            <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>{fmt(p.montant)}</span>
+                                            <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{fmt(p.montant)}</span>
                                           )}
                                         </div>
                                       </button>
@@ -10580,7 +10564,7 @@ export default function App() {
                                             <button
                                               key={vi.id}
                                               onClick={() => navigateTo({ ...p, type: 'poste-iv' })}
-                                              className={`w-full flex items-center h-14 hover:bg-background-subtle/80 transition-colors ${!isLastVi ? 'border-b border-border' : ''}`}
+                                              className={`w-full flex items-center h-14 hover:bg-background-subtle transition-colors ${!isLastVi ? 'border-b border-border' : ''}`}
                                             >
                                               {/* Indent spacers to match RowCalculation Subline */}
                                               <div className="w-[42px] flex-shrink-0" />
@@ -10588,12 +10572,12 @@ export default function App() {
                                               {/* CellIV: avatar + name + lien */}
                                               <div className="flex-1 flex items-center gap-3 px-3 min-w-0">
                                                 {viAvatar(vi, 28)}
-                                                <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
-                                                <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: '#78716c', letterSpacing: '0.12px' }}>({vi.lien})</span>
+                                                <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{vi.prenom} {vi.nom}</span>
+                                                <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground, letterSpacing: '0.12px' }}>({vi.lien})</span>
                                               </div>
                                               <div className="w-[176px] max-w-[176px] px-3 flex items-center justify-end">
                                                 {viMontant > 0 && (
-                                                  <span style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{fmt(viMontant)}</span>
+                                                  <span style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{fmt(viMontant)}</span>
                                                 )}
                                               </div>
                                               <div className="w-11 flex items-center justify-center flex-shrink-0">
@@ -10618,13 +10602,13 @@ export default function App() {
                           {victimesIndirectes.map(vi => {
                             const viTotal = getIvVictimeTotal(vi.id);
                             return (
-                              <div key={vi.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
-                                <div className="px-4 py-3 flex items-center justify-between border-b border-border" style={{ backgroundColor: '#f8f7f5' }}>
+                              <div key={vi.id} className="border border-border rounded-xl overflow-hidden" style={{ boxShadow: dsShadows.xs }}>
+                                <div className="px-4 py-3 flex items-center justify-between border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                                   <div className="flex items-center gap-3">
                                     {viAvatar(vi, 32)}
                                     <div className="flex items-center gap-3">
-                                      <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>{vi.prenom} {vi.nom}</span>
-                                      <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px' }}>{vi.lien} {vi.dateNaissance ? `\u2022 ${calcAge(vi.dateNaissance)} ans` : ''}</span>
+                                      <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{vi.prenom} {vi.nom}</span>
+                                      <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground, lineHeight: '16px', letterSpacing: '0.12px' }}>{vi.lien} {vi.dateNaissance ? `\u2022 ${calcAge(vi.dateNaissance)} ans` : ''}</span>
                                     </div>
                                   </div>
                                   <span style={serifAmountStyle} className="text-foreground">{fmt(viTotal)}</span>
@@ -10639,20 +10623,20 @@ export default function App() {
                                     <button
                                       key={pid}
                                       onClick={() => navigateTo({ id: pid, type: 'poste-iv', title: taxo.acronym || pid.toUpperCase(), fullTitle: taxo.label })}
-                                      className={`w-full flex items-center h-14 bg-white hover:bg-background transition-colors group ${!isLast ? 'border-b border-border' : ''}`}
+                                      className={`w-full flex items-center h-14 bg-surface hover:bg-background transition-colors group ${!isLast ? 'border-b border-border' : ''}`}
                                     >
                                       {/* Acronym cell */}
                                       <div className="w-16 pl-4 flex items-center">
-                                        <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c', lineHeight: '16px' }}>{taxo.acronym || pid.toUpperCase()}</span>
+                                        <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, lineHeight: '16px' }}>{taxo.acronym || pid.toUpperCase()}</span>
                                       </div>
                                       {/* Text cell */}
                                       <div className="flex-1 px-3 flex items-center min-w-0">
-                                        <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524', lineHeight: '20px' }}>{taxo.label}</span>
+                                        <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{taxo.label}</span>
                                       </div>
                                       {/* Amount cell */}
                                       <div className="w-[176px] max-w-[176px] px-3 flex items-center justify-end">
                                         {montant > 0 && (
-                                          <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' }}>{fmt(montant)}</span>
+                                          <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '20px' }}>{fmt(montant)}</span>
                                         )}
                                       </div>
                                       {/* Actions cell */}
@@ -10681,36 +10665,36 @@ export default function App() {
             {/* Global total - the final answer */}
             {(totalVd > 0 || totalIv > 0) && (
               <div className="border-t-2 border-border-strong pt-6">
-                <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#292524', boxShadow: '0px 2px 8px 0px rgba(26,26,26,0.12)' }}>
+                <div className="rounded-xl overflow-hidden" style={{ backgroundColor: dsColors.semantic.primary, boxShadow: dsShadows['md'] }}>
                   {/* Breakdown rows */}
                   <div className="px-5 pt-4 pb-2 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Victime directe</span>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{fmt(totalVd)}</span>
+                      <span style={{ fontSize: 13, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>Victime directe</span>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.borderStrong }}>{fmt(totalVd)}</span>
                     </div>
                     {totalIv > 0 && (
                       <div className="flex items-center justify-between">
-                        <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Victimes indirectes</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{fmt(totalIv)}</span>
+                        <span style={{ fontSize: 13, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>Victimes indirectes</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.borderStrong }}>{fmt(totalIv)}</span>
                       </div>
                     )}
                     {totalTiers > 0 && (
                       <div className="flex items-center justify-between">
-                        <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Tiers payeurs</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{fmt(totalTiers)}</span>
+                        <span style={{ fontSize: 13, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>Tiers payeurs</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.borderStrong }}>{fmt(totalTiers)}</span>
                       </div>
                     )}
                     {tauxRatio < 1 && (
                       <div className="flex items-center justify-between mt-1">
-                        <span style={{ fontSize: 13, fontWeight: 400, color: '#a8a29e' }}>Responsabilité appliquée</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#cbc7c4' }}>{tauxFinal} %</span>
+                        <span style={{ fontSize: 13, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>Responsabilité appliquée</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.borderStrong }}>{tauxFinal} %</span>
                       </div>
                     )}
                   </div>
                   {/* Total row */}
                   <div className="flex items-center justify-between px-5 py-4 border-t border-foreground-tertiary">
-                    <span style={{ fontSize: 14, fontWeight: 500, color: '#fafaf9', letterSpacing: '0.01em' }}>Indemnisation totale</span>
-                    <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 22, letterSpacing: '-0.5px', fontWeight: 400, color: '#fafaf9' }}>{fmt(totalIndem)}</span>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.banner.neutral.bgFrom, letterSpacing: '0.01em' }}>Indemnisation totale</span>
+                    <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 22, letterSpacing: '-0.5px', fontWeight: 400, color: dsColors.banner.neutral.bgFrom }}>{fmt(totalIndem)}</span>
                   </div>
                 </div>
               </div>
@@ -10720,36 +10704,36 @@ export default function App() {
             {posteSearchOpen && (
               <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]" onClick={() => { setPosteSearchOpen(false); setPosteSearchVictimeFilter(null); }}>
                 <div className="absolute inset-0 bg-black/30" />
-                <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="relative w-full max-w-lg bg-surface rounded-xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
                   {/* Section tabs: VD / VI */}
-                  <div className="flex items-center gap-1 px-4 pt-3 pb-2 border-b border-stone-100">
+                  <div className="flex items-center gap-1 px-4 pt-3 pb-2 border-b border-background-subtle">
                     <button
                       onClick={() => setPosteSearchVictimeFilter(null)}
-                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === null ? 'bg-foreground text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === null ? 'bg-foreground text-primary-foreground' : 'bg-background-subtle text-foreground-quaternary hover:bg-stone-subtle'}`}
                     >
                       Victime directe
                     </button>
                     <button
                       onClick={() => setPosteSearchVictimeFilter('iv')}
-                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === 'iv' ? 'bg-foreground text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                      className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === 'iv' ? 'bg-foreground text-primary-foreground' : 'bg-background-subtle text-foreground-quaternary hover:bg-stone-subtle'}`}
                     >
                       Victimes indirectes
                     </button>
                   </div>
                   {/* Search input */}
-                  <div className="flex items-center gap-3 px-4 py-3 border-b border-stone-100">
-                    <Search className="w-4 h-4 text-stone-400 flex-shrink-0" strokeWidth={1.5} />
+                  <div className="flex items-center gap-3 px-4 py-3 border-b border-background-subtle">
+                    <Search className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
                     <input
                       type="text"
                       value={posteSearchQuery}
                       onChange={(e) => setPosteSearchQuery(e.target.value)}
                       placeholder="Rechercher un poste de préjudice..."
-                      className="flex-1 text-body text-stone-700 placeholder:text-stone-400 outline-none bg-transparent"
+                      className="flex-1 text-body text-foreground-tertiary placeholder:text-foreground-muted outline-none bg-transparent"
                       autoFocus
                     />
                     {posteSearchQuery && (
-                      <button onClick={() => setPosteSearchQuery('')} className="p-0.5 hover:bg-stone-100 rounded">
-                        <X className="w-3.5 h-3.5 text-stone-400" />
+                      <button onClick={() => setPosteSearchQuery('')} className="p-0.5 hover:bg-background-subtle rounded">
+                        <X className="w-3.5 h-3.5 text-foreground-muted" />
                       </button>
                     )}
                   </div>
@@ -10767,7 +10751,7 @@ export default function App() {
                         : taxoPostesForSection;
                       const alreadyEnabledVd = dossierPostes;
                       const alreadyEnabledIv = ivDossierPostes;
-                      if (filtered.length === 0) return <p className="px-4 py-6 text-center text-body text-stone-400">Aucun poste trouvé</p>;
+                      if (filtered.length === 0) return <p className="px-4 py-6 text-center text-body text-foreground-muted">Aucun poste trouvé</p>;
                       let lastCat = '';
                       return filtered.map(p => {
                         const isEnabled = isIvFilter ? alreadyEnabledIv.includes(p.id) : alreadyEnabledVd.includes(p.id);
@@ -10806,15 +10790,15 @@ export default function App() {
                                   fireCanvasPrompt(`Calculons ensemble les ${acronym} pour ce dossier`);
                                 }
                               }}
-                              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-stone-50 transition-colors text-left"
+                              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-background transition-colors text-left"
                             >
                               {p.acronym && (
-                                <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-counter font-semibold bg-stone-100 text-stone-600 rounded min-w-[36px] text-center">
+                                <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-counter font-semibold bg-background-subtle text-foreground-quaternary rounded min-w-[36px] text-center">
                                   {p.acronym}
                                 </span>
                               )}
-                              <span className="flex-1 text-body text-stone-700">{p.label}</span>
-                              {isEnabled && <span className="text-counter text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded-full">Actif</span>}
+                              <span className="flex-1 text-body text-foreground-tertiary">{p.label}</span>
+                              {isEnabled && <span className="text-counter text-success bg-emerald-subtle px-1.5 py-0.5 rounded-full">Actif</span>}
                             </button>
                           </div>
                         );
@@ -10829,7 +10813,7 @@ export default function App() {
             {showChiffrageParams && (
               <div className="fixed top-0 left-0 bottom-0 z-50 flex justify-end" style={{ right: 'var(--chat-offset, 0px)' }}>
                 <div className="absolute inset-0 bg-black/30" onClick={() => setShowChiffrageParams(false)} />
-                <div className="relative w-full max-w-md bg-white shadow-xl flex flex-col">
+                <div className="relative w-full max-w-md bg-surface shadow-xl flex flex-col">
                   <div className="flex items-center justify-between px-5 py-3 border-b">
                     <h2 className="text-body-medium font-semibold">Paramètres du chiffrage</h2>
                     <button onClick={() => setShowChiffrageParams(false)} className="p-1 hover:bg-background-canvas rounded"><X className="w-4 h-4" /></button>
@@ -10856,16 +10840,16 @@ export default function App() {
                           <div key={idx} className="flex items-center gap-2">
                             <label className="text-caption text-foreground-secondary w-12">Nom *</label>
                             <input type="text" value={tiers} onChange={(e) => { const newTiers = [...chiffrageParams.tiersPayeurs]; newTiers[idx] = e.target.value; setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="flex-1 px-3 py-2 border rounded-lg text-body" />
-                            <button onClick={() => { const newTiers = chiffrageParams.tiersPayeurs.filter((_, i) => i !== idx); setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="p-2 text-foreground-muted hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                            <button onClick={() => { const newTiers = chiffrageParams.tiersPayeurs.filter((_, i) => i !== idx); setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="p-2 text-foreground-muted hover:text-danger"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         ))}
-                        <button onClick={() => setChiffrageParams(prev => ({ ...prev, tiersPayeurs: [...prev.tiersPayeurs, ''] }))} className="text-body text-blue-600 hover:text-link font-medium">+ Ajouter un tiers payeur</button>
+                        <button onClick={() => setChiffrageParams(prev => ({ ...prev, tiersPayeurs: [...prev.tiersPayeurs, ''] }))} className="text-body text-chart-3 hover:text-link font-medium">+ Ajouter un tiers payeur</button>
                       </div>
                     </div>
                   </div>
                   <div className="px-5 py-3 border-t flex justify-end gap-2">
                     <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body text-foreground-secondary hover:bg-background-canvas rounded-lg">Fermer</button>
-                    <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Enregistrer</button>
+                    <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body-medium text-white bg-chart-3 hover:bg-chart-4 rounded-lg">Enregistrer</button>
                   </div>
                 </div>
               </div>
@@ -10960,7 +10944,7 @@ export default function App() {
         // When empty, skip the header entirely - let the EmptyState own the screen.
         if (decisions.length === 0) {
           return (
-            <div className="flex-1 overflow-y-auto" style={{ backgroundColor: '#F8F7F5' }}>
+            <div className="flex-1 overflow-y-auto" style={{ backgroundColor: dsColors.semantic.background }}>
               <div className="flex items-center justify-center" style={{ minHeight: '100%', padding: '64px 16px' }}>
                 <EmptyState
                   icon={Landmark}
@@ -10973,16 +10957,15 @@ export default function App() {
           );
         }
         return (
-          <div className="flex-1 overflow-y-auto" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="flex-1 overflow-y-auto" style={{ backgroundColor: dsColors.semantic.background }}>
             {/* Header band (Figma 36770:53805) - flush, side-to-side, on the cream canvas */}
             <div
               className="border-b border-border flex items-center gap-3"
               style={{ padding: '13px 16px' }}
             >
               <h2 className="flex-1 min-w-0" style={{
-                fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif",
-                fontSize: 20, fontWeight: 500, color: '#292524',
-                letterSpacing: '-0.01em', lineHeight: '24px', margin: 0,
+                ...typeStyle('display-sm'),
+                color: dsColors.semantic.foreground, margin: 0,
               }}>
                 Jurisprudence retenues
               </h2>
@@ -10991,9 +10974,9 @@ export default function App() {
                 className="inline-flex items-center justify-center transition-all hover:opacity-90 flex-shrink-0"
                 style={{
                   height: 32, padding: '0 12px', borderRadius: 6,
-                  backgroundColor: '#292524', color: 'white',
+                  backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
                   border: 'none',
-                  boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+                  boxShadow: dsShadows.xs,
                   fontFamily: "'Inter', system-ui, sans-serif",
                   fontSize: 14, fontWeight: 500, lineHeight: '20px',
                 }}
@@ -11059,7 +11042,7 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
 
@@ -11078,15 +11061,15 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'revaloriser' && (
-              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
-                  <select className="text-xs font-medium text-foreground bg-white border border-border rounded-lg px-2.5 py-1.5">
+                  <select className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
@@ -11111,7 +11094,7 @@ export default function App() {
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleUploadFiles(e.dataTransfer.files, 'dsa'); }}
-              className="flex items-center gap-4 p-4 border-b border-border bg-white"
+              className="flex items-center gap-4 p-4 border-b border-border bg-surface"
             >
               <div className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 h-9 border border-dashed rounded-lg transition-colors ${isDragging ? 'border-foreground-muted bg-background-subtle' : 'border-border-strong'}`}>
                 {isDragging ? (
@@ -11134,18 +11117,16 @@ export default function App() {
 
             {/* Extraction progress row */}
             {posteExtracting && posteExtracting.posteType === 'dsa' && (
-              <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: 'linear-gradient(to right, #f8f7f5, white 15%)' }}>
+              <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: `linear-gradient(to right, ${dsColors.semantic.background}, white 15%)` }}>
                 <div className="flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 text-foreground animate-spin" />
+                  <Spinner size="md" color={dsColors.semantic.foreground} />
                   <div className="flex items-baseline gap-2">
                     <span className="text-body-medium text-foreground">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
                     <span className="text-caption text-foreground-secondary">Extraction en cours…</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-[70px] h-1 bg-cream rounded-full overflow-hidden">
-                    <div className="h-full bg-foreground rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
-                  </div>
+                  <Progress value={(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100} size="sm" width={70} label="Extraction des documents du poste" />
                   <span className="text-counter text-foreground-secondary">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
                 </div>
               </div>
@@ -11154,12 +11135,12 @@ export default function App() {
             {/* Header table */}
             {allLignes.length > 0 && (
               <>
-                <div className="flex items-center h-10 border-b border-border bg-white">
+                <div className="flex items-center h-10 border-b border-border bg-surface">
                   <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                   <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                   <div className="flex-1 min-w-0 px-3 text-right" style={colHeaderStyle}>Date</div>
                   <div className="w-[254px] px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant</div>
-                  <div className="flex-1 min-w-0 px-2 text-right" style={{ ...colHeaderStyle, ...(dsaHasTPImputations ? { color: '#a8a29e' } : {}) }} title={dsaHasTPImputations ? 'Neutralisé par créance récapitulative' : undefined}>Reste à charge</div>
+                  <div className="flex-1 min-w-0 px-2 text-right" style={{ ...colHeaderStyle, ...(dsaHasTPImputations ? { color: dsColors.semantic.foregroundMuted } : {}) }} title={dsaHasTPImputations ? 'Neutralisé par créance récapitulative' : undefined}>Reste à charge</div>
                 </div>
 
                 {/* Lignes */}
@@ -11170,7 +11151,7 @@ export default function App() {
                     <div
                       key={l.id}
                       onClick={() => openDsaEditPanel(l)}
-                      className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
+                      className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors"
                     >
                       {/* Doc indicator */}
                       <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
@@ -11180,12 +11161,12 @@ export default function App() {
                               <FileText className="w-4 h-4 text-info" />
                               <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>
                             </span>
-                            <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+                            <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-surface border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
                               <div className="text-counter text-foreground-secondary uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''} lié{pieceCount > 1 ? 's' : ''}</div>
                               <div className="space-y-1">
                                 {l.pieceIds?.map(pid => {
                                   const piece = getPiece(pid);
-                                  return <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-foreground">{piece?.intitule || piece?.nom || 'Document'}</span></div>;
+                                  return <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-foreground">{piece?.intitule || piece?.nom || 'Document'}</span></div>;
                                 })}
                               </div>
                             </div>
@@ -11199,20 +11180,20 @@ export default function App() {
 
                       {/* Libellé */}
                       <div className="flex-1 min-w-0 px-3">
-                        <span className="text-body-medium truncate block" style={{ color: '#292524' }}>{l.label || 'Sans libellé'}</span>
+                        <span className="text-body-medium truncate block" style={{ color: dsColors.semantic.foreground }}>{l.label || 'Sans libellé'}</span>
                       </div>
 
                       {/* Date */}
                       <div className="flex-1 min-w-0 px-3 text-right">
-                        <span className="text-body" style={{ color: '#78716c' }}>{l.date || '—'}</span>
+                        <span className="text-body" style={{ color: dsColors.semantic.mutedForeground }}>{l.date || '—'}</span>
                       </div>
 
                       {/* Montant */}
                       <div className="w-[254px] px-3 text-right flex-shrink-0">
                         {l.montant != null ? (
-                          <span className="text-body" style={{ color: '#44403c' }}>{fmt(l.montant)}</span>
+                          <span className="text-body" style={{ color: dsColors.semantic.foregroundTertiary }}>{fmt(l.montant)}</span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#f9ecd6] rounded-md text-caption-medium text-[#855b31]">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-piece-factures-bg rounded-md text-caption-medium text-warning-text">
                             <AlertCircle className="w-3 h-3" /> Compléter
                           </span>
                         )}
@@ -11220,9 +11201,9 @@ export default function App() {
 
                       <div className="flex-1 min-w-0 px-2 text-right">
                         {l.montant != null ? (
-                          <span className="text-body-medium" style={{ color: dsaHasTPImputations ? '#a8a29e' : '#292524' }}>{fmt((l.montant || 0) - (l.dejaRembourse || 0))}</span>
+                          <span className="text-body-medium" style={{ color: dsaHasTPImputations ? dsColors.semantic.foregroundMuted : dsColors.semantic.foreground }}>{fmt((l.montant || 0) - (l.dejaRembourse || 0))}</span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#f9ecd6] rounded-md text-caption-medium text-[#855b31]">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-piece-factures-bg rounded-md text-caption-medium text-warning-text">
                             <AlertCircle className="w-3 h-3" /> Compléter
                           </span>
                         )}
@@ -11240,14 +11221,14 @@ export default function App() {
                 <div className="flex items-center h-10">
                   <div className="w-[52px] flex-shrink-0 pl-3" />
                   <div className="flex-1 min-w-0 px-3">
-                    <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total dépenses</span>
+                    <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>Total dépenses</span>
                   </div>
                   <div className="flex-1 min-w-0 px-3" />
                   <div className="w-[254px] px-3 text-right flex-shrink-0">
-                    <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>{fmt(totalMontant)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>{fmt(totalMontant)}</span>
                   </div>
                   <div className="flex-1 min-w-0 px-2 text-right">
-                    {!dsaHasTPImputations && <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>{fmt(totalResteACharge)}</span>}
+                    {!dsaHasTPImputations && <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>{fmt(totalResteACharge)}</span>}
                   </div>
                 </div>
               </div>
@@ -11286,7 +11267,7 @@ export default function App() {
           </div>{/* end CALCUL section */}
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -11310,9 +11291,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -11350,7 +11331,7 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
 
@@ -11369,15 +11350,15 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'revaloriser-pgpa' && (
-              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
-                  <select className="text-xs font-medium text-foreground bg-white border border-border rounded-lg px-2.5 py-1.5">
+                  <select className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                     <option>SMIC Horaire</option>
@@ -11401,7 +11382,7 @@ export default function App() {
             {isIvCardExpanded('pgpa-revenu-ref') && <>
             {/* Column headers */}
             {allRevenuRefLignes.length > 0 && (
-              <div className="flex items-center h-10 border-b border-border bg-white">
+              <div className="flex items-center h-10 border-b border-border bg-surface">
                 <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                 <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                 <div className="w-[160px] px-3 flex-shrink-0" style={colHeaderStyle}>Période</div>
@@ -11413,7 +11394,7 @@ export default function App() {
               const pieceCount = l.pieceIds?.length || 0;
               return (
                 <div key={l.id} onClick={() => { setEditingPieceIds(l.pieceIds || []); setSearchPiecesPanel(''); setEditPanel({ type: 'pgpa-revenu', title: 'Éditer le revenu', data: l }); }}
-                  className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
+                  className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors"
                   >
                   <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                     {pieceCount > 0 ? (
@@ -11442,15 +11423,15 @@ export default function App() {
               <div className="flex items-center h-10 border-t border-border bg-background">
                 <div className="w-[52px] flex-shrink-0 pl-3" />
                 <div className="flex-1 min-w-0 px-3">
-                  <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total</span>
+                  <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>Total</span>
                 </div>
                 <div className="w-[160px] flex-shrink-0 px-3" />
                 <div className="w-[200px] px-3 text-right flex-shrink-0">
-                  <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>{fmt(Math.round(revenuRefMensuel))}<span style={{ fontSize: 11, color: '#a8a29e', marginLeft: 4 }}>/ mois</span></span>
+                  <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>{fmt(Math.round(revenuRefMensuel))}<span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, marginLeft: 4 }}>/ mois</span></span>
                 </div>
               </div>
             )}
-            <div className="flex items-center justify-center h-[44px] border-t border-border bg-white">
+            <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
               <button onClick={() => handleAddManual('pgpa-revenu-ref')} className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une ligne
               </button>
@@ -11492,7 +11473,7 @@ export default function App() {
               return (
                 <>
                   {mergedRevenusPercus.length > 0 && (
-                    <div className="flex items-center h-10 border-b border-border bg-white">
+                    <div className="flex items-center h-10 border-b border-border bg-surface">
                       <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                       <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                       {hasBadges && <div className="w-[120px] px-3 flex-shrink-0" style={colHeaderStyle}>Tiers payeur</div>}
@@ -11505,7 +11486,7 @@ export default function App() {
                     const badge = pgpaBadges[l.id];
                     return (
                       <div key={l.id} onClick={() => { if (!l._isIJ) { setEditingPieceIds(l.pieceIds || []); setSearchPiecesPanel(''); setEditPanel({ type: 'pgpa-revenu-percu', title: 'Éditer le revenu perçu', data: l }); } }}
-                        className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                        className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                         <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                           {pieceCount > 0 ? (
                             <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
@@ -11522,7 +11503,7 @@ export default function App() {
                         {hasBadges && (
                           <div className="w-[120px] px-3 flex-shrink-0">
                             {badge && (
-                              <span className="inline-flex items-center h-[18px] px-1.5 rounded-sm" style={{ backgroundColor: '#eeece6', fontSize: 10, fontWeight: 500, color: '#44403c', fontFamily: "'IBM Plex Mono', monospace" }}>
+                              <span className="inline-flex items-center h-[18px] px-1.5 rounded-sm" style={{ backgroundColor: dsColors.semantic.muted, fontSize: 10, fontWeight: 500, color: dsColors.semantic.foregroundTertiary, fontFamily: "'IBM Plex Mono', monospace" }}>
                                 {badge.badgeLabel}
                               </span>
                             )}
@@ -11541,19 +11522,19 @@ export default function App() {
                     <div className="flex items-center h-10 border-t border-border bg-background">
                       <div className="w-[52px] flex-shrink-0 pl-3" />
                       <div className="flex-1 min-w-0 px-3">
-                        <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total</span>
+                        <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>Total</span>
                       </div>
                       {hasBadges && <div className="w-[120px] flex-shrink-0 px-3" />}
                       <div className="w-[160px] flex-shrink-0 px-3" />
                       <div className="w-[200px] px-3 text-right flex-shrink-0">
-                        <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>{fmt(hasBadges ? mergedTotal : revenusPercusTotal)}</span>
+                        <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>{fmt(hasBadges ? mergedTotal : revenusPercusTotal)}</span>
                       </div>
                     </div>
                   )}
                 </>
               );
             })()}
-            <div className="flex items-center justify-center h-[44px] border-t border-border bg-white">
+            <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
               <button onClick={() => handleAddManual('pgpa-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une ligne
               </button>
@@ -11574,7 +11555,7 @@ export default function App() {
             </div>
             {isIvCardExpanded('pgpa-perte-chance') && <>
             {/* Column headers */}
-            <div className="flex items-center h-10 border-b border-border bg-white">
+            <div className="flex items-center h-10 border-b border-border bg-surface">
               <div className="w-12 flex-shrink-0"></div>
               <div className="w-[52px] text-center flex-shrink-0" style={colHeaderStyle}>Doc</div>
               <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
@@ -11583,7 +11564,7 @@ export default function App() {
               <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant proraté</div>
             </div>
             {/* Add row */}
-            <div className="flex items-center justify-center h-[45px] bg-white">
+            <div className="flex items-center justify-center h-[45px] bg-surface">
               <button className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une perte de chance
               </button>
@@ -11598,7 +11579,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -11622,9 +11603,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -11651,7 +11632,7 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
 
@@ -11670,11 +11651,11 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'capitaliser-pgpf' && (
-              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3 flex-wrap">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                   <div className="w-px h-4 bg-border-strong" />
                   {renderBaremePopoverSelect({
@@ -11687,13 +11668,13 @@ export default function App() {
                   })}
                   <div className="w-px h-4 bg-border-strong" />
                   <span className="text-sm font-medium text-foreground-secondary">Fin arrérage</span>
-                  <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                  <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
                   <div className="w-px h-4 bg-border-strong" />
                   <span className="text-sm font-medium text-foreground-secondary">Départ retraite</span>
-                  <input type="text" defaultValue="XX ans" className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5 w-[70px]" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }} />
+                  <input type="text" defaultValue="XX ans" className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5 w-[70px]" style={{ boxShadow: dsShadows.xs }} />
                 </div>
               </div>
             )}
@@ -11712,7 +11693,7 @@ export default function App() {
                     <Calculator className="w-3.5 h-3.5 text-foreground-secondary" />
                   </div>
                   <span className="text-[14px] font-medium text-foreground">Revenu de référence</span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-info-bg text-link border border-[#aabcd5]">⊕ Sync. PGPA</span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-info-bg text-link border border-info-border">⊕ Sync. PGPA</span>
                 </div>
                 <span className="text-[14px] font-medium text-foreground tabular-nums">{fmt(Math.round(periodeCL.revenuRef.total / 12))}<span className="text-[12px] text-foreground-secondary font-normal ml-1">/ mois</span></span>
               </div>
@@ -11735,7 +11716,7 @@ export default function App() {
               {isIvCardExpanded('pgpf-revenus-percus') && <>
               {/* Column headers */}
               {periodeCL.revenusPercus.length > 0 && (
-                <div className="flex items-center h-10 border-b border-border bg-white">
+                <div className="flex items-center h-10 border-b border-border bg-surface">
                   <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                   <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                   <div className="w-[160px] px-3 flex-shrink-0" style={colHeaderStyle}>Période</div>
@@ -11746,7 +11727,7 @@ export default function App() {
               {periodeCL.revenusPercus.map(l => {
                 const pieceCount = l.pieceIds?.length || 0;
                 return (
-                  <div key={l.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                  <div key={l.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                     <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                       {pieceCount > 0 ? (
                         <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative">
@@ -11774,15 +11755,15 @@ export default function App() {
                 <div className="flex items-center h-10 border-t border-border bg-background">
                   <div className="w-[52px] flex-shrink-0 pl-3" />
                   <div className="flex-1 min-w-0 px-3">
-                    <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total</span>
+                    <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>Total</span>
                   </div>
                   <div className="w-[160px] flex-shrink-0 px-3" />
                   <div className="w-[200px] px-3 text-right flex-shrink-0">
-                    <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>{fmt(periodeCL.revenusPercus.reduce((s, l) => s + l.montant, 0))}</span>
+                    <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>{fmt(periodeCL.revenusPercus.reduce((s, l) => s + l.montant, 0))}</span>
                   </div>
                 </div>
               )}
-              <div className="flex items-center justify-center h-[44px] border-t border-border bg-white">
+              <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
                 <button onClick={() => handleAddManual('pgpf-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
                   <Plus className="w-4 h-4" /> Ajouter une ligne
                 </button>
@@ -11805,14 +11786,14 @@ export default function App() {
                 </div>
               </div>
               {isIvCardExpanded('pgpf-perte-chance') && <>
-              <div className="flex items-center h-10 border-b border-border bg-white">
+              <div className="flex items-center h-10 border-b border-border bg-surface">
                 <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                 <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Libellé</div>
                 <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant espéré</div>
                 <div className="w-24 px-3 text-center flex-shrink-0" style={colHeaderStyle}>Coefficient</div>
                 <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant proraté</div>
               </div>
-              <div className="flex items-center justify-center h-[45px] bg-white">
+              <div className="flex items-center justify-center h-[45px] bg-surface">
                 <button className="flex items-center gap-2 text-body-medium text-link">
                   <Plus className="w-4 h-4" /> Ajouter une perte de chance
                 </button>
@@ -11872,8 +11853,8 @@ export default function App() {
             const tpAEchoir = (tpScenario._imputations || []).filter(i => i.posteId === 'pgpf').reduce((s, i) => s + (i.montantImputeAEchoir || 0), 0);
             const victimeAEchoir = Math.max(0, grossAEchoir - tpAEchoir);
             return victimeAEchoir === 0 && tpAEchoir > 0 ? (
-              <div className="px-3 py-2 rounded-md" style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
-                <span style={{ fontSize: 12, color: '#92400e', lineHeight: '18px' }}>
+              <div className="px-3 py-2 rounded-md" style={{ backgroundColor: dsColors.banner.warning.bgFrom, border: `1px solid ${dsColors.banner.warning.border}` }}>
+                <span style={{ fontSize: 12, color: dsColors.brand.darker.subtleForeground, lineHeight: '18px' }}>
                   La rente CPAM absorbe l'intégralité du préjudice à échoir.
                   {tpScenario.cascade?.etapes?.filter(e => e.posteId !== 'pgpf').map(e => (
                     <span key={e.posteId}> Reliquat cascadé vers {e.label} : {fmt(e.absorbe)}</span>
@@ -11891,8 +11872,8 @@ export default function App() {
             const isCapitalise = enabledParams['capitaliser-pgpf'];
             return renderTotalBlock('pgpfAl', victimeAEchoir, { label: 'PGPF à échoir', content: !isCapitalise ? (
               <div className="mt-2 flex justify-between items-center">
-                <span style={{ fontSize: 12, color: '#78716c' }}>Versement</span>
-                <span style={{ fontSize: 12, color: '#78716c' }}>En rente, sans capitalisation</span>
+                <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>Versement</span>
+                <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>En rente, sans capitalisation</span>
               </div>
             ) : null });
           })()}
@@ -11914,7 +11895,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -11938,9 +11919,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -11963,7 +11944,7 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
 
@@ -11982,12 +11963,12 @@ export default function App() {
               })}
             </div>
             {activeParamChip === 'base-journaliere-dft' && (
-              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+              <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <input
                   type="number"
                   defaultValue={chiffrageParams.baseJournaliereDFT || 33}
-                  className="text-sm text-foreground text-right bg-white border border-border rounded-lg px-3 py-1.5 w-[69px]"
-                  style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}
+                  className="text-sm text-foreground text-right bg-surface border border-border rounded-lg px-3 py-1.5 w-[69px]"
+                  style={{ boxShadow: dsShadows.xs }}
                   onChange={(e) => setChiffrageParams(prev => ({ ...prev, baseJournaliereDFT: parseFloat(e.target.value) || 0 }))}
                 />
               </div>
@@ -12010,7 +11991,7 @@ export default function App() {
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleUploadFiles(e.dataTransfer.files, 'dft'); }}
-                className="flex items-center gap-4 p-4 border-b border-border bg-white"
+                className="flex items-center gap-4 p-4 border-b border-border bg-surface"
               >
                 <div className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 h-9 border border-dashed rounded-lg transition-colors ${isDragging ? 'border-foreground-muted bg-background-subtle' : 'border-border-strong'}`}>
                   {isDragging ? (
@@ -12033,18 +12014,16 @@ export default function App() {
 
               {/* Extraction progress row */}
               {posteExtracting && posteExtracting.posteType === 'dft' && (
-                <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: 'linear-gradient(to right, #f8f7f5, white 15%)' }}>
+                <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: `linear-gradient(to right, ${dsColors.semantic.background}, white 15%)` }}>
                   <div className="flex items-center gap-3">
-                    <Loader2 className="w-5 h-5 text-foreground animate-spin" />
+                    <Spinner size="md" color={dsColors.semantic.foreground} />
                     <div className="flex items-baseline gap-2">
                       <span className="text-body-medium text-foreground">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
                       <span className="text-caption text-foreground-secondary">Extraction en cours…</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <div className="w-[70px] h-1 bg-cream rounded-full overflow-hidden">
-                      <div className="h-full bg-foreground rounded-full transition-all duration-500" style={{ width: `${(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100}%` }} />
-                    </div>
+                    <Progress value={(posteExtracting.extractedCount / posteExtracting.totalDocs) * 100} size="sm" width={70} label="Extraction des documents du poste" />
                     <span className="text-counter text-foreground-secondary">{posteExtracting.extractedCount}/{posteExtracting.totalDocs}</span>
                   </div>
                 </div>
@@ -12052,7 +12031,7 @@ export default function App() {
 
               {/* Column headers */}
               {dftLignes.length > 0 && (
-                <div className="flex items-center h-10 border-b border-border bg-white">
+                <div className="flex items-center h-10 border-b border-border bg-surface">
                   <div className="w-[52px] text-center flex-shrink-0 pl-3" style={colHeaderStyle}>Doc</div>
                   <div className="flex-1 min-w-0 px-3" style={colHeaderStyle}>Période & jours</div>
                   <div className="w-20 px-3 text-center flex-shrink-0" style={colHeaderStyle}>Taux</div>
@@ -12065,7 +12044,7 @@ export default function App() {
                 const pieceCount = l.pieceIds?.length || 0;
                 return (
                   <div key={l.id} onClick={() => { setEditingPieceIds(l.pieceIds || []); setSearchPiecesPanel(''); setEditPanel({ type: 'dft-ligne', title: 'Éditer la dépense', data: l }); }}
-                    className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
+                    className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors"
                     >
                     {/* Doc indicator */}
                     <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
@@ -12075,10 +12054,10 @@ export default function App() {
                             <FileText className="w-4 h-4 text-info" />
                             <span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-info text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">{pieceCount}</span>
                           </span>
-                          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-white border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
+                          <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-surface border border-border rounded-lg shadow-lg opacity-0 invisible group-hover/piece:opacity-100 group-hover/piece:visible transition-all z-50">
                             <div className="text-counter text-foreground-secondary uppercase tracking-wide mb-1.5">{pieceCount} document{pieceCount > 1 ? 's' : ''}</div>
                             <div className="space-y-1">
-                              {l.pieceIds?.map(pid => <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-blue-100 text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-foreground">Rapport d'expertise</span></div>)}
+                              {l.pieceIds?.map(pid => <div key={pid} className="flex items-center gap-2 text-caption"><span className="w-5 h-5 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(pid)}</span><span className="truncate text-foreground">Rapport d'expertise</span></div>)}
                             </div>
                           </div>
                         </div>
@@ -12097,7 +12076,7 @@ export default function App() {
 
                     {/* Taux */}
                     <div className="w-20 px-3 text-center flex-shrink-0">
-                      <span className={`text-caption-medium px-2 py-0.5 rounded-full ${l.taux === 100 ? 'bg-cream text-foreground-tertiary' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>{l.taux || 100}%</span>
+                      <span className={`text-caption-medium px-2 py-0.5 rounded-full ${l.taux === 100 ? 'bg-cream text-foreground-tertiary' : 'bg-warning-subtle text-brand-subtle-foreground border border-warning-border'}`}>{l.taux || 100}%</span>
                     </div>
 
                     {/* Montant */}
@@ -12105,7 +12084,7 @@ export default function App() {
                       {l.montant != null ? (
                         <span className="text-body-medium font-semibold tabular-nums text-foreground">{fmt(l.montant)}</span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#f9ecd6] rounded-md text-caption-medium text-[#855b31]">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-piece-factures-bg rounded-md text-caption-medium text-warning-text">
                           <AlertCircle className="w-3 h-3" /> Compléter
                         </span>
                       )}
@@ -12121,16 +12100,15 @@ export default function App() {
                   <div className="w-12 flex-shrink-0" />
                   <div className="w-[52px] flex-shrink-0" />
                   <div className="flex-1 min-w-0 px-3">
-                    <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>Total DFT</span>
+                    <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>Total DFT</span>
                   </div>
                   <div className="w-20 flex-shrink-0" />
                   <div className="w-[200px] px-3 text-right flex-shrink-0">
-                    <span style={{ fontSize: 12, fontWeight: 400, color: '#78716c' }}>{fmt(dftTotal)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>{fmt(dftTotal)}</span>
                   </div>
                 </div>
               )}
             </div>
-          )}
 
           {renderCreancesTPTable('dft')}
 
@@ -12141,7 +12119,7 @@ export default function App() {
           </div>{/* end CALCUL section */}
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -12165,9 +12143,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -12195,7 +12173,7 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Param chips card block */}
@@ -12212,15 +12190,15 @@ export default function App() {
                     })}
                   </div>
                   {activeParamChip === 'revaloriser-se' && (
-                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
-                        <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                        <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12250,8 +12228,8 @@ export default function App() {
                               onClick={() => setFormPosteData(prev => ({ ...prev, se: { ...prev.se, cotation: c } }))}
                               className={`flex-1 h-10 text-[14px] font-medium rounded-lg border transition-colors ${
                                 seData.cotation === c
-                                  ? 'bg-foreground text-white border-foreground'
-                                  : 'bg-white text-foreground border-border hover:bg-background'
+                                  ? 'bg-foreground text-primary-foreground border-foreground'
+                                  : 'bg-surface text-foreground border-border hover:bg-background'
                               }`}
                             >
                               {c}
@@ -12283,7 +12261,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -12307,9 +12285,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -12334,7 +12312,7 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Param chips card block */}
@@ -12351,15 +12329,15 @@ export default function App() {
                     })}
                   </div>
                   {activeParamChip === 'revaloriser-pep' && (
-                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
-                        <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                        <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12389,8 +12367,8 @@ export default function App() {
                               onClick={() => setFormPosteData(prev => ({ ...prev, pep: { ...prev.pep, cotation: c } }))}
                               className={`flex-1 h-10 text-[14px] font-medium rounded-lg border transition-colors ${
                                 pepData.cotation === c
-                                  ? 'bg-foreground text-white border-foreground'
-                                  : 'bg-white text-foreground border-border hover:bg-background'
+                                  ? 'bg-foreground text-primary-foreground border-foreground'
+                                  : 'bg-surface text-foreground border-border hover:bg-background'
                               }`}
                             >
                               {c}
@@ -12422,7 +12400,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -12446,9 +12424,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -12473,7 +12451,7 @@ export default function App() {
       return (
         <div>
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Param chips card block */}
@@ -12490,15 +12468,15 @@ export default function App() {
                     })}
                   </div>
                   {activeParamChip === 'revaloriser-dfp' && (
-                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+                    <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
-                        <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                        <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12527,7 +12505,7 @@ export default function App() {
                           type="number"
                           value={dfpData.age}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, age: parseInt(e.target.value) || 0 } }))}
-                          className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                          className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                           placeholder="Âge"
                         />
                         <div className="mt-2 space-y-1.5">
@@ -12549,7 +12527,7 @@ export default function App() {
                             type="number"
                             value={dfpData.taux}
                             onChange={(e) => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, taux: parseFloat(e.target.value) || 0 } }))}
-                            className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                            className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                             placeholder="Taux"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-foreground-secondary">%</span>
@@ -12590,7 +12568,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -12614,9 +12592,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -12641,7 +12619,7 @@ export default function App() {
 
       return (
         <div>
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
 
@@ -12651,8 +12629,8 @@ export default function App() {
             </div>
             <div className="px-5 py-4">
               <div className="flex items-center justify-between">
-                <span style={{ fontSize: 13, color: '#57534e' }}>Montant retenu</span>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontFamily: "'IBM Plex Mono', monospace" }}>{fmt(ippMontant)}</span>
+                <span style={{ fontSize: 13, color: dsColors.semantic.foregroundQuaternary }}>Montant retenu</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, fontFamily: "'IBM Plex Mono', monospace" }}>{fmt(ippMontant)}</span>
               </div>
             </div>
           </div>
@@ -12676,7 +12654,7 @@ export default function App() {
 
       return (
         <div>
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
 
@@ -12701,20 +12679,20 @@ export default function App() {
                 {fdaLignes.map((l) => (
                   <div key={l.id} className="flex items-center border-b border-background-subtle hover:bg-background">
                     <div className="w-[40px] shrink-0 px-3 py-2.5 text-center">
-                      <span style={{ fontSize: 10, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace" }}>{l.pieceIds?.length || 0}</span>
+                      <span style={{ fontSize: 10, color: dsColors.semantic.foregroundMuted, fontFamily: "'IBM Plex Mono', monospace" }}>{l.pieceIds?.length || 0}</span>
                     </div>
                     <div className="flex-1 min-w-0 px-3 py-2.5">
-                      <div style={{ fontSize: 13, color: '#292524', fontWeight: 400 }}>{l.label}</div>
-                      {l.description && <div style={{ fontSize: 11, color: '#a8a29e', marginTop: 1 }}>{l.description}</div>}
+                      <div style={{ fontSize: 13, color: dsColors.semantic.foreground, fontWeight: 400 }}>{l.label}</div>
+                      {l.description && <div style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, marginTop: 1 }}>{l.description}</div>}
                     </div>
                     <div className="w-[100px] shrink-0 px-3 py-2.5">
-                      <span style={{ fontSize: 11, color: '#78716c' }}>{l.type}</span>
+                      <span style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>{l.type}</span>
                     </div>
                     <div className="w-[100px] shrink-0 px-3 py-2.5 text-right">
-                      <span style={{ fontSize: 12, color: '#292524', fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(l.montant)}</span>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.foreground, fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(l.montant)}</span>
                     </div>
                     <div className="w-[100px] shrink-0 px-3 py-2.5 text-right">
-                      <span style={{ fontSize: 12, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(l.dejaRembourse || 0)}</span>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(l.dejaRembourse || 0)}</span>
                     </div>
                   </div>
                 ))}
@@ -12722,14 +12700,14 @@ export default function App() {
                 <div className="flex items-center bg-background border-t border-border">
                   <div className="w-[40px] shrink-0" />
                   <div className="flex-1 min-w-0 px-3 py-2.5">
-                    <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>Total frais divers</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>Total frais divers</span>
                   </div>
                   <div className="w-[100px] shrink-0" />
                   <div className="w-[100px] shrink-0 px-3 py-2.5 text-right">
-                    <span style={{ fontSize: 12, fontWeight: 500, color: '#292524', fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(fdaTotalMontant)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foreground, fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(fdaTotalMontant)}</span>
                   </div>
                   <div className="w-[100px] shrink-0 px-3 py-2.5 text-right">
-                    <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(fdaTotalRembourse)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(fdaTotalRembourse)}</span>
                   </div>
                 </div>
               </div>
@@ -12755,7 +12733,7 @@ export default function App() {
 
       return (
         <div>
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
 
@@ -12780,22 +12758,22 @@ export default function App() {
                 {dsfLignes.map((l) => (
                   <div key={l.id} className="flex items-center border-b border-background-subtle hover:bg-background">
                     <div className="w-[40px] shrink-0 px-3 py-2.5 text-center">
-                      <span style={{ fontSize: 10, color: '#a8a29e', fontFamily: "'IBM Plex Mono', monospace" }}>{l.pieceIds?.length || 0}</span>
+                      <span style={{ fontSize: 10, color: dsColors.semantic.foregroundMuted, fontFamily: "'IBM Plex Mono', monospace" }}>{l.pieceIds?.length || 0}</span>
                     </div>
                     <div className="flex-1 min-w-0 px-3 py-2.5">
-                      <div style={{ fontSize: 13, color: '#292524', fontWeight: 400 }}>{l.label}</div>
-                      {l.description && <div style={{ fontSize: 11, color: '#a8a29e', marginTop: 1 }}>{l.description}</div>}
+                      <div style={{ fontSize: 13, color: dsColors.semantic.foreground, fontWeight: 400 }}>{l.label}</div>
+                      {l.description && <div style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, marginTop: 1 }}>{l.description}</div>}
                     </div>
                     <div className="w-[100px] shrink-0 px-3 py-2.5">
-                      <span style={{ fontSize: 11, color: '#78716c' }}>{l.periodicite || '—'}</span>
+                      <span style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>{l.periodicite || '—'}</span>
                     </div>
                     <div className="w-[100px] shrink-0 px-3 py-2.5 text-right">
-                      <span style={{ fontSize: 12, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, fontFamily: "'IBM Plex Mono', monospace" }}>
                         {l.montantAnnuel ? fmtTP(l.montantAnnuel) : l.montantBiennal ? fmtTP(l.montantBiennal) : fmtTP(l.montant || 0)}
                       </span>
                     </div>
                     <div className="w-[100px] shrink-0 px-3 py-2.5 text-right">
-                      <span style={{ fontSize: 12, color: '#292524', fontFamily: "'IBM Plex Mono', monospace" }}>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.foreground, fontFamily: "'IBM Plex Mono', monospace" }}>
                         {l.capitalise ? fmtTP(l.montantCapitalise) : fmtTP(l.montant || 0)}
                       </span>
                     </div>
@@ -12805,12 +12783,12 @@ export default function App() {
                 <div className="flex items-center bg-background border-t border-border">
                   <div className="w-[40px] shrink-0" />
                   <div className="flex-1 min-w-0 px-3 py-2.5">
-                    <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>Total dépenses futures</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>Total dépenses futures</span>
                   </div>
                   <div className="w-[100px] shrink-0" />
                   <div className="w-[100px] shrink-0" />
                   <div className="w-[100px] shrink-0 px-3 py-2.5 text-right">
-                    <span style={{ fontSize: 12, fontWeight: 500, color: '#292524', fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(dsfTotalAmount)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foreground, fontFamily: "'IBM Plex Mono', monospace" }}>{fmtTP(dsfTotalAmount)}</span>
                   </div>
                 </div>
               </div>
@@ -12861,7 +12839,7 @@ export default function App() {
       return (
         <div>
           {/* Per-victim / expense table */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
 
               {/* ===== TYPE A: one row per VI ===== */}
@@ -12891,7 +12869,7 @@ export default function App() {
                       </button>
                     </div>
                     {activeParamChip === baremeParamKey && (
-                      <div className="px-4 py-2.5 border-t border-border" style={{ backgroundColor: '#F8F7F5' }}>
+                      <div className="px-4 py-2.5 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                         <div className="flex items-center gap-3">
                           <div className="flex gap-1 items-baseline flex-shrink-0">
                             <span className="text-sm font-medium text-foreground-secondary">Barême</span>
@@ -12916,7 +12894,7 @@ export default function App() {
 
                   <div className={cardBlockClass}>
                     {/* Column headers - RowPostIV Header */}
-                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                       <div className={hasIntitule ? 'w-[240px] px-3' : 'flex-1 px-3'}>
                         <span style={colHeaderStyle}>Nom victime indirecte</span>
                       </div>
@@ -12938,7 +12916,7 @@ export default function App() {
                       return (
                         <div
                           key={vi.id}
-                          className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
+                          className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors"
                           onClick={() => setEditPanel({
                             type: 'iv-ligne-a',
                             title: `${vi.prenom} ${vi.nom} - ${ivTaxo?.label || ivPosteId}`,
@@ -12948,19 +12926,19 @@ export default function App() {
                           {/* CellIV: avatar + name + (lien) */}
                           <div className={`${hasIntitule ? 'w-[240px]' : 'flex-1'} px-3 flex items-center gap-3 min-w-0`}>
                             {viAvatar(vi, 28)}
-                            <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
-                            <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: '#78716c', letterSpacing: '0.12px' }}>({vi.lien})</span>
+                            <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{vi.prenom} {vi.nom}</span>
+                            <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground, letterSpacing: '0.12px' }}>({vi.lien})</span>
                           </div>
                           {hasIntitule && (
                             <div className="flex-1 px-3 min-w-0">
-                              <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: ligne?.intitule ? '#44403c' : '#a8a29e' }}>{ligne?.intitule || '—'}</span>
+                              <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: ligne?.intitule ? dsColors.semantic.foregroundTertiary : dsColors.semantic.foregroundMuted }}>{ligne?.intitule || '—'}</span>
                             </div>
                           )}
                           <div className="w-[160px] px-3 flex items-center justify-end">
                             {montant > 0 ? (
-                              <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(montant)}</span>
+                              <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(montant)}</span>
                             ) : (
-                              <span style={{ fontSize: 14, fontWeight: 400, color: '#a8a29e' }}>—</span>
+                              <span style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>-</span>
                             )}
                           </div>
                           <div className="w-11 flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -12992,7 +12970,7 @@ export default function App() {
                 return (
                   <div className={cardBlockClass}>
                     {/* Column headers - RowPostIV Header */}
-                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                       <div className="w-[52px] px-3"><span style={colHeaderStyle}></span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Nom victime indirecte</span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Libellé</span></div>
@@ -13006,7 +12984,7 @@ export default function App() {
                       return (
                       <div
                         key={row.ligne.id || idx}
-                        className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
+                        className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors"
                         onClick={() => setEditPanel({
                           type: 'iv-ligne-b',
                           title: `${row.vi.prenom} ${row.vi.nom} - Dépense`,
@@ -13029,21 +13007,21 @@ export default function App() {
                         {/* CellIV: avatar + name + (lien) */}
                         <div className="flex-1 px-3 flex items-center gap-3 min-w-0">
                           {viAvatar(row.vi, 28)}
-                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{row.vi.prenom} {row.vi.nom}</span>
-                          <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: '#78716c', letterSpacing: '0.12px' }}>({row.vi.lien})</span>
+                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{row.vi.prenom} {row.vi.nom}</span>
+                          <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: dsColors.semantic.mutedForeground, letterSpacing: '0.12px' }}>({row.vi.lien})</span>
                         </div>
                         {/* Libellé */}
                         <div className="flex-1 px-3 min-w-0">
-                          <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: row.ligne.intitule ? '#44403c' : '#a8a29e' }}>
+                          <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: row.ligne.intitule ? dsColors.semantic.foregroundTertiary : dsColors.semantic.foregroundMuted }}>
                             {row.ligne.intitule || 'Sans intitulé'}
                           </span>
                         </div>
                         {/* Amount */}
                         <div className="w-[160px] px-3 flex items-center justify-end">
                           {row.ligne.montant > 0 ? (
-                            <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(row.ligne.montant)}</span>
+                            <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(row.ligne.montant)}</span>
                           ) : (
-                            <span style={{ fontSize: 14, fontWeight: 400, color: '#a8a29e' }}>—</span>
+                            <span style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foregroundMuted }}>-</span>
                           )}
                         </div>
                         {/* Actions */}
@@ -13094,7 +13072,7 @@ export default function App() {
                   <>
                     <div className={cardBlockClass}>
                       {/* Column headers */}
-                      <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                      <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                         <div className="w-[52px] pl-3"><span style={colHeaderStyle}>Pj</span></div>
                         <div className="w-[200px] px-3"><span style={colHeaderStyle}>Victime</span></div>
                         <div className="flex-1 px-3"><span style={colHeaderStyle}>Dépense</span></div>
@@ -13107,7 +13085,7 @@ export default function App() {
                         return (
                         <div
                           key={`${row.vi.id}-${row.ligne.id}`}
-                          className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors"
+                          className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors"
                           onClick={() => openExpensePanel(row.ligne)}
                         >
                           <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
@@ -13124,15 +13102,15 @@ export default function App() {
                           </div>
                           <div className="w-[200px] px-3 flex items-center gap-2 min-w-0">
                             {viAvatar(row.vi, 28)}
-                            <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{row.vi.prenom} {row.vi.nom}</span>
+                            <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{row.vi.prenom} {row.vi.nom}</span>
                           </div>
                           <div className="flex-1 px-3 min-w-0">
-                            <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: row.ligne.label ? '#44403c' : '#a8a29e' }}>
+                            <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: row.ligne.label ? dsColors.semantic.foregroundTertiary : dsColors.semantic.foregroundMuted }}>
                               {row.ligne.label || 'Sans intitulé'}
                             </span>
                           </div>
                           <div className="w-[130px] px-3 text-right">
-                            <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(row.amount)}</span>
+                            <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(row.amount)}</span>
                           </div>
                         </div>
                         );
@@ -13238,13 +13216,13 @@ export default function App() {
                         {mensuel > 0 ? (
                           <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(mensuel))}<span className="text-[14px] text-foreground-secondary ml-1">/ mois</span></span>
                         ) : (
-                          <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                          <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                         )}
                         {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                       </div>
                     </div>
                     {isIvCardExpanded(`iv-${ivPosteId}-d-rev-${type}`) && (<>
-                      <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                      <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                         <div className="w-[52px] pl-3" />
                         <div className="flex-1 px-3"><span style={colHeaderStyle}>Source</span></div>
                         <div className="w-[110px] px-3"><span style={colHeaderStyle}>Période</span></div>
@@ -13252,7 +13230,7 @@ export default function App() {
                         <div className="w-[40px]" />
                       </div>
                       {lignes.map((ligne) => (
-                        <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group hover:bg-background transition-colors">
+                        <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group hover:bg-background transition-colors">
                           <div className="w-[52px] flex items-center justify-center flex-shrink-0 pl-3">
                             {ligne.pieceIds?.length > 0 ? (
                               <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md">
@@ -13264,12 +13242,12 @@ export default function App() {
                               </span>
                             )}
                           </div>
-                          <div className="flex-1 px-3"><span className="truncate block" style={{ fontSize: 14, color: ligne.source ? '#292524' : '#a8a29e' }}>{ligne.source || '—'}</span></div>
-                          <div className="w-[110px] px-3"><span style={{ fontSize: 14, color: ligne.periode ? '#292524' : '#a8a29e' }}>{ligne.periode || '—'}</span></div>
-                          <div className="w-[130px] px-3 text-right"><span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel || 0)}</span></div>
+                          <div className="flex-1 px-3"><span className="truncate block" style={{ fontSize: 14, color: ligne.source ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{ligne.source || '—'}</span></div>
+                          <div className="w-[110px] px-3"><span style={{ fontSize: 14, color: ligne.periode ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{ligne.periode || '—'}</span></div>
+                          <div className="w-[130px] px-3 text-right"><span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(ligne.netMensuel || 0)}</span></div>
                           <div className="w-[40px] flex items-center justify-center">
-                            <button onClick={() => deleteRevenuRow(type, ligne.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded transition-all">
-                              <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-red-500" />
+                            <button onClick={() => deleteRevenuRow(type, ligne.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded transition-all">
+                              <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-danger" />
                             </button>
                           </div>
                         </div>
@@ -13278,9 +13256,9 @@ export default function App() {
                         <div className="p-6 text-center"><span className="text-body text-foreground-muted">Aucun revenu renseigné</span></div>
                       )}
                       {lignes.length > 0 && (
-                        <div className="flex items-center justify-between h-10 px-4 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
-                          <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>Moyenne mensuelle</span>
-                          <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(mensuel)}</span>
+                        <div className="flex items-center justify-between h-10 px-4 border-t border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
+                          <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}>Moyenne mensuelle</span>
+                          <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(mensuel)}</span>
                         </div>
                       )}
                       <button onClick={() => addRevenuRow(type)} className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border">
@@ -13295,7 +13273,7 @@ export default function App() {
                     {/* Header - scenario selector + scenario badge */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c', letterSpacing: '0.02em' }}>Scénario</span>
+                        <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, letterSpacing: '0.02em' }}>Scénario</span>
                         <select
                           value={prpUseCase}
                           onChange={(e) => {
@@ -13323,7 +13301,7 @@ export default function App() {
                               }
                             }));
                           }}
-                          className="text-caption px-2.5 py-1.5 border border-border rounded-lg bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
+                          className="text-caption px-2.5 py-1.5 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
                         >
                           {Object.entries(PRP_SCENARIO_MASKS).map(([key, m]) => (
                             <option key={key} value={key}>{m.label}</option>
@@ -13345,7 +13323,7 @@ export default function App() {
                           {revenuTotal > 0 ? (
                             <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(revenuTotal))}<span className="text-[14px] text-foreground-secondary ml-1">/ an</span></span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                           )}
                           {isIvCardExpanded(`iv-${ivPosteId}-d-revenu`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                         </div>
@@ -13354,17 +13332,17 @@ export default function App() {
                         <div>
                           {/* Sub-block 1: Défunt */}
                           <div className="px-4 pt-3 pb-1 flex items-center justify-between">
-                            <span style={{ fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Défunt</span>
-                            <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(Math.round(revenuRefMoyen))} / mois</span>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Défunt</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(Math.round(revenuRefMoyen))} / mois</span>
                           </div>
                           {refLignes.map((ligne) => (
                             <div key={ligne.id} className="flex items-center h-10 px-4 border-b border-border last:border-b-0 group hover:bg-background">
                               <FileText className={`w-3.5 h-3.5 mr-2 ${ligne.pieceIds?.length > 0 ? 'text-info' : 'text-border-strong'}`} />
-                              <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? '#292524' : '#a8a29e' }}>{ligne.source || '—'}</span>
-                              <span className="w-[80px] text-right" style={{ fontSize: 13, color: '#78716c' }}>{ligne.periode || '—'}</span>
-                              <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel || 0)}</span>
-                              <button onClick={() => deleteRevenuRow('ref', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded">
-                                <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-red-500" />
+                              <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{ligne.source || '—'}</span>
+                              <span className="w-[80px] text-right" style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>{ligne.periode || '—'}</span>
+                              <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(ligne.netMensuel || 0)}</span>
+                              <button onClick={() => deleteRevenuRow('ref', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded">
+                                <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-danger" />
                               </button>
                             </div>
                           ))}
@@ -13375,17 +13353,17 @@ export default function App() {
                           {/* Sub-block 2: Conjoint (only when décédé) */}
                           {isDecede && (<>
                             <div className="px-4 pt-3 pb-1 flex items-center justify-between">
-                              <span style={{ fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Conjoint survivant</span>
-                              <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(Math.round(revenuConjointMensuel))} / mois</span>
+                              <span style={{ fontSize: 11, fontWeight: 600, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Conjoint survivant</span>
+                              <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(Math.round(revenuConjointMensuel))} / mois</span>
                             </div>
                             {conjLignes.map((ligne) => (
                               <div key={ligne.id} className="flex items-center h-10 px-4 border-b border-border last:border-b-0 group hover:bg-background">
                                 <FileText className={`w-3.5 h-3.5 mr-2 ${ligne.pieceIds?.length > 0 ? 'text-info' : 'text-border-strong'}`} />
-                                <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? '#292524' : '#a8a29e' }}>{ligne.source || '—'}</span>
-                                <span className="w-[80px] text-right" style={{ fontSize: 13, color: '#78716c' }}>{ligne.periode || '—'}</span>
-                                <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel || 0)}</span>
-                                <button onClick={() => deleteRevenuRow('conjoint', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded">
-                                  <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-red-500" />
+                                <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{ligne.source || '—'}</span>
+                                <span className="w-[80px] text-right" style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>{ligne.periode || '—'}</span>
+                                <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(ligne.netMensuel || 0)}</span>
+                                <button onClick={() => deleteRevenuRow('conjoint', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded">
+                                  <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-danger" />
                                 </button>
                               </div>
                             ))}
@@ -13410,7 +13388,7 @@ export default function App() {
                           {perteAnnuelle > 0 ? (
                             <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(perteAnnuelle))}<span className="text-[14px] text-foreground-secondary ml-1">/ an</span></span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                           )}
                           {isIvCardExpanded(`iv-${ivPosteId}-d-calcul`) ? <ChevronDown className="w-4 h-4 text-foreground-secondary" /> : <ChevronRight className="w-4 h-4 text-foreground-secondary" />}
                         </div>
@@ -13419,11 +13397,11 @@ export default function App() {
                         <div className="p-4 space-y-2">
                           {isDecede ? (<>
                             <div className="flex items-center justify-between">
-                              <span style={{ fontSize: 13, color: '#78716c' }}>Méthode auto-consommation</span>
+                              <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Méthode auto-consommation</span>
                               <select
                                 value={shared.autoConsommationMethod || 'libre'}
                                 onChange={(e) => updateShared({ autoConsommationMethod: e.target.value })}
-                                className="text-caption px-2 py-1 border border-border rounded-md bg-white text-foreground"
+                                className="text-caption px-2 py-1 border border-border rounded-md bg-surface text-foreground"
                               >
                                 {Object.entries(AUTO_CONSO_SCALES).map(([key, s]) => (
                                   <option key={key} value={key}>{s.label}</option>
@@ -13432,7 +13410,7 @@ export default function App() {
                             </div>
                             {(shared.autoConsommationMethod || 'libre') === 'libre' ? (
                               <div className="flex items-center justify-between">
-                                <span style={{ fontSize: 13, color: '#78716c' }}>% libre</span>
+                                <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>% libre</span>
                                 <input
                                   type="number"
                                   min="0"
@@ -13446,21 +13424,21 @@ export default function App() {
                               <div className="text-[11px] text-foreground-secondary italic">{AUTO_CONSO_SCALES[shared.autoConsommationMethod]?.description}</div>
                             )}
                             <div className="pt-2 mt-1 border-t border-border flex items-center justify-between">
-                              <span style={{ fontSize: 12, color: '#78716c', fontFamily: "'IBM Plex Mono', monospace" }}>{fmt(revenuAnnuelRef)} × (1 − {partAutoConso}%)</span>
-                              <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>{fmt(Math.round(perteAnnuelle))}</span>
+                              <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, fontFamily: "'IBM Plex Mono', monospace" }}>{fmt(revenuAnnuelRef)} × (1 − {partAutoConso}%)</span>
+                              <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>{fmt(Math.round(perteAnnuelle))}</span>
                             </div>
                             {autoConsoWarning && (
-                              <div className="flex items-start gap-2 px-3 py-2 mt-2 bg-amber-50 border border-amber-200 rounded-lg">
-                                <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                                <span style={{ fontSize: 12, color: '#92400e' }}>
+                              <div className="flex items-start gap-2 px-3 py-2 mt-2 bg-warning-subtle border border-warning-border rounded-lg">
+                                <AlertTriangle className="w-4 h-4 text-brand-darker-border flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                                <span style={{ fontSize: 12, color: dsColors.brand.darker.subtleForeground }}>
                                   Auto-consommation à {partAutoConso}% - hors fourchette jurisprudentielle [15-35%].
                                 </span>
                               </div>
                             )}
                           </>) : (
                             <div className="flex items-center justify-between">
-                              <span style={{ fontSize: 13, color: '#78716c' }}>Perte annuelle</span>
-                              <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(perteAnnuelle)}</span>
+                              <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Perte annuelle</span>
+                              <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(perteAnnuelle)}</span>
                             </div>
                           )}
                         </div>
@@ -13482,7 +13460,7 @@ export default function App() {
                         </div>
                       </div>
                       {isIvCardExpanded(`iv-${ivPosteId}-d-cascade`) && (<>
-                        <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                        <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                           <div className="flex-1 px-3"><span style={colHeaderStyle}>Bénéficiaire</span></div>
                           <div className="w-[60px] px-2 text-right"><span style={colHeaderStyle}>Part</span></div>
                           <div className="w-[100px] px-2 text-right"><span style={colHeaderStyle}>Perte/an</span></div>
@@ -13497,16 +13475,16 @@ export default function App() {
                           return (
                             <div key={vi.id}>
                               <div
-                                className="relative flex items-center h-[52px] border-b border-border bg-white group cursor-pointer hover:bg-background transition-colors"
+                                className="relative flex items-center h-[52px] border-b border-border bg-surface group cursor-pointer hover:bg-background transition-colors"
                                 onClick={() => setEditPanel({ type: 'iv-ligne-d', title: `${vi.prenom} ${vi.nom}`, data: { victimeId: vi.id, posteId: ivPosteId, partIndividuelle: ligne.partIndividuelle || 0, dureeIndemnisation: ligne.dureeIndemnisation || '', anneesEchues: ligne.anneesEchues || 0, mode: amounts.mode, coeffCapitalisation: amounts.coeff, perteAnnuelle } })}
                               >
                                 <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
                                   {viAvatar(vi, 24)}
-                                  <span className="truncate" style={{ fontSize: 13, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
-                                  <span style={{ fontSize: 11, color: '#a8a29e' }}>· {vi.lien}</span>
+                                  <span className="truncate" style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{vi.prenom} {vi.nom}</span>
+                                  <span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted }}>· {vi.lien}</span>
                                 </div>
-                                <div className="w-[60px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{ligne.partIndividuelle}%</span></div>
-                                <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: '#292524' }}>{fmt(Math.round(amounts.perteVI))}</span></div>
+                                <div className="w-[60px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{ligne.partIndividuelle}%</span></div>
+                                <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{fmt(Math.round(amounts.perteVI))}</span></div>
                                 <div className="w-[100px] px-2 text-right">
                                   <button
                                     onClick={(e) => { e.stopPropagation(); toggleCard(`iv-${ivPosteId}-d-tp-${vi.id}`); }}
@@ -13516,19 +13494,19 @@ export default function App() {
                                     <ChevronRight className={`w-3 h-3 transition-transform ${tpExpanded ? 'rotate-90' : ''}`} />
                                   </button>
                                 </div>
-                                {showEchu && <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: '#292524' }}>{fmt(Math.round(amounts.echu))}</span></div>}
+                                {showEchu && <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{fmt(Math.round(amounts.echu))}</span></div>}
                                 <div className="w-[80px] px-2">
                                   {amounts.mode === 'capitalisation' ? (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ backgroundColor: '#dcfce7', color: '#166534' }}>CAPITAL</span>
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ backgroundColor: dsColors.piece.revenus.bg, color: dsColors.piece.revenus.fg }}>CAPITAL</span>
                                   ) : (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>RENTE</span>
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ backgroundColor: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground }}>RENTE</span>
                                   )}
                                 </div>
                                 <div className="w-[120px] px-2 text-right">
                                   {amounts.mode === 'capitalisation' ? (
-                                    <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(Math.round(amounts.aEchoir))}</span>
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(Math.round(amounts.aEchoir))}</span>
                                   ) : (
-                                    <span style={{ fontSize: 12, color: '#92400e' }}>{fmt(Math.round(amounts.renteAnnuelle))}/an</span>
+                                    <span style={{ fontSize: 12, color: dsColors.brand.darker.subtleForeground }}>{fmt(Math.round(amounts.renteAnnuelle))}/an</span>
                                   )}
                                 </div>
                               </div>
@@ -13536,21 +13514,21 @@ export default function App() {
                               {tpExpanded && (
                                 <div className="border-b border-border bg-background">
                                   {tpDeductions.length === 0 ? (
-                                    <div className="px-12 py-2"><span style={{ fontSize: 12, color: '#a8a29e' }}>Aucune déduction TP</span></div>
+                                    <div className="px-12 py-2"><span style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>Aucune déduction TP</span></div>
                                   ) : tpDeductions.map((tp) => (
                                     <div
                                       key={tp.id}
                                       className="flex items-center h-9 pl-12 pr-3 hover:bg-background-subtle cursor-pointer group/tp"
                                       onClick={() => setEditPanel({ type: 'iv-ligne-d-tp', title: tp.label, data: { victimeId: vi.id, posteId: ivPosteId, ...tp } })}
                                     >
-                                      <span className="flex-1 truncate" style={{ fontSize: 12, color: '#44403c' }}>{tp.label}</span>
-                                      {tp.organisme && <span className="mx-2" style={{ fontSize: 11, color: '#78716c' }}>{tp.organisme}</span>}
-                                      <span className="w-[100px] text-right" style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>−{fmt(tp.montantAnnuel || 0)} / an</span>
+                                      <span className="flex-1 truncate" style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>{tp.label}</span>
+                                      {tp.organisme && <span className="mx-2" style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>{tp.organisme}</span>}
+                                      <span className="w-[100px] text-right" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>−{fmt(tp.montantAnnuel || 0)} / an</span>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); deleteTPDeduction(vi.id, tp.id); }}
-                                        className="ml-2 opacity-0 group-hover/tp:opacity-100 p-1 hover:bg-red-50 rounded"
+                                        className="ml-2 opacity-0 group-hover/tp:opacity-100 p-1 hover:bg-danger-subtle rounded"
                                       >
-                                        <Trash2 className="w-3 h-3 text-foreground-muted hover:text-red-500" />
+                                        <Trash2 className="w-3 h-3 text-foreground-muted hover:text-danger" />
                                       </button>
                                     </div>
                                   ))}
@@ -13563,19 +13541,19 @@ export default function App() {
                           );
                         })}
                         {/* Footer */}
-                        <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
-                          <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>Total</span></div>
-                          <div className="w-[60px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>{sumParts}%</span></div>
-                          <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>{fmt(Math.round(perteAnnuelle))}</span></div>
-                          <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>{totalTPAllVI > 0 ? '−' + fmt(Math.round(totalTPAllVI)) : '—'}</span></div>
-                          {showEchu && <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>{fmt(Math.round(totalEchu))}</span></div>}
+                        <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
+                          <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>Total</span></div>
+                          <div className="w-[60px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>{sumParts}%</span></div>
+                          <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>{fmt(Math.round(perteAnnuelle))}</span></div>
+                          <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>{totalTPAllVI > 0 ? '−' + fmt(Math.round(totalTPAllVI)) : '—'}</span></div>
+                          {showEchu && <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>{fmt(Math.round(totalEchu))}</span></div>}
                           <div className="w-[80px] px-2" />
-                          <div className="w-[120px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>{totalAEchoir > 0 ? fmt(Math.round(totalAEchoir)) : '—'}</span></div>
+                          <div className="w-[120px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>{totalAEchoir > 0 ? fmt(Math.round(totalAEchoir)) : '—'}</span></div>
                         </div>
                         {conjointMissingTP && (
-                          <div className="flex items-start gap-2 px-3 py-2 m-3 bg-amber-50 border border-amber-200 rounded-lg">
-                            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                            <span style={{ fontSize: 12, color: '#92400e' }}>
+                          <div className="flex items-start gap-2 px-3 py-2 m-3 bg-warning-subtle border border-warning-border rounded-lg">
+                            <AlertTriangle className="w-4 h-4 text-brand-darker-border flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                            <span style={{ fontSize: 12, color: dsColors.brand.darker.subtleForeground }}>
                               Pension de réversion non déclarée pour {conjointVI.prenom} {conjointVI.nom}.
                             </span>
                           </div>
@@ -13596,14 +13574,14 @@ export default function App() {
                           {hasMixedMode ? (
                             <div className="text-right">
                               {totalDistribue > 0 && <div style={serifAmountStyle} className="text-foreground">{fmt(Math.round(totalDistribue))}</div>}
-                              {totalRenteAnnuelle > 0 && <div style={{ fontSize: 12, color: '#92400e' }}>+ {fmt(Math.round(totalRenteAnnuelle))} / an</div>}
+                              {totalRenteAnnuelle > 0 && <div style={{ fontSize: 12, color: dsColors.brand.darker.subtleForeground }}>+ {fmt(Math.round(totalRenteAnnuelle))} / an</div>}
                             </div>
                           ) : totalDistribue > 0 ? (
                             <span style={serifAmountStyle} className="text-foreground">{fmt(Math.round(totalDistribue))}</span>
                           ) : totalRenteAnnuelle > 0 ? (
-                            <span style={serifAmountStyle} className="text-[#92400e]">{fmt(Math.round(totalRenteAnnuelle))} / an</span>
+                            <span style={serifAmountStyle} className="text-brand-darker-subtle-foreground">{fmt(Math.round(totalRenteAnnuelle))} / an</span>
                           ) : (
-                            <span style={serifAmountStyle} className="text-foreground-muted">—</span>
+                            <span style={serifAmountStyle} className="text-foreground-muted">-</span>
                           )}
                           <ChevronRight className={`w-4 h-4 text-foreground-secondary transition-transform ${isIvCardExpanded(`iv-${ivPosteId}-d-recap`) ? 'rotate-90' : ''}`} />
                         </div>
@@ -13615,25 +13593,25 @@ export default function App() {
                             <div key={vi.id} className="flex justify-between items-center">
                               <div className="flex items-center gap-2 min-w-0">
                                 {viAvatar(vi, 24)}
-                                <span style={{ fontSize: 14, color: '#78716c' }}>{vi.prenom} {vi.nom}</span>
+                                <span style={{ fontSize: 14, color: dsColors.semantic.mutedForeground }}>{vi.prenom} {vi.nom}</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 {amounts.mode === 'rente' ? (
-                                  <span style={{ fontSize: 12, color: '#92400e' }}>{fmt(Math.round(amounts.renteAnnuelle))}/an</span>
+                                  <span style={{ fontSize: 12, color: dsColors.brand.darker.subtleForeground }}>{fmt(Math.round(amounts.renteAnnuelle))}/an</span>
                                 ) : null}
-                                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(Math.round(amounts.total))}</span>
+                                <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(Math.round(amounts.total))}</span>
                               </div>
                             </div>
                           ))}
                           {hasMixedMode && (<>
                             <div className="border-t border-border-strong mt-3 pt-3 flex justify-between items-center">
-                              <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>Total capital</span>
-                              <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>{fmt(Math.round(totalDistribue))}</span>
+                              <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>Total capital</span>
+                              <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>{fmt(Math.round(totalDistribue))}</span>
                             </div>
                             {totalRenteAnnuelle > 0 && (
                               <div className="flex justify-between items-center">
-                                <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>+ Rentes annuelles</span>
-                                <span style={{ fontSize: 14, fontWeight: 600, color: '#92400e' }}>{fmt(Math.round(totalRenteAnnuelle))} / an</span>
+                                <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>+ Rentes annuelles</span>
+                                <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.brand.darker.subtleForeground }}>{fmt(Math.round(totalRenteAnnuelle))} / an</span>
                               </div>
                             )}
                           </>)}
@@ -13642,9 +13620,9 @@ export default function App() {
                     </div>
 
                     {partsWarning && (
-                      <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-                        <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" strokeWidth={1.5} />
-                        <span style={{ fontSize: 12, color: '#92400e' }}>
+                      <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-warning-subtle border border-warning-border rounded-lg">
+                        <AlertTriangle className="w-4 h-4 text-brand-darker-border flex-shrink-0" strokeWidth={1.5} />
+                        <span style={{ fontSize: 12, color: dsColors.brand.darker.subtleForeground }}>
                           Somme des parts : {sumParts}% (devrait être 100%)
                         </span>
                       </div>
@@ -13701,9 +13679,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -13730,7 +13708,7 @@ export default function App() {
         <div>
 
           {/* CALCUL Section */}
-          <div className="border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="p-4">
               <div className="space-y-4">
                 {/* Form Block */}
@@ -13743,7 +13721,7 @@ export default function App() {
                           type="number"
                           value={data.montant || ''}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, [posteId]: { ...(prev[posteId] || {}), montant: parseFloat(e.target.value) || 0 } }))}
-                          className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                          className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                           placeholder="Montant en €"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-foreground-secondary">€</span>
@@ -13756,7 +13734,7 @@ export default function App() {
                           type="number"
                           value={data.tiersPayeur || ''}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, [posteId]: { ...(prev[posteId] || {}), tiersPayeur: parseFloat(e.target.value) || 0 } }))}
-                          className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                          className="w-full h-10 px-3 pr-8 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                           placeholder="Montant en €"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-foreground-secondary">€</span>
@@ -13794,7 +13772,7 @@ export default function App() {
           </div>
 
           {/* JURISPRUDENCES Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background }}>
             <JPListingPosteDetail
               pinnedJP={jp.getPinnedForPoste(currentLevel.id)}
               selectedDecisionId={jp.jpState.drawerDecisionId}
@@ -13818,9 +13796,9 @@ export default function App() {
           </div>
 
           {/* NOTES / ARGUMENTAIRE Section */}
-          <div className="p-4 border-b border-border" style={{ backgroundColor: '#F8F7F5', display: 'none' }}>
+          <div className="p-4 border-b border-border" style={{ backgroundColor: dsColors.semantic.background, display: 'none' }}>
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
-            <div className="bg-white border border-border rounded-[4px] overflow-hidden">
+            <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
                 <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
@@ -13865,9 +13843,12 @@ export default function App() {
     }
     setDossiers(prev => prev.map(d => (d.id === dossier.id ? { ...d, lastActivity: new Date().toISOString() } : d)));
     setNavStack([{ id: dossier.id, type: 'dossier', title: dossier.reference, activeTab: 'dossier' }]);
-    // NB : le « force open » du §5 de la spec nav était motivé par le modèle B
-    // (la nav du dossier vivait dans la sidebar). Avec les vues en onglets, la
-    // préférence ouverte/masquée vaut pour la session, écran compris (§1).
+    // Entrée dans un dossier = on plonge dans le travail : la nav org se REPLIE
+    // automatiquement (le breadcrumb + le contrôle « Menu » suffisent, le peek
+    // reste sous la main). Cf. AppSidebar.md / NAV-BEHAVIOR.md §« Auto-collapse
+    // sur entrée dossier ». L'utilisateur peut la rouvrir (préférence de session
+    // ensuite) ; une nouvelle entrée dans un dossier la replie de nouveau.
+    setNavHidden(true);
     setCurrentPage('dossier');
   };
 
@@ -14005,7 +13986,7 @@ export default function App() {
 
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowExportModal(false)}>
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-heading-sm text-foreground">{titre}</h2>
             <button onClick={() => setShowExportModal(false)} className="p-1.5 hover:bg-cream rounded-lg transition-colors">
@@ -14015,14 +13996,14 @@ export default function App() {
           <div className="p-4 space-y-2">
             {options.map((opt, i) => (
               <div key={i} className="group relative flex items-start gap-4 p-4 rounded-xl hover:bg-background transition-colors cursor-default">
-                <div className="w-10 h-10 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 group-hover:bg-zinc-200 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 group-hover:bg-stone-subtle transition-colors">
                   <opt.icon className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-body-medium text-foreground">{opt.label}</p>
                   <p className="text-caption text-foreground-secondary mt-0.5 leading-relaxed">{opt.desc}</p>
                 </div>
-                <span className="absolute left-4 right-4 -bottom-1 translate-y-full p-2.5 bg-foreground text-white text-caption rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-30 pointer-events-none">
+                <span className="absolute left-4 right-4 -bottom-1 translate-y-full p-2.5 bg-foreground text-primary-foreground text-caption rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-30 pointer-events-none">
                   {opt.tooltip}
                 </span>
               </div>
@@ -14099,7 +14080,7 @@ export default function App() {
         {/* When read-only, show the licence state and route to billing on click. */}
         {cannotReopen && (
           <div
-            className="rounded-lg border border-border bg-white overflow-hidden mt-1"
+            className="rounded-lg border border-border bg-surface overflow-hidden mt-1"
             onClickCapture={() => setReopenConfirmOpen(false)}
           >
             <button
@@ -15348,9 +15329,9 @@ export default function App() {
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col items-center gap-4">
           {Array.from({ length: Math.min(piece.pages || 1, 6) }).map((_, i) => (
-            <div key={i} className="w-full max-w-[300px] bg-white rounded-lg border border-border shadow-sm p-5 flex flex-col gap-2" style={{ minHeight: 190 }}>
+            <div key={i} className="w-full max-w-[300px] bg-surface rounded-lg border border-border shadow-sm p-5 flex flex-col gap-2" style={{ minHeight: 190 }}>
               {Array.from({ length: 9 }).map((_, j) => (
-                <div key={j} className="h-[5px] rounded-full" style={{ width: `${45 + ((i * 7 + j * 13) % 50)}%`, background: j % 7 === 6 ? 'transparent' : '#f1f0ee' }} />
+                <div key={j} className="h-[5px] rounded-full" style={{ width: `${45 + ((i * 7 + j * 13) % 50)}%`, background: j % 7 === 6 ? 'transparent' : dsColors.semantic.backgroundSubtle }} />
               ))}
             </div>
           ))}
@@ -15364,13 +15345,13 @@ export default function App() {
         onClick={close}
       >
         <div
-          className="bg-white rounded-2xl shadow-2xl w-[920px] max-w-[92vw] h-[86vh] flex flex-col overflow-hidden"
+          className="bg-surface rounded-2xl shadow-2xl w-[920px] max-w-[92vw] h-[86vh] flex flex-col overflow-hidden"
           onClick={(e) => e.stopPropagation()}
           style={{ animation: 'fadeIn 0.2s ease-out' }}
         >
           <div className="px-5 py-3 border-b border-border flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0" style={{ background: '#fdf4e7', color: '#b45309' }}>
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0" style={{ background: dsColors.feedback.warning.subtle, color: dsColors.banner.warning.accentHover }}>
                 <Copy className="w-3.5 h-3.5" strokeWidth={1.75} />
               </span>
               <span className="text-[14px] font-medium text-foreground-tertiary">Doublon possible - comparer les documents</span>
@@ -15387,13 +15368,13 @@ export default function App() {
           <div className="px-5 py-3 border-t border-border flex items-center justify-end gap-2 flex-shrink-0">
             <button
               onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-white border border-border-strong hover:bg-background-canvas transition-colors"
+              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
             >
               Garder les deux
             </button>
             <button
               onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-white border border-border-strong hover:bg-background-canvas transition-colors"
+              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
             >
               Ignorer le nouveau
             </button>
@@ -15581,7 +15562,7 @@ export default function App() {
                 <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
                 <button
                   onClick={() => { setManualReorder(true); setShowReorderHint(false); }}
-                  className="ml-auto px-3 py-1.5 text-sm font-medium text-white bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
+                  className="ml-auto px-3 py-1.5 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
                 >
                   Désactiver Chrono
                 </button>
@@ -15668,7 +15649,7 @@ export default function App() {
             >
               <GripVertical className="w-3 h-3 text-foreground-secondary" strokeWidth={1.5} />
               <span className="inline-flex items-center justify-center w-[22px] h-[22px] bg-foreground-tertiary text-border-strong text-xs font-semibold rounded-md">{reorderDrag.num || '?'}</span>
-              <span className="text-sm font-medium text-white truncate max-w-[250px]">{reorderDrag.name}</span>
+              <span className="text-sm font-medium text-primary-foreground truncate max-w-[250px]">{reorderDrag.name}</span>
               {reorderDrag.type && (
                 <span className={`px-2 py-0.5 text-xs font-medium rounded-md bg-foreground-tertiary text-border-strong`}>{reorderDrag.type}</span>
               )}
@@ -15678,7 +15659,7 @@ export default function App() {
           {/* Track B hint - no rapport */}
           {allDone && !dropFirstHasRapport && !rapportBannerDismissed && (
             <div className="mt-3 px-4 py-3 text-sm text-foreground-secondary flex items-center gap-2">
-              <span>💡</span>
+              <Lightbulb className="w-4 h-4 shrink-0" />
               <span>Astuce : ajoutez un rapport d'expertise pour remplir automatiquement les informations du dossier.</span>
             </div>
           )}
@@ -15845,7 +15826,7 @@ export default function App() {
     // Shared download dropdown, reused by both footer layouts (the full-width
     // Télécharger on whole docs and the inline one on split/other docs).
     const downloadMenu = pieceDownloadMenu ? (
-      <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-white border border-border rounded-lg shadow-lg py-1 z-20">
+      <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-surface border border-border rounded-lg shadow-lg py-1 z-20">
         <button
           onClick={() => { setPieceDownloadMenu(false); flashToast('Téléchargement du document original…'); }}
           className="w-full text-left px-3 py-1.5 text-body text-foreground-tertiary hover:bg-background transition-colors flex items-center gap-2"
@@ -15868,9 +15849,9 @@ export default function App() {
       {/* Dimmed backdrop - covers the canvas left of the chat (respects --chat-offset
           so the chat + its resize divider stay clear); click to close. */}
       <div onClick={onClosePanel} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
-      <div className="fixed top-0 h-screen bg-white border-l border-border z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
+      <div className="fixed top-0 h-screen bg-surface border-l border-border z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Common header: file icon + title (left), nav + close (right) */}
-        <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+        <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3 flex-shrink-0 bg-surface">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-cream text-foreground-tertiary flex-shrink-0">
               {emailMeta?.kind === 'body'
@@ -15885,7 +15866,7 @@ export default function App() {
                 onClick={() => navPrev && navPrev()}
                 disabled={!navPrev}
                 aria-label="Pièce précédente"
-                className={`p-1 rounded-md transition-colors ${navPrev ? 'text-foreground-secondary hover:text-foreground hover:bg-cream' : 'text-zinc-200 cursor-not-allowed'}`}
+                className={`p-1 rounded-md transition-colors ${navPrev ? 'text-foreground-secondary hover:text-foreground hover:bg-cream' : 'text-stone-subtle cursor-not-allowed'}`}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -15894,7 +15875,7 @@ export default function App() {
                 onClick={() => navNext && navNext()}
                 disabled={!navNext}
                 aria-label="Pièce suivante"
-                className={`p-1 rounded-md transition-colors ${navNext ? 'text-foreground-secondary hover:text-foreground hover:bg-cream' : 'text-zinc-200 cursor-not-allowed'}`}
+                className={`p-1 rounded-md transition-colors ${navNext ? 'text-foreground-secondary hover:text-foreground hover:bg-cream' : 'text-stone-subtle cursor-not-allowed'}`}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -15910,13 +15891,13 @@ export default function App() {
         <div className="flex flex-1 min-h-0">
         {/* Left: document aperçu - a skeleton paper render. Multi-page docs get
             a stacked-pages effect behind the front page. */}
-        <div className="w-[420px] flex flex-col border-r border-zinc-100 bg-background-canvas">
+        <div className="w-[420px] flex flex-col border-r border-background-subtle bg-background-canvas">
           <div className="flex-1 overflow-y-auto p-7 flex items-start justify-center">
             <div className="relative w-full max-w-[300px]">
               {totalPages > 1 && (
                 <>
-                  <div className="absolute inset-0 translate-x-[7px] translate-y-[7px] bg-white rounded-xl border border-[#ece9e4]" />
-                  <div className="absolute inset-0 translate-x-[3px] translate-y-[3px] bg-white rounded-xl border border-border" />
+                  <div className="absolute inset-0 translate-x-[7px] translate-y-[7px] bg-surface rounded-xl border border-cream" />
+                  <div className="absolute inset-0 translate-x-[3px] translate-y-[3px] bg-surface rounded-xl border border-border" />
                 </>
               )}
               <div className="relative">
@@ -15963,7 +15944,7 @@ export default function App() {
                 {(isSplit || isFusion) ? (
                   <div className="rounded-lg border border-border bg-background-canvas p-3">
                     <div className="flex items-start gap-2.5">
-                      <div className="w-7 h-7 rounded-md bg-white border border-border flex items-center justify-center flex-shrink-0">
+                      <div className="w-7 h-7 rounded-md bg-surface border border-border flex items-center justify-center flex-shrink-0">
                         {isFusion
                           ? <Layers className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
                           : <Scissors className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />}
@@ -15994,7 +15975,7 @@ export default function App() {
                           type="button"
                           onClick={() => openSplitAdjustFromPanel(piece, provPileId, provSegmentId)}
                           className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
-                          style={{ color: '#1e3a8a' }}
+                          style={{ color: dsColors.feedback.info.text }}
                         >
                           {isFusion ? 'Modifier' : 'Ajuster'}
                         </button>
@@ -16019,7 +16000,7 @@ export default function App() {
 
               {/* Date du document - editable, with calendar adornment */}
               <Input label="Date du document" aiGenerated>
-                <div className="flex items-center gap-2 h-9 px-3 bg-white border border-border rounded-lg shadow-xs transition-colors focus-within:border-stone-400 focus-within:ring-1 focus-within:ring-stone-200">
+                <div className="flex items-center gap-2 h-9 px-3 bg-surface border border-border rounded-lg shadow-xs transition-colors focus-within:border-border-hover focus-within:ring-1 focus-within:ring-stone-subtle">
                   <Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
                   <input
                     key={`date-${bordereau ? `b-${ctx.entryIdx}` : piece.id}`}
@@ -16042,7 +16023,7 @@ export default function App() {
                   <FieldGroupLabel>{emailMeta.kind === 'body' ? 'Échange courriel' : "Courriel d'origine"}</FieldGroupLabel>
                   <div className="rounded-lg border border-border bg-background-canvas p-3">
                     <div className="flex items-start gap-2.5">
-                      <div className="w-7 h-7 rounded-md bg-white border border-border flex items-center justify-center flex-shrink-0">
+                      <div className="w-7 h-7 rounded-md bg-surface border border-border flex items-center justify-center flex-shrink-0">
                         <Mail className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={1.75} />
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col gap-0.5">
@@ -16056,7 +16037,7 @@ export default function App() {
                           type="button"
                           onClick={() => openLinkedPiece(emailBodyPiece.id)}
                           className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
-                          style={{ color: '#1e3a8a' }}
+                          style={{ color: dsColors.feedback.info.text }}
                         >
                           Ouvrir
                         </button>
@@ -16133,7 +16114,7 @@ export default function App() {
               Supprimer + Télécharger le document. Clicking « Découper » expands
               this footer in place (taller) to hold the naming-instructions config. */}
           {splitConfigOpen ? (
-            <div className="px-5 py-4 border-t border-border bg-white flex-shrink-0 flex flex-col gap-3" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+            <div className="px-5 py-4 border-t border-border bg-surface flex-shrink-0 flex flex-col gap-3" style={{ animation: 'fadeIn 0.15s ease-out' }}>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[13px] font-medium text-foreground">Instructions de nommage <span className="font-normal text-foreground-muted">(optionnel)</span></label>
                 <textarea
@@ -16141,7 +16122,7 @@ export default function App() {
                   value={panelSplitConfig.prompt}
                   onChange={e => setPanelSplitConfig(c => ({ ...c, prompt: e.target.value }))}
                   placeholder="ex. Nomme chaque pièce par sa nature, son auteur et sa date"
-                  className="w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
+                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors shadow-sm"
                   style={{ minHeight: 64, maxHeight: 120, resize: 'vertical', fontFamily: 'inherit' }}
                 />
                 <p className="text-xs text-foreground-secondary">Laissez vide pour laisser l'IA nommer les pièces automatiquement.</p>
@@ -16149,13 +16130,13 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setPanelSplitConfig(null)}
-                  className="flex-shrink-0 h-9 px-4 rounded-lg bg-white border border-border text-foreground-tertiary hover:bg-background-canvas transition-colors text-sm font-medium"
+                  className="flex-shrink-0 h-9 px-4 rounded-lg bg-surface border border-border text-foreground-tertiary hover:bg-background-canvas transition-colors text-sm font-medium"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={() => startPosterioriSplit(piece.id, panelSplitConfig.prompt)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-foreground text-white hover:bg-foreground-strong transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                  className="flex-1 h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-strong transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Scissors className="w-4 h-4" strokeWidth={1.75} />
                   Lancer le découpage
@@ -16163,12 +16144,12 @@ export default function App() {
               </div>
             </div>
           ) : (
-          <div className="px-5 py-4 border-t border-border bg-white flex-shrink-0 flex flex-col gap-2.5">
+          <div className="px-5 py-4 border-t border-border bg-surface flex-shrink-0 flex flex-col gap-2.5">
             {canOfferSplit && (
               <div className="relative">
                 <button
                   onClick={() => setPieceDownloadMenu(o => !o)}
-                  className="w-full h-9 px-4 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                  className="w-full h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Download className="w-4 h-4" strokeWidth={1.75} />
                   Télécharger
@@ -16179,7 +16160,7 @@ export default function App() {
             )}
             <div className="flex items-center gap-3">
               <button
-                className="flex-shrink-0 h-9 px-4 rounded-lg bg-[#fee2e2] text-[#7f1d1d] hover:bg-danger-border transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                className="flex-shrink-0 h-9 px-4 rounded-lg bg-danger-subtle text-danger-text hover:bg-danger-border transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 onClick={() => {
                   if (bordereau) {
                     ctx.onRemove();
@@ -16203,7 +16184,7 @@ export default function App() {
               {canOfferSplit ? (
                 <button
                   onClick={() => openPanelSplitConfig(piece.id)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-white border border-border text-foreground hover:bg-background-canvas transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                  className="flex-1 h-9 px-4 rounded-lg bg-surface border border-border text-foreground hover:bg-background-canvas transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Scissors className="w-4 h-4" strokeWidth={1.75} />
                   Découper
@@ -16212,7 +16193,7 @@ export default function App() {
                 <div className="relative flex-1">
                   <button
                     onClick={() => setPieceDownloadMenu(o => !o)}
-                    className="w-full h-9 px-4 rounded-lg bg-foreground text-white hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                    className="w-full h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                   >
                     <Download className="w-4 h-4" strokeWidth={1.75} />
                     Télécharger le document
@@ -16405,13 +16386,13 @@ export default function App() {
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1200px] flex flex-col overflow-hidden" style={{ height: '90vh', minHeight: 560 }} onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-[1200px] flex flex-col overflow-hidden" style={{ height: '90vh', minHeight: 560 }} onClick={(e) => e.stopPropagation()}>
           <input ref={importV2FileInput} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={(e) => { bordereau.addFiles(e.target.files); nudgeIfMailFiles(e.target.files); e.target.value = ''; }} />
 
           {/* En-tête - création : parti pris C (titre serif · filet · champ
               Référence focalisé, anneau brand) + type de dossier discret. */}
           {creating ? (
-            <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
+            <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-surface" style={{ height: 58 }}>
               <h2 className="text-foreground flex-shrink-0" style={{ fontFamily: 'Georgia, serif', fontSize: 18, lineHeight: '20px', letterSpacing: '-0.5px' }}>Nouveau dossier</h2>
               <div className="w-px h-5 bg-border flex-shrink-0 self-center" />
               <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -16422,13 +16403,13 @@ export default function App() {
                   value={importV2.reference}
                   onChange={(e) => setImportV2(prev => ({ ...prev, reference: e.target.value }))}
                   placeholder="ex. Leblanc c/ AXA"
-                  className="flex-1 min-w-0 max-w-[380px] h-9 px-3 rounded-lg border border-[#b9703f] bg-white text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:shadow-[0_0_0_3px_rgba(185,112,63,0.18)] transition-shadow"
+                  className="flex-1 min-w-0 max-w-[380px] h-9 px-3 rounded-lg border border-ochre bg-surface text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:shadow-[0_0_0_3px_rgba(185,112,63,0.18)] transition-shadow"
                 />
               </div>
               <select
                 value={importV2.matterType || 'corporel'}
                 onChange={(e) => setImportV2(prev => ({ ...prev, matterType: e.target.value }))}
-                className="h-9 px-2.5 text-[13px] text-foreground-secondary bg-white border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors cursor-pointer flex-shrink-0"
+                className="h-9 px-2.5 text-[13px] text-foreground-secondary bg-surface border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors cursor-pointer flex-shrink-0"
                 title="Type de dossier"
               >
                 <option value="corporel">Dommages corporels</option>
@@ -16439,7 +16420,7 @@ export default function App() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-white" style={{ height: 58 }}>
+            <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-surface" style={{ height: 58 }}>
               <p className="text-[14px] leading-5 font-medium text-foreground flex-1 min-w-0 truncate">Ajouter des pièces - {dossierTitle}</p>
               <button type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
                 <X className="w-3.5 h-3.5" strokeWidth={2} />
@@ -16451,17 +16432,17 @@ export default function App() {
               .eml / .msg / zip est ajouté à la main, tant qu'aucune boîte n'est
               connectée. Le fichier est versé quand même. */}
           {mailDropNudge && mailboxes.length === 0 && (
-            <div className="flex items-center gap-3 px-5 py-2.5 border-b border-border flex-shrink-0" style={{ backgroundColor: '#eef1f8' }}>
-              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: '#dbe3f5' }}>
-                <Mail className="w-3.5 h-3.5" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+            <div className="flex items-center gap-3 px-5 py-2.5 border-b border-border flex-shrink-0" style={{ backgroundColor: dsColors.piece.administratif.bg }}>
+              <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: dsColors.piece.expertise.bg }}>
+                <Mail className="w-3.5 h-3.5" style={{ color: dsColors.feedback.info.text }} strokeWidth={1.75} />
               </span>
               <p className="flex-1 min-w-0 text-[13px] leading-[18px] text-foreground">
                 Vous versez vos mails à la main. <span className="text-foreground-secondary">Connectez votre boîte, Plato ira les chercher tout seul.</span>
               </p>
-              <button type="button" onClick={() => { closeImportV2(); goToMailSettings(); }} className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-white bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0">
+              <button type="button" onClick={() => { closeImportV2(); goToMailSettings(); }} className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-primary-foreground bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0">
                 <Mail className="w-3.5 h-3.5" strokeWidth={1.75} /> Connecter ma boîte
               </button>
-              <button type="button" onClick={() => setMailDropNudge(false)} aria-label="Masquer" className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-white/70 transition-colors flex-shrink-0">
+              <button type="button" onClick={() => setMailDropNudge(false)} aria-label="Masquer" className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background-subtle transition-colors flex-shrink-0">
                 <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
             </div>
@@ -16493,7 +16474,7 @@ export default function App() {
                   mailboxes={v2Mailboxes}
                 />
               ) : (
-                <div className="h-full flex flex-col bg-white border-r border-border" style={{ width: 456 }}>
+                <div className="h-full flex flex-col bg-surface border-r border-border" style={{ width: 456 }}>
                   <div className="flex items-center justify-between pl-3.5 pr-2 pt-2.5 pb-1 flex-shrink-0">
                     <p style={monoLabelV2}>Vos emails</p>
                     <button type="button" onClick={() => setMailOpen(false)} aria-label="Replier" title="Replier"
@@ -16510,7 +16491,7 @@ export default function App() {
 
           {/* Pied - constat honnête, Annuler, CTA qui ne ment jamais.
               « Créer manuellement » (wizard) reste accessible en création. */}
-          <div className="flex items-center gap-4 px-5 border-t border-border flex-shrink-0 bg-white" style={{ height: 62 }}>
+          <div className="flex items-center gap-4 px-5 border-t border-border flex-shrink-0 bg-surface" style={{ height: 62 }}>
             {creating && (
               <button
                 type="button"
@@ -16524,18 +16505,18 @@ export default function App() {
               {bordereau.approx > 0
                 ? `≈ ${bordereau.approx} pièce${bordereau.approx > 1 ? 's' : ''}${bordereau.decoupeCount > 0 ? ` · ${bordereau.decoupeCount} découpe${bordereau.decoupeCount > 1 ? 's' : ''}` : ''}`
                 : creating ? 'Déposez des pièces pour nourrir le dossier - vous pourrez toujours en ajouter plus tard' : 'Aucune pièce sélectionnée'}
-              {bordereau.pendingDoublons > 0 && <span className="ml-2" style={{ color: '#855b31' }}>{bordereau.pendingDoublons} doublon{bordereau.pendingDoublons > 1 ? 's' : ''} à trancher</span>}
+              {bordereau.pendingDoublons > 0 && <span className="ml-2" style={{ color: dsColors.feedback.warning.text }}>{bordereau.pendingDoublons} doublon{bordereau.pendingDoublons > 1 ? 's' : ''} à trancher</span>}
             </p>
             <div className="flex-1 h-px bg-border" />
-            <button type="button" onClick={closeImportV2} className="h-9 px-4 rounded-lg border border-border bg-white text-[13px] font-medium text-foreground hover:bg-cream transition-colors flex-shrink-0">
+            <button type="button" onClick={closeImportV2} className="h-9 px-4 rounded-lg border border-border bg-surface text-[13px] font-medium text-foreground hover:bg-cream transition-colors flex-shrink-0">
               Annuler
             </button>
             <button
               type="button"
               disabled={commitDisabled}
               onClick={commitImportV2}
-              className="h-9 px-4 rounded-lg text-[13px] font-medium text-white transition-opacity disabled:opacity-40 flex-shrink-0"
-              style={{ backgroundColor: '#292524' }}
+              className="h-9 px-4 rounded-lg text-[13px] font-medium text-primary-foreground transition-opacity disabled:opacity-40 flex-shrink-0"
+              style={{ backgroundColor: dsColors.semantic.primary }}
             >
               {bordereau.uploadingCount > 0 ? 'Réception des fichiers…' : creating ? 'Créer le dossier' : 'Ajouter au dossier'}
             </button>
@@ -16562,9 +16543,9 @@ export default function App() {
     if (step === 'infos') {
       return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+          <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-5 border-b border-zinc-100">
+            <div className="px-6 py-5 border-b border-background-subtle">
               <h2 className="text-lg font-semibold text-foreground">Nouveau dossier</h2>
             </div>
 
@@ -16581,7 +16562,7 @@ export default function App() {
                       value={formData.nom}
                       onChange={(e) => updateFormData('nom', e.target.value)}
                       placeholder="Nom de famille"
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                     />
                   </div>
                   <div>
@@ -16591,7 +16572,7 @@ export default function App() {
                       value={formData.prenom}
                       onChange={(e) => updateFormData('prenom', e.target.value)}
                       placeholder="Prénom"
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                     />
                   </div>
                   <div>
@@ -16599,7 +16580,7 @@ export default function App() {
                     <select
                       value={formData.sexe}
                       onChange={(e) => updateFormData('sexe', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                     >
                       <option value="Homme">Homme</option>
                       <option value="Femme">Femme</option>
@@ -16614,7 +16595,7 @@ export default function App() {
                         value={formData.dateNaissance}
                         onChange={(e) => updateFormData('dateNaissance', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateNaissance', formatDateFR(e.target.value)); }} />
                       <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
@@ -16630,7 +16611,7 @@ export default function App() {
                         value={formData.dateDeces}
                         onChange={(e) => updateFormData('dateDeces', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateDeces', formatDateFR(e.target.value)); }} />
                       <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
@@ -16648,7 +16629,7 @@ export default function App() {
                     <select
                       value={formData.typeFait}
                       onChange={(e) => updateFormData('typeFait', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                     >
                       {typesFaitGenerateur.map(t => (
                         <option key={t} value={t}>{t}</option>
@@ -16664,7 +16645,7 @@ export default function App() {
                         value={formData.dateAccident}
                         onChange={(e) => updateFormData('dateAccident', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateAccident', formatDateFR(e.target.value)); }} />
                       <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
@@ -16679,7 +16660,7 @@ export default function App() {
                         value={formData.dateConsolidation}
                         onChange={(e) => updateFormData('dateConsolidation', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateConsolidation', formatDateFR(e.target.value)); }} />
                       <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
@@ -16694,7 +16675,7 @@ export default function App() {
                         value={formData.dateLiquidation}
                         onChange={(e) => updateFormData('dateLiquidation', formatDateInput(e.target.value))}
                         maxLength={10}
-                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-colors"
+                        className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
                       <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateLiquidation', formatDateFR(e.target.value)); }} />
                       <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
@@ -16705,20 +16686,19 @@ export default function App() {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-zinc-100 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-background-subtle flex justify-end gap-3">
               <button
                 onClick={() => setCreationWizard(null)}
                 className="px-4 py-2.5 text-body text-foreground-secondary hover:text-foreground-tertiary hover:bg-cream rounded-lg transition-colors"
               >
                 Annuler
               </button>
-              <button
+              <Button
+                variant="primary" size="md"
+                label="Créer le dossier"
                 onClick={() => handleCreateDossier(formData, 'dossier')}
                 disabled={!canSubmitInfos}
-                className="px-5 py-2.5 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Créer le dossier
-              </button>
+              />
             </div>
           </div>
         </div>
@@ -16735,10 +16715,10 @@ export default function App() {
     <>
       <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
       <div
-        className="absolute z-50 bg-white border border-border shadow-lg overflow-hidden"
+        className="absolute z-50 border border-border shadow-lg overflow-hidden"
         style={placement === 'right'
-          ? { left: 'calc(100% + 8px)', bottom: 0, borderRadius: 10, width: 240 }
-          : { left: 8, right: 8, bottom: 'calc(100% + 6px)', borderRadius: 10 }
+          ? { backgroundColor: colors.semantic.popover, left: 'calc(100% + 8px)', bottom: 0, borderRadius: 10, width: 240 }
+          : { backgroundColor: colors.semantic.popover, left: 8, right: 8, bottom: 'calc(100% + 6px)', borderRadius: 10 }
         }
       >
         <div className="px-3 py-2.5 border-b border-border">
@@ -16750,6 +16730,45 @@ export default function App() {
         >
           <Settings className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
           Paramètres
+        </button>
+        {/* Bascule d'apparence rapide (le réglage complet reste dans Paramètres > Apparence). */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2">
+          <span className="flex items-center gap-2.5 text-[13px] text-foreground">
+            {themeMode === 'dark'
+              ? <Moon className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
+              : <Sun className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />}
+            Apparence
+          </span>
+          <div className="inline-flex p-0.5 gap-0.5 bg-cream border border-border rounded-md" role="group" aria-label="Thème">
+            {[
+              { id: 'light', label: 'Clair', Icon: Sun },
+              { id: 'dark', label: 'Sombre', Icon: Moon },
+            ].map(({ id, label, Icon }) => {
+              const active = themeMode === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setTheme(id)}
+                  aria-pressed={active}
+                  title={label}
+                  className={`inline-flex items-center justify-center w-6 h-6 rounded transition-colors ${active ? 'text-foreground border border-border-strong' : 'text-foreground-secondary hover:text-foreground border border-transparent'}`}
+                  style={active ? { backgroundColor: colors.semantic.card } : undefined}
+                >
+                  <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="border-t border-border" />
+        {/* Quitter le proto pour revenir au playground Design System (/ui-kit). */}
+        <button
+          onClick={() => { setUserMenuOpen(false); navigate('/ui-kit'); }}
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
+        >
+          <LayoutGrid className="w-4 h-4 text-foreground-secondary" strokeWidth={1.5} />
+          Design System
         </button>
         <div className="border-t border-border" />
         <button
@@ -16824,40 +16843,60 @@ export default function App() {
       <NavItem key={key} variant="create" icon={icon} label={label} onClick={onClick} title={title} />
     );
 
+    // Rail composé sur le shell canonique AppSidebar (src/components/ui/AppSidebar.js) :
+    // la coquille (bord, largeur, fond), le header (h-12 + toggle via onCollapse)
+    // et le footer sont fournis par le composant. Le mode replié (48px) n'est plus
+    // utilisé (tous les appels passent collapsed:false) - la nav est pleine largeur
+    // ou masquée (renderNavSlot anime 264→0).
     return (
-      <div
-        className="border-r border-border flex flex-col flex-shrink-0 overflow-hidden h-full"
-        style={{
-          width: collapsed ? 48 : NAV_WIDTH,
-          // Nav finale (Plato---System 37416:1376) : fond plat #f8f7f5, bord #dfdcd9.
-          background: '#f8f7f5',
-        }}
-      >
-        {/* Header - wordmark vectorisé (→ accueil) + contrôle de masquage (spec 5 §2) */}
-        <div
-          className={`h-12 border-b border-border flex items-center flex-shrink-0 ${collapsed ? 'justify-center' : 'pl-4 pr-3 gap-2'}`}
-        >
+      <AppSidebar
+        width={NAV_WIDTH}
+        header={
           <button
             onClick={() => setCurrentPage('home')}
-            className={`flex items-center hover:opacity-80 transition-opacity ${collapsed ? '' : 'flex-1 min-w-0 gap-2'}`}
+            className="flex items-center flex-1 min-w-0 gap-2 hover:opacity-80 transition-opacity"
             title="Accueil"
           >
-            {collapsed ? (
-              <img src="/logo-plato.png" alt="Plato" className="w-6 h-6 flex-shrink-0" />
-            ) : (
-              <img src="/logo-plato-wordmark.svg" alt="Plato" className="h-6 flex-shrink-0" style={{ width: 75 }} />
-            )}
+            {/* Wordmark recoloré via masque : la forme du SVG remplie par le token
+                foreground → bascule light/dark (l'img seule ne peut pas être recolorée). */}
+            <span
+              role="img"
+              aria-label="Plato"
+              className="block h-6 flex-shrink-0"
+              style={{
+                width: 75,
+                backgroundColor: dsColors.semantic.foreground,
+                WebkitMask: 'url(/logo-plato-wordmark.svg) left center / contain no-repeat',
+                mask: 'url(/logo-plato-wordmark.svg) left center / contain no-repeat',
+              }}
+            />
           </button>
-          {!collapsed && (
-            <button
-              onClick={inPeek ? expandNav : hideNav}
-              className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
-              title={inPeek ? 'Épingler la navigation' : 'Masquer la navigation'}
+        }
+        onCollapse={inPeek ? expandNav : hideNav}
+        footer={
+          <>
+            {!parrainagePromoHidden && (
+              <NavPromoBanner
+                icon={Gift}
+                label="-10% à chaque parrainage"
+                edge="bottom"
+                title="Programme de parrainage"
+                onClick={() => setParrainageModalOpen(true)}
+              />
+            )}
+            <SidebarUserInfo
+              collapsed={false}
+              onClick={() => setUserMenuOpen(o => !o)}
+              name={currentUser?.name?.split(' ')[0] || 'Mon compte'}
+              org={orgName}
+              showTooltip={!userMenuOpen}
+              avatar={userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 24, currentUser?.name)}
             >
-              <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
-            </button>
-          )}
-        </div>
+              {userMenuOpen && renderUserDropdownPanel('above')}
+            </SidebarUserInfo>
+          </>
+        }
+      >
 
         {/* Bannière « Connectez votre boîte mail » (frame Plato-Design 3757:24847) -
             dégradé bleu horizontal, sous le header, tant qu'aucune boîte n'est
@@ -16902,7 +16941,25 @@ export default function App() {
             regroupés par les en-têtes mono et l'espace (essai « moins de séparateurs »).
             Sections titrées : 20px au-dessus du titre pour les détacher. */}
         <div className="flex-1 overflow-y-auto min-h-0 pb-2">
-          <div className={`px-2 flex flex-col gap-0.5 ${collapsed ? 'items-center' : 'pt-3'}`}>
+          {/* CTA « Nouvelle conversation » en tête de nav - nav ACTUELLE
+              (37416:1376, relevé 23/09) : Button primary pleine largeur h32/px12
+              aligné à gauche. Rétabli (il avait été retiré le 09/09 au profit
+              des « + » de sections ; le frame Current le remet, avec les
+              créations en rangées plates dans les listes). */}
+          {!collapsed && (
+            <div className="px-2 pt-2.5">
+              <Button
+                variant="primary"
+                icon={MessageCircle}
+                label="Nouvelle conversation"
+                fullWidth
+                onClick={() => startNewConversation()}
+                title="Nouvelle conversation (⌘O)"
+                style={{ height: 32, padding: '0 12px', justifyContent: 'flex-start', boxShadow: dsShadows.xs }}
+              />
+            </div>
+          )}
+          <div className={`px-2 flex flex-col gap-0.5 ${collapsed ? 'items-center' : 'pt-1.5'}`}>
             {ITEMS.map(navBtn)}
           </div>
           {/* Sections toujours rendues (même sans récents) : leur « + » est
@@ -16927,7 +16984,7 @@ export default function App() {
           )}
           {!collapsed && (
             <div className="px-2 pt-5 flex flex-col">
-              {sectionHeader('Conv. récentes')}
+              {sectionHeader('Conversations récentes')}
               <div className="flex flex-col gap-0.5">
                 {createRow({ key: 'new-conv-row', icon: MessageCirclePlus, label: 'Nouvelle conversation', onClick: () => startNewConversation(), title: 'Nouvelle conversation (⌘O)' })}
                 {recentConvs.map(t => recentRow({
@@ -16957,53 +17014,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Pied du rail - nav FINALE (37416:1376) : bannière parrainage puis
-            compte, RIEN d'autre (le quota hebdomadaire vit dans Mon usage). */}
-        {!collapsed && !parrainagePromoHidden && (
-          <NavPromoBanner
-            icon={Gift}
-            label="-10% à chaque parrainage"
-            edge="bottom"
-            title="Programme de parrainage"
-            onClick={() => setParrainageModalOpen(true)}
-          />
-        )}
-
-        {/* Avatar footer - compact : avatar 24px · prénom / cabinet · chevrons */}
-        <div className={`border-t border-border flex-shrink-0 ${collapsed ? 'p-2 flex justify-center' : 'p-2'}`}>
-          <div className="relative group">
-            <button
-              onClick={() => setUserMenuOpen(o => !o)}
-              className={
-                collapsed
-                  ? 'flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity'
-                  : 'w-full flex items-center gap-3 px-2 py-2 hover:bg-cream/60 transition-colors text-left group'
-              }
-              style={collapsed ? undefined : { borderRadius: 6 }}
-            >
-              {collapsed ? userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 32) : (
-                <>
-                  {userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', 24)}
-                  <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
-                    <span className="text-[14px] font-medium text-foreground truncate leading-[20px]">{currentUser?.name?.split(' ')[0] || 'Mon compte'}</span>
-                    <span className="text-[12px] text-foreground-secondary truncate leading-[16px]" style={{ letterSpacing: '0.12px' }}>{orgName}</span>
-                  </div>
-                  <ChevronsUpDown className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.75} />
-                </>
-              )}
-            </button>
-            {collapsed && !userMenuOpen && (
-              <span
-                role="tooltip"
-                className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[12px] font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 z-50"
-              >
-                Mon compte
-              </span>
-            )}
-            {userMenuOpen && renderUserDropdownPanel(collapsed ? 'right' : 'above')}
-          </div>
-        </div>
-      </div>
+      </AppSidebar>
     );
   };
 
@@ -17089,11 +17100,11 @@ export default function App() {
       onClick={() => setParrainageModalOpen(true)}
       className="group relative block w-full text-left"
       style={{
-        borderTop: '1px solid #dfdcd9',
+        borderTop: `1px solid ${dsColors.semantic.border}`,
         padding: '12px 16px',
         background:
-          'linear-gradient(90deg, #dfe8f5 0%, rgba(223,232,245,0) 59.5%)',
-        boxShadow: 'inset 2px 0 0 0 #1e3a8a',
+          `linear-gradient(90deg, ${dsColors.piece.expertise.bg} 0%, rgba(223,232,245,0) 59.5%)`,
+        boxShadow: `inset 2px 0 0 0 ${dsColors.feedback.info.text}`,
         fontFamily: "'Inter', system-ui, sans-serif",
       }}
     >
@@ -17102,13 +17113,13 @@ export default function App() {
         <Gift
           className="w-4 h-4 flex-shrink-0"
           strokeWidth={1.75}
-          style={{ color: '#78716c' }}
+          style={{ color: dsColors.semantic.mutedForeground }}
         />
         <span
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
             fontSize: 11, fontWeight: 500,
-            color: '#78716c',
+            color: dsColors.semantic.mutedForeground,
             textTransform: 'uppercase',
             letterSpacing: 'normal',
             lineHeight: 1,
@@ -17123,7 +17134,7 @@ export default function App() {
           style={{
             height: 1,
             background:
-              'linear-gradient(90deg, #dfdcd9 0%, rgba(231,229,227,0) 100%)',
+              `linear-gradient(90deg, ${dsColors.semantic.input} 0%, rgba(231,229,227,0) 100%)`,
           }}
         />
       </div>
@@ -17133,7 +17144,7 @@ export default function App() {
         <div
           style={{
             fontSize: 14, fontWeight: 500,
-            color: '#18181b',
+            color: dsColors.semantic.foreground,
             lineHeight: '20px',
           }}
         >
@@ -17144,7 +17155,7 @@ export default function App() {
           style={{
             gap: 8,
             fontSize: 14, fontWeight: 500,
-            color: '#1e3a8a',
+            color: dsColors.feedback.info.text,
             lineHeight: '20px',
           }}
         >
@@ -17172,7 +17183,7 @@ export default function App() {
     const t = trialTone;
     return (
       <div className="flex items-center gap-3 rounded-lg px-4 py-3" style={{ border: `1px solid ${t.border}`, background: t.gradient }}>
-        <img src="/logo-plato.png" alt="" className="w-4 h-4 flex-shrink-0" style={{ opacity: 0.6 }} />
+        <img src="/logo-plato.svg" alt="" className="w-4 h-4 flex-shrink-0" style={{ opacity: 0.6 }} />
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <span className="text-[13px] font-medium" style={{ color: t.text }}>Essai gratuit - jour {trialDayNumber} sur {TRIAL_TOTAL_DAYS}</span>
           <div className="flex" style={{ gap: 2, width: 49 }}>
@@ -17180,7 +17191,7 @@ export default function App() {
               <div key={i} style={{ height: 3, flex: 1, borderRadius: 999, backgroundColor: i < trialDaysRemaining ? t.bar : t.barTrack }} />
             ))}
           </div>
-          <span className="text-[12px]" style={{ color: '#78716c' }}>Se termine le {trialEndDateLabel}</span>
+          <span className="text-[12px]" style={{ color: dsColors.semantic.mutedForeground }}>Se termine le {trialEndDateLabel}</span>
         </div>
       </div>
     );
@@ -17192,11 +17203,11 @@ export default function App() {
     if (!isTrialing) return null;
     const t = trialTone;
     return (
-      <div className="overflow-hidden" style={{ borderRadius: 4, border: `1px solid ${t.border}`, boxShadow: '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)', backgroundColor: '#ffffff' }}>
+      <div className="overflow-hidden" style={{ borderRadius: 4, border: `1px solid ${t.border}`, boxShadow: dsShadows['lg'], backgroundColor: dsColors.semantic.white }}>
         <div style={{ padding: '20px 20px 0', background: t.gradient }}>
           <div className="flex items-center justify-between gap-2" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: t.text, textTransform: 'uppercase' }}>
             <span className="inline-flex items-center gap-1.5">
-              <img src="/logo-plato.png" alt="" className="w-3.5 h-3.5 flex-shrink-0" style={{ opacity: 0.6 }} />
+              <img src="/logo-plato.svg" alt="" className="w-3.5 h-3.5 flex-shrink-0" style={{ opacity: 0.6 }} />
               <span>Essai gratuit</span>
             </span>
             <span>{TRIAL_TOTAL_DAYS} jours</span>
@@ -17204,22 +17215,22 @@ export default function App() {
         </div>
         <div style={{ padding: '12px 20px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div className="flex items-baseline gap-1.5">
-            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 40, fontWeight: 400, color: trialUrgent ? '#bd6c1a' : '#292524', letterSpacing: '-0.4px', lineHeight: 1 }}>
+            <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 40, fontWeight: 400, color: trialUrgent ? dsColors.feedback.warning.base : dsColors.semantic.foreground, letterSpacing: '-0.4px', lineHeight: 1 }}>
               Jour {trialDayNumber}
             </span>
-            <span style={{ fontSize: 18, fontWeight: 500, color: '#78716c', opacity: 0.7 }}>sur {TRIAL_TOTAL_DAYS}</span>
+            <span style={{ fontSize: 18, fontWeight: 500, color: dsColors.semantic.mutedForeground, opacity: 0.7 }}>sur {TRIAL_TOTAL_DAYS}</span>
           </div>
           <div className="flex" style={{ gap: 3 }}>
             {Array.from({ length: TRIAL_TOTAL_DAYS }, (_, i) => (
               <div key={i} style={{ height: 4, flex: 1, borderRadius: 999, backgroundColor: i < trialDaysRemaining ? t.bar : t.barTrack }} />
             ))}
           </div>
-          <p style={{ fontSize: 13, fontWeight: 500, color: '#78716c', lineHeight: '18px', margin: 0 }}>
+          <p style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.mutedForeground, lineHeight: '18px', margin: 0 }}>
             Premier prélèvement le {trialEndDateLabel} - {totalLicenceCount} licence{totalLicenceCount > 1 ? 's' : ''} · {accountMonthlyTotal.toLocaleString('fr-FR')} € HT/mois.
           </p>
           <button
             onClick={() => { setCancelTrialStep('reason'); setCancelTrialReason(null); setCancelTrialConfirmText(''); }}
-            className="self-start inline-flex items-center h-9 px-3.5 bg-white border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors"
+            className="self-start inline-flex items-center h-9 px-3.5 bg-surface border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors"
           >
             Annuler l'essai
           </button>
@@ -17242,22 +17253,20 @@ export default function App() {
 
     if (cancelTrialStep === 'reason') {
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setCancelTrialStep(null)}>
-          <div className="absolute inset-0 bg-black/40" />
-          <div
-            className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 pt-6 pb-4">
-              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-4">
-                <AlertTriangle className="w-5 h-5 text-red-500" strokeWidth={1.75} />
-              </div>
-              <h2 className="text-[16px] font-medium text-foreground mb-1">Annuler l'essai gratuit ?</h2>
-              <p className="text-[13px] text-foreground-secondary leading-5">
-                Cette action supprimera votre organisation et toutes ses données. Dites-nous pourquoi vous partez.
-              </p>
-            </div>
-            <div className="px-6 pb-2">
+        <AlertDialog
+          open
+          onOpenChange={(o) => { if (!o) setCancelTrialStep(null); }}
+          icon={AlertTriangle}
+          iconVariant="destructive"
+          title="Annuler l'essai gratuit ?"
+          description="Cette action supprimera votre organisation et toutes ses données. Dites-nous pourquoi vous partez."
+          cancelLabel="Annuler"
+          onCancel={() => setCancelTrialStep(null)}
+          actionLabel="Continuer"
+          actionVariant="destructive"
+          actionDisabled={!cancelTrialReason}
+          onAction={() => { if (cancelTrialReason) setCancelTrialStep('confirm'); }}
+        >
               <div className="flex flex-col gap-1.5">
                 {CANCEL_REASONS.map((r) => (
                   <button
@@ -17273,50 +17282,32 @@ export default function App() {
                   </button>
                 ))}
               </div>
-            </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2">
-              <button
-                onClick={() => setCancelTrialStep(null)}
-                className="h-9 px-4 text-[13px] font-medium text-foreground-tertiary rounded-lg hover:bg-cream transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={() => { if (cancelTrialReason) setCancelTrialStep('confirm'); }}
-                disabled={!cancelTrialReason}
-                className={`h-9 px-4 text-[13px] font-medium rounded-lg transition-colors ${
-                  cancelTrialReason
-                    ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-border text-foreground-muted cursor-not-allowed'
-                }`}
-              >
-                Continuer
-              </button>
-            </div>
-          </div>
-        </div>
+        </AlertDialog>
       );
     }
 
     if (cancelTrialStep === 'confirm') {
       const canConfirm = cancelTrialConfirmText.trim() === confirmTarget;
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setCancelTrialStep(null)}>
-          <div className="absolute inset-0 bg-black/40" />
-          <div
-            className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 pt-6 pb-4">
-              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-4">
-                <Trash2 className="w-5 h-5 text-red-500" strokeWidth={1.75} />
-              </div>
-              <h2 className="text-[16px] font-medium text-foreground mb-1">Supprimer l'organisation</h2>
-              <p className="text-[13px] text-foreground-secondary leading-5">
-                Cette action est irréversible. Tous les dossiers, pièces, actes et données de <span className="font-medium text-foreground">{orgName}</span> seront définitivement supprimés.
-              </p>
-            </div>
-            <div className="px-6 pb-2">
+        <AlertDialog
+          open
+          onOpenChange={(o) => { if (!o) setCancelTrialStep(null); }}
+          icon={Trash2}
+          iconVariant="destructive"
+          title="Supprimer l'organisation"
+          description={<>Cette action est irréversible. Tous les dossiers, pièces, actes et données de <span className="font-medium text-foreground">{orgName}</span> seront définitivement supprimés.</>}
+          cancelLabel="Retour"
+          onCancel={() => setCancelTrialStep('reason')}
+          actionLabel="Supprimer définitivement"
+          actionVariant="destructive"
+          actionDisabled={!canConfirm}
+          onAction={() => {
+            if (!canConfirm) return;
+            setCancelTrialStep(null);
+            setToastMessage('Organisation supprimée. Redirection...');
+            setTimeout(() => setToastMessage(null), 3000);
+          }}
+        >
               <label className="block text-[12px] font-medium text-foreground-secondary mb-2">
                 Tapez <span className="font-mono text-foreground bg-cream px-1.5 py-0.5 rounded">{confirmTarget}</span> pour confirmer
               </label>
@@ -17325,37 +17316,11 @@ export default function App() {
                 value={cancelTrialConfirmText}
                 onChange={(e) => setCancelTrialConfirmText(e.target.value)}
                 placeholder={confirmTarget}
-                className="w-full h-10 px-3 text-[14px] rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-shadow"
+                className="w-full h-10 px-3 text-[14px] rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-danger-border focus:border-brand transition-shadow"
                 style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                 autoFocus
               />
-            </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2">
-              <button
-                onClick={() => setCancelTrialStep('reason')}
-                className="h-9 px-4 text-[13px] font-medium text-foreground-tertiary rounded-lg hover:bg-cream transition-colors"
-              >
-                Retour
-              </button>
-              <button
-                onClick={() => {
-                  if (!canConfirm) return;
-                  setCancelTrialStep(null);
-                  setToastMessage('Organisation supprimée. Redirection...');
-                  setTimeout(() => setToastMessage(null), 3000);
-                }}
-                disabled={!canConfirm}
-                className={`h-9 px-4 text-[13px] font-medium rounded-lg transition-colors ${
-                  canConfirm
-                    ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-border text-foreground-muted cursor-not-allowed'
-                }`}
-              >
-                Supprimer définitivement
-              </button>
-            </div>
-          </div>
-        </div>
+        </AlertDialog>
       );
     }
     return null;
@@ -17436,48 +17401,28 @@ export default function App() {
       setThreadTitleDraft(null);
     };
     return (
-      <div
-        className="fixed inset-0 z-[80] flex items-center justify-center"
-        style={{ backgroundColor: 'rgba(26,26,26,0.4)' }}
-        onClick={() => setThreadTitleDraft(null)}
+      <AlertDialog
+        open
+        onOpenChange={(o) => { if (!o) setThreadTitleDraft(null); }}
+        hideIcon
+        title="Renommer la conversation"
+        cancelLabel="Annuler"
+        onCancel={() => setThreadTitleDraft(null)}
+        actionLabel="Enregistrer"
+        onAction={commit}
       >
-        <div
-          className="bg-white rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]"
-          style={{ boxShadow: '0 12px 40px rgba(26,26,26,0.18)' }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="px-5 pt-5 pb-3">
-            <h2 className="text-[16px] font-medium text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif" }}>Renommer la conversation</h2>
-          </div>
-          <div className="px-5 pb-2">
-            <input
-              autoFocus
-              value={threadTitleDraft}
-              onChange={(e) => setThreadTitleDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commit();
-                if (e.key === 'Escape') setThreadTitleDraft(null);
-              }}
-              className="w-full h-9 px-3 rounded-lg border border-border focus:border-foreground-tertiary outline-none text-[14px] text-foreground"
-              placeholder="Nom de la conversation"
-            />
-          </div>
-          <div className="px-5 py-3 flex items-center justify-end gap-2">
-            <button
-              onClick={() => setThreadTitleDraft(null)}
-              className="px-3 py-1.5 rounded-lg text-[13px] text-foreground-secondary hover:bg-background transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={commit}
-              className="px-3 py-1.5 rounded-lg text-[13px] font-medium text-white bg-foreground hover:bg-foreground-tertiary transition-colors"
-            >
-              Enregistrer
-            </button>
-          </div>
-        </div>
-      </div>
+        <input
+          autoFocus
+          value={threadTitleDraft}
+          onChange={(e) => setThreadTitleDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commit();
+            if (e.key === 'Escape') setThreadTitleDraft(null);
+          }}
+          className="w-full h-9 px-3 rounded-lg border border-border focus:border-foreground-tertiary outline-none text-[14px] text-foreground"
+          placeholder="Nom de la conversation"
+        />
+      </AlertDialog>
     );
   };
 
@@ -17489,8 +17434,12 @@ export default function App() {
       title={thread?.title}
       onOpenIndex={() => setCurrentPage('conversations')}
       onRename={() => setThreadTitleDraft(thread?.title ?? '')}
-      // Nav masquée : contrôle d'expansion à l'extrême gauche de la barre
-      leading={renderNavExpandControl()}
+      // Nav masquée : le TopBar rend lui-même le contrôle « Menu » + hairline
+      navCollapsed={navHidden}
+      onNavExpand={expandNav}
+      onNavHome={() => setCurrentPage('home')}
+      onNavPeekEnter={openPeek}
+      onNavPeekLeave={schedulePeekClose}
     >
       {renderRenameConvModal(thread)}
     </ConversationTopBar>
@@ -17506,10 +17455,10 @@ export default function App() {
           {msg.attachments?.length > 0 && (
             <div className="flex flex-wrap gap-2 justify-end">
               {msg.attachments.map((doc, di) => (
-                <span key={di} className="inline-flex items-center gap-1 px-2 py-1" style={{ backgroundColor: '#eeece6', borderRadius: 6 }}>
-                  <FileText className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={1.75} />
-                  <span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>{doc.name}</span>
-                  <span style={{ fontSize: 10.5, color: '#a8a29e' }}>Document de travail</span>
+                <span key={di} className="inline-flex items-center gap-1 px-2 py-1" style={{ backgroundColor: dsColors.semantic.muted, borderRadius: 6 }}>
+                  <FileText className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={1.75} />
+                  <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{doc.name}</span>
+                  <span style={{ fontSize: 10.5, color: dsColors.semantic.foregroundMuted }}>Document de travail</span>
                 </span>
               ))}
             </div>
@@ -17517,11 +17466,11 @@ export default function App() {
           {msg.text && (
             <div
               style={{
-                backgroundColor: '#292524', borderRadius: 2, padding: '10px 12px',
-                boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)', position: 'relative', maxWidth: '80%', overflow: 'hidden',
+                backgroundColor: dsColors.semantic.primary, borderRadius: 2, padding: '10px 12px',
+                boxShadow: dsShadows.xs, position: 'relative', maxWidth: '80%', overflow: 'hidden',
               }}
             >
-              <p style={{ fontSize: 14, lineHeight: '20px', color: 'white', margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+              <p style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.primaryForeground, margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
               <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', boxShadow: 'inset 0px -5px 8px 0px rgba(255,255,255,0.12)', pointerEvents: 'none' }} />
             </div>
           )}
@@ -17531,11 +17480,11 @@ export default function App() {
     if (msg.type === 'ai') {
       return (
         <div key={i} className="pb-6" style={{ paddingRight: 48 }}>
-          <p style={{ fontSize: 14, lineHeight: '22px', color: '#27272a', margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+          <p style={{ fontSize: 14, lineHeight: '22px', color: dsColors.semantic.foreground, margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
           {msg.sources?.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-3">
               {msg.sources.map((s, si) => (
-                <span key={si} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-white text-[12px] text-foreground-secondary">
+                <span key={si} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-surface text-[12px] text-foreground-secondary">
                   <BookOpen className="w-3 h-3 text-foreground-tertiary" strokeWidth={1.75} />
                   {s.label}
                 </span>
@@ -17636,11 +17585,11 @@ export default function App() {
     );
 
     return (
-      <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
+      <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: dsColors.semantic.foreground }}>
         {renderTrialBanner()}
         <div className="flex-1 flex relative overflow-hidden">
           {renderNavSlot(renderUnifiedSidebar({ collapsed: false }))}
-          <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative" style={{ backgroundColor: '#F8F7F5' }}>
+          <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative" style={{ backgroundColor: dsColors.semantic.background }}>
             {/* Nav masquée : bande « Menu » en tête (Plato + Menu), alignée sur
                 les index. Pas de fil d'Ariane sur une surface de 1er niveau : la
                 grande question/le grand titre porte déjà le « où suis-je ». */}
@@ -17672,7 +17621,7 @@ export default function App() {
                   <button
                     key={key}
                     onClick={onClick}
-                    className={`group/hrow flex items-center gap-2 w-full px-2 text-left text-foreground hover:bg-cream/60 transition-colors ${dossierRef ? 'h-11' : 'h-8'}`}
+                    className={`group/hrow flex items-center gap-2 w-full px-2 text-left text-foreground hover:bg-background-subtle transition-colors ${dossierRef ? 'h-11' : 'h-8'}`}
                     style={{ borderRadius: 4, fontSize: 14 }}
                   >
                     <Icon className="w-4 h-4 flex-shrink-0 text-foreground-secondary" strokeWidth={1.75} />
@@ -17681,7 +17630,7 @@ export default function App() {
                       <span className="truncate" style={{ lineHeight: '17px' }}>{label}</span>
                       {dossierRef && (
                         <span className="flex items-center gap-1 min-w-0">
-                          <CornerDownRight className="w-2.5 h-2.5 flex-shrink-0" strokeWidth={1.75} style={{ color: '#a8a29e' }} />
+                          <CornerDownRight className="w-2.5 h-2.5 flex-shrink-0" strokeWidth={1.75} style={{ color: dsColors.semantic.foregroundMuted }} />
                           <span className="truncate text-[11px] text-foreground-muted" style={{ lineHeight: '14px' }}>{dossierRef}</span>
                         </span>
                       )}
@@ -17690,7 +17639,7 @@ export default function App() {
                 );
                 const homeSectionHeader = (label) => (
                   <div className="px-2 py-1">
-                    <span className="opacity-50" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                    <span className="opacity-50" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
                       {label}
                     </span>
                   </div>
@@ -17724,13 +17673,13 @@ export default function App() {
                       {/* Salutation - eyebrow mono, question serif, ligne pédagogique
                           (l'illustration est passée sur les côtés). */}
                       <div className="flex flex-col items-center" style={{ gap: 14 }}>
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#b8560f', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.brand.darker.DEFAULT, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
                           Bonjour {currentUser?.name?.split(' ')[0] ?? ''}
                         </span>
-                        <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 400, color: '#000000', letterSpacing: '-0.6px', lineHeight: '34px', textAlign: 'center' }}>
+                        <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 400, color: dsColors.semantic.foreground, letterSpacing: '-0.6px', lineHeight: '34px', textAlign: 'center' }}>
                           Que puis-je faire pour vous aujourd'hui ?
                         </h1>
-                        <p className="text-center" style={{ fontSize: 14, lineHeight: '20px', color: '#78716c', maxWidth: 440 }}>
+                        <p className="text-center" style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.mutedForeground, maxWidth: 440 }}>
                           Une question de droit, une jurisprudence, l'état d'un dossier - je réponds avant même d'ouvrir un dossier.
                         </p>
                       </div>
@@ -17767,19 +17716,19 @@ export default function App() {
                           className="relative flex items-center gap-4 rounded-xl overflow-hidden w-full"
                           style={{
                             padding: '14px 18px',
-                            border: '1px solid #e0ddd6',
-                            background: 'linear-gradient(105deg, #f1efe9 0%, #faf9f7 55%, #fdf0e4 130%)',
+                            border: `1px solid ${dsColors.semantic.border}`,
+                            background: `linear-gradient(105deg, ${dsColors.semantic.muted} 0%, ${dsColors.semantic.background} 55%, ${dsColors.brand.subtle} 130%)`,
                           }}
                         >
-                          <div className="flex items-center justify-center flex-shrink-0 bg-white rounded-lg" style={{ width: 40, height: 40, border: '1px solid #e0ddd6' }}>
-                            <img src="/logo-plato.png" alt="" className="w-6 h-6" />
+                          <div className="flex items-center justify-center flex-shrink-0 bg-surface rounded-lg" style={{ width: 40, height: 40, border: `1px solid ${dsColors.semantic.border}` }}>
+                            <img src="/logo-plato.svg" alt="" className="w-6 h-6" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-[13.5px] font-medium text-foreground leading-5">
-                              <span className="mr-2 align-middle" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, fontWeight: 500, color: '#b8560f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Nouveau</span>
+                              <span className="mr-2 align-middle" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, fontWeight: 500, color: dsColors.brand.darker.DEFAULT, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Nouveau</span>
                               Plato vous répond aussi hors dossier
                             </p>
-                            <p className="text-[12.5px] leading-[18px] mt-0.5" style={{ color: '#57534e' }}>
+                            <p className="text-[12.5px] leading-[18px] mt-0.5" style={{ color: dsColors.semantic.foregroundQuaternary }}>
                               Jurisprudence, délais, questions de droit : ouvrez une conversation libre, sans créer de dossier.{' '}
                               <span className="whitespace-nowrap">Rattachez-la à un dossier quand vous voulez.</span>
                             </p>
@@ -17788,7 +17737,7 @@ export default function App() {
                             type="button"
                             onClick={() => setHomeAssistantPromoHidden(true)}
                             aria-label="Masquer"
-                            className="flex items-center justify-center w-7 h-7 rounded-md text-foreground-muted hover:text-foreground hover:bg-white/70 transition-colors flex-shrink-0 -mr-1.5"
+                            className="flex items-center justify-center w-7 h-7 rounded-md text-foreground-muted hover:text-foreground hover:bg-background-subtle transition-colors flex-shrink-0 -mr-1.5"
                           >
                             <X className="w-3.5 h-3.5" strokeWidth={2} />
                           </button>
@@ -17842,10 +17791,10 @@ export default function App() {
               <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 pb-16">
                 <div className="w-full flex flex-col items-center" style={{ maxWidth: 690, gap: 32 }}>
                   <div className="flex flex-col items-center" style={{ gap: 14 }}>
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#b8560f', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.brand.darker.DEFAULT, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
                       Nouvelle conversation
                     </span>
-                    <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 400, color: '#000000', letterSpacing: '-0.6px', lineHeight: '34px', textAlign: 'center' }}>
+                    <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 400, color: dsColors.semantic.foreground, letterSpacing: '-0.6px', lineHeight: '34px', textAlign: 'center' }}>
                       Par où commençons-nous ?
                     </h1>
                   </div>
@@ -17884,7 +17833,7 @@ export default function App() {
     const openDossiers = dossiers.filter(d => d.statut !== 'fermé');
     return (
       <div className="fixed inset-0 z-[80] flex items-center justify-center" style={{ backgroundColor: 'rgba(26,26,26,0.4)' }} onClick={() => setAttachPickerThreadId(null)}>
-        <div className="bg-white rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]" style={{ boxShadow: '0 12px 40px rgba(26,26,26,0.18)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]" style={{ boxShadow: dsShadows['2xl'] }} onClick={(e) => e.stopPropagation()}>
           <div className="px-5 pt-5 pb-3">
             <h2 className="text-[16px] font-medium text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif" }}>Rattacher la conversation</h2>
             <p className="mt-1 text-[13px] text-foreground-secondary">Le fil migre dans le dossier choisi - un marqueur garde le point exact du rattachement.</p>
@@ -17930,13 +17879,13 @@ export default function App() {
     const filteredDossiers = dossiers.filter(d => dossierListTab === 'termines' ? d.statut === 'fermé' : (d.statut ?? 'ouvert') !== 'fermé');
 
     return (
-    <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
+    <div className="h-screen flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: dsColors.semantic.foreground }}>
       {renderTrialBanner()}
       <div className="flex-1 flex relative overflow-hidden">
       {renderNavSlot(renderHomeSidebar())}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: '#F8F7F5' }}>
+      <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: dsColors.semantic.background }}>
         {/* Nav masquée : bande « Menu » en tête, au-dessus du titre (jamais en
             overlay sur le titre). */}
         {navHidden && (
@@ -17944,48 +17893,20 @@ export default function App() {
             {renderNavExpandControl()}
           </div>
         )}
-        {/* Header */}
-        <div className={`px-8 ${navHidden ? 'pt-3' : 'pt-8'} pb-4`}>
-          <div className="flex items-center justify-between">
-            <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '28px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.01em' }}>
-              Mes dossiers
-            </h1>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => openImportV2('create')}
-                className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Nouveau dossier
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="px-8 border-b border-border">
-          <div className="flex gap-1 -ml-4">
-            {[
-              { key: 'en-cours', label: 'Dossiers en cours', count: enCoursCount },
-              { key: 'termines', label: 'Dossiers terminés', count: terminesCount },
-            ].map(tab => {
-              const isActive = dossierListTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setDossierListTab(tab.key)}
-                  className={`relative px-4 py-3 text-body-medium transition-colors ${isActive ? 'text-stone-800' : 'text-stone-400 hover:text-stone-600'}`}
-                >
-                  <span className="flex items-center gap-2">
-                    {tab.label}
-                    <span className={`tabular-nums text-caption-medium px-1.5 py-0.5 rounded ${isActive ? 'bg-cream text-foreground-tertiary' : 'bg-transparent text-foreground-muted'}`}>{tab.count}</span>
-                  </span>
-                  {isActive && <div className="absolute bottom-0 left-4 right-4 h-[2px] bg-stone-800 rounded-full" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* En-tête de page canonique (ui/PageHeader, Figma 37511:1436) :
+            titre serif + « Nouveau dossier » + onglets à compteurs. Remplace
+            l'ancien <h1> Georgia 28 + boutons/onglets inline (bases saines). */}
+        <PageHeader
+          className={navHidden ? 'pt-3' : ''}
+          title="Mes dossiers"
+          action={<Button variant="primary" icon={Plus} label="Nouveau dossier" onClick={() => openImportV2('create')} />}
+          tabs={[
+            { key: 'en-cours', label: 'Dossiers en cours', count: enCoursCount },
+            { key: 'termines', label: 'Dossiers terminés', count: terminesCount },
+          ]}
+          activeTab={dossierListTab}
+          onTabChange={setDossierListTab}
+        />
 
         {/* Table */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
@@ -18004,10 +17925,10 @@ export default function App() {
               </p>
             </div>
           ) : (
-          <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-zinc-100">
+                <tr className="border-b border-background-subtle">
                   <th className="px-5 py-3 text-left" style={colHeaderStyle}>Dossier</th>
                   <th className="px-5 py-3 text-left" style={colHeaderStyle}>Domaine</th>
                   <th className="px-5 py-3 text-left" style={colHeaderStyle}>Stade</th>
@@ -18023,7 +17944,7 @@ export default function App() {
                   <tr
                     key={dossier.id}
                     onClick={() => openDossier(dossier)}
-                    className="bg-white hover:bg-background cursor-pointer transition-colors group"
+                    className="bg-surface hover:bg-background cursor-pointer transition-colors group"
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
@@ -18116,10 +18037,10 @@ export default function App() {
   // These are reused by both the UI Kit and Diff Engine pages.
 
   const DIFF_TABLE_TAG_STYLES = {
-    add: { bg: '#dcfce7', color: '#064e3b', label: 'ADD' },
-    edit: { bg: '#f9ecd6', color: '#855b31', label: 'EDIT' },
-    mixed: { bg: '#fff7ed', color: '#9a3412', label: 'MIXED' },
-    delete: { bg: '#fef2f2', color: '#991b1b', label: 'DELETE' },
+    add: { bg: dsColors.piece.revenus.bg, color: dsColors.feedback.success.text, label: 'ADD' },
+    edit: { bg: dsColors.piece.factures.bg, color: dsColors.feedback.warning.text, label: 'EDIT' },
+    mixed: { bg: dsColors.feedback.warning.subtle, color: dsColors.brand.darker.subtleForeground, label: 'MIXED' },
+    delete: { bg: dsColors.step.red.bg, color: dsColors.feedback.destructive.base, label: 'DELETE' },
   };
   const diffTag = (type) => { const t = DIFF_TABLE_TAG_STYLES[type]; return <span className="text-counter px-1.5 py-0.5 rounded" style={{ background: t.bg, color: t.color, fontWeight: 600 }}>{t.label}</span>; };
 
@@ -18159,28 +18080,28 @@ export default function App() {
     const accept = (id) => setRows(prev => prev.map(r => r.id === id ? { ...r, status: 'accepted' } : r));
     const reject = (id) => setRows(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } : r));
 
-    const thStyle = { fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0 8px' };
-    const oldVal = (v) => <div style={{ fontSize: 12, lineHeight: '16px', color: '#a8a29e', textDecoration: 'line-through', letterSpacing: '0.12px' }}>{v}</div>;
-    const newVal = (v, opts = {}) => <div style={{ fontSize: 14, lineHeight: '20px', fontWeight: 500, color: '#292524', ...opts }}>{v}</div>;
-    const delVal = (v) => <span style={{ fontSize: 14, color: '#a8a29e', textDecoration: 'line-through' }}>{v}</span>;
+    const thStyle = { fontSize: 11, fontWeight: 600, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0 8px' };
+    const oldVal = (v) => <div style={{ fontSize: 12, lineHeight: '16px', color: dsColors.semantic.foregroundMuted, textDecoration: 'line-through', letterSpacing: '0.12px' }}>{v}</div>;
+    const newVal = (v, opts = {}) => <div style={{ fontSize: 14, lineHeight: '20px', fontWeight: 500, color: dsColors.semantic.foreground, ...opts }}>{v}</div>;
+    const delVal = (v) => <span style={{ fontSize: 14, color: dsColors.semantic.foregroundMuted, textDecoration: 'line-through' }}>{v}</span>;
     const strip = (color) => <div className="absolute left-0 top-0 bottom-0 w-1 pointer-events-none" style={{ background: color }} />;
 
     const renderBtns = (id) => (
       <span className="absolute right-[-20px] top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/diff:opacity-100 transition-opacity z-10">
-        <button onClick={() => accept(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-        <button onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+        <button onClick={() => accept(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-success-subtle hover:border-emerald-border transition-colors" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+        <button onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-danger-border transition-colors" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
       </span>
     );
 
     const docIcon = (r) => {
-      if (r.diffType === 'delete') return <span className="inline-flex items-center justify-center w-7 h-7 bg-white rounded-md border border-dashed border-foreground-muted" style={{ opacity: 0.4 }}><FileText className="w-3.5 h-3.5 text-foreground-muted" /></span>;
+      if (r.diffType === 'delete') return <span className="inline-flex items-center justify-center w-7 h-7 bg-surface rounded-md border border-dashed border-foreground-muted" style={{ opacity: 0.4 }}><FileText className="w-3.5 h-3.5 text-foreground-muted" /></span>;
       if (!r.diffType) return <span className="inline-flex items-center justify-center w-7 h-7 bg-background-canvas text-border-strong rounded-md border border-dashed border-border"><FileText className="w-3.5 h-3.5" /></span>;
       return <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md relative"><FileText className="w-4 h-4 text-info" /><span className="absolute -top-1.5 left-[18px] min-w-[16px] h-4 bg-link text-white text-counter font-medium rounded-full flex items-center justify-center border-2 border-white px-0.5">1</span></span>;
     };
 
     const resteCell = (r, muted) => {
-      const c = muted ? '#a8a29e' : '#78716c';
-      const mc = muted ? '#a8a29e' : '#292524';
+      const c = muted ? dsColors.semantic.borderHover : dsColors.semantic.mutedForeground;
+      const mc = muted ? dsColors.semantic.borderHover : dsColors.semantic.ring;
       const strike = muted ? 'line-through' : 'none';
       return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
@@ -18197,10 +18118,10 @@ export default function App() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <span className="text-caption text-foreground-secondary">{pending.length} pending · {rows.filter(r => r.status === 'accepted').length} accepted · {rows.filter(r => r.status === 'rejected').length} rejected</span>
-          <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-[#1e40af]"><RotateCcw className="w-3 h-3" /> Reset</button>
+          <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-piece-medical-fg"><RotateCcw className="w-3 h-3" /> Reset</button>
         </div>
-        <div className="border border-border rounded-lg bg-white overflow-visible">
-          <div className="flex items-center" style={{ borderBottom: '1px solid #dfdcd9', background: '#fafaf9', padding: '8px 0' }}>
+        <div className="border border-border rounded-lg bg-surface overflow-visible">
+          <div className="flex items-center" style={{ borderBottom: `1px solid ${dsColors.semantic.border}`, background: dsColors.banner.neutral.bgFrom, padding: '8px 0' }}>
             <div className="w-[52px] flex-shrink-0" style={{ ...thStyle, paddingLeft: 14 }}>Doc</div>
             <div className="flex-1 min-w-0" style={thStyle}>Libellé</div>
             <div className="flex-1 min-w-0" style={thStyle}>Taux</div>
@@ -18227,7 +18148,7 @@ export default function App() {
             const showReste = resolved && isRejected && r.oldReste ? r.oldReste : r.reste;
             const showResteBase = resolved && isRejected && r.oldResteBase ? r.oldResteBase : r.resteBase;
             return (
-              <div key={r.id} className={`group/diff relative flex items-center transition-colors ${isAccepted ? 'diff-row-accepted' : isRejected ? 'diff-row-rejected' : ''}`} style={{ borderBottom: i < arr.length - 1 ? '1px solid #f0efed' : 'none', minHeight: 56, background: r.bgAlt && isPending ? '#fafaf9' : undefined }}>
+              <div key={r.id} className={`group/diff relative flex items-center transition-colors ${isAccepted ? 'diff-row-accepted' : isRejected ? 'diff-row-rejected' : ''}`} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dsColors.semantic.backgroundSubtle}` : 'none', minHeight: 56, background: r.bgAlt && isPending ? dsColors.banner.neutral.bgFrom : undefined }}>
                 {isPending && diffColor && strip(diffColor)}
                 <div className="w-[52px] flex-shrink-0 px-2 pl-[14px]">{resolved ? resolvedDocIcon : docIcon(r)}</div>
                 <div className="flex-1 min-w-0 px-2">
@@ -18235,22 +18156,22 @@ export default function App() {
                 </div>
                 <div className="flex-1 min-w-0 px-2">
                   {resolved ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px] bg-cream text-foreground-tertiary">{showTaux}</span>
-                    : isPending && r.badgeEdit ? <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span className="text-caption-medium px-2 py-0.5 rounded-[6px] line-through" style={{ background: '#eeece6', color: '#a8a29e' }}>{r.oldTaux}</span><span className="text-caption-medium px-2 py-0.5 rounded-[6px]" style={{ background: '#cce6d9', color: '#064e3b' }}>{r.taux}</span></div>
-                    : isPending && isDel ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px] line-through" style={{ background: '#f5f5f4', color: '#a8a29e' }}>{r.taux}</span>
-                    : r.tauxSuccess ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px]" style={{ background: '#cce6d9', color: '#064e3b' }}>{r.taux}</span>
+                    : isPending && r.badgeEdit ? <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span className="text-caption-medium px-2 py-0.5 rounded-[6px] line-through" style={{ background: dsColors.semantic.muted, color: dsColors.semantic.foregroundMuted }}>{r.oldTaux}</span><span className="text-caption-medium px-2 py-0.5 rounded-[6px]" style={{ background: dsColors.step.green.bg, color: dsColors.feedback.success.text }}>{r.taux}</span></div>
+                    : isPending && isDel ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px] line-through" style={{ background: dsColors.semantic.backgroundSubtle, color: dsColors.semantic.foregroundMuted }}>{r.taux}</span>
+                    : r.tauxSuccess ? <span className="text-caption-medium px-2 py-0.5 rounded-[6px]" style={{ background: dsColors.step.green.bg, color: dsColors.feedback.success.text }}>{r.taux}</span>
                     : <span className="text-caption-medium px-2 py-0.5 rounded-[6px] bg-cream text-foreground-tertiary">{r.taux}</span>}
                 </div>
                 <div className="flex-1 min-w-0 px-2">
-                  {resolved ? <span style={{ fontSize: 14, color: '#78716c' }}>{showDate}</span> : isPending && isDel ? delVal(r.date) : isPending && r.oldDate ? <>{oldVal(r.oldDate)}{newVal(r.date, { fontWeight: 500 })}</> : <span style={{ fontSize: 14, color: '#78716c' }}>{r.date}</span>}
+                  {resolved ? <span style={{ fontSize: 14, color: dsColors.semantic.mutedForeground }}>{showDate}</span> : isPending && isDel ? delVal(r.date) : isPending && r.oldDate ? <>{oldVal(r.oldDate)}{newVal(r.date, { fontWeight: 500 })}</> : <span style={{ fontSize: 14, color: dsColors.semantic.mutedForeground }}>{r.date}</span>}
                 </div>
                 <div className="flex-1 min-w-0 px-2 text-right">
-                  {resolved ? (showMontant ? newVal(showMontant, { color: '#44403c' }) : <span style={{ color: '#a8a29e' }}>—</span>) : r.montant == null && r.oldMontant && isPending ? delVal(r.oldMontant) : isPending && isDel ? delVal(r.montant) : isPending && r.oldMontant ? <>{oldVal(r.oldMontant)}{newVal(r.montant)}</> : r.montant ? newVal(r.montant, { color: '#44403c' }) : <span style={{ color: '#a8a29e' }}>—</span>}
+                  {resolved ? (showMontant ? newVal(showMontant, { color: dsColors.semantic.foregroundTertiary }) : <span style={{ color: dsColors.semantic.foregroundMuted }}>-</span>) : r.montant == null && r.oldMontant && isPending ? delVal(r.oldMontant) : isPending && isDel ? delVal(r.montant) : isPending && r.oldMontant ? <>{oldVal(r.oldMontant)}{newVal(r.montant)}</> : r.montant ? newVal(r.montant, { color: dsColors.semantic.foregroundTertiary }) : <span style={{ color: dsColors.semantic.foregroundMuted }}>-</span>}
                 </div>
                 <div className="flex-1 min-w-0 px-2 text-right">
                   {resolved ? resteCell({ resteBase: showResteBase, reste: showReste }, false) : isPending && r.oldReste ? <>{resteCell({ resteBase: r.oldResteBase, reste: r.oldReste }, true)}{resteCell(r, false)}</> : resteCell(r, isPending && isDel)}
                 </div>
                 <div className="flex-1 min-w-0 px-2 text-right">
-                  {r.diffType ? diffTag(r.diffType) : <span className="text-counter text-foreground-muted">—</span>}
+                  {r.diffType ? diffTag(r.diffType) : <span className="text-counter text-foreground-muted">-</span>}
                 </div>
                 {isPending && r.diffType && renderBtns(r.id)}
               </div>
@@ -18283,15 +18204,15 @@ export default function App() {
           const resType = allResolved ? (rejectedCnt === 0 ? 'all-approved' : approvedCnt === 0 ? 'all-rejected' : 'mixed') : null;
           return (
             <div key={card.id}>
-              <div className="rounded-lg border border-border bg-white overflow-hidden transition-all duration-300" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.03)', opacity: allResolved ? 0.85 : 1 }}>
+              <div className="rounded-lg border border-border bg-surface overflow-hidden transition-all duration-300" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.03)', opacity: allResolved ? 0.85 : 1 }}>
                 <div className="flex items-stretch cursor-pointer select-none group/header">
-                  <div className="w-10 flex items-center justify-center flex-shrink-0" style={{ background: allResolved ? (resType === 'all-approved' ? '#ecfdf5' : resType === 'all-rejected' ? '#fef2f2' : '#f5f5f4') : '#f5f5f4' }}><card.Icon className="w-3.5 h-3.5" style={{ color: allResolved ? (resType === 'all-approved' ? ROW_DIFF_COLORS.add : resType === 'all-rejected' ? ROW_DIFF_COLORS.delete : '#78716c') : '#78716c' }} /></div>
+                  <div className="w-10 flex items-center justify-center flex-shrink-0" style={{ background: allResolved ? (resType === 'all-approved' ? dsColors.banner.success.bgFrom : resType === 'all-rejected' ? dsColors.step.red.bg : dsColors.semantic.backgroundSubtle) : dsColors.semantic.backgroundSubtle }}><card.Icon className="w-3.5 h-3.5" style={{ color: allResolved ? (resType === 'all-approved' ? ROW_DIFF_COLORS.add : resType === 'all-rejected' ? ROW_DIFF_COLORS.delete : dsColors.semantic.mutedForeground) : dsColors.semantic.mutedForeground }} /></div>
                   <div className="flex items-center gap-3 flex-1 min-w-0" style={{ padding: '12px 14px 12px 12px' }}>
                     <div className="flex-1 min-w-0">
-                      <div className="group-hover/header:underline" style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px', textDecorationColor: '#cbc7c4' }}>{card.title}</div>
+                      <div className="group-hover/header:underline" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '18px', textDecorationColor: dsColors.semantic.borderStrong }}>{card.title}</div>
                       {allResolved ? (
                         <div className="flex items-center gap-1 mt-0.5">
-                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, lineHeight: '14px', color: resType === 'all-approved' ? ROW_DIFF_COLORS.add : resType === 'all-rejected' ? ROW_DIFF_COLORS.delete : '#78716c' }}>
+                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, lineHeight: '14px', color: resType === 'all-approved' ? ROW_DIFF_COLORS.add : resType === 'all-rejected' ? ROW_DIFF_COLORS.delete : dsColors.semantic.mutedForeground }}>
                             {resType === 'all-approved' ? 'Tout accepté' : resType === 'all-rejected' ? 'Tout rejeté' : `${approvedCnt}/${cardDiffs.length} accepté${approvedCnt > 1 ? 's' : ''}`}
                           </span>
                         </div>
@@ -18301,45 +18222,45 @@ export default function App() {
                         </div>
                       ) : null}
                     </div>
-                    {cardDiffs.length > 0 && <button className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 hover:bg-border" onClick={() => setExpanded(prev => ({ ...prev, [card.id]: !prev[card.id] }))}><ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" style={{ color: '#78716c', transform: isExp ? 'rotate(0deg)' : 'rotate(-90deg)' }} /></button>}
+                    {cardDiffs.length > 0 && <button className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 hover:bg-border" onClick={() => setExpanded(prev => ({ ...prev, [card.id]: !prev[card.id] }))}><ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" style={{ color: dsColors.semantic.mutedForeground, transform: isExp ? 'rotate(0deg)' : 'rotate(-90deg)' }} /></button>}
                   </div>
                 </div>
                 {isExp && (
-                  <div style={{ borderTop: '1px solid #f0efed' }}>
+                  <div style={{ borderTop: `1px solid ${dsColors.semantic.backgroundSubtle}` }}>
                     {cardDiffs.map((diff, di) => {
                       const dotColor = ROW_DIFF_COLORS[diff.type] || ROW_DIFF_COLORS.edit;
                       return (
-                        <div key={diff.id} className={`group/diff cursor-pointer transition-colors ${diff.approved ? 'diff-row-accepted' : diff.rejected ? 'diff-row-rejected' : 'hover:bg-background'}`} style={{ padding: '8px 14px', fontSize: 12, borderBottom: di < cardDiffs.length - 1 ? '1px solid #f0efed' : 'none' }}>
+                        <div key={diff.id} className={`group/diff cursor-pointer transition-colors ${diff.approved ? 'diff-row-accepted' : diff.rejected ? 'diff-row-rejected' : 'hover:bg-background'}`} style={{ padding: '8px 14px', fontSize: 12, borderBottom: di < cardDiffs.length - 1 ? `1px solid ${dsColors.semantic.backgroundSubtle}` : 'none' }}>
                           <div className="flex items-center gap-2">
                             {diff.approved ? <Check className="w-2.5 h-2.5 flex-shrink-0" style={{ color: ROW_DIFF_COLORS.add }} strokeWidth={3} />
-                              : diff.rejected ? (diff.type === 'delete' ? <RotateCcw className="w-2.5 h-2.5 flex-shrink-0" style={{ color: '#a8a29e' }} strokeWidth={2.5} /> : <X className="w-2.5 h-2.5 flex-shrink-0" style={{ color: ROW_DIFF_COLORS.delete }} strokeWidth={3} />)
+                              : diff.rejected ? (diff.type === 'delete' ? <RotateCcw className="w-2.5 h-2.5 flex-shrink-0" style={{ color: dsColors.semantic.foregroundMuted }} strokeWidth={2.5} /> : <X className="w-2.5 h-2.5 flex-shrink-0" style={{ color: ROW_DIFF_COLORS.delete }} strokeWidth={3} />)
                               : <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dotColor, transform: 'rotate(45deg)' }} />}
-                            <span style={{ color: (diff.approved || diff.rejected) ? '#a8a29e' : diff.type === 'delete' ? '#a8a29e' : '#44403c', fontWeight: 500, flex: 1, textDecoration: (diff.type === 'delete' && !diff.rejected) || (diff.rejected && diff.type !== 'delete') ? 'line-through' : 'none' }}>{diff.entityLabel}</span>
+                            <span style={{ color: (diff.approved || diff.rejected) ? dsColors.semantic.foregroundMuted : diff.type === 'delete' ? dsColors.semantic.foregroundMuted : dsColors.semantic.foregroundTertiary, fontWeight: 500, flex: 1, textDecoration: (diff.type === 'delete' && !diff.rejected) || (diff.rejected && diff.type !== 'delete') ? 'line-through' : 'none' }}>{diff.entityLabel}</span>
                             {!diff.approved && !diff.rejected && (
                               <span className="flex items-center gap-1.5 opacity-0 group-hover/diff:opacity-100 transition-opacity flex-shrink-0">
-                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-[#ecfdf5] hover:border-[#a5c9b7]" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, approved: true } : d))}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-danger-subtle hover:border-[#cf9d9d]" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-success-subtle hover:border-emerald-border" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, approved: true } : d))}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-danger-subtle hover:border-danger-border" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
                               </span>
                             )}
                           </div>
                           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 items-center" style={{ paddingLeft: 14 }}>
                             {diff.fields.map((f, fi) => {
-                              const badgeStyle = f.badge ? { display: 'inline-flex', alignItems: 'center', padding: '1px 6px', borderRadius: 6, fontSize: 11, fontWeight: 500, lineHeight: '16px', ...(f.badge === 'success' ? { background: '#cce6d9', color: '#064e3b' } : { background: '#eeece6', color: '#44403c' }) } : null;
+                              const badgeStyle = f.badge ? { display: 'inline-flex', alignItems: 'center', padding: '1px 6px', borderRadius: 6, fontSize: 11, fontWeight: 500, lineHeight: '16px', ...(f.badge === 'success' ? { background: dsColors.step.green.bg, color: dsColors.feedback.success.text } : { background: dsColors.semantic.muted, color: dsColors.semantic.foregroundTertiary }) } : null;
                               const renderVal = (val, style) => f.badge ? <span style={{ ...badgeStyle, ...style }}>{val}</span> : <span style={style}>{val}</span>;
                               return (
-                                <span key={fi} className="inline-flex items-center gap-1" style={{ fontSize: 12, color: (diff.approved || diff.rejected) ? '#a8a29e' : '#78716c' }}>
-                                  <span style={{ color: '#a8a29e' }}>{f.label}:</span>{' '}
+                                <span key={fi} className="inline-flex items-center gap-1" style={{ fontSize: 12, color: (diff.approved || diff.rejected) ? dsColors.semantic.foregroundMuted : dsColors.semantic.mutedForeground }}>
+                                  <span style={{ color: dsColors.semantic.foregroundMuted }}>{f.label}:</span>{' '}
                                   {diff.rejected ? (
-                                    diff.type === 'delete' ? renderVal(f.before || f.after, { color: '#78716c' })
-                                    : diff.type === 'add' ? <>{f.after && renderVal(f.after, { textDecoration: 'line-through', color: '#a8a29e', opacity: f.badge ? 0.5 : 1 })}</>
-                                    : <>{f.after && renderVal(f.after, { textDecoration: 'line-through', color: '#a8a29e', opacity: f.badge ? 0.5 : 1 })}{f.before && <span style={{ color: '#a8a29e' }}> → </span>}{f.before && renderVal(f.before, { color: '#78716c' })}</>
+                                    diff.type === 'delete' ? renderVal(f.before || f.after, { color: dsColors.semantic.mutedForeground })
+                                    : diff.type === 'add' ? <>{f.after && renderVal(f.after, { textDecoration: 'line-through', color: dsColors.semantic.foregroundMuted, opacity: f.badge ? 0.5 : 1 })}</>
+                                    : <>{f.after && renderVal(f.after, { textDecoration: 'line-through', color: dsColors.semantic.foregroundMuted, opacity: f.badge ? 0.5 : 1 })}{f.before && <span style={{ color: dsColors.semantic.foregroundMuted }}> → </span>}{f.before && renderVal(f.before, { color: dsColors.semantic.mutedForeground })}</>
                                   ) : (
-                                    <>{f.before && renderVal(f.before, { textDecoration: 'line-through', color: '#a8a29e', opacity: f.badge ? 0.5 : 1 })}{f.before && f.after && <span style={{ color: '#a8a29e' }}> → </span>}{f.after && renderVal(f.after, f.badge ? {} : { color: diff.approved ? '#a8a29e' : '#44403c', fontWeight: 500 })}</>
+                                    <>{f.before && renderVal(f.before, { textDecoration: 'line-through', color: dsColors.semantic.foregroundMuted, opacity: f.badge ? 0.5 : 1 })}{f.before && f.after && <span style={{ color: dsColors.semantic.foregroundMuted }}> → </span>}{f.after && renderVal(f.after, f.badge ? {} : { color: diff.approved ? dsColors.semantic.foregroundMuted : dsColors.semantic.foregroundTertiary, fontWeight: 500 })}</>
                                   )}
                                   {f.variants && f.variants.length > 1 && !diff.approved && !diff.rejected && (
                                     <span className="inline-flex items-center gap-1 ml-1.5" style={{ position: 'relative' }}>
                                       {f.variants.map((v, vi) => (
-                                        <span key={vi} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded" style={{ fontSize: 10, fontWeight: 500, background: vi === 0 ? '#eef3fa' : '#f5f5f4', border: `1px solid ${vi === 0 ? '#aabcd5' : '#dfdcd9'}`, color: vi === 0 ? '#1e3a8a' : '#78716c', boxShadow: vi === 0 ? '0 1px 2px rgba(0,0,0,0.06)' : 'none' }}>
+                                        <span key={vi} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded" style={{ fontSize: 10, fontWeight: 500, background: vi === 0 ? dsColors.banner.info.bgFrom : dsColors.semantic.backgroundSubtle, border: `1px solid ${vi === 0 ? dsColors.feedback.info.border : dsColors.semantic.border}`, color: vi === 0 ? dsColors.feedback.info.text : dsColors.semantic.mutedForeground, boxShadow: vi === 0 ? dsShadows.xs : 'none' }}>
                                           <CircleArrowUp className="w-2.5 h-2.5" />{v.source}: {v.value}
                                         </span>
                                       ))}
@@ -18355,26 +18276,237 @@ export default function App() {
                   </div>
                 )}
                 {cardDiffs.length > 0 && !allResolved && (
-                  <div style={{ borderTop: '1px solid #f0efed' }} className="flex items-center">
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, approved: true } : d))}><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter</button>
-                    <div style={{ width: 1, height: 16, background: '#dfdcd9' }} />
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, rejected: true } : d))}><RotateCcw className="w-3 h-3" /> Tout annuler</button>
+                  <div style={{ borderTop: `1px solid ${dsColors.semantic.backgroundSubtle}` }} className="flex items-center">
+                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, approved: true } : d))}><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter</button>
+                    <div style={{ width: 1, height: 16, background: dsColors.semantic.input }} />
+                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundMuted }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, rejected: true } : d))}><RotateCcw className="w-3 h-3" /> Tout annuler</button>
                   </div>
                 )}
               </div>
             </div>
           );
         })}
-        <button onClick={reset} className="inline-flex items-center gap-1.5 self-start px-3 py-1.5 rounded-md border border-border hover:bg-background transition-colors" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}><RotateCcw className="w-3 h-3" /> Reset</button>
+        <button onClick={reset} className="inline-flex items-center gap-1.5 self-start px-3 py-1.5 rounded-md border border-border hover:bg-background transition-colors" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}><RotateCcw className="w-3 h-3" /> Reset</button>
       </div>
     );
   };
 
   // ========== COMPONENTS SHOWCASE ==========
+  // Sidebar de la plateforme DS (grammaire nav Plato) — partagée entre la vue
+  // playground (sections) et les pages de détail composant (/ui-kit/c/<id>).
+  // Rail DS masqué → le contrôle « Menu » flottant qui le rouvre (même pièce
+  // que le proto : NavExpandControl). Posé en fixed haut-gauche, au-dessus du
+  // contenu, avec un fond carte pour lire comme une barrette flottante.
+  const renderDSNavExpand = () => {
+    if (!dsNavHidden) return null;
+    return (
+      <div
+        className="fixed left-3 top-3 z-50 rounded-lg bg-surface border border-border shadow-sm px-1 py-0.5"
+      >
+        <NavExpandControl onExpand={() => setDsNavHidden(false)} onHome={() => navigate('/')} />
+      </div>
+    );
+  };
+
+  const renderDSSidebar = () => {
+    if (dsNavHidden) return null;
+    // Composé sur le shell canonique AppSidebar (src/components/ui/AppSidebar.js).
+    // Le rail ne change jamais ; ici on ne fait que fournir les groupes.
+    const inContext = componentsSection === 'inventory' || currentPage === 'component-detail';
+    // Nav rangée par FAMILLE fonctionnelle (langage commun dev / PM / designer),
+    // pas par couche technique. Ordre canonique ci-dessous ; la couche reste une
+    // métadonnée de fiche. Pastille de statut par item ; les « à construire »
+    // (exists:false) sont grisés et repoussés en fin de famille.
+    const FAMILY_ORDER = [
+      'Actions',
+      'Formulaires',
+      'Affichage de données',
+      'Retour & statut',
+      'Overlays & menus',
+      'Navigation & shell',
+      'Chat & assistant',
+      'Métier / droit',
+    ];
+    const STATUS_DOT = {
+      validated: { color: dsColors.feedback.success.text, title: 'Validé' },
+      pending: { color: dsColors.feedback.warning.text, title: 'En cours' },
+      missing: { color: dsColors.feedback.destructive.text, title: 'À construire' },
+    };
+    const statusDot = (c) => {
+      const s = STATUS_DOT[c.status] || STATUS_DOT.missing;
+      return <span aria-hidden title={s.title} style={{ width: 6, height: 6, borderRadius: 999, backgroundColor: s.color, display: 'inline-block' }} />;
+    };
+    // Sprint / Explos = UN item nav qui déploie ses sous-items UNIQUEMENT quand
+    // il est actif. Regroupe les labs ET les anciennes sections « Composants »
+    // (showcases legacy, doublons de l'inventaire) - qui ne vivent plus en nav
+    // de 1er niveau. Deux cartes : « Explo composant » (un élément du DS exploré
+    // isolément) et « Explo flow » (un parcours / écran complet). `date` = 1re
+    // apparition en repo, sert au tri (le plus récent en tête de carte).
+    const EXPLOS = [
+      // Explo composant
+      { label: 'Prompt Suggestion Card', slug: 'prompt-suggestion-card', icon: Sparkles, kind: 'composant', date: '2026-05-06' },
+      { label: 'Reasoning', slug: 'reasoning', icon: Brain, kind: 'composant', date: '2026-04-13' },
+      { label: 'Barème', slug: 'bareme-components', icon: Calculator, kind: 'composant', date: '2026-05-07' },
+      { label: 'Jurisprudence (JP)', slug: 'jp', icon: FileText, kind: 'composant', date: '2026-01-30' },
+      { label: 'Diff Engine', slug: 'diff-engine', icon: FileText, kind: 'composant', date: '2026-04-13' },
+      { label: 'IV - structures de table', slug: 'iv-structures', icon: Table2, kind: 'composant', date: '2026-04-21' },
+      { label: 'Prompt Suggestions', slug: 'prompt-suggestions', icon: Lightbulb, kind: 'composant', date: '2026-05-05' },
+      { label: 'Reasoning Demo', slug: 'reasoning-demo', icon: Brain, kind: 'composant', date: '2026-04-14' },
+      { label: "Sommaire d'acte", slug: 'sommaire-acte', icon: AlignLeft, kind: 'composant', date: '2026-06-26' },
+      { label: 'Chat Composer Notice', slug: 'chat-composer-notice', icon: Sparkles, kind: 'composant', date: '2026-07-29' },
+      { label: 'Preview panel - tous les types', slug: 'preview-panel', icon: Files, kind: 'composant', date: '2026-07-30' },
+      { label: 'Popover article de loi', slug: 'loi-hover', icon: BookOpen, kind: 'composant', date: '2026-09-24' },
+      { label: 'Flag dossier - variantes', slug: 'dossier-flag', icon: Folder, kind: 'composant', date: '2026-09-09' },
+      // Explo flow
+      { label: 'Import dossier - agencements', slug: 'import-dossier', icon: Mail, kind: 'flow', date: '2026-07-29' },
+      { label: 'Connecteur email - modale & promos', slug: 'connecteurs', icon: Plug2, kind: 'flow', date: '2026-07-29' },
+      { label: 'Essai gratuit - le flow complet', slug: 'trial-flow', icon: Clock, kind: 'flow', date: '2026-07-29' },
+      { label: 'Cotisations et impôts - social', slug: 'cotisations', icon: Calculator, kind: 'flow', date: '2026-07-29' },
+      { label: 'Import - arbre de dossiers', slug: 'import-folder-tree', icon: Mail, kind: 'flow', date: '2026-08-04' },
+      { label: 'Import v2 - récolte & bordereau', slug: 'import-v2', icon: Mail, kind: 'flow', date: '2026-08-04' },
+      { label: 'Navigation - shell et états', slug: 'nav-system', icon: PanelRight, kind: 'flow', date: '2026-09-17' },
+      { label: 'Hero motion - 3 key screens', slug: 'hero-motion', icon: Sparkles, kind: 'flow', date: '2026-09-17' },
+    ];
+    // Cartes de la nav Sprint : chacune triée par date décroissante (récent en tête).
+    const EXPLO_GROUPS = [
+      { kind: 'composant', label: 'Explo composant' },
+      { kind: 'flow', label: 'Explo flow' },
+    ];
+    const explosByDate = (kind) => EXPLOS.filter((e) => e.kind === kind).sort((a, b) => b.date.localeCompare(a.date));
+    const exploMonth = (iso) => {
+      const [y, m] = iso.split('-');
+      const mois = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+      return `${mois[Number(m) - 1]} ${y.slice(2)}`;
+    };
+    const latestExplo = [...EXPLOS].sort((a, b) => b.date.localeCompare(a.date))[0];
+    const sprintActive = EXPLOS.some((e) => currentPage === e.slug || componentsSection === e.slug);
+    const blocksActive = componentsSection === 'blocks' || currentPage === 'block-detail';
+    return (
+      <AppSidebar
+        header={<SidebarBrand chip="DS" onClick={() => navigate('/')} />}
+        onCollapse={() => setDsNavHidden(true)}
+        footer={
+          <div className="flex items-center justify-between gap-2 px-4 py-3">
+            <span className="flex items-center gap-2 text-[13px] text-foreground-secondary">
+              {themeMode === 'dark'
+                ? <Moon className="w-4 h-4" strokeWidth={1.5} />
+                : <Sun className="w-4 h-4" strokeWidth={1.5} />}
+              Apparence
+            </span>
+            <div className="inline-flex p-0.5 gap-0.5 bg-cream border border-border rounded-md" role="group" aria-label="Thème">
+              {[
+                { id: 'light', label: 'Clair', Icon: Sun },
+                { id: 'dark', label: 'Sombre', Icon: Moon },
+              ].map(({ id, label, Icon }) => {
+                const active = themeMode === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setTheme(id)}
+                    aria-pressed={active}
+                    title={label}
+                    className={`inline-flex items-center justify-center w-6 h-6 rounded transition-colors ${active ? 'text-foreground border border-border-strong' : 'text-foreground-secondary hover:text-foreground border border-transparent'}`}
+                  style={active ? { backgroundColor: colors.semantic.card } : undefined}
+                  >
+                    <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        }
+      >
+        {/* Recherche - déclenche la palette (⌘K). En tête de rail, avant le proto. */}
+        <SidebarGroup>
+          <NavItem
+            label="Rechercher"
+            icon={Search}
+            onClick={() => setDsPaletteOpen(true)}
+            trailing={<kbd style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: dsColors.semantic.foregroundTertiary, background: dsColors.semantic.backgroundSubtle, border: `1px solid ${dsColors.semantic.border}`, borderRadius: 5, padding: '1px 6px' }}>⌘K</kbd>}
+          />
+        </SidebarGroup>
+        <SidebarGroup label="Proto">
+          <div className="flex flex-col gap-1.5 px-0.5">
+            <Button variant="primary" size="md" icon={ArrowUpRight} iconPosition="trailing" label="Ouvrir le proto" fullWidth onClick={() => navigate('/app')} />
+            <Button variant="outline" size="md" icon={UserRound} label="Première connexion" fullWidth onClick={() => navigate('/welcome')} />
+          </div>
+        </SidebarGroup>
+        <SidebarGroup label="Design system" last={!inContext && !sprintActive && !blocksActive}>
+          <NavItem label="Tokens" icon={Layers} active={componentsSection === 'tokens'} onClick={() => navigate('/ui-kit/tokens')} />
+          <NavItem label="Composants" icon={ClipboardList} active={inContext} onClick={() => navigate('/ui-kit/inventory')} />
+          <NavItem label="Blocks" icon={PanelRight} active={componentsSection === 'blocks' || currentPage === 'block-detail'} onClick={() => navigate('/ui-kit/blocks')} />
+          <NavItem label="Illustrations" icon={Wand2} active={componentsSection === 'illustrations'} onClick={() => navigate('/ui-kit/illustrations')} />
+          <NavItem label="Sprint / Explos" icon={Lightbulb} active={sprintActive} onClick={() => navigate(`/ui-kit/${latestExplo.slug}`)} />
+        </SidebarGroup>
+        {/* En contexte Inventaire/fiche : la nav des composants par FAMILLE. */}
+        {inContext && (
+          <>
+            {FAMILY_ORDER.map((family, idx, arr) => {
+              const items = dsInventory.components
+                .filter((c) => c.family === family)
+                // Ce qui existe d'abord, « à construire » ensuite ; alpha à l'intérieur.
+                .sort((a, b) => (a.exists === b.exists ? (a.sort || a.id).localeCompare(b.sort || b.id) : a.exists ? -1 : 1));
+              if (!items.length) return null;
+              return (
+                <SidebarGroup key={family} label={family} last={idx === arr.length - 1}>
+                  {items.map((c) => (
+                    <NavItem
+                      key={c.id}
+                      label={c.id}
+                      muted={!c.exists}
+                      trailing={statusDot(c)}
+                      active={currentPage === 'component-detail' && detailComponentId === c.id}
+                      onClick={() => navigate(`/ui-kit/c/${c.id}`)}
+                    />
+                  ))}
+                </SidebarGroup>
+              );
+            })}
+            {/* Légende des pastilles de statut. */}
+            <div style={{ padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 7, borderTop: `1px solid ${dsColors.semantic.border}` }}>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: dsColors.semantic.foregroundMuted }}>Statut</span>
+              {['validated', 'pending', 'missing'].map((s) => (
+                <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, backgroundColor: STATUS_DOT[s].color, display: 'inline-block', flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: dsColors.semantic.foregroundSecondary }}>{STATUS_DOT[s].title}</span>
+                </span>
+              ))}
+            </div>
+          </>
+        )}
+        {/* En contexte Blocks : sa PROPRE nav (les blocks à entrer). */}
+        {blocksActive && (
+          <SidebarGroup label="Blocks" last>
+            {DS_BLOCKS.map((b) => (
+              <NavItem key={b.id} icon={b.kind === 'table' ? Table2 : PanelRight} label={b.title} active={currentPage === 'block-detail' && detailBlockId === b.id} onClick={() => navigate(`/ui-kit/b/${b.id}`)} />
+            ))}
+          </SidebarGroup>
+        )}
+        {/* En contexte Sprint / Explos : sa PROPRE nav, une carte par type
+            (composant / flow), triée par date (récent en tête). */}
+        {sprintActive && EXPLO_GROUPS.map((g, gi) => (
+          <SidebarGroup key={g.kind} label={g.label} last={gi === EXPLO_GROUPS.length - 1}>
+            {explosByDate(g.kind).map((e) => (
+              <NavItem
+                key={e.slug}
+                icon={e.icon}
+                label={e.label}
+                active={currentPage === e.slug || componentsSection === e.slug}
+                trailing={<span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, letterSpacing: '0.02em', color: dsColors.semantic.foregroundMuted }}>{exploMonth(e.date)}</span>}
+                onClick={() => navigate(`/ui-kit/${e.slug}`)}
+              />
+            ))}
+          </SidebarGroup>
+        ))}
+      </AppSidebar>
+    );
+  };
+
   const renderComponentsPage = () => {
     const sectionClass = "mb-10";
-    const sectionTitle = (title) => <h2 style={{ fontSize: 18, fontWeight: 600, color: '#292524', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>{title}</h2>;
-    const subTitle = (title) => <h3 style={{ fontSize: 14, fontWeight: 600, color: '#78716c', marginBottom: 8, marginTop: 16, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</h3>;
+    const sectionTitle = (title) => <h2 style={{ fontSize: 18, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>{title}</h2>;
+    const subTitle = (title) => <h3 style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.mutedForeground, marginBottom: 8, marginTop: 16, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</h3>;
     const row = (children) => <div className="flex items-start gap-4 flex-wrap mb-4">{children}</div>;
 
     // Sample diffs for artifact card demo
@@ -18385,528 +18517,57 @@ export default function App() {
     ];
 
     return (
-      <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
-        {/* Sidebar */}
-        <div className="w-[220px] flex-shrink-0 border-r border-border bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button onClick={() => setCurrentPage('home')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Retour
-          </button>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 10 }}>
-            Composants
-          </div>
-          <nav className="flex flex-col gap-1 mb-6">
-            <button
-              onClick={() => navigate('/ui-kit')}
-              className={`text-left text-body px-2 py-1.5 rounded transition-colors ${!componentsSection ? 'bg-background-subtle text-foreground font-medium' : 'text-foreground-secondary hover:text-foreground hover:bg-background'}`}
-            >
-              Tous les composants
-            </button>
-            {[
-              { label: 'Design Tokens', slug: 'tokens' },
-              { label: 'Components Inventory', slug: 'inventory' },
-              { label: 'Buttons', slug: 'buttons' },
-              { label: 'Prompt Suggestion Card', slug: 'prompt-suggestion-card' },
-              { label: 'Suggestions Menu', slug: 'suggestions-menu' },
-              { label: 'Badges & Pills', slug: 'badges-pills' },
-              { label: 'Diff Rows', slug: 'diff-rows' },
-              { label: 'Panel Diff Inputs', slug: 'panel-diff-inputs' },
-              { label: 'Field Streaming', slug: 'field-streaming' },
-              { label: 'Reasoning', slug: 'reasoning' },
-              { label: 'Chat Messages', slug: 'chat-messages' },
-              { label: 'Artifact Cards', slug: 'artifact-cards' },
-              { label: 'Barème Components', slug: 'bareme-components' },
-              { label: 'JP - Jurisprudence', slug: 'jp' },
-              { label: 'Split - Variantes A/B/C', slug: 'split-variants' },
-              { label: 'Film - Cotisations (Social)', slug: 'film-social' },
-            ].map(({ label, slug }) => (
-              <button
-                key={slug}
-                onClick={() => navigate(`/ui-kit/${slug}`)}
-                className={`text-left text-body px-2 py-1.5 rounded transition-colors ${componentsSection === slug ? 'bg-background-subtle text-foreground font-medium' : 'text-foreground-secondary hover:text-foreground hover:bg-background'}`}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 10 }}>
-            Pages
-          </div>
-          <nav className="flex flex-col gap-1">
-            <button onClick={() => navigate('/ui-kit/diff-engine')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <FileText className="w-3.5 h-3.5" /> Diff Engine
-            </button>
-            <button onClick={() => navigate('/ui-kit/iv-structures')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Table2 className="w-3.5 h-3.5" /> IV Table Structures
-            </button>
-            <button onClick={() => navigate('/ui-kit/prompt-suggestions')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Lightbulb className="w-3.5 h-3.5" /> Prompt Suggestions
-            </button>
-            <button onClick={() => navigate('/ui-kit/reasoning-demo')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Brain className="w-3.5 h-3.5" /> Reasoning Demo
-            </button>
-            <button onClick={() => navigate('/ui-kit/sommaire-acte')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <AlignLeft className="w-3.5 h-3.5" /> Sommaire d'acte
-            </button>
-            <button onClick={() => navigate('/ui-kit/chat-composer-notice')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> Chat Composer Notice
-            </button>
-            <button onClick={() => navigate('/ui-kit/import-dossier')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5" /> Import dossier - agencements
-            </button>
-            <button onClick={() => navigate('/ui-kit/import-folder-tree')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5" /> Import - arbre de dossiers
-            </button>
-            <button onClick={() => navigate('/ui-kit/import-v2')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5" /> Import v2 - récolte & bordereau
-            </button>
-            <button onClick={() => navigate('/ui-kit/connecteurs')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Plug2 className="w-3.5 h-3.5" /> Connecteur email - modale & promos
-            </button>
-            <button onClick={() => navigate('/ui-kit/preview-panel')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Files className="w-3.5 h-3.5" /> Preview panel - tous les types
-            </button>
-            <button onClick={() => navigate('/ui-kit/loi-hover')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <BookOpen className="w-3.5 h-3.5" /> Popover article de loi
-            </button>
-            <button onClick={() => navigate('/ui-kit/trial-flow')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5" /> Essai gratuit - le flow complet
-            </button>
-            <button onClick={() => navigate('/ui-kit/cotisations')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Calculator className="w-3.5 h-3.5" /> Cotisations et impôts - social
-            </button>
-            <button onClick={() => navigate('/ui-kit/dossier-flag')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Folder className="w-3.5 h-3.5" /> Flag dossier - variantes
-            </button>
-            <button onClick={() => navigate('/ui-kit/nav-system')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <PanelRight className="w-3.5 h-3.5 rotate-180" /> Navigation - shell et états
-            </button>
-            <button onClick={() => navigate('/ui-kit/hero-motion')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> Hero motion - 3 key screens
-            </button>
-            <button onClick={() => navigate('/welcome')} className="w-full text-left text-body-medium text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors flex items-center gap-2">
-              <UserRound className="w-3.5 h-3.5" /> Première connexion - onboarding
-            </button>
-          </nav>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto" style={{ padding: '32px 48px' }}>
+      <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
+        {renderDSSidebar()}
+        {renderDSNavExpand()}
+        {/* Content — rail masqué : on réserve la place du contrôle « Menu » flottant. */}
+        <div className="flex-1 overflow-y-auto" style={{ padding: dsNavHidden ? '64px 48px 32px' : '32px 48px' }}>
           {componentsSection && (
             <style>{`
               .ui-kit-content > [id^="section-"]:not(#section-${componentsSection}) { display: none !important; }
             `}</style>
           )}
           <div className="ui-kit-content">
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#292524', marginBottom: 4 }}>Plato UI Components</h1>
-            <p style={{ fontSize: 14, color: '#78716c', marginBottom: 32 }}>Composants visuels du prototype Plato - tester les propriétés et variantes en situation.</p>
+            <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 30, fontWeight: 500, letterSpacing: '-0.6px', color: dsColors.semantic.foreground, marginBottom: 4 }}>Plato Design System</h1>
+            <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 32 }}>La plateforme du design system - tokens, composants, fiches et sandboxes. Designers, product et devs travaillent d'ici ; le proto s'ouvre depuis la nav.</p>
 
             {/* ====== DESIGN TOKENS ====== */}
             <div id="section-tokens" className={sectionClass}>
               {sectionTitle('Design Tokens')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>
+              <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 16 }}>
                 Catalog of every token currently used across the app - colors, typography, spacing, radius, shadows, and motion. Source: <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/design-system/tokens.js</code> + <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/data/designSystemInventory.json</code>. Validation status is updated by Claude in follow-up turns: tell Claude the token id, the Figma ref, notes, and the new status.
               </p>
               <TokensSection />
             </div>
 
+            {/* ====== BLOCKS ====== */}
+            <div id="section-blocks" className={sectionClass}>
+              {sectionTitle('Blocks')}
+              <BlocksSection navigate={navigate} />
+            </div>
+
+            {/* ====== ILLUSTRATIONS ====== */}
+            <div id="section-illustrations" className={sectionClass}>
+              {sectionTitle('Illustrations')}
+              <IllustrationsSection />
+            </div>
+
             {/* ====== COMPONENTS INVENTORY ====== */}
             <div id="section-inventory" className={sectionClass}>
               {sectionTitle('Components Inventory')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>
+              <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 16 }}>
                 Every reusable component currently in the codebase, plus the primitives we still need to build (status <em>missing</em>). Filter by status or category to focus a review pass. Tell Claude which components are validated and where their Figma source lives.
               </p>
               <ComponentsInventorySection />
             </div>
 
-            {/* ====== FILM - COTISATIONS (SOCIAL) ====== */}
-            <div id="section-film-social" className={sectionClass}>
-              {sectionTitle('Film - Cotisations et impôts (Social)')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16, maxWidth: 760 }}>
-                Le film de présentation de l'US (52 s) : la page Chiffrage, la page d'un prélèvement,
-                les badges par poids d'autorité, le panneau en prose et le bloc de résultats - sur le
-                dossier fictif Camille Aubert. Démos interactives : <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>?demo=social</code> et <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>/ui-kit/cotisations</code>.
-                Source : projet Remotion dans <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>video/</code> (<code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>npm run render</code>).
-              </p>
-              <video
-                controls
-                preload="metadata"
-                src="/videos/norma-social.mp4"
-                style={{
-                  width: '100%',
-                  maxWidth: 960,
-                  borderRadius: 10,
-                  border: '1px solid #dfdcd9',
-                  boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05), 0px 1px 1px 0px rgba(26,26,26,0.05)',
-                  background: '#292524',
-                  display: 'block',
-                }}
-              />
-            </div>
-
-            {/* ====== DIFF ROWS ====== */}
-            <div id="section-diff-rows" className={sectionClass}>
-              {sectionTitle('Diff Rows')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Table rows with cell-level diff rendering. Left 4px strip encodes row diff type. Changed cells stack old→new. Figma ref: 1324:17669.</p>
-
-              {subTitle('Multi-column table - all diff types')}
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Interactive sandbox. Accept/reject per row on hover. Reset to restore all pending diffs.</p>
-              <SharedDiffTableSandbox />
-
-
-              {subTitle('Legend - Diff dot colors')}
-              {row(<>
-                {[
-                  { type: 'add', color: ROW_DIFF_COLORS.add, label: 'Ajout' },
-                  { type: 'edit', color: ROW_DIFF_COLORS.edit, label: 'Modification' },
-                  { type: 'delete', color: ROW_DIFF_COLORS.delete, label: 'Suppression' },
-                ].map(d => (
-                  <div key={d.type} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-white">
-                    <div className="w-1.5 h-1.5" style={{ background: d.color, transform: 'rotate(45deg)' }} />
-                    <span style={{ fontSize: 12, color: '#44403c' }}>{d.label}</span>
-                    <code style={{ fontSize: 11, color: '#a8a29e', fontFamily: 'DM Mono, monospace' }}>{d.color}</code>
-                  </div>
-                ))}
-              </>)}
-
-              {subTitle('Cell types in diff context')}
-              {(() => {
-                const cellLabel = (text) => <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>{text}</div>;
-                const cellCard = (children, opts = {}) => <div className="border border-border rounded-lg bg-white p-3" style={opts.deleted ? { opacity: 0.55 } : undefined}>{children}</div>;
-                return (
-              <div style={{ maxWidth: 680 }}>
-                {/* TEXT - label never changes, only default + deleted */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#292524', marginBottom: 8, marginTop: 4 }}>Text</div>
-                <div className="grid grid-cols-2 gap-3 mb-5" style={{ maxWidth: 440 }}>
-                  {cellCard(<>
-                    {cellLabel('Default')}
-                    <div style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>Kinésithérapie</div>
-                    <div style={{ fontSize: 11, color: '#a8a29e' }}>24 séances post-opératoires</div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Deleted')}
-                    <div style={{ fontSize: 14, fontWeight: 500, color: '#a8a29e', textDecoration: 'line-through' }}>Consultation Dr. Dupont</div>
-                    <div style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through' }}>Doublon - déjà comptabilisé</div>
-                  </>, { deleted: true })}
-                </div>
-
-                {/* AMOUNT */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#292524', marginBottom: 8 }}>Amount</div>
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  {cellCard(<>
-                    {cellLabel('Default')}
-                    <div style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>4 500,00 €</div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Modified')}
-                    <div style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>960,00 €</div>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>1 280,00 €</div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Deleted')}
-                    <div style={{ fontSize: 14, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>55,00 €</div>
-                  </>, { deleted: true })}
-                </div>
-
-                {/* DATE */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#292524', marginBottom: 8 }}>Date</div>
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  {cellCard(<>
-                    {cellLabel('Default')}
-                    <div style={{ fontSize: 12, color: '#44403c' }}>05/06/2022</div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Modified')}
-                    <div style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through' }}>01/01/2023</div>
-                    <div style={{ fontSize: 12, color: '#44403c' }}>15/03/2023</div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Deleted')}
-                    <div style={{ fontSize: 12, color: '#a8a29e', textDecoration: 'line-through' }}>10/01/2022</div>
-                  </>, { deleted: true })}
-                </div>
-
-                {/* BADGE / PILL */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#292524', marginBottom: 8 }}>Badge / Pill</div>
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  {cellCard(<>
-                    {cellLabel('Default')}
-                    <span className="text-caption-medium px-2 py-0.5 rounded-full bg-cream text-foreground-tertiary">100%</span>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Modified')}
-                    <div className="flex flex-col items-start gap-0.5">
-                      <span className="text-caption-medium px-2 py-0.5 rounded-full line-through" style={{ background: '#f5f5f4', color: '#a8a29e', fontSize: 10 }}>50%</span>
-                      <span className="text-caption-medium px-2 py-0.5 rounded-full" style={{ background: '#fff7ed', color: ROW_DIFF_COLORS.edit, fontSize: 10 }}>100%</span>
-                    </div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Deleted')}
-                    <span className="text-caption-medium px-2 py-0.5 rounded-full line-through" style={{ background: '#fef2f2', color: '#a8a29e' }}>100%</span>
-                  </>, { deleted: true })}
-                </div>
-
-                {/* TOGGLE / ON-OFF */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#292524', marginBottom: 8 }}>Toggle</div>
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  {cellCard(<>
-                    {cellLabel('Default')}
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-caption-medium" style={{ background: '#dcfce7', color: ROW_DIFF_COLORS.add }}>ON</span>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Modified')}
-                    <div className="flex flex-col items-start gap-0.5">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-caption-medium line-through" style={{ background: '#fef2f2', color: '#a8a29e' }}>OFF</span>
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-caption-medium" style={{ background: '#dcfce7', color: ROW_DIFF_COLORS.add }}>ON</span>
-                    </div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Deleted')}
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-caption-medium line-through" style={{ background: '#f5f5f4', color: '#a8a29e' }}>ON</span>
-                  </>, { deleted: true })}
-                </div>
-
-                {/* TOTAL WITH REVALO */}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#292524', marginBottom: 8 }}>Total with Revalo</div>
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  {cellCard(<>
-                    {cellLabel('Default')}
-                    <div className="flex items-center gap-1.5">
-                      <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
-                      <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                      <CircleArrowUp className="w-3.5 h-3.5 text-link" />
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
-                    </div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Modified - amount changed')}
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <span style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>29 800 €</span>
-                        <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3 h-3 text-foreground-muted" />
-                        <span style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>31 886 €</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>31 200 €</span>
-                        <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3.5 h-3.5 text-link" />
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 384 €</span>
-                      </div>
-                    </div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Modified - revalo toggled ON')}
-                    <div className="flex flex-col gap-1">
-                      <div>
-                        <span style={{ fontSize: 13, color: '#a8a29e', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
-                        <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3.5 h-3.5 text-link" />
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
-                      </div>
-                    </div>
-                  </>)}
-                </div>
-                <div className="grid grid-cols-3 gap-3 mb-2">
-                  {cellCard(<>
-                    {cellLabel('Modified - revalo index changed')}
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <span style={{ fontSize: 11, color: '#a8a29e', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
-                        <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3 h-3 text-foreground-muted" />
-                        <span style={{ fontSize: 11, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>33 048 €</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span style={{ fontSize: 13, color: '#78716c', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
-                        <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                        <CircleArrowUp className="w-3.5 h-3.5 text-link" />
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
-                      </div>
-                    </div>
-                  </>)}
-                  {cellCard(<>
-                    {cellLabel('Deleted')}
-                    <div className="flex items-center gap-1.5">
-                      <span style={{ fontSize: 13, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
-                      <span style={{ fontSize: 11, color: '#a8a29e' }}>·</span>
-                      <CircleArrowUp className="w-3.5 h-3.5 text-foreground-muted" />
-                      <span style={{ fontSize: 14, color: '#a8a29e', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums' }}>33 696 €</span>
-                    </div>
-                  </>, { deleted: true })}
-                  {cellCard(<>
-                    {cellLabel('Default - no revalo')}
-                    <div className="flex items-center gap-1.5">
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#292524', fontVariantNumeric: 'tabular-nums' }}>32 400 €</span>
-                    </div>
-                  </>)}
-                </div>
-              </div>
-                );
-              })()}
-
-              {subTitle('Field-level streaming indicator')}
-              <div className="border border-border rounded-lg bg-white p-4" style={{ maxWidth: 320 }}>
-                <div className="animate-field-glow">
-                  <div className="text-caption-medium text-foreground-secondary mb-1 flex items-center gap-1">
-                    Nom
-                    <span className="inline-block w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
-                  </div>
-                  <div className="text-body text-foreground">
-                    Martin<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: '#4a9168' }}></span>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <div className="text-caption-medium text-foreground-secondary mb-1 flex items-center gap-1">
-                    Prénom
-                    <span className="inline-block w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
-                  </div>
-                  <div className="text-body text-foreground">Sophie</div>
-                </div>
-              </div>
-            </div>
-
-            {/* ====== PARAMETER PILLS ====== */}
-            <div id="section-param-pills" className={sectionClass}>
-              {sectionTitle('Parameter Pills')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Hypothèse/parameter pills with diff states. Accept/reject embedded inside the pill when a diff is pending.</p>
-
-              {subTitle('All states')}
-              <div className="flex flex-wrap items-center gap-3" style={{ maxWidth: 900, marginBottom: 24 }}>
-                {/* Default enabled (blue info) */}
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.info.bg, borderColor: PILL_SCHEMES.info.border, color: PILL_SCHEMES.info.text }}>
-                  <CircleArrowUp className="w-3.5 h-3.5" /> Capitaliser <span style={{ fontWeight: 400 }}>IPC Annuel, XX, XX ans</span>
-                </span>
-                {/* Default disabled (gray neutral) */}
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.neutral.bg, borderColor: PILL_SCHEMES.neutral.border, color: PILL_SCHEMES.neutral.text }}>
-                  <CircleArrowUp className="w-3.5 h-3.5" /> Param
-                </span>
-                {/* Add diff (blue info + green diamond) */}
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.info.bg, borderColor: PILL_SCHEMES.info.border, color: PILL_SCHEMES.info.text }}>
-                  <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.add, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
-                  <CircleArrowUp className="w-3.5 h-3.5" /> Revaloriser <span style={{ fontWeight: 400 }}>On · IPC Annuel</span>
-                  <span className="inline-flex items-center gap-1 ml-0.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                  </span>
-                </span>
-                {/* Edit diff (blue ON + orange diamond) */}
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.info.bg, borderColor: PILL_SCHEMES.info.border, color: PILL_SCHEMES.info.text }}>
-                  <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.edit, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
-                  <CircleArrowUp className="w-3.5 h-3.5" /> Revalorisation <span style={{ fontWeight: 400 }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>IPC Mensuel</span> → Annuel</span>
-                  <span className="inline-flex items-center gap-1 ml-0.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                  </span>
-                </span>
-                {/* Delete diff (gray OFF + red diamond) */}
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.neutral.bg, borderColor: PILL_SCHEMES.neutral.border, color: PILL_SCHEMES.neutral.text }}>
-                  <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.delete, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
-                  <CircleArrowUp className="w-3.5 h-3.5" /> Capitaliser <span style={{ fontWeight: 400 }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>On</span> → Off</span>
-                  <span className="inline-flex items-center gap-1 ml-0.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                  </span>
-                </span>
-              </div>
-
-              {subTitle('In-context - settings row with mixed states')}
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Simulates a real settings row: icon + stacked pills, some default, some with pending diffs.</p>
-              <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 880, marginBottom: 24, boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
-                <div className="flex items-center gap-3 px-4 h-[52px] flex-wrap">
-                  <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
-                    <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
-                  </div>
-                  {/* Default enabled */}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.info.bg, borderColor: PILL_SCHEMES.info.border, color: PILL_SCHEMES.info.text }}>
-                    <CircleArrowUp className="w-3.5 h-3.5" /> Capitaliser <span style={{ fontWeight: 400 }}>IPC Annuel, XX, XX ans</span>
-                  </span>
-                  {/* Edit diff */}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.info.bg, borderColor: PILL_SCHEMES.info.border, color: PILL_SCHEMES.info.text }}>
-                    <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.edit, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
-                    <CircleArrowUp className="w-3.5 h-3.5" /> Revalorisation <span style={{ fontWeight: 400 }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>IPC Mensuel</span> → Annuel</span>
-                    <span className="inline-flex items-center gap-1 ml-0.5">
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                    </span>
-                  </span>
-                  {/* Delete diff */}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.neutral.bg, borderColor: PILL_SCHEMES.neutral.border, color: PILL_SCHEMES.neutral.text }}>
-                    <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS.delete, transform: 'rotate(45deg)', borderRadius: '0.5px' }} />
-                    <CircleArrowUp className="w-3.5 h-3.5" /> Capitaliser <span style={{ fontWeight: 400 }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>On</span> → Off</span>
-                  </span>
-                  {/* Default disabled */}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border" style={{ background: PILL_SCHEMES.neutral.bg, borderColor: PILL_SCHEMES.neutral.border, color: PILL_SCHEMES.neutral.text }}>
-                    <CircleArrowUp className="w-3.5 h-3.5" /> Param
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* ====== ARTIFACT CARDS ====== */}
-            <div id="section-artifact-cards" className={sectionClass}>
-              {sectionTitle('Artifact Cards')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Cartes affichées dans le chat pour résumer les changements par zone. Expandable avec actions approve/reject.</p>
-
-              {subTitle('By zone type - collapsed')}
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 16 }}>Icon + title identify the zone. Color is reserved exclusively for diff counters (green/orange/red).</p>
-
-              {/* Three cards side by side */}
-              <div className="grid grid-cols-3 gap-4" style={{ maxWidth: 880, marginBottom: 24 }}>
-                {[
-                  { label: 'Poste / Chiffrage', title: 'DSA - Dépenses de santé actuelles', Icon: HeartPulse, adds: 3, edits: 1, deletes: 1 },
-                  { label: 'Documents', title: 'Pièces du dossier', Icon: FileText, adds: 4, edits: 0, deletes: 0 },
-                  { label: 'Infos dossier', title: 'Info dossier', Icon: ClipboardList, adds: 8, edits: 2, deletes: 0 },
-                ].map((zone, zi) => (
-                  <div key={zi}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>{zone.label}</div>
-                    <div className="rounded-lg border border-border bg-white overflow-hidden" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.03)' }}>
-                      <div className="flex items-stretch">
-                        <div className="w-10 flex items-center justify-center flex-shrink-0" style={{ background: '#f5f5f4' }}>
-                          <zone.Icon className="w-3.5 h-3.5" style={{ color: '#78716c' }} />
-                        </div>
-                        <div className="flex items-center gap-3 flex-1 min-w-0" style={{ padding: '12px 14px 12px 12px' }}>
-                          <div className="flex-1 min-w-0">
-                            <div style={{ fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '18px' }}>{zone.title}</div>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              {zone.adds > 0 && <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.add, fontWeight: 500 }}><Plus className="w-2.5 h-2.5" strokeWidth={2.5} />{zone.adds}</span>}
-                              {zone.edits > 0 && <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.edit, fontWeight: 500 }}><Pencil className="w-2.5 h-2.5" strokeWidth={2.5} />{zone.edits}</span>}
-                              {zone.deletes > 0 && <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.delete, fontWeight: 500 }}><Trash2 className="w-2.5 h-2.5" strokeWidth={2.5} />{zone.deletes}</span>}
-                            </div>
-                          </div>
-                          <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#a8a29e', transform: 'rotate(-90deg)' }} />
-                        </div>
-                      </div>
-                      {/* Footer - always visible */}
-                      <div style={{ borderTop: '1px solid #f0efed' }} className="flex items-center">
-                        <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
-                          <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter
-                        </button>
-                        <div style={{ width: 1, height: 14, background: '#dfdcd9' }} />
-                        <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: '#a8a29e' }}>
-                          <RotateCcw className="w-3 h-3" /> Tout annuler
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {subTitle('Interactive - expand/collapse + accept/reject')}
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Click chevron to expand/collapse. Accept/reject per row or bulk. Card collapses to "Traité" when all resolved. Click reset to start over.</p>
-
-              <SharedInteractiveCards />
-            </div>
-
             {/* ====== REASONING ====== */}
             <div id="section-reasoning" className={sectionClass}>
               {sectionTitle('Reasoning')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Composant de raisonnement de l'agent. Streaming → auto-collapse → expand inspection.</p>
+              <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 16 }}>Composant de raisonnement de l'agent. Streaming → auto-collapse → expand inspection.</p>
 
               {subTitle('Step type → user label mapping')}
-              <div className="flex flex-col gap-0 mb-4 border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 520 }}>
+              <div className="flex flex-col gap-0 mb-4 border border-border rounded-lg bg-surface overflow-hidden" style={{ maxWidth: 520 }}>
                 {[
                   ['read_documents',  'Analyse de X documents'],
                   ['read_rapport',    "Lecture du rapport d'expertise"],
@@ -18927,10 +18588,10 @@ export default function App() {
                   const Icon = cfg.Icon;
                   const colors = STEP_COLORS[cfg.color] || STEP_COLORS.default;
                   return (
-                    <div key={type} className="flex items-center gap-2.5 px-3 py-1.5" style={{ borderTop: i > 0 ? '1px solid #f5f5f4' : 'none' }}>
+                    <div key={type} className="flex items-center gap-2.5 px-3 py-1.5" style={{ borderTop: i > 0 ? `1px solid ${dsColors.semantic.backgroundSubtle}` : 'none' }}>
                       <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: colors.icon }} />
-                      <span className="flex-shrink-0" style={{ fontSize: 11, fontFamily: 'monospace', color: '#a8a29e', width: 120 }}>{type}</span>
-                      <span style={{ fontSize: 12, color: '#44403c' }}>{label}</span>
+                      <span className="flex-shrink-0" style={{ fontSize: 11, fontFamily: 'monospace', color: dsColors.semantic.foregroundMuted, width: 120 }}>{type}</span>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>{label}</span>
                       {cfg.pill && <CrudPill type={type} />}
                     </div>
                   );
@@ -18956,7 +18617,7 @@ export default function App() {
               )}
 
               {subTitle('Streaming (active)')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="streaming"
                   steps={[
@@ -18969,7 +18630,7 @@ export default function App() {
               </div>
 
               {subTitle('Collapsed (done - with CRUD counters)')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Complétion du poste DSA depuis 3 factures"
@@ -18987,7 +18648,7 @@ export default function App() {
               </div>
 
               {subTitle('Collapsed (read-only - no counters)')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Analyse du rapport d'expertise"
@@ -19001,7 +18662,7 @@ export default function App() {
               </div>
 
               {subTitle('Expanded (inspection mode)')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Complétion du poste DSA depuis 3 factures"
@@ -19019,7 +18680,7 @@ export default function App() {
               </div>
 
               {subTitle('Partial error')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Extraction des factures DSA"
@@ -19036,7 +18697,7 @@ export default function App() {
               </div>
 
               {subTitle('Total error')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Analyse du rapport d'expertise"
@@ -19050,7 +18711,7 @@ export default function App() {
               </div>
 
               {subTitle('Sub-agent')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Extraction et complétion DSA"
@@ -19070,7 +18731,7 @@ export default function App() {
               </div>
 
               {subTitle('Backend tool mapping (real Plato Supervisor names)')}
-              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-white p-3">
+              <div style={{ maxWidth: 420 }} className="border border-border rounded-lg bg-surface p-3">
                 <ReasoningStepper
                   status="done"
                   summary="Analyse du poste DFT - 2 problèmes détectés"
@@ -19091,36 +18752,20 @@ export default function App() {
 
             </div>
 
-            {/* ====== CHAT MESSAGES ====== */}
-            <div id="section-chat-messages" className={sectionClass}>
-              {sectionTitle('Chat Messages')}
-
-              {subTitle('Chat blocked indicator')}
-              <div style={{ maxWidth: 380 }} className="border border-border rounded-lg bg-white overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-1.5" style={{ borderBottom: '1px solid #dfdcd9' }}>
-                  <ThinkingDots />
-                  <span style={{ fontSize: 11, color: '#a8a29e' }}>Plato analyse vos documents...</span>
-                </div>
-                <div style={{ padding: '12px', opacity: 0.5 }}>
-                  <span className="text-[14px]" style={{ color: '#78716c' }}>Plato analyse vos documents...</span>
-                </div>
-              </div>
-            </div>
-
             {/* ====== JP - JURISPRUDENCE ====== */}
             <div id="section-jp" className={sectionClass}>
               {sectionTitle('JP - Jurisprudence')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 24, maxWidth: 720 }}>
+              <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 24, maxWidth: 720 }}>
                 Three surfaces only: <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPPill xs</code> (inline citation, <em>actes/documents only</em> for now), <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPCard</code> (mini-table in chat, separated cards in PosteDetailView, list in Mémoire et préférences) and <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>DecisionDrawer</code>.
               </p>
 
               {/* ── 1. JPPill - variant xs (actes / documents only) ─────────── */}
               {subTitle('1. JPPill - variant xs (actes only)')}
-              <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720 }}>
+              <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, marginBottom: 12, maxWidth: 720 }}>
                 Minimal density (jurisdiction · n° pourvoi). Reserved for inline citation inside generated actes/documents. <strong>Not used in chat anymore</strong> - chat surfaces a list of <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPCard</code>s instead.
               </p>
-              <div style={{ maxWidth: 720, padding: 16, backgroundColor: 'white', border: '1px solid #dfdcd9', borderRadius: 8 }}>
-                <div style={{ fontSize: 14, lineHeight: '24px', color: '#292524' }}>
+              <div style={{ maxWidth: 720, padding: 16, backgroundColor: 'white', border: `1px solid ${dsColors.semantic.border}`, borderRadius: 8 }}>
+                <div style={{ fontSize: 14, lineHeight: '24px', color: dsColors.semantic.foreground }}>
                   Pour un étudiant à Paris intra-muros, le taux de 28&nbsp;€/h retenu par la{' '}
                   {(() => {
                     const d = getDecisionById('jp-atpt-01');
@@ -19163,11 +18808,11 @@ export default function App() {
 
               {/* ── 2. JPCard - chat result list (mini-table) ──────────────── */}
               {subTitle('2. JPCard - chat result list (mini-table)')}
-              <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720, display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, marginBottom: 12, maxWidth: 720, display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 <span>Single row shape used in chat results. </span>
-                <Star className="inline-block" style={{ width: 12, height: 12, color: '#b9703f', fill: '#b9703f' }} />
+                <Star className="inline-block" style={{ width: 12, height: 12, color: dsColors.accents.ochre, fill: dsColors.accents.ochre }} />
                 <span>Star = JP de référence du cabinet (org level).</span>
-                <Bookmark className="inline-block" style={{ width: 12, height: 12, color: '#b9703f', fill: '#b9703f' }} />
+                <Bookmark className="inline-block" style={{ width: 12, height: 12, color: dsColors.accents.ochre, fill: dsColors.accents.ochre }} />
                 <span>Bookmark = attachée à ce poste sur ce dossier (matter level). Both can apply.</span>
               </p>
               {(() => {
@@ -19200,10 +18845,10 @@ export default function App() {
                       {stateRows.map(({ label, favorited, bookmarked }, idx) => (
                         <React.Fragment key={idx}>
                           <span className="inline-flex items-center gap-0.5" style={{ minWidth: 28 }}>
-                            {favorited && <Star style={{ width: 11, height: 11, color: '#b9703f', fill: '#b9703f' }} />}
-                            {bookmarked && <Bookmark style={{ width: 11, height: 11, color: '#b9703f', fill: '#b9703f' }} />}
+                            {favorited && <Star style={{ width: 11, height: 11, color: dsColors.accents.ochre, fill: dsColors.accents.ochre }} />}
+                            {bookmarked && <Bookmark style={{ width: 11, height: 11, color: dsColors.accents.ochre, fill: dsColors.accents.ochre }} />}
                           </span>
-                          <span style={{ fontSize: 12, color: '#78716c' }}>{label}</span>
+                          <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>{label}</span>
                         </React.Fragment>
                       ))}
                     </div>
@@ -19214,7 +18859,7 @@ export default function App() {
 
               {/* ── 3. JPCard - PosteDetailView (separated cards) ───────────── */}
               {subTitle('3. JPCard - PosteDetailView (separated cards)')}
-              <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720 }}>
+              <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, marginBottom: 12, maxWidth: 720 }}>
                 <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPListingPosteDetail</code> wraps a stack of floating <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>JPRow</code> cards with a section header (count + search CTA). <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>currentPosteId</code> picks the matching amount per card.
               </p>
               <div style={{ maxWidth: 720 }}>
@@ -19231,7 +18876,7 @@ export default function App() {
 
               {/* ── 4. DecisionDrawer - canvas detail ───────────────────────── */}
               {subTitle('4. DecisionDrawer - canvas detail')}
-              <p style={{ fontSize: 13, color: '#78716c', marginBottom: 12, maxWidth: 720 }}>
+              <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, marginBottom: 12, maxWidth: 720 }}>
                 Right-side drawer with the full decision: identity, montants (mini-table), profil victime, données médicales, préjudices (acronymes), sections de texte avec recherche, lien Legifrance. Triggered from any pill or card above.
               </p>
               <div className="flex items-center gap-2 flex-wrap" style={{ maxWidth: 720 }}>
@@ -19242,10 +18887,10 @@ export default function App() {
                     <button
                       key={id}
                       onClick={() => jp.openDrawer(id, ['jp-atpt-01', 'jp-dfp-01', 'jp-se-03'])}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-white hover:bg-background transition-colors"
-                      style={{ fontSize: 13, color: '#44403c' }}
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-surface hover:bg-background transition-colors"
+                      style={{ fontSize: 13, color: dsColors.semantic.foregroundTertiary }}
                     >
-                      <Landmark className="w-3.5 h-3.5" style={{ color: '#b9703f' }} />
+                      <Landmark className="w-3.5 h-3.5" style={{ color: dsColors.accents.ochre }} />
                       Ouvrir {d.jurisdiction}
                     </button>
                   );
@@ -19253,271 +18898,30 @@ export default function App() {
               </div>
             </div>
 
-            {/* ====== PANEL DIFF INPUTS ====== */}
-            <div id="section-panel-diff-inputs" className={sectionClass}>
-              {sectionTitle('Panel Diff Inputs')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Champs du panel d'édition avec contexte diff agent. Utilise l'anatomie shadcn Field : label → input (shadow-xs) → description. Le sparkle ✦ signale les champs touchés par l'agent, la description affiche l'ancienne valeur.</p>
-
-              {(() => {
-                const inputBase = "w-full px-3 py-2 bg-white border border-border rounded-lg text-[14px] leading-5 text-foreground placeholder:text-foreground-secondary focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)]";
-                const shadowXs = '0 1px 2px rgba(26,26,26,0.05)';
-                const labelStyle = { fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px' };
-                const descStyle = { fontSize: 12, fontWeight: 400, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px', marginTop: 6 };
-                const warnLabelStyle = { ...labelStyle, color: '#855b31' };
-                const warnDescStyle = { ...descStyle, color: '#855b31' };
-
-                // Shadcn Field wrapper
-                const Field = ({ label: lbl, diffColor, warning, description, descColor, children }) => (
-                  <div className="flex flex-col" style={{ gap: 6 }}>
-                    <div className="flex items-center gap-1.5">
-                      <span style={warning ? warnLabelStyle : labelStyle}>{lbl}</span>
-                      {diffColor && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
-                    </div>
-                    {children}
-                    {description && <p style={warning ? warnDescStyle : { ...descStyle, color: descColor || '#78716c' }}>{description}</p>}
-                  </div>
-                );
-
-                const PanelDiffDemo = () => {
-                  const [montant, setMontant] = React.useState('1 280,00');
-                  const [base, setBase] = React.useState('30');
-                  const [date, setDate] = React.useState('12/03/2023');
-                  const [label, setLabel] = React.useState('Kinésithérapie (24 séances)');
-                  const [saved, setSaved] = React.useState(false);
-
-                  const reset = () => { setMontant('1 280,00'); setBase('30'); setDate('12/03/2023'); setLabel('Kinésithérapie (24 séances)'); setSaved(false); };
-
-                  if (saved) {
-                    return (
-                      <div style={{ maxWidth: 380 }}>
-                        <div className="border border-border rounded-lg bg-white p-5 space-y-5">
-                          <div className="flex items-center gap-2 p-3 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-                            <Check className="w-4 h-4" style={{ color: ROW_DIFF_COLORS.add }} strokeWidth={2.5} />
-                            <span className="text-body-medium" style={{ color: ROW_DIFF_COLORS.add }}>Enregistré - diffs effacés</span>
-                          </div>
-                          <Field label="Libellé dépense"><input type="text" readOnly value={label} className={inputBase} style={{ boxShadow: shadowXs, background: '#fafaf9' }} /></Field>
-                          <Field label="Montant"><input type="text" readOnly value={`€ ${montant}`} className={inputBase} style={{ boxShadow: shadowXs, background: '#fafaf9' }} /></Field>
-                        </div>
-                        <button onClick={reset} className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border hover:bg-background transition-colors" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
-                          <RotateCcw className="w-3 h-3" /> Reset
-                        </button>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div style={{ maxWidth: 380 }}>
-                      {/* ---- Edit diff ---- */}
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Edit - agent modified fields</div>
-                      <div className="border border-border rounded-lg bg-white p-5 space-y-5">
-                        <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#fff7ed', border: '1px solid #fed7aa' }}>
-                          <div className="w-1.5 h-1.5" style={{ background: ROW_DIFF_COLORS.edit, transform: 'rotate(45deg)' }} />
-                          <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.edit }}>Ligne modifiée par l'agent</span>
-                        </div>
-
-                        {/* Untouched field - no sparkle, no description */}
-                        <Field label="Libellé dépense">
-                          <input type="text" value={label} onChange={e => setLabel(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs }} />
-                        </Field>
-
-                        {/* Agent-touched field - sparkle + old value in description */}
-                        <Field label="Montant" diffColor={ROW_DIFF_COLORS.edit} description="Ancien : 960,00 €">
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
-                            <input type="text" value={montant} onChange={e => setMontant(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs, paddingLeft: 28 }} />
-                          </div>
-                        </Field>
-
-                        {/* Agent-touched field - sparkle + old value */}
-                        <Field label="Date" diffColor={ROW_DIFF_COLORS.edit} description="Ancien : 01/03/2023">
-                          <input type="text" value={date} onChange={e => setDate(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs }} />
-                        </Field>
-
-                        {/* Agent-touched + revalo */}
-                        <Field label="Base journalière" diffColor={ROW_DIFF_COLORS.edit}>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
-                            <input type="text" value={base} onChange={e => setBase(e.target.value)} className={inputBase} style={{ boxShadow: shadowXs, paddingLeft: 28 }} />
-                          </div>
-                          {/* Revalo row - matches Figma ↳ Revalo pattern */}
-                          <div className="flex items-center gap-2 px-0.5" style={{ marginTop: 6 }}>
-                            <div className="flex items-center gap-1 flex-1 min-w-0">
-                              <CircleArrowUp className="w-3 h-3 flex-shrink-0" style={{ color: '#1e3a8a' }} />
-                              <span style={{ fontSize: 12, fontWeight: 500, lineHeight: '16px' }}>
-                                <span style={{ color: '#78716c' }}>Revalo (IPC Annuel)</span>{' '}
-                                <span style={{ color: '#1e3a8a' }}>32,70 €</span>
-                              </span>
-                            </div>
-                            <span style={{ fontSize: 12, color: '#78716c', lineHeight: '16px', letterSpacing: '0.12px' }}>30,00 × 1,09</span>
-                          </div>
-                        </Field>
-
-                        {/* Warning state - missing info */}
-                        <Field label="Taux de responsabilité" warning description="Info. manquante pour calculer">
-                          <input type="text" placeholder="Ex: 100" className={inputBase} style={{ boxShadow: '0 0 0 3px #f9ecd6', borderColor: '#eeb97e' }} />
-                        </Field>
-
-                        <div className="flex items-center gap-3 pt-2">
-                          <button onClick={() => setSaved(true)} className="flex-1 px-4 py-2 rounded-lg text-body-medium text-white transition-colors" style={{ backgroundColor: '#292524' }}>Enregistrer</button>
-                          <button onClick={reset} className="px-4 py-2 rounded-lg text-body-medium text-foreground-tertiary hover:bg-background-subtle transition-colors">Annuler</button>
-                        </div>
-                      </div>
-
-                      {/* ---- Add ---- */}
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Add - all fields are new</div>
-                      <div className="border border-border rounded-lg bg-white p-5 space-y-5">
-                        <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-                          <div className="w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} />
-                          <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.add }}>Ligne ajoutée par l'agent</span>
-                        </div>
-                        <Field label="Libellé dépense" diffColor={ROW_DIFF_COLORS.add}>
-                          <input type="text" defaultValue="Hospitalisation CHU Bordeaux" className={inputBase} style={{ boxShadow: shadowXs }} />
-                        </Field>
-                        <Field label="Montant" diffColor={ROW_DIFF_COLORS.add}>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
-                            <input type="text" defaultValue="4 500,00" className={inputBase} style={{ boxShadow: shadowXs, paddingLeft: 28 }} />
-                          </div>
-                        </Field>
-                        <Field label="Date" diffColor={ROW_DIFF_COLORS.add}>
-                          <input type="text" defaultValue="05/06/2022" className={inputBase} style={{ boxShadow: shadowXs }} />
-                        </Field>
-                      </div>
-
-                      {/* ---- Delete ---- */}
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginTop: 24 }}>Delete - read-only</div>
-                      <div className="border border-border rounded-lg bg-white p-5 space-y-5" style={{ opacity: 0.6 }}>
-                        <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
-                          <div className="w-1.5 h-1.5" style={{ background: ROW_DIFF_COLORS.delete, transform: 'rotate(45deg)' }} />
-                          <span style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.delete }}>Ligne supprimée par l'agent</span>
-                        </div>
-                        <Field label="Libellé dépense">
-                          <div className={inputBase} style={{ boxShadow: shadowXs, color: '#a8a29e', background: '#fafaf9', textDecoration: 'line-through' }}>Consultation Dr. Dupont</div>
-                        </Field>
-                        <Field label="Montant">
-                          <div className={inputBase} style={{ boxShadow: shadowXs, color: '#a8a29e', background: '#fafaf9', textDecoration: 'line-through' }}>55,00 €</div>
-                        </Field>
-                        <div className="flex items-center gap-3 pt-2">
-                          <button className="flex-1 px-4 py-2 rounded-lg text-body-medium text-[#c45555] border border-danger-border hover:bg-danger-subtle transition-colors">Confirmer la suppression</button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                };
-
-                return <PanelDiffDemo />;
-              })()}
-            </div>
-
-            {/* ====== FIELD STREAMING ====== */}
-            <div id="section-field-streaming" className={sectionClass}>
-              {sectionTitle('Field Streaming')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Indicateurs visuels lors du remplissage automatique des champs par l'agent.</p>
-
-              {subTitle('States: streaming → revealed → default')}
-              <div className="border border-border rounded-lg bg-white p-4 space-y-4" style={{ maxWidth: 320 }}>
-                <div className="animate-field-glow">
-                  <div className="text-caption-medium text-foreground-secondary mb-1">En cours de saisie</div>
-                  <div className="text-body text-foreground">Mar<span className="inline-block w-0.5 h-4 animate-pulse ml-0.5 align-middle" style={{ background: '#4a9168' }}></span></div>
-                </div>
-                <div className="pl-3" style={{ borderLeft: '2px solid rgba(22, 163, 74, 0.35)' }}>
-                  <div className="text-caption-medium text-foreground-secondary mb-1 flex items-center gap-1">Rempli par l'agent <span className="inline-block w-1.5 h-1.5" style={{ background: '#4a9168', transform: 'rotate(45deg)' }} /></div>
-                  <div className="text-body text-foreground">Martin</div>
-                </div>
-                <div>
-                  <div className="text-caption-medium text-foreground-secondary mb-1">Champ normal</div>
-                  <div className="text-body text-foreground">Dupont</div>
-                </div>
-              </div>
-            </div>
-
-            {/* ====== BADGES & PILLS ====== */}
-            <div id="section-badges-pills" className={sectionClass}>
-              {sectionTitle('Badges & Pills')}
-
-              {subTitle('Diff type badges')}
-              {row(<>
-                {[
-                  { label: 'Ajout', bg: '#dcfce7', color: ROW_DIFF_COLORS.add },
-                  { label: 'Modif.', bg: '#fff7ed', color: ROW_DIFF_COLORS.edit },
-                  { label: 'Suppr.', bg: '#fef2f2', color: ROW_DIFF_COLORS.delete },
-                ].map(b => (
-                  <span key={b.label} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-caption-medium rounded-full" style={{ background: b.bg, color: b.color }}>{b.label}</span>
-                ))}
-              </>)}
-
-              {subTitle('Diff chips (subtitle)')}
-              {row(<>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-white">
-                  <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.add, fontWeight: 500 }}><Plus className="w-2.5 h-2.5" strokeWidth={2.5} />3</span>
-                  <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.edit, fontWeight: 500 }}><Pencil className="w-2.5 h-2.5" strokeWidth={2.5} />2</span>
-                  <span className="inline-flex items-center gap-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: ROW_DIFF_COLORS.delete, fontWeight: 500 }}><Trash2 className="w-2.5 h-2.5" strokeWidth={2.5} />1</span>
-                </div>
-              </>)}
-
-              {subTitle('DFT taux pills')}
-              {row(<>
-                <span className="text-caption-medium px-2 py-0.5 rounded-full bg-cream text-foreground-tertiary">100%</span>
-                <span className="text-caption-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">50%</span>
-                <span className="text-caption-medium px-2 py-0.5 rounded-full bg-red-50 text-red-400 border border-red-200" style={{ textDecoration: 'line-through' }}>25%</span>
-              </>)}
-            </div>
-
-            {/* ====== BUTTONS ====== */}
-            <div id="section-buttons" className={sectionClass}>
-              {sectionTitle('Buttons')}
-
-              {subTitle('Primary actions')}
-              {row(<>
-                <button className="px-4 py-2 rounded-lg text-body-medium text-white" style={{ backgroundColor: '#b9703f' }}>Action principale</button>
-                <button className="px-4 py-2 rounded-lg text-body-medium text-foreground border border-border bg-white hover:bg-background">Secondaire</button>
-                <button className="px-2 py-1 rounded flex items-center gap-1" style={{ fontSize: 12, fontWeight: 500, color: ROW_DIFF_COLORS.edit, background: 'rgba(234,121,73,0.06)' }}>Voir <ChevronRight className="w-3 h-3" /></button>
-              </>)}
-
-              {subTitle('Approve / Reject')}
-              {row(<>
-                <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded hover:bg-background border border-border" style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>
-                  <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter
-                </button>
-                <span className="flex items-center gap-0.5">
-                  <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-background border border-border"><Check className="w-3.5 h-3.5 text-foreground-tertiary" strokeWidth={2.5} /></button>
-                  <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-background border border-border"><X className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={2.5} /></button>
-                </span>
-              </>)}
-
-              {subTitle('Toast notification')}
-              {row(<>
-                <div className="px-4 py-3 text-white text-body rounded-lg shadow-lg flex items-center gap-2 bg-zinc-800">
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#4a9168' }} />
-                  Informations du dossier extraites
-                </div>
-              </>)}
-            </div>
-
             {/* ====== PROMPT SUGGESTION CARD ====== */}
             <div id="section-prompt-suggestion-card" className={sectionClass}>
               {sectionTitle('Prompt Suggestion Card')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 8, maxWidth: 680 }}>
+              <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 8, maxWidth: 680 }}>
                 Carte cliquable (320px) pour exposer un prompt comme un CTA visuel. Utilisée pour le chat empty state - les 3 prompts cold start (Compléter / Chiffrer / Rédiger).
               </p>
-              <p style={{ fontSize: 13, color: '#78716c', marginBottom: 16, maxWidth: 680 }}>
-                Source&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>src/components/PromptSuggestionCard.js</code>
+              <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, marginBottom: 16, maxWidth: 680 }}>
+                Source&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: dsColors.semantic.backgroundSubtle, padding: '2px 6px', borderRadius: 4, color: dsColors.semantic.foreground }}>src/components/PromptSuggestionCard.js</code>
                 {' · '}
-                Figma&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>2057:17330</code>
+                Figma&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: dsColors.semantic.backgroundSubtle, padding: '2px 6px', borderRadius: 4, color: dsColors.semantic.foreground }}>2057:17330</code>
               </p>
 
               {subTitle('États')}
               <div className="flex items-start gap-12 mb-8">
                 <div className="flex flex-col gap-2">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Default</span>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Default</span>
                   <PromptSuggestionCard icon={Sparkles} label="Compléter les infos du dossier" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hover (pinned)</span>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hover (pinned)</span>
                   <PromptSuggestionCard icon={Calculator} label="Commencer le chiffrage" pinHover />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Disabled</span>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Disabled</span>
                   <PromptSuggestionCard icon={Pencil} label="Rédiger un acte" disabled />
                 </div>
               </div>
@@ -19528,138 +18932,31 @@ export default function App() {
                 <PromptSuggestionCard icon={Calculator} label="Commencer le chiffrage" />
                 <PromptSuggestionCard icon={Pencil}     label="Rédiger un acte" />
               </div>
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 8 }}>Survolez chaque carte pour voir la transition default → hover.</p>
-            </div>
-
-            {/* ====== SUGGESTIONS MENU ====== */}
-            <div id="section-suggestions-menu" className={sectionClass}>
-              {sectionTitle('Suggestions Menu')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 8, maxWidth: 680 }}>
-                Menu compact (popover-style) qui liste des prompts proposés à l'agent. Header mono uppercase + body de rows simples (icon + label). Utilisé pour l'ampoule du chat input.
-              </p>
-              <p style={{ fontSize: 13, color: '#78716c', marginBottom: 16, maxWidth: 680 }}>
-                Source&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>src/components/SuggestionsMenu.js</code>
-                {' · '}
-                Figma&nbsp;: <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>2057:17743</code>
-              </p>
-
-              {subTitle('Variant - chat empty state (5 items)')}
-              <div className="mb-8" style={{ maxWidth: 320 }}>
-                <SuggestionsMenu
-                  items={[
-                    { icon: AlignLeft,   label: 'Compléter les informations dossier' },
-                    { icon: PencilLine,  label: 'Rédiger un document' },
-                    { icon: Calculator,  label: 'Commencer le chiffrage' },
-                    { icon: ScanLine,    label: 'Identifier les postes à chiffrer' },
-                    { icon: Scale,       label: 'Rechercher une jurisprudence' },
-                  ]}
-                />
-              </div>
-
-              {subTitle('API')}
-              <div className="border border-border rounded-md overflow-hidden mb-8" style={{ maxWidth: 760 }}>
-                <div className="flex" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
-                  {['Prop', 'Type', 'Default', 'Description'].map((h, i) => (
-                    <div
-                      key={h}
-                      className="px-3 py-2"
-                      style={{
-                        fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500,
-                        color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em',
-                        width: i === 0 ? 110 : i === 1 ? 220 : i === 2 ? 130 : undefined,
-                        flex: i === 3 ? 1 : 'none',
-                        borderRight: i < 3 ? '1px solid #dfdcd9' : 'none',
-                      }}
-                    >
-                      {h}
-                    </div>
-                  ))}
-                </div>
-                {[
-                  ['header',    'string',                                              "Suggestions d'actions",  'Texte du bandeau (mono uppercase).'],
-                  ['items',     '{icon, label, onClick, disabled}[]',                  '[]',                     "Liste des suggestions. Click → handler doit dispatcher un user message."],
-                  ['disabled',  'boolean',                                             'false',                  "Désactive toutes les rows."],
-                  ['className', 'string',                                              "''",                     "Classes additionnelles pour l'outer popover."],
-                ].map(([prop, type, def, desc], ri) => (
-                  <div
-                    key={prop}
-                    className="flex bg-white"
-                    style={{ borderBottom: ri < 3 ? '1px solid #dfdcd9' : 'none' }}
-                  >
-                    <div className="px-3 py-2.5" style={{ width: 110, borderRight: '1px solid #dfdcd9', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#292524' }}>{prop}</div>
-                    <div className="px-3 py-2.5" style={{ width: 220, borderRight: '1px solid #dfdcd9', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#78716c' }}>{type}</div>
-                    <div className="px-3 py-2.5" style={{ width: 130, borderRight: '1px solid #dfdcd9', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#a8a29e' }}>{def}</div>
-                    <div className="flex-1 px-3 py-2.5" style={{ fontSize: 13, color: '#44403c', lineHeight: '18px' }}>{desc}</div>
-                  </div>
-                ))}
-              </div>
-
-              {subTitle('Variant - ampoule menu (4 items)')}
-              <div className="mb-2" style={{ maxWidth: 320 }}>
-                <SuggestionsMenu
-                  header="Suggestions"
-                  items={[
-                    { icon: Sparkles,   label: "Complète les informations du dossier à partir du rapport d'expertise" },
-                    { icon: Calculator, label: 'Chiffre les préjudices de ce dossier' },
-                    { icon: HelpCircle, label: 'Quels sont les préjudices à chiffrer ?' },
-                    { icon: Pencil,     label: 'Rédige une demande amiable de provision' },
-                  ]}
-                />
-              </div>
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 24 }}>Header configurable&nbsp;— même composant pour les deux contextes.</p>
-
-              {subTitle('Où c\'est utilisé')}
-              <ul style={{ fontSize: 13, color: '#44403c', lineHeight: '22px', marginBottom: 8, listStyle: 'disc', paddingLeft: 20 }}>
-                <li>
-                  <strong>Chat sidebar empty state</strong>{' '}
-                  <span style={{ color: '#78716c' }}>— 5 suggestions tant que le chat est vide.</span>{' '}
-                  <code style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '1px 5px', borderRadius: 4 }}>renderChatSidebar</code>
-                </li>
-                <li>
-                  <strong>Ampoule</strong>{' '}
-                  <span style={{ color: '#78716c' }}>— popover au-dessus de l'input avec 4 prompts d'aide à la formulation.</span>
-                </li>
-                <li>
-                  <strong>UI Kit - Prompt Suggestions</strong>{' '}
-                  <span style={{ color: '#78716c' }}>— spec page.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* ====== BARÈME COMPONENTS ====== */}
-            {/* ====== SPLIT - VARIANTES A/B/C ====== */}
-            <div id="section-split-variants" className={sectionClass}>
-              {sectionTitle('Split - Variantes A/B/C')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>
-                Trois explorations UX pour le flow de split des piles homogènes, sur les mêmes données de démo (12 factures, 3 émetteurs, 1 anomalie).
-                A - la pile comme objet physique ; B - la coupe comme geste tactile ; C - le découpage comme grain paramétrique.
-                Source : <code style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>src/components/pieces/SplitVariantsLab.js</code>.
-              </p>
-              <SplitVariantsLab />
+              <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, marginBottom: 8 }}>Survolez chaque carte pour voir la transition default → hover.</p>
             </div>
 
             <div id="section-bareme-components" className={sectionClass}>
               {sectionTitle('Barème Components')}
-              <p style={{ fontSize: 14, color: '#78716c', marginBottom: 16 }}>Composants pour la gestion des barèmes et référentiels - bibliothèque, sélecteur, viewer, upload.</p>
+              <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 16 }}>Composants pour la gestion des barèmes et référentiels - bibliothèque, sélecteur, viewer, upload.</p>
 
               {subTitle('StatusBadge - Actif / En traitement')}
               {row(<>
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#065f46' }}>Actif</span>
-                  <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full" style={{ background: '#dcfce7', color: '#065f46', fontSize: 13 }}>Actif</span>
+                  <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: dsColors.piece.revenus.bg, color: dsColors.icon.success }}>Actif</span>
+                  <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full" style={{ background: dsColors.piece.revenus.bg, color: dsColors.icon.success, fontSize: 13 }}>Actif</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>En traitement</span>
-                  <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full" style={{ background: '#fef3c7', color: '#92400e', fontSize: 13 }}>En traitement</span>
+                  <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground }}>En traitement</span>
+                  <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full" style={{ background: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground, fontSize: 13 }}>En traitement</span>
                 </div>
               </>)}
 
 
               {subTitle('BaremeListItem - Row variants')}
-              <div className="bg-white rounded-lg border border-border/60 overflow-hidden mb-4" style={{ maxWidth: 500 }}>
+              <div className="bg-surface rounded-lg border border-border overflow-hidden mb-4" style={{ maxWidth: 500 }}>
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-zinc-100">
+                    <tr className="border-b border-background-subtle">
                       <th className="px-4 py-2.5 text-left" style={colHeaderStyle}>Nom</th>
                       <th className="px-4 py-2.5 text-left" style={colHeaderStyle}>Statut</th>
                     </tr>
@@ -19670,7 +18967,7 @@ export default function App() {
                       { label: "Cour d'appel 2024", status: 'active' },
                       { label: 'Barème Cabinet Martin', status: 'processing' },
                     ].map((item, i) => (
-                      <tr key={i} className={`bg-white ${item.status === 'active' ? 'hover:bg-background cursor-pointer' : 'opacity-75'}`}>
+                      <tr key={i} className={`bg-surface ${item.status === 'active' ? 'hover:bg-background cursor-pointer' : 'opacity-75'}`}>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2.5">
                             <div className="w-7 h-7 rounded-md bg-cream flex items-center justify-center"><Scale className="w-3.5 h-3.5 text-foreground-muted" /></div>
@@ -19679,8 +18976,8 @@ export default function App() {
                         </td>
                         <td className="px-4 py-3">
                           {item.status === 'active'
-                            ? <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#065f46' }}>Actif</span>
-                            : <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>En traitement</span>
+                            ? <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: dsColors.piece.revenus.bg, color: dsColors.icon.success }}>Actif</span>
+                            : <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground }}>En traitement</span>
                           }
                         </td>
                       </tr>
@@ -19690,8 +18987,8 @@ export default function App() {
               </div>
 
               {subTitle('BaremeSelect - Vertical (label above)')}
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Popover dropdown with search + "Ajouter le vôtre" at the bottom. Live component below.</p>
-              <div className="bg-white rounded-lg border border-border p-5 mb-4" style={{ maxWidth: 420 }}>
+              <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, marginBottom: 12 }}>Popover dropdown with search + "Ajouter le vôtre" at the bottom. Live component below.</p>
+              <div className="bg-surface rounded-lg border border-border p-5 mb-4" style={{ maxWidth: 420 }}>
                 {renderBaremePopoverSelect({
                   popoverId: 'uikit-vertical',
                   value: 'gdp_2025_prospective',
@@ -19702,8 +18999,8 @@ export default function App() {
               </div>
 
               {subTitle('BaremeSelect - Horizontal (inline label)')}
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Same popover, inline layout. Used in param chip bars (PGPF).</p>
-              <div className="bg-white rounded-lg border border-border p-5 mb-4" style={{ maxWidth: 560 }}>
+              <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, marginBottom: 12 }}>Same popover, inline layout. Used in param chip bars (PGPF).</p>
+              <div className="bg-surface rounded-lg border border-border p-5 mb-4" style={{ maxWidth: 560 }}>
                 <div className="flex items-center gap-3">
                   {renderBaremePopoverSelect({
                     popoverId: 'uikit-horizontal',
@@ -19715,7 +19012,7 @@ export default function App() {
                   })}
                   <div className="w-px h-4 bg-border-strong" />
                   <span className="text-sm font-medium text-foreground-secondary flex-shrink-0">Fin arrérage</span>
-                  <select className="text-sm text-foreground bg-white border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}>
+                  <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
@@ -19723,12 +19020,12 @@ export default function App() {
               </div>
 
               {subTitle('BaremeTableViewer - Sidepanel preview')}
-              <p style={{ fontSize: 12, color: '#a8a29e', marginBottom: 12 }}>Opens as a right-side panel (same pattern as document preview). Table is rendered inside.</p>
-              <div className="bg-white rounded-lg border-l-2 border border-border overflow-hidden mb-4 shadow-lg" style={{ maxWidth: 600 }}>
+              <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, marginBottom: 12 }}>Opens as a right-side panel (same pattern as document preview). Table is rendered inside.</p>
+              <div className="bg-surface rounded-lg border-l-2 border border-border overflow-hidden mb-4 shadow-lg" style={{ maxWidth: 600 }}>
                 <div className="px-4 py-3 border-b border-border flex items-center gap-3">
                   <div className="w-7 h-7 rounded-md bg-cream flex items-center justify-center"><Scale className="w-3.5 h-3.5 text-foreground-muted" /></div>
                   <span className="text-body-medium text-foreground-tertiary">ONIAM 2025</span>
-                  <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#065f46' }}>Actif</span>
+                  <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: dsColors.piece.revenus.bg, color: dsColors.icon.success }}>Actif</span>
                   <div className="flex-1" />
                   <div className="p-1 text-foreground-muted"><X className="w-3.5 h-3.5" /></div>
                 </div>
@@ -19736,9 +19033,9 @@ export default function App() {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr>
-                        <th className="px-3 py-2 text-left border border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase' }}>Durée</th>
+                        <th className="px-3 py-2 text-left border border-border" style={{ background: dsColors.semantic.backgroundSubtle, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase' }}>Durée</th>
                         {['25 ans', '62 ans', '67 ans'].map((c, i) => (
-                          <th key={i} className="px-3 py-2 text-right border border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', whiteSpace: 'nowrap' }}>{c}</th>
+                          <th key={i} className="px-3 py-2 text-right border border-border" style={{ background: dsColors.semantic.backgroundSubtle, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: dsColors.semantic.mutedForeground, whiteSpace: 'nowrap' }}>{c}</th>
                         ))}
                       </tr>
                     </thead>
@@ -19750,12 +19047,12 @@ export default function App() {
                         { h: 'Viager', v: ['41.543', '16.891', '13.010'] },
                       ].map((r, ri) => (
                         <tr key={ri} className="hover:bg-background">
-                          <td className="px-3 py-2 border border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#44403c' }}>{r.h}</td>
+                          <td className="px-3 py-2 border border-border" style={{ background: dsColors.semantic.backgroundSubtle, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>{r.h}</td>
                           {r.v.map((val, ci) => (
                             <td key={ci} className={`px-3 py-2 text-right border border-border`} style={{
-                              fontFamily: "'DM Mono', 'IBM Plex Mono', monospace", fontSize: 12, color: '#292524',
-                              background: ri === 2 && ci === 0 ? '#eff6ff' : 'white',
-                              ...(ri === 2 && ci === 0 ? { boxShadow: 'inset 0 0 0 2px #3b82f6', borderRadius: 2 } : {})
+                              fontFamily: "'DM Mono', 'IBM Plex Mono', monospace", fontSize: 12, color: dsColors.semantic.foreground,
+                              background: ri === 2 && ci === 0 ? dsColors.banner.info.bgFrom : 'white',
+                              ...(ri === 2 && ci === 0 ? { boxShadow: `inset 0 0 0 2px ${dsColors.chart[1]}`, borderRadius: 2 } : {})
                             }}>{val}</td>
                           ))}
                         </tr>
@@ -19763,7 +19060,7 @@ export default function App() {
                     </tbody>
                   </table>
                 </div>
-                <div className="px-4 py-2 border-t border-border" style={{ background: '#fafaf9' }}>
+                <div className="px-4 py-2 border-t border-border" style={{ background: dsColors.banner.neutral.bgFrom }}>
                   <span className="text-xs text-foreground-muted">↑ Cellule en surbrillance = valeur retenue pour le dossier</span>
                 </div>
               </div>
@@ -19771,7 +19068,7 @@ export default function App() {
               {subTitle('BaremeUploadForm - States')}
               {row(<>
                 {/* Empty form preview */}
-                <div className="bg-white rounded-lg border border-border p-5" style={{ width: 260 }}>
+                <div className="bg-surface rounded-lg border border-border p-5" style={{ width: 260 }}>
                   <div className="text-body-medium text-foreground mb-3">Formulaire vide</div>
                   <div className="space-y-2.5">
                     <div className="h-9 bg-background-subtle rounded-lg border border-border" />
@@ -19786,10 +19083,10 @@ export default function App() {
                   </div>
                 </div>
                 {/* Post-submit confirmation preview */}
-                <div className="bg-white rounded-lg border border-border p-5 text-center" style={{ width: 260 }}>
+                <div className="bg-surface rounded-lg border border-border p-5 text-center" style={{ width: 260 }}>
                   <div className="text-body-medium text-foreground mb-3">Confirmation</div>
-                  <div className="w-10 h-10 rounded-full bg-[#dcfce7] flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#16a34a]" />
+                  <div className="w-10 h-10 rounded-full bg-piece-revenus-bg flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle2 className="w-5 h-5 text-success" />
                   </div>
                   <p className="text-body-medium text-foreground mb-1">Demande prise en compte</p>
                   <p className="text-xs text-foreground-secondary">Activation sous 48h</p>
@@ -19806,10 +19103,10 @@ export default function App() {
   // ========== DIFF ENGINE DOCUMENTATION ==========
   const renderDiffEnginePage = () => {
     const sectionClass = "mb-16";
-    const heading = (title) => <h2 style={{ fontSize: 20, fontWeight: 700, color: '#292524', marginBottom: 8 }}>{title}</h2>;
-    const prose = (text) => <p style={{ fontSize: 14, lineHeight: '24px', color: '#57534e', marginBottom: 20, maxWidth: 720 }}>{text}</p>;
-    const quote = (text) => <blockquote style={{ borderLeft: '3px solid #dfdcd9', paddingLeft: 16, margin: '16px 0 24px', fontSize: 14, lineHeight: '22px', color: '#78716c', fontStyle: 'italic', maxWidth: 720 }}>{text}</blockquote>;
-    const sandboxLabel = () => <div style={{ fontSize: 11, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Sandbox</div>;
+    const heading = (title) => <h2 style={{ fontSize: 20, fontWeight: 700, color: dsColors.semantic.foreground, marginBottom: 8 }}>{title}</h2>;
+    const prose = (text) => <p style={{ fontSize: 14, lineHeight: '24px', color: dsColors.semantic.foregroundQuaternary, marginBottom: 20, maxWidth: 720 }}>{text}</p>;
+    const quote = (text) => <blockquote style={{ borderLeft: `3px solid ${dsColors.semantic.border}`, paddingLeft: 16, margin: '16px 0 24px', fontSize: 14, lineHeight: '22px', color: dsColors.semantic.mutedForeground, fontStyle: 'italic', maxWidth: 720 }}>{text}</blockquote>;
+    const sandboxLabel = () => <div style={{ fontSize: 11, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Sandbox</div>;
 
     /* ── S1: The Problem Today ── */
     const BeforeAfterToggle = () => {
@@ -19820,11 +19117,11 @@ export default function App() {
             {['before', 'after'].map(v => (
               <button key={v} onClick={() => setView(v)}
                 className="px-3 py-1.5 rounded-md text-caption-medium transition-colors"
-                style={{ background: view === v ? '#292524' : '#eeece6', color: view === v ? 'white' : '#78716c' }}
+                style={{ background: view === v ? dsColors.semantic.primary : dsColors.semantic.muted, color: view === v ? 'white' : dsColors.semantic.mutedForeground }}
               >{v === 'before' ? 'Before (no feedback)' : 'After (diff system)'}</button>
             ))}
           </div>
-          <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 700 }}>
+          <div className="border border-border rounded-lg bg-surface overflow-hidden" style={{ maxWidth: 700 }}>
             {view === 'before' ? (
               /* Before: flat row, no indication of what changed - the user sees final values but has zero visibility */
               <div className="flex items-center h-[56px] px-4 gap-4">
@@ -19840,16 +19137,16 @@ export default function App() {
                 <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md"><FileText className="w-4 h-4 text-info" /></span>
                 <span className="text-body-medium text-foreground flex-1">Hospitalisation jour</span>
                 <div className="text-right">
-                  <div style={{ fontSize: 12, lineHeight: '16px', color: '#a8a29e', textDecoration: 'line-through' }}>15/01/2026</div>
+                  <div style={{ fontSize: 12, lineHeight: '16px', color: dsColors.semantic.foregroundMuted, textDecoration: 'line-through' }}>15/01/2026</div>
                   <div className="text-body-medium text-foreground">15/02/2026</div>
                 </div>
                 <div className="text-right">
-                  <div style={{ fontSize: 12, lineHeight: '16px', color: '#a8a29e', textDecoration: 'line-through' }}>350 €</div>
+                  <div style={{ fontSize: 12, lineHeight: '16px', color: dsColors.semantic.foregroundMuted, textDecoration: 'line-through' }}>350 €</div>
                   <div className="text-body-medium text-foreground-tertiary">500 €</div>
                 </div>
                 <span className="flex items-center gap-1 opacity-0 group-hover/diff:opacity-100 transition-opacity">
-                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
-                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></span>
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></span>
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></span>
                 </span>
               </div>
             )}
@@ -19860,7 +19157,7 @@ export default function App() {
 
     /* ── S3: Visual System specimens ── */
     const TypoSpecimen = ({ label, size, weight, color, decoration, value }) => (
-      <div className="px-4 py-3 rounded-lg border border-border bg-white" style={{ minWidth: 160 }}>
+      <div className="px-4 py-3 rounded-lg border border-border bg-surface" style={{ minWidth: 160 }}>
         <div className="text-counter text-foreground-muted mb-2 uppercase">{label}</div>
         <span style={{ fontSize: size, fontWeight: weight, color, textDecoration: decoration }}>{value}</span>
         <div className="text-counter text-border-strong mt-2">{size}px · {weight === 500 ? 'Medium' : 'Regular'} · {color}</div>
@@ -19874,10 +19171,10 @@ export default function App() {
       <div className="mb-4">
         <div className="flex items-center gap-1.5 mb-1">
           {diffColor && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
-          <label style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>{label}</label>
+          <label style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}>{label}</label>
         </div>
-        <input type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-foreground" style={{ borderColor: diffColor ? diffColor : '#dfdcd9', background: diffColor ? `${diffColor}08` : 'white' }} />
-        {oldValue && <div style={{ fontSize: 11, color: '#a8a29e', marginTop: 2 }}>Ancien : {oldValue}</div>}
+        <input type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-foreground" style={{ borderColor: diffColor ? diffColor : dsColors.semantic.input, background: diffColor ? `${diffColor}08` : 'white' }} />
+        {oldValue && <div style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, marginTop: 2 }}>Ancien : {oldValue}</div>}
       </div>
     );
 
@@ -19950,7 +19247,7 @@ export default function App() {
             }}
           >
             {hasDiff && !resolved && (
-              <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS[p.diffType], transform: 'rotate(45deg)', borderRadius: '0.5px', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} />
+              <span className="w-1.5 h-1.5 flex-shrink-0" style={{ background: DIAMOND_COLORS[p.diffType], transform: 'rotate(45deg)', borderRadius: '0.5px', boxShadow: dsShadows.xs }} />
             )}
             <CircleArrowUp className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{p.label}</span>
@@ -19958,11 +19255,11 @@ export default function App() {
             {resolved && resolvedValueContent && <span style={{ fontWeight: 400 }}>{resolvedValueContent}</span>}
             {hasDiff && !resolved && (
               <span className="inline-flex items-center gap-1 ml-0.5 flex-shrink-0">
-                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5] hover:border-[#a5c9b7] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'accepted' } : pp))}>
-                  <Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} />
+                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-success-subtle hover:border-emerald-border transition-colors cursor-pointer" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'accepted' } : pp))}>
+                  <Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} />
                 </span>
-                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-[#cf9d9d] transition-colors cursor-pointer" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'rejected' } : pp))}>
-                  <X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} />
+                <span className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-danger-border transition-colors cursor-pointer" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setPeels(prev => prev.map(pp => pp.id === p.id ? { ...pp, status: 'rejected' } : pp))}>
+                  <X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} />
                 </span>
               </span>
             )}
@@ -19974,10 +19271,10 @@ export default function App() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <span className="text-caption text-foreground-secondary">{peels.filter(p => p.status === 'pending').length} pending · {peels.filter(p => p.status === 'accepted').length} accepted · {peels.filter(p => p.status === 'rejected').length} rejected</span>
-            <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-[#1e40af]"><RotateCcw className="w-3 h-3" /> Reset</button>
+            <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-piece-medical-fg"><RotateCcw className="w-3 h-3" /> Reset</button>
           </div>
           {/* In-context: settings row with mixed pill states */}
-          <div className="border border-border rounded-lg bg-white overflow-hidden mb-4" style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}>
+          <div className="border border-border rounded-lg bg-surface overflow-hidden mb-4" style={{ boxShadow: dsShadows.xs }}>
             <div className="flex items-center gap-3 px-4 py-3 flex-wrap">
               <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
                 <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
@@ -19998,19 +19295,19 @@ export default function App() {
           <div className="flex items-center gap-2 mb-4">
             {['pending', 'rejected', 'clean'].map(s => (
               <div key={s} className="flex items-center gap-1.5">
-                <div className="w-5 h-5 rounded-full flex items-center justify-center text-counter font-bold" style={{ background: step === s ? '#292524' : '#eeece6', color: step === s ? 'white' : '#78716c' }}>{s === 'pending' ? '1' : s === 'rejected' ? '2' : '3'}</div>
-                <span className="text-caption" style={{ color: step === s ? '#292524' : '#a8a29e', fontWeight: step === s ? 500 : 400 }}>{s === 'pending' ? 'Pending diff' : s === 'rejected' ? 'Rejected' : 'Clean state'}</span>
+                <div className="w-5 h-5 rounded-full flex items-center justify-center text-counter font-bold" style={{ background: step === s ? dsColors.semantic.primary : dsColors.semantic.muted, color: step === s ? 'white' : dsColors.semantic.mutedForeground }}>{s === 'pending' ? '1' : s === 'rejected' ? '2' : '3'}</div>
+                <span className="text-caption" style={{ color: step === s ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted, fontWeight: step === s ? 500 : 400 }}>{s === 'pending' ? 'Pending diff' : s === 'rejected' ? 'Rejected' : 'Clean state'}</span>
               </div>
             ))}
           </div>
-          <div className="border border-border rounded-lg bg-white overflow-visible" style={{ maxWidth: 600 }}>
+          <div className="border border-border rounded-lg bg-surface overflow-visible" style={{ maxWidth: 600 }}>
             <div className={`relative flex items-center h-[56px] px-4 gap-4 transition-colors ${step === 'rejected' ? 'diff-row-rejected' : ''}`}>
               {step === 'pending' && <div className="absolute left-0 top-0 bottom-0 w-1 pointer-events-none" style={{ background: ROW_DIFF_COLORS.edit }} />}
               <span className="inline-flex items-center justify-center w-7 h-7 bg-info-subtle rounded-md"><FileText className="w-4 h-4 text-info" /></span>
               <span className="text-body-medium text-foreground flex-1">Kinésithérapie</span>
               {step === 'pending' ? (
                 <div className="text-right">
-                  <div style={{ fontSize: 12, lineHeight: '16px', color: '#a8a29e', textDecoration: 'line-through' }}>960 €</div>
+                  <div style={{ fontSize: 12, lineHeight: '16px', color: dsColors.semantic.foregroundMuted, textDecoration: 'line-through' }}>960 €</div>
                   <div className="text-body-medium text-foreground-tertiary">1 280 €</div>
                 </div>
               ) : step === 'rejected' ? (
@@ -20022,14 +19319,14 @@ export default function App() {
               )}
               {step === 'pending' && (
                 <span className="flex items-center gap-1">
-                  <button className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-[#ecfdf5]" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><Check className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
-                  <button onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle" style={{ background: 'white', border: '1px solid #cbc7c4', boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}><X className="w-3 h-3" style={{ color: '#78716c' }} strokeWidth={2.5} /></button>
+                  <button className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-success-subtle" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+                  <button onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
                 </span>
               )}
             </div>
           </div>
           <div className="flex items-center gap-2 mt-4">
-            {step === 'rejected' && <button onClick={() => setStep('clean')} className="px-3 py-1.5 rounded-md text-caption-medium bg-foreground text-white">Dismiss → Clean state</button>}
+            {step === 'rejected' && <button onClick={() => setStep('clean')} className="px-3 py-1.5 rounded-md text-caption-medium bg-foreground text-primary-foreground">Dismiss → Clean state</button>}
             <button onClick={reset} className="px-3 py-1.5 rounded-md text-caption-medium border border-border text-foreground-secondary hover:bg-background"><RotateCcw className="w-3 h-3 inline mr-1" />Reset</button>
           </div>
         </div>
@@ -20039,39 +19336,39 @@ export default function App() {
 
     /* ── Surface recap table ── */
     const SurfaceRecap = () => (
-      <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 700 }}>
+      <div className="border border-border rounded-lg bg-surface overflow-hidden" style={{ maxWidth: 700 }}>
         {[
           { surface: 'Canvas (table)', sees: true, canAccept: true, canEdit: false },
           { surface: 'Chat (artifact card)', sees: true, canAccept: true, canEdit: false },
           { surface: 'Panel', sees: false, canAccept: false, canEdit: true },
         ].map((row, i) => (
-          <div key={i} className="flex items-center" style={{ borderBottom: i < 2 ? '1px solid #f0efed' : 'none', padding: '10px 16px' }}>
+          <div key={i} className="flex items-center" style={{ borderBottom: i < 2 ? `1px solid ${dsColors.semantic.backgroundSubtle}` : 'none', padding: '10px 16px' }}>
             <span className="text-body-medium text-foreground" style={{ width: 200 }}>{row.surface}</span>
-            <span className="flex-1 text-body" style={{ color: row.sees ? ROW_DIFF_COLORS.add : '#a8a29e' }}>{row.sees ? '✓ Sees diff' : '✗ Banner only'}</span>
-            <span className="flex-1 text-body" style={{ color: row.canAccept ? ROW_DIFF_COLORS.add : '#a8a29e' }}>{row.canAccept ? '✓ Accept/Reject' : '✗ Save = implicit accept'}</span>
-            <span className="flex-1 text-body" style={{ color: row.canEdit ? ROW_DIFF_COLORS.add : '#a8a29e' }}>{row.canEdit ? '✓ Full edit' : '✗ Read-only'}</span>
+            <span className="flex-1 text-body" style={{ color: row.sees ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.sees ? 'Sees diff' : 'Banner only'}</span>
+            <span className="flex-1 text-body" style={{ color: row.canAccept ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.canAccept ? 'Accept/Reject' : 'Save = implicit accept'}</span>
+            <span className="flex-1 text-body" style={{ color: row.canEdit ? ROW_DIFF_COLORS.add : dsColors.semantic.borderHover }}>{row.canEdit ? 'Full edit' : 'Read-only'}</span>
           </div>
         ))}
       </div>
     );
 
     return (
-      <div className="h-screen flex flex-col" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div className="h-screen flex flex-col" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
-        <div className="flex items-center h-12 px-6 border-b border-border bg-white flex-shrink-0">
+        <div className="flex items-center h-12 px-6 border-b border-border bg-surface flex-shrink-0">
           <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Back to UI Kit
           </button>
           <div className="ml-4 pl-4 border-l border-border">
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>Diff Engine</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>Diff Engine</span>
           </div>
         </div>
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto" style={{ padding: '48px 64px' }}>
           <div style={{ maxWidth: 1100 }}>
-            <h1 style={{ fontSize: 28, fontWeight: 700, color: '#292524', marginBottom: 4, letterSpacing: '-0.5px' }}>Diff Engine</h1>
-            <p style={{ fontSize: 16, color: '#78716c', marginBottom: 48 }}>Visualization & validation system for agent modifications</p>
+            <h1 style={{ fontSize: 28, fontWeight: 700, color: dsColors.semantic.foreground, marginBottom: 4, letterSpacing: '-0.5px' }}>Diff Engine</h1>
+            <p style={{ fontSize: 16, color: dsColors.semantic.mutedForeground, marginBottom: 48 }}>Visualization & validation system for agent modifications</p>
 
             {/* S1: The Problem Today */}
             <div id="de-problem" className={sectionClass}>
@@ -20092,8 +19389,8 @@ export default function App() {
                   { n: '2', title: 'Validate', desc: 'Accept or reject at different levels of granularity' },
                   { n: '3', title: 'Stay transparent', desc: 'Only agent actions are tracked - manual edits by the lawyer don\'t go through the diff system' },
                 ].map(item => (
-                  <div key={item.n} className="flex items-start gap-3 p-4 rounded-lg border border-border bg-white">
-                    <span className="w-6 h-6 rounded-full bg-foreground text-white text-caption-medium flex items-center justify-center flex-shrink-0">{item.n}</span>
+                  <div key={item.n} className="flex items-start gap-3 p-4 rounded-lg border border-border bg-surface">
+                    <span className="w-6 h-6 rounded-full bg-foreground text-primary-foreground text-caption-medium flex items-center justify-center flex-shrink-0">{item.n}</span>
                     <div><span className="text-body-medium text-foreground">{item.title}.</span> <span className="text-body text-foreground-quaternary">{item.desc}</span></div>
                   </div>
                 ))}
@@ -20109,20 +19406,20 @@ export default function App() {
               {prose('The diff relies on typography hierarchy to separate old vs new values, not color on text. Color lives only in structural markers (left border, status tags).')}
               {sandboxLabel()}
               <div className="flex flex-wrap gap-3 mb-8">
-                <TypoSpecimen label="Old value (before)" size={12} weight={400} color="#a8a29e" decoration="line-through" value="960 €" />
-                <TypoSpecimen label="New value (after)" size={14} weight={500} color="#292524" decoration="none" value="1 280 €" />
-                <TypoSpecimen label="Added value" size={14} weight={500} color="#292524" decoration="none" value="4 500 €" />
-                <TypoSpecimen label="Deleted value" size={14} weight={400} color="#a8a29e" decoration="line-through" value="55 €" />
+                <TypoSpecimen label="Old value (before)" size={12} weight={400} color={dsColors.semantic.foregroundMuted} decoration="line-through" value="960 €" />
+                <TypoSpecimen label="New value (after)" size={14} weight={500} color={dsColors.semantic.foreground} decoration="none" value="1 280 €" />
+                <TypoSpecimen label="Added value" size={14} weight={500} color={dsColors.semantic.foreground} decoration="none" value="4 500 €" />
+                <TypoSpecimen label="Deleted value" size={14} weight={400} color={dsColors.semantic.foregroundMuted} decoration="line-through" value="55 €" />
               </div>
               <div className="text-caption-medium text-foreground-secondary mb-3 uppercase" style={{ letterSpacing: '0.05em' }}>Row-level color system</div>
-              <div className="border border-border rounded-lg bg-white overflow-hidden" style={{ maxWidth: 400 }}>
+              <div className="border border-border rounded-lg bg-surface overflow-hidden" style={{ maxWidth: 400 }}>
                 {[
                   { type: 'add', label: 'Ajout', color: ROW_DIFF_COLORS.add },
                   { type: 'edit', label: 'Modif.', color: ROW_DIFF_COLORS.edit },
                   { type: 'delete', label: 'Suppr.', color: ROW_DIFF_COLORS.delete },
                   { type: null, label: 'No diff', color: null },
                 ].map((r, i) => (
-                  <div key={i} className="relative flex items-center h-10 px-4" style={{ borderBottom: i < 3 ? '1px solid #f0efed' : 'none' }}>
+                  <div key={i} className="relative flex items-center h-10 px-4" style={{ borderBottom: i < 3 ? `1px solid ${dsColors.semantic.backgroundSubtle}` : 'none' }}>
                     {r.color && <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: r.color }} />}
                     <span className="text-body text-foreground flex-1">{r.type ? r.label : '—'}</span>
                     {r.color && <span className="text-counter px-1.5 py-0.5 rounded" style={{ background: r.color + '18', color: r.color, fontWeight: 600 }}>{r.label.toUpperCase()}</span>}
@@ -20229,13 +19526,13 @@ export default function App() {
               {prose('The panel is NOT part of the diff system. It always shows the latest version. A subtle banner indicates "Modified by assistant" when a diff is pending. Edit + save = implicit accept. Deleted lines cannot be opened in the panel.')}
               {sandboxLabel()}
               <div className="flex gap-6 flex-wrap">
-                <div className="rounded-lg border border-border bg-white p-5" style={{ width: 280 }}>
+                <div className="rounded-lg border border-border bg-surface p-5" style={{ width: 280 }}>
                   <div className="text-caption-medium text-foreground-muted mb-3 uppercase">Normal</div>
                   <PanelField label="Libellé" value="Hospitalisation jour" />
                   <PanelField label="Date" value="15/02/2026" />
                   <PanelField label="Montant" value="500 €" />
                 </div>
-                <div className="rounded-lg border border-border bg-white p-5" style={{ width: 280 }}>
+                <div className="rounded-lg border border-border bg-surface p-5" style={{ width: 280 }}>
                   <div className="text-caption-medium text-foreground-muted mb-3 uppercase">Pending diff</div>
                   <div className="rounded-lg p-3 mb-4 flex items-center gap-2" style={{ background: `${ROW_DIFF_COLORS.edit}10`, border: `1px solid ${ROW_DIFF_COLORS.edit}30` }}>
                     <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ROW_DIFF_COLORS.edit, transform: 'rotate(45deg)' }} />
@@ -20245,7 +19542,7 @@ export default function App() {
                   <PanelField label="Montant" value="1 280 €" diffColor={ROW_DIFF_COLORS.edit} oldValue="960 €" />
                   <PanelField label="Date" value="05/06/2022" diffColor={ROW_DIFF_COLORS.edit} oldValue="04/06/2022" />
                 </div>
-                <div className="rounded-lg border border-border bg-white p-5 flex flex-col items-center justify-center" style={{ width: 280, minHeight: 240 }}>
+                <div className="rounded-lg border border-border bg-surface p-5 flex flex-col items-center justify-center" style={{ width: 280, minHeight: 240 }}>
                   <div className="text-caption-medium text-foreground-muted mb-3 uppercase">Deleted line</div>
                   <div className="w-10 h-10 rounded-full bg-danger-subtle flex items-center justify-center mb-3">
                     <Trash2 className="w-4 h-4" style={{ color: ROW_DIFF_COLORS.delete }} />
@@ -20274,10 +19571,10 @@ export default function App() {
       <button
         data-bareme-popover={popoverId}
         onClick={() => { setBaremePopover(isOpen ? null : popoverId); setBaremePopoverSearch(''); }}
-        className={`flex items-center justify-between bg-white border border-border transition-colors hover:border-border-strong ${
+        className={`flex items-center justify-between bg-surface border border-border transition-colors hover:border-border-strong ${
           variant === 'horizontal' ? 'text-sm px-3 py-2' : 'w-full px-3 py-2 text-[14px]'
         } text-foreground`}
-        style={{ borderRadius: 8, boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)' }}
+        style={{ borderRadius: 8, boxShadow: dsShadows.xs }}
       >
         <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${selectedBareme ? 'text-foreground' : 'text-foreground-secondary'}`}>{selectedBareme ? selectedBareme.label : 'Sélectionner…'}</span>
         <ChevronDown className="w-4 h-4 text-foreground-secondary ml-2 flex-shrink-0" />
@@ -20285,7 +19582,7 @@ export default function App() {
     );
 
     const popoverContent = isOpen && (
-      <div data-bareme-popover={popoverId} className="absolute z-40 mt-1 bg-white border border-border overflow-hidden" style={{ borderRadius: 8, width: variant === 'horizontal' ? 287 : '100%', animation: 'fadeIn 0.1s ease-out', boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+      <div data-bareme-popover={popoverId} className="absolute z-40 mt-1 bg-surface border border-border overflow-hidden" style={{ borderRadius: 8, width: variant === 'horizontal' ? 287 : '100%', animation: 'fadeIn 0.1s ease-out', boxShadow: dsShadows['md'] }}>
         {/* Command Search */}
         <button className="w-full flex items-center gap-0 px-3 py-3 border-b border-border cursor-text" onClick={() => {}}>
           <div className="pr-2 flex-shrink-0"><Search className="w-4 h-4 text-foreground-secondary" /></div>
@@ -20308,7 +19605,7 @@ export default function App() {
                 className={`w-full text-left px-2 py-1.5 text-sm transition-colors flex items-center justify-between gap-2 ${
                   b.id === value ? 'font-medium text-foreground' : 'text-foreground-secondary hover:bg-background-canvas'
                 }`}
-                style={{ borderRadius: 6, background: b.id === value ? '#f8f7f5' : undefined }}
+                style={{ borderRadius: 6, background: b.id === value ? dsColors.semantic.background : undefined }}
               >
                 {b.label}
                 {b.id === value && <Check className="w-4 h-4 text-foreground flex-shrink-0" />}
@@ -20374,18 +19671,18 @@ export default function App() {
       {/* Dimmed backdrop - covers the canvas left of the chat (respects --chat-offset);
           click to close. */}
       <div onClick={() => setBaremeViewerOpen(null)} className="fixed top-0 left-0 bottom-0 z-20" style={{ right: 'var(--chat-offset, 0px)', background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
-      <div className="fixed top-0 h-screen bg-white border-l border-border z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
+      <div className="fixed top-0 h-screen bg-surface border-l border-border z-30 flex flex-col" style={{ width: '860px', maxWidth: 'calc(100vw - var(--chat-offset, 0px))', right: 'var(--chat-offset, 0px)', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
         {/* Header - matches doc preview pattern */}
-        <div className="px-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-white" style={{ paddingTop: 14, paddingBottom: 14 }}>
+        <div className="px-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-surface" style={{ paddingTop: 14, paddingBottom: 14 }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="w-[22px] h-[22px] rounded-[6px] bg-cream flex items-center justify-center flex-shrink-0">
               <Scale className="w-3 h-3 text-foreground-secondary" />
             </div>
             <span className="text-[14px] font-medium text-black truncate">{bareme.label}</span>
             {bareme.status === 'active' ? (
-              <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[6px] flex-shrink-0" style={{ background: '#dcfce7', color: '#065f46' }}>Actif</span>
+              <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[6px] flex-shrink-0" style={{ background: dsColors.piece.revenus.bg, color: dsColors.icon.success }}>Actif</span>
             ) : (
-              <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[6px] flex-shrink-0" style={{ background: '#fef3c7', color: '#92400e' }}>En traitement</span>
+              <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[6px] flex-shrink-0" style={{ background: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground }}>En traitement</span>
             )}
           </div>
           <button onClick={() => setBaremeViewerOpen(null)} className="w-4 h-4 flex items-center justify-center flex-shrink-0 ml-3 text-foreground-secondary hover:text-foreground transition-colors">
@@ -20400,11 +19697,11 @@ export default function App() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="sticky top-0 left-0 z-20 px-3 py-2.5 text-left border-b border-r border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: 80 }}>
+                      <th className="sticky top-0 left-0 z-20 px-3 py-2.5 text-left border-b border-r border-border" style={{ background: dsColors.semantic.backgroundSubtle, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: 80 }}>
                         Durée
                       </th>
                       {bareme.tableData.columns.map((col, i) => (
-                        <th key={i} className="sticky top-0 z-10 px-3 py-2.5 text-right border-b border-r border-border last:border-r-0" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: '#78716c', whiteSpace: 'nowrap', minWidth: 72 }}>
+                        <th key={i} className="sticky top-0 z-10 px-3 py-2.5 text-right border-b border-r border-border last:border-r-0" style={{ background: dsColors.semantic.backgroundSubtle, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 600, color: dsColors.semantic.mutedForeground, whiteSpace: 'nowrap', minWidth: 72 }}>
                           {col}
                         </th>
                       ))}
@@ -20413,11 +19710,11 @@ export default function App() {
                   <tbody>
                     {bareme.tableData.rows.map((row, ri) => (
                       <tr key={ri} className="hover:bg-background transition-colors">
-                        <td className="sticky left-0 z-10 px-3 py-2 border-b border-r border-border" style={{ background: '#f5f5f4', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: '#44403c' }}>
+                        <td className="sticky left-0 z-10 px-3 py-2 border-b border-r border-border" style={{ background: dsColors.semantic.backgroundSubtle, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>
                           {row.header}
                         </td>
                         {row.values.map((val, ci) => (
-                          <td key={ci} className="px-3 py-2 text-right border-b border-r border-border last:border-r-0" style={{ fontFamily: "'DM Mono', 'IBM Plex Mono', monospace", fontSize: 12, color: '#292524', background: 'white' }}>
+                          <td key={ci} className="px-3 py-2 text-right border-b border-r border-border last:border-r-0" style={{ fontFamily: "'DM Mono', 'IBM Plex Mono', monospace", fontSize: 12, color: dsColors.semantic.foreground, background: 'white' }}>
                             {typeof val === 'number' ? val.toFixed(3) : val}
                           </td>
                         ))}
@@ -20428,9 +19725,9 @@ export default function App() {
               </div>
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center" style={{ backgroundColor: '#f8f7f5' }}>
+          <div className="flex-1 flex items-center justify-center" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="text-center">
-              <Loader2 className="w-8 h-8 text-border-strong mx-auto mb-3 animate-spin" />
+              <Spinner size="xl" color={dsColors.semantic.borderStrong} className="mx-auto mb-3" />
               <p className="text-body text-foreground-secondary">Ce barème est en cours de modélisation.</p>
               <p className="text-caption text-foreground-muted mt-1">Il sera disponible sous 48h.</p>
             </div>
@@ -20446,10 +19743,10 @@ export default function App() {
     if (!baremeUploadFormOpen) return null;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }}>
-        <div className="bg-white rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: '#18181b' }}>Ajouter un barème</h2>
+            <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: dsColors.semantic.foreground }}>Ajouter un barème</h2>
             <button onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
               <X className="w-4 h-4 text-foreground-secondary" />
             </button>
@@ -20459,13 +19756,13 @@ export default function App() {
             <div className="px-6 py-5 space-y-4">
               {/* Nom */}
               <div>
-                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du barème <span className="text-red-400">*</span></label>
+                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du barème <span className="text-danger">*</span></label>
                 <input
                   type="text"
                   value={baremeUploadData.nom}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, nom: e.target.value }))}
                   placeholder="Ex: GDP 2026, Mornet révisé…"
-                  className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                  className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                 />
               </div>
 
@@ -20475,7 +19772,7 @@ export default function App() {
                 <select
                   value={baremeUploadData.type}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, type: e.target.value }))}
-                  className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                  className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
                 >
                   <option value="bareme">Barème</option>
                   <option value="referentiel">Référentiel</option>
@@ -20484,7 +19781,7 @@ export default function App() {
 
               {/* File upload zone */}
               <div>
-                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Document de référence <span className="text-red-400">*</span></label>
+                <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Document de référence <span className="text-danger">*</span></label>
                 <div
                   className="border-2 border-dashed border-border-strong rounded-lg p-6 text-center hover:border-foreground-muted transition-colors cursor-pointer"
                   onClick={() => {
@@ -20525,7 +19822,7 @@ export default function App() {
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Précisions sur le barème, source, contexte d'utilisation…"
                   rows={3}
-                  className="w-full px-3 py-2.5 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                  className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
                 />
               </div>
 
@@ -20559,7 +19856,7 @@ export default function App() {
                   disabled={!baremeUploadData.nom || !baremeUploadData.fileName}
                   className={`px-5 py-2.5 text-body-medium rounded-lg transition-colors ${
                     baremeUploadData.nom && baremeUploadData.fileName
-                      ? 'bg-foreground text-white hover:bg-foreground-tertiary'
+                      ? 'bg-foreground text-primary-foreground hover:bg-foreground-tertiary'
                       : 'bg-border text-foreground-muted cursor-not-allowed'
                   }`}
                 >
@@ -20577,10 +19874,10 @@ export default function App() {
     if (!newActeModalOpen) return null;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }}>
-        <div className="bg-white rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: '#18181b' }}>Nouvel acte</h2>
+            <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: dsColors.semantic.foreground }}>Nouvel acte</h2>
             <button onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
               <X className="w-4 h-4 text-foreground-secondary" />
             </button>
@@ -20598,9 +19895,9 @@ export default function App() {
                 (() => {
                   const selected = templatesLibrary.find(t => t.id === newActeForm.templateId);
                   return selected ? (
-                    <div className="flex items-center gap-2.5 p-2.5 border border-border rounded-lg bg-white">
-                      <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: '#dfe8f5' }}>
-                        <FileText className="w-4 h-4 text-[#4a72b0]" strokeWidth={1.5} />
+                    <div className="flex items-center gap-2.5 p-2.5 border border-border rounded-lg bg-surface">
+                      <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: dsColors.piece.expertise.bg }}>
+                        <FileText className="w-4 h-4 text-info" strokeWidth={1.5} />
                       </div>
                       <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">{selected.label}</span>
                       <button
@@ -20622,7 +19919,7 @@ export default function App() {
                       value={newActeForm.templateSearch}
                       onChange={(e) => setNewActeForm(prev => ({ ...prev, templateSearch: e.target.value }))}
                       placeholder="Recherchez un modèle..."
-                      className="w-full h-10 pl-9 pr-3 text-[13px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground placeholder:text-foreground-muted"
+                      className="w-full h-10 pl-9 pr-3 text-[13px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground placeholder:text-foreground-muted"
                     />
                   </div>
                   {/* Results dropdown */}
@@ -20631,15 +19928,15 @@ export default function App() {
                       t.label.toLowerCase().includes((newActeForm.templateSearch || '').toLowerCase())
                     );
                     return (
-                      <div className="mt-1 border border-border rounded-lg bg-white overflow-hidden max-h-[180px] overflow-y-auto">
+                      <div className="mt-1 border border-border rounded-lg bg-surface overflow-hidden max-h-[180px] overflow-y-auto">
                         {filtered.length > 0 ? filtered.map(tpl => (
                           <button
                             key={tpl.id}
                             onClick={() => setNewActeForm(prev => ({ ...prev, templateId: tpl.id, templateSearch: '' }))}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-background transition-colors"
                           >
-                            <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: '#dfe8f5' }}>
-                              <FileText className="w-3.5 h-3.5 text-[#4a72b0]" strokeWidth={1.5} />
+                            <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: dsColors.piece.expertise.bg }}>
+                              <FileText className="w-3.5 h-3.5 text-info" strokeWidth={1.5} />
                             </div>
                             <span className="text-[13px] text-foreground truncate">{tpl.label}</span>
                           </button>
@@ -20668,7 +19965,7 @@ export default function App() {
                 onChange={(e) => setNewActeForm(prev => ({ ...prev, instructions: e.target.value }))}
                 placeholder="Décrivez l'acte à rédiger : type, parties, objet, tribunal…"
                 rows={5}
-                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
               />
             </div>
 
@@ -20712,7 +20009,7 @@ export default function App() {
                 disabled={!newActeForm.instructions.trim()}
                 className={`px-5 py-2.5 text-body-medium rounded-lg transition-colors ${
                   newActeForm.instructions.trim()
-                    ? 'bg-foreground text-white hover:bg-foreground-tertiary'
+                    ? 'bg-foreground text-primary-foreground hover:bg-foreground-tertiary'
                     : 'bg-border text-foreground-muted cursor-not-allowed'
                 }`}
               >
@@ -20740,10 +20037,10 @@ export default function App() {
     ];
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }}>
-        <div className="bg-white rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-xl shadow-2xl" style={{ width: 520 }} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: '#18181b' }}>Ajouter un modèle</h2>
+            <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: dsColors.semantic.foreground }}>Ajouter un modèle</h2>
             <button onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
               <X className="w-4 h-4 text-foreground-secondary" />
             </button>
@@ -20753,13 +20050,13 @@ export default function App() {
           <div className="px-6 py-5 space-y-4">
             {/* Nom */}
             <div>
-              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du modèle <span className="text-red-400">*</span></label>
+              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du modèle <span className="text-danger">*</span></label>
               <input
                 type="text"
                 value={templateUploadData.nom}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, nom: e.target.value }))}
                 placeholder="Ex: Assignation en référé-expertise type"
-                className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
               />
             </div>
 
@@ -20769,7 +20066,7 @@ export default function App() {
               <select
                 value={templateUploadData.actType}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, actType: e.target.value }))}
-                className="w-full h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
               >
                 {actTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -20777,7 +20074,7 @@ export default function App() {
 
             {/* File upload zone */}
             <div>
-              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Document <span className="text-red-400">*</span></label>
+              <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Document <span className="text-danger">*</span></label>
               <div
                 className="border-2 border-dashed border-border-strong rounded-lg p-6 text-center hover:border-foreground-muted transition-colors cursor-pointer"
                 onClick={() => {
@@ -20818,7 +20115,7 @@ export default function App() {
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Précisions sur le modèle, contexte d'utilisation…"
                 rows={3}
-                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
               />
             </div>
 
@@ -20851,7 +20148,7 @@ export default function App() {
                 disabled={!templateUploadData.nom || !templateUploadData.fileName}
                 className={`px-5 py-2.5 text-body-medium rounded-lg transition-colors ${
                   templateUploadData.nom && templateUploadData.fileName
-                    ? 'bg-foreground text-white hover:bg-foreground-tertiary'
+                    ? 'bg-foreground text-primary-foreground hover:bg-foreground-tertiary'
                     : 'bg-border text-foreground-muted cursor-not-allowed'
                 }`}
               >
@@ -20951,11 +20248,11 @@ export default function App() {
         onClick={close}
       >
         <div
-          className="bg-white border border-border overflow-hidden"
+          className="bg-surface border border-border overflow-hidden"
           style={{
             width: 512,
             borderRadius: 12,
-            boxShadow: '0 2px 4px -2px rgba(26,26,26,0.05), 0 4px 6px -1px rgba(26,26,26,0.05)',
+            boxShadow: dsShadows['md'],
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -20966,7 +20263,7 @@ export default function App() {
               style={{
                 fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
                 fontSize: 24, fontWeight: 500, lineHeight: '28px',
-                letterSpacing: '-0.6px', color: '#292524',
+                letterSpacing: '-0.6px', color: dsColors.semantic.foreground,
               }}
             >
               Inviter des collaborateurs
@@ -20979,16 +20276,16 @@ export default function App() {
             <div className="flex flex-col gap-2">
               <label
                 className="text-body-medium"
-                style={{ color: '#292524' }}
+                style={{ color: dsColors.semantic.foreground }}
               >
                 Adresse e-mail
               </label>
               <div
                 onClick={() => document.getElementById('invite-email-input')?.focus()}
-                className="bg-white border border-border flex flex-wrap items-center gap-1 px-3 py-2 cursor-text focus-within:ring-1 focus-within:ring-foreground focus-within:border-foreground"
+                className="bg-surface border border-border flex flex-wrap items-center gap-1 px-3 py-2 cursor-text focus-within:ring-1 focus-within:ring-foreground focus-within:border-foreground"
                 style={{
                   borderRadius: 8,
-                  boxShadow: '0 1px 2px 0 rgba(26,26,26,0.05)',
+                  boxShadow: dsShadows.xs,
                 }}
               >
                 {inviteEmails.map(em => (
@@ -21000,7 +20297,7 @@ export default function App() {
                     <span>{em}</span>
                     <button
                       onClick={(e) => { e.stopPropagation(); removeChip(em); }}
-                      className="ml-1 w-4 h-4 flex items-center justify-center rounded text-foreground-secondary hover:text-foreground hover:bg-white transition-colors"
+                      className="ml-1 w-4 h-4 flex items-center justify-center rounded text-foreground-secondary hover:text-foreground hover:bg-surface transition-colors"
                       aria-label={`Retirer ${em}`}
                     >
                       <X className="w-3 h-3" strokeWidth={2} />
@@ -21029,7 +20326,7 @@ export default function App() {
             <div className="flex flex-col gap-2">
               <label
                 className="text-body-medium"
-                style={{ color: '#292524' }}
+                style={{ color: dsColors.semantic.foreground }}
               >
                 Rôle
               </label>
@@ -21046,9 +20343,9 @@ export default function App() {
                       className="inline-flex items-center justify-center gap-2 h-9 px-2 py-2.5 transition-colors"
                       style={{
                         borderRadius: 8,
-                        backgroundColor: active ? '#292524' : '#f8f7f5',
-                        border: active ? '1px solid #292524' : '1px solid #dfdcd9',
-                        color: active ? 'white' : '#292524',
+                        backgroundColor: active ? dsColors.semantic.primary : dsColors.semantic.background,
+                        border: active ? `1px solid ${dsColors.semantic.foreground}` : `1px solid ${dsColors.semantic.border}`,
+                        color: active ? 'white' : dsColors.semantic.foreground,
                         minWidth: 36,
                       }}
                     >
@@ -21067,7 +20364,7 @@ export default function App() {
 
             {/* Plan / licence selector - reserved at invite time, active on acceptance */}
             <div className="flex flex-col gap-2">
-              <label className="text-body-medium" style={{ color: '#292524' }}>
+              <label className="text-body-medium" style={{ color: dsColors.semantic.foreground }}>
                 Licence
               </label>
               <LicencePicker value={invitePlan} onChange={setInvitePlan} includeFree showDelta />
@@ -21086,8 +20383,8 @@ export default function App() {
               className="inline-flex items-center justify-center gap-2 h-9 px-4 py-2 transition-colors"
               style={{
                 borderRadius: 8,
-                backgroundColor: '#eeece6',
-                color: '#44403c',
+                backgroundColor: dsColors.semantic.muted,
+                color: dsColors.semantic.foregroundTertiary,
               }}
             >
               <span className="text-body-medium leading-5">Annuler</span>
@@ -21098,8 +20395,8 @@ export default function App() {
               className="inline-flex items-center justify-center gap-2 h-9 px-4 py-2 bg-foreground hover:bg-foreground-tertiary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 borderRadius: 8,
-                color: 'white',
-                boxShadow: '0 0.5px 1px rgba(26,26,26,0.05)',
+                color: dsColors.semantic.primaryForeground,
+                boxShadow: dsShadows['2xs'],
               }}
             >
               <span className="text-body-medium leading-5">
@@ -21121,15 +20418,15 @@ export default function App() {
     <div className="pt-4 pb-8">
       {monoLabel && (
         <div className="flex items-baseline gap-3 mb-6">
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#292524', letterSpacing: '0.1em' }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.foreground, letterSpacing: '0.1em' }}>
             {monoLabel}
           </span>
-          <span className="flex-1 h-px bg-foreground/20" />
+          <span className="flex-1 h-px bg-border" />
         </div>
       )}
       <div className="flex items-end justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '36px', fontWeight: 400, color: '#18181b', letterSpacing: '-0.02em', lineHeight: 1.1, textWrap: 'balance' }}>
+          <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '36px', fontWeight: 400, color: dsColors.semantic.foreground, letterSpacing: '-0.02em', lineHeight: 1.1, textWrap: 'balance' }}>
             {title}
           </h1>
           {subtitle && <p className="text-[14px] text-foreground-secondary mt-3 leading-relaxed">{subtitle}</p>}
@@ -21148,7 +20445,7 @@ export default function App() {
     const lastName = accountEdits.lastName ?? defLast;
     const email = accountEdits.email ?? (currentUser?.email || '');
     const dirty = accountEdits.firstName !== undefined || accountEdits.lastName !== undefined || accountEdits.email !== undefined;
-    const inputClass = "h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground";
+    const inputClass = "h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground";
     const saveAccount = () => {
       const fullName = `${firstName} ${lastName}`.trim();
       const initials = ((firstName.trim()[0] || '') + (lastName.trim()[0] || '')).toUpperCase() || (fullName[0] || '?').toUpperCase();
@@ -21167,16 +20464,16 @@ export default function App() {
             <button
               onClick={saveAccount}
               disabled={!dirty}
-              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
+              className={`h-9 px-4 text-primary-foreground text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
             >
               Enregistrer
             </button>
           )}
 
           {/* Account info card - mono header + label/input rows */}
-          <div className="bg-white rounded-lg border border-border/60 overflow-hidden divide-y divide-border">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden divide-y divide-border">
             <div className="px-5 py-3">
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-foreground-tertiary">Prénom</label>
@@ -21189,6 +20486,40 @@ export default function App() {
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-foreground-tertiary">Email</label>
               <input type="email" value={email} onChange={(e) => setAccountEdits(s => ({ ...s, email: e.target.value }))} className={inputClass} />
+            </div>
+          </div>
+
+          {/* Apparence - bascule light/dark (design-system/theme.js). Light par
+              défaut ; le choix est mémorisé. */}
+          <div className="bg-surface rounded-lg border border-border overflow-hidden divide-y divide-border mt-6">
+            <div className="px-5 py-3">
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Apparence</span>
+            </div>
+            <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
+              <div>
+                <label className="text-body-medium text-foreground-tertiary block">Thème</label>
+                <span className="text-[12px] text-foreground-muted">Clair par défaut. Le sombre est encore en rodage.</span>
+              </div>
+              <div className="inline-flex p-0.5 gap-0.5 bg-cream border border-border rounded-lg w-fit" role="group" aria-label="Thème">
+                {[
+                  { id: 'light', label: 'Clair', Icon: Sun },
+                  { id: 'dark', label: 'Sombre', Icon: Moon },
+                ].map(({ id, label, Icon }) => {
+                  const active = themeMode === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setTheme(id)}
+                      aria-pressed={active}
+                      className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-[13px] font-medium transition-colors ${active ? 'bg-surface text-foreground border border-border-strong' : 'text-foreground-secondary hover:text-foreground border border-transparent'}`}
+                    >
+                      <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -21217,16 +20548,16 @@ export default function App() {
             <button
               onClick={saveOrg}
               disabled={!dirty}
-              className={`h-9 px-4 text-white text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
+              className={`h-9 px-4 text-primary-foreground text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
             >
               Enregistrer
             </button>
           )}
 
           {/* Account info card - mono header + label/input row */}
-          <div className="bg-white rounded-lg border border-border/60 overflow-hidden divide-y divide-border">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden divide-y divide-border">
             <div className="px-5 py-3">
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Informations du compte</span>
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-foreground-tertiary">Nom de l'organisation</label>
@@ -21235,7 +20566,7 @@ export default function App() {
                 value={val}
                 onChange={(e) => setOrgNameDraft(e.target.value)}
                 placeholder="Nom du cabinet"
-                className="h-10 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                className="h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
               />
             </div>
           </div>
@@ -21269,14 +20600,14 @@ export default function App() {
         }}
       >
         <div className="mt-1 rounded-lg border border-border bg-background px-4 py-3">
-          <div className="text-[11px] uppercase mb-2" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e', letterSpacing: '0.04em' }}>
+          <div className="text-[11px] uppercase mb-2" style={{ fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted, letterSpacing: '0.04em' }}>
             Destinataire{admins.length > 1 ? 's' : ''}
           </div>
           {admins.length > 0 ? (
             <div className="space-y-1.5">
               {admins.map((a) => (
                 <div key={a.id} className="flex items-center gap-2.5">
-                  {userAvatar(workspaceMembers.findIndex(x => x.id === a.id), a.role, 24)}
+                  {userAvatar(workspaceMembers.findIndex(x => x.id === a.id), a.role, 24, a.name)}
                   <div className="min-w-0">
                     <div className="text-[13px] text-foreground font-medium leading-tight">{a.name}</div>
                     <div className="text-[12px] text-foreground-secondary truncate">{a.email}</div>
@@ -21320,7 +20651,7 @@ export default function App() {
     const isIncrease = delta > 0;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={close}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-[480px] flex flex-col" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="px-6 pt-6 pb-4">
             <h2 className="text-display-sm text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif" }}>
@@ -21329,7 +20660,7 @@ export default function App() {
           </div>
           {/* Options - radio group */}
           <div className="px-6 pb-2 flex flex-col gap-2">
-            <label className="text-body-medium" style={{ color: '#292524' }}>Licence</label>
+            <label className="text-body-medium" style={{ color: dsColors.semantic.foreground }}>Licence</label>
             <div className="flex flex-col gap-1.5">
               {options.map(({ id, name, price, icon: Icon }) => {
                 const active = (selected || '') === id;
@@ -21339,8 +20670,8 @@ export default function App() {
                     onClick={() => setPlanPickerChoice(id)}
                     className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${active ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
                   >
-                    <span className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0" style={{ borderColor: active ? '#292524' : '#cbc7c4' }}>
-                      {active && <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#292524' }} />}
+                    <span className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0" style={{ borderColor: active ? dsColors.semantic.ring : dsColors.semantic.borderStrong }}>
+                      {active && <span className="w-2 h-2 rounded-full" style={{ backgroundColor: dsColors.semantic.primary }} />}
                     </span>
                     <Icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
                     <span className="text-[14px] text-foreground font-medium">{name}</span>
@@ -21356,15 +20687,15 @@ export default function App() {
           {/* Pricing impact of the selected tier - inline info box */}
           {!unchanged && (
             <div className="px-6 pb-1">
-              <div className="rounded-lg px-3.5 py-3 text-[13px] leading-snug" style={{ background: '#eef3fb', border: '1px solid #dbe5f3', color: '#44403c' }}>
+              <div className="rounded-lg px-3.5 py-3 text-[13px] leading-snug" style={{ background: dsColors.banner.info.bgFrom, border: `1px solid ${dsColors.piece.expertise.bg}`, color: dsColors.semantic.foregroundTertiary }}>
                 {isRemoval ? (
                   <p>La licence est retirée, <span className="font-medium">{member.name}</span> repasse en lecture seule.</p>
                 ) : isIncrease ? (
-                  <p>Vous serez facturé <span className="font-medium" style={{ color: '#1e3a8a' }}>+{fmtEur(delta)} € HT/mois</span>, au prorata sur votre prochaine facture.</p>
+                  <p>Vous serez facturé <span className="font-medium" style={{ color: dsColors.feedback.info.text }}>+{fmtEur(delta)} € HT/mois</span>, au prorata sur votre prochaine facture.</p>
                 ) : (
-                  <p>Votre facturation diminue de <span className="font-medium" style={{ color: '#1e3a8a' }}>{fmtEur(Math.abs(delta))} € HT/mois</span>.</p>
+                  <p>Votre facturation diminue de <span className="font-medium" style={{ color: dsColors.feedback.info.text }}>{fmtEur(Math.abs(delta))} € HT/mois</span>.</p>
                 )}
-                <p className="mt-1" style={{ color: '#78716c' }}>Nouveau total : <span className="font-medium" style={{ color: '#292524' }}>{fmtEur(newTotal)} € HT/mois</span>.</p>
+                <p className="mt-1" style={{ color: dsColors.semantic.mutedForeground }}>Nouveau total : <span className="font-medium" style={{ color: dsColors.semantic.foreground }}>{fmtEur(newTotal)} € HT/mois</span>.</p>
               </div>
             </div>
           )}
@@ -21376,7 +20707,7 @@ export default function App() {
             <button
               onClick={confirmPlanPicker}
               disabled={unchanged}
-              className={`h-9 px-4 text-sm font-medium text-white rounded-lg transition-colors ${unchanged ? 'bg-border-strong cursor-not-allowed' : 'bg-foreground hover:bg-foreground-strong'}`}
+              className={`h-9 px-4 text-sm font-medium text-primary-foreground rounded-lg transition-colors ${unchanged ? 'bg-border-strong cursor-not-allowed' : 'bg-foreground hover:bg-foreground-strong'}`}
             >
               Confirmer
             </button>
@@ -21393,7 +20724,7 @@ export default function App() {
     <div className="rounded-md border border-border overflow-hidden">
       <table className="w-full">
         <thead>
-          <tr className="bg-white border-b border-border">
+          <tr className="bg-surface border-b border-border">
             <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Nom</th>
             <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Rôle</th>
             <th className="px-3 py-3 text-left h-10" style={colHeaderStyle}>Plan</th>
@@ -21407,11 +20738,11 @@ export default function App() {
               <tr
                 key={m.id}
                 onClick={isAdmin ? () => setProfileMemberId(m.id) : undefined}
-                className={`bg-white transition-colors ${isLast ? '' : 'border-b border-border'} group ${isAdmin ? 'hover:bg-background cursor-pointer' : ''}`}
+                className={`bg-surface transition-colors ${isLast ? '' : 'border-b border-border'} group ${isAdmin ? 'hover:bg-background cursor-pointer' : ''}`}
               >
                 <td className="px-3 py-3">
                   <div className="flex items-center gap-3">
-                    {userAvatar(idx, m.role, 32)}
+                    {userAvatar(idx, m.role, 32, m.name)}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-body-medium text-foreground">{m.name}</span>
@@ -21492,18 +20823,18 @@ export default function App() {
       setToastMessage('Invitation annulée.');
       setTimeout(() => setToastMessage(null), 2500);
     };
-    const cardLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.04em' };
+    const cardLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.04em' };
     return (
       <>
         {/* Backdrop */}
         <div onClick={close} className="fixed inset-0 z-40" style={{ background: 'rgba(28,25,23,0.32)', animation: 'fadeIn 0.2s ease-out' }} />
         {/* Right-side drawer */}
-        <div className="fixed top-0 right-0 h-screen bg-white border-l border-border z-40 flex flex-col overflow-hidden" style={{ width: 460, maxWidth: '100vw', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
+        <div className="fixed top-0 right-0 h-screen bg-surface border-l border-border z-40 flex flex-col overflow-hidden" style={{ width: 460, maxWidth: '100vw', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
           {/* Header - avatar + name + close */}
           <div className="px-6 pt-6 pb-5 flex items-center gap-3.5 relative flex-shrink-0">
-            {userAvatar(idx, m.role, 40)}
+            {userAvatar(idx, m.role, 40, m.name)}
             <div className="min-w-0 flex-1 pr-8 flex items-center gap-2 flex-wrap">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 20, fontWeight: 500, color: '#18181b', letterSpacing: '-0.01em' }}>{m.name}</h2>
+              <h2 style={{ ...typeStyle('display-sm'), color: dsColors.semantic.foreground }}>{m.name}</h2>
               {isSelf && <span className="badge badge-sm badge-outline">Vous</span>}
               {m.pending && <span className="badge badge-sm badge-warning">Invité</span>}
             </div>
@@ -21516,17 +20847,17 @@ export default function App() {
           <div className="flex-1 overflow-y-auto">
             {/* Pending invite - awaiting the collaborator finishing setup */}
             {m.pending && (
-              <div className="px-6 py-4 border-t border-border" style={{ background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
+              <div className="px-6 py-4 border-t border-border" style={{ background: `linear-gradient(180deg, ${dsColors.brand.darker.subtle} 0%, ${dsColors.semantic.card} 100%)` }}>
                 <div className="flex items-start gap-2.5">
-                  <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#bd6c1a' }} strokeWidth={1.75} />
+                  <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: dsColors.feedback.warning.base }} strokeWidth={1.75} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-medium" style={{ color: '#855b31' }}>Invitation en attente</div>
-                    <p className="text-[12px] mt-0.5" style={{ color: '#855b31', opacity: 0.9, lineHeight: '16px' }}>
+                    <div className="text-[13px] font-medium" style={{ color: dsColors.feedback.warning.text }}>Invitation en attente</div>
+                    <p className="text-[12px] mt-0.5" style={{ color: dsColors.feedback.warning.text, opacity: 0.9, lineHeight: '16px' }}>
                       {firstName} n'a pas encore finalisé son inscription sur la plateforme.
                     </p>
                     <div className="mt-2.5 flex items-center gap-2.5 text-[13px] font-medium">
                       <button onClick={resendInvite} className="text-link hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
-                      <span className="text-[#e7c9a6]">·</span>
+                      <span className="text-brand-border">·</span>
                       <button onClick={markActive} className="text-foreground-secondary hover:text-foreground-tertiary transition-colors">Marquer comme actif (démo)</button>
                     </div>
                   </div>
@@ -21549,7 +20880,7 @@ export default function App() {
                 <>
                   <div className="mt-4 flex items-baseline justify-between gap-3">
                     <span className="text-[13px] text-foreground-tertiary">Quota hebdomadaire</span>
-                    <span className="text-[13px] tabular-nums font-medium" style={{ color: tone.warn ? '#855b31' : '#292524' }}>{quotaPct}% utilisé</span>
+                    <span className="text-[13px] tabular-nums font-medium" style={{ color: tone.warn ? dsColors.feedback.warning.text : dsColors.semantic.foreground }}>{quotaPct}% utilisé</span>
                   </div>
                   <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ backgroundColor: tone.warn ? tone.fill : tone.track }}>
                     {!tone.warn && <div style={{ width: `${Math.min(100, quotaPct)}%`, height: '100%', backgroundColor: tone.fill, borderRadius: 999 }} />}
@@ -21577,9 +20908,9 @@ export default function App() {
                       className="inline-flex items-center justify-center gap-2 h-9 px-3 transition-colors"
                       style={{
                         borderRadius: 8,
-                        backgroundColor: active ? '#292524' : '#f8f7f5',
-                        border: active ? '1px solid #292524' : '1px solid #dfdcd9',
-                        color: active ? 'white' : '#292524',
+                        backgroundColor: active ? dsColors.semantic.primary : dsColors.semantic.background,
+                        border: active ? `1px solid ${dsColors.semantic.foreground}` : `1px solid ${dsColors.semantic.border}`,
+                        color: active ? 'white' : dsColors.semantic.foreground,
                         cursor: isSelf ? 'not-allowed' : 'pointer',
                         opacity: isSelf && !active ? 0.5 : 1,
                       }}
@@ -21612,7 +20943,7 @@ export default function App() {
           {/* Footer - cancel invite (pending) or remove (active); others only */}
           {!isSelf && (
             <div className="px-6 py-4 border-t border-border flex items-center justify-end flex-shrink-0">
-              <button onClick={m.pending ? cancelInvite : removeMember} className="h-9 px-4 rounded-lg text-[13px] font-medium text-[#b91c1c] bg-danger-subtle hover:bg-[#fee2e2] transition-colors">
+              <button onClick={m.pending ? cancelInvite : removeMember} className="h-9 px-4 rounded-lg text-[13px] font-medium text-danger bg-danger-subtle hover:bg-danger-border transition-colors">
                 {m.pending ? "Annuler l'invitation" : 'Supprimer'}
               </button>
             </div>
@@ -21630,20 +20961,18 @@ export default function App() {
             'Collaborateurs',
             'Gérez les membres de votre organisation et leurs accès.',
             isAdmin && (
-              <button
+              <Button
+                variant="primary" size="md" icon={Plus}
+                label="Inviter un collaborateur"
                 onClick={() => setInviteModalOpen(true)}
-                className="flex items-center gap-2 h-9 px-4 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-                style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
-              >
-                <Plus className="w-4 h-4" />
-                Inviter un collaborateur
-              </button>
+                className="flex-shrink-0 shadow-xs"
+              />
             )
           )}
 
           {/* Licence recap - active licences per plan (one per collaborator), admin only */}
           {isAdmin && (
-            <div className="mb-5 rounded-md border border-border bg-white overflow-hidden">
+            <div className="mb-5 rounded-md border border-border bg-surface overflow-hidden">
               <div className="grid grid-cols-3 divide-x divide-border">
                 {PRICING_PLANS.map((p) => {
                   const count = licencesAssigned[p.id] || 0;
@@ -21652,10 +20981,10 @@ export default function App() {
                     <div key={p.id} className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
                         <Glyph className="w-3.5 h-3.5 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase' }}>Plan {p.name}</span>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase' }}>Plan {p.name}</span>
                       </div>
                       <div className="mt-1.5 flex items-baseline gap-1.5">
-                        <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: '#18181b', lineHeight: 1 }}>{count}</span>
+                        <span className="tabular-nums" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, color: dsColors.semantic.foreground, lineHeight: 1 }}>{count}</span>
                         <span className="text-[13px] text-foreground-secondary">licence{count > 1 ? 's' : ''} active{count > 1 ? 's' : ''}</span>
                       </div>
                     </div>
@@ -21683,10 +21012,10 @@ export default function App() {
   // fournisseur (OAuth - le mot de passe ne transite jamais par Norma), et une
   // déconnexion qui dit ce qui se passe vraiment.
   const MAIL_PROVIDERS = [
-    { id: 'outlook', name: 'Microsoft Outlook', vendor: 'Microsoft', short: 'Outlook', desc: 'Outlook, Microsoft 365, Exchange', bg: '#dfe8f5', fg: '#1e3a8a' },
-    { id: 'gmail', name: 'Google Workspace', vendor: 'Google', short: 'Gmail', desc: 'Gmail, Google Workspace', bg: '#fce8e6', fg: '#c5221f' },
+    { id: 'outlook', name: 'Microsoft Outlook', vendor: 'Microsoft', short: 'Outlook', desc: 'Outlook, Microsoft 365, Exchange', bg: dsColors.piece.expertise.bg, fg: dsColors.feedback.info.text },
+    { id: 'gmail', name: 'Google Workspace', vendor: 'Google', short: 'Gmail', desc: 'Gmail, Google Workspace', bg: dsColors.feedback.destructive.subtle, fg: '#c5221f' }, // ds-hex-ok: rouge de marque Gmail (identité du connecteur)
     // 3e voie : toute autre boîte via IMAP (@avocats.fr, OVH, Infomaniak…).
-    { id: 'imap', name: 'Autre boîte mail', vendor: 'votre fournisseur', short: 'Autre (IMAP)', desc: 'IMAP - @avocats.fr, OVH, Infomaniak…', bg: '#eeece6', fg: '#57534e' },
+    { id: 'imap', name: 'Autre boîte mail', vendor: 'votre fournisseur', short: 'Autre (IMAP)', desc: 'IMAP - @avocats.fr, OVH, Infomaniak…', bg: dsColors.semantic.muted, fg: dsColors.semantic.foregroundQuaternary },
   ];
   const myMailboxes = mailboxes.filter(b => b.scope === 'personal' && b.owner === currentUserId);
   const sharedMailboxes = mailboxes.filter(b => b.scope === 'shared');
@@ -21766,8 +21095,8 @@ export default function App() {
 
   // Marque Plato : titres en serif RL Para, étiquettes en mono IBM Plex,
   // surface d'emphase bleue, neutres crème + primaire #292524.
-  const mailSerifTitle = { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', lineHeight: 1.2 };
-  const mailMonoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#292524', letterSpacing: '0.1em', textTransform: 'uppercase' };
+  const mailSerifTitle = { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.3px', lineHeight: 1.2 };
+  const mailMonoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.foreground, letterSpacing: '0.1em', textTransform: 'uppercase' };
 
   // Rangée d'une boîte connectée : adresse en tête (c'est elle qu'on reconnaît),
   // garanties « Lecture seule » + « vérifiée il y a X min », provenance du
@@ -21783,7 +21112,7 @@ export default function App() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-body-medium text-foreground">{b.address}</span>
-            <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#e4efe8', color: '#4a9168' }}>
+            <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[11px] font-medium" style={{ backgroundColor: dsColors.feedback.success.subtle, color: dsColors.accents.meadow }}>
               <Check className="w-3 h-3" strokeWidth={3} /> Connectée
             </span>
           </div>
@@ -21803,7 +21132,7 @@ export default function App() {
             </button>
             <button
               onClick={() => setMailDisconnectAsk(b.id)}
-              className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background transition-colors"
+              className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-surface border border-border rounded-lg hover:bg-background transition-colors"
             >
               Déconnecter
             </button>
@@ -21819,18 +21148,18 @@ export default function App() {
   // emplacements.
   const renderMailTrustBlocks = () => (
     <>
-      <div className="bg-white rounded-md border border-border shadow-sm overflow-hidden">
+      <div className="bg-surface rounded-md border border-border shadow-sm overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-border">
           <div className="px-5 py-4">
             <div className="flex items-baseline gap-2.5 mb-3">
               <span style={mailMonoLabel}>Ce que Plato peut faire</span>
-              <span className="flex-1 h-px bg-foreground/10" />
+              <span className="flex-1 h-px bg-border-subtle" />
             </div>
             <ul className="flex flex-col gap-2.5">
               {MAIL_CAN.map(t => (
                 <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: '#e4efe8' }}>
-                    <Check className="w-2.5 h-2.5" style={{ color: '#4a9168' }} strokeWidth={3} />
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: dsColors.feedback.success.subtle }}>
+                    <Check className="w-2.5 h-2.5" style={{ color: dsColors.accents.meadow }} strokeWidth={3} />
                   </span>
                   {t}
                 </li>
@@ -21840,13 +21169,13 @@ export default function App() {
           <div className="px-5 py-4">
             <div className="flex items-baseline gap-2.5 mb-3">
               <span style={mailMonoLabel}>Ce que Plato ne peut jamais faire</span>
-              <span className="flex-1 h-px bg-foreground/10" />
+              <span className="flex-1 h-px bg-border-subtle" />
             </div>
             <ul className="flex flex-col gap-2.5">
               {MAIL_CANT.map(t => (
                 <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: '#f6e7e4' }}>
-                    <X className="w-2.5 h-2.5" style={{ color: '#b4483c' }} strokeWidth={3} />
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full flex-shrink-0 mt-[1px]" style={{ backgroundColor: dsColors.feedback.destructive.subtle }}>
+                    <X className="w-2.5 h-2.5" style={{ color: dsColors.banner.error.accentHover }} strokeWidth={3} />
                   </span>
                   {t}
                 </li>
@@ -21869,20 +21198,18 @@ export default function App() {
     <>
       {/* ── Déconnexion - dire ce qui se passe vraiment avant d'agir ── */}
       {mailDisconnectTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setMailDisconnectAsk(null)}>
-          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl border border-border flex flex-col" style={{ width: 440, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}>
-            <div className="px-6 pt-5 pb-4">
-              <h2 style={{ ...mailSerifTitle, fontSize: 20 }}>Déconnecter cette boîte ?</h2>
-              <p className="text-[13px] text-foreground-secondary mt-1.5 leading-5">
-                Les 47 pièces déjà versées restent dans leurs dossiers. Plato n'aura plus accès à vos échanges.
-              </p>
-            </div>
-            <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-2">
-              <button onClick={() => setMailDisconnectAsk(null)} className="h-9 px-4 text-[14px] font-medium text-foreground bg-white border border-border rounded-lg hover:bg-background transition-colors">Annuler</button>
-              <button onClick={confirmMailDisconnect} className="h-9 px-4 text-[14px] font-medium bg-white border rounded-lg transition-colors" style={{ color: '#b4483c', borderColor: '#e7c5c0' }}>Déconnecter</button>
-            </div>
-          </div>
-        </div>
+        <AlertDialog
+          open
+          onOpenChange={(o) => { if (!o) setMailDisconnectAsk(null); }}
+          hideIcon
+          title="Déconnecter cette boîte ?"
+          description="Les 47 pièces déjà versées restent dans leurs dossiers. Plato n'aura plus accès à vos échanges."
+          cancelLabel="Annuler"
+          onCancel={() => setMailDisconnectAsk(null)}
+          actionLabel="Déconnecter"
+          actionVariant="destructive"
+          onAction={confirmMailDisconnect}
+        />
       )}
     </>
   );
@@ -21916,7 +21243,7 @@ export default function App() {
             <>
               <div className="fixed inset-0" style={{ zIndex: 70 }} onClick={() => setMailAddPick(null)} />
               <div
-                className="bg-white border border-border shadow-lg overflow-hidden py-1"
+                className="bg-surface border border-border shadow-lg overflow-hidden py-1"
                 style={{ position: 'fixed', left: mailAddAnchor.left, top: mailAddAnchor.top, zIndex: 71, borderRadius: 10, width: 220 }}
               >
                 {MAIL_PROVIDERS.map(p => (
@@ -21963,7 +21290,7 @@ export default function App() {
             <div className="flex flex-col gap-4">
               {/* overflow-hidden OK : le dropdown d'ajout est en position fixed
                   (écran), il n'est donc pas clippé par la carte. */}
-              <div className="bg-white rounded-md border border-border overflow-hidden shadow-sm">
+              <div className="bg-surface rounded-md border border-border overflow-hidden shadow-sm">
                 {allBoxes.length > 0 ? (
                   <>
                     {/* En-tête de LISTE seulement (« N boîtes connectées… ») -
@@ -22013,17 +21340,15 @@ export default function App() {
             {renderSettingsHeader(
               'Mémoire et préférences',
               "Décrivez votre méthode de travail à Plato : structure habituelle, préférences, référentiels, style, ton et consignes. L'agent s'en souvient pour chaque action.",
-              <button
+              <Button
+                variant="primary" size="md" icon={Check}
+                label="Enregistrer"
                 onClick={() => {
                   setToastMessage('Mémoire enregistrée.');
                   setTimeout(() => setToastMessage(null), 3000);
                 }}
-                className="flex items-center gap-2 h-9 px-4 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-                style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
-              >
-                <Check className="w-4 h-4" strokeWidth={2} />
-                Enregistrer
-              </button>
+                className="flex-shrink-0 shadow-xs"
+              />
             )}
 
             <div className="flex flex-col gap-6">
@@ -22087,15 +21412,13 @@ export default function App() {
         onClick={close}
       >
         <div
-          className="relative bg-white overflow-hidden flex items-start"
+          className="relative bg-surface overflow-hidden flex items-start"
           style={{
             width: 918,
             maxWidth: 'calc(100vw - 48px)',
             maxHeight: 'calc(100vh - 48px)',
             borderRadius: 12,
-            boxShadow:
-              '0 4px 6px -4px rgba(26,26,26,0.05), ' +
-              '0 8px 10px -1px rgba(26,26,26,0.05)',
+            boxShadow: dsShadows.xl,
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -22108,7 +21431,7 @@ export default function App() {
             style={{
               width: 420,
               height: 661.594,
-              background: '#eeece6',
+              background: dsColors.semantic.muted,
             }}
           >
             <img
@@ -22143,7 +21466,7 @@ export default function App() {
                 top: 12, right: 12,
                 width: 32, height: 32,
                 borderRadius: 8,
-                color: '#78716c',
+                color: dsColors.semantic.mutedForeground,
               }}
             >
               <X className="w-4 h-4" strokeWidth={2} />
@@ -22157,7 +21480,7 @@ export default function App() {
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: 11, fontWeight: 500,
-                    color: '#78716c',
+                    color: dsColors.semantic.mutedForeground,
                     textTransform: 'uppercase',
                     lineHeight: 1,
                   }}
@@ -22168,7 +21491,7 @@ export default function App() {
                   style={{
                     fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif",
                     fontSize: 30, fontWeight: 400,
-                    color: '#18181b',
+                    color: dsColors.semantic.foreground,
                     letterSpacing: '-0.6px',
                     lineHeight: '32px',
                     margin: 0,
@@ -22191,17 +21514,17 @@ export default function App() {
                       style={{
                         width: 22, height: 22,
                         borderRadius: 999,
-                        background: '#faf6ef',
+                        background: dsColors.semantic.muted,
                         border: '1px solid rgba(238,185,126,0.5)',
                       }}
                     >
-                      <Check className="w-3 h-3" strokeWidth={2.5} style={{ color: '#bd6c1a' }} />
+                      <Check className="w-3 h-3" strokeWidth={2.5} style={{ color: dsColors.feedback.warning.base }} />
                     </div>
                     <p
                       style={{
                         fontFamily: "'Inter', system-ui, sans-serif",
                         fontSize: 14,
-                        color: '#292524',
+                        color: dsColors.semantic.foreground,
                         lineHeight: '20px',
                         margin: 0,
                       }}
@@ -22220,7 +21543,7 @@ export default function App() {
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: 11, fontWeight: 500,
-                    color: '#78716c',
+                    color: dsColors.semantic.mutedForeground,
                     textTransform: 'uppercase',
                     lineHeight: 1,
                   }}
@@ -22241,11 +21564,11 @@ export default function App() {
                       height: 40,
                       padding: '8px 12px',
                       fontSize: 14, lineHeight: '20px',
-                      color: '#292524',
-                      background: '#ffffff',
-                      border: '1px solid #dfdcd9',
+                      color: dsColors.semantic.foreground,
+                      background: dsColors.semantic.white,
+                      border: `1px solid ${dsColors.semantic.border}`,
                       borderRadius: 8,
-                      boxShadow: '0 1px 2px 0 rgba(26,26,26,0.05)',
+                      boxShadow: dsShadows.xs,
                       outline: 'none',
                     }}
                   />
@@ -22257,8 +21580,8 @@ export default function App() {
                       gap: 8,
                       height: 40,
                       padding: '8px 20px',
-                      background: '#292524',
-                      color: '#ffffff',
+                      background: dsColors.semantic.primary,
+                      color: dsColors.semantic.white,
                       borderRadius: 8,
                       fontFamily: "'Inter', system-ui, sans-serif",
                       fontSize: 14, fontWeight: 500, lineHeight: '20px',
@@ -22270,8 +21593,8 @@ export default function App() {
                     Envoyer le parrainage
                   </button>
                 </div>
-                <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: '#78716c', lineHeight: '16px', margin: 0 }}>
-                  Votre confrère recevra une invitation avec votre code <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: '#bd6c1a' }}>{promoCode}</span>.
+                <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: dsColors.semantic.mutedForeground, lineHeight: '16px', margin: 0 }}>
+                  Votre confrère recevra une invitation avec votre code <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: dsColors.feedback.warning.base }}>{promoCode}</span>.
                 </p>
               </div>
             </div>
@@ -22281,7 +21604,7 @@ export default function App() {
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 fontSize: 12, fontWeight: 500,
-                color: '#78716c',
+                color: dsColors.semantic.mutedForeground,
                 lineHeight: '16px',
                 margin: 0,
               }}
@@ -22290,7 +21613,7 @@ export default function App() {
               <a
                 href="#"
                 onClick={(e) => e.preventDefault()}
-                style={{ color: '#1e3a8a', textDecoration: 'underline' }}
+                style={{ color: dsColors.feedback.info.text, textDecoration: 'underline' }}
               >
                 conditions
               </a>{' '}
@@ -22310,7 +21633,7 @@ export default function App() {
     const outOfQuota = myQuotaPct >= 100 && billingState !== 'none' && !!myPlan;
     const sectionLabel = (text) => (
       <div className="flex items-baseline gap-3 mb-4">
-        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{text}</span>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, letterSpacing: '0.1em' }}>{text}</span>
         <span className="flex-1 h-px bg-border" />
       </div>
     );
@@ -22330,7 +21653,7 @@ export default function App() {
                     <div className="w-9 h-9 rounded-lg bg-cream border border-border flex items-center justify-center flex-shrink-0">
                       {(() => { const G = myPlan ? ({ PRO: ChessPawn, MAX: ChessRook, 'MAX+': ChessQueen }[myPlan.id] || ChessPawn) : Eye; return <G className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />; })()}
                     </div>
-                    <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.01em' }}>
+                    <span style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.01em' }}>
                       {myPlan ? `Licence ${myPlan.name}` : 'Lecture seule'}
                     </span>
                   </div>
@@ -22340,13 +21663,13 @@ export default function App() {
                   </div>
 
                   {outOfQuota && (
-                    <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border px-4 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: 'linear-gradient(180deg, #f9e6d3 0%, #ffffff 100%)' }}>
-                      <p className="text-[13px] min-w-0" style={{ color: '#855b31' }}>
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border px-4 py-3" style={{ borderColor: 'rgba(238,185,126,0.5)', background: `linear-gradient(180deg, ${dsColors.brand.darker.subtle} 0%, ${dsColors.semantic.card} 100%)` }}>
+                      <p className="text-[13px] min-w-0" style={{ color: dsColors.feedback.warning.text }}>
                         Besoin de plus d'usage cette semaine ? Demandez une mise à niveau à un administrateur.
                       </p>
                       <button
                         onClick={() => setAskUpgradeOpen(true)}
-                        className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
+                        className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-primary-foreground text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
                       >
                         <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
                         Demander une mise à niveau
@@ -22358,7 +21681,7 @@ export default function App() {
 
               <div className="pt-6">
                 <div className="flex items-baseline gap-3 mb-2">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE LICENCE' : 'VOTRE ACCÈS'}</span>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, letterSpacing: '0.1em' }}>{myPlan ? 'INCLUS DANS VOTRE LICENCE' : 'VOTRE ACCÈS'}</span>
                   <span className="flex-1 h-px bg-border" />
                 </div>
                 {myPlan && <p className="text-[12px] text-foreground-secondary mb-3">Dans la limite de vos quotas hebdomadaires.</p>}
@@ -22402,7 +21725,7 @@ export default function App() {
               {isTrialing && (
                 <div>
                   <div className="flex items-baseline gap-3 mb-4">
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.1em' }}>VOTRE ESSAI</span>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, letterSpacing: '0.1em' }}>VOTRE ESSAI</span>
                     <span className="flex-1 h-px bg-border" />
                   </div>
                   {renderTrialCard()}
@@ -22420,7 +21743,7 @@ export default function App() {
               {/* INCLUS DANS CHAQUE LICENCE - feature recap */}
               <div className="pt-3">
                 <div className="flex items-center gap-5 mb-4">
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', letterSpacing: '0.06em' }} className="uppercase whitespace-nowrap">
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, letterSpacing: '0.06em' }} className="uppercase whitespace-nowrap">
                     Inclus dans chaque licence
                   </span>
                   <span className="flex-1 h-px bg-border" />
@@ -22481,16 +21804,16 @@ export default function App() {
     return (
       <div>
         <div className="mb-2">
-          <h3 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px', margin: 0 }}>
+          <h3 style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '20px', margin: 0 }}>
             Jurisprudences de référence
           </h3>
-          <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: '#78716c', lineHeight: '20px', marginTop: 6, marginBottom: 16 }}>
+          <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: dsColors.semantic.mutedForeground, lineHeight: '20px', marginTop: 6, marginBottom: 16 }}>
             Les décisions que votre cabinet veut systématiquement réutiliser. L'agent les privilégie dans chaque recherche et chaque rédaction.
           </p>
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-lg border border-border/60 mb-6">
+        <div className="bg-surface rounded-lg border border-border mb-6">
               <div className="flex items-center gap-2 px-3 py-2.5">
                 <Search className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" />
                 <input
@@ -22510,10 +21833,10 @@ export default function App() {
               {q && matches.length === 0 && (
                 <div className="border-t border-border-subtle flex items-center justify-between gap-3" style={{ padding: '12px 16px' }}>
                   <div className="min-w-0">
-                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: '#292524', lineHeight: '20px', margin: 0 }}>
+                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground, lineHeight: '20px', margin: 0 }}>
                       Aucune correspondance dans la base Plato JP
                     </p>
-                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: '#78716c', lineHeight: '20px', marginTop: 2 }}>
+                    <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: dsColors.semantic.mutedForeground, lineHeight: '20px', marginTop: 2 }}>
                       Ajoutez manuellement votre JP grâce à un lien ou PDF
                     </p>
                   </div>
@@ -22522,14 +21845,14 @@ export default function App() {
                     className="inline-flex items-center justify-center gap-1 transition-all flex-shrink-0"
                     style={{
                       height: 28, padding: '0 12px', borderRadius: 8,
-                      backgroundColor: '#292524', color: 'white',
+                      backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
                       border: 'none',
-                      boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+                      boxShadow: dsShadows.xs,
                       fontFamily: "'Inter', system-ui, sans-serif",
                       fontSize: 14, fontWeight: 500, lineHeight: '20px',
                     }}
-                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#1c1917'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#292524'; }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
                   >
                     <Plus className="w-4 h-4" strokeWidth={2} /> Ajouter
                   </button>
@@ -22545,9 +21868,9 @@ export default function App() {
                         className="inline-flex items-center gap-1"
                         style={{
                           height: 28, padding: '0 12px', borderRadius: 8,
-                          border: '1px solid #cbc7c4',
+                          border: `1px solid ${dsColors.semantic.borderStrong}`,
                           fontFamily: "'Inter', system-ui, sans-serif",
-                          fontSize: 13, fontWeight: 500, color: '#78716c',
+                          fontSize: 13, fontWeight: 500, color: dsColors.semantic.mutedForeground,
                           backgroundColor: 'transparent',
                         }}
                       >
@@ -22560,14 +21883,14 @@ export default function App() {
                         className="inline-flex items-center justify-center gap-2 transition-all"
                         style={{
                           height: 28, padding: '0 12px', borderRadius: 8,
-                          backgroundColor: '#292524', color: 'white',
+                          backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
                           border: 'none',
-                          boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+                          boxShadow: dsShadows.xs,
                           fontFamily: "'Inter', system-ui, sans-serif",
                           fontSize: 14, fontWeight: 500, lineHeight: '20px',
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#1c1917'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#292524'; }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
                       >
                         <Plus className="w-4 h-4" strokeWidth={2} /> Ajouter
                       </button>
@@ -22591,10 +21914,10 @@ export default function App() {
                     onClick={openManualAdd}
                     className="w-full flex items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-background"
                   >
-                    <Plus className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: '#a8a29e' }} />
-                    <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: '#44403c', lineHeight: '20px' }}>
+                    <Plus className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: dsColors.semantic.foregroundMuted }} />
+                    <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: dsColors.semantic.foregroundTertiary, lineHeight: '20px' }}>
                       JP introuvable&nbsp;?{' '}
-                      <span style={{ color: '#1e3a8a', fontWeight: 500 }}>Ajouter</span>
+                      <span style={{ color: dsColors.feedback.info.text, fontWeight: 500 }}>Ajouter</span>
                     </span>
                   </button>
                 </div>
@@ -22602,7 +21925,7 @@ export default function App() {
             </div>
 
             {savedCabinet.length === 0 ? (
-              <div className="bg-white rounded-lg border border-dashed border-border py-10 px-6 text-center">
+              <div className="bg-surface rounded-lg border border-dashed border-border py-10 px-6 text-center">
                 <Landmark className="w-6 h-6 text-border-strong mx-auto mb-2" />
                 <p className="text-[13px] text-foreground-secondary mb-1">Aucune jurisprudence enregistrée</p>
                 <p className="text-[12px] text-foreground-muted max-w-md mx-auto">
@@ -22610,7 +21933,7 @@ export default function App() {
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
+              <div className="bg-surface rounded-lg border border-border overflow-hidden">
                 {savedCabinet.map((d) => {
                   const isCustom = d._status === 'ficheCabinet';
                   const handleRemove = () => {
@@ -22627,9 +21950,9 @@ export default function App() {
                       title="Retirer des références"
                       aria-label="Retirer des références"
                       className="inline-flex items-center justify-center rounded transition-colors"
-                      style={{ width: 28, height: 28, color: '#a8a29e' }}
-                      onMouseOver={(e) => { e.currentTarget.style.color = '#7f1d1d'; e.currentTarget.style.backgroundColor = '#fef2f2'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.color = '#a8a29e'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                      style={{ width: 28, height: 28, color: dsColors.semantic.foregroundMuted }}
+                      onMouseOver={(e) => { e.currentTarget.style.color = dsColors.feedback.destructive.text; e.currentTarget.style.backgroundColor = dsColors.step.red.bg; }}
+                      onMouseOut={(e) => { e.currentTarget.style.color = dsColors.semantic.foregroundMuted; e.currentTarget.style.backgroundColor = 'transparent'; }}
                     >
                       <X className="w-4 h-4" strokeWidth={1.75} />
                     </button>
@@ -22657,18 +21980,17 @@ export default function App() {
           {renderSettingsHeader(
             'Référentiels & Barèmes',
             "Les barèmes utilisés par l'agent pour calculer les indemnisations.",
-            <button
+            <Button
+              variant="primary" size="md" icon={Plus}
+              label="Ajouter un barème"
               onClick={() => { setBaremeUploadFormOpen(true); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              Ajouter un barème
-            </button>
+              className="flex-shrink-0"
+            />
           )}
-          <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-zinc-100">
+              <tr className="border-b border-background-subtle">
                 <th className="px-5 py-3 text-left" style={colHeaderStyle}>Nom</th>
                 <th className="px-5 py-3 text-left" style={colHeaderStyle}>Statut</th>
                 <th className="px-5 py-3 w-10"></th>
@@ -22679,7 +22001,7 @@ export default function App() {
                 <tr
                   key={bareme.id}
                   onClick={() => bareme.status === 'active' && setBaremeViewerOpen(bareme.id)}
-                  className={`bg-white transition-colors group ${bareme.status === 'active' ? 'hover:bg-background cursor-pointer' : 'opacity-75'}`}
+                  className={`bg-surface transition-colors group ${bareme.status === 'active' ? 'hover:bg-background cursor-pointer' : 'opacity-75'}`}
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
@@ -22691,9 +22013,9 @@ export default function App() {
                   </td>
                   <td className="px-5 py-4">
                     {bareme.status === 'active' ? (
-                      <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#dcfce7', color: '#065f46' }}>Actif</span>
+                      <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: dsColors.piece.revenus.bg, color: dsColors.icon.success }}>Actif</span>
                     ) : (
-                      <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>En traitement</span>
+                      <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full" style={{ background: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground }}>En traitement</span>
                     )}
                   </td>
                   <td className="px-5 py-4">
@@ -22724,18 +22046,17 @@ export default function App() {
           {renderSettingsHeader(
             "Modèles d'actes",
             "Vos modèles de référence pour la rédaction d'actes. L'agent peut s'en inspirer lors de la rédaction.",
-            <button
+            <Button
+              variant="primary" size="md" icon={Plus}
+              label="Ajouter un modèle"
               onClick={() => { setTemplateUploadFormOpen(true); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              Ajouter un modèle
-            </button>
+              className="flex-shrink-0"
+            />
           )}
-          <div className="bg-white rounded-lg border border-border/60 overflow-hidden">
+          <div className="bg-surface rounded-lg border border-border overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-zinc-100">
+                <tr className="border-b border-background-subtle">
                   <th className="px-5 py-3 text-left" style={colHeaderStyle}>Nom</th>
                   <th className="px-5 py-3 text-left" style={colHeaderStyle}>Ajouté le</th>
                   <th className="px-5 py-3 w-10"></th>
@@ -22743,7 +22064,7 @@ export default function App() {
               </thead>
               <tbody className="divide-y divide-border">
                 {templatesLibrary.map(tpl => (
-                  <tr key={tpl.id} className="bg-white hover:bg-background transition-colors group">
+                  <tr key={tpl.id} className="bg-surface hover:bg-background transition-colors group">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center flex-shrink-0">
@@ -22760,7 +22081,7 @@ export default function App() {
                           setToastMessage('Modèle supprimé.');
                           setTimeout(() => setToastMessage(null), 3000);
                         }}
-                        className="p-1.5 rounded-lg text-border-strong hover:text-red-400 hover:bg-cream opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-1.5 rounded-lg text-border-strong hover:text-danger hover:bg-cream opacity-0 group-hover:opacity-100 transition-all"
                         title="Supprimer"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -22831,10 +22152,10 @@ export default function App() {
         </defs>
 
         {/* Outer ring */}
-        <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="#292524" strokeWidth={stroke} />
+        <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke={dsColors.semantic.foreground} strokeWidth={stroke} />
 
         {/* Inner stamp circle */}
-        <circle cx={cx} cy={cy} r={rInner} fill="none" stroke="#292524" strokeWidth={stroke} />
+        <circle cx={cx} cy={cy} r={rInner} fill="none" stroke={dsColors.semantic.foreground} strokeWidth={stroke} />
 
         {/* PIÈCE N° label */}
         <text
@@ -22845,7 +22166,7 @@ export default function App() {
           fontWeight={700}
           fontSize={fontLabel}
           letterSpacing={-fontLabel * 0.04}
-          fill="#292524"
+          fill={dsColors.semantic.foreground}
         >
           PIÈCE N°
         </text>
@@ -22857,7 +22178,7 @@ export default function App() {
           textAnchor="middle"
           fontFamily="Arial, sans-serif"
           fontSize={fontNumber}
-          fill="#292524"
+          fill={dsColors.semantic.foreground}
         >
           {sample}
         </text>
@@ -22866,7 +22187,7 @@ export default function App() {
             on the arc path, so the text is visually centered in the annulus regardless
             of which side of the path the renderer lays glyphs out on. */}
         {line1 ? (
-          <text fontFamily="'RL Para Trial Central', Georgia, 'Times New Roman', serif" fontSize={fontTop} fill="#292524" letterSpacing={charSpacing} dominantBaseline="central">
+          <text fontFamily="'RL Para Trial Central', Georgia, 'Times New Roman', serif" fontSize={fontTop} fill={dsColors.semantic.foreground} letterSpacing={charSpacing} dominantBaseline="central">
             <textPath href={`#tampon-curve-top-${s}`} startOffset="50%" textAnchor="middle">
               {line1}
             </textPath>
@@ -22874,7 +22195,7 @@ export default function App() {
         ) : null}
 
         {line2 ? (
-          <text fontFamily="'RL Para Trial Central', Georgia, 'Times New Roman', serif" fontSize={fontBottom} fill="#292524" letterSpacing={charSpacing} dominantBaseline="central">
+          <text fontFamily="'RL Para Trial Central', Georgia, 'Times New Roman', serif" fontSize={fontBottom} fill={dsColors.semantic.foreground} letterSpacing={charSpacing} dominantBaseline="central">
             <textPath href={`#tampon-curve-bottom-${s}`} startOffset="50%" textAnchor="middle">
               {line2}
             </textPath>
@@ -22889,8 +22210,8 @@ export default function App() {
           width={diamondSize}
           height={diamondSize}
           transform={`rotate(45 ${cx - rOuter} ${cy})`}
-          fill="#292524"
-          stroke="#ffffff"
+          fill={dsColors.semantic.foreground}
+          stroke={dsColors.semantic.white}
           strokeWidth={diamondSize * 0.5}
           paintOrder="stroke"
         />
@@ -22900,8 +22221,8 @@ export default function App() {
           width={diamondSize}
           height={diamondSize}
           transform={`rotate(45 ${cx + rOuter} ${cy})`}
-          fill="#292524"
-          stroke="#ffffff"
+          fill={dsColors.semantic.foreground}
+          stroke={dsColors.semantic.white}
           strokeWidth={diamondSize * 0.5}
           paintOrder="stroke"
         />
@@ -22932,22 +22253,20 @@ export default function App() {
             {renderSettingsHeader(
               'Tamponnage',
               "Personnalisez le tampon apposé automatiquement sur les pièces de vos dossiers.",
-              <button
+              <Button
+                variant="primary" size="md" icon={Plus}
+                label="Ajouter un modèle"
                 onClick={() => {
                   setToastMessage('Tampon enregistré.');
                   setTimeout(() => setToastMessage(null), 3000);
                 }}
-                className="flex items-center gap-2 h-9 px-4 bg-foreground text-white text-body-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-                style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
-              >
-                <Plus className="w-4 h-4" strokeWidth={2} />
-                Ajouter un modèle
-              </button>
+                className="flex-shrink-0 shadow-xs"
+              />
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_326px] gap-6 items-start">
               {/* ─── Form card ─── */}
-              <div className="bg-white rounded-md border border-border overflow-hidden divide-y divide-border shadow-sm">
+              <div className="bg-surface rounded-md border border-border overflow-hidden divide-y divide-border shadow-sm">
                 {/* Ligne 1 */}
                 <div className={fieldRowClass}>
                   <div className={fieldLabelGroupClass}>
@@ -22961,8 +22280,8 @@ export default function App() {
                       value={tamponLine1}
                       onChange={(e) => setTamponLine1(e.target.value)}
                       placeholder="Maître Chessika"
-                      className="w-full h-9 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
-                      style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                      className="w-full h-9 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                      style={{ boxShadow: dsShadows.xs }}
                     />
                   </div>
                 </div>
@@ -22980,8 +22299,8 @@ export default function App() {
                       value={tamponLine2}
                       onChange={(e) => setTamponLine2(e.target.value)}
                       placeholder="Avocat à la cour"
-                      className="w-full h-9 px-3 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
-                      style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                      className="w-full h-9 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
+                      style={{ boxShadow: dsShadows.xs }}
                     />
                   </div>
                 </div>
@@ -22996,7 +22315,7 @@ export default function App() {
                       className="inline-flex rounded-lg overflow-hidden border border-border"
                       role="radiogroup"
                       aria-label="Tampon sur la 1ère page uniquement"
-                      style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                      style={{ boxShadow: dsShadows.xs }}
                     >
                       {[
                         { val: true,  label: 'Oui' },
@@ -23009,7 +22328,7 @@ export default function App() {
                             role="radio"
                             aria-checked={active}
                             onClick={() => setTamponFirstPageOnly(opt.val)}
-                            className={`px-3 h-9 text-[13px] transition-colors ${i > 0 ? 'border-l border-border' : ''} ${active ? 'bg-foreground text-white font-medium' : 'bg-background-canvas text-foreground-secondary hover:text-foreground'}`}
+                            className={`px-3 h-9 text-[13px] transition-colors ${i > 0 ? 'border-l border-border' : ''} ${active ? 'bg-foreground text-primary-foreground font-medium' : 'bg-background-canvas text-foreground-secondary hover:text-foreground'}`}
                           >
                             {opt.label}
                           </button>
@@ -23030,8 +22349,8 @@ export default function App() {
                         id="tampon-position"
                         value={tamponPosition}
                         onChange={(e) => setTamponPosition(e.target.value)}
-                        className="appearance-none w-full h-9 pl-3 pr-9 text-[14px] text-foreground bg-white border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground cursor-pointer"
-                        style={{ boxShadow: '0 1px 2px rgba(26,26,26,0.05)' }}
+                        className="appearance-none w-full h-9 pl-3 pr-9 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground cursor-pointer"
+                        style={{ boxShadow: dsShadows.xs }}
                       >
                         {POSITIONS.map(opt => (
                           <option key={opt.id} value={opt.id}>{opt.label}</option>
@@ -23048,16 +22367,16 @@ export default function App() {
 
               {/* ─── Preview card ─── */}
               <div
-                className="bg-white rounded-md border border-border overflow-hidden lg:sticky lg:top-10"
-                style={{ boxShadow: '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)' }}
+                className="bg-surface rounded-md border border-border overflow-hidden lg:sticky lg:top-10"
+                style={{ boxShadow: dsShadows['lg'] }}
               >
                 <div className="px-4 py-3 border-b border-border flex items-center gap-3">
                   <Eye className="w-4 h-4 text-foreground-secondary" strokeWidth={2} />
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Aperçu
                   </span>
                 </div>
-                <div className="px-6 py-10 flex flex-col items-center justify-center bg-white">
+                <div className="px-6 py-10 flex flex-col items-center justify-center bg-surface">
                   {renderTamponStamp({ size: 200, sample: 60 })}
                 </div>
                 <div className="px-4 py-4 border-t border-border flex items-center justify-center">
@@ -23111,7 +22430,7 @@ export default function App() {
       },
     ];
     return (
-      <div className="h-screen flex relative" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: '#27272a' }}>
+      <div className="h-screen flex relative" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '13px', color: dsColors.semantic.foreground }}>
         {/* Pas de rail d'icônes (spec 5) : le sous-rail des paramètres EST la
             nav de cette surface ; son bouton retour remonte à l'accueil. */}
 
@@ -23119,7 +22438,7 @@ export default function App() {
             masquage (renderNavSlot / navHidden partagé) : le sous-rail des
             paramètres se replie comme la nav principale. */}
         {renderNavSlot(
-        <div className="w-full h-full bg-[#f8f7f5] border-r border-border-strong flex flex-col">
+        <div className="w-full h-full bg-background border-r border-border-strong flex flex-col">
           {/* Header - logo Plato = home ; glyphe de repli à droite (comme la nav). */}
           <div className="h-12 border-b border-border-strong flex items-center flex-shrink-0 pl-4 pr-3 gap-2">
             <button
@@ -23127,14 +22446,14 @@ export default function App() {
               className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity text-left"
               title="Accueil"
             >
-              <img src="/logo-plato.png" alt="Plato" className="w-6 h-6 flex-shrink-0" />
-              <span className="flex-1" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', lineHeight: '20px' }}>
+              <PlatoIcon size={24} />
+              <span className="flex-1" style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.5px', lineHeight: '20px' }}>
                 Plato
               </span>
             </button>
             <button
               onClick={hideNav}
-              className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+              className="group p-1.5 rounded-md hover:bg-background-subtle transition-colors flex-shrink-0"
               title="Masquer la navigation"
             >
               <PanelToggleIcon dir="collapse" className="w-4 h-4 text-foreground-secondary" />
@@ -23150,7 +22469,7 @@ export default function App() {
             {SECTION_GROUPS.map((group, gIdx) => (
               <div key={group.label} className={`px-2 py-2.5 ${gIdx < SECTION_GROUPS.length - 1 ? 'border-b border-border-strong' : ''}`}>
                 <div className="px-2 py-1.5">
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: '#78716c', textTransform: 'uppercase', opacity: 0.7 }}>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '11px', color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', opacity: 0.7 }}>
                     {group.label}
                   </div>
                 </div>
@@ -23164,14 +22483,14 @@ export default function App() {
                       <button
                         key={item.id}
                         onClick={() => (item.onClick ? item.onClick() : setSettingsSection(item.id))}
-                        className={`group/nav relative h-8 w-full flex items-center gap-2 px-2.5 transition-all duration-200 ease-out text-left ${active ? 'bg-cream text-foreground font-medium border border-border-strong' : 'text-foreground-secondary hover:bg-cream/60 hover:text-foreground border border-transparent'}`}
+                        className={`group/nav relative h-8 w-full flex items-center gap-2 px-2.5 transition-all duration-200 ease-out text-left ${active ? 'bg-cream text-foreground font-medium border border-border-strong' : 'text-foreground-secondary hover:bg-background-subtle hover:text-foreground border border-transparent'}`}
                         style={{ borderRadius: 7, fontSize: '14px' }}
                       >
                         {active && (
                           <span
                             aria-hidden
                             className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full"
-                            style={{ width: 3, height: 15, backgroundColor: '#f47a2c', boxShadow: '0 0 6px rgba(244,122,44,0.38)' }}
+                            style={{ width: 3, height: 15, backgroundColor: dsColors.brand.DEFAULT, boxShadow: '0 0 6px rgba(244,122,44,0.38)' }}
                           />
                         )}
                         <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${active ? 'text-brand' : 'text-foreground-muted group-hover/nav:text-foreground-secondary'}`} strokeWidth={active ? 2 : 1.75} />
@@ -23188,16 +22507,16 @@ export default function App() {
             {/* Contrôles démo - repliables, repliés par défaut (outillage interne). */}
             <button
               onClick={() => setDemoControlsOpen(o => !o)}
-              className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-cream/60 transition-colors"
+              className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-background-subtle transition-colors"
               title={demoControlsOpen ? 'Replier les contrôles démo' : 'Déplier les contrôles démo'}
             >
-              <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>Démo</span>
+              <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted }}>Démo</span>
               <ChevronDown className="w-3.5 h-3.5 text-foreground-muted transition-transform" strokeWidth={2} style={{ transform: demoControlsOpen ? 'rotate(180deg)' : 'none' }} />
             </button>
             {demoControlsOpen && (
             <div className="px-3 pt-2.5 pb-2.5 border-t border-border-strong flex flex-col gap-2.5">
               <div>
-                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted }}>
                   Vue
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -23205,7 +22524,7 @@ export default function App() {
                     <button
                       key={s.id}
                       onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
-                      className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                      className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
                     >
                       {s.label}
                     </button>
@@ -23213,7 +22532,7 @@ export default function App() {
                 </div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted }}>
                   État
                 </div>
                 <div className="flex items-center gap-1">
@@ -23221,7 +22540,7 @@ export default function App() {
                     <button
                       key={s.id}
                       onClick={() => setBillingState(s.id)}
-                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${billingState === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${billingState === s.id ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
                     >
                       {s.label}
                     </button>
@@ -23230,7 +22549,7 @@ export default function App() {
               </div>
               {isTrialing && (
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                  <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted }}>
                     Jour
                   </div>
                   <div className="flex items-center gap-1">
@@ -23238,7 +22557,7 @@ export default function App() {
                       <button
                         key={d}
                         onClick={() => setDemoTrialDay(d)}
-                        className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${demoTrialDay === d ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                        className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${demoTrialDay === d ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
                       >
                         {d}
                       </button>
@@ -23247,7 +22566,7 @@ export default function App() {
                 </div>
               )}
               <div>
-                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>
+                <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted }}>
                   Quota
                 </div>
                 <div className="flex items-center gap-1">
@@ -23255,7 +22574,7 @@ export default function App() {
                     <button
                       key={s.id}
                       onClick={() => setQuotaFill(s.id)}
-                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${quotaFill === s.id ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
+                      className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${quotaFill === s.id ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
                     >
                       {s.label}
                     </button>
@@ -23269,7 +22588,7 @@ export default function App() {
         )}
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: '#F8F7F5' }}>
+        <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: dsColors.semantic.background }}>
           {/* Barre de tête du contenu : retour à Plato (+ contrôle « Menu » et
               filet vertical quand la nav est masquée) - alignée sur la bande du
               dossier (h-12, filet bas). */}
@@ -23315,9 +22634,9 @@ export default function App() {
 
   // ========== RENDER IV TABLE STRUCTURES PAGE ==========
   const renderIvStructuresPage = () => {
-    const prose = (text) => <p style={{ fontSize: 14, color: '#44403c', lineHeight: '24px', maxWidth: 680, marginBottom: 16 }}>{text}</p>;
-    const codeInline = (text) => <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>{text}</code>;
-    const badge = (text, color) => <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: color === 'amber' ? '#fef3c7' : color === 'blue' ? '#dbeafe' : color === 'green' ? '#dcfce7' : '#f5f5f4', color: color === 'amber' ? '#92400e' : color === 'blue' ? '#1e40af' : color === 'green' ? '#166534' : '#44403c' }}>{text}</span>;
+    const prose = (text) => <p style={{ fontSize: 14, color: dsColors.semantic.foregroundTertiary, lineHeight: '24px', maxWidth: 680, marginBottom: 16 }}>{text}</p>;
+    const codeInline = (text) => <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: dsColors.semantic.backgroundSubtle, padding: '2px 6px', borderRadius: 4, color: dsColors.semantic.foreground }}>{text}</code>;
+    const badge = (text, color) => <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: color === 'amber' ? dsColors.step.orange.bg : color === 'blue' ? dsColors.piece.medical.bg : color === 'green' ? dsColors.piece.revenus.bg : dsColors.semantic.backgroundSubtle, color: color === 'amber' ? dsColors.brand.darker.subtleForeground : color === 'blue' ? dsColors.piece.medical.fg : color === 'green' ? dsColors.piece.revenus.fg : dsColors.semantic.foregroundTertiary }}>{text}</span>;
 
     // Sample data for live tables
     const demoVis = [
@@ -23398,13 +22717,13 @@ export default function App() {
     const toggleDemoExpanded = (key) => setExpandedCards(prev => ({ ...prev, [`uikit-${key}`]: prev[`uikit-${key}`] === false ? true : false }));
 
     return (
-      <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
-        <div className="w-[220px] flex-shrink-0 border-r border-border bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
+        <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
           <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#292524', marginBottom: 16 }}>IV Table Structures</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>IV Table Structures</div>
           <nav className="flex flex-col gap-1">
             {['Vue d\'ensemble', 'Type A - Simple', 'Type B - Groupé', 'Type C - Frais partagés', 'Type D - Foyer (PRP)', 'Scénarios PRP', 'Adaptation IA'].map(s => (
               <a key={s} href={`#iv-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">{s}</a>
@@ -23415,15 +22734,15 @@ export default function App() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto" style={{ padding: '32px 48px' }}>
           <div>
-            <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 28, fontWeight: 400, color: '#18181b', marginBottom: 4 }}>Victimes indirectes - Table Structures</h1>
-            <p style={{ fontSize: 14, color: '#78716c', marginBottom: 40 }}>Architecture des 4 types de tables IV, modes d'affichage, scénarios PRP, et logique d'adaptation IA.</p>
+            <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 28, fontWeight: 400, color: dsColors.semantic.foreground, marginBottom: 4 }}>Victimes indirectes - Table Structures</h1>
+            <p style={{ fontSize: 14, color: dsColors.semantic.mutedForeground, marginBottom: 40 }}>Architecture des 4 types de tables IV, modes d'affichage, scénarios PRP, et logique d'adaptation IA.</p>
 
             {/* ====== VUE D'ENSEMBLE ====== */}
             <div id="iv-vue-d-ensemble" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Vue d'ensemble</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Vue d'ensemble</h2>
               {prose('Les postes de victimes indirectes utilisent 4 structures de table, chacune adaptée à un type de données. La structure est définie par IV_POSTE_CONFIG et détermine le rendu, les colonnes, et les interactions.')}
               <div className={cardBlockClass + ' mb-6'} style={{ maxWidth: 680 }}>
-                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                   <div className="flex-1 px-3"><span style={colHeaderStyle}>Type</span></div>
                   <div className="w-[200px] px-3"><span style={colHeaderStyle}>Structure</span></div>
                   <div className="w-[160px] px-3"><span style={colHeaderStyle}>Postes</span></div>
@@ -23434,9 +22753,9 @@ export default function App() {
                   { type: 'C - Frais partagés', desc: 'Dépenses communes, réparties', codes: ['fo'] },
                   { type: 'D - Foyer (PRP)', desc: 'Revenu → perte → répartition', codes: ['prp'] },
                 ].map((row, idx) => (
-                  <div key={idx} className="flex items-center h-[52px] border-b border-border last:border-b-0 bg-white">
-                    <div className="flex-1 px-3"><span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{row.type}</span></div>
-                    <div className="w-[200px] px-3"><span style={{ fontSize: 13, color: '#44403c' }}>{row.desc}</span></div>
+                  <div key={idx} className="flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface">
+                    <div className="flex-1 px-3"><span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{row.type}</span></div>
+                    <div className="w-[200px] px-3"><span style={{ fontSize: 13, color: dsColors.semantic.foregroundTertiary }}>{row.desc}</span></div>
                     <div className="w-[160px] px-3 flex gap-1">{row.codes.map(c => <span key={c}>{codeInline(c)}</span>)}</div>
                   </div>
                 ))}
@@ -23446,12 +22765,12 @@ export default function App() {
 
             {/* ====== TYPE A - LIVE TABLE ====== */}
             <div id="iv-type-a---simple" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type A - Simple</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Type A - Simple</h2>
               {prose('Une ligne par victime indirecte. Le montant est saisi individuellement. Utilisé pour les postes où chaque VI a une indemnisation distincte (PAI, PAFV, PEPE).')}
 
               <div className={cardBlockClass} style={{ maxWidth: 680 }}>
                 {/* Column headers */}
-                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                   <div className="flex-1 px-3"><span style={colHeaderStyle}>Victime</span></div>
                   <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Montant</span></div>
                   <div className="w-10" />
@@ -23461,13 +22780,13 @@ export default function App() {
                   const ligne = demoTypeA.find(l => l.victimeId === vi.id);
                   const montant = ligne?.montant || 0;
                   return (
-                    <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                    <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                       <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
                         {viAvatar(vi, 28)}
-                        <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
+                        <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{vi.prenom} {vi.nom}</span>
                       </div>
                       <div className="w-[130px] px-3 text-right">
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(montant)}</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(montant)}</span>
                       </div>
                     </div>
                   );
@@ -23478,7 +22797,7 @@ export default function App() {
 
             {/* ====== TYPE B - LIVE TABLE ====== */}
             <div id="iv-type-b---group-" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type B - Frais divers (FDP)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Type B - Frais divers (FDP)</h2>
               {prose('Plusieurs lignes de dépenses par victime indirecte. Même table plate que les autres types, triée par victime puis par dépense.')}
 
               {(() => {
@@ -23490,24 +22809,24 @@ export default function App() {
                 });
                 return (
                   <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                       <div className="w-[200px] px-3"><span style={colHeaderStyle}>Victime</span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Dépense</span></div>
                       <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Montant</span></div>
                     </div>
                     {demoFlatB.map((row) => (
-                      <div key={row.ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                      <div key={row.ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                         <div className="w-[200px] px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(row.vi, 28)}
-                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{row.vi.prenom} {row.vi.nom}</span>
+                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{row.vi.prenom} {row.vi.nom}</span>
                         </div>
                         <div className="flex-1 px-3 min-w-0">
-                          <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: row.ligne.intitule ? '#44403c' : '#a8a29e' }}>
+                          <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: row.ligne.intitule ? dsColors.semantic.foregroundTertiary : dsColors.semantic.foregroundMuted }}>
                             {row.ligne.intitule || 'Sans intitulé'}
                           </span>
                         </div>
                         <div className="w-[130px] px-3 text-right">
-                          <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(row.ligne.montant)}</span>
+                          <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(row.ligne.montant)}</span>
                         </div>
                       </div>
                     ))}
@@ -23519,7 +22838,7 @@ export default function App() {
 
             {/* ====== TYPE C - FLAT LIST ====== */}
             <div id="iv-type-c---frais-partag-s" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type C - Frais partagés (Obsèques)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Type C - Frais partagés (Obsèques)</h2>
               {prose('Les frais d\'obsèques sont des dépenses communes réparties entre plusieurs VI. Chaque ligne = une attribution VI, triée par victime puis par dépense.')}
 
               {(() => {
@@ -23532,22 +22851,22 @@ export default function App() {
                 });
                 return (
                   <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                    <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                       <div className="w-[200px] px-3"><span style={colHeaderStyle}>Victime</span></div>
                       <div className="flex-1 px-3"><span style={colHeaderStyle}>Dépense</span></div>
                       <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Montant</span></div>
                     </div>
                     {demoFlatRows.map((row) => (
-                      <div key={`${row.vi.id}-${row.ligne.id}`} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                      <div key={`${row.vi.id}-${row.ligne.id}`} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                         <div className="w-[200px] px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(row.vi, 28)}
-                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: '#292524' }}>{row.vi.prenom} {row.vi.nom}</span>
+                          <span className="truncate" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foreground }}>{row.vi.prenom} {row.vi.nom}</span>
                         </div>
                         <div className="flex-1 px-3 min-w-0">
-                          <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: '#44403c' }}>{row.ligne.label}</span>
+                          <span className="truncate block" style={{ fontSize: 14, fontWeight: 400, color: dsColors.semantic.foregroundTertiary }}>{row.ligne.label}</span>
                         </div>
                         <div className="w-[130px] px-3 text-right">
-                          <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(row.amount)}</span>
+                          <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(row.amount)}</span>
                         </div>
                       </div>
                     ))}
@@ -23559,40 +22878,40 @@ export default function App() {
 
             {/* ====== TYPE D - LIVE PRP TABLES ====== */}
             <div id="iv-type-d---foyer--prp-" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Type D - Foyer (PRP)</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Type D - Foyer (PRP)</h2>
               {prose('Le poste Pertes de Revenus des Proches suit une logique économique en 3 étapes : établir le revenu de référence, calculer la perte, puis la répartir entre bénéficiaires.')}
 
               {/* Table 1 - Revenu de référence */}
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Calculator className="w-4 h-4 text-foreground-secondary" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 1 - Revenu de référence</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>Table 1 - Revenu de référence</span>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                     <div className="w-[52px] pl-3" />
                     <div className="flex-1 px-3"><span style={colHeaderStyle}>Source</span></div>
                     <div className="w-[110px] px-3"><span style={colHeaderStyle}>Période</span></div>
                     <div className="w-[130px] px-3 text-right"><span style={colHeaderStyle}>Net mensuel</span></div>
                   </div>
                   {demoRevenuRefLignes.map((ligne) => (
-                    <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                    <div key={ligne.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                       {docBadge(ligne.pieceIds)}
                       <div className="flex-1 px-3">
-                        <span className="truncate block" style={{ fontSize: 14, color: '#292524' }}>{ligne.source}</span>
+                        <span className="truncate block" style={{ fontSize: 14, color: dsColors.semantic.foreground }}>{ligne.source}</span>
                       </div>
                       <div className="w-[110px] px-3">
-                        <span style={{ fontSize: 14, color: '#292524' }}>{ligne.periode}</span>
+                        <span style={{ fontSize: 14, color: dsColors.semantic.foreground }}>{ligne.periode}</span>
                       </div>
                       <div className="w-[130px] px-3 text-right">
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(ligne.netMensuel)}</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(ligne.netMensuel)}</span>
                       </div>
                     </div>
                   ))}
                   {/* Footer */}
-                  <div className="flex items-center justify-between h-10 px-4 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
-                    <span style={{ fontSize: 12, fontWeight: 500, color: '#78716c' }}>Moyenne mensuelle</span>
-                    <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(demoRevenuRefMoyen)}</span>
+                  <div className="flex items-center justify-between h-10 px-4 border-t border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}>Moyenne mensuelle</span>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(demoRevenuRefMoyen)}</span>
                   </div>
                 </div>
               </div>
@@ -23601,39 +22920,39 @@ export default function App() {
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Calculator className="w-4 h-4 text-foreground-secondary" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 2 - Calcul de la perte</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>Table 2 - Calcul de la perte</span>
                   {badge('DÉCÉDÉ', 'amber')}
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
                   <div className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span style={{ fontSize: 13, color: '#78716c' }}>Revenu de référence annuel</span>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(48000)}</span>
+                      <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Revenu de référence annuel</span>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(48000)}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span style={{ fontSize: 13, color: '#78716c' }}>Revenu annuel du conjoint survivant</span>
-                      <span style={{ fontSize: 14, color: '#292524' }}>{fmt(24000)}</span>
+                      <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Revenu annuel du conjoint survivant</span>
+                      <span style={{ fontSize: 14, color: dsColors.semantic.foreground }}>{fmt(24000)}</span>
                     </div>
                     <div className="flex items-center justify-between py-1 border-t border-border">
-                      <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>Revenu total du foyer</span>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(72000)}</span>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>Revenu total du foyer</span>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(72000)}</span>
                     </div>
                     <div className="flex items-center justify-between pt-2">
-                      <span style={{ fontSize: 13, color: '#78716c' }}>Méthode de calcul</span>
-                      <span style={{ fontSize: 14, color: '#292524' }}>% libre</span>
+                      <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Méthode de calcul</span>
+                      <span style={{ fontSize: 14, color: dsColors.semantic.foreground }}>% libre</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span style={{ fontSize: 13, color: '#78716c' }}>Part d'auto-consommation</span>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>25 %</span>
+                      <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Part d'auto-consommation</span>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>25 %</span>
                     </div>
                     <div className="pt-3 mt-2 border-t border-border space-y-2">
                       <div className="flex items-center justify-between">
-                        <span style={{ fontSize: 13, color: '#78716c' }}>Perte annuelle brute</span>
-                        <span style={{ fontSize: 14, color: '#292524' }}>{fmt(48000)}</span>
+                        <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Perte annuelle brute</span>
+                        <span style={{ fontSize: 14, color: dsColors.semantic.foreground }}>{fmt(48000)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>Perte annuelle nette (à répartir)</span>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(36000)}</span>
+                        <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>Perte annuelle nette (à répartir)</span>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(36000)}</span>
                       </div>
                     </div>
                   </div>
@@ -23644,10 +22963,10 @@ export default function App() {
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4 text-foreground-secondary" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3a - Échu</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>Table 3a - Échu</span>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 680 }}>
-                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                     <div className="flex-1 px-3"><span style={colHeaderStyle}>Victime</span></div>
                     <div className="w-[70px] px-2 text-right"><span style={colHeaderStyle}>Part</span></div>
                     <div className="w-[100px] px-2 text-right"><span style={colHeaderStyle}>Perte/an</span></div>
@@ -23659,24 +22978,24 @@ export default function App() {
                     if (!ligne) return null;
                     const amounts = demoComputeLine(ligne);
                     return (
-                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                         <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(vi, 24)}
-                          <span className="truncate" style={{ fontSize: 13, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
+                          <span className="truncate" style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{vi.prenom} {vi.nom}</span>
                         </div>
-                        <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{ligne.partIndividuelle}%</span></div>
-                        <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: '#292524' }}>{fmt(amounts.perteVI)}</span></div>
-                        <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 13, color: '#78716c' }}>{amounts.anneesEchues} ans</span></div>
-                        <div className="w-[110px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(amounts.echu)}</span></div>
+                        <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{ligne.partIndividuelle}%</span></div>
+                        <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{fmt(amounts.perteVI)}</span></div>
+                        <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>{amounts.anneesEchues} ans</span></div>
+                        <div className="w-[110px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(amounts.echu)}</span></div>
                       </div>
                     );
                   })}
-                  <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
-                    <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>Total échu</span></div>
-                    <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>100%</span></div>
-                    <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 500, color: '#44403c' }}>{fmt(demoPerteAnnuelle)}</span></div>
+                  <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
+                    <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>Total échu</span></div>
+                    <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>100%</span></div>
+                    <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>{fmt(demoPerteAnnuelle)}</span></div>
                     <div className="w-[70px] px-2" />
-                    <div className="w-[110px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>{fmt(demoPrpLignes.reduce((s, l) => s + demoComputeLine(l).echu, 0))}</span></div>
+                    <div className="w-[110px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>{fmt(demoPrpLignes.reduce((s, l) => s + demoComputeLine(l).echu, 0))}</span></div>
                   </div>
                 </div>
               </div>
@@ -23685,11 +23004,11 @@ export default function App() {
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="w-4 h-4 text-foreground-secondary" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3b - À échoir</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>Table 3b - À échoir</span>
                   <div className="flex items-center gap-2 ml-2">{badge('CAPITAL', 'green')} {badge('RENTE', 'amber')}</div>
                 </div>
                 <div className={cardBlockClass} style={{ maxWidth: 740 }}>
-                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                  <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                     <div className="flex-1 px-3"><span style={colHeaderStyle}>Victime</span></div>
                     <div className="w-[70px] px-2 text-right"><span style={colHeaderStyle}>Part</span></div>
                     <div className="w-[100px] px-2 text-right"><span style={colHeaderStyle}>Perte/an</span></div>
@@ -23703,42 +23022,40 @@ export default function App() {
                     if (!ligne) return null;
                     const amounts = demoComputeLine(ligne);
                     return (
-                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-white group cursor-pointer hover:bg-background transition-colors">
+                      <div key={vi.id} className="relative flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface group cursor-pointer hover:bg-background transition-colors">
                         <div className="flex-1 px-3 flex items-center gap-2 min-w-0">
                           {viAvatar(vi, 24)}
-                          <span className="truncate" style={{ fontSize: 13, color: '#292524' }}>{vi.prenom} {vi.nom}</span>
+                          <span className="truncate" style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{vi.prenom} {vi.nom}</span>
                         </div>
-                        <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{ligne.partIndividuelle}%</span></div>
-                        <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: '#292524' }}>{fmt(amounts.perteVI)}</span></div>
-                        <div className="w-[100px] px-2"><span className="truncate block" style={{ fontSize: 12, color: '#78716c' }}>{ligne.dureeIndemnisation}</span></div>
-                        <div className="w-[70px] px-2"><span style={{ fontSize: 12, color: '#78716c' }}>{amounts.mode === 'capitalisation' ? 'Capital' : 'Rente'}</span></div>
+                        <div className="w-[70px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{ligne.partIndividuelle}%</span></div>
+                        <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{fmt(amounts.perteVI)}</span></div>
+                        <div className="w-[100px] px-2"><span className="truncate block" style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>{ligne.dureeIndemnisation}</span></div>
+                        <div className="w-[70px] px-2"><span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>{amounts.mode === 'capitalisation' ? 'Capital' : 'Rente'}</span></div>
                         <div className="w-[55px] px-2 text-right">
                           {amounts.mode === 'capitalisation' ? (
-                            <span style={{ fontSize: 13, color: '#292524' }}>{amounts.coeff}</span>
+                            <span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{amounts.coeff}</span>
                           ) : (
-                            <span style={{ fontSize: 13, color: '#cbc7c4' }}>—</span>
+                            <span style={{ fontSize: 13, color: dsColors.semantic.borderStrong }}>-</span>
                           )}
                         </div>
                         <div className="w-[110px] px-2 text-right">
                           {amounts.mode === 'capitalisation' ? (
-                            <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{fmt(amounts.aEchoir)}</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(amounts.aEchoir)}</span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
-                              RENTE {fmt(amounts.perteVI)}/an
-                            </span>
+                            <Badge variant="accent" label={`RENTE ${fmt(amounts.perteVI)}/an`} />
                           )}
                         </div>
                       </div>
                     );
                   })}
-                  <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: '#fafaf9' }}>
-                    <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: '#44403c' }}>Total à échoir</span></div>
+                  <div className="flex items-center h-10 border-t border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
+                    <div className="flex-1 px-3"><span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foregroundTertiary }}>Total à échoir</span></div>
                     <div className="w-[70px] px-2" />
                     <div className="w-[100px] px-2" />
                     <div className="w-[100px] px-2" />
                     <div className="w-[70px] px-2" />
                     <div className="w-[55px] px-2" />
-                    <div className="w-[110px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>{fmt(demoPrpLignes.reduce((s, l) => s + demoComputeLine(l).aEchoir, 0))}</span></div>
+                    <div className="w-[110px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>{fmt(demoPrpLignes.reduce((s, l) => s + demoComputeLine(l).aEchoir, 0))}</span></div>
                   </div>
                 </div>
               </div>
@@ -23747,7 +23064,7 @@ export default function App() {
               <div className="mb-3">
                 <div className="flex items-center gap-2 mb-3">
                   <User className="w-4 h-4 text-foreground-secondary" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#292524' }}>Table 3c - Total par bénéficiaire</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: dsColors.semantic.foreground }}>Table 3c - Total par bénéficiaire</span>
                 </div>
                 {(() => {
                   const demoTotalDistribue = demoPrpLignes.reduce((s, l) => s + demoComputeLine(l).total, 0);
@@ -23775,12 +23092,12 @@ export default function App() {
                             <div key={vi.id} className="flex justify-between items-center">
                               <div className="flex items-center gap-2 min-w-0">
                                 {viAvatar(vi, 24)}
-                                <span style={{ fontSize: 14, color: '#78716c' }}>{vi.prenom} {vi.nom}</span>
+                                <span style={{ fontSize: 14, color: dsColors.semantic.mutedForeground }}>{vi.prenom} {vi.nom}</span>
                               </div>
                               <div className="flex items-center gap-4">
-                                {amounts.echu > 0 && <span style={{ fontSize: 12, color: '#a8a29e' }}>échu {fmt(amounts.echu)}</span>}
-                                {amounts.mode === 'capitalisation' && amounts.aEchoir > 0 && <span style={{ fontSize: 12, color: '#a8a29e' }}>à échoir {fmt(amounts.aEchoir)}</span>}
-                                <span style={{ fontSize: 14, fontWeight: 500, color: '#292524' }}>{fmt(amounts.total)}</span>
+                                {amounts.echu > 0 && <span style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>échu {fmt(amounts.echu)}</span>}
+                                {amounts.mode === 'capitalisation' && amounts.aEchoir > 0 && <span style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>à échoir {fmt(amounts.aEchoir)}</span>}
+                                <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(amounts.total)}</span>
                               </div>
                             </div>
                           );
@@ -23794,7 +23111,7 @@ export default function App() {
 
             {/* ====== SCÉNARIOS PRP ====== */}
             <div id="iv-sc-narios-prp" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Scénarios PRP</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Scénarios PRP</h2>
               {prose('Le sélecteur « Scénario » en haut du poste PRP applique des presets de données pour tester les 6 combinaisons possibles. Il met à jour victimeDecedee, mode par ligne, et anneesEchues.')}
 
               <div className="grid grid-cols-2 gap-4 mb-6" style={{ maxWidth: 680 }}>
@@ -23806,18 +23123,18 @@ export default function App() {
                   { key: 'blesse-capital', label: 'Blessé + capital', desc: 'VD vivante, revenu actuel 1 000 €/mois. Pas d\'auto-consommation. Même perte nette.', color: 'blue' },
                   { key: 'blesse-rente', label: 'Blessé + rente', desc: 'Blessé, tous en rente. Mode calcul simplifié (pas d\'auto-conso).', color: 'blue' },
                 ].map(s => (
-                  <div key={s.key} className="border border-border rounded-lg p-4 bg-white">
+                  <div key={s.key} className="border border-border rounded-lg p-4 bg-surface">
                     <div className="flex items-center gap-2 mb-2">
                       {badge(s.label, s.color)}
                     </div>
-                    <p style={{ fontSize: 12, color: '#78716c', lineHeight: '18px' }}>{s.desc}</p>
-                    <div className="mt-2"><span style={{ fontSize: 11, color: '#a8a29e' }}>{codeInline(s.key)}</span></div>
+                    <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, lineHeight: '18px' }}>{s.desc}</p>
+                    <div className="mt-2"><span style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted }}>{codeInline(s.key)}</span></div>
                   </div>
                 ))}
               </div>
 
               <div className={cardBlockClass + ' mb-6'} style={{ maxWidth: 680 }}>
-                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+                <div className="flex items-center h-10 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
                   <div className="flex-1 px-3"><span style={colHeaderStyle}>Scénario</span></div>
                   <div className="w-[100px] px-3"><span style={colHeaderStyle}>Auto-conso</span></div>
                   <div className="w-[100px] px-3"><span style={colHeaderStyle}>Rev. actuel</span></div>
@@ -23829,11 +23146,11 @@ export default function App() {
                   { s: 'Blessé + capital', ac: '—', ra: '1 000 €/mois', ae: 'perte × part × coeff' },
                   { s: 'Blessé + rente', ac: '—', ra: '1 000 €/mois', ae: 'badge RENTE /an' },
                 ].map((row, idx) => (
-                  <div key={idx} className="flex items-center h-[52px] border-b border-border last:border-b-0 bg-white">
-                    <div className="flex-1 px-3"><span style={{ fontSize: 13, color: '#292524' }}>{row.s}</span></div>
-                    <div className="w-[100px] px-3"><span style={{ fontSize: 13, color: '#78716c' }}>{row.ac}</span></div>
-                    <div className="w-[100px] px-3"><span style={{ fontSize: 13, color: '#78716c' }}>{row.ra}</span></div>
-                    <div className="w-[140px] px-3"><span style={{ fontSize: 12, color: '#78716c' }}>{row.ae}</span></div>
+                  <div key={idx} className="flex items-center h-[52px] border-b border-border last:border-b-0 bg-surface">
+                    <div className="flex-1 px-3"><span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{row.s}</span></div>
+                    <div className="w-[100px] px-3"><span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>{row.ac}</span></div>
+                    <div className="w-[100px] px-3"><span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>{row.ra}</span></div>
+                    <div className="w-[140px] px-3"><span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>{row.ae}</span></div>
                   </div>
                 ))}
               </div>
@@ -23842,7 +23159,7 @@ export default function App() {
             {/* ====== AFFICHAGE OBSÈQUES ====== */}
             {/* ====== ADAPTATION IA ====== */}
             <div id="iv-adaptation-ia" className="mb-12">
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#292524', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Adaptation aux requêtes IA</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Adaptation aux requêtes IA</h2>
               {prose('Le chat IA peut naviguer vers un poste IV et adapter la visualisation en fonction du contexte de la question. Exemples de mapping intention → action :')}
 
               <div className="space-y-3 mb-8" style={{ maxWidth: 680 }}>
@@ -23854,13 +23171,13 @@ export default function App() {
                   { query: '« Combien d\'échu pour toute la famille ? »', action: 'Naviguer vers PRP → table 3a → lire footer total échu', mode: 'prp' },
                   { query: '« Compare les indemnités des enfants »', action: 'Naviguer vers PRP → table 3c (recap) → Lucas vs Emma côte à côte', mode: 'prp' },
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-4 items-start border border-border rounded-lg p-3.5 bg-white">
+                  <div key={i} className="flex gap-4 items-start border border-border rounded-lg p-3.5 bg-surface">
                     <div className="flex-shrink-0 mt-0.5">
                       <Brain className="w-4 h-4 text-foreground-secondary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div style={{ fontSize: 13, fontWeight: 500, color: '#292524', marginBottom: 4 }}>{item.query}</div>
-                      <div style={{ fontSize: 12, color: '#78716c', lineHeight: '18px' }}>{item.action}</div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground, marginBottom: 4 }}>{item.query}</div>
+                      <div style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, lineHeight: '18px' }}>{item.action}</div>
                     </div>
                     <div className="flex-shrink-0">
                       {badge(item.mode, item.mode === 'prp' ? 'amber' : 'blue')}
@@ -23880,25 +23197,25 @@ export default function App() {
 
   // ========== EMPTY STATES PAGE ==========
   const renderPromptSuggestionsPage = () => {
-    const codeInline = (text) => <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: '#f5f5f4', padding: '2px 6px', borderRadius: 4, color: '#292524' }}>{text}</code>;
+    const codeInline = (text) => <code style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", backgroundColor: dsColors.semantic.backgroundSubtle, padding: '2px 6px', borderRadius: 4, color: dsColors.semantic.foreground }}>{text}</code>;
 
     // Spec doc styles & components
-    const specPara = { fontSize: 15, color: '#292524', lineHeight: '26px', maxWidth: 680, marginBottom: 16 };
-    const subSectionTitle = { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: '#292524', letterSpacing: '-0.2px', marginBottom: 8, marginTop: 8 };
-    const chipCode = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, backgroundColor: '#fafaf9', border: '1px solid #dfdcd9', padding: '2px 7px', borderRadius: 4, color: '#292524', whiteSpace: 'nowrap' };
+    const specPara = { fontSize: 15, color: dsColors.semantic.foreground, lineHeight: '26px', maxWidth: 680, marginBottom: 16 };
+    const subSectionTitle = { fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.2px', marginBottom: 8, marginTop: 8 };
+    const chipCode = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, backgroundColor: dsColors.banner.neutral.bgFrom, border: `1px solid ${dsColors.semantic.border}`, padding: '2px 7px', borderRadius: 4, color: dsColors.semantic.foreground, whiteSpace: 'nowrap' };
 
     const SpecTable = ({ head, rows, colWidths = [] }) => (
-      <div className="mb-6 overflow-hidden rounded-md border" style={{ borderColor: '#dfdcd9', maxWidth: 760 }}>
-        <div className="flex" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
+      <div className="mb-6 overflow-hidden rounded-md border" style={{ borderColor: dsColors.semantic.border, maxWidth: 760 }}>
+        <div className="flex" style={{ backgroundColor: dsColors.banner.neutral.bgFrom, borderBottom: `1px solid ${dsColors.semantic.border}` }}>
           {head.map((h, i) => (
             <div
               key={i}
               className="px-4 py-2.5"
               style={{
                 fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500,
-                color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em',
+                color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em',
                 width: colWidths[i], flex: colWidths[i] ? 'none' : 1,
-                borderRight: i < head.length - 1 ? '1px solid #dfdcd9' : 'none',
+                borderRight: i < head.length - 1 ? `1px solid ${dsColors.semantic.border}` : 'none',
               }}
             >
               {h}
@@ -23908,17 +23225,17 @@ export default function App() {
         {rows.map((row, ri) => (
           <div
             key={ri}
-            className="flex bg-white"
-            style={{ borderBottom: ri < rows.length - 1 ? '1px solid #dfdcd9' : 'none' }}
+            className="flex bg-surface"
+            style={{ borderBottom: ri < rows.length - 1 ? `1px solid ${dsColors.semantic.border}` : 'none' }}
           >
             {row.map((cell, ci) => (
               <div
                 key={ci}
                 className="px-4 py-3"
                 style={{
-                  fontSize: 13, color: '#292524', lineHeight: '20px',
+                  fontSize: 13, color: dsColors.semantic.foreground, lineHeight: '20px',
                   width: colWidths[ci], flex: colWidths[ci] ? 'none' : 1,
-                  borderRight: ci < row.length - 1 ? '1px solid #dfdcd9' : 'none',
+                  borderRight: ci < row.length - 1 ? `1px solid ${dsColors.semantic.border}` : 'none',
                   display: 'flex', alignItems: 'center',
                 }}
               >
@@ -23936,9 +23253,9 @@ export default function App() {
         <blockquote
           className="mb-6 px-4 py-3"
           style={{
-            borderLeft: `3px solid ${isWarning ? '#f59e0b' : '#cbc7c4'}`,
-            backgroundColor: isWarning ? '#fffbeb' : '#fafaf9',
-            color: isWarning ? '#78350f' : '#44403c',
+            borderLeft: `3px solid ${isWarning ? dsColors.banner.warning.accent : dsColors.semantic.borderStrong}`,
+            backgroundColor: isWarning ? dsColors.banner.warning.bgFrom : dsColors.banner.neutral.bgFrom,
+            color: isWarning ? dsColors.avatar[3].fill : dsColors.semantic.foregroundTertiary,
             fontSize: 14,
             lineHeight: '22px',
             maxWidth: 680,
@@ -23954,16 +23271,16 @@ export default function App() {
     const Specimen = ({ title, condition, children }) => (
       <div className="mb-12">
         <div className="flex items-center justify-between mb-3">
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: '#292524' }}>{title}</h3>
-          <span style={{ fontSize: 12, color: '#78716c' }}>Condition&nbsp;: {condition}</span>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: dsColors.semantic.foreground }}>{title}</h3>
+          <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>Condition&nbsp;: {condition}</span>
         </div>
         <div
           className="border border-border rounded-lg overflow-hidden flex flex-col"
-          style={{ width: 360, height: 540, backgroundColor: '#F8F7F5' }}
+          style={{ width: 360, height: 540, backgroundColor: dsColors.semantic.background }}
         >
-          <div className="px-4 h-12 border-b flex items-center gap-2.5 flex-shrink-0 bg-white" style={{ borderColor: '#dfdcd9' }}>
+          <div className="px-4 h-12 border-b flex items-center gap-2.5 flex-shrink-0 bg-surface" style={{ borderColor: dsColors.semantic.border }}>
             <PlatoIcon />
-            <span className="flex-1" style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '12px', color: '#78716c', lineHeight: '32px' }}>
+            <span className="flex-1" style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: '12px', color: dsColors.semantic.mutedForeground, lineHeight: '32px' }}>
               PLATO MASTER
             </span>
           </div>
@@ -23985,10 +23302,10 @@ export default function App() {
         <div className="mb-4">
           <PlatoIcon size={20} />
         </div>
-        <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.4px', lineHeight: '28px', textAlign: 'center', maxWidth: 280 }}>
+        <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.4px', lineHeight: '28px', textAlign: 'center', maxWidth: 280 }}>
           Bonjour Meghan, je suis Plato.
         </h2>
-        <p style={{ fontSize: 13, color: '#78716c', textAlign: 'center', marginTop: 8, lineHeight: '18px', maxWidth: 280 }}>
+        <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, textAlign: 'center', marginTop: 8, lineHeight: '18px', maxWidth: 280 }}>
           Par où voulez-vous commencer&nbsp;?
         </p>
         <div className="mt-6 w-full max-w-[320px] flex flex-col gap-2">
@@ -24009,15 +23326,15 @@ export default function App() {
     const CanvasSpecimen = ({ title, condition, children }) => (
       <div className="mb-12">
         <div className="flex items-center justify-between mb-3">
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: '#292524' }}>{title}</h3>
-          <span style={{ fontSize: 12, color: '#78716c' }}>Condition&nbsp;: {condition}</span>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: dsColors.semantic.foreground }}>{title}</h3>
+          <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>Condition&nbsp;: {condition}</span>
         </div>
         <div
-          className="border border-border rounded-lg overflow-hidden flex flex-col bg-white"
+          className="border border-border rounded-lg overflow-hidden flex flex-col bg-surface"
           style={{ width: 640, height: 420 }}
         >
-          <div className="px-5 h-12 border-b flex items-center gap-3 flex-shrink-0" style={{ borderColor: '#dfdcd9', backgroundColor: '#fafaf9' }}>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div className="px-5 h-12 border-b flex items-center gap-3 flex-shrink-0" style={{ borderColor: dsColors.semantic.border, backgroundColor: dsColors.banner.neutral.bgFrom }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {title.replace(/^Canvas - /, '')}
             </span>
           </div>
@@ -24045,38 +23362,38 @@ export default function App() {
     const LightbulbSpecimen = () => (
       <div className="mb-12">
         <div className="flex items-center justify-between mb-3">
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: '#292524' }}>Variant - Suggestions menu (anchored au-dessus de l'input)</h3>
-          <span style={{ fontSize: 12, color: '#78716c' }}>Condition&nbsp;: {codeInline('suggestionsOpen === true')}</span>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: dsColors.semantic.foreground }}>Variant - Suggestions menu (anchored au-dessus de l'input)</h3>
+          <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>Condition&nbsp;: {codeInline('suggestionsOpen === true')}</span>
         </div>
         <div
           className="rounded-lg flex flex-col justify-end relative overflow-visible"
-          style={{ width: 380, height: 460, backgroundColor: '#F8F7F5', padding: 16, border: '1px solid #dfdcd9' }}
+          style={{ width: 380, height: 460, backgroundColor: dsColors.semantic.background, padding: 16, border: `1px solid ${dsColors.semantic.border}` }}
         >
           {/* Production chat input box - exact replica */}
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: dsColors.semantic.white,
               borderRadius: 2,
               border: '2px solid white',
-              boxShadow: '0px 0px 0px 1px #cbc7c4, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)',
+              boxShadow: `0px 0px 0px 1px ${dsColors.semantic.borderStrong}, ${dsShadows.xl}`,
               display: 'flex',
               flexDirection: 'column',
             }}
           >
             {/* Textarea */}
             <div style={{ padding: '12px 12px 32px 12px' }}>
-              <span className="text-[14px]" style={{ color: '#78716c', lineHeight: '20px' }}>
+              <span className="text-[14px]" style={{ color: dsColors.semantic.mutedForeground, lineHeight: '20px' }}>
                 Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...
               </span>
             </div>
             {/* Bottom bar */}
             <div className="flex items-center justify-between px-3 py-3">
               <div className="flex items-center gap-0.5">
-                <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors">
+                <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background-subtle transition-colors">
                   <Paperclip className="w-4 h-4 text-foreground-secondary" />
                 </button>
                 <div className="relative">
-                  <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-stone-100 transition-colors">
+                  <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-background-subtle transition-colors">
                     <Lightbulb className="w-4 h-4 text-foreground-secondary" />
                   </button>
                   {/* Suggestions popover - same SuggestionsMenu DS component */}
@@ -24085,7 +23402,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: '#eeece6', opacity: 0.5 }}>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: dsColors.semantic.muted, opacity: 0.5 }}>
                 <ArrowUp className="w-4 h-4 text-foreground-secondary" />
               </button>
             </div>
@@ -24100,12 +23417,12 @@ export default function App() {
         <div className="flex-shrink-0">{trigger}</div>
         <ArrowRight className="w-6 h-6 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
         <div className="flex flex-col items-end flex-shrink-0" style={{ width: 220 }}>
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
             User message envoyé
           </span>
           <div
             className="text-white text-[13px]"
-            style={{ backgroundColor: '#292524', borderRadius: 2, padding: '10px 12px', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)', maxWidth: '100%' }}
+            style={{ backgroundColor: dsColors.semantic.primary, borderRadius: 2, padding: '10px 12px', boxShadow: dsShadows.xs, maxWidth: '100%' }}
           >
             {message}
           </div>
@@ -24146,7 +23463,7 @@ export default function App() {
 
     // B.2 - Add poste modal mock (the trigger surface)
     const triggerAddPosteModal = (
-      <div className="bg-white rounded-[8px] border border-border overflow-hidden" style={{ width: 260, boxShadow: '0px 4px 12px -4px rgba(26,26,26,0.12)' }}>
+      <div className="bg-surface rounded-[8px] border border-border overflow-hidden" style={{ width: 260, boxShadow: dsShadows['lg'] }}>
         <div className="px-4 py-3 border-b border-border">
           <span className="text-[13px] font-medium text-foreground">Ajouter un poste</span>
         </div>
@@ -24161,43 +23478,43 @@ export default function App() {
               className="flex items-center gap-2 px-2 py-1.5 rounded-[6px]"
               style={p.selected ? { backgroundColor: 'rgba(232,113,58,0.12)' } : {}}
             >
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: p.selected ? '#E8713A' : '#78716c', fontWeight: 500, width: 36 }}>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: p.selected ? dsColors.brand.DEFAULT : dsColors.semantic.mutedForeground, fontWeight: 500, width: 36 }}>
                 {p.acr}
               </span>
               <span className="text-[12px] text-foreground flex-1 truncate">{p.label}</span>
-              {p.selected && <Check className="w-3.5 h-3.5 text-[#E8713A]" strokeWidth={2} />}
+              {p.selected && <Check className="w-3.5 h-3.5 text-brand" strokeWidth={2} />}
             </div>
           ))}
         </div>
         <div className="px-3 py-2 border-t border-border flex justify-end">
-          <button className="bg-foreground text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
+          <button className="bg-foreground text-primary-foreground text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
         </div>
       </div>
     );
 
     return (
-      <div className="h-screen flex" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
-        <div className="w-[220px] flex-shrink-0 border-r border-border bg-white overflow-y-auto" style={{ padding: '20px 16px' }}>
+        <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
           <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#292524', marginBottom: 16 }}>Prompt Suggestions</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>Prompt Suggestions</div>
           <nav className="flex flex-col gap-1 mb-4">
             <a href="#ps-scope" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">Scope</a>
             <a href="#ps-tldr" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">TL;DR</a>
           </nav>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>A. Chat empty state</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>A. Chat empty state</div>
           <nav className="flex flex-col gap-1 mb-4">
             <a href="#ps-chat" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">3 chips</a>
           </nav>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>B. Triggers canvas</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>B. Triggers canvas</div>
           <nav className="flex flex-col gap-1 mb-4">
             <a href="#ps-canvas-chiffrage" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">B.1 - Chiffrage vide</a>
             <a href="#ps-canvas-add-poste" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">B.2 - Ajout poste</a>
             <a href="#ps-canvas-actes" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">B.3 - Actes vide</a>
           </nav>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>C. Ampoule</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>C. Ampoule</div>
           <nav className="flex flex-col gap-1">
             <a href="#ps-lightbulb" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">Suggestions menu</a>
           </nav>
@@ -24206,14 +23523,14 @@ export default function App() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto" style={{ padding: '32px 48px' }}>
           <div style={{ maxWidth: 880 }}>
-            <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 32, fontWeight: 400, color: '#18181b', letterSpacing: '-0.5px', marginBottom: 4 }}>Prompt Suggestions</h1>
-            <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: 40 }}>
+            <h1 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 32, fontWeight: 400, color: dsColors.semantic.foreground, letterSpacing: '-0.5px', marginBottom: 4 }}>Prompt Suggestions</h1>
+            <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: 40 }}>
               Spec produit
             </p>
 
             {/* ================ SCOPE ================ */}
             <section id="ps-scope" className="mb-12">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>Scope</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>Scope</h2>
               <p style={specPara}><strong>Problèmes.</strong></p>
               <ul style={{ ...specPara, paddingLeft: 20, listStyle: 'disc' }}>
                 <li><strong>Au drop first (création dossier).</strong> L'agent ne montre pas son reasoning sur les docs déposés et ne propose pas d'actions. L'utilisateur doit deviner quoi demander.</li>
@@ -24225,11 +23542,11 @@ export default function App() {
 
             {/* ================ TL;DR ================ */}
             <section id="ps-tldr" className="mb-12">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>TL;DR</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>TL;DR</h2>
               <SpecTable
                 head={['Surface', 'Quand', 'Au clic']}
                 rows={[
-                  [<><strong>Chat empty state</strong> <span style={{ color: '#78716c' }}>(manuel ou after drop)</span></>, 'Chat vide, agent muet', <><strong>3 chips</strong> → <em>envoient</em> un prompt</>],
+                  [<><strong>Chat empty state</strong> <span style={{ color: dsColors.semantic.mutedForeground }}>(manuel ou after drop)</span></>, 'Chat vide, agent muet', <><strong>3 chips</strong> → <em>envoient</em> un prompt</>],
                   [<><strong>Triggers canvas</strong></>, 'Empty states locaux : chiffrage, actes, JP, ajout poste', <><em>Envoient</em> un prompt</>],
                   [<><strong>Ampoule</strong> <Lightbulb className="inline w-3.5 h-3.5 align-middle text-foreground-secondary" strokeWidth={1.75} /></>, "Permanent dans l'input", <><em>Pré-remplissent</em> l'input (éditable)</>],
                 ]}
@@ -24238,7 +23555,7 @@ export default function App() {
 
             {/* ================ A. CHAT EMPTY STATE ================ */}
             <section id="ps-chat" className="mb-16">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>A. Chat empty state - 3 chips</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>A. Chat empty state - 3 chips</h2>
               <p style={specPara}><strong>Affichage.</strong> <em>"Bonjour {codeInline('{user.firstName}')}, je suis Plato. Par où voulez-vous commencer ?"</em> + 3 chips.</p>
               <Specimen title="Variant - 3 chips" condition="aucun message dans le chat">
                 {variantEmptyState}
@@ -24258,7 +23575,7 @@ export default function App() {
 
             {/* ================ B. TRIGGERS CANVAS ================ */}
             <section className="mb-12">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9' }}>B. Triggers canvas</h2>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}` }}>B. Triggers canvas</h2>
               <p style={specPara}>Clic → message envoyé immédiatement comme bulle <code style={chipCode}>user</code>. Flux chat standard ensuite.</p>
 
               <article id="ps-canvas-chiffrage" className="mb-10">
@@ -24289,7 +23606,7 @@ export default function App() {
 
             {/* ================ C. AMPOULE ================ */}
             <section id="ps-lightbulb" className="mb-16">
-              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: '#292524', letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #dfdcd9', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h2 style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 22, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.3px', marginBottom: 16, paddingBottom: 8, borderBottom: `1px solid ${dsColors.semantic.border}`, display: 'flex', alignItems: 'center', gap: 8 }}>
                 C. Ampoule <Lightbulb className="w-5 h-5 text-foreground-secondary" strokeWidth={1.75} />
               </h2>
               <p style={specPara}>
@@ -24440,12 +23757,12 @@ export default function App() {
     };
 
     return (
-      <div className="border border-border rounded-lg bg-white overflow-hidden">
+      <div className="border border-border rounded-lg bg-surface overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-xs font-semibold" style={{ backgroundColor: '#292524', color: 'white' }}>{id}</span>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#292524' }}>{scenario.title}</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded text-xs font-semibold" style={{ backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground }}>{id}</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{scenario.title}</span>
           </div>
           <div className="flex items-center gap-2">
             {/* Speed control */}
@@ -24455,18 +23772,18 @@ export default function App() {
                   key={s}
                   onClick={() => setSpeed(s)}
                   className="px-2 py-0.5 text-xs transition-colors"
-                  style={{ fontWeight: speed === s ? 600 : 400, color: speed === s ? '#292524' : '#a8a29e', backgroundColor: speed === s ? '#eeece6' : 'transparent' }}
+                  style={{ fontWeight: speed === s ? 600 : 400, color: speed === s ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted, backgroundColor: speed === s ? dsColors.semantic.muted : 'transparent' }}
                 >
                   {s}x
                 </button>
               ))}
             </div>
             {phase === 'idle' ? (
-              <button onClick={play} className="px-3 py-1 rounded text-xs font-medium text-white transition-colors" style={{ backgroundColor: '#292524' }}>
+              <button onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
                 Play
               </button>
             ) : (
-              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: '#78716c' }}>
+              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
@@ -24475,7 +23792,7 @@ export default function App() {
         {/* Content */}
         <div className="p-4" style={{ minHeight: 60 }}>
           {phase === 'idle' && (
-            <p style={{ fontSize: 13, color: '#a8a29e', textAlign: 'center', padding: '16px 0' }}>
+            <p style={{ fontSize: 13, color: dsColors.semantic.foregroundMuted, textAlign: 'center', padding: '16px 0' }}>
               Cliquez Play pour lancer la simulation
             </p>
           )}
@@ -24497,7 +23814,7 @@ export default function App() {
                 onToggle={() => setExpanded(v => !v)}
               />
               {/* Agent response */}
-              <div style={{ marginTop: 8, fontSize: 14, lineHeight: '20px', color: '#44403c' }}>
+              <div style={{ marginTop: 8, fontSize: 14, lineHeight: '20px', color: dsColors.semantic.foregroundTertiary }}>
                 {scenario.response}
               </div>
             </>
@@ -24510,9 +23827,9 @@ export default function App() {
   const FinishedInspectableCard = ({ summary, counters, steps }) => {
     const [expanded, setExpanded] = React.useState(false);
     return (
-      <div className="border border-border rounded-lg bg-white overflow-hidden">
-        <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
-          <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning finished inspectable</span>
+      <div className="border border-border rounded-lg bg-surface overflow-hidden">
+        <div className="px-3 py-2" style={{ backgroundColor: dsColors.banner.neutral.bgFrom, borderBottom: `1px solid ${dsColors.semantic.border}` }}>
+          <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning finished inspectable</span>
         </div>
         <div className="p-4">
           <ReasoningStepper
@@ -24573,16 +23890,16 @@ export default function App() {
     React.useEffect(() => () => timeoutsRef.current.forEach(t => clearTimeout(t)), []);
 
     return (
-      <div className="border border-border rounded-lg bg-white overflow-hidden">
-        <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
-          <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
+      <div className="border border-border rounded-lg bg-surface overflow-hidden">
+        <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: dsColors.banner.neutral.bgFrom, borderBottom: `1px solid ${dsColors.semantic.border}` }}>
+          <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
           <div className="flex items-center gap-1.5">
             {phase === 'idle' ? (
-              <button onClick={play} className="px-2.5 py-0.5 rounded text-xs font-medium text-white transition-colors" style={{ backgroundColor: '#292524' }}>
+              <button onClick={play} className="px-2.5 py-0.5 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
                 Play
               </button>
             ) : (
-              <button onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-border" style={{ color: '#78716c' }}>
+              <button onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
@@ -24590,7 +23907,7 @@ export default function App() {
         </div>
         <div className="p-4" style={{ minHeight: 48 }}>
           {phase === 'idle' && (
-            <p style={{ fontSize: 12, color: '#a8a29e', textAlign: 'center', padding: '12px 0' }}>
+            <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, textAlign: 'center', padding: '12px 0' }}>
               Cliquez Play pour lancer
             </p>
           )}
@@ -24698,37 +24015,37 @@ export default function App() {
     });
 
     return (
-      <div className="border border-border rounded-lg bg-white overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#292524' }}>
-            {variant === 'inline' ? 'UX A — expand dans le chat' : 'UX B — panneau latéral'}
+      <div className="border border-border rounded-lg bg-surface overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: dsColors.semantic.foreground }}>
+            {variant === 'inline' ? 'UX A - expand dans le chat' : 'UX B - panneau latéral'}
           </span>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 border border-border rounded overflow-hidden">
               {[1, 2, 4].map(s => (
                 <button key={s} onClick={() => setSpeed(s)} className="px-2 py-0.5 text-xs transition-colors"
-                  style={{ fontWeight: speed === s ? 600 : 400, color: speed === s ? '#292524' : '#a8a29e', backgroundColor: speed === s ? '#eeece6' : 'transparent' }}>
+                  style={{ fontWeight: speed === s ? 600 : 400, color: speed === s ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted, backgroundColor: speed === s ? dsColors.semantic.muted : 'transparent' }}>
                   {s}x
                 </button>
               ))}
             </div>
             {phase === 'idle' ? (
-              <button onClick={play} className="px-3 py-1 rounded text-xs font-medium text-white transition-colors" style={{ backgroundColor: '#292524' }}>Play</button>
+              <button onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>Play</button>
             ) : (
-              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: '#78716c' }}>
+              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
           </div>
         </div>
         {/* Mini chat frame so the line reads in context */}
-        <div className="p-4" style={{ minHeight: 80, backgroundColor: '#fcfbfa' }}>
+        <div className="p-4" style={{ minHeight: 80, backgroundColor: dsColors.banner.neutral.bgFrom }}>
           {phase === 'idle' ? (
-            <p style={{ fontSize: 13, color: '#a8a29e', textAlign: 'center', padding: '16px 0' }}>
+            <p style={{ fontSize: 13, color: dsColors.semantic.foregroundMuted, textAlign: 'center', padding: '16px 0' }}>
               Cliquez Play, puis cliquez la ligne pour {variant === 'inline' ? "déplier les traces" : "ouvrir le panneau"}
             </p>
           ) : (
-            <div style={{ fontSize: 14, lineHeight: '20px', color: '#44403c' }}>
+            <div style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.foregroundTertiary }}>
               <p style={{ marginBottom: 8 }}>Je complète le dossier, plusieurs agents travaillent en parallèle :</p>
               <ParallelTasks tasks={liveTasks} variant={variant} title="Complétion du dossier" />
             </div>
@@ -24739,22 +24056,22 @@ export default function App() {
   };
 
   const renderReasoningDemoPage = () => {
-    const sH1 = { fontSize: 20, fontWeight: 700, color: '#292524', marginBottom: 6, marginTop: 48 };
-    const sH2 = { fontSize: 15, fontWeight: 600, color: '#292524', marginBottom: 6, marginTop: 32 };
-    const sP = { fontSize: 13, color: '#78716c', lineHeight: '20px', marginBottom: 16 };
-    const sCode = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#78716c', backgroundColor: '#f5f5f4', padding: '1px 5px', borderRadius: 3 };
-    const sCard = "border border-border rounded-lg bg-white p-4";
-    const sLabel = { fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 };
+    const sH1 = { fontSize: 20, fontWeight: 700, color: dsColors.semantic.foreground, marginBottom: 6, marginTop: 48 };
+    const sH2 = { fontSize: 15, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 6, marginTop: 32 };
+    const sP = { fontSize: 13, color: dsColors.semantic.mutedForeground, lineHeight: '20px', marginBottom: 16 };
+    const sCode = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: dsColors.semantic.mutedForeground, backgroundColor: dsColors.semantic.backgroundSubtle, padding: '1px 5px', borderRadius: 3 };
+    const sCard = "border border-border rounded-lg bg-surface p-4";
+    const sLabel = { fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 };
 
     return (
-      <div className="h-screen flex flex-col" style={{ backgroundColor: '#F8F7F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div className="h-screen flex flex-col" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
-        <div className="flex items-center gap-3 px-6 h-12 border-b border-border flex-shrink-0 bg-white">
+        <div className="flex items-center gap-3 px-6 h-12 border-b border-border flex-shrink-0 bg-surface">
           <button onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors" style={{ fontSize: 13 }}>
             <ChevronRight className="w-4 h-4 rotate-180" /> UI Kit
           </button>
-          <span style={{ color: '#cbc7c4' }}>/</span>
-          <span style={{ fontSize: 14, fontWeight: 600, color: '#292524' }}>Reasoning Stepper</span>
+          <span style={{ color: dsColors.semantic.borderStrong }}>/</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>Reasoning Stepper</span>
         </div>
 
         <div className="flex-1 overflow-y-auto px-8 py-8">
@@ -24763,7 +24080,7 @@ export default function App() {
             {/* ══════════════════════════════════════════════════════════════ */}
             {/* TITLE                                                        */}
             {/* ══════════════════════════════════════════════════════════════ */}
-            <h1 style={{ fontSize: 28, fontWeight: 700, color: '#292524', marginBottom: 8, letterSpacing: '-0.5px' }}>ReasoningStepper</h1>
+            <h1 style={{ fontSize: 28, fontWeight: 700, color: dsColors.semantic.foreground, marginBottom: 8, letterSpacing: '-0.5px' }}>ReasoningStepper</h1>
             <p style={{ ...sP, maxWidth: 640 }}>
               Affiche les étapes de raisonnement de l'agent Plato. Supporte le streaming progressif, l'auto-collapse, les sous-agents, le groupement CRUD, et la vérification des données.
             </p>
@@ -24778,7 +24095,7 @@ export default function App() {
 
             {/* ── Live streaming (future) ── */}
             <h2 style={sH2}>Live streaming</h2>
-            <p style={{ fontSize: 12, color: '#a8a29e', lineHeight: '18px', marginBottom: 12 }}>Steps stream one by one in real-time. Each step shows the processing gif while active, then its final icon when done.</p>
+            <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, lineHeight: '18px', marginBottom: 12 }}>Steps stream one by one in real-time. Each step shows the processing gif while active, then its final icon when done.</p>
 
             <div className="grid grid-cols-2 gap-4 mb-8">
               <ExampleStageCard
@@ -24814,17 +24131,17 @@ export default function App() {
 
             {/* ── V1 - no per-action streaming ── */}
             <h2 style={sH2}>V1 - no per-action streaming</h2>
-            <p style={{ fontSize: 12, color: '#a8a29e', lineHeight: '18px', marginBottom: 12 }}>No step-by-step detail during processing. A single process runs, then the full trace payload arrives at once.</p>
+            <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, lineHeight: '18px', marginBottom: 12 }}>No step-by-step detail during processing. A single process runs, then the full trace payload arrives at once.</p>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* V1 Processing */}
-              <div className="border border-border rounded-lg bg-white overflow-hidden">
-                <div className="px-3 py-2" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning (processing)</span>
+              <div className="border border-border rounded-lg bg-surface overflow-hidden">
+                <div className="px-3 py-2" style={{ backgroundColor: dsColors.banner.neutral.bgFrom, borderBottom: `1px solid ${dsColors.semantic.border}` }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Reasoning (processing)</span>
                 </div>
                 <div className="p-4 flex items-center gap-2">
                   <img src="/plato-thinking.gif" alt="" className="w-3 h-3" style={{ objectFit: 'contain' }} />
-                  <span style={{ fontSize: 12, color: '#78716c' }}>Raisonnement en cours…</span>
+                  <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>Raisonnement en cours…</span>
                 </div>
               </div>
 
@@ -24854,8 +24171,8 @@ export default function App() {
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* Left: Icon type table */}
-              <div className="flex flex-col gap-0 border border-border rounded-lg bg-white overflow-hidden">
-                <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
+              <div className="flex flex-col gap-0 border border-border rounded-lg bg-surface overflow-hidden">
+                <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: dsColors.banner.neutral.bgFrom, borderBottom: `1px solid ${dsColors.semantic.border}` }}>
                   <span style={{ ...sLabel, marginBottom: 0, width: 16 }}></span>
                   <span style={{ ...sLabel, marginBottom: 0, width: 110 }}>Type</span>
                   <span style={{ ...sLabel, marginBottom: 0, flex: 1 }}>Label utilisateur</span>
@@ -24880,12 +24197,12 @@ export default function App() {
                   const Icon = cfg.Icon;
                   const colors = STEP_COLORS[cfg.color] || STEP_COLORS.default;
                   return (
-                    <div key={type} className="flex items-center gap-2.5 px-3 py-1.5" style={{ borderTop: '1px solid #f5f5f4' }}>
+                    <div key={type} className="flex items-center gap-2.5 px-3 py-1.5" style={{ borderTop: `1px solid ${dsColors.semantic.backgroundSubtle}` }}>
                       <span className="flex items-center justify-center flex-shrink-0" style={{ width: 16 }}>
                         <Icon className="w-3.5 h-3.5" style={{ color: colors.icon }} />
                       </span>
-                      <span className="flex-shrink-0" style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e', width: 110 }}>{type}</span>
-                      <span className="flex items-center gap-1.5 flex-1 truncate" style={{ fontSize: 12, color: '#44403c' }}>
+                      <span className="flex-shrink-0" style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted, width: 110 }}>{type}</span>
+                      <span className="flex items-center gap-1.5 flex-1 truncate" style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>
                         {cfg.pill && <CrudPill type={type} />}
                         {label}
                       </span>
@@ -24897,42 +24214,42 @@ export default function App() {
               {/* Right: States + backend mapping */}
               <div className="flex flex-col gap-4">
                 {/* Hover states */}
-                <div className="border border-border rounded-lg bg-white p-3">
+                <div className="border border-border rounded-lg bg-surface p-3">
                   <p style={sLabel}>Item states</p>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <span style={{ fontSize: 10, color: '#a8a29e', width: 60 }}>default</span>
+                      <span style={{ fontSize: 10, color: dsColors.semantic.foregroundMuted, width: 60 }}>default</span>
                       <div className="flex-1 flex items-start gap-2 p-1 rounded">
                         <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                          <Search className="w-3.5 h-3.5" style={{ color: '#a8a29e' }} />
+                          <Search className="w-3.5 h-3.5" style={{ color: dsColors.semantic.foregroundMuted }} />
                         </span>
-                        <span style={{ fontSize: 12, color: '#44403c' }}>When hovering a collapsed item</span>
+                        <span style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>When hovering a collapsed item</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span style={{ fontSize: 10, color: '#a8a29e', width: 60 }}>hover</span>
-                      <div className="flex-1 flex items-start gap-2 p-1 rounded" style={{ backgroundColor: '#f8f7f5' }}>
+                      <span style={{ fontSize: 10, color: dsColors.semantic.foregroundMuted, width: 60 }}>hover</span>
+                      <div className="flex-1 flex items-start gap-2 p-1 rounded" style={{ backgroundColor: dsColors.semantic.background }}>
                         <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                          <ChevronRight className="w-3.5 h-3.5" style={{ color: '#78716c' }} />
+                          <ChevronRight className="w-3.5 h-3.5" style={{ color: dsColors.semantic.mutedForeground }} />
                         </span>
-                        <span style={{ fontSize: 12, color: '#44403c' }}>When hovering an expanded item</span>
+                        <span style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>When hovering an expanded item</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span style={{ fontSize: 10, color: '#a8a29e', width: 60 }}>processing</span>
+                      <span style={{ fontSize: 10, color: dsColors.semantic.foregroundMuted, width: 60 }}>processing</span>
                       <div className="flex-1 flex items-start gap-2 p-1 rounded">
                         <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                           <img src="/plato-thinking.gif" alt="" className="w-3 h-3" style={{ objectFit: 'contain' }} />
                         </span>
-                        <span style={{ fontSize: 12, color: '#78716c' }}>When step is processing</span>
+                        <span style={{ fontSize: 12, color: dsColors.semantic.mutedForeground }}>When step is processing</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Backend tool mapping */}
-                <div className="flex flex-col gap-0 border border-border rounded-lg bg-white overflow-hidden">
-                  <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: '#fafaf9', borderBottom: '1px solid #dfdcd9' }}>
+                <div className="flex flex-col gap-0 border border-border rounded-lg bg-surface overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-3 py-1.5" style={{ backgroundColor: dsColors.banner.neutral.bgFrom, borderBottom: `1px solid ${dsColors.semantic.border}` }}>
                     <span style={{ ...sLabel, marginBottom: 0, flex: 1 }}>Backend tool</span>
                     <span style={{ ...sLabel, marginBottom: 0, width: 80 }}>Map to</span>
                     <span style={{ ...sLabel, marginBottom: 0, flex: 1 }}>Label FR</span>
@@ -24942,13 +24259,13 @@ export default function App() {
                     const Icon = cfg?.Icon;
                     const colors = STEP_COLORS[cfg?.color] || STEP_COLORS.default;
                     return (
-                      <div key={tool} className="flex items-center gap-2.5 px-3 py-1.5" style={{ borderTop: '1px solid #f5f5f4' }}>
-                        <span className="flex-1 truncate" style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", color: '#78716c' }}>{tool}</span>
+                      <div key={tool} className="flex items-center gap-2.5 px-3 py-1.5" style={{ borderTop: `1px solid ${dsColors.semantic.backgroundSubtle}` }}>
+                        <span className="flex-1 truncate" style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.mutedForeground }}>{tool}</span>
                         <span className="flex items-center gap-1 flex-shrink-0" style={{ width: 80 }}>
                           {Icon && <Icon className="w-3 h-3" style={{ color: colors.icon }} />}
-                          <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", color: '#a8a29e' }}>{mapping.type}</span>
+                          <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", color: dsColors.semantic.foregroundMuted }}>{mapping.type}</span>
                         </span>
-                        <span className="flex-1 truncate" style={{ fontSize: 12, color: '#44403c' }}>{mapping.label}</span>
+                        <span className="flex-1 truncate" style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>{mapping.label}</span>
                       </div>
                     );
                   })}
@@ -24960,7 +24277,7 @@ export default function App() {
             <h2 style={sH2}>CrudBadges (feature level badges)</h2>
             <p style={sP}>Le caractère de chaque étape CRUD est rapidement identifiable par un badge → indicateur. Couleur + diamant = indique le type dans le header collapsed. Indicateur = <span style={sCode}>ajout/modif./suppr.</span> → label mono apparaît dans la ligne d'étape CRUD. Counter → diamant + nombre dans le header collapsed.</p>
 
-            <div className="flex items-center gap-6 mb-6 p-4 border border-border rounded-lg bg-white" style={{ maxWidth: 480 }}>
+            <div className="flex items-center gap-6 mb-6 p-4 border border-border rounded-lg bg-surface" style={{ maxWidth: 480 }}>
               <div>
                 <p style={{ ...sLabel, marginBottom: 6 }}>Pills</p>
                 <div className="flex items-center gap-2">
@@ -24969,7 +24286,7 @@ export default function App() {
                   <CrudPill type="delete_row" />
                 </div>
               </div>
-              <div style={{ width: 1, height: 32, backgroundColor: '#dfdcd9' }} />
+              <div style={{ width: 1, height: 32, backgroundColor: dsColors.semantic.input }} />
               <div>
                 <p style={{ ...sLabel, marginBottom: 6 }}>Counters</p>
                 <div className="flex items-center gap-3">
@@ -24983,22 +24300,22 @@ export default function App() {
             {/* ── Tree / Tree zones ── */}
             <h2 style={sH2}>Tree / Tree zones (planning for deeper levels)</h2>
             <p style={sP}>
-              Tree = connecteur vertical (1px, <span style={sCode}>#dfdcda</span>) dans un gutter de 16px, branche horizontale par child row.<br/>
+              Tree = connecteur vertical (1px, <span style={sCode}>#dfdcda</span>){/* ds-hex-ok: valeur citée comme texte de doc */} dans un gutter de 16px, branche horizontale par child row.<br/>
               Tree zone: Level 1 only for now.
             </p>
 
             <div className="flex items-start gap-4 mb-6">
               {/* Tree component visual */}
-              <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#292524', padding: 20 }}>
+              <div className="rounded-lg overflow-hidden" style={{ backgroundColor: dsColors.semantic.primary, padding: 20 }}>
                 <div className="flex flex-col">
                   {/* Tree connector piece - vertical + horizontal branch */}
                   {[0, 1, 2].map((i) => (
                     <div key={i} className="flex items-stretch" style={{ height: 24 }}>
                       <div className="relative" style={{ width: 20 }}>
-                        <div className="absolute" style={{ left: 12, top: 0, bottom: i === 2 ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
+                        <div className="absolute" style={{ left: 12, top: 0, bottom: i === 2 ? '50%' : 0, width: 1, backgroundColor: dsColors.semantic.borderAlt }} />
                       </div>
                       <div className="relative" style={{ width: 20 }}>
-                        <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: '#dfdcda' }} />
+                        <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: dsColors.semantic.borderAlt }} />
                       </div>
                       <div style={{ width: 40 }} />
                     </div>
@@ -25007,15 +24324,15 @@ export default function App() {
               </div>
 
               {/* Tree zone - Level 1 */}
-              <div className="rounded-lg overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#292524', padding: 20 }}>
-                <div className="rounded border border-dashed flex items-center justify-center" style={{ borderColor: '#78716c', width: 80, height: 64, position: 'relative' }}>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a29e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Level 1</span>
+              <div className="rounded-lg overflow-hidden flex items-center justify-center" style={{ backgroundColor: dsColors.semantic.primary, padding: 20 }}>
+                <div className="rounded border border-dashed flex items-center justify-center" style={{ borderColor: dsColors.semantic.mutedForeground, width: 80, height: 64, position: 'relative' }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Level 1</span>
                   {/* Tree inside zone */}
                   <div className="absolute" style={{ left: -20, top: 8 }}>
                     {[0, 1].map((i) => (
                       <div key={i} className="flex items-stretch" style={{ height: 24 }}>
                         <div className="relative" style={{ width: 20 }}>
-                          <div className="absolute" style={{ left: 12, top: 0, bottom: i === 1 ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
+                          <div className="absolute" style={{ left: 12, top: 0, bottom: i === 1 ? '50%' : 0, width: 1, backgroundColor: dsColors.semantic.borderAlt }} />
                         </div>
                       </div>
                     ))}
@@ -25028,7 +24345,7 @@ export default function App() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className={sCard}>
                 <p style={sLabel}>Step</p>
-                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 8 }}>Step est le composant qui gère le type + le style dans le ReasoningStepper.</p>
+                <p style={{ fontSize: 11, color: dsColors.semantic.mutedForeground, marginBottom: 8 }}>Step est le composant qui gère le type + le style dans le ReasoningStepper.</p>
                 <ReasoningStepper status="done" steps={[
                   { type: 'extract_data', label: 'Extraction et traitement DSA', status: 'done' },
                   { type: 'read_documents', label: 'Analyse de 4 documents', status: 'done' },
@@ -25039,19 +24356,19 @@ export default function App() {
               </div>
               <div className={sCard}>
                 <p style={sLabel}>StepItem</p>
-                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 8 }}>StepItem = un simple wrapper padding + state default/hover.</p>
+                <p style={{ fontSize: 11, color: dsColors.semantic.mutedForeground, marginBottom: 8 }}>StepItem = un simple wrapper padding + state default/hover.</p>
                 <div className="flex flex-col gap-0">
                   <div className="flex items-start gap-2 p-1 rounded">
                     <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                      <FileSearch className="w-3.5 h-3.5" style={{ color: '#a8a29e' }} />
+                      <FileSearch className="w-3.5 h-3.5" style={{ color: dsColors.semantic.foregroundMuted }} />
                     </span>
-                    <span style={{ fontSize: 12, color: '#44403c' }}>Analyse de 4 documents</span>
+                    <span style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>Analyse de 4 documents</span>
                   </div>
-                  <div className="flex items-start gap-2 p-1 rounded" style={{ backgroundColor: '#f8f7f5' }}>
+                  <div className="flex items-start gap-2 p-1 rounded" style={{ backgroundColor: dsColors.semantic.background }}>
                     <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                      <ChevronRight className="w-3.5 h-3.5" style={{ color: '#78716c' }} />
+                      <ChevronRight className="w-3.5 h-3.5" style={{ color: dsColors.semantic.mutedForeground }} />
                     </span>
-                    <span style={{ fontSize: 12, color: '#44403c' }}>Analyse de 4 documents</span>
+                    <span style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>Analyse de 4 documents</span>
                   </div>
                 </div>
               </div>
@@ -25128,7 +24445,7 @@ export default function App() {
             {/* ══════════════════════════════════════════════════════════════ */}
             <h1 style={sH1}>Tâches parallèles</h1>
             <p style={{ ...sP, maxWidth: 700 }}>
-              Quand plusieurs sous-agents tournent en même temps, on ne montre pas N traces empilées. Chaque groupe se réduit à <b>une ligne inline</b> dans le chat&nbsp;: <span style={sCode}>gif + «&nbsp;{'{x}'} tâches simultanément en cours&nbsp;»</span>, puis un état terminé avec compteurs agrégés. Plusieurs lignes de ce type peuvent coexister dans la conversation. Cliquer une ligne la déplie — deux UX au choix (<span style={sCode}>variant="inline"</span> / <span style={sCode}>variant="panel"</span>).
+              Quand plusieurs sous-agents tournent en même temps, on ne montre pas N traces empilées. Chaque groupe se réduit à <b>une ligne inline</b> dans le chat&nbsp;: <span style={sCode}>gif + «&nbsp;{'{x}'} tâches simultanément en cours&nbsp;»</span>, puis un état terminé avec compteurs agrégés. Plusieurs lignes de ce type peuvent coexister dans la conversation. Cliquer une ligne la déplie - deux UX au choix (<span style={sCode}>variant="inline"</span> / <span style={sCode}>variant="panel"</span>).
             </p>
 
             {/* States — the line itself */}
@@ -25152,9 +24469,9 @@ export default function App() {
             </div>
 
             {/* Multiple lines coexisting in chat */}
-            <div className={sCard} style={{ marginBottom: 24, backgroundColor: '#fcfbfa' }}>
+            <div className={sCard} style={{ marginBottom: 24, backgroundColor: dsColors.banner.neutral.bgFrom }}>
               <p style={sLabel}>Plusieurs lignes dans le chat</p>
-              <div style={{ fontSize: 14, lineHeight: '20px', color: '#44403c' }}>
+              <div style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.foregroundTertiary }}>
                 <p style={{ marginBottom: 6 }}>Analyse du dossier en cours :</p>
                 <div className="flex flex-col" style={{ gap: 2 }}>
                   <ParallelTasksLine tasks={[{ status: 'loading', label: 'x', steps: [] }, { status: 'loading', label: 'y', steps: [] }]} />
@@ -25165,7 +24482,7 @@ export default function App() {
             </div>
 
             {/* Two interactive UX side by side */}
-            <p style={{ fontSize: 12, color: '#a8a29e', lineHeight: '18px', marginBottom: 12 }}>
+            <p style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted, lineHeight: '18px', marginBottom: 12 }}>
               Play&nbsp;: 3 sous-agents finissent à des moments différents, le compteur «&nbsp;en cours&nbsp;» décroît. Cliquez la ligne pour comparer les deux UX.
             </p>
             <div className="grid grid-cols-2 gap-4 mb-8">
@@ -25263,7 +24580,7 @@ export default function App() {
       {/* Fiche cabinet modal */}
       {ficheCabinetModalRef && (
         <FicheCabinetModal
-          reference={ficheCabinetModalRef.ref?.raw?.replace(/^[\s•·\-—*]+/, '').trim() || ''}
+          reference={ficheCabinetModalRef.ref?.raw?.replace(/^[\s•·\u2014\-*]+/, '').trim() || ''}
           existing={ficheCabinetModalRef.customJP}
           onClose={() => setFicheCabinetModalRef(null)}
           onSave={({ pdfFileName, pdfDataURL, url, impact }) => {
@@ -25272,8 +24589,8 @@ export default function App() {
             jp.upsertCustomJP({
               ...(ficheCabinetModalRef.customJP || {}),
               id,
-              reference: (r.raw || '').replace(/^[\s•·\-—*]+/, '').trim(),
-              jurisdiction: r.court || (r.raw || '').replace(/^[\s•·\-—*]+/, '').split(',')[0].trim(),
+              reference: (r.raw || '').replace(/^[\s•·\u2014\-*]+/, '').trim(),
+              jurisdiction: r.court || (r.raw || '').replace(/^[\s•·\u2014\-*]+/, '').split(',')[0].trim(),
               chambre: r.chamber,
               date: r.dateISO || '',
               numero: r.numero,
@@ -25370,11 +24687,11 @@ export default function App() {
 
       {/* Toast notification */}
       {toastMessage && (
-        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 text-white text-body rounded-lg shadow-lg flex items-center gap-2 animate-fade-up bg-zinc-800`}>
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 text-primary-foreground text-body rounded-lg shadow-lg flex items-center gap-2 animate-fade-up bg-foreground`}>
           {toastMessage?.type === 'ai' ? (
-            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#4a9168' }} />
+            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dsColors.accents.meadow }} />
           ) : (
-            <CheckCircle2 className="w-4 h-4 text-teal-400" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-border" />
           )}
           <span>{typeof toastMessage === 'string' ? toastMessage : toastMessage?.text}</span>
           {typeof toastMessage === 'object' && toastMessage?.action && (
@@ -25390,12 +24707,26 @@ export default function App() {
     </>
   );
 
+  // Explo (Sprint) : un lab s'ouvre DANS la coque du DS - sidebar + carte
+  // Sprint/Explos mise en avant -, jamais en pleine page : on ne perd jamais
+  // la nav. Le contenu du lab vit dans le volet scrollable, comme une fiche.
+  const renderDSLab = (content) => (
+    <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      {renderDSSidebar()}
+      {renderDSNavExpand()}
+      <div className="flex-1 min-w-0 h-full overflow-y-auto">
+        {content}
+      </div>
+      {dsPaletteOpen && <CommandPalette navigate={navigate} onClose={() => setDsPaletteOpen(false)} />}
+    </div>
+  );
+
   // ========== ROUTING ==========
   if (currentPage === 'chat-composer-notice') {
     const previewQuotaPct = { fresh: 16, mid: 63, high: 92, full: 100 }[quotaFill] ?? 63;
     const previewOutOfQuota = quotaFill === 'full';
     const previewNearQuota = !previewOutOfQuota && previewQuotaPct >= 90;
-    const pillCls = (on) => `px-2 py-0.5 rounded-md text-[11px] transition-colors ${on ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
+    const pillCls = (on) => `px-2 py-0.5 rounded-md text-[11px] transition-colors ${on ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
     // Mirrors the real composer: tinted englobing wrapper (when a variant is set)
     // wrapping a white rounded-6 input with the notice row capping the top.
     const MockComposer = ({ variant, pct }) => {
@@ -25405,7 +24736,7 @@ export default function App() {
           style={{
             width: 380, display: 'flex', flexDirection: 'column',
             borderRadius: variant ? 10 : 6,
-            backgroundColor: variant ? NOTICE_WRAP_BG[variant] : '#ffffff',
+            backgroundColor: variant ? NOTICE_WRAP_BG[variant] : dsColors.semantic.white,
             padding: variant ? '0 1px 1px 1px' : 0,
           }}
         >
@@ -25418,8 +24749,8 @@ export default function App() {
               onRequestUpgrade={() => setAskUpgradeOpen(true)}
             />
           )}
-          <div style={{ backgroundColor: '#ffffff', borderRadius: 6, boxShadow: '0px 0px 0px 1px #cbc7c4, 0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '12px 12px 28px', color: '#78716c', fontSize: 14, lineHeight: '20px', opacity: dim ? 0.4 : 1 }}>
+          <div style={{ backgroundColor: dsColors.semantic.white, borderRadius: 6, boxShadow: `0px 0px 0px 1px ${dsColors.semantic.borderStrong}, ${dsShadows.xl}`, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '12px 12px 28px', color: dsColors.semantic.mutedForeground, fontSize: 14, lineHeight: '20px', opacity: dim ? 0.4 : 1 }}>
               Demander à Plato Master de calculer, rechercher des JP, rédiger des actes...
             </div>
             <div className="flex items-center justify-between" style={{ padding: 12 }}>
@@ -25427,8 +24758,8 @@ export default function App() {
                 <div className="w-8 h-8 flex items-center justify-center rounded-lg"><Paperclip className="w-4 h-4 text-foreground-secondary" /></div>
                 <div className="w-8 h-8 flex items-center justify-center rounded-lg"><Lightbulb className="w-4 h-4 text-foreground-secondary" /></div>
               </div>
-              <div className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: '#eeece6', opacity: 0.5 }}>
-                <ArrowUp className="w-4 h-4" style={{ color: '#78716c' }} />
+              <div className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: dsColors.semantic.muted, opacity: 0.5 }}>
+                <ArrowUp className="w-4 h-4" style={{ color: dsColors.semantic.mutedForeground }} />
               </div>
             </div>
           </div>
@@ -25439,30 +24770,27 @@ export default function App() {
       const label = { analyzing: 'Processing docs', 'quota-warning': 'Limit reached (92%)', 'quota-full': 'Quota reach (100%)' };
       return (
         <div key={v} className="flex flex-col gap-2">
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label[v]}</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label[v]}</span>
           <MockComposer variant={v} pct={92} />
         </div>
       );
     };
     return (
       <>
-        <div className="min-h-screen" style={{ backgroundColor: '#f8f7f5', padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
-          <button onClick={() => navigate('/ui-kit')} className="flex items-center gap-1.5 text-[13px] text-foreground-secondary hover:text-foreground mb-8 transition-colors">
-            <ChevronRight className="w-3.5 h-3.5 rotate-180" strokeWidth={2} />
-            UI Kit
-          </button>
+        {renderDSLab(
+        <div className="min-h-screen" style={{ backgroundColor: dsColors.semantic.background, padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
           <div className="mb-8">
-            <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', marginBottom: 6 }}>
+            <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.5px', marginBottom: 6 }}>
               Chat Composer Notice
             </h1>
-            <p style={{ fontSize: 13, color: '#78716c', lineHeight: '20px', maxWidth: 520 }}>
+            <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, lineHeight: '20px', maxWidth: 520 }}>
               A tinted frame that englobes the chat composer, with a notice row capping the top. Variants: Processing docs (Plato analysing dropped files), Limit reached (~90% of weekly quota), Quota reach (100%, composer blocked), plus the free-trial lifecycle - Trial ending (amber heads-up) and Trial ended (mauve, composer blocked).
             </p>
           </div>
 
           {/* Live demo */}
           <div className="mb-10">
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Live demo</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Live demo</div>
             <div className="flex items-center gap-2 mb-4" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
               {[{ id: 'fresh', label: 'quota 16%' }, { id: 'mid', label: 'quota 63%' }, { id: 'high', label: 'quota 92%' }, { id: 'full', label: 'quota 100%' }].map(s => (
                 <button key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
@@ -25477,19 +24805,20 @@ export default function App() {
 
           {/* Static swatches */}
           <div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>All variants</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>All variants</div>
             <div className="flex flex-wrap gap-8">
               {['analyzing', 'quota-warning', 'quota-full'].map(swatch)}
             </div>
           </div>
         </div>
+        )}
         {renderGlobalOverlays()}
       </>
     );
   }
 
   if (currentPage === 'reasoning-demo') {
-    return (<>{renderReasoningDemoPage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderReasoningDemoPage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'welcome') {
     // First-run flow: login -> trial explainer -> licence -> card -> Plato.
@@ -25497,41 +24826,38 @@ export default function App() {
     return (
       <OnboardingFlow
         onSelectPlan={(planId) => setWorkspaceMembers((ms) => ms.map((m) => (m.id === 'u-1' ? { ...m, plan: planId } : m)))}
-        onEnter={() => { setDemoPersona('admin'); setBillingState('trial'); setDemoTrialDay(1); navigate('/'); }}
+        onEnter={() => { setDemoPersona('admin'); setBillingState('trial'); setDemoTrialDay(1); navigate('/app'); }}
       />
     );
   }
 
   if (currentPage === 'trial-flow') {
-    const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase' };
-    const surfaceCaption = { fontSize: 12, color: '#78716c', lineHeight: '17px', marginTop: 10, maxWidth: 460 };
-    const pillCls = (on) => `px-2.5 py-1 rounded-md text-[11px] transition-colors ${on ? 'bg-foreground text-white' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
+    const monoLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, letterSpacing: '0.08em', textTransform: 'uppercase' };
+    const surfaceCaption = { fontSize: 12, color: dsColors.semantic.mutedForeground, lineHeight: '17px', marginTop: 10, maxWidth: 460 };
+    const pillCls = (on) => `px-2.5 py-1 rounded-md text-[11px] transition-colors ${on ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`;
     const flowChip = ({ eyebrow, text, tone = 'stone' }) => {
       const tones = {
-        stone: { border: '#dfdcd9', eyebrow: '#78716c', bg: '#ffffff' },
-        blue: { border: '#d7e2f2', eyebrow: '#1e3a8a', bg: 'linear-gradient(180deg, #eef3fa 0%, #ffffff 60%)' },
+        stone: { border: dsColors.semantic.border, eyebrow: dsColors.semantic.mutedForeground, bg: dsColors.semantic.white },
+        blue: { border: dsColors.piece.expertise.bg, eyebrow: dsColors.feedback.info.text, bg: `linear-gradient(180deg, ${dsColors.banner.info.bgFrom} 0%, ${dsColors.semantic.card} 60%)` },
       };
       const t = tones[tone];
       return (
         <div className="flex-1 min-w-0 rounded-lg border px-3.5 py-3" style={{ borderColor: t.border, background: t.bg }}>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 500, color: t.eyebrow, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{eyebrow}</div>
-          <div style={{ fontSize: 12, color: '#44403c', lineHeight: '17px', marginTop: 4 }}>{text}</div>
+          <div style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary, lineHeight: '17px', marginTop: 4 }}>{text}</div>
         </div>
       );
     };
-    const flowArrow = <ArrowRight className="w-4 h-4 flex-shrink-0 self-center" style={{ color: '#cbc7c4' }} strokeWidth={2} />;
+    const flowArrow = <ArrowRight className="w-4 h-4 flex-shrink-0 self-center" style={{ color: dsColors.semantic.borderStrong }} strokeWidth={2} />;
     return (
       <>
-        <div className="min-h-screen" style={{ backgroundColor: '#f8f7f5', padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
-          <button onClick={() => navigate('/ui-kit')} className="flex items-center gap-1.5 text-[13px] text-foreground-secondary hover:text-foreground mb-8 transition-colors">
-            <ChevronRight className="w-3.5 h-3.5 rotate-180" strokeWidth={2} />
-            UI Kit
-          </button>
+        {renderDSLab(
+        <div className="min-h-screen" style={{ backgroundColor: dsColors.semantic.background, padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
           <div className="mb-10">
-            <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', marginBottom: 6 }}>
+            <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.5px', marginBottom: 6 }}>
               Essai gratuit - le flow complet
             </h1>
-            <p style={{ fontSize: 13, color: '#78716c', lineHeight: '20px', maxWidth: 620 }}>
+            <p style={{ fontSize: 13, color: dsColors.semantic.mutedForeground, lineHeight: '20px', maxWidth: 620 }}>
               Trois cas : essai (7j), abonnement actif, annulé (suppression du compte). La bannière bleue en haut de page est la seule surface de l'essai ; l'annulation vit sur Plan et facturation.
             </p>
           </div>
@@ -25575,7 +24901,7 @@ export default function App() {
                     <div className="rounded-lg overflow-hidden border border-border">{renderTrialBanner()}</div>
                   ) : (
                     <div className="rounded-lg border border-dashed border-border-strong flex items-center justify-center text-center" style={{ minHeight: 48, padding: '14px 20px' }}>
-                      <span style={{ fontSize: 12, color: '#a8a29e' }}>Pas d'essai en cours - la bannière n'apparaît pas.</span>
+                      <span style={{ fontSize: 12, color: dsColors.semantic.foregroundMuted }}>Pas d'essai en cours - la bannière n'apparaît pas.</span>
                     </div>
                   )}
                 </div>
@@ -25587,7 +24913,7 @@ export default function App() {
               {/* Lien vers Plan et facturation */}
               <div>
                 <div style={{ ...monoLabel, marginBottom: 10 }}>Gestion · Plan et facturation (admin)</div>
-                <button onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-white border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors">
+                <button onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors">
                   Plan et facturation <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
                 </button>
                 <p style={surfaceCaption}>
@@ -25600,70 +24926,100 @@ export default function App() {
           {/* ── Qui voit quoi ── */}
           <div className="mb-8">
             <div style={{ ...monoLabel, marginBottom: 14 }}>Qui voit quoi</div>
-            <div className="bg-white rounded-lg border border-border overflow-hidden" style={{ maxWidth: 900 }}>
+            <div className="bg-surface rounded-lg border border-border overflow-hidden" style={{ maxWidth: 900 }}>
               <table className="w-full" style={{ fontSize: 12.5, lineHeight: '18px' }}>
                 <thead>
-                  <tr className="border-b border-border" style={{ backgroundColor: '#fafaf9' }}>
-                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: '#78716c' }}>État</th>
-                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: '#78716c' }}>Admin</th>
-                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: '#78716c' }}>Membre</th>
+                  <tr className="border-b border-border" style={{ backgroundColor: dsColors.banner.neutral.bgFrom }}>
+                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: dsColors.semantic.mutedForeground }}>État</th>
+                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: dsColors.semantic.mutedForeground }}>Admin</th>
+                    <th className="text-left px-4 py-2.5" style={{ ...monoLabel, color: dsColors.semantic.mutedForeground }}>Membre</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60">
+                <tbody className="divide-y divide-border">
                   <tr className="align-top">
-                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: '#44403c' }}>Essai (7j)</td>
-                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Bannière bleue (J3/7, montant, « Gérer »). Carte essai sur Plan et facturation avec « Annuler l'essai ».</td>
-                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Bannière bleue (J3/7, date de fin). Pas d'action.</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: dsColors.semantic.foregroundTertiary }}>Essai (7j)</td>
+                    <td className="px-4 py-3" style={{ color: dsColors.semantic.foregroundQuaternary }}>Bannière bleue (J3/7, montant, « Gérer »). Carte essai sur Plan et facturation avec « Annuler l'essai ».</td>
+                    <td className="px-4 py-3" style={{ color: dsColors.semantic.foregroundQuaternary }}>Bannière bleue (J3/7, date de fin). Pas d'action.</td>
                   </tr>
                   <tr className="align-top">
-                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: '#44403c' }}>Actif</td>
-                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Pas de bannière. Jauge quota en sidebar. Plan et facturation normal.</td>
-                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Pas de bannière. Jauge quota en sidebar. Mon usage normal.</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: dsColors.semantic.foregroundTertiary }}>Actif</td>
+                    <td className="px-4 py-3" style={{ color: dsColors.semantic.foregroundQuaternary }}>Pas de bannière. Jauge quota en sidebar. Plan et facturation normal.</td>
+                    <td className="px-4 py-3" style={{ color: dsColors.semantic.foregroundQuaternary }}>Pas de bannière. Jauge quota en sidebar. Mon usage normal.</td>
                   </tr>
                   <tr className="align-top">
-                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: '#44403c' }}>Annulé</td>
-                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Suppression du compte (hors scope).</td>
-                    <td className="px-4 py-3" style={{ color: '#57534e' }}>Perd l'accès.</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: dsColors.semantic.foregroundTertiary }}>Annulé</td>
+                    <td className="px-4 py-3" style={{ color: dsColors.semantic.foregroundQuaternary }}>Suppression du compte (hors scope).</td>
+                    <td className="px-4 py-3" style={{ color: dsColors.semantic.foregroundQuaternary }}>Perd l'accès.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
+        )}
         {renderGlobalOverlays()}
       </>
     );
   }
 
   if (currentPage === 'diff-engine') {
-    return (<>{renderDiffEnginePage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderDiffEnginePage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'components') {
-    return (<>{renderComponentsPage()}{renderGlobalOverlays()}</>);
+    // Racine `/` = l'Inventaire composants (le catalogue = cœur du DS) ;
+    // plus d'accueil hero. Chaque section garde son URL /ui-kit/<slug>.
+    return (<>{renderComponentsPage()}{renderGlobalOverlays()}{dsPaletteOpen && <CommandPalette navigate={navigate} onClose={() => setDsPaletteOpen(false)} />}</>);
   }
   if (currentPage === 'component-detail') {
-    return (<><ComponentDetailPage componentId={detailComponentId} navigate={navigate} />{renderGlobalOverlays()}</>);
+    return (
+      <>
+        <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
+          {renderDSSidebar()}
+          {renderDSNavExpand()}
+          <div className="flex-1 min-w-0 h-full">
+            <ComponentDetailPage componentId={detailComponentId} navigate={navigate} />
+          </div>
+        </div>
+        {renderGlobalOverlays()}
+        {dsPaletteOpen && <CommandPalette navigate={navigate} onClose={() => setDsPaletteOpen(false)} />}
+      </>
+    );
+  }
+  if (currentPage === 'block-detail') {
+    return (
+      <>
+        <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
+          {renderDSSidebar()}
+          {renderDSNavExpand()}
+          <div className="flex-1 min-w-0 h-full">
+            <BlockDetailPage blockId={detailBlockId} navigate={navigate} />
+          </div>
+        </div>
+        {renderGlobalOverlays()}
+        {dsPaletteOpen && <CommandPalette navigate={navigate} onClose={() => setDsPaletteOpen(false)} />}
+      </>
+    );
   }
   if (currentPage === 'iv-structures') {
-    return (<>{renderIvStructuresPage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderIvStructuresPage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'prompt-suggestions') {
-    return (<>{renderPromptSuggestionsPage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderPromptSuggestionsPage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'import-dossier') {
-    return (<><ImportDossierLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ImportDossierLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'import-folder-tree') {
-    return (<><ImportFolderTreeLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ImportFolderTreeLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'import-v2') {
-    return (<><ImportV2Lab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ImportV2Lab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'connecteurs') {
-    return (<><ConnecteursLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ConnecteursLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'preview-panel') {
-    return (<><PreviewPanelLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<PreviewPanelLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'loi-hover') {
     return (<><LoiHoverLab />{renderGlobalOverlays()}</>);
@@ -25681,20 +25037,20 @@ export default function App() {
     return (<><BreadcrumbBarLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'nav-system') {
-    return (<><NavSystemLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<NavSystemLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'dossier-flag') {
-    return (<><DossierFlagLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<DossierFlagLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'hero-motion') {
-    return (<><HeroMotionLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<HeroMotionLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'cotisations') {
-    return (<><CotisationsLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<CotisationsLab />)}{renderGlobalOverlays()}</>);
   }
 
   if (currentPage === 'sommaire-acte') {
-    return (<><SommaireActeLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<SommaireActeLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'home' || currentPage === 'conversation') {
     return (<>{renderAssistantSurface()}{renderGlobalOverlays()}</>);
@@ -25714,10 +25070,10 @@ export default function App() {
       key={activeDossierId}
       className="h-screen flex flex-col"
       style={{
-        backgroundColor: '#F8F7F5',
+        backgroundColor: dsColors.semantic.background,
         fontFamily: "'Inter', system-ui, sans-serif",
         fontSize: '13px',
-        color: '#27272a'
+        color: dsColors.semantic.foreground
       }}
     >
       {/* Trial banner - full viewport width, above the closed-dossier banner */}
@@ -25727,11 +25083,11 @@ export default function App() {
       {dossierStatut === 'fermé' && (
         <div
           className="w-full h-12 flex items-center justify-between px-4 flex-shrink-0"
-          style={{ backgroundColor: '#f9ecd6' }}
+          style={{ backgroundColor: dsColors.piece.factures.bg }}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Eye className="w-4 h-4 flex-shrink-0" style={{ color: '#855b31' }} strokeWidth={1.75} />
-            <p className="text-body-medium truncate" style={{ color: '#855b31' }}>
+            <Eye className="w-4 h-4 flex-shrink-0" style={{ color: dsColors.feedback.warning.text }} strokeWidth={1.75} />
+            <p className="text-body-medium truncate" style={{ color: dsColors.feedback.warning.text }}>
               Dossier terminé en lecture seule.
               <span className="ml-1 font-normal">Reprenez-le à tout moment.</span>
             </p>
@@ -25739,7 +25095,7 @@ export default function App() {
           <button
             onClick={() => setReopenConfirmOpen(true)}
             className="text-body-medium underline underline-offset-2 hover:opacity-80 transition-opacity flex-shrink-0"
-            style={{ color: '#855b31' }}
+            style={{ color: dsColors.feedback.warning.text }}
           >
             Reprendre le dossier
           </button>
@@ -25752,7 +25108,7 @@ export default function App() {
       <div className="flex-1 flex overflow-hidden">
         {renderNavSlot(renderUnifiedSidebar({ collapsed: false }))}
         {/* Left: workspace header + content (plus de barre du haut) */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#F8F7F5' }}>
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: dsColors.semantic.background }}>
           {jp.jpState.drawerDecisionId ? (
             /* JP detail page - entered "into the canvas" when a JP is clicked.
                The dossier nav (left) still switches views - clicking a view
@@ -25907,14 +25263,14 @@ export default function App() {
           <div className="flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} />
           {/* Drawer - slides in from right */}
           <div
-            className="h-full bg-white flex flex-col overflow-hidden flex-shrink-0"
+            className="h-full bg-surface flex flex-col overflow-hidden flex-shrink-0"
             style={{ width: 520, boxShadow: '-8px 0 32px rgba(0,0,0,0.12)' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-5 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: '#dfdcd9' }}>
+            <div className="px-5 h-12 border-b flex items-center justify-between flex-shrink-0" style={{ borderColor: dsColors.semantic.border }}>
               <div className="flex items-center gap-2.5 min-w-0">
-                {chatPreviewPiece.index > 0 && <span className="px-2 py-0.5 bg-zinc-800 text-white text-[11px] font-medium rounded flex-shrink-0">P{chatPreviewPiece.index}</span>}
+                {chatPreviewPiece.index > 0 && <span className="px-2 py-0.5 bg-foreground text-primary-foreground text-[11px] font-medium rounded flex-shrink-0">P{chatPreviewPiece.index}</span>}
                 <span className="text-[14px] font-medium text-foreground truncate">{chatPreviewPiece.intitule || chatPreviewPiece.nom}</span>
               </div>
               <button onClick={() => setChatPreviewPiece(null)} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
@@ -25924,11 +25280,11 @@ export default function App() {
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
               {/* Document preview */}
-              <div className="bg-[#1a1a1a] flex items-center justify-center p-8" style={{ minHeight: 320 }}>
-                <div className="bg-white rounded-lg w-full max-w-[240px] aspect-[3/4] p-6 flex flex-col" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
+              <div className="bg-foreground flex items-center justify-center p-8" style={{ minHeight: 320 }}>
+                <div className="bg-white rounded-lg w-full max-w-[240px] aspect-[3/4] p-6 flex flex-col" style={{ boxShadow: dsShadows['lg'] }}>
                   <div className="text-[10px] text-foreground-muted mb-2 uppercase tracking-wide">{chatPreviewPiece.type || 'Document'}</div>
-                  <div className="h-2.5 bg-gray-200 rounded w-3/4 mb-1.5"></div>
-                  <div className="h-2.5 bg-gray-200 rounded w-1/2 mb-5"></div>
+                  <div className="h-2.5 bg-slate-subtle rounded w-3/4 mb-1.5"></div>
+                  <div className="h-2.5 bg-slate-subtle rounded w-1/2 mb-5"></div>
                   <div className="flex-1 space-y-1.5">
                     <div className="h-1.5 bg-background-subtle rounded w-full"></div>
                     <div className="h-1.5 bg-background-subtle rounded w-5/6"></div>
@@ -25953,22 +25309,22 @@ export default function App() {
                     <p className="mt-1.5 text-[12px] text-foreground-muted">{chatPreviewPiece.nomOriginal}</p>
                   )}
                 </div>
-                <div className="flex items-center justify-between py-3 border-b border-[#f0ede8]">
+                <div className="flex items-center justify-between py-3 border-b border-cream">
                   <span className="text-[13px] text-foreground-secondary">Type</span>
-                  <span className="px-2.5 py-1 rounded-md text-[12px] font-medium" style={{ backgroundColor: '#fff0e1', color: '#c2590a' }}>
+                  <span className="px-2.5 py-1 rounded-md text-[12px] font-medium" style={{ backgroundColor: dsColors.brand.subtle, color: dsColors.brand.darker.DEFAULT }}>
                     {chatPreviewPiece.type || 'Document'}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-3 border-b border-[#f0ede8]">
+                <div className="flex items-center justify-between py-3 border-b border-cream">
                   <span className="text-[13px] text-foreground-secondary">Date</span>
                   <span className="text-[13px] text-foreground">{chatPreviewPiece.date || '—'}</span>
                 </div>
                 {chatPreviewPiece.usages && chatPreviewPiece.usages.length > 0 && (
-                  <div className="flex items-center justify-between py-3 border-b border-[#f0ede8]">
+                  <div className="flex items-center justify-between py-3 border-b border-cream">
                     <span className="text-[13px] text-foreground-secondary">Postes liés</span>
                     <div className="flex gap-1.5">
                       {chatPreviewPiece.usages.map((u, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-zinc-800 text-white text-[11px] font-medium rounded">{u}</span>
+                        <span key={i} className="px-2 py-0.5 bg-foreground text-primary-foreground text-[11px] font-medium rounded">{u}</span>
                       ))}
                     </div>
                   </div>

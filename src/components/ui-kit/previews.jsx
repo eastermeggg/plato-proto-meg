@@ -14,6 +14,14 @@ import { Check, X as XIcon, Upload, Sparkles, Inbox, FileText, Plus, Calendar, E
 import { colors } from '../../design-system/tokens';
 import BadgeReal from '../ui/Badge';
 import InputReal from '../ui/Input';
+import SeparatorReal from '../ui/Separator';
+import CheckboxReal from '../ui/Checkbox';
+import SwitchReal from '../ui/Switch';
+import TextareaReal from '../ui/Textarea';
+import SelectReal from '../ui/Select';
+import TabsReal from '../ui/Tabs';
+import AvatarReal from '../ui/Avatar';
+import ComboboxReal from '../ui/Combobox';
 
 // ============== BUTTON ==============
 const BUTTON_VARIANTS = {
@@ -65,34 +73,7 @@ export function Button({ variant = 'primary', size = 'md', icon: Icon, iconPosit
 export const Input = InputReal;
 
 // ============== TEXTAREA ==============
-export function Textarea({ value = '', placeholder, disabled, rows = 4, onChange, label, helperText, error }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%', maxWidth: 480 }}>
-      {label && <label style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.foregroundTertiary }}>{label}</label>}
-      <textarea
-        value={value}
-        rows={rows}
-        placeholder={placeholder}
-        disabled={disabled}
-        onChange={onChange}
-        style={{
-          width: '100%', resize: 'vertical',
-          padding: '8px 12px',
-          fontSize: 14, lineHeight: '20px',
-          color: colors.semantic.foreground,
-          background: disabled ? colors.semantic.backgroundSubtle : '#ffffff',
-          border: `1px solid ${error ? '#991b1b' : colors.semantic.border}`,
-          borderRadius: 8,
-          outline: 'none',
-          fontFamily: 'inherit',
-        }}
-      />
-      {helperText && (
-        <span style={{ fontSize: 11, color: error ? '#991b1b' : colors.semantic.foregroundSecondary }}>{helperText}</span>
-      )}
-    </div>
-  );
-}
+export const Textarea = TextareaReal;
 
 // ============== BADGE ==============
 // Promoted to a real component at src/components/ui/Badge.js.
@@ -100,67 +81,10 @@ export function Textarea({ value = '', placeholder, disabled, rows = 4, onChange
 export const Badge = BadgeReal;
 
 // ============== CHECKBOX ==============
-export function Checkbox({ checked = false, label, disabled, onChange }) {
-  return (
-    <label
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        userSelect: 'none',
-      }}
-    >
-      <button
-        type="button"
-        onClick={() => !disabled && onChange?.(!checked)}
-        style={{
-          width: 16, height: 16,
-          padding: 0,
-          borderRadius: 4,
-          border: `1px solid ${checked ? colors.semantic.foreground : colors.semantic.border}`,
-          background: checked ? colors.semantic.foreground : '#ffffff',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'inherit',
-        }}
-        aria-checked={checked}
-        role="checkbox"
-      >
-        {checked && <Check style={{ width: 11, height: 11, color: '#ffffff' }} strokeWidth={3} />}
-      </button>
-      {label && <span style={{ fontSize: 14, color: colors.semantic.foreground }}>{label}</span>}
-    </label>
-  );
-}
+export const Checkbox = CheckboxReal;
 
 // ============== SWITCH ==============
-export function Switch({ checked = false, label, disabled, onChange }) {
-  return (
-    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}>
-      <button
-        type="button"
-        onClick={() => !disabled && onChange?.(!checked)}
-        style={{
-          position: 'relative', width: 36, height: 20, padding: 0,
-          borderRadius: 10, border: 'none',
-          background: checked ? colors.semantic.foreground : colors.semantic.cream,
-          transition: 'background 150ms ease',
-          cursor: 'inherit',
-          flexShrink: 0,
-        }}
-        role="switch"
-        aria-checked={checked}
-      >
-        <span style={{
-          position: 'absolute', top: 2, left: checked ? 18 : 2,
-          width: 16, height: 16, borderRadius: 8, background: '#fff',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-          transition: 'left 150ms ease',
-        }} />
-      </button>
-      {label && <span style={{ fontSize: 14, color: colors.semantic.foreground }}>{label}</span>}
-    </label>
-  );
-}
+export const Switch = SwitchReal;
 
 // ============== RADIO GROUP ==============
 export function RadioGroup({ value, options = [], onChange, name = 'radio' }) {
@@ -232,52 +156,12 @@ export function Tooltip({ content, side = 'top', children }) {
 }
 
 // ============== AVATAR ==============
-const AVATAR_SIZES = { sm: 24, md: 32, lg: 40, xl: 56 };
-export function Avatar({ size = 'md', initials, image, color = 'cream', shape = 'circle' }) {
-  const s = AVATAR_SIZES[size] || 32;
-  const palette = {
-    green:  { bg: '#cce6d9', fg: '#064E3B' },
-    blue:   { bg: '#dbeafe', fg: '#1e3a8a' },
-    plum:   { bg: '#ece0eb', fg: '#581c87' },
-    orange: { bg: '#efdec4', fg: '#78350f' },
-    rose:   { bg: '#ffe4e6', fg: '#881337' },
-    cream:  { bg: '#eeece6', fg: '#44403c' },
-  };
-  const c = palette[color] || palette.cream;
-  return (
-    <span
-      style={{
-        width: s, height: s,
-        borderRadius: shape === 'circle' ? s / 2 : 6,
-        background: c.bg, color: c.fg,
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: Math.max(10, s * 0.36), fontWeight: 600,
-        backgroundImage: image ? `url(${image})` : undefined,
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        flexShrink: 0,
-      }}
-    >
-      {!image && initials}
-    </span>
-  );
-}
+// Promu -> src/components/ui/Avatar.js (fiche Avatar.md, palettes tokens colors.avatar).
+export const Avatar = AvatarReal;
+
 
 // ============== SEPARATOR ==============
-export function Separator({ orientation = 'horizontal', label }) {
-  if (orientation === 'vertical') {
-    return <span style={{ display: 'inline-block', width: 1, height: 16, background: colors.semantic.border, verticalAlign: 'middle' }} />;
-  }
-  if (label) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-        <span style={{ flex: 1, height: 1, background: colors.semantic.border }} />
-        <span style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.05em', color: colors.semantic.foregroundMuted, fontWeight: 500 }}>{label}</span>
-        <span style={{ flex: 1, height: 1, background: colors.semantic.border }} />
-      </div>
-    );
-  }
-  return <hr style={{ width: '100%', height: 1, background: colors.semantic.border, border: 'none', margin: 0 }} />;
-}
+export const Separator = SeparatorReal;
 
 // ============== SKELETON ==============
 export function Skeleton({ width = '100%', height = 14, radius = 4, count = 1 }) {
@@ -300,118 +184,14 @@ export function Skeleton({ width = '100%', height = 14, radius = 4, count = 1 })
 }
 
 // ============== TABS ==============
-export function Tabs({ value, options = [], onChange, variant = 'underline' }) {
-  if (variant === 'pills') {
-    return (
-      <div style={{ display: 'inline-flex', padding: 3, background: colors.semantic.cream, borderRadius: 8, gap: 2 }}>
-        {options.map(o => {
-          const active = o.value === value;
-          return (
-            <button
-              key={o.value}
-              onClick={() => onChange?.(o.value)}
-              style={{
-                padding: '6px 12px', borderRadius: 6, fontSize: 13, fontWeight: 500,
-                color: active ? colors.semantic.foreground : colors.semantic.foregroundSecondary,
-                background: active ? '#ffffff' : 'transparent',
-                border: 'none', cursor: 'pointer',
-                boxShadow: active ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-              }}
-            >
-              {o.label}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-  return (
-    <div style={{ display: 'flex', gap: 4, borderBottom: `1px solid ${colors.semantic.border}` }}>
-      {options.map(o => {
-        const active = o.value === value;
-        return (
-          <button
-            key={o.value}
-            onClick={() => onChange?.(o.value)}
-            style={{
-              padding: '8px 14px', fontSize: 13, fontWeight: active ? 600 : 500,
-              color: active ? colors.semantic.foreground : colors.semantic.foregroundSecondary,
-              background: 'transparent',
-              border: 'none',
-              borderBottom: active ? `2px solid ${colors.semantic.foreground}` : '2px solid transparent',
-              marginBottom: -1, cursor: 'pointer',
-            }}
-          >
-            {o.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+// Promu -> src/components/ui/Tabs.js (fiche Tabs.md, variant inline seul).
+export const Tabs = TabsReal;
+
 
 // ============== SELECT ==============
-export function Select({ value, options = [], onChange, placeholder = 'Select…', disabled }) {
-  const [open, setOpen] = useState(false);
-  const current = options.find(o => o.value === value);
-  return (
-    <div style={{ position: 'relative', maxWidth: 240 }}>
-      <button
-        type="button"
-        onClick={() => !disabled && setOpen(o => !o)}
-        disabled={disabled}
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
-          width: '100%',
-          padding: '7px 12px',
-          fontSize: 14, color: colors.semantic.foreground,
-          background: disabled ? colors.semantic.backgroundSubtle : '#fff',
-          border: `1px solid ${colors.semantic.border}`,
-          borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer',
-        }}
-      >
-        <span style={{ color: current ? colors.semantic.foreground : colors.semantic.foregroundMuted }}>
-          {current ? current.label : placeholder}
-        </span>
-        <span style={{ color: colors.semantic.foregroundMuted, fontSize: 10 }}>▼</span>
-      </button>
-      {open && (
-        <div
-          style={{
-            position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
-            background: '#fff',
-            border: `1px solid ${colors.semantic.border}`,
-            borderRadius: 8,
-            boxShadow: '0 4px 6px rgba(0,0,0,0.05), 0 8px 10px rgba(0,0,0,0.05)',
-            padding: 4, zIndex: 5,
-          }}
-        >
-          {options.map(o => {
-            const active = o.value === value;
-            return (
-              <button
-                key={o.value}
-                onClick={() => { onChange?.(o.value); setOpen(false); }}
-                style={{
-                  width: '100%', textAlign: 'left',
-                  padding: '6px 10px', borderRadius: 6,
-                  fontSize: 14,
-                  color: colors.semantic.foreground,
-                  background: active ? colors.semantic.cream : 'transparent',
-                  border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                }}
-              >
-                {o.label}
-                {active && <Check style={{ width: 14, height: 14, color: colors.semantic.foreground }} strokeWidth={2} />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
+// Promu -> src/components/ui/Select.js (fiche Select.md). Re-export pour la sandbox.
+export const Select = SelectReal;
+
 
 // ============== DROPZONE ==============
 export function DropZone({ variant = 'container', label = 'Drop a file here or click to upload', sublabel = 'PDF, DOCX up to 20 MB', onFiles, isDragging }) {
@@ -495,54 +275,8 @@ export function Popover({ open: openProp, anchor, children, side = 'bottom', ali
   );
 }
 
-// ============== MODAL ==============
-export function Modal({ open, onClose, title, description, children, size = 'md' }) {
-  if (!open) return null;
-  const widths = { sm: 380, md: 512, lg: 640 };
-  return (
-    <div
-      role="button"
-      tabIndex={-1}
-      aria-label="Fermer"
-      style={{
-        position: 'absolute', inset: 0,
-        background: 'rgba(0,0,0,0.4)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 24, zIndex: 5,
-      }}
-      onClick={onClose}
-      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        tabIndex={-1}
-        style={{
-          width: '100%', maxWidth: widths[size],
-          background: '#fff',
-          borderRadius: 12,
-          padding: 20,
-          boxShadow: '0 4px 6px rgba(0,0,0,0.05), 0 10px 15px rgba(0,0,0,0.05)',
-          display: 'flex', flexDirection: 'column', gap: 12,
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-          <h2 style={{ margin: 0, fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 18, fontWeight: 500, color: colors.semantic.foreground }}>
-            {title}
-          </h2>
-          <button onClick={onClose} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 4, color: colors.semantic.foregroundSecondary }}>
-            <XIcon style={{ width: 16, height: 16 }} />
-          </button>
-        </div>
-        {description && (
-          <p style={{ margin: 0, fontSize: 14, color: colors.semantic.foregroundSecondary, lineHeight: '20px' }}>{description}</p>
-        )}
-        {children}
-      </div>
-    </div>
-  );
-}
+// Modal : promu en composant DS -> src/components/ui/Dialog.js (fiche Dialog.md).
+
 
 // ============== SHEET / DRAWER ==============
 export function Sheet({ open, side = 'right', onClose, title, children, width = 360 }) {
@@ -857,54 +591,14 @@ export function ChatComposer({ value = '', placeholder = 'Demande à Norma…', 
 }
 
 // ============== COMBOBOX ==============
-export function Combobox({ value, options = [], onChange, placeholder = 'Search…' }) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const filtered = options.filter(o => o.label.toLowerCase().includes(query.toLowerCase()));
-  return (
-    <div style={{ position: 'relative', maxWidth: 280 }}>
-      <input
-        value={query || (value ? options.find(o => o.value === value)?.label : '')}
-        onChange={e => { setQuery(e.target.value); setOpen(true); }}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        placeholder={placeholder}
-        style={{
-          width: '100%',
-          padding: '7px 12px',
-          fontSize: 14, color: colors.semantic.foreground,
-          border: `1px solid ${colors.semantic.border}`,
-          borderRadius: 8, background: '#fff',
-          outline: 'none', fontFamily: 'inherit',
-        }}
-      />
-      {open && filtered.length > 0 && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', border: `1px solid ${colors.semantic.border}`, borderRadius: 8, padding: 4, zIndex: 5, boxShadow: '0 4px 6px rgba(0,0,0,0.05)', maxHeight: 200, overflow: 'auto' }}>
-          {filtered.map(o => (
-            <button
-              key={o.value}
-              onMouseDown={() => { onChange?.(o.value); setQuery(''); setOpen(false); }}
-              style={{
-                width: '100%', textAlign: 'left',
-                padding: '6px 10px', borderRadius: 6,
-                fontSize: 14, color: colors.semantic.foreground,
-                background: value === o.value ? colors.semantic.cream : 'transparent',
-                border: 'none', cursor: 'pointer',
-              }}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+// Promu -> src/components/ui/Combobox.js (fiche Combobox.md, shadcn brut tokenisé).
+export const Combobox = ComboboxReal;
+
 
 // Re-exports under a registry so componentDemos.jsx can pick by name.
 export const PREVIEWS = {
   Button, Input, Textarea, Badge, Checkbox, Switch, RadioGroup, Tooltip, Avatar,
-  Separator, Skeleton, Tabs, Select, DropZone, Popover, Modal, Sheet, Sidebar,
+  Separator, Skeleton, Tabs, Select, DropZone, Popover, Sheet, Sidebar,
   ScrollArea, Table, TableHeader, TableRow, TableCell, PlanCard, ChatBubble,
   ChatMessageList, ChatComposer, Combobox,
 };

@@ -130,15 +130,15 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-[780px] mx-4 flex flex-col overflow-hidden"
+        className="bg-surface rounded-2xl shadow-2xl w-full max-w-[780px] mx-4 flex flex-col overflow-hidden"
         style={{ height: 'min(640px, 85vh)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-md" style={{ backgroundColor: '#dfe8f5' }}>
-              <Mail className="w-4 h-4" style={{ color: '#1e3a8a' }} strokeWidth={1.75} />
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-md" style={{ backgroundColor: colors.piece.expertise.bg }}>
+              <Mail className="w-4 h-4" style={{ color: colors.feedback.info.text }} strokeWidth={1.75} />
             </span>
             <h2 className="text-heading-sm font-semibold text-foreground">Importer depuis Outlook</h2>
           </div>
@@ -181,7 +181,7 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
           <div className="flex-1 min-w-0 flex flex-col">
             {/* Search */}
             <div className="px-4 pt-3 pb-2 flex-shrink-0">
-              <div className="flex items-center gap-2 px-3 h-9 bg-white border border-border rounded-lg focus-within:border-foreground-secondary transition-colors shadow-sm">
+              <div className="flex items-center gap-2 px-3 h-9 bg-surface border border-border rounded-lg focus-within:border-foreground-secondary transition-colors shadow-sm">
                 <Search className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
                 <input
                   ref={inputRef}
@@ -216,7 +216,7 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
                     className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0"
                   >
                     <span className={`inline-flex items-center justify-center w-[15px] h-[15px] rounded-[4px] border transition-colors ${
-                      selectAllState !== 'unchecked' ? 'bg-foreground border-foreground text-white' : 'bg-white border-border-strong'
+                      selectAllState !== 'unchecked' ? 'bg-foreground border-foreground text-primary-foreground' : 'bg-surface border-border-strong'
                     }`}>
                       {selectAllState === 'checked' && <Check className="w-2.5 h-2.5" strokeWidth={3} />}
                       {selectAllState === 'indeterminate' && <Minus className="w-2.5 h-2.5" strokeWidth={3} />}
@@ -250,7 +250,7 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
                     className={`w-full text-left flex items-start gap-3 px-3 py-3 rounded-lg transition-colors ${selected ? 'bg-background-canvas' : 'hover:bg-background-canvas'}`}
                   >
                     <span className={`mt-0.5 inline-flex items-center justify-center w-4 h-4 rounded-[4px] border flex-shrink-0 transition-colors ${
-                      selected ? 'bg-foreground border-foreground' : 'bg-white border-border-strong'
+                      selected ? 'bg-foreground border-foreground' : 'bg-surface border-border-strong'
                     }`}>
                       {selected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                     </span>
@@ -295,7 +295,7 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
                 className="inline-flex items-center gap-2 text-sm text-foreground-secondary hover:text-foreground transition-colors"
               >
                 <span className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] border transition-colors flex-shrink-0 ${
-                  includeAttachments ? 'bg-foreground border-foreground' : 'bg-white border-border-strong'
+                  includeAttachments ? 'bg-foreground border-foreground' : 'bg-surface border-border-strong'
                 }`}>
                   {includeAttachments && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                 </span>
@@ -308,7 +308,7 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={onClose}
-              className="h-9 px-4 text-sm font-medium text-foreground-tertiary bg-white border border-border rounded-lg hover:bg-background-canvas transition-colors shadow-sm"
+              className="h-9 px-4 text-sm font-medium text-foreground-tertiary bg-surface border border-border rounded-lg hover:bg-background-canvas transition-colors shadow-sm"
             >
               Annuler
             </button>
@@ -316,7 +316,7 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
               <button
                 onClick={() => { if (selectedCount === 0) return; onReview(sorted.filter(t => selectedIds.has(t.id)), { includeAttachments: includeAttachments && selectedAttachmentCount > 0 }); }}
                 disabled={selectedCount === 0}
-                className={`h-9 px-4 text-sm font-medium bg-white border border-border rounded-lg transition-colors shadow-sm ${
+                className={`h-9 px-4 text-sm font-medium bg-surface border border-border rounded-lg transition-colors shadow-sm ${
                   selectedCount > 0 ? 'text-foreground hover:bg-background-canvas' : 'text-foreground-muted opacity-50 cursor-not-allowed'
                 }`}
               >
@@ -326,7 +326,7 @@ export default function ImportEmailDialog({ open, onClose, threads, folders = []
             <button
               onClick={confirm}
               disabled={selectedCount === 0}
-              className={`h-9 px-5 text-sm font-medium text-white bg-foreground rounded-lg transition-opacity shadow-sm ${
+              className={`h-9 px-5 text-sm font-medium text-primary-foreground bg-foreground rounded-lg transition-opacity shadow-sm ${
                 selectedCount > 0 ? 'hover:bg-foreground-strong' : 'opacity-50 cursor-not-allowed'
               }`}
             >

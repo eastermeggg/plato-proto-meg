@@ -4,6 +4,11 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { initTheme } from './design-system/theme';
+
+// Injecte les variables de thème et applique light/dark avant le premier render.
+// La bascule vit dans les Paramètres › Général › Apparence (plus de bouton flottant).
+initTheme();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

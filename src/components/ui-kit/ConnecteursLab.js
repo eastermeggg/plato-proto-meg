@@ -38,7 +38,7 @@ function CaptureTrustTable() {
       <div className="grid grid-cols-2 divide-x divide-border">
         {[{ head: 'Ce que Plato peut faire', items: CAP_CAN, ok: true }, { head: 'Ce que Plato ne peut jamais faire', items: CAP_CANT, ok: false }].map(col => (
           <div key={col.head} className="px-5 py-4">
-            <div className="flex items-baseline gap-2.5 mb-3"><span style={monoHead}>{col.head}</span><span className="flex-1 h-px bg-foreground/10" /></div>
+            <div className="flex items-baseline gap-2.5 mb-3"><span style={monoHead}>{col.head}</span><span className="flex-1 h-px bg-border-subtle" /></div>
             <ul className="flex flex-col gap-2.5">
               {col.items.map(t => (
                 <li key={t} className="flex items-start gap-2.5 text-[13px] text-foreground-secondary leading-5">

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Scissors, Link2, Layers, AlertCircle, RotateCcw, ChevronDown } from 'lucide-react';
+import { colors, shadows } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Split Variants Lab — three UX explorations for the pile-split feature,
@@ -28,9 +29,9 @@ const DEMO_SEGMENTS = [
   { id: 's12', emetteur: 'Cabinet kiné Martin', date: '2023-10-19', montantCents: 12000, pages: 1 },
 ];
 
-const ACCENT = '#a08355';
-const ACCENT_BG = '#f3efe3';
-const AMBER = '#b45309';
+const ACCENT = colors.feedback.warning.base;
+const ACCENT_BG = colors.semantic.muted;
+const AMBER = colors.banner.warning.accentHover;
 
 function formatEUR(cents) {
   if (cents == null) return '—';
@@ -111,7 +112,7 @@ function RollingNumber({ value, style }) {
 
 const VARIANTS = [
   { key: 'A', name: 'La Liasse',   tagline: 'La pile est un objet. Éclater = l\'éventail s\'ouvre, garder = la sangle se pose.' },
-  { key: 'B', name: 'Le Massicot', tagline: 'Chaque frontière est une coupe visible. On coupe, on recolle — le geste est l\'explication.' },
+  { key: 'B', name: 'Le Massicot', tagline: 'Chaque frontière est une coupe visible. On coupe, on recolle - le geste est l\'explication.' },
   { key: 'C', name: 'Le Curseur',  tagline: 'Pas un choix binaire : un grain. Une pièce ↔ par émetteur ↔ par document.' },
 ];
 
@@ -132,20 +133,20 @@ export default function SplitVariantsLab() {
               className="px-4 h-8 rounded-md text-[13px] font-medium transition-all"
               style={
                 variant === v.key
-                  ? { background: '#292524', color: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }
-                  : { background: 'transparent', color: '#78716c' }
+                  ? { background: colors.semantic.primary, color: 'white', boxShadow: shadows['xs'] }
+                  : { background: 'transparent', color: colors.semantic.mutedForeground }
               }
             >
-              {v.key} — {v.name}
+              {v.key} - {v.name}
             </button>
           ))}
         </div>
       </div>
-      <p style={{ fontSize: 13, color: '#78716c', marginBottom: 20 }}>{active.tagline}</p>
+      <p style={{ fontSize: 13, color: colors.semantic.mutedForeground, marginBottom: 20 }}>{active.tagline}</p>
 
       <div
         key={variant}
-        className="rounded-xl border border-border bg-white p-6"
+        className="rounded-xl border border-border bg-surface p-6"
         style={{ animation: 'lab-row-in 240ms ease-out' }}
       >
         {variant === 'A' && <VariantALiasse />}
@@ -188,17 +189,17 @@ function MiniStack({ fan, banded }) {
               position: 'absolute',
               inset: '4px 8px',
               background: 'white',
-              border: '1px solid #e0dcd0',
+              border: `1px solid ${colors.accents.sand.border}`,
               borderRadius: 4,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              boxShadow: shadows['xs'],
               transform: `rotate(${t.r}deg) translateX(${t.x}px)`,
               transition: 'transform 260ms cubic-bezier(0.34, 1.3, 0.5, 1)',
               transformOrigin: '50% 80%',
             }}
           >
-            <div style={{ margin: '8px 6px 0', height: 2, background: '#ede9dd', borderRadius: 1 }} />
-            <div style={{ margin: '4px 6px 0', height: 2, width: '70%', background: '#ede9dd', borderRadius: 1 }} />
-            <div style={{ margin: '4px 6px 0', height: 2, width: '50%', background: '#ede9dd', borderRadius: 1 }} />
+            <div style={{ margin: '8px 6px 0', height: 2, background: colors.semantic.muted, borderRadius: 1 }} />
+            <div style={{ margin: '4px 6px 0', height: 2, width: '70%', background: colors.semantic.muted, borderRadius: 1 }} />
+            <div style={{ margin: '4px 6px 0', height: 2, width: '50%', background: colors.semantic.muted, borderRadius: 1 }} />
           </div>
         );
       })}
@@ -234,7 +235,7 @@ function PaperEdgeRow({ count, totalLabel, onExplode }) {
             position: 'absolute',
             inset: 0,
             background: 'white',
-            border: '1px solid #dfdcd9',
+            border: `1px solid ${colors.semantic.border}`,
             borderRadius: 8,
             transform: `translate(${hover ? o * 3 : o * 2}px, ${hover ? -o * 3 : -o * 2}px)`,
             transition: 'transform 200ms cubic-bezier(0.34, 1.3, 0.5, 1)',
@@ -243,8 +244,8 @@ function PaperEdgeRow({ count, totalLabel, onExplode }) {
         />
       ))}
       <div
-        className="relative flex items-center gap-3 px-4 py-3 bg-white border border-border rounded-lg"
-        style={{ zIndex: 1, boxShadow: hover ? '0 4px 12px rgba(0,0,0,0.07)' : '0 1px 2px rgba(0,0,0,0.04)', transition: 'box-shadow 200ms' }}
+        className="relative flex items-center gap-3 px-4 py-3 bg-surface border border-border rounded-lg"
+        style={{ zIndex: 1, boxShadow: hover ? '0 4px 12px rgba(0,0,0,0.07)' : shadows.xs, transition: 'box-shadow 200ms' }}
       >
         <span className="inline-flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0" style={{ background: ACCENT_BG, color: ACCENT }}>
           <Layers className="w-4 h-4" strokeWidth={1.75} />
@@ -290,7 +291,7 @@ function VariantALiasse() {
 
       {/* Review card */}
       {phase === 'review' && (
-        <div className="rounded-xl border bg-white p-5 flex items-center gap-5" style={{ borderColor: '#ece8db', background: '#faf8f3' }}>
+        <div className="rounded-xl border bg-surface p-5 flex items-center gap-5" style={{ borderColor: colors.semantic.muted, background: colors.semantic.background }}>
           <MiniStack fan={hoverSide === 'explode' ? 1 : 0} banded={hoverSide === 'keep'} />
           <div className="flex-1 min-w-0">
             <div className="text-[14px] text-foreground">
@@ -303,8 +304,8 @@ function VariantALiasse() {
                 onMouseEnter={() => setHoverSide('keep')}
                 onMouseLeave={() => setHoverSide(null)}
                 onClick={() => setPhase('grouped')}
-                className="h-9 px-4 text-[13px] font-medium rounded-md border bg-white transition-all"
-                style={{ borderColor: hoverSide === 'keep' ? ACCENT : '#cbc7c4', color: hoverSide === 'keep' ? ACCENT : '#292524' }}
+                className="h-9 px-4 text-[13px] font-medium rounded-md border bg-surface transition-all"
+                style={{ borderColor: hoverSide === 'keep' ? ACCENT : colors.semantic.borderStrong, color: hoverSide === 'keep' ? ACCENT : colors.semantic.ring }}
               >
                 Garder en une pièce
               </button>
@@ -312,15 +313,15 @@ function VariantALiasse() {
                 onMouseEnter={() => setHoverSide('explode')}
                 onMouseLeave={() => setHoverSide(null)}
                 onClick={() => setPhase('exploded')}
-                className="h-9 px-4 text-[13px] font-medium rounded-md border bg-white transition-all"
-                style={{ borderColor: hoverSide === 'explode' ? ACCENT : '#cbc7c4', color: hoverSide === 'explode' ? ACCENT : '#292524' }}
+                className="h-9 px-4 text-[13px] font-medium rounded-md border bg-surface transition-all"
+                style={{ borderColor: hoverSide === 'explode' ? ACCENT : colors.semantic.borderStrong, color: hoverSide === 'explode' ? ACCENT : colors.semantic.ring }}
               >
                 Éclater en {count} pièces
               </button>
             </div>
             <div className="text-[11px] text-foreground-muted mt-2" style={{ minHeight: 14 }}>
-              {hoverSide === 'keep' && 'La pile reste un seul objet — la sangle se pose.'}
-              {hoverSide === 'explode' && 'L\'éventail s\'ouvre — chaque document devient une pièce.'}
+              {hoverSide === 'keep' && 'La pile reste un seul objet - la sangle se pose.'}
+              {hoverSide === 'explode' && 'L\'éventail s\'ouvre - chaque document devient une pièce.'}
             </div>
           </div>
         </div>
@@ -346,7 +347,7 @@ function VariantALiasse() {
             </span>
             <button
               onClick={() => setPhase('grouped')}
-              className="ml-auto underline underline-offset-2 text-foreground hover:text-[#a08355] font-medium transition-colors"
+              className="ml-auto underline underline-offset-2 text-foreground hover:text-warning font-medium transition-colors"
             >
               Regrouper en une pièce
             </button>
@@ -355,7 +356,7 @@ function VariantALiasse() {
             {DEMO_SEGMENTS.map((seg, i) => (
               <div
                 key={seg.id}
-                className="flex items-center gap-3 px-4 py-2 bg-white border-b border-[#f5f4f1] last:border-b-0"
+                className="flex items-center gap-3 px-4 py-2 bg-surface border-b border-background last:border-b-0"
                 style={{ animation: `lab-row-in 320ms cubic-bezier(0.2, 0.9, 0.3, 1) ${i * 45}ms both` }}
               >
                 <span className="text-[11px] tabular-nums text-foreground-muted w-6">{i + 1}</span>
@@ -448,16 +449,16 @@ function VariantBMassicot() {
   return (
     <div style={{ maxWidth: 880 }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Carte « À vérifier » — dépliée en établi de coupe</span>
+        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Carte « À vérifier » - dépliée en établi de coupe</span>
         <button onClick={reset} className="inline-flex items-center gap-1.5 text-[12px] text-foreground-secondary hover:text-foreground transition-colors">
           <RotateCcw className="w-3 h-3" strokeWidth={1.75} />
           Réinitialiser
         </button>
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ borderColor: '#ece8db' }}>
+      <div className="rounded-xl border overflow-hidden" style={{ borderColor: colors.semantic.muted }}>
         {/* Header with live ticker */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[#ece8db]" style={{ background: '#faf8f3' }}>
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-cream" style={{ background: colors.semantic.background }}>
           <span className="inline-flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0" style={{ background: ACCENT_BG, color: ACCENT }}>
             <Scissors className="w-4 h-4" strokeWidth={1.75} />
           </span>
@@ -473,7 +474,7 @@ function VariantBMassicot() {
         </div>
 
         {/* Filmstrip */}
-        <div ref={stripRef} className="overflow-x-auto px-5 py-6" style={{ background: 'linear-gradient(180deg, #fafaf9 0%, #f4f1ea 100%)' }}>
+        <div ref={stripRef} className="overflow-x-auto px-5 py-6" style={{ background: `linear-gradient(180deg, ${colors.banner.neutral.bgFrom} 0%, ${colors.semantic.muted} 100%)` }}>
           <div className="flex items-center" style={{ width: 'max-content' }}>
             {pages.map((pg, i) => {
               const isLastGlobal = i === pages.length - 1;
@@ -498,11 +499,11 @@ function VariantBMassicot() {
         </div>
 
         {/* Barcode minimap */}
-        <div className="px-5 pb-4" style={{ background: '#f4f1ea' }}>
+        <div className="px-5 pb-4" style={{ background: colors.semantic.muted }}>
           <div
-            className="relative h-5 rounded border bg-white"
-            style={{ borderColor: '#e0dcd0' }}
-            title="Minimap — un trait par coupe. Cliquer pour y aller."
+            className="relative h-5 rounded border bg-surface"
+            style={{ borderColor: colors.accents.sand.border }}
+            title="Minimap - un trait par coupe. Cliquer pour y aller."
           >
             {boundaries.map((b, i) => (
               <button
@@ -529,12 +530,12 @@ function VariantBMassicot() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-2 px-4 py-3 border-t border-[#ece8db] bg-white">
+        <div className="flex items-center gap-2 px-4 py-3 border-t border-cream bg-surface">
           <span className="text-[11px] text-foreground-muted mr-auto">Survolez entre deux pages pour couper · survolez une coupe pour recoller</span>
-          <button className="h-8 px-3 text-[12px] font-medium rounded-md border border-border-strong bg-background text-foreground hover:bg-[#f5f4f1] transition-colors">
+          <button className="h-8 px-3 text-[12px] font-medium rounded-md border border-border-strong bg-background text-foreground hover:bg-background transition-colors">
             Garder en une pièce
           </button>
-          <button className="h-8 px-3 text-[12px] font-medium rounded-md text-white transition-colors" style={{ background: '#292524' }}>
+          <button className="h-8 px-3 text-[12px] font-medium rounded-md text-white transition-colors" style={{ background: colors.semantic.primary }}>
             Éclater en <RollingNumber value={segments.length} /> pièces
           </button>
         </div>
@@ -550,17 +551,17 @@ function PageThumb({ pg }) {
   }, [pg.seg.id, pg.relIdx]);
   return (
     <div
-      className="flex-shrink-0 bg-white rounded border flex flex-col"
+      className="flex-shrink-0 bg-surface rounded border flex flex-col"
       style={{
         width: 92,
         height: 122,
-        borderColor: pg.seg.anomaly ? AMBER : '#e0dcd0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
+        borderColor: pg.seg.anomaly ? AMBER : colors.accents.sand.border,
+        boxShadow: shadows['xs'],
         animation: pg.seg.anomaly ? 'lab-pulse-once 900ms ease-out 300ms 1' : 'none',
       }}
       title={segLabel(pg.seg)}
     >
-      <div className="px-2 pt-2 pb-1 border-b border-[#f5f4f1]">
+      <div className="px-2 pt-2 pb-1 border-b border-background">
         {pg.first ? (
           <>
             <div className="text-[7px] uppercase tracking-wide truncate" style={{ color: ACCENT }}>{pg.seg.emetteur}</div>
@@ -572,12 +573,12 @@ function PageThumb({ pg }) {
       </div>
       <div className="flex-1 px-2 py-1.5 space-y-1">
         {lines.map((w, i) => (
-          <div key={i} style={{ height: 2, width: `${w * 100}%`, background: '#ede9dd', borderRadius: 1 }} />
+          <div key={i} style={{ height: 2, width: `${w * 100}%`, background: colors.semantic.muted, borderRadius: 1 }} />
         ))}
       </div>
       <div className="px-2 pb-1.5 text-right">
         {pg.last && (
-          <span className="text-[8px] font-medium tabular-nums" style={{ color: pg.seg.montantCents == null ? AMBER : '#44403c' }}>
+          <span className="text-[8px] font-medium tabular-nums" style={{ color: pg.seg.montantCents == null ? AMBER : colors.semantic.foregroundTertiary }}>
             {formatEUR(pg.seg.montantCents)}
           </span>
         )}
@@ -602,7 +603,7 @@ const CutJunction = React.forwardRef(function CutJunction({ onHeal, anomaly, jus
         cursor: 'pointer',
       }}
       onClick={onHeal}
-      title="Recoller — fusionner les deux documents"
+      title="Recoller - fusionner les deux documents"
     >
       {/* cut line */}
       <div
@@ -633,7 +634,7 @@ const CutJunction = React.forwardRef(function CutJunction({ onHeal, anomaly, jus
       />
       {/* heal pill on hover */}
       <span
-        className="relative inline-flex items-center gap-1 px-2 py-1 rounded-full border bg-white text-[10px] font-medium whitespace-nowrap"
+        className="relative inline-flex items-center gap-1 px-2 py-1 rounded-full border bg-surface text-[10px] font-medium whitespace-nowrap"
         style={{
           borderColor: ACCENT,
           color: ACCENT,
@@ -678,7 +679,7 @@ function GhostJunction({ onCut }) {
         }}
       />
       <span
-        className="relative inline-flex items-center gap-1 px-2 py-1 rounded-full border border-dashed bg-white text-[10px] font-medium whitespace-nowrap"
+        className="relative inline-flex items-center gap-1 px-2 py-1 rounded-full border border-dashed bg-surface text-[10px] font-medium whitespace-nowrap"
         style={{
           borderColor: ACCENT,
           color: ACCENT,
@@ -770,14 +771,14 @@ function VariantCCurseur() {
   return (
     <div style={{ maxWidth: 720 }}>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Le grain de la pile — un seul contrôle, partout</span>
+        <span className="text-[11px] uppercase tracking-wide text-foreground-muted font-medium">Le grain de la pile - un seul contrôle, partout</span>
         <span className="text-[12px] tabular-nums text-foreground-secondary">
-          <RollingNumber value={pieceCount} style={{ fontWeight: 600, color: '#292524' }} /> pièce{pieceCount > 1 ? 's' : ''} · {total}
+          <RollingNumber value={pieceCount} style={{ fontWeight: 600, color: colors.semantic.foreground }} /> pièce{pieceCount > 1 ? 's' : ''} · {total}
         </span>
       </div>
 
       {/* The dial */}
-      <div className="rounded-xl border bg-white p-5 mb-4" style={{ borderColor: '#ece8db', background: '#faf8f3' }}>
+      <div className="rounded-xl border bg-surface p-5 mb-4" style={{ borderColor: colors.semantic.muted, background: colors.semantic.background }}>
         <div className="flex items-center gap-3 mb-3">
           <span className="inline-flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0" style={{ background: ACCENT_BG, color: ACCENT }}>
             <Layers className="w-4 h-4" strokeWidth={1.75} />
@@ -796,7 +797,7 @@ function VariantCCurseur() {
             className="relative h-8 cursor-pointer select-none"
             style={{ touchAction: 'none' }}
           >
-            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 rounded-full" style={{ background: '#e0dcd0' }} />
+            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 rounded-full" style={{ background: colors.accents.sand.border }} />
             {/* fill */}
             <div
               className="absolute left-0 top-1/2 -translate-y-1/2 h-1 rounded-full"
@@ -811,13 +812,13 @@ function VariantCCurseur() {
               <button
                 key={i}
                 onClick={() => applyFromFrac(i / 2)}
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 bg-white"
-                style={{ left: `${(i / 2) * 100}%`, borderColor: i <= stopIdx ? ACCENT : '#cbc7c4', transition: 'border-color 200ms' }}
+                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 bg-surface"
+                style={{ left: `${(i / 2) * 100}%`, borderColor: i <= stopIdx ? ACCENT : colors.semantic.borderStrong, transition: 'border-color 200ms' }}
               />
             ))}
             {/* thumb */}
             <div
-              className="absolute top-1/2 w-5 h-5 rounded-full border-2 bg-white shadow-md"
+              className="absolute top-1/2 w-5 h-5 rounded-full border-2 bg-surface shadow-md"
               style={{
                 left: `${thumbFrac * 100}%`,
                 transform: 'translate(-50%, -50%)',
@@ -838,7 +839,7 @@ function VariantCCurseur() {
                 style={{
                   left: `${(i / 2) * 100}%`,
                   transform: i === 0 ? 'none' : i === 2 ? 'translateX(-100%)' : 'translateX(-50%)',
-                  color: grain === s.key ? '#292524' : '#a8a29e',
+                  color: grain === s.key ? colors.semantic.foreground : colors.semantic.foregroundMuted,
                 }}
               >
                 {s.label}
@@ -848,13 +849,13 @@ function VariantCCurseur() {
             ))}
           </div>
         </div>
-        <div className="text-[11px] text-foreground-muted mt-2 px-2">La position du curseur est l'état — revenir en arrière, c'est annuler. Aucune confirmation nécessaire.</div>
+        <div className="text-[11px] text-foreground-muted mt-2 px-2">La position du curseur est l'état - revenir en arrière, c'est annuler. Aucune confirmation nécessaire.</div>
       </div>
 
       {/* Live preview — morphs with the grain */}
       <div key={grain} className="border border-border rounded-lg overflow-hidden">
         {grain === 'one' && (
-          <div className="flex items-center gap-3 px-4 py-3 bg-white" style={{ animation: 'lab-row-up 260ms cubic-bezier(0.2, 0.9, 0.3, 1)' }}>
+          <div className="flex items-center gap-3 px-4 py-3 bg-surface" style={{ animation: 'lab-row-up 260ms cubic-bezier(0.2, 0.9, 0.3, 1)' }}>
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-md" style={{ background: ACCENT_BG, color: ACCENT }}>
               <Layers className="w-4 h-4" strokeWidth={1.75} />
             </span>
@@ -867,14 +868,14 @@ function VariantCCurseur() {
         {grain === 'emitter' && emitterGroups.map((g, i) => (
           <div
             key={g.emetteur}
-            className="flex items-center gap-3 px-4 py-2.5 bg-white border-b border-[#f5f4f1] last:border-b-0"
+            className="flex items-center gap-3 px-4 py-2.5 bg-surface border-b border-background last:border-b-0"
             style={{ animation: `lab-row-up 280ms cubic-bezier(0.2, 0.9, 0.3, 1) ${i * 60}ms both` }}
           >
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-md" style={{ background: ACCENT_BG, color: ACCENT }}>
               <Layers className="w-3.5 h-3.5" strokeWidth={1.75} />
             </span>
             <div className="text-[13px] text-foreground flex-1">
-              <span className="font-medium">Factures — {g.emetteur}</span>
+              <span className="font-medium">Factures - {g.emetteur}</span>
               <span className="text-foreground-secondary"> ({g.segs.length}) · {formatEUR(sumCents(g.segs))}</span>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} />
@@ -883,7 +884,7 @@ function VariantCCurseur() {
         {grain === 'document' && DEMO_SEGMENTS.map((seg, i) => (
           <div
             key={seg.id}
-            className="flex items-center gap-3 px-4 py-2 bg-white border-b border-[#f5f4f1] last:border-b-0"
+            className="flex items-center gap-3 px-4 py-2 bg-surface border-b border-background last:border-b-0"
             style={{ animation: `lab-row-up 300ms cubic-bezier(0.2, 0.9, 0.3, 1) ${i * 30}ms both` }}
           >
             <span className="text-[11px] tabular-nums text-foreground-muted w-6">{i + 1}</span>

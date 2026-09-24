@@ -13,12 +13,24 @@ const TABS = [
   { id: 'motion',     label: 'Motion' },
 ];
 
+// Pick a legible "Aa" color (near-black or near-white) for a given background,
+// so single-value tokens (no explicit fg) don't render dark-on-dark / light-on-light.
+function legibleForeground(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+  if (!m) return colors.semantic.foreground;
+  const int = parseInt(m[1], 16);
+  const r = (int >> 16) & 255, g = (int >> 8) & 255, b = int & 255;
+  // Relative luminance (sRGB), good enough for a contrast pick.
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return lum > 0.6 ? colors.semantic.foreground : colors.semantic.background;
+}
+
 function ColorPreview({ value }) {
   // value is "#hex" or "#hex / #hex" or "#a / #b / #c" — show first as bg, optional second as fg.
   const parts = String(value).split('/').map(s => s.trim());
   const bg = parts[0] || '#fff';
-  const fg = parts[1] || colors.semantic.foreground;
   const safeBg = bg.startsWith('transparent') ? '#fff' : bg;
+  const fg = parts[1] || legibleForeground(safeBg);
   return (
     <div style={{ display: 'flex', gap: 6 }}>
       <div
@@ -249,12 +261,19 @@ export default function TokensSection() {
                   preview={preview}
                   name={t.name}
                   meta={
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-                      {t.value}
-                      {t.usage ? `  ·  ${t.usage}` : ''}
-                    </span>
+                    <>
+                      <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                        {t.value}
+                        {t.valueDark ? <span style={{ opacity: 0.55 }}>{`  ·  dark ${t.valueDark}`}</span> : null}
+                      </span>
+                      {t.usage && (
+                        <span style={{ display: 'block', marginTop: 2, color: colors.semantic.foregroundSecondary }}>
+                          {t.usage}
+                        </span>
+                      )}
+                    </>
                   }
-                  status={t.status}
+                  status={null}
                   figmaRef={t.figmaRef}
                   notes={t.notes}
                 />

@@ -32,7 +32,7 @@ function PanelGlyph({ expand = true }) {
 function MenuControl() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-      <img src="/logo-plato.png" alt="Plato" style={{ width: 24, height: 24, flexShrink: 0 }} />
+      <img src="/logo-plato.svg" alt="Plato" style={{ width: 24, height: 24, flexShrink: 0 }} />
       <button style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
         padding: '5px 8px', borderRadius: 6, border: 'none', background: 'transparent',

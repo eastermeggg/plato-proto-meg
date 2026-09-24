@@ -1,41 +1,69 @@
-# Agents
+# AGENTS.md — règles projet canoniques (Norma / Plato)
 
-This file is read by AI coding assistants. Edit freely outside the Lyse-managed block.
+Source unique des règles, lue par tous les assistants (`CLAUDE.md` y renvoie).
+Repo : prototype design-system-first — CRA, React 18, JavaScript, Tailwind v3.
+Le playground DS `/ui-kit` est le cœur ; le produit vit à `/app`. Les chemins
+DS font foi dans `ds.manifest.json`.
 
-## Project & toolchain
+## Design system — règles dures
 
-Norma is a design prototype built with **Create React App** (React 18, JavaScript — not TypeScript) and **Tailwind CSS v3**. Config files that define the toolchain in scope:
+1. **Un composant absent de l'inventaire n'existe pas.** Inventaire :
+   `src/data/designSystemInventory.json` (UI : `/ui-kit/inventory`). Avant d'en
+   créer un : `ds-decide`.
+2. **Tokens sémantiques uniquement** (`src/design-system/tokens.js` → `var()`,
+   theme-aware) : zéro hex brut, zéro `bg-[#…]`, zéro couleur Tailwind brute.
+   Token manquant → `SIGNALEMENTS.md`. Pas d'émojis dans l'UI ; tirets simples
+   plutôt que cadratins (« — » seul = placeholder toléré).
+3. **Pas de `className` pour ajuster un composant DS.** Un ajustement récurrent
+   est un variant (`ds-variant`).
+4. **Fichiers protégés** (`paths.protected` : `src/design-system/tokens.js`,
+   `src/index.css`) : jamais édités sans validation steward — signaler.
+5. **Une seule action primaire par écran.** Le reste en `secondary`, `outline`
+   ou `ghost`.
+6. **Cinq états** pour tout écran de données : vide, chargement, erreur,
+   partiel, idéal.
+7. **Ne JAMAIS re-rouler le shell / la nav / une barre.** Rail, barre de tête,
+   en-tête de page, barre de contexte = composants canoniques (`AppSidebar`,
+   `TopBar`, `PageHeader`, `Niveau3Strip`, `NavExpandControl`). Un nouvel
+   onglet / une nouvelle page = du CONTENU passé à ces composants, jamais une
+   barre inline. Détail + tableau : conventions §9 ; vitrine : `/ui-kit/shell`.
+8. **Packages** : mono-package aujourd'hui ; si extension un jour, le source
+   n'importe jamais une extension (conventions §4, `ds-check-boundaries`).
+9. **Tout composant a sa fiche** (`src/components/ui/<Nom>.md`, 7 champs,
+   conventions §7), sa démo jouable (`componentDemos.jsx`, `data-demo`) et son
+   entrée d'inventaire. Après édition d'une fiche : `npm run ds:docs`.
+10. **Avant de rendre la main** : `npm run ds:doctor && npm run build`
+    (le doctor délègue fiches + frontières ; 0 constat bloquant).
 
-- `package.json` — dependencies and scripts (`npm start`, `npm run build`, `npm test`)
-- `tailwind.config.js` — Tailwind theme extension
-- `postcss.config.js` — PostCSS pipeline for Tailwind
-- `.lyse.yaml` — design-system audit config (run `npx lyse audit`)
+**Vérité Figma mixte par surface, jamais globale** — registre + 4 règles
+d'arbitrage : `docs/design-truth.md` (+ `figma.note` du manifeste). Surface
+absente du registre ou doute : question steward, jamais de correction
+automatique.
 
-### Design system
+Écarts : dettes assumées → `ECARTS.md` (steward seul) ; constats d'agents →
+`SIGNALEMENTS.md` (local, gitignoré) puis `ds-audit --harvest` (conventions §2).
 
-- `src/design-system/tokens.js` — canonical color / spacing / type tokens (single source of truth)
-- `src/index.css` — global styles and CSS custom properties
-- `src/components/ui-kit/previews.jsx` — reusable UI primitives (Button, Modal, Sheet, Table, …)
-- `lyse.components.json` — machine-readable component manifest
-- `llms.txt` (repo root) — top-level map of the design system
+## Carte
 
-### Conventions
+| Besoin | Fichier |
+|---|---|
+| Config skills `ds-*` (chemins, Figma, protégés) | `ds.manifest.json` (fait foi) |
+| Référence des conventions `ds-*` | `.claude/skills/_shared/conventions.md` (lire la section citée) |
+| Tokens (source de vérité) | `src/design-system/tokens.js` · doc générée `docs/tokens.md` (`npm run ds:tokens`) |
+| Composants canoniques + fiches | `src/components/ui/` (+ `CLAUDE.md` du dossier) ; esquisses non promues : `ui-kit/previews.jsx` |
+| Registre de vérité Figma | `docs/design-truth.md` |
+| Dark mode (architecture var()) | `docs/dark-mode.md` · thème injecté par `src/design-system/theme.js` |
+| Tables (custom, pas shadcn) | `docs/table-system.md` |
+| Migration hex → tokens | `DECISIONS-HEX.md` |
+| Commencer ici (handover) | `HANDOVER.md` |
+| Carte top-level du DS | `llms.txt` |
 
-- No emojis in UI; prefer hyphens over em-dashes in copy.
-- Use design tokens from `tokens.js` rather than hardcoded hex/spacing values.
-- Run `npx lyse audit` before shipping to check design-system conformance.
+## Commandes
 
-## Lyse audit (auto-managed)
+- `npm start` · `npm run build` (CRA)
+- `npm run ds:doctor` — garde-fou DS (hex, manifeste, fiches, frontières) · `--report` / `--json`
+- `npm run ds:docs` · `npm run ds:tokens` — régénèrent docs composants / catalogue tokens
+- `npm run ds:visual` — diffs visuels Playwright (baselines : jamais en local, label `ds-baselines` en CI)
+- `node scripts/ds-audit.mjs` · `node scripts/ds-changelog.mjs` — état du DS · changelog par composant
 
-<!-- lyse-managed:begin -->
-### Validate design-system conformance
-
-```bash
-pnpm exec lyse audit
-```
-
-Exit codes:
-- 0 — pass (Health Score ≥ project threshold)
-- 1 — fail (Health Score below threshold or hard errors)
-- 2 — config error
-<!-- lyse-managed:end -->
+CI : `.github/workflows/ds.yml` (doctor) · `ds-changelog.yml` · `ds-visual.yml`.

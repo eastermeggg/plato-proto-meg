@@ -5,18 +5,19 @@ import {
   ListChecks, Bot, Calculator,
   HeartPulse, AlignLeft, CheckCheck, Asterisk, SquareX,
 } from 'lucide-react';
+import { colors as dsColors, shadows } from '../design-system/tokens';
 
 // ── Colors ───────────────────────────────────────────────────────────
 // Muted-foreground for everything except CRUD actions
 
 export const STEP_COLORS = {
-  default: { icon: '#a8a29e', bg: 'transparent', text: '#78716c' },
-  green:   { icon: '#059669', bg: '#cce6d9', text: '#064e3b' },
-  orange:  { icon: '#bd6c1a', bg: '#f9ecd6', text: '#855b31' },
-  red:     { icon: '#991b1b', bg: '#fef2f2', text: '#7f1d1d' },
-  muted: '#a8a29e',
-  primary: '#44403c',
-  secondary: '#78716c',
+  default: { icon: dsColors.semantic.foregroundMuted, bg: 'transparent', text: dsColors.semantic.mutedForeground },
+  green:   { icon: dsColors.feedback.success.base, bg: dsColors.step.green.bg, text: dsColors.feedback.success.text },
+  orange:  { icon: dsColors.feedback.warning.base, bg: dsColors.piece.factures.bg, text: dsColors.feedback.warning.text },
+  red:     { icon: dsColors.feedback.destructive.base, bg: dsColors.step.red.bg, text: dsColors.feedback.destructive.text },
+  muted: dsColors.semantic.borderHover,
+  primary: dsColors.semantic.foregroundTertiary,
+  secondary: dsColors.semantic.mutedForeground,
 };
 
 // Controls the loading indicator used at the step/sub-agent (timeline) level.
@@ -26,7 +27,7 @@ export const StepLoadingIndicatorContext = React.createContext('gif');
 
 const PulsingStepDot = () => (
   <span className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-    <span className="animate-pulse" style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#a8a29e', display: 'block' }} />
+    <span className="animate-pulse" style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: dsColors.step.muted, display: 'block' }} />
   </span>
 );
 
@@ -171,7 +172,7 @@ export const PlatoDotGrid = () => (
     {[0, 1, 2].map(r => (
       <div key={r} style={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
         {[0, 1, 2].map(c => (
-          <div key={c} style={{ width: 3, height: 3, backgroundColor: '#a8a29e', borderRadius: 0.5, transform: 'rotate(45deg)' }} />
+          <div key={c} style={{ width: 3, height: 3, backgroundColor: dsColors.step.muted, borderRadius: 0.5, transform: 'rotate(45deg)' }} />
         ))}
       </div>
     ))}
@@ -186,7 +187,7 @@ const Diamond = ({ color, size = 6 }) => (
       transform: 'rotate(45deg)',
       borderRadius: '0.5px',
       border: '1px solid rgba(0,0,0,0.1)',
-      boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+      boxShadow: shadows.xs,
     }} />
   </span>
 );
@@ -238,11 +239,11 @@ const ChildrenTree = ({ children, className = '' }) => (
         <div key={ci} className="flex items-stretch">
           {/* Tree gutter — vertical line segment */}
           <div className="flex-shrink-0 relative" style={{ width: 20 }}>
-            <div className="absolute" style={{ left: 12, top: 0, bottom: isLast ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
+            <div className="absolute" style={{ left: 12, top: 0, bottom: isLast ? '50%' : 0, width: 1, backgroundColor: dsColors.semantic.borderAlt }} />
           </div>
           {/* Tree branch — horizontal connector */}
           <div className="flex-shrink-0 relative" style={{ width: 20 }}>
-            <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: '#dfdcda' }} />
+            <div className="absolute" style={{ left: 0, top: '50%', width: 10, height: 1, backgroundColor: dsColors.semantic.borderAlt }} />
           </div>
           {/* Content */}
           <div className="flex-1 min-w-0" style={{
@@ -387,10 +388,10 @@ const SubAgentBlock = ({ step, isStreaming }) => {
               <div key={ci} className="flex items-stretch">
                 {/* Tree gutter — vertical line through sub-agent children */}
                 <div className="flex-shrink-0 relative" style={{ width: 20 }}>
-                  <div className="absolute" style={{ left: 12, top: 0, bottom: isLastChild ? '50%' : 0, width: 1, backgroundColor: '#dfdcda' }} />
+                  <div className="absolute" style={{ left: 12, top: 0, bottom: isLastChild ? '50%' : 0, width: 1, backgroundColor: dsColors.semantic.borderAlt }} />
                 </div>
                 <div className="flex-shrink-0 relative" style={{ width: 4 }}>
-                  <div className="absolute" style={{ left: 0, top: '50%', width: 4, height: 1, backgroundColor: '#dfdcda' }} />
+                  <div className="absolute" style={{ left: 0, top: '50%', width: 4, height: 1, backgroundColor: dsColors.semantic.borderAlt }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <StepRow step={cs} isLast={ci === childSteps.length - 1} isStreaming={isStreaming} />

@@ -1,4 +1,5 @@
 // Connecteur email - contenu unique (une seule vérité pour la modale, les
+import { colors } from '../../design-system/tokens';
 // promos d'engagement et la page Réglages > Connecteurs).
 //
 // Cible : des avocats exigeants sur la donnée. Le parti pris produit-marketing
@@ -23,8 +24,8 @@ export const CONNECTOR_PROVIDERS = {
     hint: '@outlook.com, @hotmail, ou compte Microsoft 365.',
     folderWord: 'dossiers Outlook',
     authDomain: 'login.microsoftonline.com',
-    tint: '#dfe8f5',
-    fg: '#1e3a8a',
+    tint: colors.piece.expertise.bg,
+    fg: colors.feedback.info.text,
   },
   gmail: {
     id: 'gmail',
@@ -36,8 +37,8 @@ export const CONNECTOR_PROVIDERS = {
     hint: '@gmail.com ou Google Workspace.',
     folderWord: 'libellés Gmail',
     authDomain: 'accounts.google.com',
-    tint: '#fce8e6',
-    fg: '#c5221f',
+    tint: colors.feedback.destructive.subtle,
+    fg: '#c5221f', // ds-hex-ok: rouge de marque Gmail (identité du connecteur)
   },
   // Troisième voie : l'adresse de cabinet. On ne dit plus « IMAP » (jargon) ni
   // « Autre » (vague) - on nomme ce que l'avocat reconnaît (SON adresse), et la
@@ -51,11 +52,11 @@ export const CONNECTOR_PROVIDERS = {
     short: 'Adresse de cabinet',
     desc: 'IMAP - @avocats.fr, OVH, Infomaniak…',
     pick: 'Mon adresse de cabinet',
-    hint: '@votre-cabinet.fr — même si vous la lisez dans Outlook.',
+    hint: '@votre-cabinet.fr - même si vous la lisez dans Outlook.',
     folderWord: 'dossiers IMAP',
     authDomain: 'votre serveur IMAP',
-    tint: '#eeece6',
-    fg: '#57534e',
+    tint: colors.semantic.muted,
+    fg: colors.semantic.foregroundQuaternary,
   },
 };
 
@@ -103,19 +104,19 @@ export const UPCOMING_CONNECTORS = [
     id: 'whatsapp',
     name: 'WhatsApp',
     desc: 'Les échanges clients et leurs pièces, versés comme un email',
-    tint: '#e2f4e8',
+    tint: colors.accents.emerald.subtle,
   },
   {
     id: 'ebarreau',
     name: 'e-Barreau · RPVA',
     desc: 'Actes et messages des juridictions, classés au dossier',
-    tint: '#dfe8f5',
+    tint: colors.piece.expertise.bg,
   },
   {
     id: 'cabinet',
     name: 'Logiciels de cabinet',
     desc: 'SECIB, Kleos, Polyact - vos dossiers synchronisés',
-    tint: '#eeece6',
+    tint: colors.semantic.muted,
   },
 ];
 

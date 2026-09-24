@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, MessageSquare, MessagesSquare, Plus, Check } from 'lucide-react';
 import { formatThreadActivity, isThreadArchived } from '../../hooks/useThreads';
+import { colors, shadows } from '../../design-system/tokens';
 
 /**
  * ConversationSwitcher - en-tête du rail de conversation d'un dossier.
@@ -109,18 +110,18 @@ export default function ConversationSwitcher({ threads = [], activeThreadId, onS
 
       {open && (
         <div
-          className="absolute left-0 top-full mt-1 w-[300px] max-w-[calc(100vw-32px)] bg-white border border-border rounded-[8px] overflow-hidden z-50"
-          style={{ boxShadow: '0px 4px 6px -4px rgba(26,26,26,0.05), 0px 8px 10px -1px rgba(26,26,26,0.05)' }}
+          className="absolute left-0 top-full mt-1 w-[300px] max-w-[calc(100vw-32px)] bg-surface border border-border rounded-[8px] overflow-hidden z-50"
+          style={{ boxShadow: shadows.xl }}
         >
           <div
             className="flex items-center justify-between px-[10px]"
-            style={{ height: 32, backgroundColor: '#f8f7f5', borderBottom: '1px solid #dfdcd9' }}
+            style={{ height: 32, backgroundColor: colors.semantic.background, borderBottom: `1px solid ${colors.semantic.border}` }}
           >
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: colors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Conversations du dossier
             </span>
             {count > 0 && (
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: '#a8a29e' }}>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: colors.semantic.foregroundMuted }}>
                 {count}
               </span>
             )}

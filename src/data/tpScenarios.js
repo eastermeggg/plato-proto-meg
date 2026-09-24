@@ -93,7 +93,7 @@ const TP_SCENARIOS = {
   //   PGPF échu ~50k, PGPF à échoir ~250k, SE 30k, DFP 80k, PEP 4500
   simple: {
     key: 'simple',
-    label: 'TP simple — récapitulatif multi-postes',
+    label: 'TP simple - récapitulatif multi-postes',
     description: 'Accident de la route, 3 TP (CPAM + Harmonie + SNCF). Créance récapitulative sur 5 postes.',
     tauxResponsabilite: 100,
 
@@ -115,12 +115,12 @@ const TP_SCENARIOS = {
             montant: 70000, posteCible: 'dsa',
             isAggregate: true,
             subLignes: [
-              { id: 'cr-cpam-hosp-1', libelle: 'CHU Bordeaux — séjour mars 2023', montant: 28000 },
-              { id: 'cr-cpam-hosp-2', libelle: 'CHU Bordeaux — chirurgie avril 2023', montant: 18000 },
-              { id: 'cr-cpam-hosp-3', libelle: 'Clinique du Parc — rééducation', montant: 12000 },
-              { id: 'cr-cpam-hosp-4', libelle: 'CHU Bordeaux — contrôle sept 2023', montant: 5000 },
-              { id: 'cr-cpam-hosp-5', libelle: 'Clinique Saint-Jean — bilan', montant: 4000 },
-              { id: 'cr-cpam-hosp-6', libelle: 'CHU Bordeaux — suivi janv 2024', montant: 3000 },
+              { id: 'cr-cpam-hosp-1', libelle: 'CHU Bordeaux - séjour mars 2023', montant: 28000 },
+              { id: 'cr-cpam-hosp-2', libelle: 'CHU Bordeaux - chirurgie avril 2023', montant: 18000 },
+              { id: 'cr-cpam-hosp-3', libelle: 'Clinique du Parc - rééducation', montant: 12000 },
+              { id: 'cr-cpam-hosp-4', libelle: 'CHU Bordeaux - contrôle sept 2023', montant: 5000 },
+              { id: 'cr-cpam-hosp-5', libelle: 'Clinique Saint-Jean - bilan', montant: 4000 },
+              { id: 'cr-cpam-hosp-6', libelle: 'CHU Bordeaux - suivi janv 2024', montant: 3000 },
             ],
           },
           {
@@ -350,7 +350,7 @@ const TP_SCENARIOS = {
       nonRecouvre: 0,
     },
 
-    agentMessage: "Rente AT/MP (15 000 €/an). Arrérages échus : 45 000 €. Capitalisé (× 20) : 300 000 €. Total créance : 345 000 €. Cascade : PGPF totalement absorbé (310 000 €), IP totalement absorbé (15 000 €), DFP partiellement absorbé (20 000 € sur 80 000 €, victime 60 000 € — jurisprudence variable). SNCF maintien : 25 000 € sur PGPA.",
+    agentMessage: "Rente AT/MP (15 000 €/an). Arrérages échus : 45 000 €. Capitalisé (× 20) : 300 000 €. Total créance : 345 000 €. Cascade : PGPF totalement absorbé (310 000 €), IP totalement absorbé (15 000 €), DFP partiellement absorbé (20 000 € sur 80 000 €, victime 60 000 € - jurisprudence variable). SNCF maintien : 25 000 € sur PGPA.",
   },
 };
 

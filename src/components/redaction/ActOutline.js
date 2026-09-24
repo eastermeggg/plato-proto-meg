@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Pin } from 'lucide-react';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Floating sommaire (table-of-contents) for an acte — Notion-style minimap.
 //
@@ -10,11 +11,11 @@ import { Pin } from 'lucide-react';
 //
 // This is a non-editing navigation overlay — it never mutates the acte.
 
-const INK = '#292524';        // active — encre
-const ON_PATH = '#78716c';    // ancestor of the current section
-const MUTED = '#a8a29e';      // default label
-const TICK = '#cbc7c4';       // default tick
-const TICK_ON = '#a8a29e';    // on-path tick
+const INK = colors.semantic.foreground;        // active — encre
+const ON_PATH = colors.semantic.mutedForeground;    // ancestor of the current section
+const MUTED = colors.semantic.foregroundMuted;      // default label
+const TICK = colors.semantic.borderStrong;       // default tick
+const TICK_ON = colors.semantic.foregroundMuted;    // on-path tick
 
 // Tick width per display-rank. Ranks are derived from the levels actually
 // present in the document, so a flat acte never renders an empty 5-level tree.
@@ -35,9 +36,11 @@ function compactMontant(m) {
   return `${Math.round(v).toLocaleString('fr-FR')} €`;
 }
 
-export default function ActOutline({ headings, scrollRef, side = 'left' }) {
+export default function ActOutline({ headings, scrollRef, side = 'left', defaultPinned = false }) {
   const [expanded, setExpanded] = useState(false);
-  const [pinned, setPinned] = useState(false);
+  const [pinned, setPinned] = useState(defaultPinned);
+  // Allow a consumer (e.g. the playground) to force the sommaire open.
+  useEffect(() => { setPinned(defaultPinned); }, [defaultPinned]);
   const [activeId, setActiveId] = useState(headings[0]?.id ?? null);
   const [hoveredId, setHoveredId] = useState(null);
   const [availH, setAvailH] = useState(0);
@@ -154,10 +157,10 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
             width: 304,
             maxHeight: availH ? availH - 48 : 'calc(100vh - 200px)',
             overflowY: 'auto',
-            backgroundColor: '#ffffff',
-            border: '1px solid #dfdcd9',
+            backgroundColor: colors.semantic.white,
+            border: `1px solid ${colors.semantic.border}`,
             borderRadius: 12,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08)',
+            boxShadow: shadows['lg'],
             padding: '8px',
             display: 'flex',
             flexDirection: 'column',
@@ -193,7 +196,7 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
                 borderRadius: 5,
                 border: 'none',
                 cursor: 'pointer',
-                background: pinned ? '#f0eee9' : 'transparent',
+                background: pinned ? colors.semantic.muted : 'transparent',
                 color: pinned ? INK : MUTED,
               }}
             >
@@ -225,7 +228,7 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
                   padding: '7px 11px',
                   paddingLeft: 11 + depth * 15,
                   borderRadius: 7,
-                  background: isActive ? INK : isHovered ? '#f7f6f3' : 'transparent',
+                  background: isActive ? INK : isHovered ? colors.semantic.accent : 'transparent',
                   transition: 'background 110ms ease',
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
@@ -249,7 +252,7 @@ export default function ActOutline({ headings, scrollRef, side = 'left' }) {
                     fontSize: 13,
                     lineHeight: '18px',
                     fontWeight: isActive ? 600 : isOnPath ? 500 : 400,
-                    color: isActive ? '#ffffff' : isOnPath ? ON_PATH : isHovered ? '#57534e' : '#8c857d',
+                    color: isActive ? colors.semantic.white : isOnPath ? ON_PATH : isHovered ? colors.semantic.foregroundQuaternary : colors.semantic.mutedForeground,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',

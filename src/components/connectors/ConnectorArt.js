@@ -9,6 +9,7 @@ import React from 'react';
 import { AtSign, Briefcase, Check, FileText, Landmark, Mail, Paperclip, RefreshCw } from 'lucide-react';
 import { CONNECTOR_PROVIDERS } from './connectorData';
 import outlookLogo from '../../assets/outlook.svg';
+import { colors } from '../../design-system/tokens';
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
 const MONO = "'IBM Plex Mono', monospace";
@@ -23,11 +24,11 @@ export function OutlookMark({ size = 24 }) {
 export function GmailMark({ size = 24 }) {
   return (
     <svg width={size} height={size * 0.75} viewBox="52 42 88 66" fill="none" aria-hidden style={{ display: 'block' }}>
-      <path fill="#4285f4" d="M58 108h14V74L52 59v43c0 3.32 2.69 6 6 6" />
-      <path fill="#34a853" d="M120 108h14c3.32 0 6-2.69 6-6V59l-20 15" />
-      <path fill="#fbbc04" d="M120 48v26l20-15v-8c0-7.42-8.47-11.65-14.4-7.2" />
-      <path fill="#ea4335" d="M72 74V48l24 18 24-18v26L96 92" />
-      <path fill="#c5221f" d="M52 51v8l20 15V48l-5.6-4.2c-5.94-4.45-14.4-.22-14.4 7.2" />
+      <path fill="#4285f4" d="M58 108h14V74L52 59v43c0 3.32 2.69 6 6 6" />{/* ds-hex-ok: tracé officiel du logo Gmail */}
+      <path fill="#34a853" d="M120 108h14c3.32 0 6-2.69 6-6V59l-20 15" />{/* ds-hex-ok: tracé officiel du logo Gmail */}
+      <path fill="#fbbc04" d="M120 48v26l20-15v-8c0-7.42-8.47-11.65-14.4-7.2" />{/* ds-hex-ok: tracé officiel du logo Gmail */}
+      <path fill="#ea4335" d="M72 74V48l24 18 24-18v26L96 92" />{/* ds-hex-ok: tracé officiel du logo Gmail */}
+      <path fill="#c5221f" d="M52 51v8l20 15V48l-5.6-4.2c-5.94-4.45-14.4-.22-14.4 7.2" />{/* ds-hex-ok: tracé officiel du logo Gmail */}
     </svg>
   );
 }
@@ -36,7 +37,7 @@ export function ProviderMark({ provider = 'outlook', size = 24 }) {
   if (provider === 'gmail') return <GmailMark size={size} />;
   // « Autre » (IMAP) : pas de marque de grand fournisseur - une enveloppe/arobase
   // neutre dans la teinte pierre du système.
-  if (provider === 'imap') return <AtSign aria-hidden style={{ width: size, height: size, color: '#57534e', display: 'block' }} strokeWidth={1.75} />;
+  if (provider === 'imap') return <AtSign aria-hidden style={{ width: size, height: size, color: colors.semantic.foregroundQuaternary, display: 'block' }} strokeWidth={1.75} />;
   return <OutlookMark size={size} />;
 }
 
@@ -44,8 +45,8 @@ export function ProviderMark({ provider = 'outlook', size = 24 }) {
 export function WhatsAppMark({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden style={{ display: 'block' }}>
-      <path fill="#25d366" d="M12 2C6.48 2 2 6.48 2 12c0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38A9.96 9.96 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z" />
-      <path fill="#ffffff" d="M16.6 14.2c-.25-.13-1.47-.72-1.7-.8-.23-.09-.4-.13-.56.12-.17.25-.64.8-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05 0 1.21.88 2.37 1 2.54.12.17 1.73 2.64 4.2 3.7.59.25 1.05.4 1.4.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z" />
+      <path fill="#25d366" d="M12 2C6.48 2 2 6.48 2 12c0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38A9.96 9.96 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z" />{/* ds-hex-ok: tracé officiel du logo WhatsApp */}
+      <path fill={colors.semantic.white} d="M16.6 14.2c-.25-.13-1.47-.72-1.7-.8-.23-.09-.4-.13-.56.12-.17.25-.64.8-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05 0 1.21.88 2.37 1 2.54.12.17 1.73 2.64 4.2 3.7.59.25 1.05.4 1.4.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z" />
     </svg>
   );
 }
@@ -54,15 +55,15 @@ export function WhatsAppMark({ size = 20 }) {
 // autres portent une icône métier dans la teinte de leur tuile.
 export function UpcomingMark({ id, size = 20 }) {
   if (id === 'whatsapp') return <WhatsAppMark size={size} />;
-  if (id === 'ebarreau') return <Landmark style={{ width: size, height: size, color: '#1e3a8a' }} strokeWidth={1.75} />;
-  return <Briefcase style={{ width: size, height: size, color: '#57534e' }} strokeWidth={1.75} />;
+  if (id === 'ebarreau') return <Landmark style={{ width: size, height: size, color: colors.feedback.info.text }} strokeWidth={1.75} />;
+  return <Briefcase style={{ width: size, height: size, color: colors.semantic.foregroundQuaternary }} strokeWidth={1.75} />;
 }
 
 // Logo Plato (roi d'échecs) - le même asset que la barre latérale de l'app.
 export function PlatoMark({ size = 20 }) {
   return (
     <img
-      src="/logo-plato.png"
+      src="/logo-plato.svg"
       alt=""
       aria-hidden
       style={{ width: size, height: size, display: 'block', flexShrink: 0, userSelect: 'none' }}
@@ -74,8 +75,8 @@ export function PlatoMark({ size = 20 }) {
 export function MarkTile({ children, size = 56, radius = 14 }) {
   return (
     <span
-      className="inline-flex items-center justify-center flex-shrink-0 bg-white"
-      style={{ width: size, height: size, borderRadius: radius, border: '1px solid #dfdcd9', boxShadow: '0 2px 6px -1px rgba(28,25,23,0.10), 0 1px 2px rgba(28,25,23,0.06)' }}
+      className="inline-flex items-center justify-center flex-shrink-0 bg-surface"
+      style={{ width: size, height: size, borderRadius: radius, border: `1px solid ${colors.semantic.border}`, boxShadow: '0 2px 6px -1px rgba(28,25,23,0.10), 0 1px 2px rgba(28,25,23,0.06)' }}
     >
       {children}
     </span>
@@ -84,20 +85,20 @@ export function MarkTile({ children, size = 56, radius = 14 }) {
 
 // ── Briques internes de la carte Norma ──────────────────────────────────────
 
-const Bar = ({ w, tone = '#e9e6e0' }) => (
+const Bar = ({ w, tone = colors.semantic.muted }) => (
   <span aria-hidden style={{ height: 7, borderRadius: 4, backgroundColor: tone, width: w, flexShrink: 1, minWidth: 14 }} />
 );
 
 const CheckTile = () => (
-  <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 14, height: 14, borderRadius: 4, backgroundColor: '#e4efe8' }}>
-    <Check style={{ width: 9, height: 9, color: '#4a9168' }} strokeWidth={3.5} />
+  <span className="inline-flex items-center justify-center flex-shrink-0" style={{ width: 14, height: 14, borderRadius: 4, backgroundColor: colors.feedback.success.subtle }}>
+    <Check style={{ width: 9, height: 9, color: colors.accents.meadow }} strokeWidth={3.5} />
   </span>
 );
 
 const Cote = ({ n }) => (
   <span
     className="inline-flex items-center flex-shrink-0"
-    style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 500, letterSpacing: '0.04em', color: '#78716c', backgroundColor: '#f1efeb', borderRadius: 4, padding: '2px 5px', lineHeight: 1 }}
+    style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 500, letterSpacing: '0.04em', color: colors.semantic.mutedForeground, backgroundColor: colors.semantic.muted, borderRadius: 4, padding: '2px 5px', lineHeight: 1 }}
   >
     N° {n}
   </span>
@@ -106,7 +107,7 @@ const Cote = ({ n }) => (
 // Coude d'indentation d'une PJ - le même dessin que le vrai bordereau.
 const MiniElbow = () => (
   <span aria-hidden style={{ width: 13, height: 13, flexShrink: 0, marginLeft: 2 }}>
-    <span style={{ display: 'block', width: 10, height: 12, marginLeft: 3, borderLeft: '1px solid #cbc7c4', borderBottom: '1px solid #cbc7c4', borderBottomLeftRadius: 4 }} />
+    <span style={{ display: 'block', width: 10, height: 12, marginLeft: 3, borderLeft: `1px solid ${colors.semantic.borderStrong}`, borderBottom: `1px solid ${colors.semantic.borderStrong}`, borderBottomLeftRadius: 4 }} />
   </span>
 );
 
@@ -122,7 +123,7 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
     <div
       aria-hidden
       className="relative overflow-hidden select-none"
-      style={{ height, borderRadius: 12, border: '1px solid #dfdcd9', backgroundColor: '#f7f6f3' }}
+      style={{ height, borderRadius: 12, border: `1px solid ${colors.semantic.border}`, backgroundColor: colors.semantic.background }}
     >
       <style>{`
         @keyframes nconn-dot { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
@@ -134,7 +135,7 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
           100% { transform: translateX(182px) translateY(-50%); opacity: 0; }
         }
         @keyframes nconn-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes nconn-glow { 0%, 100% { background-color: #eef3fa; } 50% { background-color: #e2ecf8; } }
+        @keyframes nconn-glow { 0%, 100% { background-color: ${colors.banner.info.bgFrom}; } 50% { background-color: ${colors.piece.expertise.bg}; } }
         @media (prefers-reduced-motion: reduce) {
           .nconn-anim { animation: none !important; }
         }
@@ -142,7 +143,7 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
 
       {/* Lavis de teinte fournisseur à gauche, encre très diluée à droite. */}
       <span className="absolute inset-0" style={{ background: `radial-gradient(420px 300px at 12% 45%, ${p.tint} 0%, rgba(255,255,255,0) 62%)` }} />
-      <span className="absolute inset-0" style={{ background: 'radial-gradient(380px 280px at 96% 55%, #eeece6 0%, rgba(255,255,255,0) 60%)' }} />
+      <span className="absolute inset-0" style={{ background: `radial-gradient(380px 280px at 96% 55%, ${colors.semantic.muted} 0%, rgba(255,255,255,0) 60%)` }} />
 
       <div className="absolute inset-0 flex items-center">
         {/* Les deux boîtes sur le même écran : Gmail + Outlook, tuiles
@@ -164,12 +165,12 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
             <span
               key={i}
               className="nconn-anim"
-              style={{ width: 5, height: 5, borderRadius: 99, backgroundColor: '#a8a29e', animation: `nconn-dot 2.6s ease-in-out ${i * 0.35}s infinite` }}
+              style={{ width: 5, height: 5, borderRadius: 99, backgroundColor: colors.step.muted, animation: `nconn-dot 2.6s ease-in-out ${i * 0.35}s infinite` }}
             />
           ))}
           {kind === 'sync' && (
-            <span className="inline-flex items-center justify-center bg-white" style={{ width: 24, height: 24, borderRadius: 99, border: '1px solid #dfdcd9', boxShadow: '0 1px 3px rgba(28,25,23,0.08)' }}>
-              <RefreshCw className="nconn-anim" style={{ width: 12, height: 12, color: '#1e3a8a', animation: 'nconn-spin 14s linear infinite' }} strokeWidth={1.75} />
+            <span className="inline-flex items-center justify-center bg-surface" style={{ width: 24, height: 24, borderRadius: 99, border: `1px solid ${colors.semantic.border}`, boxShadow: '0 1px 3px rgba(28,25,23,0.08)' }}>
+              <RefreshCw className="nconn-anim" style={{ width: 12, height: 12, color: colors.feedback.info.text, animation: 'nconn-spin 14s linear infinite' }} strokeWidth={1.75} />
             </span>
           )}
         </div>
@@ -177,32 +178,32 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
         {/* Pièce qui voyage (import) - l'unique moment animé du panneau. */}
         {kind === 'import' && (
           <span
-            className="nconn-anim absolute inline-flex items-center gap-1.5 bg-white"
+            className="nconn-anim absolute inline-flex items-center gap-1.5 bg-surface"
             style={{
               left: '30%', top: '50%',
-              padding: '4px 8px', borderRadius: 99, border: '1px solid #dfdcd9',
+              padding: '4px 8px', borderRadius: 99, border: `1px solid ${colors.semantic.border}`,
               boxShadow: '0 3px 8px -2px rgba(28,25,23,0.16)',
               ...(freezeChip
                 ? { transform: 'translateX(118px) translateY(-50%)', opacity: 1 }
                 : { transform: 'translateX(0) translateY(-50%)', opacity: 0, animation: 'nconn-travel 5.6s ease-in-out 0.8s infinite' }),
             }}
           >
-            <FileText style={{ width: 11, height: 11, color: '#b4483c' }} strokeWidth={1.75} />
-            <Bar w={30} tone="#e2dfd8" />
+            <FileText style={{ width: 11, height: 11, color: colors.banner.error.accentHover }} strokeWidth={1.75} />
+            <Bar w={30} tone={colors.semantic.input} />
           </span>
         )}
 
         {/* Carte Norma - déborde du cadre à droite, comme la référence. */}
         <div
-          className="ml-auto bg-white flex-shrink-0"
-          style={{ width: 316, marginRight: -34, borderRadius: '12px 0 0 12px', border: '1px solid #dfdcd9', borderRight: 'none', boxShadow: '0 14px 34px -10px rgba(28,25,23,0.18)' }}
+          className="ml-auto bg-surface flex-shrink-0"
+          style={{ width: 316, marginRight: -34, borderRadius: '12px 0 0 12px', border: `1px solid ${colors.semantic.border}`, borderRight: 'none', boxShadow: '0 14px 34px -10px rgba(28,25,23,0.18)' }}
         >
           {/* Le débord droit (-34px) est compensé par le padding : les cotes
               restent entières dans la zone visible. */}
-          <div className="flex items-center gap-2" style={{ padding: '10px 48px 10px 14px', borderBottom: '1px solid #f0efed' }}>
+          <div className="flex items-center gap-2" style={{ padding: '10px 48px 10px 14px', borderBottom: `1px solid ${colors.semantic.backgroundSubtle}` }}>
             <PlatoMark size={18} />
-            <span style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 14, color: '#292524', letterSpacing: '-0.2px' }}>Plato</span>
-            <span className="ml-auto" style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#78716c', backgroundColor: '#eeece6', borderRadius: 4, padding: '3px 6px' }}>
+            <span style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 14, color: colors.semantic.foreground, letterSpacing: '-0.2px' }}>Plato</span>
+            <span className="ml-auto" style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.semantic.mutedForeground, backgroundColor: colors.semantic.muted, borderRadius: 4, padding: '3px 6px' }}>
               Dossier Leblanc
             </span>
           </div>
@@ -211,17 +212,17 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
             <div className="flex flex-col" style={{ padding: '12px 48px 12px 14px', gap: 9 }}>
               <div className="flex items-center" style={{ gap: 8 }}>
                 <CheckTile />
-                <Mail style={{ width: 13, height: 13, color: '#1e3a8a', flexShrink: 0 }} strokeWidth={1.75} />
+                <Mail style={{ width: 13, height: 13, color: colors.feedback.info.text, flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={132} />
               </div>
               <div className="flex items-center" style={{ gap: 8, paddingLeft: 6 }}>
                 <MiniElbow />
-                <Paperclip style={{ width: 12, height: 12, color: '#b4483c', flexShrink: 0 }} strokeWidth={1.75} />
+                <Paperclip style={{ width: 12, height: 12, color: colors.banner.error.accentHover, flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={96} />
               </div>
               <div className="flex items-center" style={{ gap: 8 }}>
                 <CheckTile />
-                <FileText style={{ width: 13, height: 13, color: '#b4483c', flexShrink: 0 }} strokeWidth={1.75} />
+                <FileText style={{ width: 13, height: 13, color: colors.banner.error.accentHover, flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={110} />
               </div>
             </div>
@@ -231,21 +232,21 @@ export function ConnectorHero({ provider = 'outlook', kind = 'import', height = 
                 className="nconn-anim flex items-center"
                 style={{ gap: 8, margin: '-4px -6px', padding: '4px 6px', borderRadius: 7, animation: 'nconn-glow 4.4s ease-in-out infinite' }}
               >
-                <span className="flex-shrink-0" style={{ width: 6, height: 6, borderRadius: 99, backgroundColor: '#2563eb' }} />
-                <Mail style={{ width: 13, height: 13, color: '#1e3a8a', flexShrink: 0 }} strokeWidth={1.75} />
-                <Bar w={104} tone="#d9e4f2" />
-                <span className="ml-auto flex-shrink-0" style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#1e3a8a', backgroundColor: '#dbeafe', borderRadius: 4, padding: '3px 6px' }}>
+                <span className="flex-shrink-0" style={{ width: 6, height: 6, borderRadius: 99, backgroundColor: colors.banner.info.accent }} />
+                <Mail style={{ width: 13, height: 13, color: colors.feedback.info.text, flexShrink: 0 }} strokeWidth={1.75} />
+                <Bar w={104} tone={colors.piece.expertise.bg} />
+                <span className="ml-auto flex-shrink-0" style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', color: colors.feedback.info.text, backgroundColor: colors.piece.medical.bg, borderRadius: 4, padding: '3px 6px' }}>
                   Proposé
                 </span>
               </div>
               <div className="flex items-center" style={{ gap: 8 }}>
                 <CheckTile />
-                <Mail style={{ width: 13, height: 13, color: '#a8a29e', flexShrink: 0 }} strokeWidth={1.75} />
+                <Mail style={{ width: 13, height: 13, color: colors.semantic.foregroundMuted, flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={128} />
               </div>
               <div className="flex items-center" style={{ gap: 8 }}>
                 <CheckTile />
-                <FileText style={{ width: 13, height: 13, color: '#a8a29e', flexShrink: 0 }} strokeWidth={1.75} />
+                <FileText style={{ width: 13, height: 13, color: colors.semantic.foregroundMuted, flexShrink: 0 }} strokeWidth={1.75} />
                 <Bar w={102} />
               </div>
             </div>
@@ -278,7 +279,7 @@ export function ConnectorMiniLink({ provider = 'outlook', both = false, tileSize
       )}
       <span className="inline-flex items-center" style={{ gap: 5 }}>
         {[0, 1, 2].map(i => (
-          <span key={i} style={{ width: 4, height: 4, borderRadius: 99, backgroundColor: '#a8a29e' }} />
+          <span key={i} style={{ width: 4, height: 4, borderRadius: 99, backgroundColor: colors.step.muted }} />
         ))}
       </span>
       <MarkTile size={tileSize} radius={12}>
@@ -298,7 +299,7 @@ export function MailPromoArt({ height = 72 }) {
     <div
       aria-hidden
       className="relative overflow-hidden select-none"
-      style={{ height, borderRadius: 10, border: '1px solid #e7e4de', background: 'linear-gradient(118deg, #f4f2ee 0%, #faf9f7 48%, #eef3fa 122%)' }}
+      style={{ height, borderRadius: 10, border: `1px solid ${colors.semantic.muted}`, background: `linear-gradient(118deg, ${colors.semantic.background} 0%, ${colors.semantic.background} 48%, ${colors.banner.info.bgFrom} 122%)` }}
     >
       <style>{`
         @keyframes mpa-dot { 0%,100%{opacity:.25} 50%{opacity:.9} }
@@ -325,29 +326,29 @@ export function MailPromoArt({ height = 72 }) {
         {/* Canal pointillé. */}
         <span className="inline-flex items-center flex-shrink-0" style={{ gap: 5, margin: '0 9px' }}>
           {[0, 1, 2].map(i => (
-            <span key={i} className="mpa-anim" style={{ width: 4, height: 4, borderRadius: 99, backgroundColor: '#a8a29e', animation: `mpa-dot 2.4s ease-in-out ${i * 0.3}s infinite` }} />
+            <span key={i} className="mpa-anim" style={{ width: 4, height: 4, borderRadius: 99, backgroundColor: colors.step.muted, animation: `mpa-dot 2.4s ease-in-out ${i * 0.3}s infinite` }} />
           ))}
         </span>
 
         {/* Résultat : deux pièces extraites de l'échange (jamais de numéro -
             pas de numérotation automatique). */}
         <div className="flex flex-col flex-1 min-w-0" style={{ gap: 5 }}>
-          {[{ Icon: Mail, tone: '#1e3a8a' }, { Icon: Paperclip, tone: '#b4483c' }].map(({ Icon, tone }, i) => (
-            <div key={i} className="flex items-center bg-white" style={{ gap: 7, padding: '5px 7px', borderRadius: 7, border: '1px solid #ece9e3', boxShadow: '0 1px 2px rgba(28,25,23,0.05)' }}>
+          {[{ Icon: Mail, tone: colors.feedback.info.text }, { Icon: Paperclip, tone: colors.banner.error.accentHover }].map(({ Icon, tone }, i) => (
+            <div key={i} className="flex items-center bg-surface" style={{ gap: 7, padding: '5px 7px', borderRadius: 7, border: `1px solid ${colors.semantic.muted}`, boxShadow: '0 1px 2px rgba(28,25,23,0.05)' }}>
               <CheckTile />
               <Icon style={{ width: 11, height: 11, color: tone, flexShrink: 0 }} strokeWidth={1.75} />
-              <span aria-hidden style={{ flex: 1, height: 5, borderRadius: 2.5, backgroundColor: '#e9e6e0' }} />
+              <span aria-hidden style={{ flex: 1, height: 5, borderRadius: 2.5, backgroundColor: colors.semantic.muted }} />
             </div>
           ))}
         </div>
 
         {/* La pièce qui voyage - l'unique moment animé. */}
         <span
-          className="mpa-anim absolute inline-flex items-center gap-1 bg-white"
-          style={{ left: 42, top: '50%', padding: '3px 6px', borderRadius: 99, border: '1px solid #dfdcd9', boxShadow: '0 2px 6px -2px rgba(28,25,23,0.16)', transform: 'translate(0,-50%)', opacity: 0, animation: 'mpa-travel 5s ease-in-out 0.7s infinite' }}
+          className="mpa-anim absolute inline-flex items-center gap-1 bg-surface"
+          style={{ left: 42, top: '50%', padding: '3px 6px', borderRadius: 99, border: `1px solid ${colors.semantic.border}`, boxShadow: '0 2px 6px -2px rgba(28,25,23,0.16)', transform: 'translate(0,-50%)', opacity: 0, animation: 'mpa-travel 5s ease-in-out 0.7s infinite' }}
         >
-          <FileText style={{ width: 10, height: 10, color: '#b4483c' }} strokeWidth={1.75} />
-          <Bar w={20} tone="#e2dfd8" />
+          <FileText style={{ width: 10, height: 10, color: colors.banner.error.accentHover }} strokeWidth={1.75} />
+          <Bar w={20} tone={colors.semantic.input} />
         </span>
       </div>
     </div>
@@ -361,17 +362,17 @@ export function MailPromoArt({ height = 72 }) {
 export function OAuthWindow({ provider = 'outlook', children }) {
   const p = CONNECTOR_PROVIDERS[provider] || CONNECTOR_PROVIDERS.outlook;
   return (
-    <div className="bg-white overflow-hidden" style={{ width: 360, borderRadius: 12, border: '1px solid #dfdcd9', boxShadow: '0 18px 44px -12px rgba(28,25,23,0.22)' }}>
-      <div className="flex items-center" style={{ gap: 6, padding: '9px 12px', backgroundColor: '#f6f5f2', borderBottom: '1px solid #dfdcd9' }}>
-        {['#e0ddd6', '#e0ddd6', '#e0ddd6'].map((c, i) => (
+    <div className="bg-surface overflow-hidden" style={{ width: 360, borderRadius: 12, border: `1px solid ${colors.semantic.border}`, boxShadow: '0 18px 44px -12px rgba(28,25,23,0.22)' }}>
+      <div className="flex items-center" style={{ gap: 6, padding: '9px 12px', backgroundColor: colors.semantic.background, borderBottom: `1px solid ${colors.semantic.border}` }}>
+        {[colors.semantic.input, colors.semantic.input, colors.semantic.input].map((c, i) => (
           <span key={i} style={{ width: 8, height: 8, borderRadius: 99, backgroundColor: c }} />
         ))}
         <span className="flex-1 flex items-center justify-center" style={{ gap: 5, marginLeft: -22 }}>
           <svg width="9" height="11" viewBox="0 0 9 11" aria-hidden>
-            <rect x="0.5" y="4.5" width="8" height="6" rx="1.5" fill="none" stroke="#4a9168" />
-            <path d="M2.5 4.5V3a2 2 0 1 1 4 0v1.5" fill="none" stroke="#4a9168" strokeWidth="1" />
+            <rect x="0.5" y="4.5" width="8" height="6" rx="1.5" fill="none" stroke={colors.accents.meadow} />
+            <path d="M2.5 4.5V3a2 2 0 1 1 4 0v1.5" fill="none" stroke={colors.accents.meadow} strokeWidth="1" />
           </svg>
-          <span style={{ fontFamily: MONO, fontSize: 10.5, color: '#57534e', letterSpacing: '0.02em' }}>{p.authDomain}</span>
+          <span style={{ fontFamily: MONO, fontSize: 10.5, color: colors.semantic.foregroundQuaternary, letterSpacing: '0.02em' }}>{p.authDomain}</span>
         </span>
       </div>
       <div className="flex flex-col items-center text-center" style={{ padding: '26px 24px', gap: 12 }}>

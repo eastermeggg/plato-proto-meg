@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from
 import { createPortal } from 'react-dom';
 import { ExternalLink } from 'lucide-react';
 import Badge from './Badge';
+import { colors, shadows } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LoiHoverCard - fiche d'identité d'un article de loi au survol d'une référence.
@@ -18,7 +19,12 @@ const MONO = "'IBM Plex Mono', monospace";
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
 
 // Famille TEXTE (violet) - alignée sur COT_BADGE_TOKENS.TEXTE + accents.violet.
-const TEXTE = { tileBg: '#efebfe', tileBorder: '#ddd3f6', ink: '#6d46c8', text: '#5931b4' };
+const TEXTE = {
+  tileBg: colors.accents.violet.subtle,
+  tileBorder: colors.accents.violet.border,
+  ink: colors.accents.violet.base,
+  text: colors.accents.violet.text,
+};
 
 // Statut de version - rendu par le Badge du DS (pas de tampon maison).
 const STATUT_BADGE = {
@@ -40,16 +46,16 @@ function injectStyles() {
 .loi-ref {
   font: inherit; color: ${TEXTE.text}; background: none; border: none; padding: 0 1px;
   margin: 0 -1px; cursor: pointer; border-radius: 3px;
-  text-decoration: underline dotted; text-decoration-color: #c9bfe8;
+  text-decoration: underline dotted; text-decoration-color: ${TEXTE.tileBorder};
   text-underline-offset: 3px; text-decoration-thickness: 1px;
   transition: background 0.12s ease, text-decoration-color 0.12s ease;
 }
-.loi-ref:hover { background: #f3effc; text-decoration-style: solid; text-decoration-color: ${TEXTE.ink}; }
+.loi-ref:hover { background: ${TEXTE.tileBg}; text-decoration-style: solid; text-decoration-color: ${TEXTE.ink}; }
 .loi-ref:focus-visible { outline: 2px solid ${TEXTE.ink}; outline-offset: 2px; }
 .loi-card-open { color: ${TEXTE.text}; }
 .loi-card-open:hover { text-decoration: underline; text-underline-offset: 3px; }
-.loi-card-legifrance { color: #78716c; }
-.loi-card-legifrance:hover { color: #292524; }
+.loi-card-legifrance { color: ${colors.semantic.mutedForeground}; }
+.loi-card-legifrance:hover { color: ${colors.semantic.foreground}; }
 `;
   document.head.appendChild(el);
 }
@@ -93,8 +99,8 @@ function Field({ label, value, full }) {
   if (!value) return null;
   return (
     <div style={{ minWidth: 0, gridColumn: full ? '1 / -1' : undefined }}>
-      <div style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#78716c', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 12, fontWeight: 500, color: '#44403c', lineHeight: '16px' }}>{value}</div>
+      <div style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.semantic.mutedForeground, marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.secondaryForeground, lineHeight: '16px' }}>{value}</div>
     </div>
   );
 }
@@ -106,9 +112,9 @@ export function LoiCard({ article, onOpen, style }) {
   return (
     <div
       style={{
-        width: 380, maxWidth: 'calc(100vw - 24px)', background: '#ffffff',
-        border: '1px solid #dfdcd9', borderRadius: 12,
-        boxShadow: '0 12px 32px -8px rgba(26,26,26,0.16), 0 2px 8px rgba(26,26,26,0.06)',
+        width: 380, maxWidth: 'calc(100vw - 24px)', background: colors.semantic.popover,
+        border: `1px solid ${colors.semantic.border}`, borderRadius: 12,
+        boxShadow: shadows['2xl'],
         overflow: 'hidden', textAlign: 'left', ...style,
       }}
     >
@@ -116,18 +122,18 @@ export function LoiCard({ article, onOpen, style }) {
       <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
         <span aria-hidden style={{ width: 26, height: 26, borderRadius: 7, background: TEXTE.tileBg, border: `1px solid ${TEXTE.tileBorder}`, color: TEXTE.ink, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, flexShrink: 0, marginTop: 1 }}>§</span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 500, letterSpacing: '-0.3px', lineHeight: '22px', color: '#292524' }}>{article.article}</div>
-          <div style={{ fontSize: 12, color: '#78716c', marginTop: 1 }}>{article.code}</div>
+          <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 500, letterSpacing: '-0.3px', lineHeight: '22px', color: colors.semantic.foreground }}>{article.article}</div>
+          <div style={{ fontSize: 12, color: colors.semantic.mutedForeground, marginTop: 1 }}>{article.code}</div>
         </div>
         <Badge variant={st.variant} label={st.label} style={{ flexShrink: 0, marginTop: 2 }} />
       </div>
 
       {/* Séparateur ticket */}
-      <div style={{ borderTop: '1px dashed #dfdcd9', margin: '0 16px' }} />
+      <div style={{ borderTop: `1px dashed ${colors.semantic.border}`, margin: '0 16px' }} />
 
       {/* Extrait - 4 lignes max, puis ouverture de la source */}
       <div style={{ padding: '11px 16px 0' }}>
-        <p style={{ margin: 0, fontSize: 12.5, lineHeight: '19px', color: '#44403c', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 4, overflow: 'hidden' }}>
+        <p style={{ margin: 0, fontSize: 12.5, lineHeight: '19px', color: colors.semantic.secondaryForeground, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 4, overflow: 'hidden' }}>
           {article.extrait}
         </p>
         {onOpen && (
@@ -146,8 +152,8 @@ export function LoiCard({ article, onOpen, style }) {
       </div>
 
       {/* Pied : identifiant Légifrance + lien externe */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '8px 16px', borderTop: '1px solid #e7e4e0', background: '#f8f7f5' }}>
-        <span style={{ fontFamily: MONO, fontSize: 10, color: '#a8a29e', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{article.legifranceId}</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '8px 16px', borderTop: `1px solid ${colors.semantic.border}`, background: colors.semantic.background }}>
+        <span style={{ fontFamily: MONO, fontSize: 10, color: colors.semantic.foregroundMuted, letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{article.legifranceId}</span>
         {article.url && (
           <a href={article.url} target="_blank" rel="noreferrer" className="loi-card-legifrance" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 500, textDecoration: 'none', flexShrink: 0, transition: 'color 0.12s ease' }}>
             <ExternalLink style={{ width: 11, height: 11 }} strokeWidth={1.75} /> Légifrance

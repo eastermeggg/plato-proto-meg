@@ -1,5 +1,7 @@
 import React from 'react';
 import { Calculator, Pencil, Type, Scissors, ListOrdered, IterationCcw } from 'lucide-react';
+import { colors, shadows } from '../../design-system/tokens';
+import Textarea from '../ui/Textarea';
 
 export const PREFERENCE_SLOT_IDS = ['chiffrage', 'redaction', 'bordereau', 'nommage', 'decoupage'];
 
@@ -25,7 +27,7 @@ export const PREFERENCE_SLOT_PLACEHOLDERS = {
   chiffrage: "Ex : Référentiel Mornet 2024 pour le DFP et les SE. Capitalisation via la Gazette du Palais. DFT à 1 800 €/mois. Toujours détailler les postes patrimoniaux en annexe…",
   redaction: "Ex : Plan Faits / Discussion / Dispositif. Numérotation I, A, 1°. JP en notes de bas de page. Ton sobre, phrases courtes. Rappeler les fondements textuels en début de discussion…",
   bordereau: "Ex : Numéroter dans l'ordre d'apparition (numéro stable d'un acte à l'autre). Regrouper par thème (I. Médical, II. Frais, III. Revenus). N'inclure que les pièces citées, sauf conclusions. Tableau N° / Nom / Date…",
-  nommage: "Ex : « N° — Nature — Auteur [JJ-MM-AAAA] ». Conserver l'extension. Omettre l'auteur si inconnu. Garder accents et casse des noms propres…",
+  nommage: "Ex : « N° - Nature - Auteur [JJ-MM-AAAA] ». Conserver l'extension. Omettre l'auteur si inconnu. Garder accents et casse des noms propres…",
   decoupage: "Ex : Découper à chaque changement d'auteur, de date ou de nature. Garder les rapports d'expertise en un seul fichier. Rattacher une page de garde isolée au document suivant…",
 };
 
@@ -35,19 +37,19 @@ export const PREFERENCE_SLOT_DEFAULTS = {
   redaction:
     "Plan en trois parties : Faits et procédure / Discussion / Dispositif. Numérotation décimale (I, A, 1°), titres en gras sans soulignement. Citations de jurisprudence en notes de bas de page, jamais dans le corps. Toujours un récapitulatif chiffré en fin de discussion. Style : phrases courtes, voix active, ton sobre. Désigner « la concluante » plutôt que « ma cliente ». Préférer « il convient » à « il faut ». Toujours rappeler les fondements textuels (art. 1240 c. civ., loi Badinter, etc.) en début de discussion. Dispositif concis : une demande = une ligne.",
   bordereau:
-    "Numéroter les pièces dans l'ordre d'apparition dans l'acte (la numérotation reste stable d'un acte à l'autre sur le même dossier). Regrouper par thème en sections (I. Médical, II. Frais, III. Pertes de revenus) plutôt qu'en liste plate. N'inclure que les pièces citées dans l'acte — sauf pour des conclusions récapitulatives, où le bordereau reprend l'ensemble des pièces du dossier. Présenter en tableau : N° / Nom de la pièce / Date. Exporter toujours l'acte, le bordereau et les pièces ensemble, jamais séparément.",
+    "Numéroter les pièces dans l'ordre d'apparition dans l'acte (la numérotation reste stable d'un acte à l'autre sur le même dossier). Regrouper par thème en sections (I. Médical, II. Frais, III. Pertes de revenus) plutôt qu'en liste plate. N'inclure que les pièces citées dans l'acte - sauf pour des conclusions récapitulatives, où le bordereau reprend l'ensemble des pièces du dossier. Présenter en tableau : N° / Nom de la pièce / Date. Exporter toujours l'acte, le bordereau et les pièces ensemble, jamais séparément.",
   nommage:
-    "Format : « N° pièce — Nature — Auteur [JJ-MM-AAAA] ». Exemples : « 12 — Certificat médical — Dr. Martin [04-03-2024] », « 03 — Rapport d'expertise — Cabinet Lefèvre [22-11-2023] ». Conserver l'extension d'origine. Si l'auteur est inconnu, omettre le segment correspondant. Garder les accents et la casse usuelle des noms propres.",
+    "Format : « N° pièce - Nature - Auteur [JJ-MM-AAAA] ». Exemples : « 12 - Certificat médical - Dr. Martin [04-03-2024] », « 03 - Rapport d'expertise - Cabinet Lefèvre [22-11-2023] ». Conserver l'extension d'origine. Si l'auteur est inconnu, omettre le segment correspondant. Garder les accents et la casse usuelle des noms propres.",
   decoupage:
     "Découper un PDF dès qu'un changement d'auteur, de date ou de nature de document est détecté. Les rapports d'expertise médicale restent en un seul fichier, même longs. Les certificats successifs d'un même médecin sur une même journée sont fusionnés. Une page de garde isolée est rattachée au document suivant. Les annexes d'un rapport restent groupées avec le rapport principal.",
 };
 
 const SLOT_META = {
-  chiffrage: { icon: Calculator,  gradientFrom: '#dbeafe', iconColor: '#1d4ed8' },
-  redaction: { icon: Pencil,      gradientFrom: '#f3e8ff', iconColor: '#7c3aed' },
-  bordereau: { icon: ListOrdered, gradientFrom: '#fef2f2', iconColor: '#b91c1c' },
-  nommage:   { icon: Type,        gradientFrom: '#ecfdf5', iconColor: '#059669' },
-  decoupage: { icon: Scissors,    gradientFrom: '#fffbeb', iconColor: '#d97706' },
+  chiffrage: { icon: Calculator,  gradientFrom: colors.piece.medical.bg, iconColor: colors.banner.info.accentHover },
+  redaction: { icon: Pencil,      gradientFrom: colors.piece.decision.bg, iconColor: colors.feedback.ai.base },
+  bordereau: { icon: ListOrdered, gradientFrom: colors.step.red.bg, iconColor: colors.banner.error.accentHover },
+  nommage:   { icon: Type,        gradientFrom: colors.banner.success.bgFrom, iconColor: colors.feedback.success.base },
+  decoupage: { icon: Scissors,    gradientFrom: colors.banner.warning.bgFrom, iconColor: colors.banner.warning.accent },
 };
 
 function PreferenceSlot({ id, value, onChange, extra }) {
@@ -61,15 +63,15 @@ function PreferenceSlot({ id, value, onChange, extra }) {
 
   return (
     <div
-      className="bg-white rounded-lg border border-border p-5 flex flex-col gap-4"
-      style={{ boxShadow: '0 2px 4px -2px rgba(26,26,26,0.05), 0 4px 6px -1px rgba(26,26,26,0.05)' }}
+      className="bg-surface rounded-lg border border-border p-5 flex flex-col gap-4"
+      style={{ boxShadow: shadows['md'] }}
     >
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-md border border-border flex items-center justify-center flex-shrink-0"
           style={{
-            background: `linear-gradient(180deg, ${meta.gradientFrom} 0%, #ffffff 100%)`,
-            boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+            background: `linear-gradient(180deg, ${meta.gradientFrom} 0%, ${colors.semantic.card} 100%)`,
+            boxShadow: shadows.xs,
           }}
         >
           <Icon className="w-5 h-5" strokeWidth={1.75} style={{ color: meta.iconColor }} />
@@ -79,7 +81,7 @@ function PreferenceSlot({ id, value, onChange, extra }) {
             style={{
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 14, fontWeight: 500,
-              color: '#292524', lineHeight: '20px', margin: 0,
+              color: colors.semantic.foreground, lineHeight: '20px', margin: 0,
             }}
           >
             {label}
@@ -88,7 +90,7 @@ function PreferenceSlot({ id, value, onChange, extra }) {
             style={{
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 12, fontWeight: 400,
-              color: '#78716c', lineHeight: '16px',
+              color: colors.semantic.mutedForeground, lineHeight: '16px',
               letterSpacing: '0.12px',
               margin: 0,
             }}
@@ -109,22 +111,15 @@ function PreferenceSlot({ id, value, onChange, extra }) {
         </button>
       </div>
       {extra}
-      <textarea
+      <Textarea
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-md bg-background-canvas border border-border focus:outline-none focus:border-foreground-muted transition-colors placeholder:text-foreground-muted"
         style={{
-          fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: 14,
-          lineHeight: '20px',
-          color: '#292524',
-          padding: '10px 12px',
           minHeight: 176,
           maxHeight: 208,
-          resize: 'vertical',
           overflowY: 'auto',
-          boxShadow: '0 1px 2px rgba(26,26,26,0.05)',
+          boxShadow: shadows.xs,
         }}
       />
     </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { FolderOpen, Link2 } from 'lucide-react';
+import { colors } from '../../design-system/tokens';
 
 // ── ScopeChip ────────────────────────────────────────────────────────
 // States the conversation's perimeter on the composer toolbar.
@@ -12,9 +13,9 @@ import { FolderOpen, Link2 } from 'lucide-react';
 
 const FLASH_KEYFRAMES = `
 @keyframes scope-chip-flash {
-  0% { background-color: #ffffff; }
-  30% { background-color: #eeece6; }
-  100% { background-color: #ffffff; }
+  0% { background-color: ${colors.semantic.white}; }
+  30% { background-color: ${colors.semantic.muted}; }
+  100% { background-color: ${colors.semantic.white}; }
 }
 .scope-chip-flash { animation: scope-chip-flash 900ms ease-out 1; }
 `;
@@ -30,7 +31,7 @@ export default function ScopeChip({ scope, dossierLabel, flash, onAttach, onFlas
     <div className="inline-flex items-center gap-1 min-w-0">
       <style>{FLASH_KEYFRAMES}</style>
       <span
-        className={`inline-flex items-center gap-1.5 h-7 px-2 min-w-0 rounded-full border border-border bg-white text-[12px] ${scoped ? 'text-foreground' : 'text-foreground-secondary'} ${flash ? 'scope-chip-flash' : ''}`}
+        className={`inline-flex items-center gap-1.5 h-7 px-2 min-w-0 rounded-full border border-border bg-surface text-[12px] ${scoped ? 'text-foreground' : 'text-foreground-secondary'} ${flash ? 'scope-chip-flash' : ''}`}
         onAnimationEnd={() => {
           if (flash && onFlashEnd) onFlashEnd();
         }}

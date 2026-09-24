@@ -14,6 +14,7 @@ import React, { useEffect } from 'react';
 import { ArrowRight, Mail, Paperclip, Plug2, Search, ShieldCheck, X } from 'lucide-react';
 import { ConnectorHero } from './ConnectorArt';
 import { GuaranteeChips, SyncSoonTeaser } from './ConnectorPromo';
+import {colors, shadows } from '../../design-system/tokens';
 
 const SERIF = "'RL Para Trial Central', 'Albra', Georgia, serif";
 const MONO = "'IBM Plex Mono', monospace";
@@ -68,8 +69,8 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="mail-value-title"
-        className="relative bg-white rounded-xl border border-border flex flex-col overflow-hidden animate-fade-up"
-        style={{ width: 600, maxWidth: '100%', boxShadow: '0 32px 72px -16px rgba(28,25,23,0.34)' }}
+        className="relative bg-surface rounded-xl border border-border flex flex-col overflow-hidden animate-fade-up"
+        style={{ width: 600, maxWidth: '100%', boxShadow: shadows['4xl'] }}
       >
         <button
           type="button"
@@ -87,7 +88,7 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
             <span
               style={{
                 fontFamily: MONO, fontSize: 11, fontWeight: 500,
-                color: '#78716c', textTransform: 'uppercase',
+                color: colors.semantic.mutedForeground, textTransform: 'uppercase',
                 letterSpacing: '0.08em', lineHeight: 1,
               }}
             >
@@ -97,7 +98,7 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
           <div className="flex flex-col" style={{ gap: 6, maxWidth: 500 }}>
             <h2
               id="mail-value-title"
-              style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: '#292524', letterSpacing: '-0.4px', lineHeight: '32px' }}
+              style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: colors.semantic.foreground, letterSpacing: '-0.4px', lineHeight: '32px' }}
             >
               Ne cherchez plus vos pièces : connectez votre boîte mail.
             </h2>
@@ -118,13 +119,13 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
             <div key={title} className="flex items-start" style={{ gap: 12 }}>
               <span
                 className="inline-flex items-center justify-center flex-shrink-0"
-                style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#f1efeb', border: '1px solid #dfdcd9' }}
+                style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: colors.semantic.muted, border: `1px solid ${colors.semantic.border}` }}
               >
-                <Icon style={{ width: 16, height: 16, color: '#44403c' }} strokeWidth={1.75} />
+                <Icon style={{ width: 16, height: 16, color: colors.semantic.foregroundTertiary }} strokeWidth={1.75} />
               </span>
               <div className="flex flex-col" style={{ gap: 1, paddingTop: 1 }}>
                 <p className="text-[13.5px] font-medium text-foreground leading-5">{title}</p>
-                <p className="text-[12.5px] leading-[17px]" style={{ color: '#78716c' }}>{sub}</p>
+                <p className="text-[12.5px] leading-[17px]" style={{ color: colors.semantic.mutedForeground }}>{sub}</p>
               </div>
             </div>
           ))}
@@ -147,9 +148,9 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
             type="button"
             onClick={onConnect}
             className="group w-full inline-flex items-center justify-center gap-2 rounded-lg text-white transition-colors"
-            style={{ height: 44, backgroundColor: '#292524', fontSize: 14, fontWeight: 500 }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#44403c'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#292524'; }}
+            style={{ height: 44, backgroundColor: colors.semantic.primary, fontSize: 14, fontWeight: 500 }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.semantic.foregroundTertiary; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.semantic.foreground; }}
           >
             <Plug2 className="w-4 h-4" strokeWidth={1.75} />
             Connecter ma boîte · 2 min
@@ -162,7 +163,7 @@ export default function MailValueModal({ open, onConnect, onDismiss }) {
           >
             Plus tard
           </button>
-          <p className="text-[12px] italic text-center leading-4" style={{ color: '#a8a29e' }}>
+          <p className="text-[12px] italic text-center leading-4" style={{ color: colors.semantic.foregroundMuted }}>
             On vous le reproposera à la prochaine pièce ajoutée à la main.
           </p>
         </div>

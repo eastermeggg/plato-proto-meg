@@ -63,7 +63,7 @@ function PrimaryCTA({ icon: Icon, children }) {
 }
 function SecondaryCTA({ icon: Icon, children }) {
   return (
-    <button className="h-8 flex items-center gap-1.5 px-3 text-[14px] font-medium text-foreground bg-white border border-border-strong rounded-[6px] hover:bg-cream/60 transition-colors flex-shrink-0" style={{ boxShadow: '0px 1px 0.5px 0px rgba(26,26,26,0.03)' }}>
+    <button className="h-8 flex items-center gap-1.5 px-3 text-[14px] font-medium text-foreground bg-white border border-border-strong rounded-[6px] hover:bg-background-subtle transition-colors flex-shrink-0" style={{ boxShadow: '0px 1px 0.5px 0px rgba(26,26,26,0.03)' }}>
       {Icon && <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />}{children}
     </button>
   );
@@ -95,7 +95,7 @@ function Rows({ label, rows = 4, onRow = null, items = null }) {
     return (
       <div className="flex flex-col gap-2">
         {items.map((it, i) => (
-          <button key={i} onClick={onRow ? () => onRow(it) : undefined} className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border border-border text-left ${onRow ? 'hover:bg-cream/50 transition-colors' : ''}`}>
+          <button key={i} onClick={onRow ? () => onRow(it) : undefined} className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border border-border text-left ${onRow ? 'hover:bg-background-subtle transition-colors' : ''}`}>
             {it.code ? <CodeBadge>{it.code}</CodeBadge> : it.icon ? <it.icon className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} /> : null}
             <span className="flex-1 min-w-0 truncate text-[14px] text-foreground">{it.name}</span>
             {it.meta && <span className="text-[13px] text-foreground-muted flex-shrink-0">{it.meta}</span>}
@@ -292,7 +292,7 @@ function DemoSidebar({ onToggle, pinned, view, onGo }) {
         <span className="flex items-center flex-1 min-w-0"><img src="/logo-plato-wordmark.svg" alt="Plato" className="h-6 flex-shrink-0" style={{ width: 75 }} /></span>
         <button
           onClick={onToggle}
-          className="group p-1.5 rounded-md hover:bg-cream/60 transition-colors flex-shrink-0"
+          className="group p-1.5 rounded-md hover:bg-background-subtle transition-colors flex-shrink-0"
           title={pinned ? 'Épingler la navigation' : 'Masquer la navigation'}
           aria-label={pinned ? 'Épingler la navigation' : 'Masquer la navigation'}
         >
@@ -328,7 +328,7 @@ function DemoSidebar({ onToggle, pinned, view, onGo }) {
 
       <NavPromoBanner icon={Gift} label="-10% à chaque parrainage" edge="bottom" title="Programme de parrainage" onClick={() => {}} />
       <div className="border-t border-border flex-shrink-0 p-2">
-        <div className="w-full flex items-center gap-3 px-2 py-2 rounded-md hover:bg-cream/60 transition-colors">
+        <div className="w-full flex items-center gap-3 px-2 py-2 rounded-md hover:bg-background-subtle transition-colors">
           <span className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-semibold text-white" style={{ backgroundColor: '#57534e' }}>M</span>
           <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
             <span className="text-[14px] font-medium text-foreground truncate leading-[20px]">Meghan</span>
@@ -365,7 +365,7 @@ function DossiersList({ leading = null, onOpen }) {
       <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
         <div className="flex flex-col gap-2">
           {dossiers.map(d => (
-            <button key={d.name} onClick={onOpen} className="w-full flex items-center gap-3 px-3 h-14 rounded-lg border border-border text-left hover:bg-cream/50 transition-colors">
+            <button key={d.name} onClick={onOpen} className="w-full flex items-center gap-3 px-3 h-14 rounded-lg border border-border text-left hover:bg-background-subtle transition-colors">
               <FolderOpen className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
               <span className="flex-1 min-w-0">
                 <span className="block truncate text-[14px] font-medium text-foreground">{d.name}</span>
@@ -385,7 +385,7 @@ function HomeSurface({ leading }) {
     <div className="flex-1 min-w-0 flex flex-col h-full bg-white">
       <div className="h-12 flex items-center px-4 flex-shrink-0">{leading}</div>
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-8 pb-12 text-center">
-        <img src="/logo-plato.png" alt="" className="w-8 h-8 mb-3" />
+        <img src="/logo-plato.svg" alt="" className="w-8 h-8 mb-3" />
         <h2 className="text-foreground" style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500 }}>Bonjour, Meghan.</h2>
         <p className="text-[13.5px] text-foreground-secondary mt-1">Par où voulez-vous commencer ?</p>
         <div className="mt-5 w-full max-w-[520px] h-12 rounded-xl border border-border bg-white flex items-center px-4 text-[13.5px] text-foreground-muted">Écrivez à Plato…</div>
@@ -413,7 +413,7 @@ function ConversationsSurface({ leading, onOpenConversation, onOpenMatter }) {
       <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
         <div className="flex flex-col gap-2">
           {convs.map(c => (
-            <button key={c.name} onClick={c.matter ? onOpenMatter : onOpenConversation} className="w-full flex items-center gap-3 px-3 h-14 rounded-lg border border-border text-left hover:bg-cream/50 transition-colors">
+            <button key={c.name} onClick={c.matter ? onOpenMatter : onOpenConversation} className="w-full flex items-center gap-3 px-3 h-14 rounded-lg border border-border text-left hover:bg-background-subtle transition-colors">
               <MessageCircle className="w-4 h-4 text-foreground-secondary flex-shrink-0" strokeWidth={1.5} />
               <span className="flex-1 min-w-0">
                 <span className="block truncate text-[14px] font-medium text-foreground">{c.name}</span>

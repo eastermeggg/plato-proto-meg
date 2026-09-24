@@ -1,111 +1,125 @@
 import React from 'react';
-import { ChevronLeft, ExternalLink } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import inventory from '../../data/designSystemInventory.json';
+import componentDocs from '../../data/componentDocs.json';
 import { colors, typography } from '../../design-system/tokens';
-import StatusPill from './StatusPill';
-import ComponentSandbox from './ComponentSandbox';
+import { useDemoValues, DemoCanvas, ControlsPanel } from './ComponentSandbox';
 import UpdateEntryForm from './UpdateEntryForm';
 import { getComponentDemo } from './componentDemos';
+import Markdown from './Markdown';
+
+// Page composant du playground - épurée : nom + usage + une ligne de méta
+// discrète, le canvas comme héros, les Controls à droite, la doc en mesure de
+// lecture. Pas de pastilles décoratives, pas de fond pointillé.
+const LAYER_LABEL = { shadcn: 'Base shadcn', 'shadcn-extended': 'Étendu', custom: 'Custom' };
 
 export default function ComponentDetailPage({ componentId, navigate }) {
   const component = inventory.components.find(c => c.id === componentId);
   const demo = getComponentDemo(componentId);
+  const doc = (componentDocs.components || {})[componentId] || null;
+  const sandbox = useDemoValues(demo);
 
   if (!component) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: colors.semantic.backgroundCanvas, padding: '40px 48px', fontFamily: typography.fontFamily.sans }}>
-        <button
-          onClick={() => navigate('/ui-kit/inventory')}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            fontSize: 13, fontWeight: 500,
-            color: colors.semantic.foregroundSecondary,
-            background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
-            marginBottom: 16,
-          }}
-        >
-          <ChevronLeft style={{ width: 16, height: 16 }} /> Back to inventory
-        </button>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: colors.semantic.foreground, margin: 0 }}>
-          Component not found
-        </h1>
+      <div style={{ padding: '32px 44px', fontFamily: typography.fontFamily.sans }}>
+        <BackLink navigate={navigate} />
+        <h1 style={{ fontSize: 24, fontWeight: 600, color: colors.semantic.foreground, margin: '16px 0 0' }}>Composant introuvable</h1>
         <p style={{ marginTop: 8, fontSize: 14, color: colors.semantic.foregroundSecondary }}>
-          No component with id <code style={{ fontFamily: typography.fontFamily.mono }}>{componentId}</code> in the inventory.
+          Aucun composant <code style={{ fontFamily: typography.fontFamily.mono }}>{componentId}</code> dans l'inventaire.
         </p>
       </div>
     );
   }
 
-  return (
-    <div style={{ minHeight: '100vh', backgroundColor: colors.semantic.backgroundCanvas, fontFamily: typography.fontFamily.sans }}>
-      {/* Header bar */}
-      <div style={{ borderBottom: `1px solid ${colors.semantic.border}`, backgroundColor: '#fff', padding: '20px 48px' }}>
-        <button
-          onClick={() => navigate('/ui-kit/inventory')}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            fontSize: 13, fontWeight: 500,
-            color: colors.semantic.foregroundSecondary,
-            background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
-            marginBottom: 12,
-          }}
-        >
-          <ChevronLeft style={{ width: 16, height: 16 }} /> Back to inventory
-        </button>
+  const figmaUrl = (doc && doc.figma) || component.figmaRef;
+  const hasControls = demo && !demo.placeholder && demo.controls && Object.keys(demo.controls).length > 0;
+  const meta = [LAYER_LABEL[component.layer], component.family || component.category, component.filePath].filter(Boolean);
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: colors.semantic.foreground, margin: 0, letterSpacing: '-0.4px' }}>
+  return (
+    <div style={{ height: '100%', display: 'flex', alignItems: 'stretch', fontFamily: typography.fontFamily.sans }}>
+      {/* Colonne principale */}
+      <div style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
+        <div style={{ padding: '30px 44px 72px' }}>
+          <BackLink navigate={navigate} />
+
+          {/* En-tête : nom, usage, méta discrète (aucune pastille) */}
+          <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.4px', color: colors.semantic.foreground, margin: '18px 0 0' }}>
             {component.id}
           </h1>
-          <StatusPill status={component.status} />
-          <span style={{
-            fontSize: 11,
-            fontFamily: typography.fontFamily.mono,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            color: colors.semantic.foregroundMuted,
-            paddingBottom: 4,
-          }}>
-            {component.category}
-          </span>
-        </div>
+          {doc && doc.usage && (
+            <p style={{ margin: '8px 0 0', fontSize: 15, lineHeight: '23px', color: colors.semantic.foregroundSecondary, maxWidth: 720 }}>
+              {doc.usage}
+            </p>
+          )}
+          <div style={{ marginTop: 12, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', fontFamily: typography.fontFamily.mono, fontSize: 11.5, color: colors.semantic.foregroundMuted }}>
+            {meta.map((m, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && <span style={{ opacity: 0.4 }}>·</span>}
+                <span>{m}</span>
+              </React.Fragment>
+            ))}
+            {figmaUrl && (
+              <>
+                {meta.length > 0 && <span style={{ opacity: 0.4 }}>·</span>}
+                <a href={figmaUrl} target="_blank" rel="noreferrer" style={{ color: colors.banner.info.accent, textDecoration: 'none' }}>Figma ↗</a>
+              </>
+            )}
+          </div>
 
-        {/* Meta strip */}
-        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {component.filePath ? (
-            <div style={{ fontSize: 12, color: colors.semantic.foregroundSecondary }}>
-              <span style={{ color: colors.semantic.foregroundTertiary, fontWeight: 500 }}>File: </span>
-              <code style={{ fontFamily: typography.fontFamily.mono }}>{component.filePath}</code>
-              {' · '}
-              <a
-                href={`vscode://file/${encodeURI(component.filePath)}`}
-                style={{ color: colors.banner.info.accent, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 2 }}
-              >
-                Open in editor <ExternalLink style={{ width: 11, height: 11 }} />
-              </a>
+          {/* Canvas - le héros */}
+          <div style={{ marginTop: 28 }}>
+            <DemoCanvas demo={demo} componentId={componentId} values={sandbox.values} applyPreset={sandbox.applyPreset} />
+          </div>
+
+          {/* Documentation - mesure de lecture confortable */}
+          {doc && doc.sections && doc.sections.pattern ? (
+            <div style={{ maxWidth: 780, marginTop: 48 }}>
+              <SectionLabel>Documentation</SectionLabel>
+              <Markdown>{doc.sections.pattern}</Markdown>
             </div>
-          ) : (
-            <div style={{ fontSize: 12, color: colors.semantic.foregroundSecondary, fontStyle: 'italic' }}>
-              Not yet a reusable component
+          ) : !doc ? (
+            <p style={{ fontSize: 13, color: colors.semantic.foregroundMuted, fontStyle: 'italic', marginTop: 24 }}>
+              Pas de fiche <code style={{ fontFamily: typography.fontFamily.mono }}>src/components/ui/{componentId}.md</code>.
+            </p>
+          ) : null}
+
+          {/* Métadonnées / validation - replié, discret */}
+          <details style={{ maxWidth: 780, marginTop: 40 }}>
+            <summary style={{ cursor: 'pointer', fontFamily: typography.fontFamily.mono, fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: colors.semantic.foregroundMuted }}>
+              Métadonnées
+            </summary>
+            <div style={{ marginTop: 14 }}>
+              <UpdateEntryForm entry={component} kind="component" />
             </div>
-          )}
-          {component.figmaRef && (
-            <div style={{ fontSize: 12, color: colors.semantic.foregroundSecondary }}>
-              <span style={{ color: colors.semantic.foregroundTertiary, fontWeight: 500 }}>Figma: </span>
-              <a href={component.figmaRef} target="_blank" rel="noreferrer" style={{ color: colors.banner.info.accent, textDecoration: 'underline', wordBreak: 'break-all' }}>
-                {component.figmaRef}
-              </a>
-            </div>
-          )}
+          </details>
         </div>
       </div>
 
-      {/* Sandbox area */}
-      <div style={{ padding: '32px 48px', maxWidth: 1200 }}>
-        <ComponentSandbox demo={demo} componentId={componentId} />
+      {/* Controls - rail droit, pleine hauteur */}
+      {hasControls && (
+        <aside style={{ width: 296, flexShrink: 0, height: '100%', overflowY: 'auto', borderLeft: `1px solid ${colors.semantic.border}`, background: colors.semantic.background }}>
+          <ControlsPanel bare demo={demo} values={sandbox.values} setValue={sandbox.setValue} reset={sandbox.reset} />
+        </aside>
+      )}
+    </div>
+  );
+}
 
-        <UpdateEntryForm entry={component} kind="component" />
-      </div>
+function BackLink({ navigate }) {
+  return (
+    <button
+      onClick={() => navigate('/ui-kit/inventory')}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 500, color: colors.semantic.foregroundMuted, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+    >
+      <ChevronLeft style={{ width: 16, height: 16 }} /> Composants
+    </button>
+  );
+}
+
+function SectionLabel({ children }) {
+  return (
+    <div style={{ fontFamily: typography.fontFamily.mono, fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: colors.semantic.foregroundMuted, paddingBottom: 8, marginBottom: 18, borderBottom: `1px solid ${colors.semantic.border}` }}>
+      {children}
     </div>
   );
 }

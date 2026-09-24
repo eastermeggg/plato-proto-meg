@@ -53,7 +53,7 @@ export default function LicencePicker({ value, onChange, includeFree = false, sh
             {isCurrent ? (
               <Check className={`w-4 h-4 text-foreground flex-shrink-0 ${showUsage ? 'mt-0.5' : ''}`} strokeWidth={2} />
             ) : showDelta ? (
-              <span className="text-[11px] font-medium text-[#855b31] tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
+              <span className="text-[11px] font-medium text-warning-text tabular-nums flex-shrink-0">+ licence · {p.monthly} €/mois</span>
             ) : null}
           </button>
         );

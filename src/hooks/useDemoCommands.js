@@ -180,7 +180,7 @@ export default function useDemoCommands({ setChatMessages, setNavStack, tabsConf
   // ── Backwards-compat shims ───────────────────────────────────────────
   // Synthesize `pinnedJP` (one row per decisionId aggregating posteIds)
   // from matter-scope attachments on the default matter, for legacy
-  // consumers (JPListing, JPSearchView's saved section).
+  // consumers (JPListing).
   const pinnedJP = useMemo(() => {
     const byDecision = new Map();
     state.attachments.forEach(a => {
@@ -275,7 +275,7 @@ export default function useDemoCommands({ setChatMessages, setNavStack, tabsConf
             }
             break;
           case 'ARTIFACT_CARD':
-            setChatMessages?.(prev => [...prev, { type: 'ai', text: `${action.title} — ${action.summary}` }]);
+            setChatMessages?.(prev => [...prev, { type: 'ai', text: `${action.title} - ${action.summary}` }]);
             break;
           default:
             break;

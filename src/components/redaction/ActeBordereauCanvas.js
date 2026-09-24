@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ListOrdered, Sparkles, X } from 'lucide-react';
 import { numberEntries } from '../../data/bordereauModel';
+import {colors, shadows } from '../../design-system/tokens';
 
 // Read-only canvas for a `kind: 'bordereau'` artefact.
 //
@@ -43,19 +44,19 @@ export default function ActeBordereauCanvas({
   const pieceCount = numbered.filter((e) => e.kind === 'piece').length;
 
   return (
-    <div className="h-full overflow-y-auto" style={{ backgroundColor: '#f8f7f5' }}>
+    <div className="h-full overflow-y-auto" style={{ backgroundColor: colors.semantic.background }}>
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 32px' }}>
         {pieceCount === 0 ? (
           <EmptyState onGenerate={onGenerate} source={generateSource} />
         ) : (
           <>
             {/* Sub-header (Figma 2484:29442): bold count + chat helper.
-                Editing the bordereau happens through the chat — no add button. */}
-            <p className="mb-3" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: '#78716c', margin: '0 0 12px' }}>
-              <span style={{ fontWeight: 600, color: '#292524' }}>
+                Editing the bordereau happens through the chat - no add button. */}
+            <p className="mb-3" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: colors.semantic.mutedForeground, margin: '0 0 12px' }}>
+              <span style={{ fontWeight: 600, color: colors.semantic.foreground }}>
                 {pieceCount} pièce{pieceCount > 1 ? 's' : ''}{generateSource === 'acte' ? (pieceCount > 1 ? ' citées' : ' citée') : ''}
               </span>
-              {' '}— Vous pouvez modifier le bordereau directement via le chat
+              {' '}- Vous pouvez modifier le bordereau directement via le chat
             </p>
             <BordereauTable rows={numbered} onExclude={onExclude} onPieceClick={onPieceClick} shimmer={shimmer} />
           </>
@@ -78,7 +79,7 @@ function BordereauTable({ rows, onExclude, onPieceClick, shimmer = false }) {
   return (
     <div
       style={{
-        border: '1px solid #dfdcd9',
+        border: `1px solid ${colors.semantic.border}`,
         borderRadius: 6,
         overflow: 'hidden',
         backgroundColor: 'white',
@@ -117,7 +118,7 @@ function ColumnHeader() {
     fontFamily: mono,
     fontSize: 11,
     fontWeight: 500,
-    color: '#78716c',
+    color: colors.semantic.mutedForeground,
     textTransform: 'uppercase',
     letterSpacing: '0.04em',
     padding: '0 12px',
@@ -130,8 +131,8 @@ function ColumnHeader() {
         display: 'flex',
         alignItems: 'center',
         height: 36,
-        borderBottom: '1px solid #dfdcd9',
-        backgroundColor: '#f8f7f5',
+        borderBottom: `1px solid ${colors.semantic.border}`,
+        backgroundColor: colors.semantic.background,
       }}
     >
       <div style={{ ...cell, width: COL_NUM_W, justifyContent: 'center', flexShrink: 0 }}>N°</div>
@@ -153,8 +154,8 @@ function SectionHeader({ number, name }) {
         alignItems: 'center',
         height: 40,
         backgroundColor: 'white',
-        borderBottom: '1px solid #dfdcd9',
-        borderTop: '1px solid #dfdcd9',
+        borderBottom: `1px solid ${colors.semantic.border}`,
+        borderTop: `1px solid ${colors.semantic.border}`,
       }}
     >
       {/* Number + name in a single cell: "I - Médical" */}
@@ -173,7 +174,7 @@ function SectionHeader({ number, name }) {
             fontFamily: mono,
             fontSize: 11,
             fontWeight: 600,
-            color: '#44403c',
+            color: colors.semantic.foregroundTertiary,
             letterSpacing: '0.04em',
             flexShrink: 0,
           }}
@@ -185,7 +186,7 @@ function SectionHeader({ number, name }) {
             fontFamily: font,
             fontSize: 13,
             fontWeight: 600,
-            color: '#292524',
+            color: colors.semantic.foreground,
             textTransform: 'uppercase',
             letterSpacing: '0.03em',
             overflow: 'hidden',
@@ -238,8 +239,8 @@ function PieceRow({
         display: 'flex',
         alignItems: 'center',
         minHeight: 52,
-        backgroundColor: hover && clickable ? '#f5f4f0' : (alternate ? '#fafaf9' : 'white'),
-        borderBottom: isLast ? 'none' : '1px solid #dfdcd9',
+        backgroundColor: hover && clickable ? colors.semantic.background : (alternate ? colors.banner.neutral.bgFrom : 'white'),
+        borderBottom: isLast ? 'none' : `1px solid ${colors.semantic.border}`,
         cursor: clickable ? 'pointer' : 'default',
         transition: 'background-color 120ms',
       }}
@@ -264,11 +265,11 @@ function PieceRow({
             height: 22,
             padding: '0 6px',
             borderRadius: 6,
-            backgroundColor: '#eeece6',
+            backgroundColor: colors.semantic.muted,
             fontFamily: mono,
             fontSize: 11,
             fontWeight: 600,
-            color: '#78716c',
+            color: colors.semantic.mutedForeground,
             letterSpacing: '0.02em',
             whiteSpace: 'nowrap',
           }}
@@ -289,7 +290,7 @@ function PieceRow({
           style={{
             fontSize: 14,
             fontWeight: 500,
-            color: '#292524',
+            color: colors.semantic.foreground,
             lineHeight: '20px',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -302,7 +303,7 @@ function PieceRow({
           <div
             style={{
               fontSize: 12,
-              color: '#78716c',
+              color: colors.semantic.mutedForeground,
               lineHeight: '16px',
               marginTop: 2,
               overflow: 'hidden',
@@ -322,7 +323,7 @@ function PieceRow({
           padding: '0 12px',
           fontFamily: mono,
           fontSize: 12,
-          color: '#44403c',
+          color: colors.semantic.foregroundTertiary,
           letterSpacing: '0.02em',
         }}
       >
@@ -353,8 +354,8 @@ function PieceRow({
               width: 20,
               height: 20,
               borderRadius: 5,
-              color: btnHover ? '#b91c1c' : '#a8a29e',
-              backgroundColor: btnHover ? '#fef2f2' : 'transparent',
+              color: btnHover ? colors.banner.error.accentHover : colors.semantic.foregroundMuted,
+              backgroundColor: btnHover ? colors.step.red.bg : 'transparent',
               opacity: hover ? 1 : 0,
               transition: 'opacity 120ms, background-color 120ms, color 120ms',
               cursor: 'pointer',
@@ -373,7 +374,7 @@ function PieceRow({
               whiteSpace: 'nowrap',
               padding: '3px 7px',
               borderRadius: 5,
-              backgroundColor: '#292524',
+              backgroundColor: colors.semantic.primary,
               color: 'white',
               fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 11,
@@ -383,7 +384,7 @@ function PieceRow({
               transform: btnHover ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(2px)',
               transition: 'opacity 120ms, transform 120ms',
               pointerEvents: 'none',
-              boxShadow: '0px 2px 6px rgba(26,26,26,0.18)',
+              boxShadow: shadows['md'],
             }}
           >
             Exclure du bordereau
@@ -412,7 +413,7 @@ function EmptyState({ onGenerate, source }) {
   return (
     <div
       style={{
-        border: '1px solid #dfdcd9',
+        border: `1px solid ${colors.semantic.border}`,
         borderRadius: 6,
         backgroundColor: 'white',
         padding: '56px 24px',
@@ -421,21 +422,21 @@ function EmptyState({ onGenerate, source }) {
     >
       <div
         className="inline-flex items-center justify-center mb-4"
-        style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: '#f5f4f0' }}
+        style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: colors.semantic.background }}
       >
         <ListOrdered className="w-5 h-5 text-foreground-muted" strokeWidth={1.5} />
       </div>
-      <p style={{ fontFamily: font, fontSize: 15, fontWeight: 600, color: '#292524', margin: 0 }}>
+      <p style={{ fontFamily: font, fontSize: 15, fontWeight: 600, color: colors.semantic.foreground, margin: 0 }}>
         {title}
       </p>
-      <p style={{ fontFamily: font, fontSize: 13, color: '#78716c', margin: '6px 0 0', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto', lineHeight: '18px' }}>
+      <p style={{ fontFamily: font, fontSize: 13, color: colors.semantic.mutedForeground, margin: '6px 0 0', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto', lineHeight: '18px' }}>
         {subtitle}
       </p>
       {onGenerate && (
         <button
           onClick={onGenerate}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-[8px] text-[14px] font-medium text-white bg-foreground hover:bg-foreground-tertiary transition-colors mt-5"
-          style={{ boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.08)' }}
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-[8px] text-[14px] font-medium text-primary-foreground bg-foreground hover:bg-foreground-tertiary transition-colors mt-5"
+          style={{ boxShadow: shadows['xs'] }}
         >
           <Sparkles className="w-4 h-4" strokeWidth={1.75} />
           Générer mon bordereau
@@ -469,7 +470,7 @@ function SkeletonBar({ width, height = 10, delayMs = 0 }) {
         width,
         height,
         borderRadius: 4,
-        background: 'linear-gradient(90deg, #eeece6 0%, #f5f4f0 50%, #eeece6 100%)',
+        background: `linear-gradient(90deg, ${colors.semantic.muted} 0%, ${colors.semantic.background} 50%, ${colors.semantic.muted} 100%)`,
         backgroundSize: '200px 100%',
         animation: `bordereauShimmer 1.2s ease-in-out ${delayMs}ms infinite`,
         verticalAlign: 'middle',
@@ -487,8 +488,8 @@ function SkeletonRow({ alternate, isLast, delayMs = 0 }) {
         display: 'flex',
         alignItems: 'center',
         minHeight: 52,
-        backgroundColor: alternate ? '#fafaf9' : 'white',
-        borderBottom: isLast ? 'none' : '1px solid #dfdcd9',
+        backgroundColor: alternate ? colors.banner.neutral.bgFrom : 'white',
+        borderBottom: isLast ? 'none' : `1px solid ${colors.semantic.border}`,
       }}
     >
       <div style={{ width: COL_NUM_W, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>

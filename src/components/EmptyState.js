@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors, shadows } from '../design-system/tokens';
 
 /**
  * EmptyState — Plato design system empty state component.
@@ -24,22 +25,22 @@ export default function EmptyState({ icon: Icon, title, description, primaryActi
               width: 56,
               height: 56,
               borderRadius: 9999,
-              backgroundColor: '#eeece6',
-              border: '1px solid #cbc7c4',
-              boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+              backgroundColor: colors.semantic.muted,
+              border: `1px solid ${colors.semantic.borderStrong}`,
+              boxShadow: shadows.xs,
             }}
           >
-            <Icon className="w-6 h-6" style={{ color: '#78716c' }} strokeWidth={1.5} />
+            <Icon className="w-6 h-6" style={{ color: colors.semantic.mutedForeground }} strokeWidth={1.5} />
           </div>
         )}
 
         {/* Copy */}
         <div className="flex flex-col items-center text-center w-full" style={{ gap: 4 }}>
-          <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: '#292524', letterSpacing: '-0.5px', lineHeight: '24px', margin: 0 }}>
+          <p style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 18, fontWeight: 500, color: colors.semantic.foreground, letterSpacing: '-0.5px', lineHeight: '24px', margin: 0 }}>
             {title}
           </p>
           {description && (
-            <p style={{ fontSize: 14, fontWeight: 400, color: '#78716c', lineHeight: '20px', margin: 0 }}>
+            <p style={{ fontSize: 14, fontWeight: 400, color: colors.semantic.mutedForeground, lineHeight: '20px', margin: 0 }}>
               {description}
             </p>
           )}
@@ -59,13 +60,13 @@ export default function EmptyState({ icon: Icon, title, description, primaryActi
                   paddingLeft: 16,
                   paddingRight: 16,
                   borderRadius: 8,
-                  backgroundColor: '#292524',
-                  color: 'white',
+                  backgroundColor: colors.semantic.primary,
+                  color: colors.semantic.primaryForeground,
                   fontSize: 14,
                   lineHeight: '20px',
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+                  boxShadow: shadows.xs,
                 }}
               >
                 {primaryAction.icon && <primaryAction.icon className="w-4 h-4" strokeWidth={1.5} />}
@@ -81,13 +82,13 @@ export default function EmptyState({ icon: Icon, title, description, primaryActi
                   paddingLeft: 16,
                   paddingRight: 16,
                   borderRadius: 8,
-                  backgroundColor: 'white',
-                  color: '#78716c',
+                  backgroundColor: colors.semantic.white,
+                  color: colors.semantic.mutedForeground,
                   fontSize: 14,
                   lineHeight: '20px',
-                  border: '1px solid #dfdcd9',
+                  border: `1px solid ${colors.semantic.border}`,
                   cursor: 'pointer',
-                  boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+                  boxShadow: shadows.xs,
                 }}
               >
                 {secondaryAction.icon && <secondaryAction.icon className="w-4 h-4" strokeWidth={1.5} />}

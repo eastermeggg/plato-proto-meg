@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, X, ExternalLink, Percent, FileText, Gavel, Stamp, ArrowUpRight, SlidersHorizontal, Globe, Diamond, Plus, Minus, Equal } from 'lucide-react';
 import { BreadcrumbReturn, CodeBadge } from '../shell/Niveau3Strip';
 import {
@@ -6,6 +6,9 @@ import {
   resolveCotLigne, fmtCot, fmtCotValeur, fmtCotManque, getCotValeur,
   sourceFamille, COT_BADGE_TOKENS, pageSections, pageLignes,
 } from '../../data/cotisationsSocial';
+import { SectionCaptions } from '../ui/tables/CotisationsRows';
+import Drawer from '../ui/Drawer';
+import { colors, shadows, typeStyle } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COTISATIONS & IMPÔTS - composants (spec v3).
@@ -30,20 +33,20 @@ import {
 //   Chiffrage → PrelevementPage (remplace l'écran) → LinePanel (latéral).
 // ─────────────────────────────────────────────────────────────────────────────
 
-const LINE = '#dfdcd9', INK = '#292524', INK2 = '#44403c', MUTE = '#78716c', FAINT = '#a8a29e', PAPER = '#f8f7f5', SUBTLE = '#fafaf9';
+const LINE = colors.semantic.border, INK = colors.semantic.foreground, INK2 = colors.semantic.foregroundTertiary, MUTE = colors.semantic.mutedForeground, FAINT = colors.semantic.foregroundMuted, PAPER = colors.semantic.background, SUBTLE = colors.banner.neutral.bgFrom;
 const MONO = "'IBM Plex Mono', monospace";
 // Filet de séparation entre lignes : la bordure système - les rangées de
 // 52 px aérées suffisent à faire lire chaque ligne (métrique Plato).
-export const ROW_DIVIDER = '#dfdcd9';
+export const ROW_DIVIDER = colors.semantic.border;
 // Fond du résultat du tableau : le bleu très clair Plato - c'est LE chiffre
 // que la page produit, il porte la seule teinte du tableau.
-const RESULT_TABLEAU_BG = '#eaf1ff', RESULT_TABLEAU_HOVER = '#dfe9fb';
+const RESULT_TABLEAU_BG = colors.piece.expertise.bg, RESULT_TABLEAU_HOVER = colors.piece.medical.bg;
 // Filet de la règle : une structure, pas un contenu - il ne s'atténue JAMAIS,
 // même sur une ligne écartée.
-const RULE_RAIL = '#cbc7c4';
+const RULE_RAIL = colors.semantic.border; // Figma var(--border) - aligné 23/09 (était borderStrong)
 const colHeaderStyle = { fontFamily: MONO, fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' };
 // Carte Plato : rayon 10, ombre sm à deux couches.
-export const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 10, overflow: 'hidden', boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05), 0px 1px 1px 0px rgba(26,26,26,0.05)', background: 'white' };
+export const cardChrome = { border: `1px solid ${LINE}`, borderRadius: 10, overflow: 'hidden', boxShadow: `${shadows.xs}, ${shadows['2xs']}`, background: 'white' };
 
 // ── la cellule ──────────────────────────────────────────────────────────────
 // La ligne n'est pas un flex ad hoc : c'est une rangée de CELLULES autonomes
@@ -127,14 +130,14 @@ export function BadgePill({ source, valeur, onOpen, onNavigate, active = false }
       style={{
         gap: 4, padding: '3px 8px', borderRadius: 6, background: tok.bg,
         border: `1px ${tok.dashed ? 'dashed' : 'solid'} ${active ? tok.color : (tok.dashed || tok.border || 'transparent')}`,
-        boxShadow: tok.dashed ? 'none' : '0px 1px 2px 0px rgba(26,26,26,0.05)',
+        boxShadow: tok.dashed ? 'none' : shadows.xs,
         cursor: 'pointer',
       }}
     >
       {famille === 'TEXTE'
         ? <span aria-hidden style={{ fontSize: 11.5, fontWeight: 600, color: tok.color, opacity: 0.85, lineHeight: 1 }}>§</span>
         : Icon && <Icon className="flex-shrink-0" style={{ width: 12, height: 12, color: tok.color, opacity: 0.85 }} strokeWidth={2} />}
-      <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, color: tok.color, whiteSpace: 'nowrap', lineHeight: '14px' }}>{label}</span>
+      <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, color: tok.color, whiteSpace: 'nowrap', lineHeight: '14px', letterSpacing: '-0.55px' }}>{label}</span>
       {source?.millesime && (
         <span style={{ fontFamily: MONO, fontSize: 10.5, color: tok.color, opacity: 0.62 }}>{source.millesime}</span>
       )}
@@ -159,7 +162,7 @@ export function PieceHolder({ sources = [], onClick }) {
     >
       <FileText style={{ width: 15, height: 15, color: COT_BADGE_TOKENS.PIECE.color }} strokeWidth={2} />
       {count > 1 && (
-        <span className="absolute inline-flex items-center justify-center" style={{ top: -5, left: 16, minWidth: 15, height: 15, padding: '0 3px', background: COT_BADGE_TOKENS.PIECE.color, color: '#fff', fontSize: 9.5, fontWeight: 600, lineHeight: 1, borderRadius: 9999, border: '2px solid #fff' }}>{count}</span>
+        <span className="absolute inline-flex items-center justify-center" style={{ top: -5, left: 16, minWidth: 15, height: 15, padding: '0 3px', background: COT_BADGE_TOKENS.PIECE.color, color: colors.semantic.white, fontSize: 9.5, fontWeight: 600, lineHeight: 1, borderRadius: 9999, border: `2px solid ${colors.semantic.white}` }}>{count}</span>
       )}
     </button>
   );
@@ -194,7 +197,7 @@ export function ValuePill({ children }) {
       className="inline-flex items-center"
       style={{
         gap: 5, padding: '4px 10px', borderRadius: 6, background: tok.bg,
-        border: `1px solid ${tok.border}`, boxShadow: '0px 1px 2px 0px rgba(26,26,26,0.05)',
+        border: `1px solid ${tok.border}`, boxShadow: shadows.xs,
       }}
     >
       <SlidersHorizontal className="flex-shrink-0" style={{ width: 12, height: 12, color: tok.color, opacity: 0.85 }} strokeWidth={2} />
@@ -293,8 +296,9 @@ export function CotRow({ resolved, isLast, onOpenPanel, onOpenSource, onNavigate
   // Emphases Plato : résultat de section sur crème, résultat du tableau sur
   // le bleu très clair - la seule teinte de fond du tableau, pour LE chiffre
   // que la page produit.
-  const baseBg = emphase === 'tableau' ? RESULT_TABLEAU_BG : emphase === 'section' ? PAPER : 'white';
-  const hoverBg = emphase === 'tableau' ? RESULT_TABLEAU_HOVER : emphase === 'section' ? '#f1efe9' : SUBTLE;
+  // Résultat de section sur cream/100 (muted) - Figma, aligné 23/09 (était background).
+  const baseBg = emphase === 'tableau' ? RESULT_TABLEAU_BG : emphase === 'section' ? colors.semantic.muted : 'white';
+  const hoverBg = emphase === 'tableau' ? RESULT_TABLEAU_HOVER : emphase === 'section' ? colors.semantic.muted : SUBTLE;
   const pieceCell = showPieceCell === 'auto' ? pieces.length > 0 : showPieceCell;
   const handle = () => { if (clickable) onOpenPanel(resolved); };
   const openSource = (s) => {
@@ -361,7 +365,7 @@ export function CotRow({ resolved, isLast, onOpenPanel, onOpenSource, onNavigate
               <button
                 onClick={(e) => { e.stopPropagation(); if (clickable) onOpenPanel(resolved); }}
                 className="inline-flex items-center rounded transition-opacity hover:opacity-70"
-                style={{ padding: '3px 7px', borderRadius: 6, background: '#eeece6', border: 'none', fontFamily: MONO, fontSize: 11, fontWeight: 500, color: MUTE, cursor: 'pointer', lineHeight: '14px' }}
+                style={{ padding: '3px 7px', borderRadius: 6, background: colors.semantic.muted, border: 'none', fontFamily: MONO, fontSize: 11, fontWeight: 500, color: MUTE, cursor: 'pointer', lineHeight: '14px' }}
               >
                 +{extraRenvois}
               </button>
@@ -402,7 +406,6 @@ export function CotRow({ resolved, isLast, onOpenPanel, onOpenSource, onNavigate
 //    et le libellé de la colonne des valeurs calé à droite - c'est lui qui
 //    permet un seul tableau où « Montant demandé » et « Montant » cohabitent.
 // Pas d'en-tête de tableau au sens « total répété » : l'en-tête de page suffit.
-const captionStyle = { fontFamily: MONO, fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.02em', whiteSpace: 'nowrap' };
 export function SectionHeader({ titre, description, libelleColonne, showPieceCell = true }) {
   return (
     <>
@@ -411,19 +414,14 @@ export function SectionHeader({ titre, description, libelleColonne, showPieceCel
         <span style={{ fontSize: 14, fontWeight: 500, color: INK, lineHeight: '20px' }}>{titre}</span>
         {description && (
           <>
-            <span aria-hidden className="flex-shrink-0" style={{ width: 4, height: 4, borderRadius: 4, background: '#cbc7c4', margin: '0 2px' }} />
+            <span aria-hidden className="flex-shrink-0" style={{ width: 4, height: 4, borderRadius: 4, background: colors.semantic.borderStrong, margin: '0 2px' }} />
             <span style={{ fontSize: 12, color: MUTE, letterSpacing: '0.12px', lineHeight: '16px' }}>{description}</span>
           </>
         )}
       </div>
-      <div className="flex items-stretch" style={{ height: 40, background: 'white', borderBottom: `1px solid ${LINE}` }}>
-        {showPieceCell && <RowCell width={50}><span style={captionStyle}>Pièce</span></RowCell>}
-        <RowCell width={46}><span style={captionStyle}>Ope.</span></RowCell>
-        <RowCell flex align="flex-end" padding="0 12px">
-          {libelleColonne && <span style={captionStyle}>{libelleColonne}</span>}
-        </RowCell>
-        <RowCell width={30} />
-      </div>
+      {/* Bande 2 : composée du SectionCaptions CANONIQUE (ui/tables, cellules
+          DataTableHeader alignées gauche p12, tracking 0) - migration 23/09. */}
+      <SectionCaptions colonnePiece={!!showPieceCell} valueLabel={libelleColonne || ''} />
     </>
   );
 }
@@ -497,52 +495,31 @@ export function ProseText({ paragraphs = [], onNavigateValue, compact = false })
 // une valeur manque, la prose dit quoi, pourquoi, et comment la fournir : une
 // phrase renvoyant à la conversation, jamais un bouton ni un champ éditable.
 export function LinePanel({ resolved, onClose, onNavigateValue, onNavigatePage }) {
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose && onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
   if (!resolved) return null;
   const { label, valeur, etat, qualificatif, valeurSecondaire, prose } = resolved;
   const ecartee = etat === 'ecartee';
   const motif = fmtCotManque(valeur);
   return (
-    <div className="fixed inset-0 z-50" onClick={onClose} style={{ right: 'var(--chat-offset, 0px)' }}>
-      <div className="absolute inset-0" style={{ background: 'rgba(41,37,36,0.15)' }} />
-      <div
-        className="absolute top-0 right-0 bottom-0 bg-white flex flex-col"
-        style={{ width: 400, maxWidth: '92vw', borderLeft: `1px solid ${LINE}`, boxShadow: '-8px 0 24px rgba(26,26,26,0.08)' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* 1. le titre */}
-        <div className="flex items-start gap-3" style={{ padding: '18px 20px 14px', borderBottom: `1px solid ${LINE}` }}>
-          <div className="flex-1 min-w-0" style={{ fontSize: 15, fontWeight: 600, color: INK, lineHeight: '20px' }}>{label}</div>
-          <button onClick={onClose} aria-label="Fermer" className="p-1.5 rounded-md hover:bg-background transition-colors flex-shrink-0" style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
-            <X className="w-4 h-4" style={{ color: MUTE }} />
-          </button>
+    <Drawer open={!!resolved} onOpenChange={(o) => { if (!o) onClose && onClose(); }} side="right" size="sm" title={label}>
+      {/* 2. le montant */}
+      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${LINE}` }}>
+        <div style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 28, color: ecartee || !valeur || valeur.value == null ? MUTE : INK, letterSpacing: '-0.5px', lineHeight: '32px' }}>
+          {ecartee && qualificatif ? qualificatif : fmtCotValeur(valeur)}
         </div>
-        <div className="flex-1 overflow-y-auto">
-          {/* 2. le montant */}
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${LINE}` }}>
-            <div style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 28, color: ecartee || !valeur || valeur.value == null ? MUTE : INK, letterSpacing: '-0.5px', lineHeight: '32px' }}>
-              {ecartee && qualificatif ? qualificatif : fmtCotValeur(valeur)}
-            </div>
-            {ecartee && valeurSecondaire != null && (
-              <div style={{ fontFamily: MONO, fontSize: 13, color: FAINT, textDecoration: 'line-through', marginTop: 4 }}>{fmtCot(valeurSecondaire)}</div>
-            )}
-            {!ecartee && motif && (
-              <div style={{ fontSize: 12, color: MUTE, marginTop: 4 }}>{motif}</div>
-            )}
-          </div>
-          {/* 3. l'explication - en prose, montants et sources cliquables en ligne */}
-          {prose && (
-            <div style={{ padding: '16px 20px 20px' }}>
-              <ProseText paragraphs={prose} onNavigateValue={onNavigateValue} />
-            </div>
-          )}
-        </div>
+        {ecartee && valeurSecondaire != null && (
+          <div style={{ fontFamily: MONO, fontSize: 13, color: FAINT, textDecoration: 'line-through', marginTop: 4 }}>{fmtCot(valeurSecondaire)}</div>
+        )}
+        {!ecartee && motif && (
+          <div style={{ fontSize: 12, color: MUTE, marginTop: 4 }}>{motif}</div>
+        )}
       </div>
-    </div>
+      {/* 3. l'explication - en prose, montants et sources cliquables en ligne */}
+      {prose && (
+        <div style={{ padding: '16px 20px 20px' }}>
+          <ProseText paragraphs={prose} onNavigateValue={onNavigateValue} />
+        </div>
+      )}
+    </Drawer>
   );
 }
 
@@ -571,7 +548,7 @@ export function PrelevementHeader({ title, amount, badge, onBack, onCopy, sticky
         <div className="mt-1 flex items-center gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             {badge && <CodeBadge>{badge}</CodeBadge>}
-            <span className="min-w-0 truncate" style={{ fontFamily: SERIF, fontSize: 20, fontWeight: 500, color: INK, letterSpacing: '-0.01em' }}>{title}</span>
+            <span className="min-w-0 truncate" style={{ ...typeStyle('display-sm'), color: INK }}>{title}</span>
           </div>
           <div className="ml-auto flex items-center gap-3 flex-shrink-0">
             {showAmount && (
@@ -583,7 +560,7 @@ export function PrelevementHeader({ title, amount, badge, onBack, onCopy, sticky
               <button
                 onClick={onCopy}
                 className="inline-flex items-center transition-opacity hover:opacity-90 flex-shrink-0"
-                style={{ height: 32, padding: '0 12px', borderRadius: 6, background: INK, color: 'white', border: 'none', boxShadow: '0px 1px 2px rgba(26,26,26,0.05)', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
+                style={{ height: 32, padding: '0 12px', borderRadius: 6, background: INK, color: 'white', border: 'none', boxShadow: shadows.xs, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
               >
                 Copier chiffrage
               </button>
@@ -679,8 +656,8 @@ export function PrelevementPage({ pageKey, onBack, onNavigatePage, sticky = fals
 // Deux chiffres côte à côte (un seul argument de négociation) + l'écart.
 // Chaque résultat s'ouvre et s'audite comme n'importe quelle ligne.
 const RESULT_ACCENTS = {
-  'r-net': { color: '#4a7256' },
-  'r-emp': { color: '#7A6244' },
+  'r-net': { color: colors.accents.emerald.base },
+  'r-emp': { color: colors.accents.sand.base },
 };
 export function ResultatsBloc({ sticky = false, onOpenPanel }) {
   const blocs = RESULTATS_BLOC.blocs.map((b) => resolveCotLigne(b));
@@ -690,8 +667,8 @@ export function ResultatsBloc({ sticky = false, onOpenPanel }) {
       className={sticky ? 'sticky z-10' : ''}
       style={{
         ...(sticky ? { bottom: 12 } : {}),
-        background: 'white', border: `1px solid ${LINE}`, borderRadius: 12,
-        boxShadow: sticky ? '0px 8px 28px rgba(26,26,26,0.16)' : '0px 1px 2px rgba(26,26,26,0.05)',
+        background: 'white', border: `1px solid ${colors.semantic.borderStrong}`, borderRadius: 10,
+        boxShadow: sticky ? '0px 8px 28px rgba(26,26,26,0.16)' : shadows.xs,
         overflow: 'hidden',
       }}
     >
@@ -705,21 +682,21 @@ export function ResultatsBloc({ sticky = false, onOpenPanel }) {
               key={b.id}
               onClick={() => onOpenPanel && onOpenPanel(b)}
               className="group flex flex-col text-left transition-colors"
-              style={{ padding: '14px 18px 12px', gap: 3, border: 'none', background: 'white', cursor: onOpenPanel ? 'pointer' : 'default', borderLeft: i > 0 ? `1px solid ${LINE}` : 'none' }}
+              style={{ padding: 20, gap: 9, border: 'none', background: 'white', cursor: onOpenPanel ? 'pointer' : 'default', borderLeft: i > 0 ? `1px solid ${LINE}` : 'none' }}
               onMouseEnter={(e) => { if (onOpenPanel) e.currentTarget.style.background = SUBTLE; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}
             >
               <span className="inline-flex items-center" style={{ gap: 7 }}>
                 <span aria-hidden style={{ width: 8, height: 8, borderRadius: 8, background: accent.color, flexShrink: 0 }} />
-                <span style={{ fontSize: 11, fontWeight: 600, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{b.label}</span>
+                <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, color: MUTE, textTransform: 'uppercase', letterSpacing: 0 }}>{b.label}</span>
               </span>
               <span className="inline-flex items-baseline" style={{ gap: 8 }}>
-                <span style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 500, color: INK, letterSpacing: '-0.75px', lineHeight: '36px' }}>
+                <span style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 30, fontWeight: 400, color: INK, letterSpacing: '-0.6px', lineHeight: '28px' }}>
                   {fmtCotValeur(b.valeur)}
                 </span>
                 {onOpenPanel && <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: FAINT, alignSelf: 'center' }} />}
               </span>
-              <span style={{ fontSize: 11, color: mention ? '#7A6244' : FAINT, lineHeight: '14px', minHeight: 14 }}>{mention || ''}</span>
+              <span style={{ fontSize: 11, color: mention ? colors.accents.sand.base : FAINT, lineHeight: '14px', minHeight: 14 }}>{mention || ''}</span>
             </button>
           );
         })}
@@ -728,7 +705,7 @@ export function ResultatsBloc({ sticky = false, onOpenPanel }) {
         onClick={() => onOpenPanel && onOpenPanel(ecart)}
         className="flex items-center w-full text-left transition-colors"
         style={{ padding: '8px 18px', gap: 6, border: 'none', background: PAPER, cursor: onOpenPanel ? 'pointer' : 'default' }}
-        onMouseEnter={(e) => { if (onOpenPanel) e.currentTarget.style.background = '#f1efe9'; }}
+        onMouseEnter={(e) => { if (onOpenPanel) e.currentTarget.style.background = colors.semantic.muted; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = PAPER; }}
       >
         <span style={{ fontSize: 12, fontWeight: 600, color: INK, fontVariantNumeric: 'tabular-nums' }}>{fmtCotValeur(ecart.valeur)}</span>
@@ -744,7 +721,7 @@ export function ResultatsBloc({ sticky = false, onOpenPanel }) {
 // aucun montant n'est négatif, la direction est portée par le titre de
 // colonne, comme « Montant demandé » au-dessus.
 export default function CotisationsSection({ onOpenPage }) {
-  const ACCENT = '#7A6244', ACCENT_BG = '#F3EEE4', ACCENT_BORDER = '#e3d8c2';
+  const ACCENT = colors.accents.sand.base, ACCENT_BG = colors.feedback.warning.subtle, ACCENT_BORDER = colors.avatar[3].bg;
   return (
     <div>
       <div className="flex items-center justify-between" style={{ padding: '0 6px', marginBottom: 16 }}>
