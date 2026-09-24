@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import {
   User, UsersRound, AlertTriangle, Receipt, Plus, Download,
-  ChevronDown, ChevronRight, Settings2, CircleArrowUp,
+  ChevronDown, ChevronRight, Settings2,
   Bold, Italic, Underline,
   PanelRight, Copy, ThumbsUp, ThumbsDown, IterationCw,
 } from 'lucide-react';
 import { colors, typography } from '../../design-system/tokens';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
+import ParamPill from '../ui/ParamPill';
 import Item from '../ui/Item';
 import TopBar from '../ui/TopBar';
 import IVAvatar from '../IVAvatar';
@@ -468,13 +469,13 @@ const NOTES_PGPA = [
 export function PosteDetailContent() {
   return (
     <TabScroll maxWidth={1040}>
-      {/* PARAMS STRIP - Badges canoniques en attendant le composant Params dédié
-          (Figma « LOCAL COMPONENTS > PARAMS » 1613:113399, non porté). */}
+      {/* PARAMS STRIP - ParamPill canonique (Figma « LOCAL COMPONENTS >
+          PARAMS » 1613:113399, promu 24/09). */}
       <div className="bg-surface rounded-[5px] border border-border shadow-sm px-3 py-2.5 flex items-center gap-2">
         <Button variant="ghost" size="icon-sm" icon={Settings2} onClick={noop} title="Paramètres du poste" />
-        <Badge variant="info" size="md" leftIcon={CircleArrowUp} label="Revaloriser · IPC Annuel" />
-        <Badge variant="secondary" size="md" label="Perte de chance · 100 %" />
-        <Badge variant="secondary" size="md" label="Période · 15/03/2023 → 12/09/2024" />
+        <ParamPill on label="Revaloriser" value="IPC Annuel" onClick={noop} />
+        <ParamPill label="Perte de chance · 100 %" onClick={noop} />
+        <ParamPill label="Période · 15/03/2023 → 12/09/2024" onClick={noop} />
       </div>
 
       {/* TABLE BLOCK - Salaire de référence */}

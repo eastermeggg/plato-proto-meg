@@ -1647,12 +1647,14 @@
       ],
       "tones": [
         "default",
-        "accent",
-        "warn"
+        "caution",
+        "warn",
+        "muted"
       ],
       "tokens": [
         "colors.semantic.secondary",
         "colors.semantic.primary",
+        "colors.semantic.foregroundMuted",
         "colors.banner.warning.accent",
         "colors.feedback.warning",
         "radius.full",
@@ -1661,8 +1663,8 @@
       "lastValidated": "2026-09-23",
       "docFile": "src/components/ui/Progress.md",
       "sections": {
-        "pattern": "### When to use\n- Progression mesurable : upload, ingestion de pièces, complétion d'un import.\n- Jauge d'usage (ex. usage hebdomadaire licences) quand la valeur est connue.\n- Dans le footer d'un `Item` (slot Figma .Item Footer l'utilise tel quel).\n\n### When NOT to use\n- **Attente indéterminée** → `Spinner`.\n- **Étapes discrètes** (1/2/3) → stepper, pas une barre continue.\n- **Score / notation** → composant dédié, la barre implique une progression temporelle.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` | `0` | valeur courante (premier variant du set Figma) |\n| `max` | `100` | borne haute |\n| `width` | `400` | largeur du variant Figma ; passer `'100%'` en usage fluide |\n| `size` | `md` | `md` h8 (Figma) · `sm` h4 (jauges compactes : quota sidebar, rangées) |\n| `tone` | `default` | `default` primary · `accent` pré-alerte (`banner.warning.accent`) · `warn` alerte (`feedback.warning.base` sur piste `warning.subtle`) |\n| `label` | - | aria-label |\n| `className` / `style` | - | passthrough |\n\n### Examples\n```jsx\nimport Progress from 'src/components/ui/Progress';\n\n<Progress value={40} />\n<Progress value={70} width=\"100%\" label=\"Import des pièces\" />\n<Progress value={100} />\n// Jauge de quota (WeeklyUsageCard) : compacte, tone par palier\n<Progress value={92} size=\"sm\" width=\"100%\" tone=\"warn\" label=\"Usage hebdomadaire\" />\n```\n\n### Tokens used\n`colors.semantic.secondary` (piste) · `colors.semantic.primary` (remplissage) ·\n`radius.full` · `motion.duration.base` + `motion.easing.out` (transition de valeur)",
-        "explos": "- Construit le 23/09 depuis l'inventaire DS (nœud validé par la steward, set Figma « Progress » 0-100 %).\n- 24/09 : extensions code-first validées steward (SIGNALEMENTS §16) - `size sm`\n  (h4) + tones `accent`/`warn` pour les jauges de quota. Adopté par\n  `WeeklyUsageCard` (remplace sa barre inline ; en warn la barre montre le vrai\n  % sur piste `warning.subtle`, l'ancienne version saturait la piste entière)\n  et les 2 barres d'extraction de poste d'App.js. Restent 2 barres inline\n  App.js à remplissage gris « muted » délibéré - candidat tone `muted`.",
+        "pattern": "### When to use\n- Progression mesurable : upload, ingestion de pièces, complétion d'un import.\n- Jauge d'usage (ex. usage hebdomadaire licences) quand la valeur est connue.\n- Dans le footer d'un `Item` (slot Figma .Item Footer l'utilise tel quel).\n\n### When NOT to use\n- **Attente indéterminée** → `Spinner`.\n- **Étapes discrètes** (1/2/3) → stepper, pas une barre continue.\n- **Score / notation** → composant dédié, la barre implique une progression temporelle.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` | `0` | valeur courante (premier variant du set Figma) |\n| `max` | `100` | borne haute |\n| `width` | `400` | largeur du variant Figma ; passer `'100%'` en usage fluide |\n| `size` | `md` | `md` h8 (Figma) · `sm` h4 (jauges compactes : quota sidebar, rangées) |\n| `tone` | `default` | `default` primary · `caution` pré-alerte (proposition sémantique, arbitrage 24/09 : « un token de marque ne porte pas d'état ») · `warn` alerte (`feedback.warning.base` sur piste `warning.subtle`) · `muted` progression discrète (`foregroundMuted`) |\n| `label` | - | aria-label |\n| `className` / `style` | - | passthrough |\n\n### Examples\n```jsx\nimport Progress from 'src/components/ui/Progress';\n\n<Progress value={40} />\n<Progress value={70} width=\"100%\" label=\"Import des pièces\" />\n<Progress value={100} />\n// Jauge de quota (WeeklyUsageCard) : compacte, tone par palier\n<Progress value={92} size=\"sm\" width=\"100%\" tone=\"warn\" label=\"Usage hebdomadaire\" />\n```\n\n### Tokens used\n`colors.semantic.secondary` (piste) · `colors.semantic.primary` (remplissage) ·\n`radius.full` · `motion.duration.base` + `motion.easing.out` (transition de valeur)",
+        "explos": "- Construit le 23/09 depuis l'inventaire DS (nœud validé par la steward, set Figma « Progress » 0-100 %).\n- 24/09 : extensions code-first validées steward (SIGNALEMENTS §16) - `size sm`\n  (h4) + tone `warn` pour les jauges de quota. Adopté par `WeeklyUsageCard`\n  (remplace sa barre inline ; en warn la barre montre le vrai % sur piste\n  `warning.subtle`, l'ancienne version saturait la piste entière) et les 2\n  barres d'extraction de poste d'App.js.\n- 24/09 (arbitrage steward) : le tone `accent` initialement proposé pour le\n  palier ≥70 % est refusé (« un token de marque ne porte pas d'état ») →\n  renommé `caution`, proposition sémantique à valider. Tone `muted` validé et\n  adopté sur la barre d'extraction du banner App.js ; reste la barre quotas\n  membres (L~9333, deux remplissages par état) hors périmètre.",
         "demo": "`/ui-kit/c/Progress`"
       }
     },

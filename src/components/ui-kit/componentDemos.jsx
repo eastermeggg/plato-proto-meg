@@ -1734,11 +1734,11 @@ export const componentDemos = {
   },
 
   Progress: {
-    description: "Barre de progression déterminée (piste h8 secondary radius full, remplissage primary, transition base). Figma 2819:29134 + extensions steward sm/accent/warn (jauges quota) · fiche Progress.md.",
+    description: "Barre de progression déterminée (piste h8 secondary radius full, remplissage primary, transition base). Figma 2819:29134 + extensions steward sm/caution/warn/muted (jauges quota, contextes denses) · fiche Progress.md.",
     controls: {
       value: { type: 'select',  default: '40', options: ['0', '25', '40', '70', '100'], description: 'Valeur (0-100).' },
       size:  { type: 'select',  default: 'md', options: ['md', 'sm'], description: 'Hauteur : md 8 (Figma) · sm 4 (jauges compactes).' },
-      tone:  { type: 'select',  default: 'default', options: ['default', 'accent', 'warn'], description: 'default primary · accent pré-alerte · warn alerte quota.' },
+      tone:  { type: 'select',  default: 'default', options: ['default', 'caution', 'warn', 'muted'], description: 'default primary · caution pré-alerte · warn alerte quota · muted discret.' },
       fluid: { type: 'boolean', default: false, description: "Largeur 100 % (sinon 400px Figma)." },
       label: { type: 'text',    default: '',   description: 'Libellé aria.' },
     },
@@ -1751,8 +1751,9 @@ export const componentDemos = {
       { label: '40 %',  values: { value: '40',  size: 'md', tone: 'default', fluid: false, label: '' } },
       { label: '70 %',  values: { value: '70',  size: 'md', tone: 'default', fluid: true,  label: 'Import des pièces' } },
       { label: '100 %', values: { value: '100', size: 'md', tone: 'default', fluid: false, label: '' } },
-      { label: 'Quota pré-alerte', values: { value: '70', size: 'sm', tone: 'accent', fluid: true, label: 'Usage hebdomadaire' } },
+      { label: 'Quota pré-alerte', values: { value: '70', size: 'sm', tone: 'caution', fluid: true, label: 'Usage hebdomadaire' } },
       { label: 'Quota alerte',     values: { value: '100', size: 'sm', tone: 'warn', fluid: true, label: 'Usage hebdomadaire' } },
+      { label: 'Extraction (muted)', values: { value: '40', size: 'sm', tone: 'muted', fluid: false, label: 'Extraction' } },
     ],
   },
 
