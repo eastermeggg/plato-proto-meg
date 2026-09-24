@@ -17267,22 +17267,20 @@ export default function App() {
 
     if (cancelTrialStep === 'reason') {
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setCancelTrialStep(null)}>
-          <div className="absolute inset-0 bg-black/40" />
-          <div
-            className="relative bg-surface rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 pt-6 pb-4">
-              <div className="w-10 h-10 rounded-full bg-danger-subtle flex items-center justify-center mb-4">
-                <AlertTriangle className="w-5 h-5 text-danger" strokeWidth={1.75} />
-              </div>
-              <h2 className="text-[16px] font-medium text-foreground mb-1">Annuler l'essai gratuit ?</h2>
-              <p className="text-[13px] text-foreground-secondary leading-5">
-                Cette action supprimera votre organisation et toutes ses données. Dites-nous pourquoi vous partez.
-              </p>
-            </div>
-            <div className="px-6 pb-2">
+        <AlertDialog
+          open
+          onOpenChange={(o) => { if (!o) setCancelTrialStep(null); }}
+          icon={AlertTriangle}
+          iconVariant="destructive"
+          title="Annuler l'essai gratuit ?"
+          description="Cette action supprimera votre organisation et toutes ses données. Dites-nous pourquoi vous partez."
+          cancelLabel="Annuler"
+          onCancel={() => setCancelTrialStep(null)}
+          actionLabel="Continuer"
+          actionVariant="destructive"
+          actionDisabled={!cancelTrialReason}
+          onAction={() => { if (cancelTrialReason) setCancelTrialStep('confirm'); }}
+        >
               <div className="flex flex-col gap-1.5">
                 {CANCEL_REASONS.map((r) => (
                   <button
@@ -17298,50 +17296,32 @@ export default function App() {
                   </button>
                 ))}
               </div>
-            </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2">
-              <button
-                onClick={() => setCancelTrialStep(null)}
-                className="h-9 px-4 text-[13px] font-medium text-foreground-tertiary rounded-lg hover:bg-cream transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={() => { if (cancelTrialReason) setCancelTrialStep('confirm'); }}
-                disabled={!cancelTrialReason}
-                className={`h-9 px-4 text-[13px] font-medium rounded-lg transition-colors ${
-                  cancelTrialReason
-                    ? 'bg-danger text-white hover:bg-danger'
-                    : 'bg-border text-foreground-muted cursor-not-allowed'
-                }`}
-              >
-                Continuer
-              </button>
-            </div>
-          </div>
-        </div>
+        </AlertDialog>
       );
     }
 
     if (cancelTrialStep === 'confirm') {
       const canConfirm = cancelTrialConfirmText.trim() === confirmTarget;
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setCancelTrialStep(null)}>
-          <div className="absolute inset-0 bg-black/40" />
-          <div
-            className="relative bg-surface rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 pt-6 pb-4">
-              <div className="w-10 h-10 rounded-full bg-danger-subtle flex items-center justify-center mb-4">
-                <Trash2 className="w-5 h-5 text-danger" strokeWidth={1.75} />
-              </div>
-              <h2 className="text-[16px] font-medium text-foreground mb-1">Supprimer l'organisation</h2>
-              <p className="text-[13px] text-foreground-secondary leading-5">
-                Cette action est irréversible. Tous les dossiers, pièces, actes et données de <span className="font-medium text-foreground">{orgName}</span> seront définitivement supprimés.
-              </p>
-            </div>
-            <div className="px-6 pb-2">
+        <AlertDialog
+          open
+          onOpenChange={(o) => { if (!o) setCancelTrialStep(null); }}
+          icon={Trash2}
+          iconVariant="destructive"
+          title="Supprimer l'organisation"
+          description={<>Cette action est irréversible. Tous les dossiers, pièces, actes et données de <span className="font-medium text-foreground">{orgName}</span> seront définitivement supprimés.</>}
+          cancelLabel="Retour"
+          onCancel={() => setCancelTrialStep('reason')}
+          actionLabel="Supprimer définitivement"
+          actionVariant="destructive"
+          actionDisabled={!canConfirm}
+          onAction={() => {
+            if (!canConfirm) return;
+            setCancelTrialStep(null);
+            setToastMessage('Organisation supprimée. Redirection...');
+            setTimeout(() => setToastMessage(null), 3000);
+          }}
+        >
               <label className="block text-[12px] font-medium text-foreground-secondary mb-2">
                 Tapez <span className="font-mono text-foreground bg-cream px-1.5 py-0.5 rounded">{confirmTarget}</span> pour confirmer
               </label>
@@ -17354,33 +17334,7 @@ export default function App() {
                 style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                 autoFocus
               />
-            </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2">
-              <button
-                onClick={() => setCancelTrialStep('reason')}
-                className="h-9 px-4 text-[13px] font-medium text-foreground-tertiary rounded-lg hover:bg-cream transition-colors"
-              >
-                Retour
-              </button>
-              <button
-                onClick={() => {
-                  if (!canConfirm) return;
-                  setCancelTrialStep(null);
-                  setToastMessage('Organisation supprimée. Redirection...');
-                  setTimeout(() => setToastMessage(null), 3000);
-                }}
-                disabled={!canConfirm}
-                className={`h-9 px-4 text-[13px] font-medium rounded-lg transition-colors ${
-                  canConfirm
-                    ? 'bg-danger text-white hover:bg-danger'
-                    : 'bg-border text-foreground-muted cursor-not-allowed'
-                }`}
-              >
-                Supprimer définitivement
-              </button>
-            </div>
-          </div>
-        </div>
+        </AlertDialog>
       );
     }
     return null;
@@ -17461,48 +17415,28 @@ export default function App() {
       setThreadTitleDraft(null);
     };
     return (
-      <div
-        className="fixed inset-0 z-[80] flex items-center justify-center"
-        style={{ backgroundColor: 'rgba(26,26,26,0.4)' }}
-        onClick={() => setThreadTitleDraft(null)}
+      <AlertDialog
+        open
+        onOpenChange={(o) => { if (!o) setThreadTitleDraft(null); }}
+        hideIcon
+        title="Renommer la conversation"
+        cancelLabel="Annuler"
+        onCancel={() => setThreadTitleDraft(null)}
+        actionLabel="Enregistrer"
+        onAction={commit}
       >
-        <div
-          className="bg-surface rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]"
-          style={{ boxShadow: dsShadows['2xl'] }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="px-5 pt-5 pb-3">
-            <h2 className="text-[16px] font-medium text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif" }}>Renommer la conversation</h2>
-          </div>
-          <div className="px-5 pb-2">
-            <input
-              autoFocus
-              value={threadTitleDraft}
-              onChange={(e) => setThreadTitleDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commit();
-                if (e.key === 'Escape') setThreadTitleDraft(null);
-              }}
-              className="w-full h-9 px-3 rounded-lg border border-border focus:border-foreground-tertiary outline-none text-[14px] text-foreground"
-              placeholder="Nom de la conversation"
-            />
-          </div>
-          <div className="px-5 py-3 flex items-center justify-end gap-2">
-            <button
-              onClick={() => setThreadTitleDraft(null)}
-              className="px-3 py-1.5 rounded-lg text-[13px] text-foreground-secondary hover:bg-background transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={commit}
-              className="px-3 py-1.5 rounded-lg text-[13px] font-medium text-primary-foreground bg-foreground hover:bg-foreground-tertiary transition-colors"
-            >
-              Enregistrer
-            </button>
-          </div>
-        </div>
-      </div>
+        <input
+          autoFocus
+          value={threadTitleDraft}
+          onChange={(e) => setThreadTitleDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commit();
+            if (e.key === 'Escape') setThreadTitleDraft(null);
+          }}
+          className="w-full h-9 px-3 rounded-lg border border-border focus:border-foreground-tertiary outline-none text-[14px] text-foreground"
+          placeholder="Nom de la conversation"
+        />
+      </AlertDialog>
     );
   };
 
@@ -21245,20 +21179,18 @@ export default function App() {
     <>
       {/* ── Déconnexion - dire ce qui se passe vraiment avant d'agir ── */}
       {mailDisconnectTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setMailDisconnectAsk(null)}>
-          <div onClick={(e) => e.stopPropagation()} className="bg-surface rounded-xl border border-border flex flex-col" style={{ width: 440, boxShadow: dsShadows['4xl'] }}>
-            <div className="px-6 pt-5 pb-4">
-              <h2 style={{ ...mailSerifTitle, fontSize: 20 }}>Déconnecter cette boîte ?</h2>
-              <p className="text-[13px] text-foreground-secondary mt-1.5 leading-5">
-                Les 47 pièces déjà versées restent dans leurs dossiers. Plato n'aura plus accès à vos échanges.
-              </p>
-            </div>
-            <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-2">
-              <button onClick={() => setMailDisconnectAsk(null)} className="h-9 px-4 text-[14px] font-medium text-foreground bg-surface border border-border rounded-lg hover:bg-background transition-colors">Annuler</button>
-              <button onClick={confirmMailDisconnect} className="h-9 px-4 text-[14px] font-medium bg-surface border rounded-lg transition-colors" style={{ color: dsColors.banner.error.accentHover, borderColor: dsColors.feedback.destructive.border }}>Déconnecter</button>
-            </div>
-          </div>
-        </div>
+        <AlertDialog
+          open
+          onOpenChange={(o) => { if (!o) setMailDisconnectAsk(null); }}
+          hideIcon
+          title="Déconnecter cette boîte ?"
+          description="Les 47 pièces déjà versées restent dans leurs dossiers. Plato n'aura plus accès à vos échanges."
+          cancelLabel="Annuler"
+          onCancel={() => setMailDisconnectAsk(null)}
+          actionLabel="Déconnecter"
+          actionVariant="destructive"
+          onAction={confirmMailDisconnect}
+        />
       )}
     </>
   );

@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import JPMemoryRow from './JPMemoryRow';
+import Dialog from '../ui/Dialog';
+import Button from '../ui/Button';
 import { colors, shadows } from '../../design-system/tokens';
 
 // Chato pre-fills a draft rationale from the decision's metadata.
@@ -16,6 +18,10 @@ function draftRationaleFor(decision) {
  * cabinet reference. Pre-fills a Chato-drafted rationale that the lawyer
  * can edit before saving.
  *
+ * Coquille : ui/Dialog (adoption pilote 24/09 - scrim overlay, surface
+ * surfaceRaised, ombre L4/4xl par rôle, titre display-sm). Le corps (aperçu
+ * JPMemoryRow + textarea) est inchangé.
+ *
  * Props:
  *   decision (object)        — the JP being saved (read-only preview at top)
  *   initialRationale         — optional override of the Chato draft
@@ -29,112 +35,58 @@ export default function JPRationaleModal({ decision, initialRationale, onClose, 
       : draftRationaleFor(decision)
   );
 
-  useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose?.(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
-
   if (!decision) return null;
   const canSave = rationale.trim().length > 0;
 
   return (
-    <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-surface border border-border flex flex-col"
-        style={{
-          width: 520,
-          borderRadius: 12,
-          boxShadow: shadows['md'],
-        }}
-      >
-        {/* Header */}
-        <div className="flex flex-col gap-1 px-6 pt-6 pb-0">
-          <h2 style={{ fontFamily: "'RL Para Trial Central', Georgia, 'Times New Roman', serif", fontSize: 24, fontWeight: 500, color: colors.semantic.foreground, letterSpacing: '-0.6px', lineHeight: '28px', margin: 0 }}>
-            Dites-nous pourquoi cette jurisprudence est pertinente&nbsp;?
-          </h2>
-          <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13, color: colors.semantic.mutedForeground, lineHeight: '20px', marginTop: 4 }}>
-            Cette note guide l'agent quand il citera la décision dans vos actes.
-          </p>
+    <Dialog
+      open
+      onOpenChange={(o) => { if (!o) onClose?.(); }}
+      width={520}
+      title="Dites-nous pourquoi cette jurisprudence est pertinente ?"
+      description="Cette note guide l'agent quand il citera la décision dans vos actes."
+      footer={
+        <>
+          <Button variant="secondary" label="Annuler" onClick={onClose} />
+          <Button label="Enregistrer" disabled={!canSave} onClick={() => onSave?.(rationale.trim())} />
+        </>
+      }
+    >
+      <div className="flex flex-col gap-5">
+        {/* JP card preview */}
+        <div
+          style={{
+            border: `1px solid ${colors.semantic.border}`,
+            borderRadius: 8,
+            overflow: 'hidden',
+          }}
+        >
+          <JPMemoryRow decision={decision} />
         </div>
 
-        {/* Content */}
-        <div className="flex flex-col gap-5 px-6 pt-6 pb-8">
-          {/* JP card preview */}
-          <div
+        {/* Apport */}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="jp-rationale-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
+            Apport de la décision
+          </label>
+          <textarea
+            id="jp-rationale-impact"
+            value={rationale}
+            onChange={(e) => setRationale(e.target.value)}
+            rows={6}
+            placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
+            className="w-full px-3 py-2 text-[14px] text-foreground bg-surface placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
             style={{
+              fontFamily: "'Inter', system-ui, sans-serif",
+              lineHeight: '24px',
               border: `1px solid ${colors.semantic.border}`,
               borderRadius: 8,
-              overflow: 'hidden',
+              boxShadow: shadows.xs,
+              minHeight: 140,
             }}
-          >
-            <JPMemoryRow decision={decision} />
-          </div>
-
-          {/* Apport */}
-          <div className="flex flex-col gap-2">
-            <label htmlFor="jp-rationale-impact" style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, fontWeight: 500, color: colors.semantic.foreground, lineHeight: '20px' }}>
-              Apport de la décision
-            </label>
-            <textarea
-              id="jp-rationale-impact"
-              value={rationale}
-              onChange={(e) => setRationale(e.target.value)}
-              rows={6}
-              placeholder="Ex. Taux horaire ATPT de 28 €/h pour une étudiante résidant à Paris intra-muros."
-              className="w-full px-3 py-2 text-[14px] text-foreground bg-surface placeholder-foreground-muted focus:outline-none focus:border-foreground-muted resize-y"
-              style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
-                lineHeight: '24px',
-                border: `1px solid ${colors.semantic.border}`,
-                borderRadius: 8,
-                boxShadow: shadows.xs,
-                minHeight: 140,
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-6 pt-0 pb-6">
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center px-4 py-2 transition-colors hover:opacity-90"
-            style={{
-              height: 36,
-              borderRadius: 8,
-              backgroundColor: colors.semantic.muted,
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: 14,
-              fontWeight: 500,
-              color: colors.semantic.foregroundTertiary,
-              lineHeight: '20px',
-            }}
-          >
-            Annuler
-          </button>
-          <button
-            disabled={!canSave}
-            onClick={() => onSave?.(rationale.trim())}
-            className="flex items-center justify-center px-4 py-2 transition-all"
-            style={{
-              height: 36,
-              borderRadius: 8,
-              backgroundColor: canSave ? colors.semantic.primary : colors.semantic.muted,
-              color: canSave ? 'white' : colors.semantic.foregroundMuted,
-              cursor: canSave ? 'pointer' : 'not-allowed',
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: 14,
-              fontWeight: 500,
-              lineHeight: '20px',
-              filter: canSave ? 'drop-shadow(0 1px 1px rgba(26,26,26,0.05))' : 'none',
-            }}
-          >
-            Enregistrer
-          </button>
+          />
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
