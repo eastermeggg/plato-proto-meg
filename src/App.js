@@ -1415,7 +1415,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
             borderRadius: 6,
             backgroundColor: dsColors.semantic.primary,
             border: 'none',
-            boxShadow: '0 8px 24px rgba(41,37,36,0.20), 0 2px 8px rgba(41,37,36,0.12)',
+            boxShadow: dsShadows['lg'],
             padding: '10px 12px',
             fontFamily: "'Inter', system-ui, sans-serif",
             fontSize: 12, fontWeight: 400, color: dsColors.semantic.white,
@@ -3181,7 +3181,7 @@ export default function App() {
               {downloadMenuOpen && (
                 <div
                   className="absolute right-0 top-10 z-50 bg-surface rounded-[8px] border border-border overflow-hidden"
-                  style={{ width: 260, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}
+                  style={{ width: 260, boxShadow: dsShadows['md'] }}
                 >
                   <div className="px-3 pt-2.5 pb-1.5">
                     <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
@@ -5164,7 +5164,7 @@ export default function App() {
                 <MoreVertical className="w-5 h-5 text-foreground-secondary" strokeWidth={1.5} />
               </button>
               {dossierMenuOpen && (
-                <div className="absolute top-full right-0 mt-1 z-50 bg-surface rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+                <div className="absolute top-full right-0 mt-1 z-50 bg-surface rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: dsShadows['md'] }}>
                   <div className="p-1">
                     {isClosed ? (
                       <button
@@ -10664,7 +10664,7 @@ export default function App() {
             {/* Global total - the final answer */}
             {(totalVd > 0 || totalIv > 0) && (
               <div className="border-t-2 border-border-strong pt-6">
-                <div className="rounded-xl overflow-hidden" style={{ backgroundColor: dsColors.semantic.primary, boxShadow: '0px 2px 8px 0px rgba(26,26,26,0.12)' }}>
+                <div className="rounded-xl overflow-hidden" style={{ backgroundColor: dsColors.semantic.primary, boxShadow: dsShadows['md'] }}>
                   {/* Breakdown rows */}
                   <div className="px-5 pt-4 pb-2 space-y-1">
                     <div className="flex items-center justify-between">
@@ -17222,7 +17222,7 @@ export default function App() {
     if (!isTrialing) return null;
     const t = trialTone;
     return (
-      <div className="overflow-hidden" style={{ borderRadius: 4, border: `1px solid ${t.border}`, boxShadow: '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)', backgroundColor: dsColors.semantic.white }}>
+      <div className="overflow-hidden" style={{ borderRadius: 4, border: `1px solid ${t.border}`, boxShadow: dsShadows['lg'], backgroundColor: dsColors.semantic.white }}>
         <div style={{ padding: '20px 20px 0', background: t.gradient }}>
           <div className="flex items-center justify-between gap-2" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: t.text, textTransform: 'uppercase' }}>
             <span className="inline-flex items-center gap-1.5">
@@ -17473,7 +17473,7 @@ export default function App() {
       >
         <div
           className="bg-surface rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]"
-          style={{ boxShadow: '0 12px 40px rgba(26,26,26,0.18)' }}
+          style={{ boxShadow: dsShadows['2xl'] }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="px-5 pt-5 pb-3">
@@ -17918,7 +17918,7 @@ export default function App() {
     const openDossiers = dossiers.filter(d => d.statut !== 'fermé');
     return (
       <div className="fixed inset-0 z-[80] flex items-center justify-center" style={{ backgroundColor: 'rgba(26,26,26,0.4)' }} onClick={() => setAttachPickerThreadId(null)}>
-        <div className="bg-surface rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]" style={{ boxShadow: '0 12px 40px rgba(26,26,26,0.18)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="bg-surface rounded-xl border border-border overflow-hidden w-[420px] max-w-[calc(100vw-48px)]" style={{ boxShadow: dsShadows['2xl'] }} onClick={(e) => e.stopPropagation()}>
           <div className="px-5 pt-5 pb-3">
             <h2 className="text-[16px] font-medium text-foreground" style={{ fontFamily: "'RL Para Trial Central', Georgia, serif" }}>Rattacher la conversation</h2>
             <p className="mt-1 text-[13px] text-foreground-secondary">Le fil migre dans le dossier choisi - un marqueur garde le point exact du rattachement.</p>
@@ -19634,7 +19634,7 @@ export default function App() {
     );
 
     const popoverContent = isOpen && (
-      <div data-bareme-popover={popoverId} className="absolute z-40 mt-1 bg-surface border border-border overflow-hidden" style={{ borderRadius: 8, width: variant === 'horizontal' ? 287 : '100%', animation: 'fadeIn 0.1s ease-out', boxShadow: '0px 2px 4px -2px rgba(26,26,26,0.05), 0px 4px 6px -1px rgba(26,26,26,0.05)' }}>
+      <div data-bareme-popover={popoverId} className="absolute z-40 mt-1 bg-surface border border-border overflow-hidden" style={{ borderRadius: 8, width: variant === 'horizontal' ? 287 : '100%', animation: 'fadeIn 0.1s ease-out', boxShadow: dsShadows['md'] }}>
         {/* Command Search */}
         <button className="w-full flex items-center gap-0 px-3 py-3 border-b border-border cursor-text" onClick={() => {}}>
           <div className="pr-2 flex-shrink-0"><Search className="w-4 h-4 text-foreground-secondary" /></div>
@@ -20304,7 +20304,7 @@ export default function App() {
           style={{
             width: 512,
             borderRadius: 12,
-            boxShadow: '0 2px 4px -2px rgba(26,26,26,0.05), 0 4px 6px -1px rgba(26,26,26,0.05)',
+            boxShadow: dsShadows['md'],
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -20448,7 +20448,7 @@ export default function App() {
               style={{
                 borderRadius: 8,
                 color: dsColors.semantic.primaryForeground,
-                boxShadow: '0 0.5px 1px rgba(26,26,26,0.05)',
+                boxShadow: dsShadows['2xs'],
               }}
             >
               <span className="text-body-medium leading-5">
@@ -21251,7 +21251,7 @@ export default function App() {
       {/* ── Déconnexion - dire ce qui se passe vraiment avant d'agir ── */}
       {mailDisconnectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setMailDisconnectAsk(null)}>
-          <div onClick={(e) => e.stopPropagation()} className="bg-surface rounded-xl border border-border flex flex-col" style={{ width: 440, boxShadow: '0 24px 60px -12px rgba(28,25,23,0.28)' }}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-surface rounded-xl border border-border flex flex-col" style={{ width: 440, boxShadow: dsShadows['4xl'] }}>
             <div className="px-6 pt-5 pb-4">
               <h2 style={{ ...mailSerifTitle, fontSize: 20 }}>Déconnecter cette boîte ?</h2>
               <p className="text-[13px] text-foreground-secondary mt-1.5 leading-5">
@@ -22422,7 +22422,7 @@ export default function App() {
               {/* ─── Preview card ─── */}
               <div
                 className="bg-surface rounded-md border border-border overflow-hidden lg:sticky lg:top-10"
-                style={{ boxShadow: '0 4px 6px -4px rgba(26,26,26,0.05), 0 10px 15px -3px rgba(26,26,26,0.05)' }}
+                style={{ boxShadow: dsShadows['lg'] }}
               >
                 <div className="px-4 py-3 border-b border-border flex items-center gap-3">
                   <Eye className="w-4 h-4 text-foreground-secondary" strokeWidth={2} />
@@ -23519,7 +23519,7 @@ export default function App() {
 
     // B.2 - Add poste modal mock (the trigger surface)
     const triggerAddPosteModal = (
-      <div className="bg-surface rounded-[8px] border border-border overflow-hidden" style={{ width: 260, boxShadow: '0px 4px 12px -4px rgba(26,26,26,0.12)' }}>
+      <div className="bg-surface rounded-[8px] border border-border overflow-hidden" style={{ width: 260, boxShadow: dsShadows['lg'] }}>
         <div className="px-4 py-3 border-b border-border">
           <span className="text-[13px] font-medium text-foreground">Ajouter un poste</span>
         </div>
@@ -25324,7 +25324,7 @@ export default function App() {
             <div className="flex-1 overflow-y-auto">
               {/* Document preview */}
               <div className="bg-foreground flex items-center justify-center p-8" style={{ minHeight: 320 }}>
-                <div className="bg-white rounded-lg w-full max-w-[240px] aspect-[3/4] p-6 flex flex-col" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
+                <div className="bg-white rounded-lg w-full max-w-[240px] aspect-[3/4] p-6 flex flex-col" style={{ boxShadow: dsShadows['lg'] }}>
                   <div className="text-[10px] text-foreground-muted mb-2 uppercase tracking-wide">{chatPreviewPiece.type || 'Document'}</div>
                   <div className="h-2.5 bg-slate-subtle rounded w-3/4 mb-1.5"></div>
                   <div className="h-2.5 bg-slate-subtle rounded w-1/2 mb-5"></div>
