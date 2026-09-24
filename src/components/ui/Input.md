@@ -1,7 +1,7 @@
 ---
 name: Input
 package: plato
-status: beta
+status: stable
 usage: Labelled form control - a label + optional helper wrapping an input slot
 source: src/components/ui/Input.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Label + optional helper + a slot for the control. In Figma this is the **Field** component whose slot can nest any input; the default slot is a text field. States (error/warning) colour the label only; the helper stays muted.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Any labelled form control: text fields, and as a wrapper around `Select` / `Textarea` / `Combobox` via the `children` slot.

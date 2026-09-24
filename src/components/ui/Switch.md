@@ -1,7 +1,7 @@
 ---
 name: Switch
 package: plato
-status: beta
+status: stable
 usage: Bascule on/off d'un réglage à effet immédiat
 source: src/components/ui/Switch.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Bascule on/off. ON = piste foreground, OFF = piste cream, pouce white. Promu depuis `previews.jsx`, tokenisé. Remplace les toggles CSS inline `peer-checked`.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Activer/désactiver un réglage avec **effet immédiat** (pas de submit).

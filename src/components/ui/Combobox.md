@@ -1,7 +1,7 @@
 ---
 name: Combobox
 package: plato
-status: beta
+status: stable
 usage: Search-driven picker - type to filter a long list
 source: src/components/ui/Combobox.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Raw shadcn mapped onto the tokens, no custom design (steward decision): button trigger (value/placeholder + chevrons-up-down) + the Select panel with a Command Search row at the top + filtered list (Select rows, Check on the selection) + empty state.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Pick ONE option from a LONG list (postes, juridictions, members) where typing filters.

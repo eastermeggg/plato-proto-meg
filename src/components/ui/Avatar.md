@@ -1,7 +1,7 @@
 ---
 name: Avatar
 package: plato
-status: beta
+status: stable
 usage: Generic person avatar - initials or image, round or square, 7 token palettes
 source: src/components/ui/Avatar.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -15,7 +15,6 @@ Neutral person avatar (workspace members, contacts, authors): initials (derived
 from `name` or passed in) or image, circle/square shape, token palettes from
 `colors.avatar` cycled by index via `avatarColorAt`.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - A "neutral" person: workspace member, contact, author - initials or photo.

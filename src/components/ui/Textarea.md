@@ -1,7 +1,7 @@
 ---
 name: Textarea
 package: plato
-status: beta
+status: stable
 usage: Resizable multi-line text area (label + helper + error)
 source: src/components/ui/Textarea.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Multi-line text area with vertical resize, mirror of `Input` (card fill, border, error state). Optional label and helper. Promoted from `previews.jsx`, tokenized. Replaces raw `<textarea>`.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Long free-text entry: note, motif, description, comment.

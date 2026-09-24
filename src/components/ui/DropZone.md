@@ -1,7 +1,7 @@
 ---
 name: DropZone
 package: plato
-status: beta
+status: stable
 usage: Drag-and-drop / click-to-browse file input surface
 source: src/components/ui/DropZone.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -12,8 +12,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 # DropZone
 
 The sanctioned "drop a file here / click to browse" affordance - three contexts (panel, inline, rich table empty-state) with default / hover / drop / extraction states handled by the component or forceable via `state`. Any dashed upload area is this component - never a bespoke dashed box.
-
-_Beta - aligned with Figma, pending steward validation (issue #__)._
 
 ## When to use
 - `context="panel"` - a row centered in a panel or card (e.g. the assistant composer's drop band during a drag).

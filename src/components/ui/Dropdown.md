@@ -1,7 +1,7 @@
 ---
 name: Dropdown
 package: plato
-status: beta
+status: stable
 usage: Actions / navigation menu anchored to a trigger (Select menu skin)
 source: src/components/ui/Dropdown.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Actions menu opened by a free trigger (Button, icon). Skin strictly identical to the Select menu (steward decision 24/09): composes `SelectMenuPanel` / `SelectMenuItem` / `SelectMenuLabel` with zero styling of its own.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Contextual actions behind a button/icon (rename, move, delete…), with shortcuts and sections.

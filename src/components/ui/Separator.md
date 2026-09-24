@@ -1,7 +1,7 @@
 ---
 name: Separator
 package: plato
-status: beta
+status: stable
 usage: Divider rule - horizontal, vertical, or with a mono label
 source: src/components/ui/Separator.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 A hairline rule from the `border` token in three shapes: full-width horizontal, horizontal with a centered uppercase mono label, and vertical (aligned to text). Replaces raw `<hr>` and inline hairlines.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Separate two blocks / list groups (horizontal).

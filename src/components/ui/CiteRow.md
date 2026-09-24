@@ -1,7 +1,7 @@
 ---
 name: CiteRow
 package: plato
-status: beta
+status: stable
 usage: One row of the Doc Preview "Extraits cités" rail
 source: src/components/preview/PreviewAtoms.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Doc Preview atom: citation row - round number badge + PAGE eyebrow (mono, uppercase) + 2-line excerpt. States: default (white) · hover (accent) · active stone (solid foreground badge, cream→white gradient, left rule). `CitesPanel` (37375:9168) composes it under its "EXTRAITS CITÉS" header.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - A reference cited in the "Extraits cités" rail (via `CitesPanel`).

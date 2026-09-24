@@ -1,7 +1,7 @@
 ---
 name: Stepper
 package: plato
-status: beta
+status: stable
 usage: Horizontal step indicator for multi-step flows (modal wizards)
 source: src/components/ui/Stepper.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-i
 
 Horizontal progression indicator for wizards: one numbered circle per step, joined by hairline connectors, a medium label beside each circle. State is DERIVED from a single `current` index (done / active / upcoming) - the component never holds its own progression state.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Header of a multi-step modal (e.g. « Nouveau dossier » : Nom du dossier · Pièces client · Pièces adverses).

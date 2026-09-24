@@ -1,7 +1,7 @@
 ---
 name: Dialog
 package: plato
-status: beta
+status: stable
 usage: Content modal (form, list, text) - serif header, scrolling body, action footer
 source: src/components/ui/Dialog.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Content modal window laid over an overlay-token scrim: surface-raised panel with a serif display title, muted description, scrolling body and a right-aligned action footer. Steward decision 24/09: **no generic Modal** - the need splits between `AlertDialog` (confirmation), `Dialog` (content, here) and `Drawer` (lateral).
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Form, list or rich content that interrupts the flow (dossier creation, editing, modal search).

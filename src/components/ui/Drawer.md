@@ -1,7 +1,7 @@
 ---
 name: Drawer
 package: plato
-status: beta
+status: stable
 usage: Master side panel (right/left) - overlay that never hides the chat
 source: src/components/ui/Drawer.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Master component for side drawers: two sizes (sm / wide), side right or left. The scrim and the panel stop at `var(--chat-offset)` so the chat stays visible and interactive - the user can ask the assistant to modify what the drawer shows. Build any new panel by stacking `DrawerSection`s; never re-roll a lateral panel inline.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - **MODIFY an existing object** - the doctrine (steward 24/09) is **Dialog to CREATE, Drawer to MODIFY**: editing an org user, a day entry of the relevé d'heures, a chiffrage line, a cotisation… any side edit.

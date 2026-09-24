@@ -1,7 +1,7 @@
 ---
 name: PanelHeader
 package: plato
-status: beta
+status: stable
 usage: The Doc Preview title bar - kind chip + serif title | nav + actions
 source: src/components/preview/PreviewAtoms.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -16,7 +16,6 @@ Badge) + serif title; right is nav ‹ i/N ›, a separator, an actions slot, an
 Close. The `small` variant (PieceSmall kind) is a bare icon + medium title + a
 text action (« Détail › »), used as a pièce's sub-header inside a row subject.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - The title bar of any preview panel (`PreviewPanel` composes it).

@@ -1,7 +1,7 @@
 ---
 name: Card
 package: plato
-status: beta
+status: stable
 usage: Surface carte générique - Header (titre + description) / Content / Footer
 source: src/components/ui/Card.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: null
 
 Surface carte générique : base shadcn tokenisée, aucun design custom (décision steward 24/09). Surface `card` bordée, radius 12, élévation sm ; slots CardHeader (titre semibold + CardDescription muted), CardContent, CardFooter.
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Bloc de contenu autonome sur une page : carte d'info, bloc de réglages, résumé, empty state encadré.

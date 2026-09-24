@@ -1,7 +1,7 @@
 ---
 name: Checkbox
 package: plato
-status: beta
+status: stable
 usage: Case à cocher - off / on / indéterminé (tri-state)
 source: src/components/ui/Checkbox.js
 demo: src/components/ui-kit/componentDemos.jsx
@@ -13,7 +13,6 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Case à cocher tri-state (off / on / indéterminé). Coché = fond + bordure foreground, glyphe blanc. Remplace les cases inline copiées (SaveDestinationPopover, JPAddStepper, ImportEmailDialog).
 
-_Beta - pending steward validation (issue #__)._
 
 ## When to use
 - Sélection multiple indépendante (liste, filtres, options).

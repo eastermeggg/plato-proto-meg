@@ -69,7 +69,7 @@
     "Avatar": {
       "name": "Avatar",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Generic person avatar - initials or image, round or square, 7 token palettes",
       "source": "src/components/ui/Avatar.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -165,7 +165,7 @@
     "Card": {
       "name": "Card",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Surface carte générique - Header (titre + description) / Content / Footer",
       "source": "src/components/ui/Card.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -213,7 +213,7 @@
     "Checkbox": {
       "name": "Checkbox",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Case à cocher - off / on / indéterminé (tri-state)",
       "source": "src/components/ui/Checkbox.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -229,7 +229,7 @@
     "CiteRow": {
       "name": "CiteRow",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "One row of the Doc Preview \"Extraits cités\" rail",
       "source": "src/components/preview/PreviewAtoms.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -245,7 +245,7 @@
     "Combobox": {
       "name": "Combobox",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Search-driven picker - type to filter a long list",
       "source": "src/components/ui/Combobox.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -293,7 +293,7 @@
     "Dialog": {
       "name": "Dialog",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Content modal (form, list, text) - serif header, scrolling body, action footer",
       "source": "src/components/ui/Dialog.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -325,7 +325,7 @@
     "Drawer": {
       "name": "Drawer",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Master side panel (right/left) - overlay that never hides the chat",
       "source": "src/components/ui/Drawer.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -341,7 +341,7 @@
     "DropZone": {
       "name": "DropZone",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Drag-and-drop / click-to-browse file input surface",
       "source": "src/components/ui/DropZone.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -357,7 +357,7 @@
     "Dropdown": {
       "name": "Dropdown",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Actions / navigation menu anchored to a trigger (Select menu skin)",
       "source": "src/components/ui/Dropdown.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -405,7 +405,7 @@
     "Input": {
       "name": "Input",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Labelled form control - a label + optional helper wrapping an input slot",
       "source": "src/components/ui/Input.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -485,7 +485,7 @@
     "KindIcon": {
       "name": "KindIcon",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "The Doc Preview identity chip - an icon on a per-kind subtle fill",
       "source": "src/components/preview/PreviewAtoms.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -613,7 +613,7 @@
     "PanelHeader": {
       "name": "PanelHeader",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "The Doc Preview title bar - kind chip + serif title | nav + actions",
       "source": "src/components/preview/PreviewAtoms.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -741,7 +741,7 @@
     "Separator": {
       "name": "Separator",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Divider rule - horizontal, vertical, or with a mono label",
       "source": "src/components/ui/Separator.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -821,7 +821,7 @@
     "Stepper": {
       "name": "Stepper",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Horizontal step indicator for multi-step flows (modal wizards)",
       "source": "src/components/ui/Stepper.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -837,7 +837,7 @@
     "Switch": {
       "name": "Switch",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Bascule on/off d'un réglage à effet immédiat",
       "source": "src/components/ui/Switch.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
@@ -869,7 +869,7 @@
     "Textarea": {
       "name": "Textarea",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Resizable multi-line text area (label + helper + error)",
       "source": "src/components/ui/Textarea.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
