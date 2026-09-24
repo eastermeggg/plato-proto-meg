@@ -80,6 +80,7 @@ import { MailConnectIntro, MailConnectRun } from './components/connectors/MailCo
 import { ProviderMark } from './components/connectors/ConnectorArt';
 import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel, MailFloatingPromo, MailNavPromoCard } from './components/connectors/ConnectorPromo';
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
+import LoiHoverLab from './components/ui-kit/LoiHoverLab';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
 import WeeklyUsageCard from './components/billing/WeeklyUsageCard';
@@ -1452,7 +1453,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // ========== URL ROUTING HELPERS ==========
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
-const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion'];
+const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'loi-hover', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion'];
 const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp'];
 
 function pathToPage(pathname) {
@@ -18354,6 +18355,7 @@ export default function App() {
       { label: "Sommaire d'acte", slug: 'sommaire-acte', icon: AlignLeft, kind: 'composant', date: '2026-06-26' },
       { label: 'Chat Composer Notice', slug: 'chat-composer-notice', icon: Sparkles, kind: 'composant', date: '2026-07-29' },
       { label: 'Preview panel - tous les types', slug: 'preview-panel', icon: Files, kind: 'composant', date: '2026-07-30' },
+      { label: 'Popover article de loi', slug: 'loi-hover', icon: BookOpen, kind: 'composant', date: '2026-09-24' },
       { label: 'Flag dossier - variantes', slug: 'dossier-flag', icon: Folder, kind: 'composant', date: '2026-09-09' },
       // Explo flow
       { label: 'Import dossier - agencements', slug: 'import-dossier', icon: Mail, kind: 'flow', date: '2026-07-29' },
@@ -25018,6 +25020,9 @@ export default function App() {
   }
   if (currentPage === 'preview-panel') {
     return (<>{renderDSLab(<PreviewPanelLab />)}{renderGlobalOverlays()}</>);
+  }
+  if (currentPage === 'loi-hover') {
+    return (<><LoiHoverLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'assistant-composer') {
     return (<><ComposerLab />{renderGlobalOverlays()}</>);

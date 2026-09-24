@@ -498,6 +498,21 @@
         "demo": ""
       }
     },
+    "LoiHoverCard": {
+      "name": "LoiHoverCard",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Identity card of an article de loi shown on hover of an inline reference",
+      "source": "src/components/ui/LoiHoverCard.js",
+      "demo": "src/components/ui-kit/LoiHoverLab.js",
+      "replacedBy": "null",
+      "docFile": "src/components/ui/LoiHoverCard.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
     "MetaChip": {
       "name": "MetaChip",
       "package": "plato",

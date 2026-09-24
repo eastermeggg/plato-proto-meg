@@ -2597,6 +2597,19 @@
       "used": false
     },
     {
+      "id": "LoiHoverCard",
+      "layer": "custom",
+      "category": "primitive",
+      "family": "Overlays & menus",
+      "filePath": "src/components/ui/LoiHoverCard.js",
+      "exists": true,
+      "figmaPage": null,
+      "figmaRef": null,
+      "notes": "Arrive de main (PR #74, lab /ui-kit/loi-hover) lors du merge de PR #75 le 24/09/2026. Popover fiche d'identite d'un article de loi (famille TEXTE violet, LoiRef/LoiText/LoiCard, ouvre PreviewPanel kind loi). Tokenise au merge (accents.violet + semantiques, ombre 2xl L3). Entree factuelle creee au resync ; validation steward via /ui-kit/c/LoiHoverCard.",
+      "status": "pending",
+      "used": true
+    },
+    {
       "id": "Popover",
       "layer": "shadcn",
       "category": "primitive",
