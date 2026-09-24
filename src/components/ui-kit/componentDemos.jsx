@@ -622,12 +622,13 @@ function DialogTrigger(props) {
 function DrawerTrigger({ size, title, withFooter }) {
   const [open, setOpen] = useState(true);
   React.useEffect(() => { setOpen(true); }, [size, title, withFooter]);
+  const frameW = size === 'wide' ? 1120 : 760;
   return (
-    <ScopedDialogFrame width={640} height={420} isOpen={open} onReopen={() => setOpen(true)}>
+    <ScopedDialogFrame width={frameW} height={620} isOpen={open} onReopen={() => setOpen(true)}>
       <DrawerReal
         open={open}
         onOpenChange={setOpen}
-        size={size === 'wide' ? 420 : 320}
+        size={size}
         title={title}
         avatar={<AvatarDemoReal name={title} size={24} shape="square" color="blue" />}
         respectChatOffset={false}
