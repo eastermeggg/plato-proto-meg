@@ -34,6 +34,16 @@ DS font foi dans `ds.manifest.json`.
    entrée d'inventaire. Après édition d'une fiche : `npm run ds:docs`.
 10. **Avant de rendre la main** : `npm run ds:doctor && npm run build`
     (le doctor délègue fiches + frontières ; 0 constat bloquant).
+11. **Imiter `/ui-kit`, jamais `App.js`.** Pour un nouvel écran ou une nouvelle
+    surface, la référence à copier est un **block du playground**
+    (`/ui-kit/blocks`, code `src/components/ui-kit/blocks.jsx`) - en premier le
+    block **Écran-gabarit** (`/ui-kit/b/ecran-gabarit` : shell + PageHeader +
+    table + Dropdown de ligne + Dialog création + Drawer modification +
+    AlertDialog + les 5 états) et le block **Shell** (gabarit de page + valeurs
+    canoniques). **Ne JAMAIS cloner un écran d'`App.js`** : le proto porte des
+    anti-patterns hérités (éléments bruts, barres inline, valeurs en dur) que
+    la migration résorbe progressivement - le copier, c'est les propager. Les
+    blocks sont l'état cible ; `App.js` est l'existant en cours d'alignement.
 
 **Vérité Figma mixte par surface, jamais globale** — registre + 4 règles
 d'arbitrage : `docs/design-truth.md` (+ `figma.note` du manifeste). Surface
