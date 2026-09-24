@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Select a value (or a range) on a continuous axis: rail, filled range, draggable handle(s), single or range. Real interactions - mouse / touch drag, rail click (the nearest handle jumps), full keyboard, ARIA `role="slider"` per handle.
 
-_Beta - handle shadow and focus-halo token gaps recorded (`shadows.md` / `custom/focus` candidates to promote) (issue #81)._
+_Beta - focus halo now the dedicated `shadows.focusRing` token (arbitrage 24/09, board `/ui-kit/arbitrages`); handle-shadow gap (`shadows.md` candidate) still open (issue #81)._
 
 ## When to use
 - Set a continuous or stepped numeric value: percentage, amount, zoom, threshold.

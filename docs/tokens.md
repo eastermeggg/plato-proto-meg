@@ -316,6 +316,8 @@ Light par défaut ; la colonne Dark n'apparaît que si la valeur change (archite
 | `bannerButtonHover` | `0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(0,0,0,0.04)` | Bouton de bandeau (survol) |
 | `glowPulseStart` | `0 0 8px rgba(99, 102, 241, 0.3)` | Début du pulse de glow (indigo) |
 | `glowPulseEnd` | `0 0 20px rgba(99, 102, 241, 0.5)` | Fin du pulse de glow |
+| `focusRing` | `0 0 0 3px color-mix(in srgb, var(--semantic-borderHover, #a8a29e) 50%, transparent)` | Focus des contrôles de saisie - halo 3px borderHover 50 % + bord ring (arbitrage 24/09) ; jamais un halo local |
+| `focusRingError` | `0 0 0 3px color-mix(in srgb, var(--banner-error-accent, #dc2626) 40%, transparent)` | Focus état erreur - halo 3px accent erreur 40 % (InputGroup error) |
 
 ## Motion
 

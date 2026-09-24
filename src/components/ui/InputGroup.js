@@ -37,8 +37,9 @@ const FIELD_TEXT = {
   fontWeight: typography.scale.body.weight,           // 400
 };
 
-const FOCUS_RING = `0 0 0 3px color-mix(in srgb, ${colors.semantic.borderHover} 50%, transparent)`;
-const ERROR_RING = `0 0 0 3px color-mix(in srgb, ${colors.banner.error.accent} 40%, transparent)`;
+// Focus/erreur : tokens uniques shadows.focusRing / focusRingError (arbitrage 24/09).
+const FOCUS_RING = shadows.focusRing;
+const ERROR_RING = shadows.focusRingError;
 const WARNING_RING = `0 0 0 3px ${colors.feedback.warning.subtle}`;
 
 // ::placeholder n'existe pas en style inline — feuille injectée une fois.

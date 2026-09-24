@@ -2157,6 +2157,24 @@
         "figmaRef": "",
         "notes": "",
         "status": "pending"
+      },
+      {
+        "id": "shadow.focusRing",
+        "name": "focusRing",
+        "value": "0 0 0 3px color-mix(in srgb, var(--semantic-borderHover, #a8a29e) 50%, transparent)",
+        "usage": "Focus des contrôles de saisie - halo 3px borderHover 50 % + bord ring (arbitrage 24/09) ; jamais un halo local",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
+      },
+      {
+        "id": "shadow.focusRingError",
+        "name": "focusRingError",
+        "value": "0 0 0 3px color-mix(in srgb, var(--banner-error-accent, #dc2626) 40%, transparent)",
+        "usage": "Focus état erreur - halo 3px accent erreur 40 % (InputGroup error)",
+        "figmaRef": "",
+        "notes": "",
+        "status": "pending"
       }
     ],
     "motion": [

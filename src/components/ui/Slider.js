@@ -24,7 +24,8 @@ import { colors, radius, shadows } from '../../design-system/tokens';
 
 const TRACK_H = 6;
 const THUMB = 16;
-const FOCUS_RING = `0 0 0 3px color-mix(in srgb, ${colors.semantic.borderHover} 50%, transparent)`;
+// Focus : token unique shadows.focusRing (arbitrage 24/09) - jamais de halo local.
+const FOCUS_RING = shadows.focusRing;
 
 // :focus-visible n'existe pas en style inline — feuille injectée une fois.
 let focusCss = false;

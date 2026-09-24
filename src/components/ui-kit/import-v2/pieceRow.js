@@ -22,6 +22,12 @@ export const V2 = {
   secondary: 'var(--semantic-secondary, #eeece6)',
   secondaryText: 'var(--semantic-secondaryForeground, #44403c)',
   // Folder VERT : Figma #065f46 (planches Inbox/Folder) = token icon.success.
+  // ARBITRAGE 24/09 (délégué, board /ui-kit/arbitrages) : le master bordereau
+  // peint le dossier du header collapsible en BLEU (fill blue/500) - REFUSÉ.
+  // Écart Figma assumé : une couleur par nature (dossier vert · mail encre ·
+  // PJ bleu · découpe violette) ; un dossier bleu entrerait en collision avec
+  // le bleu PJ des mêmes rangées, et blue/500 n'a aucune famille de tokens.
+  // Conflit interne au Figma (l'inbox du même fichier dit vert) : le code fait foi.
   folder: 'var(--icon-success, #065f46)',
   // PJ / trombone : Figma #1e3a8a (Body PJs + méta des threads) = feedback.info.text.
   pj: 'var(--feedback-info-text, #1e3a8a)',
