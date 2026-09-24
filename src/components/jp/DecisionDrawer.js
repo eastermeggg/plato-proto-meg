@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { getDecisionById, getPrimaryAmount, formatDateLong } from '../../data/mockDecisions';
 import SaveDestinationPopover from './SaveDestinationPopover';
+import Badge from '../ui/Badge';
 import { colors, shadows } from '../../design-system/tokens';
 
 const fmt = (v) => v.toLocaleString('fr-FR');
@@ -287,11 +288,7 @@ export default function DecisionDrawer({
               <div className="px-5 py-4">
                 <SidebarSectionHeader label="Statut" />
                 <div className="mt-2">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium"
-                    style={{ backgroundColor: colors.brand.subtle, color: colors.accents.ochre }}>
-                    <Check className="w-2.5 h-2.5" strokeWidth={2.5} />
-                    Fiche cabinet
-                  </span>
+                  <Badge variant="accent" leftIcon={Check} label="Fiche cabinet" />
                 </div>
               </div>
             </div>
