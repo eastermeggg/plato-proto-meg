@@ -475,10 +475,19 @@ export const shadows = {
   '2xs':             '0px 1px 1px rgba(26,26,26,0.05)',
   xs:                '0 1px 2px rgba(26,26,26,0.05)',
   sm:                '0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)',
+  // md / lg / 2xl / 4xl — crans validés steward 24/09/2026 (clustering des 91
+  // ombres inline : L1→md, L2→lg, L3→2xl, L4→4xl, SHADOW-CLUSTERS.md).
+  // Pendant dark : EN ATTENTE du choix steward (ombres plus opaques vs
+  // élévation par surfaces claires) — ne pas migrer les inline avant ce choix.
+  md:                '0 2px 6px -1px rgba(26,26,26,0.10), 0 1px 2px rgba(26,26,26,0.06)',
+  lg:                '0 6px 16px -4px rgba(26,26,26,0.12), 0 2px 6px -2px rgba(26,26,26,0.08)',
   // shadows/xl (2 couches) — l'élévation de la carte du composer.
   xl:                '0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)',
+  '2xl':             '0 14px 36px -8px rgba(26,26,26,0.14), 0 4px 10px -4px rgba(26,26,26,0.08)',
   // shadows/3xl (relevé Previewer 37375:8866) — drawers / panneaux détachés.
   '3xl':             '0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)',
+  // 4xl — overlays maximaux ; teinte stone (28,25,23) relevée sur le cluster L4.
+  '4xl':             '0 24px 60px -14px rgba(28,25,23,0.28), 0 8px 20px -8px rgba(28,25,23,0.18)',
   bannerButton:      '0 1px 2px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05), inset 0 -1px 2px rgba(0,0,0,0.04)',
   bannerButtonHover: '0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(0,0,0,0.04)',
   glowPulseStart:    '0 0 8px rgba(99, 102, 241, 0.3)',

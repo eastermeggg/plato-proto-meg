@@ -157,15 +157,20 @@ module.exports = {
             }
     },
     // Échelle d'ombres du DS (source : tokens.js `shadows`, relevé Figma
-    // shadows/2xs → 3xl). Rend shadow-2xs / shadow-xs / shadow-3xl RÉELLES
-    // (inexistantes en Tailwind v3) et aligne shadow-sm / shadow-xl sur les
-    // valeurs DS (teinte 26,26,26). md/lg/2xl gardent les défauts Tailwind.
+    // shadows/2xs → 4xl). Échelle COMPLÈTE validée steward 24/09/2026 (miroir
+    // de tokens.js `shadows`) : md/lg/2xl/4xl remplacent les défauts Tailwind
+    // (noirs) par les crans DS — les 36 usages existants de shadow-md/lg/2xl
+    // basculent sur l'échelle (teinte 26,26,26, plus douce).
     boxShadow: {
             "2xs": "0px 1px 1px rgba(26,26,26,0.05)",
             "xs": "0 1px 2px rgba(26,26,26,0.05)",
             "sm": "0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)",
+            "md": "0 2px 6px -1px rgba(26,26,26,0.10), 0 1px 2px rgba(26,26,26,0.06)",
+            "lg": "0 6px 16px -4px rgba(26,26,26,0.12), 0 2px 6px -2px rgba(26,26,26,0.08)",
             "xl": "0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)",
-            "3xl": "0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)"
+            "2xl": "0 14px 36px -8px rgba(26,26,26,0.14), 0 4px 10px -4px rgba(26,26,26,0.08)",
+            "3xl": "0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)",
+            "4xl": "0 24px 60px -14px rgba(28,25,23,0.28), 0 8px 20px -8px rgba(28,25,23,0.18)"
     } } },
   plugins: [],
 };

@@ -304,8 +304,12 @@ Light par défaut ; la colonne Dark n'apparaît que si la valeur change (archite
 | `2xs` | `0px 1px 1px rgba(26,26,26,0.05)` | Élévation la plus légère - filets d'appui (chips, rangées) |
 | `xs` | `0 1px 2px rgba(26,26,26,0.05)` | Élévation minimale (alignée Figma shadow/xs) |
 | `sm` | `0px 1px 4px -1px rgba(26,26,26,0.05), 0px 1px 2px -1px rgba(26,26,26,0.05)` | Élévation basse - cartes au repos, menus discrets |
-| `xl` | `0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)` | Élévation haute - popovers, panneaux flottants |
-| `3xl` | `0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)` | Élévation maximale - modales et overlays |
+| `md` | `0 2px 6px -1px rgba(26,26,26,0.10), 0 1px 2px rgba(26,26,26,0.06)` | Élévation basse appuyée (cluster L1, validé 24/09) - cartes actives, rangées soulevées |
+| `lg` | `0 6px 16px -4px rgba(26,26,26,0.12), 0 2px 6px -2px rgba(26,26,26,0.08)` | Élévation moyenne (cluster L2) - menus, popovers ancrés |
+| `xl` | `0px 8px 10px -1px rgba(26,26,26,0.05), 0px 4px 6px -4px rgba(26,26,26,0.05)` | Élévation haute - la carte du composer (2 couches Figma) |
+| `2xl` | `0 14px 36px -8px rgba(26,26,26,0.14), 0 4px 10px -4px rgba(26,26,26,0.08)` | Élévation très haute (cluster L3) - panneaux flottants, dropdowns larges |
+| `3xl` | `0px 8px 17px rgba(0,0,0,0.03), 0px 30px 30px rgba(0,0,0,0.03), 0px 68px 41px rgba(0,0,0,0.02)` | Élévation douce diffuse (relevé Previewer) - drawers / panneaux détachés |
+| `4xl` | `0 24px 60px -14px rgba(28,25,23,0.28), 0 8px 20px -8px rgba(28,25,23,0.18)` | Élévation maximale (cluster L4, teinte stone) - modales plein contexte |
 | `bannerButton` | `0 1px 2px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05), inset 0 -1px 2px rgba(0,0,0,0.04)` | Bouton de bandeau (repos) |
 | `bannerButtonHover` | `0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(0,0,0,0.04)` | Bouton de bandeau (survol) |
 | `glowPulseStart` | `0 0 8px rgba(99, 102, 241, 0.3)` | Début du pulse de glow (indigo) |
