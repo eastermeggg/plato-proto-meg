@@ -130,6 +130,7 @@ The catalog of every component (built or planned) lives at
 | Dropdown | [Dropdown.js](./Dropdown.js) | [Dropdown.md](./Dropdown.md) | 2819:24797 | menu d'actions ancré - compose le panel du Select (zéro style propre) |
 | Tabs | [Tabs.js](./Tabs.js) | [Tabs.md](./Tabs.md) | 36099:45289 | onglets inline : indicateur 2px · compteur · icône · padded |
 | Avatar | [Avatar.js](./Avatar.js) | [Avatar.md](./Avatar.md) | 2814:11240 | initiales/image · circle/square · palettes colors.avatar (métier → IVAvatar) |
+| Card | [Card.js](./Card.js) | [Card.md](./Card.md) | - (code-first shadcn) | Header/Title/Description/Content/Footer · radius 12 · ombre sm |
 | AlertDialog | [AlertDialog.js](./AlertDialog.js) → ../AlertDialog.js | [AlertDialog.md](./AlertDialog.md) | 6724:21154 | confirmation : intents × Small/Medium |
 | SourceBadge | [SourceBadge.js](./SourceBadge.js) | [SourceBadge.md](./SourceBadge.md) | — | 10 types de source (piece · jp · loi …) |
 | ParamPill | [ParamPill.js](./ParamPill.js) | [ParamPill.md](./ParamPill.md) | Plato---Design 1095:15027 | off · on (+ valeur) · halo clic ; state Diff non couvert |

@@ -460,6 +460,37 @@
         "demo": "`/ui-kit/c/Calendar` — sandbox live : sélection, mois contrôlé, `disabled`,\ngrille Custom days."
       }
     },
+    "Card": {
+      "name": "Card",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Surface carte générique - Header (titre + description) / Content / Footer",
+      "description": "Base shadcn tokenisée, aucun design custom (décision steward 24/09) : surface card bordée border, radius 12, élévation sm. Slots CardHeader (titre 16/24 semibold + CardDescription muted), CardContent, CardFooter (paddings 24, contenu pt-0). Code-first - la référence est le vanilla shadcn Card traduit en tokens.",
+      "figma": "null",
+      "file": "src/components/ui/Card.js",
+      "source": "src/components/ui/Card.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Card",
+      "variants": [
+        "default"
+      ],
+      "tokens": [
+        "colors.semantic.card",
+        "colors.semantic.cardForeground",
+        "colors.semantic.border",
+        "colors.semantic.mutedForeground",
+        "radius.xl",
+        "shadows.sm"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Card.md",
+      "sections": {
+        "pattern": "### When to use\n- Bloc de contenu autonome sur une page : carte d'info, bloc de réglages,\n  résumé, empty state encadré.\n\n### When NOT to use\n- **Modale** → `Dialog` / `AlertDialog`.\n- **Rangée de liste/table** → `Item`, `DataTableCell` + `ui/tables`.\n- **Panneau de préviz** → `PreviewPanel`.\n- **Carte-option cliquable d'un choix** → `RadioPricing`.\n\n### Props\n`Card` + `CardHeader` / `CardTitle` / `CardDescription` / `CardContent` /\n`CardFooter` - tous acceptent `className` / `style` (layout uniquement).\n\n### Examples\n```jsx\nimport Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from 'src/components/ui/Card';\n\n<Card style={{ width: 360 }}>\n  <CardHeader>\n    <CardTitle>Boîtes connectées</CardTitle>\n    <CardDescription>Les emails alimentent le dossier automatiquement.</CardDescription>\n  </CardHeader>\n  <CardContent>…</CardContent>\n  <CardFooter><Button label=\"Connecter\" /></CardFooter>\n</Card>\n```\n\n### Tokens used\n`card` / `cardForeground` (surface, titre) · `border` · `mutedForeground`\n(description) · `radius.xl` (12) · `shadows.sm`.",
+        "explos": "- Promu le 24/09/2026 (dernier gap « conteneur » du DS-only). Cible : ~53\n  surfaces cartes ad-hoc (`bg-surface border rounded-lg p-…`) relevées par\n  l'audit - plan de migration :\n  `.context/steward-review/CARD-MIGRATION-PLAN.md` (par écran, pas de sweep\n  aveugle ; radius/ombre convergent vers xl/sm).",
+        "demo": "`/ui-kit/c/Card`"
+      }
+    },
     "Chart": {
       "name": "Chart",
       "package": "plato",

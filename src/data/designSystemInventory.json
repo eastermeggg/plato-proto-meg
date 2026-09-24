@@ -2518,6 +2518,19 @@
       "used": false
     },
     {
+      "id": "Card",
+      "layer": "shadcn",
+      "category": "layout",
+      "family": "Affichage de données",
+      "filePath": "src/components/ui/Card.js",
+      "exists": true,
+      "figmaPage": "",
+      "figmaRef": "",
+      "notes": "Promu 24/09/2026 - base shadcn tokenisée, code-first (aucun design custom, décision steward). ~53 surfaces ad-hoc à migrer par écran (CARD-MIGRATION-PLAN.md).",
+      "status": "pending",
+      "used": false
+    },
+    {
       "id": "Chart",
       "layer": "shadcn",
       "category": "composite",

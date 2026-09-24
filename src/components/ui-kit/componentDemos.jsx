@@ -28,6 +28,7 @@ import { getDecisionById as getMockDecisionById } from '../../data/mockDecisions
 import { samplePosteOptions, sampleActes, sampleReasoningSteps, sampleDecision } from '../../data/sampleDemoData';
 import * as P from './previews';
 import ButtonReal from '../ui/Button';
+import ParamPillReal from '../ui/ParamPill';
 import DropZoneReal from '../ui/DropZone';
 import SourceBadgeReal from '../ui/SourceBadge';
 import PageHeaderReal from '../ui/PageHeader';
@@ -79,6 +80,7 @@ import StepperReal from '../ui/Stepper';
 import DialogReal from '../ui/Dialog';
 import DropdownReal from '../ui/Dropdown';
 import TabsReal from '../ui/Tabs';
+import CardReal, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/Card';
 import ButtonGroupReal from '../ui/ButtonGroup';
 import ItemReal from '../ui/Item';
 import CalendarReal from '../ui/Calendar';
@@ -1419,6 +1421,31 @@ export const componentDemos = {
     ),
   },
 
+  Card: {
+    description: "Surface carte générique (base shadcn tokenisée, code-first) : card + border, radius 12, ombre sm ; slots Header (titre 16 semibold + description muted) / Content / Footer. Fiche Card.md. Modale -> Dialog ; rangée -> Item.",
+    controls: {
+      title:       { type: 'text',    default: 'Boîtes connectées', description: 'CardTitle.' },
+      description: { type: 'text',    default: 'Les emails alimentent le dossier automatiquement.', description: 'CardDescription.' },
+      footer:      { type: 'boolean', default: true, description: 'CardFooter avec action.' },
+    },
+    render: v => (
+      <CardReal style={{ width: 360 }}>
+        <CardHeader>
+          <CardTitle>{v.title}</CardTitle>
+          <CardDescription>{v.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <P.Input label="Adresse" placeholder="cabinet@exemple.fr" />
+        </CardContent>
+        {v.footer && (
+          <CardFooter>
+            <ButtonReal label="Connecter" />
+            <ButtonReal variant="ghost" label="Plus tard" />
+          </CardFooter>
+        )}
+      </CardReal>
+    ),
+  },
   Dropdown: {
     description: "Menu d'actions ancré à un déclencheur - skin STRICTEMENT identique au menu du Select (panel 13:2034, rows 37122:19624) : il compose SelectMenuPanel/Item/Label. Figma 2819:24797 · fiche Dropdown.md. Choisir une valeur -> Select.",
     controls: {
@@ -1707,21 +1734,41 @@ export const componentDemos = {
   },
 
   Progress: {
-    description: "Barre de progression déterminée (piste h8 secondary radius full, remplissage primary, transition base). Figma 2819:29134 · fiche Progress.md.",
+    description: "Barre de progression déterminée (piste h8 secondary radius full, remplissage primary, transition base). Figma 2819:29134 + extensions steward sm/accent/warn (jauges quota) · fiche Progress.md.",
     controls: {
       value: { type: 'select',  default: '40', options: ['0', '25', '40', '70', '100'], description: 'Valeur (0-100).' },
+      size:  { type: 'select',  default: 'md', options: ['md', 'sm'], description: 'Hauteur : md 8 (Figma) · sm 4 (jauges compactes).' },
+      tone:  { type: 'select',  default: 'default', options: ['default', 'accent', 'warn'], description: 'default primary · accent pré-alerte · warn alerte quota.' },
       fluid: { type: 'boolean', default: false, description: "Largeur 100 % (sinon 400px Figma)." },
       label: { type: 'text',    default: '',   description: 'Libellé aria.' },
     },
     render: v => (
       <div style={{ width: v.fluid ? 420 : 'auto' }}>
-        <ProgressReal value={parseInt(v.value, 10)} width={v.fluid ? '100%' : 400} label={v.label || undefined} />
+        <ProgressReal value={parseInt(v.value, 10)} size={v.size} tone={v.tone} width={v.fluid ? '100%' : 400} label={v.label || undefined} />
       </div>
     ),
     presets: [
-      { label: '40 %',  values: { value: '40',  fluid: false, label: '' } },
-      { label: '70 %',  values: { value: '70',  fluid: true,  label: 'Import des pièces' } },
-      { label: '100 %', values: { value: '100', fluid: false, label: '' } },
+      { label: '40 %',  values: { value: '40',  size: 'md', tone: 'default', fluid: false, label: '' } },
+      { label: '70 %',  values: { value: '70',  size: 'md', tone: 'default', fluid: true,  label: 'Import des pièces' } },
+      { label: '100 %', values: { value: '100', size: 'md', tone: 'default', fluid: false, label: '' } },
+      { label: 'Quota pré-alerte', values: { value: '70', size: 'sm', tone: 'accent', fluid: true, label: 'Usage hebdomadaire' } },
+      { label: 'Quota alerte',     values: { value: '100', size: 'sm', tone: 'warn', fluid: true, label: 'Usage hebdomadaire' } },
+    ],
+  },
+
+  ParamPill: {
+    description: "Pilule de paramètre de calcul (Figma « Reference Text » 1095:15027, LOCAL COMPONENTS > PARAMS) : OFF muted bordé / ON teinte info avec valeur, halo au clic. Fiche ParamPill.md.",
+    controls: {
+      on:    { group: 'État',    type: 'boolean', default: true,  description: 'Paramètre actif (variant ON).' },
+      label: { group: 'Contenu', type: 'text',    default: 'Revaloriser', description: 'Libellé (medium).' },
+      value: { group: 'Contenu', type: 'text',    default: 'IPC Annuel',  description: 'Valeur affichée quand ON (regular).' },
+    },
+    render: v => (
+      <ParamPillReal on={v.on} label={v.label} value={v.value || undefined} onClick={noop} />
+    ),
+    presets: [
+      { label: 'ON + valeur', values: { on: true,  label: 'Revaloriser', value: 'IPC Annuel' } },
+      { label: 'OFF',         values: { on: false, label: 'Perte de chance · 100 %', value: '' } },
     ],
   },
 
