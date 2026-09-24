@@ -169,6 +169,41 @@
         "demo": "`/ui-kit/c/AssistantComposer` — sandbox live (scope, suggestions, staged\ndocs) ; le shell complet vit dans l'app (`/app`)."
       }
     },
+    "Avatar": {
+      "name": "Avatar",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Avatar générique de personne - initiales ou image, rond ou carré, 7 palettes tokens",
+      "description": "Avatar neutre (membres du workspace, contacts) : initiales (dérivées de `name` ou passées) ou image, forme circle/square, tailles sm/md/lg/xl (24/32/40/56) ou taille libre. Palettes = `colors.avatar` (le set partagé avec IVAvatar : green/blue/plum/orange/rose/cream/purple), cycle par index via `avatarColorAt`. Les identités MÉTIER (VI/VD, client/défense/adverse) restent `IVAvatar` (pièce d'échecs, domaine).",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11240",
+      "file": "src/components/ui/Avatar.js",
+      "source": "src/components/ui/Avatar.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Avatar",
+      "variants": [
+        "circle",
+        "square"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "libre"
+      ],
+      "tokens": [
+        "colors.avatar (7 palettes bg/fill)",
+        "typography.fontFamily.sans"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Avatar.md",
+      "sections": {
+        "pattern": "### When to use\n- Personne « neutre » : membre du workspace, contact, auteur - initiales ou photo.\n- Listes : palette cyclique par index (`avatarColorAt(idx)`).\n\n### When NOT to use\n- **Identités métier** (victimes indirectes, chiffrage, client/défense/\n  adverse) → `IVAvatar` (pièce d'échecs, 6 palettes × 6 pièces, set validé).\n- **Icône de type de document/source** → `KindIcon` / `SourceBadge`.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `size` | `'md'` | sm/md/lg/xl (24/32/40/56) ou nombre en px |\n| `initials` / `name` | - | initiales explicites, ou dérivées de name (2 max) |\n| `image` | - | URL photo (couvre le fond) |\n| `color` | `'cream'` | nom de palette `colors.avatar` |\n| `shape` | `'circle'` | circle / square (radius 6) |\n\n### Examples\n```jsx\nimport Avatar, { avatarColorAt } from 'src/components/ui/Avatar';\n\n<Avatar name=\"Meghan Regior\" color={avatarColorAt(idx)} shape=\"square\" size={32} />\n<Avatar initials=\"JD\" color=\"blue\" />\n```\n\n### Tokens used\n`colors.avatar[*].bg` / `.fill` (7 palettes, source unique partagée avec\nIVAvatar) · `typography.fontFamily.sans` (initiales 600, ~36 % de la taille).",
+        "explos": "- Promu le 24/09/2026 ; adoption immédiate dans App.js : `userAvatar` →\n  Avatar (initiales - l'encodage pièce-par-rôle disparaît), `viAvatar` /\n  `vdAvatar` → `IVAvatar` (canonique - « rose » remappé « plum », absent du\n  set), `CHESS_PATHS`/`chessPiece` locaux supprimés (même convergence que\n  PartyAvatar, SIGNALEMENTS §8).",
+        "demo": "`/ui-kit/c/Avatar`"
+      }
+    },
     "Badge": {
       "name": "Badge",
       "package": "plato",
@@ -1417,6 +1452,44 @@
         "demo": "`/ui-kit/c/ParallelTasks` — inline ouvert/fermé, cas d'erreur."
       }
     },
+    "ParamPill": {
+      "name": "ParamPill",
+      "package": "plato",
+      "type": "primitive",
+      "status": "beta",
+      "usage": "Pilule de paramètre de calcul togglable (label + valeur quand actif)",
+      "description": "Pilule radius full pour un paramètre de calcul : OFF = libellé medium muted bordé borderStrong ; ON = fond info.bg, bord info.border, libellé medium + valeur regular info.text. Halo 3px background au clic/focus. Icône lucide circle-arrow-up par défaut. State Diff du set Figma non couvert (tokens manquants, SIGNALEMENTS §19).",
+      "figma": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1095-15027",
+      "file": "src/components/ui/ParamPill.js",
+      "source": "src/components/ui/ParamPill.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "ParamPill",
+      "variants": [
+        "off",
+        "on"
+      ],
+      "states": [
+        "default",
+        "clicked (halo :active/:focus-visible)",
+        "diff (non couvert)"
+      ],
+      "tokens": [
+        "colors.feedback.info",
+        "colors.semantic.borderStrong",
+        "colors.semantic.mutedForeground",
+        "colors.semantic.background",
+        "radius.full",
+        "typography.scale.body-medium"
+      ],
+      "promotedFrom": "Badge info/secondary dévoyés (matterTabContents, SIGNALEMENTS §13)",
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/ParamPill.md",
+      "sections": {
+        "pattern": "### When to use\n- Un paramètre de calcul activable dont la valeur s'affiche quand il est actif\n  (revalorisation, barème, taux de capitalisation, base journalière…).\n- Le strip de params d'un chat / d'une rangée de référence PGP.\n\n### When NOT to use\n- **Statut / catégorie non interactifs** → `Badge`.\n- **Type de source cliquable** (pièce, JP, loi…) → `SourceBadge`.\n- **Choix exclusif dans un formulaire** → `RadioGroup` / `Select`, pas une\n  rangée de pilules.\n- **Action** (déclenche un geste, pas un état) → `Button`.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `label` | — | libellé du paramètre (medium) |\n| `value` | — | valeur affichée quand `on` (regular) |\n| `on` | `false` | variant ON/OFF du set Figma (`aria-pressed`) |\n| `icon` | `CircleArrowUp` | icône 14 de la maquette ; `null` pour sans icône |\n| `onClick` / `title` / `disabled` | — | interaction |\n| `className` / `style` | — | échappatoires géométrie (jamais les couleurs) |\n\n### Examples\n```jsx\nimport ParamPill from 'src/components/ui/ParamPill';\n\n<ParamPill label=\"Revaloriser\" value=\"IPC Annuel\" on onClick={toggle} />\n<ParamPill label=\"Perte de chance · 100 %\" onClick={toggle} />\n```\n\n### Tokens used\n`colors.feedback.info.bg/.border/.text` (ON) · `colors.semantic.borderStrong` /\n`mutedForeground` (OFF) · `colors.semantic.background` (halo clic + fond OFF\ncliqué) · `radius.full` · `typography.scale['body-medium']` / `body`.\n\n**Écarts déclarés** : bord OFF Figma #d6d3d1 rendu `borderStrong` #cbc7c4\n(demi-cran du thème, ΔE faible) ; state **Diff** (losange orange\n`feedback.warning.base`, teintes #fcf4ef / #d4845a / #a6592e) non couvert -\nfamille de tokens absente, consignée SIGNALEMENTS §19.",
+        "explos": "- Promu le 24/09/2026 (ds-promote, batch « prêts ») : remplace les `Badge`\n  info/secondary dévoyés du strip de params de `matterTabContents.jsx`\n  (SIGNALEMENTS §13 « ParamPill »).",
+        "demo": "`/ui-kit/c/ParamPill`"
+      }
+    },
     "PlatoAssistantButton": {
       "name": "PlatoAssistantButton",
       "package": "plato",
@@ -1502,17 +1575,28 @@
       "variants": [
         "determinate"
       ],
+      "sizes": [
+        "md",
+        "sm"
+      ],
+      "tones": [
+        "default",
+        "accent",
+        "warn"
+      ],
       "tokens": [
         "colors.semantic.secondary",
         "colors.semantic.primary",
+        "colors.banner.warning.accent",
+        "colors.feedback.warning",
         "radius.full",
         "motion.duration.base"
       ],
       "lastValidated": "2026-09-23",
       "docFile": "src/components/ui/Progress.md",
       "sections": {
-        "pattern": "### When to use\n- Progression mesurable : upload, ingestion de pièces, complétion d'un import.\n- Jauge d'usage (ex. usage hebdomadaire licences) quand la valeur est connue.\n- Dans le footer d'un `Item` (slot Figma .Item Footer l'utilise tel quel).\n\n### When NOT to use\n- **Attente indéterminée** → `Spinner`.\n- **Étapes discrètes** (1/2/3) → stepper, pas une barre continue.\n- **Score / notation** → composant dédié, la barre implique une progression temporelle.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` | `0` | valeur courante (premier variant du set Figma) |\n| `max` | `100` | borne haute |\n| `width` | `400` | largeur du variant Figma ; passer `'100%'` en usage fluide |\n| `label` | - | aria-label |\n| `className` / `style` | - | passthrough |\n\n### Examples\n```jsx\nimport Progress from 'src/components/ui/Progress';\n\n<Progress value={40} />\n<Progress value={70} width=\"100%\" label=\"Import des pièces\" />\n<Progress value={100} />\n```\n\n### Tokens used\n`colors.semantic.secondary` (piste) · `colors.semantic.primary` (remplissage) ·\n`radius.full` · `motion.duration.base` + `motion.easing.out` (transition de valeur)",
-        "explos": "- Construit le 23/09 depuis l'inventaire DS (nœud validé par la steward, set Figma « Progress » 0-100 %).",
+        "pattern": "### When to use\n- Progression mesurable : upload, ingestion de pièces, complétion d'un import.\n- Jauge d'usage (ex. usage hebdomadaire licences) quand la valeur est connue.\n- Dans le footer d'un `Item` (slot Figma .Item Footer l'utilise tel quel).\n\n### When NOT to use\n- **Attente indéterminée** → `Spinner`.\n- **Étapes discrètes** (1/2/3) → stepper, pas une barre continue.\n- **Score / notation** → composant dédié, la barre implique une progression temporelle.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` | `0` | valeur courante (premier variant du set Figma) |\n| `max` | `100` | borne haute |\n| `width` | `400` | largeur du variant Figma ; passer `'100%'` en usage fluide |\n| `size` | `md` | `md` h8 (Figma) · `sm` h4 (jauges compactes : quota sidebar, rangées) |\n| `tone` | `default` | `default` primary · `accent` pré-alerte (`banner.warning.accent`) · `warn` alerte (`feedback.warning.base` sur piste `warning.subtle`) |\n| `label` | - | aria-label |\n| `className` / `style` | - | passthrough |\n\n### Examples\n```jsx\nimport Progress from 'src/components/ui/Progress';\n\n<Progress value={40} />\n<Progress value={70} width=\"100%\" label=\"Import des pièces\" />\n<Progress value={100} />\n// Jauge de quota (WeeklyUsageCard) : compacte, tone par palier\n<Progress value={92} size=\"sm\" width=\"100%\" tone=\"warn\" label=\"Usage hebdomadaire\" />\n```\n\n### Tokens used\n`colors.semantic.secondary` (piste) · `colors.semantic.primary` (remplissage) ·\n`radius.full` · `motion.duration.base` + `motion.easing.out` (transition de valeur)",
+        "explos": "- Construit le 23/09 depuis l'inventaire DS (nœud validé par la steward, set Figma « Progress » 0-100 %).\n- 24/09 : extensions code-first validées steward (SIGNALEMENTS §16) - `size sm`\n  (h4) + tones `accent`/`warn` pour les jauges de quota. Adopté par\n  `WeeklyUsageCard` (remplace sa barre inline ; en warn la barre montre le vrai\n  % sur piste `warning.subtle`, l'ancienne version saturait la piste entière)\n  et les 2 barres d'extraction de poste d'App.js. Restent 2 barres inline\n  App.js à remplissage gris « muted » délibéré - candidat tone `muted`.",
         "demo": "`/ui-kit/c/Progress`"
       }
     },

@@ -46,6 +46,8 @@ import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import Input from './components/ui/Input';
 import Button from './components/ui/Button';
+import Avatar, { avatarColorAt } from './components/ui/Avatar';
+import IVAvatar from './components/IVAvatar';
 import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
 import TopBar from './components/ui/TopBar';
 import PageHeader from './components/ui/PageHeader';
@@ -2004,60 +2006,34 @@ export default function App() {
   // Total block class
   const totalBlockClass = "bg-cream border border-border rounded-lg shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] p-4";
 
-  // ========== CHESS PIECE AVATARS ==========
-  const CHESS_PATHS = {
-    knight: { vb: '0 0 24.19 27.63', d: 'M14.18 0c.02.11.01 1.02.01 1.17l-.001 2.8c.4.29 1.01.66 1.44.93l2.64 1.72c.16.56.29 1.14.43 1.7.06.23.1.49.2.71.14.34 1.84 1.93 2.23 2.32l-4.52 4.45-4.05-.02c-.28-.25-.6-.59-.88-.86-.47-.46-.93-.93-1.4-1.4.04-.87.01-2 .01-2.88-.44.01-.88.01-1.33.01-.04 1.1-.01 2.4-.01 3.51.62.66 1.31 1.29 1.94 1.94l.33.36 2.2-.002c.95 1.35 2.12 2.82 3.13 4.16l.003 2.72c.39.36 1.02.84 1.45 1.19.01.8.003 1.63 0 2.44l-7-0.001-8.74.004-.002-2.45c.45-.4.98-.79 1.44-1.19l-.004-2.73-4.41-.007c.08-.34.13-.79.19-1.15l.3-1.97c.78-.61 1.84-1.23 2.61-1.87.01-.15.04-.36.06-.52-.73.23-1.7.69-2.45.97.13-1.04.34-2.2.5-3.26.82-.42 1.65-.8 2.47-1.22.01-.16.02-.32.03-.48-.76.2-1.56.38-2.33.57.04-.2.07-.43.1-.64.17-1.27.44-2.55.59-3.81.75.25 1.49.5 2.23.76l.18-.37c-.6-.5-1.28-.97-1.87-1.47l2.37-2.33c.39-.39.81-.81 1.21-1.18.45-.03 1.16-.01 1.62-.01l3-.008c.23-.21.49-.49.72-.72.88-.85 1.74-1.75 2.62-2.59zm7.93 12.35c.16.08 1.84 1.82 2.08 2.06l-.04 3.04c-.44.37-.93.75-1.38 1.11-.36-.22-.68-.46-1.03-.7l-1.53-1.05-.31.3c.29.43.64.9.95 1.32.23.32.46.64.68.96l-2.84-.03c-.26-.8-.72-1.84-1.03-2.66.56-.58 1.24-1.23 1.83-1.8.86-.83 1.74-1.73 2.61-2.54zm-.19 2.46l-.004.68.57.06c.07.12.14.23.2.35.13.22.25.45.37.67l.02-1.74c-.04-.03-.02-.03-.06-.03-.35.01-.71.02-1.06.02zm-8.05-7.02c.31.21.64.37.94.56.01.24.01.5.03.74.21.15.48.29.72.41.25-.11.47-.22.72-.35.2.09.41.19.6.29l.21.11-.95-1.76h-2.27z' },
-    bishop: { vb: '0 0 12.98 27.86', d: 'M12.67 20.83v3.08h-1.6l.81 3.95H1.1l.83-3.95H.31v-3.08h12.36zM6.49 0c.16.18.5.63.65.84.4.57.91 1.2 1.28 1.78L6.59 7.69c-.37 1.03-.79 2.12-1.13 3.15.12.39.31.87.45 1.25.18.51.37 1.07.57 1.56.13-.28.28-.77.38-1.07.26-.71.52-1.43.77-2.14l2.12-5.88c.19.26.41.6.59.87.38.57.76 1.14 1.13 1.72.3.47.6.95.89 1.43.21.33.43.69.6 1.05-.17.88-.41 1.87-.61 2.75-.11.47-.2.98-.31 1.46-.2.9-.39 1.8-.58 2.69-.12.6-.35 1.43-.43 2l-9.12.002c-.05-.34-.19-.92-.27-1.27-.12-.54-.24-1.08-.35-1.62l-.63-2.86C.46 11.74.24 10.68 0 9.63c.1-.23.33-.58.46-.8.38-.63.77-1.25 1.17-1.86 1.02-1.59 2.07-3.15 3.16-4.68.37-.53.75-1.05 1.14-1.56.19-.25.36-.49.56-.73z' },
-    rook: { vb: '0 0 23.58 32.41', d: 'M21.14 27.17c.73.82 1.71 1.66 2.44 2.48l.005 2.76-2.49-.001-21.08.003C-.001 31.49.01 30.58 0 29.65c.79-.83 1.69-1.64 2.46-2.48.02-.6-.001-1.32.006-1.93l18.68-.002c-.004.65-.004 1.29 0 1.94zm-1.97-3.45c-.51.01-1.04.004-1.55.005l-13.18-.005 1.13-8.12c.13-.97.29-1.93.4-2.9l11.63-.002 1.56 11.03zm-.01-12.53H4.43c.004-.64.004-1.29 0-1.93h14.73l-.01 1.93zM6.1.01c.01 1.25-.001 2.54-.001 3.8 1.11.02 2.3 0 3.42.005l-.007-3.8 4.56.004v3.8l3.41-.002-.002-3.8c.32.001 3.56-.02 3.66.03l.002 7.7-18.69-.003-.004-7.72C3.61-.02 4.93.01 6.1.01z' },
-    pawn: { vb: '0 0 28 28', d: 'M14 2a4 4 0 00-4 4c0 1.2.53 2.27 1.37 3H9.5a1.5 1.5 0 000 3h1.09A5.99 5.99 0 008 17v1h12v-1a5.99 5.99 0 00-2.59-4.93H18.5a1.5 1.5 0 000-3h-1.87A3.98 3.98 0 0018 6a4 4 0 00-4-4zM6 20v2h16v-2H6zm-2 4v2h20v-2H4z' },
-    crown: { vb: '0 0 27.86 27.86', d: 'M19.85 21.59v2.79h-1.39l.7 3.48H8.71l.7-3.48H8.01v-2.79h11.84zM17.79 13.61l2.76-2.47 2.09 1.39-3.83 6.97H9.05l-3.83-6.97 2.09-1.39 2.76 2.47 3.86-3.86 3.86 3.86zM16.37 5.92l-2.44 2.44-2.44-2.44 2.44-2.44 2.44 2.44z' },
-    queen: { vb: '0 0 28 28', d: 'M14 2a3 3 0 00-1 5.83V10H9L6 5l-4 9h3l1 8h16l1-8h3L22 5l-3 5h-4V7.83A3 3 0 0014 2zM6 24v2h16v-2H6z' },
-    king: { vb: '0 0 28 28', d: 'M15 2h-2v3h-3v2h3v3h2V7h3V5h-3V2zM9 12a5 5 0 0110 0v1H9v-1zm-2 3h14l1 7H6l1-7zm-2 9h18v2H5v-2z' },
-  };
-  const LIEN_PIECE = { 'Épouse': 'queen', 'Époux': 'king', 'Concubin': 'king', 'Concubine': 'queen', 'Partenaire': 'crown', 'Enfant': 'knight', 'Parent': 'rook', 'Père': 'rook', 'Mère': 'rook', 'Frère': 'bishop', 'Sœur': 'bishop', 'Grand-parent': 'rook', 'Autre': 'pawn' };
+  // ========== AVATARS ==========
+  // Convergence 24/09 (décision steward) : IVAvatar est la SEULE source des
+  // vecteurs d'échecs (identités métier VI/VD - même mouvement que PartyAvatar,
+  // SIGNALEMENTS §8) ; les personnes « neutres » (membres du workspace)
+  // passent sur l'Avatar générique du DS (initiales). Les CHESS_PATHS locaux
+  // et chessPiece() sont supprimés.
   const VI_AVATAR_PALETTE = colors.avatar;
-  const VD_AVATAR = colors.avatar[0]; // green - matching Figma
-
-  const chessPiece = (piece, fill, size) => {
-    const p = CHESS_PATHS[piece] || CHESS_PATHS.knight;
-    return (
-      <svg viewBox={p.vb} fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80%', height: '80%', display: 'block' }}>
-        <path d={p.d} fill={fill} />
-      </svg>
-    );
+  const LIEN_PIECE = { 'Épouse': 'queen', 'Époux': 'king', 'Concubin': 'king', 'Concubine': 'queen', 'Partenaire': 'crown', 'Enfant': 'knight', 'Parent': 'rook', 'Père': 'rook', 'Mère': 'rook', 'Frère': 'bishop', 'Sœur': 'bishop', 'Grand-parent': 'rook', 'Autre': 'pawn' };
+  // Le set canonique IVAvatar n'a pas de palette « rose » : cran remappé.
+  const IV_COLOR_FALLBACK = { rose: 'plum' };
+  const ivColorAt = (idx) => {
+    const name = VI_AVATAR_PALETTE[(idx >= 0 ? idx : 0) % VI_AVATAR_PALETTE.length].name;
+    return IV_COLOR_FALLBACK[name] || name;
   };
 
   const viAvatar = (vi, size = 28) => {
     const idx = victimesIndirectes.findIndex(v => v.id === vi.id);
-    const pal = VI_AVATAR_PALETTE[(idx >= 0 ? idx : 0) % VI_AVATAR_PALETTE.length];
-    const piece = LIEN_PIECE[vi.lien] || 'knight';
-    return (
-      <div className="flex items-end justify-center flex-shrink-0 overflow-hidden" style={{ width: size, height: size, borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8, backgroundColor: pal.bg, paddingTop: 2 }}>
-        {chessPiece(piece, pal.fill, size)}
-      </div>
-    );
+    return <IVAvatar size={size} color={ivColorAt(idx)} type={LIEN_PIECE[vi.lien] || 'knight'} />;
   };
 
-  const vdAvatar = (size = 32) => (
-    <div className="flex items-end justify-center flex-shrink-0 overflow-hidden" style={{ width: size, height: size, borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8, backgroundColor: VD_AVATAR.bg, paddingTop: 2 }}>
-      {chessPiece('crown', VD_AVATAR.fill, size)}
-    </div>
+  const vdAvatar = (size = 32) => <IVAvatar size={size} color="green" type="crown" />;
+
+  // Membre du workspace : Avatar générique (initiales), palette cyclique par
+  // index. `role` conservé dans la signature (call sites) mais l'encodage
+  // pièce-par-rôle disparaît avec les échecs.
+  const userAvatar = (idx, role, size = 32, name = '') => (
+    <Avatar size={size} shape="square" color={avatarColorAt(idx >= 0 ? idx : 0)} name={name} />
   );
-
-  // Workspace member avatar - same square-box + chess piece pattern as viAvatar.
-  // Palette cycles by member index; piece reflects role (Admin → king, Membre → pawn).
-  const userAvatar = (idx, role, size = 32) => {
-    const pal = VI_AVATAR_PALETTE[(idx >= 0 ? idx : 0) % VI_AVATAR_PALETTE.length];
-    const piece = role === 'Admin' ? 'king' : 'pawn';
-    return (
-      <div
-        className="flex items-end justify-center flex-shrink-0 overflow-hidden"
-        style={{ width: size, height: size, borderRadius: size <= 20 ? 4 : size <= 24 ? 6 : 8, backgroundColor: pal.bg, paddingTop: 2 }}
-      >
-        {chessPiece(piece, pal.fill, size)}
-      </div>
-    );
-  };
 
   const typesFaitGenerateur = ['Accident de la route', 'Accident du travail', 'Accident médical', 'Agression', 'Accident domestique', 'Autre'];
 
@@ -17053,7 +17029,7 @@ export default function App() {
           name={currentUser?.name?.split(' ')[0] || 'Mon compte'}
           org={orgName}
           showTooltip={!userMenuOpen}
-          avatar={userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', collapsed ? 32 : 24)}
+          avatar={userAvatar(workspaceMembers.findIndex(x => x.id === currentUserId), currentUser?.role || 'Admin', collapsed ? 32 : 24, currentUser?.name)}
         >
           {userMenuOpen && renderUserDropdownPanel(collapsed ? 'right' : 'above')}
         </SidebarUserInfo>
@@ -20683,7 +20659,7 @@ export default function App() {
             <div className="space-y-1.5">
               {admins.map((a) => (
                 <div key={a.id} className="flex items-center gap-2.5">
-                  {userAvatar(workspaceMembers.findIndex(x => x.id === a.id), a.role, 24)}
+                  {userAvatar(workspaceMembers.findIndex(x => x.id === a.id), a.role, 24, a.name)}
                   <div className="min-w-0">
                     <div className="text-[13px] text-foreground font-medium leading-tight">{a.name}</div>
                     <div className="text-[12px] text-foreground-secondary truncate">{a.email}</div>
@@ -20818,7 +20794,7 @@ export default function App() {
               >
                 <td className="px-3 py-3">
                   <div className="flex items-center gap-3">
-                    {userAvatar(idx, m.role, 32)}
+                    {userAvatar(idx, m.role, 32, m.name)}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-body-medium text-foreground">{m.name}</span>
@@ -20908,7 +20884,7 @@ export default function App() {
         <div className="fixed top-0 right-0 h-screen bg-surface border-l border-border z-40 flex flex-col overflow-hidden" style={{ width: 460, maxWidth: '100vw', boxShadow: '-20px 0 28px -16px rgba(28,25,23,0.16)', animation: 'slideInRight 0.2s ease-out' }}>
           {/* Header - avatar + name + close */}
           <div className="px-6 pt-6 pb-5 flex items-center gap-3.5 relative flex-shrink-0">
-            {userAvatar(idx, m.role, 40)}
+            {userAvatar(idx, m.role, 40, m.name)}
             <div className="min-w-0 flex-1 pr-8 flex items-center gap-2 flex-wrap">
               <h2 style={{ ...typeStyle('display-sm'), color: dsColors.semantic.foreground }}>{m.name}</h2>
               {isSelf && <span className="badge badge-sm badge-outline">Vous</span>}

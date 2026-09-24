@@ -20,6 +20,7 @@ import SwitchReal from '../ui/Switch';
 import TextareaReal from '../ui/Textarea';
 import SelectReal from '../ui/Select';
 import TabsReal from '../ui/Tabs';
+import AvatarReal from '../ui/Avatar';
 
 // ============== BUTTON ==============
 const BUTTON_VARIANTS = {
@@ -154,35 +155,9 @@ export function Tooltip({ content, side = 'top', children }) {
 }
 
 // ============== AVATAR ==============
-const AVATAR_SIZES = { sm: 24, md: 32, lg: 40, xl: 56 };
-export function Avatar({ size = 'md', initials, image, color = 'cream', shape = 'circle' }) {
-  const s = AVATAR_SIZES[size] || 32;
-  const palette = {
-    green:  { bg: '#cce6d9', fg: '#064E3B' },
-    blue:   { bg: '#dbeafe', fg: '#1e3a8a' },
-    plum:   { bg: '#ece0eb', fg: '#581c87' },
-    orange: { bg: '#efdec4', fg: '#78350f' },
-    rose:   { bg: '#ffe4e6', fg: '#881337' },
-    cream:  { bg: '#eeece6', fg: '#44403c' },
-  };
-  const c = palette[color] || palette.cream;
-  return (
-    <span
-      style={{
-        width: s, height: s,
-        borderRadius: shape === 'circle' ? s / 2 : 6,
-        background: c.bg, color: c.fg,
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: Math.max(10, s * 0.36), fontWeight: 600,
-        backgroundImage: image ? `url(${image})` : undefined,
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        flexShrink: 0,
-      }}
-    >
-      {!image && initials}
-    </span>
-  );
-}
+// Promu -> src/components/ui/Avatar.js (fiche Avatar.md, palettes tokens colors.avatar).
+export const Avatar = AvatarReal;
+
 
 // ============== SEPARATOR ==============
 export const Separator = SeparatorReal;

@@ -2509,12 +2509,12 @@
       "layer": "shadcn",
       "category": "primitive",
       "family": "Affichage de données",
-      "filePath": null,
-      "exists": false,
+      "filePath": "src/components/ui/Avatar.js",
+      "exists": true,
       "figmaPage": "Avatar",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11240",
-      "notes": "Esquisse code dans ui-kit/previews.jsx ; le set custom IVAvatar a sa propre entrée",
-      "status": "missing",
+      "notes": "Promu 24/09/2026 (esquisse tokenisée sur colors.avatar, le set partagé IVAvatar). Générique = initiales/image ; identités métier = IVAvatar (domaine). App.js : userAvatar -> Avatar, viAvatar/vdAvatar -> IVAvatar, CHESS_PATHS locaux supprimés.",
+      "status": "pending",
       "used": false
     },
     {
@@ -3369,6 +3369,20 @@
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36641-50716",
       "notes": "Rail des Paramètres (Context=Settings) : REMPLACE la nav org dans les réglages (le sous-rail EST la nav). Groupes Votre compte / Organisation. Composé sur AppSidebar. Utilisé dans le block Paramètres ; le proto settings reste à brancher dessus.",
       "status": "validated"
+    },
+    {
+      "id": "ParamPill",
+      "layer": "custom",
+      "category": "primitive",
+      "family": "Affichage de données",
+      "filePath": "src/components/ui/ParamPill.js",
+      "exists": true,
+      "figmaPage": "Personal Injury",
+      "figmaRef": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1095-15027",
+      "figmaTodo": "",
+      "notes": "Pilule de paramètre de calcul (« Reference Text », LOCAL COMPONENTS > PARAMS 1613:113399) : OFF muted / ON info + valeur, halo au clic. State Diff non couvert (tokens manquants, SIGNALEMENTS §19). Promu 24/09 depuis les Badge dévoyés de matterTabContents (§13).",
+      "status": "pending",
+      "used": true
     }
   ]
 }
