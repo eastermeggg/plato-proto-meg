@@ -99,17 +99,35 @@ disponible. Playbook de démarrage : `docs/playbook-figma-bootstrap.md`.
 
 ## §7 Fiche composant
 
-`docs/components/<nom>.md`, depuis `templates/component.md`. Sept champs,
-vérifiés par `ds-check-docs` :
+`src/components/ui/<Name>.md` (chemin réel : `paths.docsComponents` du
+manifeste), depuis `templates/component.md`. Rien d'autre.
 
-`name` · `package` · `status` (`draft` · `beta` · `stable` · `deprecated`) ·
-`usage` (une ligne) · `source` · `demo` · `replacedBy` (si `deprecated`)
+**Frontmatter** : `name`, `package`, `status`, `usage`, `source`, `demo`,
+`replacedBy`, `figma` (optionnel). Aucun autre champ.
 
-Tokens, dates et historique se **dérivent** du code et de git, ils ne s'écrivent
-pas. Une fiche par entrée d'inventaire, et inversement. Corps : quand
-l'utiliser, quand l'éviter, exemple.
+**Statut** :
+- `draft` : pas encore utilisable hors de sa PR.
+- `beta` : utilisable, avec une dette connue → une ligne + un numéro d'issue.
+- `stable` : aucune dette ouverte.
+- `deprecated` : `replacedBy` obligatoire.
+Un composant avec une dette documentée n'est jamais `stable`.
 
-Chaque démo porte `data-demo="<package>/<nom>"` (régression visuelle).
+**Corps** : intro · When to use · When NOT to use · Props · Examples. Rien d'autre.
+
+**Langue** : anglais (frontmatter + corps). Français conservé pour le
+vocabulaire produit (pièce, acte, JP, bordereau…) et la copy UI citée verbatim.
+Étalon : `Badge.md`.
+
+**Interdit dans une fiche**, parce que ça se déduit ou vit ailleurs :
+- liste de tokens → le code ;
+- dates de validation → git et `ds-changelog` ;
+- états → la démo ;
+- valeurs en px ou en hex → les tokens ;
+- en-tête qui répète le frontmatter ;
+- dette ou notes d'exploration → une issue `ds-gap`, la fiche y renvoie en une ligne ;
+- route de démo → dérivée de `data-demo`.
+
+Vérifié par `ds-check-docs`.
 
 ## §8 Règles pour agents
 

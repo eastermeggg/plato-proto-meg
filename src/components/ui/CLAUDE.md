@@ -64,22 +64,22 @@ The catalog of every component (built or planned) lives at
    The `.md` is best-in-class agent documentation and carries the standardised
    metadata (the kitchen-sink reads it; the inventory JSON only mirrors status).
 
-   **Fiche schema (obligatoire) :**
-   - **Frontmatter YAML** (métadonnée machine-lisible) : `name`, `type`
-     (primitive/composite/domain/layout), `status`
-     (validated/pending/needs-revision/missing), `usage` (une ligne : quand),
-     `description`, `figma`, `file`, plus les méta utiles (`variants`, `sizes`,
-     `modes`, `states`, `tokens`, `inventoryId`, `lastValidated`…).
-   - **Trois sections** dans le corps :
-     1. `## Pattern / Variants / Examples` — **When to use** / **When NOT to use**
-        (le cœur pour l'agent : quand l'employer, quand l'éviter et vers quoi
-        rediriger), Props, Examples, Tokens used.
-     2. `## Sprint / Explos` — contexte d'exploration / historique / labs liés.
-     3. `## Proto demo` — la sandbox live `/ui-kit/c/<id>`.
-
-   Modèle de référence : `Badge.md`. Une nouvelle fiche se calque dessus.
-   Le flux de validation `/ui-kit/c/<id>` aide à la maintenir, mais la vérité
-   vit dans le `.md`.
+   **Fiche schema — format minimal §7** (conventions `_shared/conventions.md` §7,
+   vérifié par `ds-check-docs`). Modèle : `templates/component.md`. Étalon : `Badge.md`.
+   - **Frontmatter** : `name`, `package`, `status`
+     (`draft`/`beta`/`stable`/`deprecated`), `usage` (une ligne : le rôle, pas
+     le look), `source`, `demo`, `replacedBy` (si `deprecated`), `figma`
+     (optionnel). **Aucun autre champ** : `type`, `description`, `states`,
+     `tokens`, `inventoryId`, `lastValidated` se **dérivent** (code, git, démo)
+     et sont interdits dans la fiche.
+   - **Corps** : intro (1-2 phrases) · `## When to use` · `## When NOT to use` ·
+     `## Props` · `## Examples`. **Rien d'autre** : pas de blockquote qui répète
+     le frontmatter, pas de « Tokens used », pas de « Sprint / Explos », pas de
+     « Proto demo » (la route dérive de `data-demo`). Une dette → une issue
+     `ds-gap` ; la fiche passe en `beta` et y renvoie en une ligne.
+   - **Langue** : anglais (frontmatter + corps). Français conservé pour le
+     vocabulaire produit (pièce, acte, JP, bordereau…) et la copy UI citée
+     verbatim (jamais « Done » pour « J'ai terminé »).
 
 8. **Où vit un composant - la règle d'emplacement.**
    - **Générique / réutilisable partout** (bouton, chip, barre de chrome…) →
@@ -132,6 +132,7 @@ The catalog of every component (built or planned) lives at
 | Avatar | [Avatar.js](./Avatar.js) | [Avatar.md](./Avatar.md) | 2814:11240 | initiales/image · circle/square · palettes colors.avatar (métier → IVAvatar) |
 | Card | [Card.js](./Card.js) | [Card.md](./Card.md) | - (code-first shadcn) | Header/Title/Description/Content/Footer · radius 12 · ombre sm |
 | Combobox | [Combobox.js](./Combobox.js) | [Combobox.md](./Combobox.md) | 2819:22160 | shadcn brut tokenisé : trigger + recherche + liste filtrée (panel du Select) |
+| Drawer | [Drawer.js](./Drawer.js) | [Drawer.md](./Drawer.md) | 37749:1024 | panneau latéral master : sm 408 / wide 860 · right/left · --chat-offset · DrawerSection |
 | AlertDialog | [AlertDialog.js](./AlertDialog.js) → ../AlertDialog.js | [AlertDialog.md](./AlertDialog.md) | 6724:21154 | confirmation : intents × Small/Medium |
 | SourceBadge | [SourceBadge.js](./SourceBadge.js) | [SourceBadge.md](./SourceBadge.md) | — | 10 types de source (piece · jp · loi …) |
 | ParamPill | [ParamPill.js](./ParamPill.js) | [ParamPill.md](./ParamPill.md) | Plato---Design 1095:15027 | off · on (+ valeur) · halo clic ; state Diff non couvert |

@@ -1,19 +1,30 @@
 ---
-name: Button
-package: ui-product
-status: stable            # draft · beta · stable · deprecated
-usage: Déclencher une action ; une seule en default par écran.
-source: src/components/ui/button.tsx
-demo: src/app/design-system/demos/button-demo.tsx
-replacedBy: null          # obligatoire si deprecated
+name: ComponentName
+package: plato
+status: draft            # draft · beta · stable · deprecated
+usage: One line — the role, not the look.
+source: src/components/ComponentName.js
+demo: src/components/ui-kit/componentDemos.jsx
+replacedBy: null         # required if deprecated
+figma: null              # optional — URL with ?node-id=
 ---
 
-## Quand l'utiliser
+# ComponentName
+
+One or two sentences: what it is the sanctioned way to do, and what must never be re-rolled inline.
+
+[Only if status is beta or deprecated: one line with the reason and the issue number.]
+
+## When to use
 -
 
-## Quand l'éviter
-- … → `[autre composant]`
+## When NOT to use
+- … → `OtherComponent`
 
-## Exemple
-```tsx
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+
+## Examples
+```jsx
 ```

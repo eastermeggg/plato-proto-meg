@@ -15,6 +15,7 @@ import { resolvePackages, readComponentDocs, rel, kebab } from "./lib/ds-manifes
 const REPORT = process.argv.includes("--report");
 const JSON_OUT = process.argv.includes("--json");
 const REQUIRED = ["name", "package", "status", "usage", "source", "demo"];
+const ALLOWED = new Set([...REQUIRED, "replacedBy", "figma"]);
 const STATUSES = ["draft", "beta", "stable", "deprecated"];
 const findings = [];
 const add = (file, rule, fix, severity = "error") =>
@@ -31,6 +32,13 @@ for (const pkg of resolvePackages()) {
     if (fm.status === "deprecated" && !fm.replacedBy) add(file, "deprecated sans replacedBy", "indiquer le composant de remplacement");
     if (fm.package && fm.package !== pkg.name) add(file, `package déclaré « ${fm.package} » ≠ « ${pkg.name} »`, "corriger le champ package ou déplacer la fiche");
     for (const k of ["source", "demo"]) if (fm[k] && !fs.existsSync(path.join(pkg.root, fm[k]))) add(file, `${k} introuvable : ${fm[k]}`, "mettre à jour le chemin");
+    // §7 : format minimal — aucun champ hors ALLOWED, aucune section hors format.
+    for (const k of Object.keys(fm)) if (!ALLOWED.has(k)) add(file, `champ non autorisé : ${k}`, "supprimer (§7 : dérivé ou hors fiche)");
+    const body = fs.readFileSync(file, "utf8").replace(/^---\n[\s\S]*?\n---\n?/, "");
+    if (/^>\s*\*\*(Type|Status)\*\*/m.test(body)) add(file, "en-tête qui répète le frontmatter", "supprimer la citation");
+    if (/^##\s+(Tokens used|Sprint|Proto demo)/mi.test(body)) add(file, "section hors format", "supprimer ; une dette devient une issue ds-gap");
+    const prose = body.replace(/```[\s\S]*?```/g, "");
+    if (/#[0-9a-fA-F]{6}\b|#[0-9a-f]*[a-f][0-9a-f]*\b|\b\d+px\b/i.test(prose)) add(file, "valeur brute (hex/px) dans la prose", "nommer le token ou supprimer");
     if (fm.name) docNames.add(kebab(fm.name));
     if (fm.inventoryId) docNames.add(kebab(fm.inventoryId));
   }
