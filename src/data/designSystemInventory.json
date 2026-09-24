@@ -2697,12 +2697,12 @@
       "layer": "shadcn-extended",
       "category": "primitive",
       "family": "Formulaires",
-      "filePath": null,
-      "exists": false,
+      "filePath": "src/components/ui/Select.js",
+      "exists": true,
       "figmaPage": "Select",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-29971",
-      "notes": "Étendu : Menu Item Doc à niveaux + menus assemblés. Esquisse previews.jsx",
-      "status": "missing",
+      "notes": "Promu 24/09/2026 depuis Figma 6729:4904 (trigger 2738:3407, panel 13:2034, rows 37122:19624). Select simple + panel/rows exportés (SelectMenuPanel/Item/Label) réutilisés par le Dropdown. Les variantes riches (search, arbre doc, switch, radio) = menus assemblés, avec le Dropdown. Étendu : Menu Item Doc à niveaux + menus assemblés. Esquisse previews.jsx",
+      "status": "pending",
       "used": false
     },
     {

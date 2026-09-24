@@ -126,6 +126,7 @@ The catalog of every component (built or planned) lives at
 | Switch | [Switch.js](./Switch.js) | [Switch.md](./Switch.md) | 2819:30732 | off · on · disabled |
 | Separator | [Separator.js](./Separator.js) | [Separator.md](./Separator.md) | 2819:30252 | horizontal · label · vertical |
 | Dialog | [Dialog.js](./Dialog.js) | [Dialog.md](./Dialog.md) | 6831:11140 | modale de contenu : header serif · body défilant · footer |
+| Select | [Select.js](./Select.js) | [Select.md](./Select.md) | 6729:4904 | trigger + panel (SelectMenuPanel/Item/Label, partagé Dropdown) |
 | AlertDialog | [AlertDialog.js](./AlertDialog.js) → ../AlertDialog.js | [AlertDialog.md](./AlertDialog.md) | 6724:21154 | confirmation : intents × Small/Medium |
 | SourceBadge | [SourceBadge.js](./SourceBadge.js) | [SourceBadge.md](./SourceBadge.md) | — | 10 types de source (piece · jp · loi …) |
 | TopBar | [TopBar.js](./TopBar.js) | [TopBar.md](./TopBar.md) | 37497:56098 | chrome fixe : leading · left · right |

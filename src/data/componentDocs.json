@@ -1512,6 +1512,48 @@
         "demo": "`/ui-kit/c/RadioPricing` — sandbox live : états + presets licence."
       }
     },
+    "Select": {
+      "name": "Select",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Choix d'une option dans une liste déroulante ancrée au champ",
+      "description": "Trigger champ card bordé input (h-36, radius 8, ombre 2xs, chevron-down) + panel popover bordé border (radius 8, ombre xl, sections p-4, labels mono 11 uppercase, rows px-8 py-6 radius 6 - hover accent, sélection = label medium + Check). Panel et rows exportés (SelectMenuPanel/Item/Label) et réutilisés par le Dropdown (même skin, décision steward).",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6729-4904",
+      "file": "src/components/ui/Select.js",
+      "source": "src/components/ui/Select.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Select",
+      "states": [
+        "enabled",
+        "focus",
+        "open",
+        "filled",
+        "disabled",
+        "option-disabled"
+      ],
+      "tokens": [
+        "colors.semantic.card",
+        "colors.semantic.input",
+        "colors.semantic.popover",
+        "colors.semantic.border",
+        "colors.semantic.accent",
+        "colors.semantic.foreground",
+        "colors.semantic.mutedForeground",
+        "radius.lg",
+        "radius.md",
+        "shadows.2xs",
+        "shadows.xl",
+        "typography.fontFamily.mono"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Select.md",
+      "sections": {
+        "pattern": "### When to use\n- Choisir UNE option parmi une liste (type de dossier, format, licence…).\n- Groupes : `option.group` → sections avec label mono uppercase.\n\n### When NOT to use\n- **Actions / navigation dans un menu** → Dropdown (même panel, à venir).\n- **Recherche + saisie libre** → Combobox (à venir).\n- **2-3 choix visibles** → `RadioGroup` / segmented (`ButtonGroup`).\n- **Menus riches** (recherche, arbre de pièces, switch, radio, raccourcis) →\n  menus assemblés sur `SelectMenuPanel`, avec le Dropdown.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` / `onChange` | - | contrôle |\n| `options` | `[]` | `{ value, label, icon?, group?, disabled? }` |\n| `placeholder` | `'Sélectionner…'` | affiché sans valeur |\n| `disabled` | `false` | trigger désactivé (opacité 50, fond subtle) |\n| `width` | `240` | largeur (Figma : min 64 / max 448) |\n\nExports secondaires : `SelectMenuPanel`, `SelectMenuItem`, `SelectMenuLabel`\n(le skin du panel - consommés par le Dropdown).\n\n### Examples\n```jsx\nimport Select from 'src/components/ui/Select';\n\n<Select\n  value={type}\n  onChange={setType}\n  placeholder=\"Type de dossier\"\n  options={[\n    { value: 'dc', label: 'Dommages corporels', group: 'Spécialités' },\n    { value: 'social', label: 'Droit social', group: 'Spécialités' },\n  ]}\n/>\n```\n\n### Tokens used\nTrigger : `card` / `input` / `backgroundSubtle` (disabled) / `radius.lg` /\n`shadows['2xs']`. Panel : `popover` / `border` / `shadows.xl` / `radius.lg`.\nRows : `accent` (hover) / `foreground` / `mutedForeground` / `radius.md` /\n`fontFamily.mono` (labels 11 uppercase). Focus : bordure `foreground` + anneau\n3px `color-mix(foregroundMuted 50%)` - le nœud pointe `custom/focus`, token\nabsent du code (arbitrage SIGNALEMENTS §12), jamais un rgba inline.",
+        "explos": "- Promu le 24/09/2026 (décision steward : Select puis Dropdown en skin du même\n  menu). Cible d'adoption : 46 `<select>` natifs + `selectClass` (App.js), les\n  selects custom d'OnboardingFlow / ReleveHeuresLab - passe d'harmonisation\n  dédiée après le Dropdown.",
+        "demo": "`/ui-kit/c/Select`"
+      }
+    },
     "Separator": {
       "name": "Separator",
       "package": "plato",
