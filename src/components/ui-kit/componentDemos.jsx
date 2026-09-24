@@ -4,7 +4,7 @@ import {
   Heart, Scale, Mail, Bell, Settings, User, Trash2, Edit, Filter, Eye,
   LayoutGrid, Layers, PanelRight, ClipboardList, FolderPlus, PencilLine,
   Home, FolderOpen, MessageCircle, MessageCirclePlus, ChevronDown, BadgeCheck,
-  ArrowUp,
+  ArrowUp, Scissors, X,
 } from 'lucide-react';
 import { colors } from '../../design-system/tokens';
 import { AppSidebar, SidebarBrand, SidebarGroup, NavItem, NavSectionHeader } from '../ui/AppSidebar';
@@ -78,6 +78,7 @@ import ProgressReal from '../ui/Progress';
 import StepperReal from '../ui/Stepper';
 import DialogReal from '../ui/Dialog';
 import DropdownReal from '../ui/Dropdown';
+import TabsReal from '../ui/Tabs';
 import ButtonGroupReal from '../ui/ButtonGroup';
 import ItemReal from '../ui/Item';
 import CalendarReal from '../ui/Calendar';
@@ -468,6 +469,7 @@ function ShellPreview({ chip, state = 'ouverte', active, withRecents, withFooter
 export const ICON_OPTIONS = {
   Sparkles, FileText, BookOpen, Search, Calculator, Inbox, Plus, Briefcase,
   Heart, Scale, Mail, Bell, Settings, User, Trash2, Edit, Filter, Eye,
+  Scissors, X,
 };
 
 // Jeux d'exemple partagés (shapes documentées) : src/data/sampleDemoData.js.
@@ -845,7 +847,7 @@ export const componentDemos = {
     description: 'Le Button canonique (src/components/ui/Button.js), établi depuis le set Figma - 9 variants, 8 tailles (dont icon-only), état Loading.',
     controls: {
       // Apparence
-      variant:      { group: 'Apparence', type: 'select',  default: 'primary', options: ['primary', 'secondary', 'ghost', 'outline', 'destructive', 'link', 'warning-link', 'success-link', 'neutral-link'], description: 'Type visuel (Figma Type).' },
+      variant:      { group: 'Apparence', type: 'select',  default: 'primary', options: ['primary', 'secondary', 'ghost', 'outline', 'destructive', 'destructive-subtle', 'ai-subtle', 'link', 'warning-link', 'success-link', 'neutral-link'], description: 'Type visuel (Figma Type + variants subtils code-first).' },
       size:         { group: 'Apparence', type: 'select',  default: 'md',      options: ['xs', 'sm', 'md', 'lg', 'icon-xs', 'icon-sm', 'icon', 'icon-lg'], description: 'Taille (icon-* = carré icône seule).' },
       // Contenu
       label:        { group: 'Contenu',   type: 'text',    default: 'Action',  description: 'Libellé du bouton.' },
@@ -874,6 +876,8 @@ export const componentDemos = {
       { label: 'Outline',     values: { variant: 'outline',     label: 'Cancel',   iconPosition: 'none' } },
       { label: 'Ghost',       values: { variant: 'ghost',       label: 'Skip',     iconPosition: 'none' } },
       { label: 'Destructive', values: { variant: 'destructive', label: 'Delete',   icon: 'Trash2', iconPosition: 'leading', size: 'md', loading: false } },
+      { label: 'Destructive subtle', values: { variant: 'destructive-subtle', label: 'Retirer', icon: 'X', iconPosition: 'leading', size: 'sm', loading: false } },
+      { label: 'AI subtle',   values: { variant: 'ai-subtle',   label: 'Sera découpé', icon: 'Scissors', iconPosition: 'leading', size: 'sm', loading: false } },
       { label: 'Link',        values: { variant: 'link',        label: 'Voir le détail', iconPosition: 'none', size: 'md', loading: false } },
       { label: 'Icon only',   values: { variant: 'outline',     icon: 'Plus', iconPosition: 'leading', size: 'icon', loading: false } },
       { label: 'Loading',     values: { variant: 'primary',     label: 'Enregistrement…', iconPosition: 'leading', size: 'md', loading: true } },
@@ -1351,19 +1355,21 @@ export const componentDemos = {
   },
 
   Tabs: {
-    description: 'Tabbed navigation. Underline (default) or pill style.',
+    description: "Onglets INLINE (Figma 36099:45289) : label medium 14, indicateur 2px arrondi (primary actif, border au hover), compteur pill 20 bordée, icône 16 optionnelle, variant padded. Segmented -> ButtonGroup. Fiche Tabs.md.",
     controls: {
-      value:   { type: 'select', default: 'overview', options: ['overview', 'pieces', 'chronologie'], description: 'Active tab.' },
-      variant: { type: 'select', default: 'underline', options: ['underline', 'pills'],               description: 'Visual variant.' },
+      value:   { type: 'select',  default: 'overview', options: ['overview', 'pieces', 'chronologie'], description: 'Onglet actif.' },
+      counters:{ type: 'boolean', default: true,  description: 'Compteurs sur Pièces/Chronologie.' },
+      padded:  { type: 'boolean', default: false, description: 'Variant padded (pt-10, gap 6).' },
     },
     render: v => (
-      <P.Tabs
+      <TabsReal
         value={v.value}
-        variant={v.variant}
+        padded={v.padded}
         options={[
-          { value: 'overview',    label: 'Overview' },
-          { value: 'pieces',      label: 'Pièces' },
-          { value: 'chronologie', label: 'Chronologie' },
+          { value: 'overview',    label: 'Aperçu' },
+          { value: 'pieces',      label: 'Pièces',      count: v.counters ? 12 : undefined },
+          { value: 'chronologie', label: 'Chronologie', count: v.counters ? 2 : undefined },
+          { value: 'export',      label: 'Export', disabled: true },
         ]}
         onChange={() => {}}
       />

@@ -264,6 +264,8 @@
         "ghost",
         "outline",
         "destructive",
+        "destructive-subtle",
+        "ai-subtle",
         "link",
         "warning-link",
         "success-link",
@@ -321,12 +323,13 @@
         "colors.semantic.muted",
         "colors.semantic.border",
         "colors.feedback.destructive",
+        "colors.feedback.ai",
         "colors.banner.neutral"
       ],
       "promotedFrom": "src/components/ui-kit/previews.jsx",
       "docFile": "src/components/ui/Button.md",
       "sections": {
-        "pattern": "### When to use\n- Any action: submit, confirm, cancel, \"J'ai terminé\", \"Commencer\", \"Valider\".\n- Use **variant to signal intent**, not decoration:\n  - `primary` — the one main action of a view (dark fill).\n  - `secondary` — supporting action next to a primary (cream fill).\n  - `ghost` — low-emphasis inline action (no fill until hover).\n  - `outline` — neutral bordered action (white + border).\n  - `destructive` — irreversible / dangerous action (red).\n\n### When NOT to use\n- **Navigation of the app shell** → use the nav item components, not a Button.\n- **Non-interactive status / tag / count** → `Badge`.\n- **Toggle / choice** → `Switch`, `Checkbox`, `RadioGroup`.\n- **A link to elsewhere** → a link styled as text, or `ghost` if it must look button-like.\n- **Never** re-roll a `<button>` with inline styles - import this.\n- Échappatoires `className` / `style` (23/09) : ajustements de géométrie ponctuels depuis un contexte précis (ex. CTA nav h32/px12 aligné à gauche) - jamais pour changer les couleurs, qui restent aux variants.\n\n### Props\n| Prop | Type | Default | Notes |\n|------|------|---------|-------|\n| `variant` | `primary \\| secondary \\| ghost \\| outline \\| destructive` | `primary` | intent |\n| `size` | `sm \\| md \\| lg` | `md` | |\n| `icon` | Lucide icon | — | rendered at the size's `iconSize` |\n| `iconPosition` | `leading \\| trailing` | `leading` | |\n| `label` | string | — | text (or `children`) |\n| `children` | node | — | alternative to `label` |\n| `disabled` | bool | `false` | 50% opacity, `not-allowed` |\n| `onClick` | fn | — | |\n| `fullWidth` | bool | `false` | stretch to container |\n| `type` | string | `button` | |\n| `title` | string | — | tooltip |\n\n### Examples\n```jsx\nimport Button from '../ui/Button';\nimport { Check, Clock, ArrowRight } from 'lucide-react';\n\n<Button variant=\"primary\" label=\"J'ai terminé\" icon={Check} onClick={onDone} />\n<Button variant=\"outline\" label=\"Commencer moi-même\" icon={Clock} onClick={onLog} />\n<Button variant=\"primary\" size=\"lg\" label=\"Valider · mois suivant\" icon={ArrowRight} iconPosition=\"trailing\" />\n<Button variant=\"destructive\" label=\"Supprimer\" onClick={onDelete} />\n```\n\n### Tokens used\n`colors.semantic.primary` / `foregroundTertiary` (primary) · `colors.semantic.muted` / `input` (secondary) · `colors.semantic.border` (outline) · `colors.feedback.destructive.text` (destructive) · `colors.banner.neutral.bgFrom` (ghost/outline hover). Zero hardcoded values.",
+        "pattern": "### When to use\n- Any action: submit, confirm, cancel, \"J'ai terminé\", \"Commencer\", \"Valider\".\n- Use **variant to signal intent**, not decoration:\n  - `primary` — the one main action of a view (dark fill).\n  - `secondary` — supporting action next to a primary (cream fill).\n  - `ghost` — low-emphasis inline action (no fill until hover).\n  - `outline` — neutral bordered action (white + border).\n  - `destructive` — irreversible / dangerous action (red).\n  - `destructive-subtle` — action de retrait douce dans une rangée / carte\n    (fond `feedback.destructive.subtle`, texte `.text`) - promu de l'ex-SmallBtn\n    de l'import V2 (24/09/2026). Réservé aux contextes denses ; le destructif\n    plein reste la norme pour les confirmations.\n  - `ai-subtle` — action liée à un geste IA (découpe, suggestion) : fond\n    `feedback.ai.subtle`, texte `.text`. Même origine.\n\n### When NOT to use\n- **Navigation of the app shell** → use the nav item components, not a Button.\n- **Non-interactive status / tag / count** → `Badge`.\n- **Toggle / choice** → `Switch`, `Checkbox`, `RadioGroup`.\n- **A link to elsewhere** → a link styled as text, or `ghost` if it must look button-like.\n- **Never** re-roll a `<button>` with inline styles - import this.\n- Échappatoires `className` / `style` (23/09) : ajustements de géométrie ponctuels depuis un contexte précis (ex. CTA nav h32/px12 aligné à gauche) - jamais pour changer les couleurs, qui restent aux variants.\n\n### Props\n| Prop | Type | Default | Notes |\n|------|------|---------|-------|\n| `variant` | `primary \\| secondary \\| ghost \\| outline \\| destructive \\| destructive-subtle \\| ai-subtle \\| link \\| *-link` | `primary` | intent |\n| `size` | `sm \\| md \\| lg` | `md` | |\n| `icon` | Lucide icon | — | rendered at the size's `iconSize` |\n| `iconPosition` | `leading \\| trailing` | `leading` | |\n| `label` | string | — | text (or `children`) |\n| `children` | node | — | alternative to `label` |\n| `disabled` | bool | `false` | 50% opacity, `not-allowed` |\n| `onClick` | fn | — | |\n| `fullWidth` | bool | `false` | stretch to container |\n| `type` | string | `button` | |\n| `title` | string | — | tooltip |\n\n### Examples\n```jsx\nimport Button from '../ui/Button';\nimport { Check, Clock, ArrowRight } from 'lucide-react';\n\n<Button variant=\"primary\" label=\"J'ai terminé\" icon={Check} onClick={onDone} />\n<Button variant=\"outline\" label=\"Commencer moi-même\" icon={Clock} onClick={onLog} />\n<Button variant=\"primary\" size=\"lg\" label=\"Valider · mois suivant\" icon={ArrowRight} iconPosition=\"trailing\" />\n<Button variant=\"destructive\" label=\"Supprimer\" onClick={onDelete} />\n```\n\n### Tokens used\n`colors.semantic.primary` / `foregroundTertiary` (primary) · `colors.semantic.muted` / `input` (secondary) · `colors.semantic.border` (outline) · `colors.feedback.destructive.text` (destructive) · `colors.banner.neutral.bgFrom` (ghost/outline hover). Zero hardcoded values.",
         "explos": "- Promu depuis la preview validée de `ui-kit/previews.jsx` (mêmes variants/props).\n- Teinte de marque : voir le lab `/ui-kit/brand-orange` (l'orange « Vif atténué » n'est PAS un aplat de bouton).\n\n### Écart vs Figma — COMBLÉ (22/09/2026)\n\nLe composant code couvre désormais le set Figma ([page Button](https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11933), ~290 variants), traduit en tokens (jamais de transcription pixel) :\n\n| Axe | Figma | Code |\n|---|---|---|\n| Types | 9 | 9 ✓ (`link` = info.text, `warning/success-link` = feedback.text, `neutral-link` = mutedForeground ; souligné au survol) |\n| Tailles | 8 | 8 ✓ (`xs` h22 + 4 icon-only carrés 22/26/34/40, alignés sur les hauteurs texte) |\n| États | 6 | 6 ✓ (`loading` : spinner Loader2 + clics coupés ; focus ring `:focus-visible` sur le token ring ; active = pressed natif) |\n\nAjouts **additifs** : props existantes inchangées, aucun call-site cassé.",
         "demo": "`/ui-kit/c/Button` — sandbox : variants × sizes × icon positions × disabled."
       }
@@ -1838,6 +1841,44 @@
         "pattern": "### When to use\n- Activer/désactiver un réglage avec **effet immédiat** (pas de submit).\n\n### When NOT to use\n- **Sélection dans un formulaire à valider** → `Checkbox`.\n- **Choix exclusif** → `RadioGroup`.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `checked` | `false` | état on |\n| `label` | - | libellé cliquable |\n| `disabled` | `false` | désactivé |\n| `onChange` | - | `(next: boolean) => void` |\n\n### Examples\n```jsx\nimport Switch from 'src/components/ui/Switch';\n\n<Switch checked={v} label=\"Jour chômé\" onChange={setV} />\n```\n\n### Tokens used\n`colors.semantic.foreground` (ON) · `colors.semantic.cream` (OFF) ·\n`colors.semantic.white` (pouce) · `shadows.xs` (élévation pouce).",
         "explos": "- Promu le 24/09/2026 depuis `ui-kit/previews.jsx`, tokenisé (l'ombre inline du pouce passe au token `shadows.xs`). Cible d'adoption : 6 toggles `peer-checked` d'App.js (audit DS cat. 2).",
         "demo": "`/ui-kit/c/Switch`"
+      }
+    },
+    "Tabs": {
+      "name": "Tabs",
+      "package": "plato",
+      "type": "primitive",
+      "status": "draft",
+      "usage": "Onglets inline - label medium + indicateur 2px, compteur et icône optionnels",
+      "description": "Onglets INLINE (variant retenu par la steward). Label Inter Medium 14/20 : repos mutedForeground (indicateur invisible), hover secondaryForeground + indicateur border, actif foreground + indicateur primary (2px, arrondi haut 30). Options par onglet : icône 16, compteur (pill 20 bordée border, 12 medium mutedForeground), disabled (opacité 50). Variant padded (pt-10, gap 6). Le style segmented n'est pas ce composant -> ButtonGroup.",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36099-45289",
+      "file": "src/components/ui/Tabs.js",
+      "source": "src/components/ui/Tabs.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "inventoryId": "Tabs",
+      "variants": [
+        "default",
+        "padded"
+      ],
+      "states": [
+        "rest",
+        "hover",
+        "active",
+        "disabled"
+      ],
+      "tokens": [
+        "colors.semantic.foreground",
+        "colors.semantic.secondaryForeground",
+        "colors.semantic.mutedForeground",
+        "colors.semantic.primary",
+        "colors.semantic.border",
+        "typography (body-medium 14/20)"
+      ],
+      "lastValidated": "2026-09-24",
+      "docFile": "src/components/ui/Tabs.md",
+      "sections": {
+        "pattern": "### When to use\n- Basculer entre des VUES d'un même objet (onglets de dossier, sections d'un\n  panneau) - contenu par onglet, un seul actif.\n\n### When NOT to use\n- **Segmented control** (choix compact dans un formulaire, 2-4 options) →\n  `ButtonGroup` (cf. PairTabs dans l'audit d'adoption).\n- **Navigation entre pages** → composants de shell (règle 7 - `TopBar`,\n  `PageHeader` portent leurs propres onglets ; ne pas re-rouler une barre).\n- **Choix d'une valeur de formulaire** → `Select` / `RadioGroup`.\n\n### Props\n| Prop | Défaut | Rôle |\n|------|--------|------|\n| `value` / `onChange` | - | onglet actif contrôlé |\n| `options` | `[]` | `{ value, label, icon?, count?, disabled? }` |\n| `padded` | `false` | variant Figma padded (pt-10, gap 6) |\n| `gap` | `16` | espacement entre onglets |\n\n### Examples\n```jsx\nimport Tabs from 'src/components/ui/Tabs';\n\n<Tabs\n  value={tab}\n  onChange={setTab}\n  options={[\n    { value: 'apercu', label: 'Aperçu' },\n    { value: 'pieces', label: 'Pièces', count: 12 },\n    { value: 'export', label: 'Export', disabled: true },\n  ]}\n/>\n```\n\n### Tokens used\n`foreground` (actif) · `secondaryForeground` (hover) · `mutedForeground`\n(repos, compteur) · `primary` (indicateur actif) · `border` (indicateur hover,\nbordure du compteur) · typo body-medium 14/20. Les valeurs de bordure du nœud\n(#e7e5e3) mappent le token `border` par rôle, jamais par valeur (règle\nd'arbitrage n°2, design-truth).",
+        "explos": "- Promu le 24/09/2026 depuis le variant inline (décision steward ; le set\n  « Tabs » 2819:31095 taille SM reste à arbitrer). Cible d'adoption : barres\n  d'onglets custom d'App.js (:6724), ReleveHeuresLab (2 sets), onglets de\n  l'AddExpense (classement modales).",
+        "demo": "`/ui-kit/c/Tabs`"
       }
     },
     "Textarea": {

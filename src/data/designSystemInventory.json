@@ -2723,12 +2723,12 @@
       "layer": "shadcn-extended",
       "category": "primitive",
       "family": "Navigation & shell",
-      "filePath": null,
-      "exists": false,
-      "figmaPage": "Tabs",
-      "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-31095",
-      "notes": "Étendu : taille SM. Esquisse previews.jsx",
-      "status": "missing",
+      "filePath": "src/components/ui/Tabs.js",
+      "exists": true,
+      "figmaPage": "Tabs Inline",
+      "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36099-45289",
+      "notes": "Promu 24/09/2026 depuis le variant INLINE (36099:45289, décision steward). Indicateur 2px primary/border, compteur pill, icône, padded, disabled. Segmented -> ButtonGroup ; le set Tabs 2819:31095 (taille SM) reste à arbitrer.",
+      "status": "pending",
       "used": false
     },
     {
