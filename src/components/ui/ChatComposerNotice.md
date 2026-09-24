@@ -1,52 +1,39 @@
 ---
 name: ChatComposerNotice
 package: plato
-type: custom
-status: draft
+status: stable
 usage: Status banner above the chat composer (analyzing / quota)
-description: >
-  Bandeau d'état posé au-dessus du composer : analyzing (Plato réfléchit,
-  gif), quota-warning (jauge d'usage hebdo), quota-full. Code-first - pas de
-  nœud Figma, le code est la source.
-figma: null
-file: src/components/ChatComposerNotice.js
 source: src/components/ChatComposerNotice.js
 demo: src/components/ui-kit/componentDemos.jsx
-inventoryId: ChatComposerNotice
-variants: [analyzing, quota-warning, quota-full]
-tokens: [colors.semantic.muted, colors.avatar, colors.feedback.warning, colors.feedback.destructive]
-lastValidated: 2026-09-23
+replacedBy: null
+figma: null
 ---
 
 # ChatComposerNotice
 
-> **Type** Custom · **Status** Pending (2026-09-23) · **Usage** bandeau d'état du composer
-> **Figma** aucun - code-first · **File** `src/components/ChatComposerNotice.js`
+Status banner placed above the composer: analyzing (Plato thinking), quota-warning (weekly usage gauge), quota-full. Code-first — the code is the source.
 
-## Pattern / Variants / Examples
+## When to use
+- `analyzing` : Plato is working - the composer stays visible but announces the processing under way.
+- `quota-warning` / `quota-full` : the weekly usage gauge approaches / reaches 100 % (licences + usage pricing model); CTA to usage and upgrade.
 
-### When to use
-- `analyzing` : Plato travaille - le composer reste visible mais annonce le
-  traitement en cours.
-- `quota-warning` / `quota-full` : la jauge d'usage hebdo approche / atteint
-  100 % (modèle pricing licences + usage) ; CTA vers l'usage et l'upgrade.
+## When NOT to use
+- **Conversation errors** → an error message in the thread, not a banner.
+- **Marketing banners** → `NavPromoBanner` / dedicated banners.
 
-### When NOT to use
-- **Erreurs de conversation** → message d'erreur dans le fil, pas un bandeau.
-- **Bannières marketing** → `NavPromoBanner` / bannières dédiées.
+## Props
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `variant` | `'analyzing' \| 'quota-warning' \| 'quota-full'` | — | unknown variant → renders nothing (null) |
+| `pct` | number | — | usage % (quota variants) |
+| `onOpenUsage` | `() => void` | — | open usage detail |
+| `onRequestUpgrade` | `() => void` | — | upgrade CTA |
 
-### Props
-`variant` ('analyzing' | 'quota-warning' | 'quota-full') · `pct` (usage %) ·
-`onOpenUsage` · `onRequestUpgrade`. Variant inconnu → rien (null).
+## Examples
+```jsx
+import ChatComposerNotice from 'src/components/ChatComposerNotice';
 
-### Tokens used
-`semantic.muted` + `ring` (analyzing) · `avatar[3].bg` + `warning.text`
-(quota-warning) · `destructive.border/text` (quota-full).
-
-## Sprint / Explos
-
-- Né avec l'épic pricing (jauge d'usage hebdo, memory `project_pricing_model`).
-
-## Proto demo
-
-`/ui-kit/c/ChatComposerNotice` — les 3 variants.
+<ChatComposerNotice variant="analyzing" />
+<ChatComposerNotice variant="quota-warning" pct={92}
+  onOpenUsage={openUsage} onRequestUpgrade={upgrade} />
+```
