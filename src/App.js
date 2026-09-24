@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Loader2, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, PanelRight, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal, MessageCircle, CornerDownRight, FolderPlus, MessageCirclePlus, ChevronsUpDown, Sun, Moon, ArrowUpRight } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, PanelRight, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal, MessageCircle, CornerDownRight, FolderPlus, MessageCirclePlus, ChevronsUpDown, Sun, Moon, ArrowUpRight } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import ParallelTasks, { ParallelTasksLine } from './components/ParallelTasks';
 import ChatComposerNotice, { NOTICE_WRAP_BG } from './components/ChatComposerNotice';
@@ -47,6 +47,8 @@ import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import Input from './components/ui/Input';
 import Button from './components/ui/Button';
 import Progress from './components/ui/Progress';
+import Spinner from './components/ui/Spinner';
+import Badge from './components/ui/Badge';
 import Avatar, { avatarColorAt } from './components/ui/Avatar';
 import IVAvatar from './components/IVAvatar';
 import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
@@ -69,7 +71,6 @@ import IllustrationsSection from './components/ui-kit/IllustrationsSection';
 import BlockDetailPage from './components/ui-kit/BlockDetailPage';
 import { BLOCKS as DS_BLOCKS } from './components/ui-kit/blocks';
 import CommandPalette from './components/ui-kit/CommandPalette';
-import DSWelcome from './components/ui-kit/DSWelcome';
 import SommaireActeLab from './components/ui-kit/SommaireActeLab';
 import ImportDossierLab from './components/ui-kit/ImportDossierLab';
 import ImportFolderTreeLab from './components/ui-kit/ImportFolderTreeLab';
@@ -1457,7 +1458,7 @@ const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
   // Le playground DS est le point d'entrée de la plateforme ; le proto vit sur /app.
-  if (clean === '/' || clean === '') return { page: 'components', section: null };
+  if (clean === '/' || clean === '') return { page: 'components', section: 'inventory' };
   if (clean === '/app' || clean === '/home') return { page: 'home', section: null };
   if (clean === '/dossiers') return { page: 'dossiers', section: null };
   if (clean === '/conversations') return { page: 'conversations', section: null };
@@ -1468,7 +1469,7 @@ function pathToPage(pathname) {
   if (clean === '/settings') return { page: 'settings', section: null };
   if (clean === '/welcome') return { page: 'welcome', section: null };
   if (clean === '/dossier') return { page: 'dossier', section: null };
-  if (clean === '/ui-kit') return { page: 'components', section: null };
+  if (clean === '/ui-kit') return { page: 'components', section: 'inventory' };
   if (clean.startsWith('/ui-kit/c/')) {
     const componentId = clean.slice('/ui-kit/c/'.length);
     return { page: 'component-detail', section: null, componentId };
@@ -1481,9 +1482,9 @@ function pathToPage(pathname) {
     const slug = clean.slice('/ui-kit/'.length);
     if (UI_KIT_DEDICATED_PAGES.includes(slug)) return { page: slug, section: null };
     if (UI_KIT_SUBSECTION_SLUGS.includes(slug)) return { page: 'components', section: slug };
-    return { page: 'components', section: null };
+    return { page: 'components', section: 'inventory' };
   }
-  return { page: 'components', section: null };
+  return { page: 'components', section: 'inventory' };
 }
 
 function pageToPath(page) {
@@ -1524,7 +1525,7 @@ export default function App() {
   // Cmd+K - palette de navigation du DS (composants, tokens, pages). Active
   // uniquement sur les surfaces du design system (« from the DS »).
   const [dsPaletteOpen, setDsPaletteOpen] = useState(false);
-  const onDSSurface = currentPage === 'components' || currentPage === 'component-detail' || currentPage === 'block-detail';
+  const onDSSurface = currentPage === 'components' || currentPage === 'component-detail' || currentPage === 'block-detail' || UI_KIT_DEDICATED_PAGES.includes(currentPage);
   useEffect(() => {
     if (!onDSSurface) { setDsPaletteOpen(false); return undefined; }
     const onKey = (e) => {
@@ -6250,7 +6251,7 @@ export default function App() {
           <div className="flex items-center gap-2.5 min-w-0">
             <CodeBadge>{currentLevel.title}</CodeBadge>
             <StripTitle>{currentLevel.fullTitle || currentLevel.title}</StripTitle>
-            <span className="inline-flex items-center px-2 py-0.5 text-caption bg-cream text-foreground-secondary rounded-full flex-shrink-0">Victimes indirectes</span>
+            <Badge variant="secondary" label="Victimes indirectes" className="flex-shrink-0" />
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             {allIvPostes.length > 1 && idx >= 0 && siblingNav({ index: idx, total: allIvPostes.length, onPrev: () => goSibling(-1), onNext: () => goSibling(1) })}
@@ -9990,7 +9991,7 @@ export default function App() {
               {isStreaming && (
                 <div className="banner banner-minimal banner-ai">
                   <div className="banner-body">
-                    <Loader2 className="w-4 h-4 banner-icon animate-spin" />
+                    <Spinner size="sm" color="var(--banner-accent)" />
                     <span className="banner-title">Extraction en cours depuis le rapport d'expertise...</span>
                   </div>
                 </div>
@@ -11117,7 +11118,7 @@ export default function App() {
             {posteExtracting && posteExtracting.posteType === 'dsa' && (
               <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: `linear-gradient(to right, ${dsColors.semantic.background}, white 15%)` }}>
                 <div className="flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 text-foreground animate-spin" />
+                  <Spinner size="md" color={dsColors.semantic.foreground} />
                   <div className="flex items-baseline gap-2">
                     <span className="text-body-medium text-foreground">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
                     <span className="text-caption text-foreground-secondary">Extraction en cours…</span>
@@ -12014,7 +12015,7 @@ export default function App() {
               {posteExtracting && posteExtracting.posteType === 'dft' && (
                 <div className="flex items-center justify-between px-4 py-3.5 border-b border-border" style={{ background: `linear-gradient(to right, ${dsColors.semantic.background}, white 15%)` }}>
                   <div className="flex items-center gap-3">
-                    <Loader2 className="w-5 h-5 text-foreground animate-spin" />
+                    <Spinner size="md" color={dsColors.semantic.foreground} />
                     <div className="flex items-baseline gap-2">
                       <span className="text-body-medium text-foreground">{posteExtracting.totalDocs} document{posteExtracting.totalDocs > 1 ? 's' : ''}</span>
                       <span className="text-caption text-foreground-secondary">Extraction en cours…</span>
@@ -18353,29 +18354,45 @@ export default function App() {
     // Sprint / Explos = UN item nav qui déploie ses sous-items UNIQUEMENT quand
     // il est actif. Regroupe les labs ET les anciennes sections « Composants »
     // (showcases legacy, doublons de l'inventaire) - qui ne vivent plus en nav
-    // de 1er niveau.
+    // de 1er niveau. Deux cartes : « Explo composant » (un élément du DS exploré
+    // isolément) et « Explo flow » (un parcours / écran complet). `date` = 1re
+    // apparition en repo, sert au tri (le plus récent en tête de carte).
     const EXPLOS = [
-      { label: 'Prompt Suggestion Card', slug: 'prompt-suggestion-card', icon: Sparkles },
-      { label: 'Reasoning', slug: 'reasoning', icon: Brain },
-      { label: 'Barème Components', slug: 'bareme-components', icon: Calculator },
-      { label: 'JP - Jurisprudence', slug: 'jp', icon: FileText },
-      { label: 'Diff Engine', slug: 'diff-engine', icon: FileText },
-      { label: 'IV Table Structures', slug: 'iv-structures', icon: Table2 },
-      { label: 'Prompt Suggestions', slug: 'prompt-suggestions', icon: Lightbulb },
-      { label: 'Reasoning Demo', slug: 'reasoning-demo', icon: Brain },
-      { label: "Sommaire d'acte", slug: 'sommaire-acte', icon: AlignLeft },
-      { label: 'Chat Composer Notice', slug: 'chat-composer-notice', icon: Sparkles },
-      { label: 'Import dossier - agencements', slug: 'import-dossier', icon: Mail },
-      { label: 'Import - arbre de dossiers', slug: 'import-folder-tree', icon: Mail },
-      { label: 'Import v2 - récolte & bordereau', slug: 'import-v2', icon: Mail },
-      { label: 'Connecteur email - modale & promos', slug: 'connecteurs', icon: Plug2 },
-      { label: 'Preview panel - tous les types', slug: 'preview-panel', icon: Files },
-      { label: 'Essai gratuit - le flow complet', slug: 'trial-flow', icon: Clock },
-      { label: 'Cotisations et impôts - social', slug: 'cotisations', icon: Calculator },
-      { label: 'Flag dossier - variantes', slug: 'dossier-flag', icon: Folder },
-      { label: 'Navigation - shell et états', slug: 'nav-system', icon: PanelRight },
-      { label: 'Hero motion - 3 key screens', slug: 'hero-motion', icon: Sparkles },
+      // Explo composant
+      { label: 'Prompt Suggestion Card', slug: 'prompt-suggestion-card', icon: Sparkles, kind: 'composant', date: '2026-05-06' },
+      { label: 'Reasoning', slug: 'reasoning', icon: Brain, kind: 'composant', date: '2026-04-13' },
+      { label: 'Barème', slug: 'bareme-components', icon: Calculator, kind: 'composant', date: '2026-05-07' },
+      { label: 'Jurisprudence (JP)', slug: 'jp', icon: FileText, kind: 'composant', date: '2026-01-30' },
+      { label: 'Diff Engine', slug: 'diff-engine', icon: FileText, kind: 'composant', date: '2026-04-13' },
+      { label: 'IV - structures de table', slug: 'iv-structures', icon: Table2, kind: 'composant', date: '2026-04-21' },
+      { label: 'Prompt Suggestions', slug: 'prompt-suggestions', icon: Lightbulb, kind: 'composant', date: '2026-05-05' },
+      { label: 'Reasoning Demo', slug: 'reasoning-demo', icon: Brain, kind: 'composant', date: '2026-04-14' },
+      { label: "Sommaire d'acte", slug: 'sommaire-acte', icon: AlignLeft, kind: 'composant', date: '2026-06-26' },
+      { label: 'Chat Composer Notice', slug: 'chat-composer-notice', icon: Sparkles, kind: 'composant', date: '2026-07-29' },
+      { label: 'Preview panel - tous les types', slug: 'preview-panel', icon: Files, kind: 'composant', date: '2026-07-30' },
+      { label: 'Flag dossier - variantes', slug: 'dossier-flag', icon: Folder, kind: 'composant', date: '2026-09-09' },
+      // Explo flow
+      { label: 'Import dossier - agencements', slug: 'import-dossier', icon: Mail, kind: 'flow', date: '2026-07-29' },
+      { label: 'Connecteur email - modale & promos', slug: 'connecteurs', icon: Plug2, kind: 'flow', date: '2026-07-29' },
+      { label: 'Essai gratuit - le flow complet', slug: 'trial-flow', icon: Clock, kind: 'flow', date: '2026-07-29' },
+      { label: 'Cotisations et impôts - social', slug: 'cotisations', icon: Calculator, kind: 'flow', date: '2026-07-29' },
+      { label: 'Import - arbre de dossiers', slug: 'import-folder-tree', icon: Mail, kind: 'flow', date: '2026-08-04' },
+      { label: 'Import v2 - récolte & bordereau', slug: 'import-v2', icon: Mail, kind: 'flow', date: '2026-08-04' },
+      { label: 'Navigation - shell et états', slug: 'nav-system', icon: PanelRight, kind: 'flow', date: '2026-09-17' },
+      { label: 'Hero motion - 3 key screens', slug: 'hero-motion', icon: Sparkles, kind: 'flow', date: '2026-09-17' },
     ];
+    // Cartes de la nav Sprint : chacune triée par date décroissante (récent en tête).
+    const EXPLO_GROUPS = [
+      { kind: 'composant', label: 'Explo composant' },
+      { kind: 'flow', label: 'Explo flow' },
+    ];
+    const explosByDate = (kind) => EXPLOS.filter((e) => e.kind === kind).sort((a, b) => b.date.localeCompare(a.date));
+    const exploMonth = (iso) => {
+      const [y, m] = iso.split('-');
+      const mois = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+      return `${mois[Number(m) - 1]} ${y.slice(2)}`;
+    };
+    const latestExplo = [...EXPLOS].sort((a, b) => b.date.localeCompare(a.date))[0];
     const sprintActive = EXPLOS.some((e) => currentPage === e.slug || componentsSection === e.slug);
     const blocksActive = componentsSection === 'blocks' || currentPage === 'block-detail';
     return (
@@ -18414,6 +18431,15 @@ export default function App() {
           </div>
         }
       >
+        {/* Recherche - déclenche la palette (⌘K). En tête de rail, avant le proto. */}
+        <SidebarGroup>
+          <NavItem
+            label="Rechercher"
+            icon={Search}
+            onClick={() => setDsPaletteOpen(true)}
+            trailing={<kbd style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: dsColors.semantic.foregroundTertiary, background: dsColors.semantic.backgroundSubtle, border: `1px solid ${dsColors.semantic.border}`, borderRadius: 5, padding: '1px 6px' }}>⌘K</kbd>}
+          />
+        </SidebarGroup>
         <SidebarGroup label="Proto">
           <div className="flex flex-col gap-1.5 px-0.5">
             <Button variant="primary" size="md" icon={ArrowUpRight} iconPosition="trailing" label="Ouvrir le proto" fullWidth onClick={() => navigate('/app')} />
@@ -18421,12 +18447,11 @@ export default function App() {
           </div>
         </SidebarGroup>
         <SidebarGroup label="Design system" last={!inContext && !sprintActive && !blocksActive}>
-          <NavItem label="Accueil" icon={Home} active={!componentsSection && currentPage !== 'component-detail' && !sprintActive} onClick={() => navigate('/')} />
           <NavItem label="Tokens" icon={Layers} active={componentsSection === 'tokens'} onClick={() => navigate('/ui-kit/tokens')} />
           <NavItem label="Composants" icon={ClipboardList} active={inContext} onClick={() => navigate('/ui-kit/inventory')} />
           <NavItem label="Blocks" icon={PanelRight} active={componentsSection === 'blocks' || currentPage === 'block-detail'} onClick={() => navigate('/ui-kit/blocks')} />
           <NavItem label="Illustrations" icon={Wand2} active={componentsSection === 'illustrations'} onClick={() => navigate('/ui-kit/illustrations')} />
-          <NavItem label="Sprint / Explos" icon={Lightbulb} active={sprintActive} onClick={() => navigate(`/ui-kit/${EXPLOS[0].slug}`)} />
+          <NavItem label="Sprint / Explos" icon={Lightbulb} active={sprintActive} onClick={() => navigate(`/ui-kit/${latestExplo.slug}`)} />
         </SidebarGroup>
         {/* En contexte Inventaire/fiche : la nav des composants par FAMILLE. */}
         {inContext && (
@@ -18472,14 +18497,22 @@ export default function App() {
             ))}
           </SidebarGroup>
         )}
-        {/* En contexte Sprint / Explos : sa PROPRE nav (comme l'Inventaire a la sienne). */}
-        {sprintActive && (
-          <SidebarGroup label="Sprint / Explos" last>
-            {EXPLOS.map((e) => (
-              <NavItem key={e.slug} icon={e.icon} label={e.label} active={currentPage === e.slug || componentsSection === e.slug} onClick={() => navigate(`/ui-kit/${e.slug}`)} />
+        {/* En contexte Sprint / Explos : sa PROPRE nav, une carte par type
+            (composant / flow), triée par date (récent en tête). */}
+        {sprintActive && EXPLO_GROUPS.map((g, gi) => (
+          <SidebarGroup key={g.kind} label={g.label} last={gi === EXPLO_GROUPS.length - 1}>
+            {explosByDate(g.kind).map((e) => (
+              <NavItem
+                key={e.slug}
+                icon={e.icon}
+                label={e.label}
+                active={currentPage === e.slug || componentsSection === e.slug}
+                trailing={<span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, letterSpacing: '0.02em', color: dsColors.semantic.foregroundMuted }}>{exploMonth(e.date)}</span>}
+                onClick={() => navigate(`/ui-kit/${e.slug}`)}
+              />
             ))}
           </SidebarGroup>
-        )}
+        ))}
       </AppSidebar>
     );
   };
@@ -19708,7 +19741,7 @@ export default function App() {
         ) : (
           <div className="flex-1 flex items-center justify-center" style={{ backgroundColor: dsColors.semantic.background }}>
             <div className="text-center">
-              <Loader2 className="w-8 h-8 text-border-strong mx-auto mb-3 animate-spin" />
+              <Spinner size="xl" color={dsColors.semantic.borderStrong} className="mx-auto mb-3" />
               <p className="text-body text-foreground-secondary">Ce barème est en cours de modélisation.</p>
               <p className="text-caption text-foreground-muted mt-1">Il sera disponible sous 48h.</p>
             </div>
@@ -23023,9 +23056,7 @@ export default function App() {
                           {amounts.mode === 'capitalisation' ? (
                             <span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(amounts.aEchoir)}</span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground }}>
-                              RENTE {fmt(amounts.perteVI)}/an
-                            </span>
+                            <Badge variant="accent" label={`RENTE ${fmt(amounts.perteVI)}/an`} />
                           )}
                         </div>
                       </div>
@@ -24690,6 +24721,20 @@ export default function App() {
     </>
   );
 
+  // Explo (Sprint) : un lab s'ouvre DANS la coque du DS - sidebar + carte
+  // Sprint/Explos mise en avant -, jamais en pleine page : on ne perd jamais
+  // la nav. Le contenu du lab vit dans le volet scrollable, comme une fiche.
+  const renderDSLab = (content) => (
+    <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      {renderDSSidebar()}
+      {renderDSNavExpand()}
+      <div className="flex-1 min-w-0 h-full overflow-y-auto">
+        {content}
+      </div>
+      {dsPaletteOpen && <CommandPalette navigate={navigate} onClose={() => setDsPaletteOpen(false)} />}
+    </div>
+  );
+
   // ========== ROUTING ==========
   if (currentPage === 'chat-composer-notice') {
     const previewQuotaPct = { fresh: 16, mid: 63, high: 92, full: 100 }[quotaFill] ?? 63;
@@ -24746,11 +24791,8 @@ export default function App() {
     };
     return (
       <>
+        {renderDSLab(
         <div className="min-h-screen" style={{ backgroundColor: dsColors.semantic.background, padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
-          <button onClick={() => navigate('/ui-kit')} className="flex items-center gap-1.5 text-[13px] text-foreground-secondary hover:text-foreground mb-8 transition-colors">
-            <ChevronRight className="w-3.5 h-3.5 rotate-180" strokeWidth={2} />
-            UI Kit
-          </button>
           <div className="mb-8">
             <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.5px', marginBottom: 6 }}>
               Chat Composer Notice
@@ -24783,13 +24825,14 @@ export default function App() {
             </div>
           </div>
         </div>
+        )}
         {renderGlobalOverlays()}
       </>
     );
   }
 
   if (currentPage === 'reasoning-demo') {
-    return (<>{renderReasoningDemoPage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderReasoningDemoPage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'welcome') {
     // First-run flow: login -> trial explainer -> licence -> card -> Plato.
@@ -24822,11 +24865,8 @@ export default function App() {
     const flowArrow = <ArrowRight className="w-4 h-4 flex-shrink-0 self-center" style={{ color: dsColors.semantic.borderStrong }} strokeWidth={2} />;
     return (
       <>
+        {renderDSLab(
         <div className="min-h-screen" style={{ backgroundColor: dsColors.semantic.background, padding: '48px 64px', fontFamily: "'Inter', sans-serif" }}>
-          <button onClick={() => navigate('/ui-kit')} className="flex items-center gap-1.5 text-[13px] text-foreground-secondary hover:text-foreground mb-8 transition-colors">
-            <ChevronRight className="w-3.5 h-3.5 rotate-180" strokeWidth={2} />
-            UI Kit
-          </button>
           <div className="mb-10">
             <h1 style={{ fontFamily: "'RL Para Trial Central', Georgia, serif", fontSize: 28, fontWeight: 500, color: dsColors.semantic.foreground, letterSpacing: '-0.5px', marginBottom: 6 }}>
               Essai gratuit - le flow complet
@@ -24930,18 +24970,19 @@ export default function App() {
             </div>
           </div>
         </div>
+        )}
         {renderGlobalOverlays()}
       </>
     );
   }
 
   if (currentPage === 'diff-engine') {
-    return (<>{renderDiffEnginePage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderDiffEnginePage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'components') {
-    // Racine `/` (aucune section) = l'accueil plein écran du DS (plus de « dump »).
-    const dsContent = componentsSection ? renderComponentsPage() : <DSWelcome navigate={navigate} />;
-    return (<>{dsContent}{renderGlobalOverlays()}{dsPaletteOpen && <CommandPalette navigate={navigate} onClose={() => setDsPaletteOpen(false)} />}</>);
+    // Racine `/` = l'Inventaire composants (le catalogue = cœur du DS) ;
+    // plus d'accueil hero. Chaque section garde son URL /ui-kit/<slug>.
+    return (<>{renderComponentsPage()}{renderGlobalOverlays()}{dsPaletteOpen && <CommandPalette navigate={navigate} onClose={() => setDsPaletteOpen(false)} />}</>);
   }
   if (currentPage === 'component-detail') {
     return (
@@ -24974,25 +25015,25 @@ export default function App() {
     );
   }
   if (currentPage === 'iv-structures') {
-    return (<>{renderIvStructuresPage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderIvStructuresPage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'prompt-suggestions') {
-    return (<>{renderPromptSuggestionsPage()}{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(renderPromptSuggestionsPage())}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'import-dossier') {
-    return (<><ImportDossierLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ImportDossierLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'import-folder-tree') {
-    return (<><ImportFolderTreeLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ImportFolderTreeLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'import-v2') {
-    return (<><ImportV2Lab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ImportV2Lab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'connecteurs') {
-    return (<><ConnecteursLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<ConnecteursLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'preview-panel') {
-    return (<><PreviewPanelLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<PreviewPanelLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'assistant-composer') {
     return (<><ComposerLab />{renderGlobalOverlays()}</>);
@@ -25007,20 +25048,20 @@ export default function App() {
     return (<><BreadcrumbBarLab />{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'nav-system') {
-    return (<><NavSystemLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<NavSystemLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'dossier-flag') {
-    return (<><DossierFlagLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<DossierFlagLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'hero-motion') {
-    return (<><HeroMotionLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<HeroMotionLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'cotisations') {
-    return (<><CotisationsLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<CotisationsLab />)}{renderGlobalOverlays()}</>);
   }
 
   if (currentPage === 'sommaire-acte') {
-    return (<><SommaireActeLab />{renderGlobalOverlays()}</>);
+    return (<>{renderDSLab(<SommaireActeLab />)}{renderGlobalOverlays()}</>);
   }
   if (currentPage === 'home' || currentPage === 'conversation') {
     return (<>{renderAssistantSurface()}{renderGlobalOverlays()}</>);
