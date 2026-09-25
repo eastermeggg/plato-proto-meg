@@ -7,10 +7,10 @@ import Button from '../ui/Button';
 import Alert from '../ui/Alert';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Handoff. La page de reprise du repo pour la team, écrite par la steward,
-// par persona : Dev (Alex, Anaïs) et Product (Vadim, Ben). Chaque parcours
-// dit quoi lire, quoi lancer, quoi exiger, quoi ne jamais faire.
-// HANDOVER.md à la racine reste la version longue (historique, décisions).
+// Handoff. Le passage de témoin : la steward (Meghan) quitte Hexa, le repo
+// passe dans les mains de la team. Deux parcours : Dev (Alex, Anaïs) et
+// Product (Vadim, Ben), plus le bloc « Jour 1 » qui transfère le rôle de
+// steward. HANDOVER.md à la racine reste la version longue.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const MONO = "'IBM Plex Mono', monospace";
@@ -125,7 +125,7 @@ function DevTrack({ navigate }) {
         <P>
           C'est la règle qui t'évitera le plus d'ennuis. Pour un nouvel écran, tu copies un block
           du playground, en premier l'Écran-gabarit : shell, PageHeader, table, Dialog de
-          création, Drawer de modification, AlertDialog et les 5 états (vide, chargement, erreur,
+          création, Sheet de modification, AlertDialog et les 5 états (vide, chargement, erreur,
           partiel, idéal). <Code>App.js</Code> traîne encore des anti-patterns qu'on résorbe : si
           tu le clones, tu les propages. Un garde-fou le bloque de toute façon : tout fichier neuf
           doit être à zéro élément HTML brut.
@@ -147,7 +147,7 @@ function DevTrack({ navigate }) {
           Côté couleurs : uniquement les tokens de <Code>src/design-system/tokens.js</Code>, zéro
           hex en dur, le doctor le bloque de toute façon. S'il te manque un token, tu le notes
           dans <Code>SIGNALEMENTS.md</Code>, tu ne l'inventes pas. <Code>tokens.js</Code> et{' '}
-          <Code>index.css</Code> sont protégés : on ne les touche pas sans passer par moi.
+          <Code>index.css</Code> sont protégés : on ne les touche pas sans passer par le steward.
         </P>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Button variant="secondary" size="sm" icon={ArrowUpRight} iconPosition="trailing" label="Inventaire" onClick={() => navigate('/ui-kit/inventory')} />
@@ -177,7 +177,7 @@ function DevTrack({ navigate }) {
       <Step num={6} title="Le chantier en cours, sept. 2026" icon={Package}>
         <div>
           <Row width={260} left="primitives manquantes" right="5/5 promues et mergées (Tooltip, RadioGroup, Popover, Sheet, Skeleton). Le trou d'inventaire est fermé" />
-          <Row width={260} left="composants « pending »" right="ils existent et marchent, mais j'ai encore ma passe de validation à faire. Elle se fait en lot sur /ui-kit/validation, jamais en éditant le JSON" />
+          <Row width={260} left="composants « pending »" right="ils existent et marchent, mais la passe de validation du steward reste à faire. Elle se fait en lot sur /ui-kit/validation, jamais en éditant le JSON" />
           <Row width={260} left="dette App.js" right="~330 boutons, ~150 inputs, ~27 selects bruts, résorbés par lots. Le ratchet ds-check-raw-elements grand-père l'existant et interdit le neuf. Non bloquant tant qu'on imite /ui-kit" />
           <Row width={260} left="ombres inline" right="91 occurrences à mapper sur l'échelle shadows. Débloqué par l'arbitrage du 24/09 : élévation par surfaces, aucun fork dark" />
         </div>
@@ -206,9 +206,9 @@ function ProductTrack({ navigate }) {
       <Step num={2} title="Trois choses ne partent jamais chez un agent" icon={BookOpen}>
         <ul style={{ margin: '0 0 10px', paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <li>
-            <strong>Le passage « en cours » vers « validé »</strong> d'un composant. C'est ma
-            passe, elle se fait sur la page du composant ou en lot sur /ui-kit/validation. Le
-            JSON n'est jamais édité à la main.
+            <strong>Le passage « en cours » vers « validé »</strong> d'un composant. C'est la
+            passe du steward, elle se fait sur la page du composant ou en lot sur
+            /ui-kit/validation. Le JSON n'est jamais édité à la main.
           </li>
           <li>
             <strong>Les fichiers protégés</strong> (<Code>tokens.js</Code>, <Code>index.css</Code>).
@@ -222,7 +222,7 @@ function ProductTrack({ navigate }) {
         </ul>
         <P last>
           Les dettes vivent dans deux fichiers : <Code>ECARTS.md</Code> pour ce qu'on assume
-          (moi seule), <Code>SIGNALEMENTS.md</Code> pour les constats d'agents, que ds-audit
+          (steward seul), <Code>SIGNALEMENTS.md</Code> pour les constats d'agents, que ds-audit
           moissonne ensuite.
         </P>
       </Step>
@@ -282,14 +282,32 @@ export default function HandoffSection({ navigate }) {
   return (
     <div style={{ maxWidth: 860 }}>
       <p style={{ fontSize: 14, color: colors.semantic.foregroundSecondary, lineHeight: '21px', marginTop: 0, marginBottom: 8 }}>
-        Tout ce qu'il faut pour reprendre le repo. Le principe du projet : tout part du design
-        system. Cette plateforme (<Code>/</Code>) est notre outil de travail ; le proto vit sur{' '}
+        Je pars, ce repo est à vous maintenant. Cette page est mon passage de témoin : tout ce
+        qu'il faut pour le reprendre sans moi. Le principe du projet : tout part du design system.
+        Cette plateforme (<Code>/</Code>) est votre outil de travail ; le proto vit sur{' '}
         <Code>/app</Code> et se reconstruit petit à petit sur le système. Stack : CRA, React 18,
         JavaScript, Tailwind v3.
       </p>
       <p style={{ fontSize: 13, color: colors.semantic.mutedForeground, lineHeight: '19px', marginTop: 0, marginBottom: 20 }}>
-        L'historique complet et les décisions en attente sont dans <Code>HANDOVER.md</Code> à la racine.
+        L'historique complet et les décisions en attente sont dans <Code>HANDOVER.md</Code> à la
+        racine. Rien ne dépend de ma mémoire : si un truc n'est écrit nulle part, c'est qu'il
+        n'existe pas. Meghan.
       </p>
+
+      <div style={{ border: `1px solid ${colors.semantic.border}`, borderRadius: 12, background: colors.semantic.card, padding: '14px 18px', marginBottom: 24 }}>
+        <Kicker>Jour 1 : reprendre le rôle de steward</Kicker>
+        <p style={{ fontSize: 13, color: colors.semantic.secondaryForeground, lineHeight: '19px', margin: '8px 0 6px' }}>
+          Le steward, c'est la personne qui valide les composants, arbitre les écarts Figma et
+          garde les fichiers protégés. Ce rôle était le mien, il lui faut un nouveau propriétaire.
+          Quatre gestes, dans l'ordre :
+        </p>
+        <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13, lineHeight: '19px', color: colors.semantic.secondaryForeground }}>
+          <li><strong>Désignez le steward</strong> (une seule personne, dev ou design, peu importe : quelqu'un qui tranche).</li>
+          <li><strong>Remplacez <Code>@eastermeggg</Code></strong> par son handle GitHub dans <Code>.github/CODEOWNERS</Code>, sinon la protection de main attendra la revue d'un compte parti.</li>
+          <li><strong>Mettez à jour <Code>owner</Code></strong> dans <Code>ds.manifest.json</Code> (rôle + contact).</li>
+          <li><strong>Faites la passe des pending</strong> sur /ui-kit/validation : un quart d'heure, et l'inventaire est à vous.</li>
+        </ol>
+      </div>
 
       <Kicker>Choisis ton parcours</Kicker>
       <div style={{ marginTop: 4, marginBottom: 24 }}>
