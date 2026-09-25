@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, PanelRight, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal, MessageCircle, CornerDownRight, FolderPlus, MessageCirclePlus, ChevronsUpDown, Sun, Moon, ArrowUpRight } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, Folder, FileText, Calculator, Plus, X, Edit3, Pencil, PencilLine, Check, Minus, AlertTriangle, RefreshCw, Calendar, Landmark, Upload, Sparkles, Search, HelpCircle, Info, Eye, Trash2, FileQuestion, Download, Settings, AlertCircle, Receipt, ClipboardList, FileSpreadsheet, Activity, FileSearch, ListChecks, MoreHorizontal, MoreVertical, User, UserRound, Users, Copy, Plug2, GripVertical, CheckCircle2, Clipboard, Filter, ListFilter, ArrowDown, ArrowRight, ArrowDownCircle, Scissors, Paperclip, ThumbsUp, ThumbsDown, RotateCcw, Lightbulb, ArrowUp, Square, FileMinus, Radical, PanelRightClose, PanelRight, CircleArrowUp, CircleArrowDown, LayoutGrid, HeartPulse, Wallet, Scale, Brain, ShieldCheck, Table2, ExternalLink, FileUp, CirclePlus, Hand, Clock, TrendingUp, Focus, LogOut, SlidersHorizontal, Wand2, BookOpen, Globe, Crown, ChessPawn, ChessRook, ChessQueen, AlignLeft, ScanLine, Star, Bookmark, Home, Stamp, Gift, Layers, Mail, LayoutTemplate, Files, FolderOpen, Lock, Equal, MessageCircle, CornerDownRight, FolderPlus, MessageCirclePlus, ChevronsUpDown, Sun, Moon, ArrowUpRight, Package, Megaphone } from 'lucide-react';
 import ReasoningStepper, { ThinkingDots, PlatoDotGrid, CrudPill, DotCounter, STEP_COLORS, STEP_TYPE_CONFIG, BACKEND_TOOL_MAP } from './components/ReasoningStepper';
 import ParallelTasks, { ParallelTasksLine } from './components/ParallelTasks';
 import ChatComposerNotice, { NOTICE_WRAP_BG } from './components/ChatComposerNotice';
@@ -88,6 +88,8 @@ import LoiHoverLab from './components/ui-kit/LoiHoverLab';
 import ArbitragesLab from './components/ui-kit/ArbitragesLab';
 import HandoffSection from './components/ui-kit/HandoffSection';
 import ValidationBoardSection from './components/ui-kit/ValidationBoardSection';
+import UIProductSection from './components/ui-kit/UIProductSection';
+import UIMarketingSection from './components/ui-kit/UIMarketingSection';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
 import WeeklyUsageCard from './components/billing/WeeklyUsageCard';
@@ -1461,7 +1463,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
 const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'loi-hover', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion', 'arbitrages'];
-const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'handoff', 'validation', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp'];
+const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'handoff', 'validation', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp', 'ui-product', 'ui-marketing'];
 
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
@@ -18296,6 +18298,10 @@ export default function App() {
         <SidebarGroup>
           <NavItem label="Handoff" icon={BookOpen} active={componentsSection === 'handoff'} onClick={() => navigate('/ui-kit/handoff')} />
         </SidebarGroup>
+        <SidebarGroup label="Packages">
+          <NavItem label="UI Product" icon={Package} active={componentsSection === 'ui-product'} onClick={() => navigate('/ui-kit/ui-product')} />
+          <NavItem label="UI Marketing" icon={Megaphone} active={componentsSection === 'ui-marketing'} onClick={() => navigate('/ui-kit/ui-marketing')} />
+        </SidebarGroup>
         <SidebarGroup label="Design system" last={!inContext && !sprintActive && !blocksActive}>
           <NavItem label="Tokens" icon={Layers} active={componentsSection === 'tokens'} onClick={() => navigate('/ui-kit/tokens')} />
           <NavItem label="Composants" icon={ClipboardList} active={inContext} onClick={() => navigate('/ui-kit/inventory')} />
@@ -18445,6 +18451,18 @@ export default function App() {
                 Every reusable component currently in the codebase, plus the primitives we still need to build (status <em>missing</em>). Filter by status or category to focus a review pass. Tell Claude which components are validated and where their Figma source lives.
               </p>
               <ComponentsInventorySection />
+            </div>
+
+            {/* ====== UI PRODUCT (package) ====== */}
+            <div id="section-ui-product" className={sectionClass}>
+              {sectionTitle('UI Product')}
+              <UIProductSection navigate={navigate} />
+            </div>
+
+            {/* ====== UI MARKETING (package) ====== */}
+            <div id="section-ui-marketing" className={sectionClass}>
+              {sectionTitle('UI Marketing')}
+              <UIMarketingSection navigate={navigate} />
             </div>
 
             {/* ====== REASONING ====== */}

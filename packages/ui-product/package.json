@@ -1,0 +1,17 @@
+{
+  "name": "@plato/ui-product",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Design system produit Plato - surface publique (tokens + composants canoniques). Source de vérité consommée par l'app et par @plato/ui-marketing.",
+  "main": "index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "platoPackage": {
+    "role": "product",
+    "dependsOn": [],
+    "boundary": "Ne dépend d'aucune extension. Jamais d'import depuis @plato/ui-marketing (règle AGENTS.md 8, ds-check-boundaries)."
+  }
+}
