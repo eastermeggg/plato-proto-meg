@@ -310,6 +310,17 @@ export default function HandoffSection({ navigate }) {
         </ol>
       </div>
 
+      <div style={{ border: `1px solid ${colors.semantic.foreground}`, borderRadius: 12, background: colors.semantic.card, padding: '14px 18px', marginBottom: 24 }}>
+        <Kicker>La règle commune, tous rôles confondus</Kicker>
+        <p style={{ fontSize: 14, color: colors.semantic.foreground, lineHeight: '21px', margin: '8px 0 0' }}>
+          <strong>On obéit au design system : ses composants, ses patterns, ses blocks.</strong>{' '}
+          Ça vaut pour tout le monde, dev, product, designer, et pour les agents qu'on missionne.
+          Un écran, un proto, une demande : tout part d'un block de /ui-kit et on ne s'en écarte
+          pas ; App.js n'est jamais une référence. Ce qui manque au système ne s'improvise pas,
+          ça passe par les guichets : ds-decide, ds-variant, ds-promote, SIGNALEMENTS.md.
+        </p>
+      </div>
+
       <Kicker>Choisis ton parcours</Kicker>
       <div style={{ marginTop: 4, marginBottom: 24 }}>
         <Tabs
