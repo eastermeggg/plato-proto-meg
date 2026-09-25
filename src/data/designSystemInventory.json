@@ -2402,7 +2402,7 @@
       "figmaPage": "Checkbox",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-21779",
       "notes": "Promu en code le 24/09/2026 (formalisé depuis previews.jsx, tokenisé).",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2415,7 +2415,7 @@
       "figmaPage": "Combobox",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-22160",
       "notes": "Promu 24/09/2026 - shadcn brut mappé tokens, aucun design custom (décision steward). Trigger bouton + panel du Select avec Command Search en tête + liste filtrée + état vide. Esquisse code dans ui-kit/previews.jsx",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2428,7 +2428,7 @@
       "figmaPage": "Dropdown Menu",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-24797",
       "notes": "Promu 24/09/2026 - skin strictement identique au menu du Select (6729:4904, décision steward) : compose SelectMenuPanel/Item/Label. Réf page d'origine 2819:24797. Cible d'harmonisation : ExportBordereauMenu, ComposerMenu, SuggestionsMenu, RowContextMenu, menus custom OnboardingFlow/ReleveHeuresLab.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2506,7 +2506,7 @@
       "figmaPage": "Separator",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30252",
       "notes": "Promu en code le 24/09/2026 (formalisé depuis previews.jsx, tokenisé).",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2532,7 +2532,7 @@
       "figmaPage": "Avatar",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2814-11240",
       "notes": "Promu 24/09/2026 (esquisse tokenisée sur colors.avatar, le set partagé IVAvatar). Générique = initiales/image ; identités métier = IVAvatar (domaine). App.js : userAvatar -> Avatar, viAvatar/vdAvatar -> IVAvatar, CHESS_PATHS locaux supprimés.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2545,7 +2545,7 @@
       "figmaPage": "",
       "figmaRef": "",
       "notes": "Promu 24/09/2026 - base shadcn tokenisée, code-first (aucun design custom, décision steward). ~53 surfaces ad-hoc à migrer par écran (CARD-MIGRATION-PLAN.md).",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2584,7 +2584,7 @@
       "figmaPage": "Dialog",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=6831-11140",
       "notes": "Promu 24/09/2026 depuis Figma 6831:11140 (composant 2759:16962). Modale de CONTENU - scrim token overlay, surface surfaceRaised, ombre 4xl, slots header/body défilant/footer. Décision steward : pas de Modal générique (AlertDialog / Dialog / Drawer).",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2597,8 +2597,8 @@
       "figmaPage": "",
       "figmaRef": "",
       "figmaTodo": "a-dessiner",
-      "notes": "Promu en code le 25/09/2026 (formalisé depuis previews.jsx, tokenisé). Surface dérivée : page absente du kit Figma. Sheet générique 4 bords (overlay + Échap), overlay piégé ; le panneau latéral MASTER droite/gauche reste Drawer. Fiche Sheet.md.",
-      "status": "pending",
+      "notes": "Promu en code le 25/09/2026 (formalisé depuis previews.jsx, tokenisé). Surface dérivée : page absente du kit Figma. Sheet générique 4 bords (overlay + Échap), overlay piégé ; le panneau latéral MASTER droite/gauche reste Drawer. Fiche Sheet.md. Steward (25/09/2026) : sheet = drawer component",
+      "status": "needs-revision",
       "used": false
     },
     {
@@ -2611,7 +2611,7 @@
       "figmaPage": "Panel",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37749-1024",
       "notes": "Promu 24/09/2026 depuis le master Figma « Panel » (SidePanel sm 408/wide 860, Section Header 4 types, 8 sections d'exemple). Overlay qui ne recouvre JAMAIS le chat (var(--chat-offset)). Remplace le chantier [a-dessiner] ; l'entrée DSAEditDrawer (réf invalide, SIGNALEMENTS §12) est retirée. Cible : 3 drawers classés + panneau bordereau 860.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2623,8 +2623,8 @@
       "exists": true,
       "figmaPage": null,
       "figmaRef": null,
-      "notes": "Arrive de main (PR #74, lab /ui-kit/loi-hover) lors du merge de PR #75 le 24/09/2026. Popover fiche d'identite d'un article de loi (famille TEXTE violet, LoiRef/LoiText/LoiCard, ouvre PreviewPanel kind loi). Tokenise au merge (accents.violet + semantiques, ombre 2xl L3). Entree factuelle creee au resync ; validation steward via /ui-kit/c/LoiHoverCard.",
-      "status": "pending",
+      "notes": "Arrive de main (PR #74, lab /ui-kit/loi-hover) lors du merge de PR #75 le 24/09/2026. Popover fiche d'identite d'un article de loi (famille TEXTE violet, LoiRef/LoiText/LoiCard, ouvre PreviewPanel kind loi). Tokenise au merge (accents.violet + semantiques, ombre 2xl L3). Entree factuelle creee au resync ; validation steward via /ui-kit/c/LoiHoverCard. Steward (25/09/2026) : https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37663-55696&t=NcUGuAL2u8ZMmmXY-11",
+      "status": "needs-revision",
       "used": true
     },
     {
@@ -2638,7 +2638,7 @@
       "figmaRef": "",
       "figmaTodo": "a-dessiner",
       "notes": "Promu en code le 25/09/2026 (formalisé depuis previews.jsx, tokenisé). Surface dérivée systématisée sur SaveDestinationPopover/JPPopoverCard : page absente du kit Figma. Clic-extérieur + Échap. Fiche Popover.md.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2652,7 +2652,7 @@
       "figmaRef": "",
       "figmaTodo": "a-dessiner",
       "notes": "Promu en code le 24/09/2026 (formalisé depuis previews.jsx, tokenisé). Surface dérivée : page absente du kit Figma. Fiche Tooltip.md.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2666,7 +2666,7 @@
       "figmaRef": "",
       "figmaTodo": "a-dessiner",
       "notes": "Promu en code le 25/09/2026 (formalisé depuis previews.jsx, tokenisé). Surface dérivée : page absente du kit Figma. Barres cream + shimmer (.animate-shimmer). Fiche Skeleton.md.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2706,7 +2706,7 @@
       "figmaPage": "Field",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=33541-58880",
       "notes": "Figma « Field » = ce wrapper (label+helper+slot). Étendu : état Warning. Le contrôle texte = page Input (états Warning + Calculated, cf. cotisations) Resync 23/09 : fichier + fiche présents, statut missing→pending (validation steward à faire).",
-      "status": "pending",
+      "status": "validated",
       "used": true
     },
     {
@@ -2771,7 +2771,7 @@
       "figmaPage": "Tabs Inline",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36099-45289",
       "notes": "Promu 24/09/2026 depuis le variant INLINE (36099:45289, décision steward). Indicateur 2px primary/border, compteur pill, icône, padded, disabled. Segmented -> ButtonGroup ; le set Tabs 2819:31095 (taille SM) reste à arbitrer.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2784,7 +2784,7 @@
       "figmaPage": "Textarea",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-31164",
       "notes": "Promu en code le 24/09/2026 (formalisé depuis previews.jsx, tokenisé). Étendu : style Muted (anomalie « State7 » à nettoyer côté Figma). Esquisse previews.jsx",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2797,7 +2797,7 @@
       "figmaPage": "Radio Group",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-29275",
       "notes": "Promu en code le 24/09/2026 (formalisé depuis previews.jsx, tokenisé). Variantes list + card. Le set Pricing custom garde son entrée RadioPricing. Fiche RadioGroup.md.",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2864,7 +2864,7 @@
       "figmaRef": "",
       "figmaTodo": "a-pointer",
       "notes": "Existe côté Figma (dixit steward) - coller la ref (pas de page dans Plato---System) Resync 23/09 : fichier + fiche présents, statut missing→pending (validation steward à faire).",
-      "status": "pending",
+      "status": "validated",
       "used": true
     },
     {
@@ -2878,7 +2878,7 @@
       "figmaRef": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=4226-63220",
       "figmaTodo": "",
       "notes": "Stepper horizontal (done / active / upcoming). Fiche Stepper.md. Entrée créée au resync 23/09 (fiche + code présents, aucune entrée).",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2892,7 +2892,7 @@
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36554-7670",
       "figmaTodo": "",
       "notes": "Table métier bordereau de pièces (système de tables custom). Fiche BordereauTable.md ; demo /ui-kit/c/BordereauTable (les blocks y renvoient). Entrée créée au resync 23/09.",
-      "status": "pending",
+      "status": "validated",
       "used": true
     },
     {
@@ -2920,7 +2920,7 @@
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9147",
       "figmaTodo": "",
       "notes": "Atome du Doc Preview : puce d'identité 28 (icône 16 sur fond subtle par kind - indigo/emerald/violet/sand via colors.accents). Demo /ui-kit/c/KindIcon.",
-      "status": "pending",
+      "status": "validated",
       "used": true
     },
     {
@@ -2934,7 +2934,7 @@
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-8723",
       "figmaTodo": "",
       "notes": "Atome du Doc Preview : barre de titre h-56 (KindIcon + titre serif 16 | nav ‹ i/N › · actions · Fermer) + variant small (PieceSmall 37613:19640). Demo /ui-kit/c/PanelHeader.",
-      "status": "pending",
+      "status": "validated",
       "used": true
     },
     {
@@ -2948,7 +2948,7 @@
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-8836",
       "figmaTodo": "",
       "notes": "Atome du Doc Preview : ligne du rail « Extraits cités » (pastille numéro + PAGE mono 11 + extrait 2 lignes ; états default/hover/active stone). CitesPanel (37375:9168) la compose. Demo /ui-kit/c/CiteRow.",
-      "status": "pending",
+      "status": "validated",
       "used": true
     },
     {
@@ -2962,7 +2962,7 @@
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37375-9177",
       "figmaTodo": "",
       "notes": "Atome du Doc Preview : chip de métadonnée h-28 (icône 14 + label 12 + valeur 12 medium), 14 types canoniques (META_CHIP_TYPES), variant strong (identité), aside/ai/action. Demo /ui-kit/c/MetaChip.",
-      "status": "pending",
+      "status": "validated",
       "used": true
     },
     {
@@ -3411,7 +3411,7 @@
       "figmaRef": "https://www.figma.com/design/09fvZrDgcY83Js7y864E4v/Plato---Design?node-id=1095-15027",
       "figmaTodo": "",
       "notes": "Pilule de paramètre de calcul (« Reference Text », LOCAL COMPONENTS > PARAMS 1613:113399) : OFF muted / ON info + valeur, halo au clic. State Diff non couvert (tokens manquants, SIGNALEMENTS §19). Promu 24/09 depuis les Badge dévoyés de matterTabContents (§13).",
-      "status": "pending",
+      "status": "validated",
       "used": true
     }
   ]
