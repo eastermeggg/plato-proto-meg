@@ -13,7 +13,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 Confirmation modal that interrupts with a decision: intent icon + serif title +
 description + cancel/action footer. Steward decision 24/09: no generic Modal -
-confirmation here, rich content → `Dialog`, lateral → `Drawer`.
+confirmation here, rich content → `Dialog`, lateral → `Sheet`.
 
 ## When to use
 - Confirm an action, especially a destructive one (deletion, exit without

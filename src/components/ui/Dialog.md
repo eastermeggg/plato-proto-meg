@@ -11,7 +11,7 @@ figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-i
 
 # Dialog
 
-Content modal window laid over an overlay-token scrim: surface-raised panel with a serif display title, muted description, scrolling body and a right-aligned action footer. Steward decision 24/09: **no generic Modal** - the need splits between `AlertDialog` (confirmation), `Dialog` (content, here) and `Drawer` (lateral).
+Content modal window laid over an overlay-token scrim: surface-raised panel with a serif display title, muted description, scrolling body and a right-aligned action footer. Steward decision 24/09: **no generic Modal** - the need splits between `AlertDialog` (confirmation), `Dialog` (content, here) and `Sheet` (lateral).
 
 
 ## When to use
@@ -20,7 +20,7 @@ Content modal window laid over an overlay-token scrim: surface-raised panel with
 
 ## When NOT to use
 - **Confirmation / destructive action** (icon + title + 2 buttons) → `AlertDialog`.
-- **Lateral panel** (context kept alongside) → `Drawer`.
+- **Lateral panel** (context kept alongside) → `Sheet`.
 - **Anchored menu / popover** → `Dropdown` / Popover (not promoted).
 
 ## Props

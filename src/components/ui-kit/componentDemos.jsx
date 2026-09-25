@@ -81,7 +81,7 @@ import DialogReal from '../ui/Dialog';
 import DropdownReal from '../ui/Dropdown';
 import TabsReal from '../ui/Tabs';
 import CardReal, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/Card';
-import DrawerReal, { DrawerSection } from '../ui/Drawer';
+import SheetReal, { SheetSection } from '../ui/Sheet';
 import AvatarDemoReal from '../ui/Avatar';
 import ButtonGroupReal from '../ui/ButtonGroup';
 import ItemReal from '../ui/Item';
@@ -619,7 +619,7 @@ function DialogTrigger(props) {
   );
 }
 
-function DrawerTrigger({ example, size }) {
+function SheetTrigger({ example, size }) {
   const [open, setOpen] = useState(true);
   const [dayOff, setDayOff] = useState(false);
   const [role, setRole] = useState('membre');
@@ -648,19 +648,19 @@ function DrawerTrigger({ example, size }) {
       ),
       body: (
         <>
-          <DrawerSection title="Détail" bordered>
+          <SheetSection title="Détail" bordered>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, lineHeight: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">Membre depuis</span><span className="text-foreground">03 févr. 2026</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span className="text-foreground-secondary">E-mail</span><span className="text-foreground">antoine.mercier@cabinet.com</span></div>
             </div>
-          </DrawerSection>
-          <DrawerSection title="Rôle" bordered>
+          </SheetSection>
+          <SheetSection title="Rôle" bordered>
             <div className="flex gap-2">
               <ButtonReal variant={role === 'membre' ? 'primary' : 'outline'} icon={User} label="Membre" onClick={() => setRole('membre')} />
               <ButtonReal variant={role === 'admin' ? 'primary' : 'outline'} icon={BadgeCheck} label="Admin" onClick={() => setRole('admin')} />
             </div>
-          </DrawerSection>
-          <DrawerSection title="Licence" actionLabel="Modifier" actionIcon={PencilLine} onAction={() => {}} bordered>
+          </SheetSection>
+          <SheetSection title="Licence" actionLabel="Modifier" actionIcon={PencilLine} onAction={() => {}} bordered>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, lineHeight: '20px' }}>
                 <span className="text-foreground">Quota hebdomadaire</span>
@@ -668,7 +668,7 @@ function DrawerTrigger({ example, size }) {
               </div>
               <ProgressReal size="sm" value={63} width="100%" label="Quota hebdomadaire" />
             </div>
-          </DrawerSection>
+          </SheetSection>
         </>
       ),
     },
@@ -683,7 +683,7 @@ function DrawerTrigger({ example, size }) {
       ),
       body: (
         <>
-          <DrawerSection title="Créneaux travaillés" icon={Clock4} subtitle="total 8H" bordered>
+          <SheetSection title="Créneaux travaillés" icon={Clock4} subtitle="total 8H" bordered>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[['09:00', '13:00'], ['16:00', '18:00']].map(([a, b], i) => (
                 <div key={i} className="flex items-center" style={{ gap: 10 }}>
@@ -700,13 +700,13 @@ function DrawerTrigger({ example, size }) {
               </div>
               <P.Switch checked={dayOff} onChange={setDayOff} label="Jour non travaillé" />
             </div>
-          </DrawerSection>
-          <DrawerSection title="Notes et justificatifs" icon={FileText}>
+          </SheetSection>
+          <SheetSection title="Notes et justificatifs" icon={FileText}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <P.Textarea placeholder="Justification : contexte, échanges, consigne du manager…" rows={3} />
               <DropZoneReal variant="inline" label="Déposez ou cliquez pour ajouter un justificatif" />
             </div>
-          </DrawerSection>
+          </SheetSection>
         </>
       ),
     },
@@ -721,7 +721,7 @@ function DrawerTrigger({ example, size }) {
       ),
       body: (
         <>
-          <DrawerSection title="Informations" bordered>
+          <SheetSection title="Informations" bordered>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div className="flex" style={{ gap: 16 }}>
                 <div className="flex-1 min-w-0"><P.Input label="Libellé" placeholder="Salaire net imposable - juillet 2022" /></div>
@@ -732,8 +732,8 @@ function DrawerTrigger({ example, size }) {
                 <div className="flex-1 min-w-0"><P.Input label="Revalorisation" placeholder="2 532 €" /></div>
               </div>
             </div>
-          </DrawerSection>
-          <DrawerSection title="Pièces justificatives">
+          </SheetSection>
+          <SheetSection title="Pièces justificatives">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <P.Input placeholder="Recherchez une pièce..." />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -742,7 +742,7 @@ function DrawerTrigger({ example, size }) {
                 {docRow('Bulletin de salaire - septembre 2022', true)}
               </div>
             </div>
-          </DrawerSection>
+          </SheetSection>
         </>
       ),
     },
@@ -751,7 +751,7 @@ function DrawerTrigger({ example, size }) {
 
   return (
     <ScopedDialogFrame width={frameW} height={620} isOpen={open} onReopen={() => setOpen(true)}>
-      <DrawerReal
+      <SheetReal
         open={open}
         onOpenChange={setOpen}
         size={size}
@@ -762,25 +762,11 @@ function DrawerTrigger({ example, size }) {
         footer={ex.footer}
       >
         {ex.body}
-      </DrawerReal>
+      </SheetReal>
     </ScopedDialogFrame>
   );
 }
 
-
-function SheetTrigger(props) {
-  const [open, setOpen] = useState(true);
-  React.useEffect(() => { setOpen(true); }, [props.title, props.side, props.width]);
-  return (
-    <ScopedDialogFrame width={560} height={320} isOpen={open} onReopen={() => setOpen(true)}>
-      <P.Sheet {...props} open={open} onClose={() => setOpen(false)}>
-        <p style={{ margin: 0, fontSize: 14, color: '#78716c', lineHeight: '20px' }}>
-          Slide-out panel for secondary content. Click the dim background or the close button to dismiss.
-        </p>
-      </P.Sheet>
-    </ScopedDialogFrame>
-  );
-}
 
 /**
  * Demo registry. Each entry is either:
@@ -1599,13 +1585,13 @@ export const componentDemos = {
       </CardReal>
     ),
   },
-  Drawer: {
-    description: "Master des panneaux latéraux (Figma 37749:1024). Doctrine : Dialog pour CRÉER, Drawer pour MODIFIER un objet existant - le chat reste visible (var(--chat-offset)) pour piloter l'agent sur ce que le panneau montre. 3 exemples assemblés en DrawerSection + primitives existantes. Fiche Drawer.md.",
+  Sheet: {
+    description: "Master des panneaux latéraux (Figma 37749:1024, fusion Sheet/Drawer 25/09). Doctrine : Dialog pour CRÉER, Sheet pour MODIFIER un objet existant - le chat reste visible (var(--chat-offset)) pour piloter l'agent sur ce que le panneau montre. 3 exemples assemblés en SheetSection + primitives existantes. Fiche Sheet.md.",
     controls: {
       example: { type: 'select', default: 'membre', options: ['membre', 'journee', 'ligne'], description: 'membre = éditer un utilisateur org · journee = ligne du relevé d\'heures · ligne = ligne de chiffrage + justificatifs.' },
       size:    { type: 'select', default: 'sm', options: ['sm', 'wide'], description: 'sm 408 · wide 860.' },
     },
-    render: v => <DrawerTrigger example={v.example} size={v.size} />,
+    render: v => <SheetTrigger example={v.example} size={v.size} />,
   },
   Dropdown: {
     description: "Menu d'actions ancré à un déclencheur - skin STRICTEMENT identique au menu du Select (panel 13:2034, rows 37122:19624) : il compose SelectMenuPanel/Item/Label. Figma 2819:24797 · fiche Dropdown.md. Choisir une valeur -> Select.",
@@ -1651,7 +1637,7 @@ export const componentDemos = {
   },
 
   Dialog: {
-    description: "Modale de CONTENU (formulaire, liste, texte) : scrim token overlay, surface surface-raised, ombre 4xl, header serif + description, body défilant, footer d'actions. Figma 2759:16962 · fiche Dialog.md. Confirmation destructive -> AlertDialog ; panneau latéral -> Drawer (a-dessiner).",
+    description: "Modale de CONTENU (formulaire, liste, texte) : scrim token overlay, surface surface-raised, ombre 4xl, header serif + description, body défilant, footer d'actions. Figma 2759:16962 · fiche Dialog.md. Confirmation destructive -> AlertDialog ; panneau latéral -> Sheet.",
     controls: {
       title:       { type: 'text',   default: 'Nouveau dossier',   description: 'Titre serif du header.' },
       description: { type: 'text',   default: 'Renseignez les informations du dossier.', description: 'Description sous le titre.' },
@@ -1667,15 +1653,6 @@ export const componentDemos = {
     ),
   },
 
-
-  Sheet: {
-    description: 'Side / bottom sheet for secondary content.',
-    controls: {
-      side:  { type: 'select', default: 'right', options: ['right', 'left', 'bottom', 'top'], description: 'Side.' },
-      title: { type: 'text',   default: 'Sheet',                                              description: 'Header.' },
-    },
-    render: v => <SheetTrigger side={v.side} title={v.title} />,
-  },
 
   Sidebar: {
     description: 'Vertical navigation list with active state and optional badge counts.',

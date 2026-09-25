@@ -49,7 +49,7 @@ import Button from './components/ui/Button';
 import Progress from './components/ui/Progress';
 import Spinner from './components/ui/Spinner';
 import Badge from './components/ui/Badge';
-import Drawer from './components/ui/Drawer';
+import Sheet from './components/ui/Sheet';
 import Avatar, { avatarColorAt } from './components/ui/Avatar';
 import IVAvatar from './components/IVAvatar';
 import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
@@ -20853,7 +20853,7 @@ export default function App() {
     };
     const cardLabel = { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.mutedForeground, textTransform: 'uppercase', letterSpacing: '0.04em' };
     return (
-      <Drawer
+      <Sheet
         open
         onOpenChange={(o) => { if (!o) close(); }}
         side="right"
@@ -20972,7 +20972,7 @@ export default function App() {
               </div>
             </div>
         </div>
-      </Drawer>
+      </Sheet>
     );
   };
 

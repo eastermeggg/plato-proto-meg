@@ -23,7 +23,7 @@ Derived surface: there is no Popover page in the Figma kit (`figmaTodo: a-dessin
 - **A plain text hint on hover** → `Tooltip`.
 - **A list of actions / commands** → `Dropdown`.
 - **A blocking task or confirmation** → `Dialog` / `AlertDialog`.
-- **A large side panel** → `Drawer`.
+- **A large side panel** → `Sheet`.
 
 ## Props
 | Prop | Type | Default | Notes |

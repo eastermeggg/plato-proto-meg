@@ -67,7 +67,7 @@ Composants utilisés dans le code **sans page dans Plato---System** :
 - **Tout le chat** (le manque pointé par la steward) : ChatBubble, ChatComposer,
   ChatMessageList, composer riche assistant, ReasoningStepper, ParallelTasks,
   ChatComposerNotice, SuggestionsMenu, PromptSuggestionCard → **à dessiner**.
-- **Overlays shadcn** : Dialog/Modal (la page Alert ≠ AlertDialog), Sheet/Drawer,
+- **Overlays shadcn** : Dialog/Modal (la page Alert ≠ AlertDialog), Sheet (ex-Drawer),
   Popover, Tooltip, Toast, Skeleton, ScrollArea → pages shadcn standard à créer.
 - **Divers** : PlanCard, composants JP (JPPill, DecisionDrawer…) → à dessiner.
 - ~~DropZone, PreviewPanel~~ : **existent côté Figma** (correction steward -

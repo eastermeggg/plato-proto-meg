@@ -322,22 +322,6 @@
         "demo": ""
       }
     },
-    "Drawer": {
-      "name": "Drawer",
-      "package": "plato",
-      "status": "stable",
-      "usage": "Master side panel (right/left) - overlay that never hides the chat",
-      "source": "src/components/ui/Drawer.js",
-      "demo": "src/components/ui-kit/componentDemos.jsx",
-      "replacedBy": "null",
-      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37749-1024",
-      "docFile": "src/components/ui/Drawer.md",
-      "sections": {
-        "pattern": "",
-        "explos": "",
-        "demo": ""
-      }
-    },
     "DropZone": {
       "name": "DropZone",
       "package": "plato",
@@ -804,12 +788,12 @@
     "Sheet": {
       "name": "Sheet",
       "package": "plato",
-      "status": "beta",
-      "usage": "Generic panel that slides in from an edge for secondary content",
+      "status": "stable",
+      "usage": "Master side panel (right/left) - overlay that never hides the chat",
       "source": "src/components/ui/Sheet.js",
       "demo": "src/components/ui-kit/componentDemos.jsx",
       "replacedBy": "null",
-      "figma": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37749-1024",
       "docFile": "src/components/ui/Sheet.md",
       "sections": {
         "pattern": "",

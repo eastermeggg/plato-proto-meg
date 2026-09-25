@@ -90,7 +90,7 @@ Interdit partout : re-rouler une barre (`AGENTS.md` règle 7 + ratchet
 | Besoin | Surface | Règle |
 |---|---|---|
 | Créer un objet | `Dialog` (modale centrée) | header serif + body + footer ; UNE action primaire |
-| Modifier / détailler | `Drawer` (panneau latéral master, sm 408 / wide 860) | s'ouvre à GAUCHE du chat (`--chat-offset`) : on continue de parler à l'assistant pendant qu'on regarde |
+| Modifier / détailler | `Sheet` (panneau latéral master, sm 408 / wide 860, ex-Drawer) | s'ouvre à GAUCHE du chat (`--chat-offset`) : on continue de parler à l'assistant pendant qu'on regarde |
 | Confirmer du destructif | `AlertDialog` | jamais un Dialog custom |
 | Prévisualiser une source (pièce, JP, loi, email…) | `PreviewPanel` (7 kinds) | même règle chat-offset |
 | Menu d'actions d'une ligne | `Dropdown` | pas de Popover custom |

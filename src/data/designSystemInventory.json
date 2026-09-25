@@ -2594,23 +2594,9 @@
       "family": "Overlays & menus",
       "filePath": "src/components/ui/Sheet.js",
       "exists": true,
-      "figmaPage": "",
-      "figmaRef": "",
-      "figmaTodo": "a-dessiner",
-      "notes": "Promu en code le 25/09/2026 (formalisé depuis previews.jsx, tokenisé). Surface dérivée : page absente du kit Figma. Sheet générique 4 bords (overlay + Échap), overlay piégé ; le panneau latéral MASTER droite/gauche reste Drawer. Fiche Sheet.md. Steward (25/09/2026) : sheet = drawer component",
-      "status": "needs-revision",
-      "used": false
-    },
-    {
-      "id": "Drawer",
-      "layer": "shadcn",
-      "category": "layout",
-      "family": "Overlays & menus",
-      "filePath": "src/components/ui/Drawer.js",
-      "exists": true,
       "figmaPage": "Panel",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37749-1024",
-      "notes": "Promu 24/09/2026 depuis le master Figma « Panel » (SidePanel sm 408/wide 860, Section Header 4 types, 8 sections d'exemple). Overlay qui ne recouvre JAMAIS le chat (var(--chat-offset)). Remplace le chantier [a-dessiner] ; l'entrée DSAEditDrawer (réf invalide, SIGNALEMENTS §12) est retirée. Cible : 3 drawers classés + panneau bordereau 860.",
+      "notes": "Fusion steward 25/09/2026 : Sheet absorbe Drawer (nom canonique Sheet, implémentation du master Figma « Panel » 37749:1024 - SidePanel sm 408/wide 860, --chat-offset, SheetSection). L'ancien Sheet générique 4 bords (dérivé, zéro usage produit) est supprimé ; un futur top/bottom sheet = variant. Doctrine : Dialog pour CRÉER, Sheet pour MODIFIER. Fiche Sheet.md.",
       "status": "validated",
       "used": false
     },
@@ -2745,7 +2731,7 @@
       "figmaPage": "Select",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-29971",
       "notes": "Promu 24/09/2026 depuis Figma 6729:4904 (trigger 2738:3407, panel 13:2034, rows 37122:19624). Select simple + panel/rows exportés (SelectMenuPanel/Item/Label) réutilisés par le Dropdown. Les variantes riches (search, arbre doc, switch, radio) = menus assemblés, avec le Dropdown. Étendu : Menu Item Doc à niveaux + menus assemblés. Esquisse previews.jsx",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {
@@ -2758,7 +2744,7 @@
       "figmaPage": "Switch",
       "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-30732",
       "notes": "Promu en code le 24/09/2026 (formalisé depuis previews.jsx, tokenisé). Étendu : type Card, orientation. Esquisse previews.jsx",
-      "status": "pending",
+      "status": "validated",
       "used": false
     },
     {

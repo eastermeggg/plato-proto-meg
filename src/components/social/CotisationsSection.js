@@ -7,7 +7,7 @@ import {
   sourceFamille, COT_BADGE_TOKENS, pageSections, pageLignes,
 } from '../../data/cotisationsSocial';
 import { SectionCaptions } from '../ui/tables/CotisationsRows';
-import Drawer from '../ui/Drawer';
+import Sheet from '../ui/Sheet';
 import { colors, shadows, typeStyle } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -500,7 +500,7 @@ export function LinePanel({ resolved, onClose, onNavigateValue, onNavigatePage }
   const ecartee = etat === 'ecartee';
   const motif = fmtCotManque(valeur);
   return (
-    <Drawer open={!!resolved} onOpenChange={(o) => { if (!o) onClose && onClose(); }} side="right" size="sm" title={label}>
+    <Sheet open={!!resolved} onOpenChange={(o) => { if (!o) onClose && onClose(); }} side="right" size="sm" title={label}>
       {/* 2. le montant */}
       <div style={{ padding: '16px 20px', borderBottom: `1px solid ${LINE}` }}>
         <div style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 28, color: ecartee || !valeur || valeur.value == null ? MUTE : INK, letterSpacing: '-0.5px', lineHeight: '32px' }}>
@@ -519,7 +519,7 @@ export function LinePanel({ resolved, onClose, onNavigateValue, onNavigatePage }
           <ProseText paragraphs={prose} onNavigateValue={onNavigateValue} />
         </div>
       )}
-    </Drawer>
+    </Sheet>
   );
 }
 
