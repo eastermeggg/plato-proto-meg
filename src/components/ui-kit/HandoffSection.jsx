@@ -179,7 +179,7 @@ function DevTrack({ navigate }) {
         <div>
           <Row width={260} left="primitives manquantes" right="5/5 promues et mergées (Tooltip, RadioGroup, Popover, Sheet, Skeleton). Le trou d'inventaire est fermé" />
           <Row width={260} left="composants « pending »" right="ils existent et marchent, mais la passe de validation du steward reste à faire. Elle se fait en lot sur /ui-kit/validation, jamais en éditant le JSON" />
-          <Row width={260} left="dette App.js" right="réglée le 25/09 : zéro élément brut non justifié. Chacun des 528 sites hérités porte un pragma ds-raw-ok catégorisé qui nomme sa cible DS (Button, Input/InputGroup, Select, Textarea, DropZone, Dropdown, Switch, toolbar à promouvoir). Baseline App.js à zéro, le ratchet interdit tout retour. La conversion se fait ensuite par lots, catégorie par catégorie (grep ds-raw-ok src/App.js)" />
+          <Row width={260} left="dette App.js" right="réglée le 25/09 : zéro élément brut non justifié, et la conversion est lancée - 106 sites déjà remplacés (Button, Select, Switch, Textarea), 422 restants, chacun portant un pragma ds-raw-ok qui nomme sa cible DS. Baseline à zéro, le ratchet interdit tout retour. La liste de travail : grep ds-raw-ok src/App.js, un lot par catégorie" />
           <Row width={260} left="ombres inline" right="91 occurrences à mapper sur l'échelle shadows. Débloqué par l'arbitrage du 24/09 : élévation par surfaces, aucun fork dark" />
         </div>
       </Step>
@@ -304,7 +304,7 @@ export default function HandoffSection({ navigate }) {
           Quatre gestes, dans l'ordre :
         </p>
         <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13, lineHeight: '19px', color: colors.semantic.secondaryForeground }}>
-          <li><strong>Désignez le steward</strong> (une seule personne, dev ou design, peu importe : quelqu'un qui tranche).</li>
+          <li><strong>Désignez le steward</strong> - le rôle peut tourner, l'important est qu'il soit incarné. Et il ne fait pas de vous des exécutants : les règles, les garde-fous et les catalogues sont là pour que CHACUN soit owner et tranche bien en local ; le steward n'arbitre que ce qui touche au coeur (tokens, validation, écarts Figma).</li>
           <li><strong>Remplacez <Code>@eastermeggg</Code></strong> par son handle GitHub dans <Code>.github/CODEOWNERS</Code>, sinon la protection de main attendra la revue d'un compte parti.</li>
           <li><strong>Mettez à jour <Code>owner</Code></strong> dans <Code>ds.manifest.json</Code> (rôle + contact).</li>
           <li><strong>Faites la passe des pending</strong> sur /ui-kit/validation : un quart d'heure, et l'inventaire est à vous.</li>

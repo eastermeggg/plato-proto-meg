@@ -45,11 +45,14 @@ import { REDACTION_SCENARIOS, REDACTION_COMMAND_LIST, REDACTION_COMMAND_MAP, RED
 import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import Input from './components/ui/Input';
+import Select from './components/ui/Select';
+import Textarea from './components/ui/Textarea';
 import Button from './components/ui/Button';
 import Progress from './components/ui/Progress';
 import Spinner from './components/ui/Spinner';
 import Badge from './components/ui/Badge';
 import Sheet from './components/ui/Sheet';
+import Switch from './components/ui/Switch';
 import Avatar, { avatarColorAt } from './components/ui/Avatar';
 import IVAvatar from './components/IVAvatar';
 import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
@@ -6096,13 +6099,7 @@ export default function App() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-[7px]">
-                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                          onClick={skipQuestion}
-                          className="flex items-center justify-center transition-colors hover:bg-border"
-                          style={{ height: 32, paddingLeft: 12, paddingRight: 12, borderRadius: 8, backgroundColor: dsColors.semantic.muted, fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}
-                        >
-                          Passer
-                        </button>
+                        <Button variant="secondary" size="md" onClick={skipQuestion} label="Passer" />
                         <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           onClick={hasAnswer ? submitAnswer : undefined}
                           className="flex items-center justify-center transition-colors"
@@ -6345,14 +6342,7 @@ export default function App() {
               />
             )}
             <div className="flex items-center gap-1 flex-shrink-0">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                className="inline-flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-border"
-                style={{ backgroundColor: dsColors.semantic.muted, color: dsColors.semantic.foregroundTertiary }}
-                title="Copier"
-                aria-label="Copier"
-              >
-                <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />
-              </button>
+              <Button variant="secondary" size="icon" icon={Copy} title="Copier" />
               {/* Télécharger - single primary dropdown on both tabs of a pair.
                   The menu's scope picker (Acte / Bordereau / Tout) is
                   symmetric, so the export contract feels continuous regardless
@@ -6595,12 +6585,13 @@ export default function App() {
                     className="w-full pl-9 pr-3 py-2 h-10 border border-border rounded-lg text-sm bg-surface focus:outline-none focus:ring-2 focus:ring-stone-subtle shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]"
                   />
                 </div>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                <Button
+                  variant="secondary"
+                  size="md"
+                  icon={Upload}
                   onClick={(e) => { e.stopPropagation(); document.getElementById(`picker-file-${posteType}`).click(); }}
-                  className="flex items-center gap-2 px-4 py-2 h-10 bg-cream rounded-lg text-sm font-medium text-foreground-tertiary hover:bg-border transition-colors whitespace-nowrap"
-                >
-                  <Upload className="w-4 h-4" /> Ajouter des docs
-                </button>
+                  label="Ajouter des docs"
+                />
                 <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id={`picker-file-${posteType}`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
               </div>
 
@@ -6632,9 +6623,7 @@ export default function App() {
               >
                 Commencer à calculer{hasSelection ? ` (${pickerSelected.length} pièce${pickerSelected.length > 1 ? 's' : ''})` : ''}
               </button>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-foreground-secondary hover:text-foreground-tertiary transition-colors">
-                <Edit3 className="w-4 h-4" /> Commencer manuellement
-              </button>
+              <Button variant="neutral-link" size="md" icon={Edit3} onClick={() => handleAddManual(posteType)} label="Commencer manuellement" />
             </div>
           </div>
         ) : (
@@ -6670,9 +6659,7 @@ export default function App() {
                   <span className="text-xs font-medium text-foreground-secondary">OU</span>
                   <div className="h-px w-20 bg-border-strong" />
                 </div>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-link hover:text-link/80 transition-colors">
-                  <Edit3 className="w-4 h-4" /> {manualLabels[posteType] || 'Ajouter manuellement'}
-                </button>
+                <Button variant="link" size="md" icon={Edit3} onClick={() => handleAddManual(posteType)} label={manualLabels[posteType] || 'Ajouter manuellement'} />
               </div>
             </div>
           </div>
@@ -6693,7 +6680,7 @@ export default function App() {
         <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg mx-4">
           <div className="px-6 py-4 border-b flex items-center justify-between">
             <h3 className="text-heading-md">Ajouter une dépense</h3>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowAddModal(null)} className="p-1 hover:bg-background-canvas rounded"><X className="w-5 h-5" /></button>
+            <Button variant="ghost" size="icon-xs" icon={X} onClick={() => setShowAddModal(null)} />
           </div>
           
           {/* Tabs */}
@@ -6823,9 +6810,7 @@ export default function App() {
                 </span>
               )}
             </div>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setEditPanel(null); setShowPreview(false); }} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
-              <X className="w-4 h-4 text-foreground-muted" />
-            </button>
+            <Button variant="ghost" size="icon-sm" icon={X} onClick={() => { setEditPanel(null); setShowPreview(false); }} className="flex-shrink-0" />
           </div>
 
           {/* Content */}
@@ -6934,8 +6919,8 @@ export default function App() {
                                   <span className="text-body text-foreground truncate flex-1">{piece.intitule || piece.nom}</span>
                                   <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                   <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
-                                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
+                                    <Button variant="ghost" size="icon-xs" icon={Eye} onClick={() => setShowPreview(!showPreview)} />
+                                    <Button variant="ghost" size="icon-xs" icon={Trash2} onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} />
                                   </div>
                                 </div>
                               ) : null;
@@ -7543,7 +7528,7 @@ export default function App() {
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <Button variant="ghost" size="icon-sm" icon={Eye} onClick={() => setShowPreview(!showPreview)} />
                                 <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
@@ -7705,7 +7690,7 @@ export default function App() {
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <Button variant="ghost" size="icon-sm" icon={Eye} onClick={() => setShowPreview(!showPreview)} />
                                 <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
@@ -7896,7 +7881,7 @@ export default function App() {
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <Button variant="ghost" size="icon-sm" icon={Eye} onClick={() => setShowPreview(!showPreview)} />
                                 <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
@@ -8130,8 +8115,8 @@ export default function App() {
                                 <span className="text-body text-foreground truncate flex-1">{piece.intitule || piece.nom}</span>
                                 <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
-                                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
+                                  <Button variant="ghost" size="icon-xs" icon={Eye} onClick={() => setShowPreview(!showPreview)} />
+                                  <Button variant="ghost" size="icon-xs" icon={Trash2} onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} />
                                 </div>
                               </div>
                             ) : null;
@@ -8275,9 +8260,7 @@ export default function App() {
               {/* Footer actions */}
               {editPanel.type === 'dsa-ligne' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
-                    Supprimer
-                  </button>
+                  <Button variant="destructive-subtle" size="md" onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} label="Supprimer" />
                   <Button variant="primary" size="md" onClick={() => {
                       const isPeriode = document.getElementById('edit-date-type')?.value === 'periode';
                       const dateVal = document.getElementById('edit-date')?.value || '';
@@ -8301,7 +8284,7 @@ export default function App() {
               {editPanel.type === 'piece-detail' && (
                 <div className="px-5 py-4 flex flex-col gap-3">
                   <div className="flex justify-between">
-                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
+                    <Button variant="destructive-subtle" size="md" label="Supprimer" onClick={() => {
                       setPieces(prev => prev.filter(p => p.id !== data.id));
                       setDsaLignes(prev => prev.map(l => ({
                         ...l,
@@ -8326,9 +8309,7 @@ export default function App() {
                         }))
                       }));
                       setEditPanel(null);
-                    }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
-                      Supprimer
-                    </button>
+                    }} />
                     <Button variant="primary" size="md" onClick={() => {
                       const updatedPiece = {
                         ...data,
@@ -8379,7 +8360,7 @@ export default function App() {
               {editPanel.type === 'victime-indirecte' && (
                 <div className="px-5 py-4 flex justify-between">
                   {data && (
-                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
+                    <Button variant="destructive-subtle" size="md" icon={Trash2} label="Supprimer" onClick={() => {
                       const affectedPostes = ivDossierPostes.filter(pid =>
                         (ivPosteData[pid]?.lignes || []).some(l => l.victimeId === data.id && l.montant > 0)
                       );
@@ -8399,9 +8380,7 @@ export default function App() {
                         return next;
                       });
                       setEditPanel(null);
-                    }} className="px-4 py-2 text-danger hover:bg-danger-subtle rounded-lg flex items-center gap-2">
-                      <Trash2 className="w-4 h-4" />Supprimer
-                    </button>
+                    }} />
                   )}
                   {!data && <div />}
                   <div className="flex gap-2">
@@ -8578,7 +8557,7 @@ export default function App() {
               {/* Panel PGPA Revenu de référence */}
               {editPanel.type === 'pgpa-revenu' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
+                  <Button variant="destructive-subtle" size="md" onClick={() => {
                     setPgpaData(prev => ({
                       ...prev,
                       revenuRef: {
@@ -8588,9 +8567,7 @@ export default function App() {
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
-                    Supprimer
-                  </button>
+                  }} label="Supprimer" />
                   <div className="flex gap-2">
                     <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
@@ -8623,16 +8600,14 @@ export default function App() {
               {/* Panel PGPA Revenu perçu période */}
               {editPanel.type === 'pgpa-revenu-percu' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
+                  <Button variant="destructive-subtle" size="md" onClick={() => {
                     setPgpaData(prev => ({
                       ...prev,
                       revenusPercus: prev.revenusPercus.filter(l => l.id !== data.id)
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
-                    Supprimer
-                  </button>
+                  }} label="Supprimer" />
                   <div className="flex gap-2">
                     <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
@@ -8666,16 +8641,14 @@ export default function App() {
               {/* Panel PGPA Indemnités journalières */}
               {editPanel.type === 'pgpa-ij' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
+                  <Button variant="destructive-subtle" size="md" onClick={() => {
                     setPgpaData(prev => ({
                       ...prev,
                       ijPercues: prev.ijPercues.filter(l => l.id !== data.id)
                     }));
                     setEditPanel(null);
                     setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
-                    Supprimer
-                  </button>
+                  }} label="Supprimer" />
                   <div className="flex gap-2">
                     <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
@@ -8711,12 +8684,10 @@ export default function App() {
               {/* Panel DFT Footer */}
               {editPanel.type === 'dft-ligne' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
+                  <Button variant="destructive-subtle" size="md" onClick={() => {
                     setDftLignes(prev => prev.filter(l => l.id !== data.id));
                     setEditPanel(null); setEditingPieceIds([]);
-                  }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
-                    Supprimer
-                  </button>
+                  }} label="Supprimer" />
                   <div className="flex gap-2">
                     <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
@@ -8820,9 +8791,7 @@ export default function App() {
 
         {/* Actions en overlay au hover - minimaliste */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleRejectLigne(ligne.id)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
-            <X className="w-4 h-4" />
-          </button>
+          <Button variant="ghost" size="icon-sm" icon={X} onClick={() => handleRejectLigne(ligne.id)} title="Supprimer" />
         </div>
       </div>
     );
@@ -8899,9 +8868,7 @@ export default function App() {
         {/* Actions en overlay au hover - minimaliste */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {onDelete && (
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => onDelete(ligne)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
-              <X className="w-4 h-4" />
-            </button>
+            <Button variant="ghost" size="icon-sm" icon={X} onClick={() => onDelete(ligne)} title="Supprimer" />
           )}
         </div>
       </div>
@@ -9392,12 +9359,8 @@ export default function App() {
             <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, color: dsColors.semantic.foreground }}>{fmt(total)}</span>
           </div>
           <div className="flex-1" />
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg hover:bg-background transition-colors" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>
-            <Download className="w-3.5 h-3.5 text-foreground-secondary" /> Exporter
-          </button>
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}>
-            <Plus className="w-3.5 h-3.5" /> Nouveau poste
-          </button>
+          <Button variant="outline" size="md" icon={Download} label="Exporter" />
+          <Button variant="primary" size="md" icon={Plus} label="Nouveau poste" />
         </div>
 
         {/* ① bases de calcul — ce que le cabinet a constaté, rien de ce qu'il demande */}
@@ -10973,20 +10936,7 @@ export default function App() {
               }}>
                 Jurisprudence retenues
               </h2>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                onClick={launchJPSearch}
-                className="inline-flex items-center justify-center transition-all hover:opacity-90 flex-shrink-0"
-                style={{
-                  height: 32, padding: '0 12px', borderRadius: 6,
-                  backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
-                  border: 'none',
-                  boxShadow: dsShadows.xs,
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                  fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                }}
-              >
-                Rechercher
-              </button>
+              <Button variant="primary" size="md" label="Rechercher" onClick={launchJPSearch} className="flex-shrink-0" />
             </div>
             {/* List body - keeps its readable max width */}
             <div className="px-8 pt-6 pb-8">
@@ -11067,10 +11017,7 @@ export default function App() {
             {activeParamChip === 'revaloriser' && (
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                  </label>
+                  <Switch checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} />
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
                   <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
@@ -11109,14 +11056,9 @@ export default function App() {
                 <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="dsa-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dsa'); e.target.value = ''; } }} />
               </div>
               {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setPickerOpen('dsa')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
-                  Extraire depuis un doc. existant
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <Button variant="secondary" size="md" icon={ChevronDown} iconPosition="trailing" label="Extraire depuis un doc. existant" onClick={() => setPickerOpen('dsa')} className="flex-shrink-0" />
               )}
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('dsa')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
-                <Plus className="w-4 h-4" /> Ajouter une dépense
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une dépense" onClick={() => handleAddManual('dsa')} className="flex-shrink-0" />
             </div>
 
             {/* Extraction progress row */}
@@ -11356,10 +11298,7 @@ export default function App() {
             {activeParamChip === 'revaloriser-pgpa' && (
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                  </label>
+                  <Switch checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} />
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
                   <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
@@ -11436,9 +11375,7 @@ export default function App() {
               </div>
             )}
             <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpa-revenu-ref')} className="flex items-center gap-2 text-body-medium text-link">
-                <Plus className="w-4 h-4" /> Ajouter une ligne
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une ligne" onClick={() => handleAddManual('pgpa-revenu-ref')} />
             </div>
           </>}
           </div>
@@ -11539,9 +11476,7 @@ export default function App() {
               );
             })()}
             <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpa-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
-                <Plus className="w-4 h-4" /> Ajouter une ligne
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une ligne" onClick={() => handleAddManual('pgpa-revenu-percu')} />
             </div>
           </>}
           </div>
@@ -11569,9 +11504,7 @@ export default function App() {
             </div>
             {/* Add row */}
             <div className="flex items-center justify-center h-[45px] bg-surface">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex items-center gap-2 text-body-medium text-link">
-                <Plus className="w-4 h-4" /> Ajouter une perte de chance
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une perte de chance" />
             </div>
           </>}
           </div>
@@ -11657,10 +11590,7 @@ export default function App() {
             {activeParamChip === 'capitaliser-pgpf' && (
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                  </label>
+                  <Switch checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} />
                   <div className="w-px h-4 bg-border-strong" />
                   {renderBaremePopoverSelect({
                     popoverId: 'pgpf',
@@ -11768,9 +11698,7 @@ export default function App() {
                 </div>
               )}
               <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpf-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
-                  <Plus className="w-4 h-4" /> Ajouter une ligne
-                </button>
+                <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une ligne" onClick={() => handleAddManual('pgpf-revenu-percu')} />
               </div>
             </>}
             </div>
@@ -11798,9 +11726,7 @@ export default function App() {
                 <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant proraté</div>
               </div>
               <div className="flex items-center justify-center h-[45px] bg-surface">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex items-center gap-2 text-body-medium text-link">
-                  <Plus className="w-4 h-4" /> Ajouter une perte de chance
-                </button>
+                <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une perte de chance" />
               </div>
               </>}
             </div>
@@ -11813,12 +11739,11 @@ export default function App() {
           {/* Cascade link */}
           {hasTP && tpScenario.cascade && (
             <div className="px-4 py-2">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                className="text-[12px] text-link hover:underline transition-colors flex items-center gap-1"
+              <Button
+                variant="link" size="sm"
+                label={'\u2197 Voir la cascade complète de la rente CPAM'}
                 onClick={() => navigateTo({ type: 'cascade', id: 'cascade-from-pgpf', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' })}
-              >
-                {'\u2197'} Voir la cascade complète de la rente CPAM
-              </button>
+              />
             </div>
           )}
 
@@ -12006,14 +11931,9 @@ export default function App() {
                   <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="dft-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dft'); e.target.value = ''; } }} />
                 </div>
                 {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setPickerOpen('dft')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
-                    Extraire depuis un doc. existant
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
+                  <Button variant="secondary" size="md" icon={ChevronDown} iconPosition="trailing" label="Extraire depuis un doc. existant" onClick={() => setPickerOpen('dft')} className="flex-shrink-0" />
                 )}
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('dft')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
-                  <Plus className="w-4 h-4" /> Ajouter une période
-                </button>
+                <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une période" onClick={() => handleAddManual('dft')} className="flex-shrink-0" />
               </div>
 
               {/* Extraction progress row */}
@@ -12196,10 +12116,7 @@ export default function App() {
                   {activeParamChip === 'revaloriser-se' && (
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                        </label>
+                        <Switch checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} />
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
                         <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
@@ -12335,10 +12252,7 @@ export default function App() {
                   {activeParamChip === 'revaloriser-pep' && (
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                        </label>
+                        <Switch checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} />
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
                         <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
@@ -12474,10 +12388,7 @@ export default function App() {
                   {activeParamChip === 'revaloriser-dfp' && (
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                        </label>
+                        <Switch checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} />
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
                         <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
@@ -12878,7 +12789,7 @@ export default function App() {
                           <div className="flex gap-1 items-baseline flex-shrink-0">
                             <span className="text-sm font-medium text-foreground-secondary">Barême</span>
                             {selectedBareme && (
-                              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setBaremeViewerOpen(selectedBareme.id)} className="text-xs font-medium text-link">Voir</button>
+                              <Button variant="link" size="xs" label="Voir" onClick={() => setBaremeViewerOpen(selectedBareme.id)} />
                             )}
                           </div>
                           <div className="relative" style={{ width: 240 }}>
@@ -13278,10 +13189,9 @@ export default function App() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, letterSpacing: '0.02em' }}>Scénario</span>
-                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                        <Select
                           value={prpUseCase}
-                          onChange={(e) => {
-                            const uc = e.target.value;
+                          onChange={(uc) => {
                             const nextMask = PRP_SCENARIO_MASKS[uc] || PRP_SCENARIO_MASKS['decede-capital-echu'];
                             setPrpUseCase(uc);
                             const anneesVal = nextMask.hasEchu ? 3 : 0;
@@ -13305,12 +13215,9 @@ export default function App() {
                               }
                             }));
                           }}
-                          className="text-caption px-2.5 py-1.5 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
-                        >
-                          {Object.entries(PRP_SCENARIO_MASKS).map(([key, m]) => (
-                            <option key={key} value={key}>{m.label}</option>
-                          ))}
-                        </select>
+                          options={Object.entries(PRP_SCENARIO_MASKS).map(([key, m]) => ({ value: key, label: m.label }))}
+                          width={220}
+                        />
                       </div>
                     </div>
 
@@ -13402,15 +13309,12 @@ export default function App() {
                           {isDecede ? (<>
                             <div className="flex items-center justify-between">
                               <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Méthode auto-consommation</span>
-                              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                              <Select
                                 value={shared.autoConsommationMethod || 'libre'}
-                                onChange={(e) => updateShared({ autoConsommationMethod: e.target.value })}
-                                className="text-caption px-2 py-1 border border-border rounded-md bg-surface text-foreground"
-                              >
-                                {Object.entries(AUTO_CONSO_SCALES).map(([key, s]) => (
-                                  <option key={key} value={key}>{s.label}</option>
-                                ))}
-                              </select>
+                                onChange={(v) => updateShared({ autoConsommationMethod: v })}
+                                options={Object.entries(AUTO_CONSO_SCALES).map(([key, s]) => ({ value: key, label: s.label }))}
+                                width={140}
+                              />
                             </div>
                             {(shared.autoConsommationMethod || 'libre') === 'libre' ? (
                               <div className="flex items-center justify-between">
@@ -13993,9 +13897,7 @@ export default function App() {
         <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-heading-sm text-foreground">{titre}</h2>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowExportModal(false)} className="p-1.5 hover:bg-cream rounded-lg transition-colors">
-              <X className="w-4 h-4 text-foreground-muted" />
-            </button>
+            <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={() => setShowExportModal(false)} />
           </div>
           <div className="p-4 space-y-2">
             {options.map((opt, i) => (
@@ -15360,9 +15262,7 @@ export default function App() {
               </span>
               <span className="text-[14px] font-medium text-foreground-tertiary">Doublon possible - comparer les documents</span>
             </div>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={close} className="p-1.5 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={close} />
           </div>
           <div className="flex-1 flex min-h-0">
             {renderCol(newPiece, 'Nouveau fichier')}
@@ -15370,18 +15270,8 @@ export default function App() {
             {renderCol(existingPiece, 'Déjà dans le dossier')}
           </div>
           <div className="px-5 py-3 border-t border-border flex items-center justify-end gap-2 flex-shrink-0">
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-              onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
-            >
-              Garder les deux
-            </button>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-              onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
-            >
-              Ignorer le nouveau
-            </button>
+            <Button variant="outline" size="sm" label="Garder les deux" onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }} />
+            <Button variant="outline" size="sm" label="Ignorer le nouveau" onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }} />
           </div>
         </div>
       </div>
@@ -15535,12 +15425,7 @@ export default function App() {
               className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
             />
             {piecesFilter.search && (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                onClick={() => setPiecesFilter(prev => ({ ...prev, search: '' }))}
-                className="p-0.5 hover:bg-cream rounded transition-colors"
-              >
-                <X className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
-              </button>
+              <Button variant="ghost" size="icon-xs" icon={X} title="Effacer la recherche" onClick={() => setPiecesFilter(prev => ({ ...prev, search: '' }))} />
             )}
           </div>
 
@@ -15564,15 +15449,13 @@ export default function App() {
               <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
                 <Hand className="w-4 h-4 text-foreground-secondary shrink-0" strokeWidth={1.5} />
                 <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                <Button
+                  variant="primary" size="md"
+                  label="Désactiver Chrono"
                   onClick={() => { setManualReorder(true); setShowReorderHint(false); }}
-                  className="ml-auto px-3 py-1.5 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
-                >
-                  Désactiver Chrono
-                </button>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
-                  <X className="w-4 h-4" strokeWidth={1.5} />
-                </button>
+                  className="ml-auto shrink-0"
+                />
+                <Button variant="ghost" size="icon-xs" icon={X} onClick={() => setShowReorderHint(false)} className="shrink-0" />
               </div>
             )}
 
@@ -15885,9 +15768,7 @@ export default function App() {
               </button>
             </div>
             <span className="w-px h-4 bg-border" />
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={onClosePanel} aria-label="Fermer" className="p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            <Button variant="ghost" size="icon-xs" icon={X} title="Fermer" onClick={onClosePanel} />
           </div>
         </div>
 
@@ -15975,14 +15856,7 @@ export default function App() {
                         )}
                       </div>
                       {(isSplit || provPileId) && (
-                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                          type="button"
-                          onClick={() => openSplitAdjustFromPanel(piece, provPileId, provSegmentId)}
-                          className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
-                          style={{ color: dsColors.feedback.info.text }}
-                        >
-                          {isFusion ? 'Modifier' : 'Ajuster'}
-                        </button>
+                        <Button variant="link" size="md" label={isFusion ? 'Modifier' : 'Ajuster'} onClick={() => openSplitAdjustFromPanel(piece, provPileId, provSegmentId)} className="flex-shrink-0" />
                       )}
                     </div>
                   </div>
@@ -16037,14 +15911,7 @@ export default function App() {
                         </span>
                       </div>
                       {emailMeta.kind === 'attachment' && emailBodyPiece && !bordereau && (
-                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                          type="button"
-                          onClick={() => openLinkedPiece(emailBodyPiece.id)}
-                          className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
-                          style={{ color: dsColors.feedback.info.text }}
-                        >
-                          Ouvrir
-                        </button>
+                        <Button variant="link" size="md" label="Ouvrir" onClick={() => openLinkedPiece(emailBodyPiece.id)} className="flex-shrink-0" />
                       )}
                     </div>
                   </div>
@@ -16132,19 +15999,19 @@ export default function App() {
                 <p className="text-xs text-foreground-secondary">Laissez vide pour laisser l'IA nommer les pièces automatiquement.</p>
               </div>
               <div className="flex items-center gap-3">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                <Button
+                  variant="outline" size="md"
+                  label="Annuler"
                   onClick={() => setPanelSplitConfig(null)}
-                  className="flex-shrink-0 h-9 px-4 rounded-lg bg-surface border border-border text-foreground-tertiary hover:bg-background-canvas transition-colors text-sm font-medium"
-                >
-                  Annuler
-                </button>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                  className="flex-shrink-0"
+                />
+                <Button
+                  variant="primary" size="md"
+                  icon={Scissors} iconPosition="leading"
+                  label="Lancer le découpage"
                   onClick={() => startPosterioriSplit(piece.id, panelSplitConfig.prompt)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-strong transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                >
-                  <Scissors className="w-4 h-4" strokeWidth={1.75} />
-                  Lancer le découpage
-                </button>
+                  className="flex-1"
+                />
               </div>
             </div>
           ) : (
@@ -16163,8 +16030,11 @@ export default function App() {
               </div>
             )}
             <div className="flex items-center gap-3">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                className="flex-shrink-0 h-9 px-4 rounded-lg bg-danger-subtle text-danger-text hover:bg-danger-border transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+              <Button
+                variant="destructive-subtle" size="md"
+                icon={Trash2} iconPosition="leading"
+                label="Supprimer"
+                className="flex-shrink-0"
                 onClick={() => {
                   if (bordereau) {
                     ctx.onRemove();
@@ -16181,18 +16051,15 @@ export default function App() {
                   }
                   setPieceOverviewPanel(null);
                 }}
-              >
-                <Trash2 className="w-4 h-4" strokeWidth={1.75} />
-                Supprimer
-              </button>
+              />
               {canOfferSplit ? (
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                <Button
+                  variant="outline" size="md"
+                  icon={Scissors} iconPosition="leading"
+                  label="Découper"
                   onClick={() => openPanelSplitConfig(piece.id)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-surface border border-border text-foreground hover:bg-background-canvas transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                >
-                  <Scissors className="w-4 h-4" strokeWidth={1.75} />
-                  Découper
-                </button>
+                  className="flex-1"
+                />
               ) : (
                 <div className="relative flex-1">
                   <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
@@ -16410,25 +16277,22 @@ export default function App() {
                   className="flex-1 min-w-0 max-w-[380px] h-9 px-3 rounded-lg border border-ochre bg-surface text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:shadow-[0_0_0_3px_rgba(185,112,63,0.18)] transition-shadow"
                 />
               </div>
-              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+              <Select
                 value={importV2.matterType || 'corporel'}
-                onChange={(e) => setImportV2(prev => ({ ...prev, matterType: e.target.value }))}
-                className="h-9 px-2.5 text-[13px] text-foreground-secondary bg-surface border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors cursor-pointer flex-shrink-0"
-                title="Type de dossier"
-              >
-                <option value="corporel">Dommages corporels</option>
-                <option value="social">Droit social</option>
-              </select>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+                onChange={(matterType) => setImportV2(prev => ({ ...prev, matterType }))}
+                options={[
+                  { value: 'corporel', label: 'Dommages corporels' },
+                  { value: 'social', label: 'Droit social' },
+                ]}
+                width={190}
+                className="flex-shrink-0"
+              />
+              <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={closeImportV2} className="flex-shrink-0" />
             </div>
           ) : (
             <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-surface" style={{ height: 58 }}>
               <p className="text-[14px] leading-5 font-medium text-foreground flex-1 min-w-0 truncate">Ajouter des pièces - {dossierTitle}</p>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+              <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={closeImportV2} className="flex-shrink-0" />
             </div>
           )}
 
@@ -16443,12 +16307,8 @@ export default function App() {
               <p className="flex-1 min-w-0 text-[13px] leading-[18px] text-foreground">
                 Vous versez vos mails à la main. <span className="text-foreground-secondary">Connectez votre boîte, Plato ira les chercher tout seul.</span>
               </p>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => { closeImportV2(); goToMailSettings(); }} className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-primary-foreground bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0">
-                <Mail className="w-3.5 h-3.5" strokeWidth={1.75} /> Connecter ma boîte
-              </button>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => setMailDropNudge(false)} aria-label="Masquer" className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background-subtle transition-colors flex-shrink-0">
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+              <Button variant="primary" size="sm" icon={Mail} iconPosition="leading" label="Connecter ma boîte" onClick={() => { closeImportV2(); goToMailSettings(); }} className="flex-shrink-0" />
+              <Button variant="ghost" size="icon-sm" icon={X} title="Masquer" onClick={() => setMailDropNudge(false)} className="flex-shrink-0" />
             </div>
           )}
 
@@ -16481,10 +16341,7 @@ export default function App() {
                 <div className="h-full flex flex-col bg-surface border-r border-border" style={{ width: 456 }}>
                   <div className="flex items-center justify-between pl-3.5 pr-2 pt-2.5 pb-1 flex-shrink-0">
                     <p style={monoLabelV2}>Vos emails</p>
-                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => setMailOpen(false)} aria-label="Replier" title="Replier"
-                      className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors">
-                      <ChevronLeft className="w-4 h-4" strokeWidth={1.75} />
-                    </button>
+                    <Button variant="ghost" size="icon-sm" icon={ChevronLeft} title="Replier" onClick={() => setMailOpen(false)} />
                   </div>
                   <ConnectorPromoPanel compact vendorLabel="ma boîte" onConnect={() => goToMailSettings()} />
                 </div>
@@ -16497,13 +16354,13 @@ export default function App() {
               « Créer manuellement » (wizard) reste accessible en création. */}
           <div className="flex items-center gap-4 px-5 border-t border-border flex-shrink-0 bg-surface" style={{ height: 62 }}>
             {creating && (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                type="button"
+              <Button
+                variant="link" size="sm"
+                icon={Pencil} iconPosition="leading"
+                label="Créer manuellement"
                 onClick={() => { closeImportV2(); setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } }); }}
-                className="inline-flex items-center gap-1.5 text-[13px] font-medium text-link hover:opacity-80 transition-opacity flex-shrink-0"
-              >
-                <Pencil className="w-3.5 h-3.5" strokeWidth={1.75} /> Créer manuellement
-              </button>
+                className="flex-shrink-0"
+              />
             )}
             <p className="text-[12px] leading-4 text-foreground-secondary flex-shrink-0">
               {bordereau.approx > 0
@@ -16512,18 +16369,14 @@ export default function App() {
               {bordereau.pendingDoublons > 0 && <span className="ml-2" style={{ color: dsColors.feedback.warning.text }}>{bordereau.pendingDoublons} doublon{bordereau.pendingDoublons > 1 ? 's' : ''} à trancher</span>}
             </p>
             <div className="flex-1 h-px bg-border" />
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} className="h-9 px-4 rounded-lg border border-border bg-surface text-[13px] font-medium text-foreground hover:bg-cream transition-colors flex-shrink-0">
-              Annuler
-            </button>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-              type="button"
+            <Button variant="outline" size="md" label="Annuler" onClick={closeImportV2} className="flex-shrink-0" />
+            <Button
+              variant="primary" size="md"
               disabled={commitDisabled}
               onClick={commitImportV2}
-              className="h-9 px-4 rounded-lg text-[13px] font-medium text-primary-foreground transition-opacity disabled:opacity-40 flex-shrink-0"
-              style={{ backgroundColor: dsColors.semantic.primary }}
-            >
-              {bordereau.uploadingCount > 0 ? 'Réception des fichiers…' : creating ? 'Créer le dossier' : 'Ajouter au dossier'}
-            </button>
+              label={bordereau.uploadingCount > 0 ? 'Réception des fichiers…' : creating ? 'Créer le dossier' : 'Ajouter au dossier'}
+              className="flex-shrink-0"
+            />
           </div>
         </div>
       </div>
@@ -16581,14 +16434,16 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Sexe</label>
-                    <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                    <Select
                       value={formData.sexe}
-                      onChange={(e) => updateFormData('sexe', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
-                    >
-                      <option value="Homme">Homme</option>
-                      <option value="Femme">Femme</option>
-                    </select>
+                      onChange={(v) => updateFormData('sexe', v)}
+                      options={[
+                        { value: 'Homme', label: 'Homme' },
+                        { value: 'Femme', label: 'Femme' },
+                      ]}
+                      width="100%"
+                      style={{ maxWidth: 'none' }}
+                    />
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de naissance *</label>
@@ -16630,15 +16485,13 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Type de fait générateur</label>
-                    <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                    <Select
                       value={formData.typeFait}
-                      onChange={(e) => updateFormData('typeFait', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
-                    >
-                      {typesFaitGenerateur.map(t => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateFormData('typeFait', v)}
+                      options={typesFaitGenerateur.map(t => ({ value: t, label: t }))}
+                      width="100%"
+                      style={{ maxWidth: 'none' }}
+                    />
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de l'accident *</label>
@@ -16691,12 +16544,11 @@ export default function App() {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-background-subtle flex justify-end gap-3">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+              <Button
+                variant="ghost" size="md"
+                label="Annuler"
                 onClick={() => setCreationWizard(null)}
-                className="px-4 py-2.5 text-body text-foreground-secondary hover:text-foreground-tertiary hover:bg-cream rounded-lg transition-colors"
-              >
-                Annuler
-              </button>
+              />
               <Button
                 variant="primary" size="md"
                 label="Créer le dossier"
@@ -19797,14 +19649,16 @@ export default function App() {
               {/* Type */}
               <div>
                 <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type</label>
-                <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                <Select
                   value={baremeUploadData.type}
-                  onChange={(e) => setBaremeUploadData(prev => ({ ...prev, type: e.target.value }))}
-                  className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
-                >
-                  <option value="bareme">Barème</option>
-                  <option value="referentiel">Référentiel</option>
-                </select>
+                  onChange={(type) => setBaremeUploadData(prev => ({ ...prev, type }))}
+                  options={[
+                    { value: 'bareme', label: 'Barème' },
+                    { value: 'referentiel', label: 'Référentiel' },
+                  ]}
+                  width="100%"
+                  style={{ maxWidth: 'none' }}
+                />
               </div>
 
               {/* File upload zone */}
@@ -19845,12 +19699,12 @@ export default function App() {
               {/* Notes */}
               <div>
                 <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
-                <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
+                <Textarea
                   value={baremeUploadData.notes}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Précisions sur le barème, source, contexte d'utilisation…"
                   rows={3}
-                  className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                  style={{ resize: 'none' }}
                 />
               </div>
 
@@ -19988,12 +19842,12 @@ export default function App() {
             {/* Instructions */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Instructions</label>
-              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
+              <Textarea
                 value={newActeForm.instructions}
                 onChange={(e) => setNewActeForm(prev => ({ ...prev, instructions: e.target.value }))}
                 placeholder="Décrivez l'acte à rédiger : type, parties, objet, tribunal…"
                 rows={5}
-                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                style={{ resize: 'none' }}
               />
             </div>
 
@@ -20091,13 +19945,13 @@ export default function App() {
             {/* Type d'acte */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type d'acte</label>
-              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+              <Select
                 value={templateUploadData.actType}
-                onChange={(e) => setTemplateUploadData(prev => ({ ...prev, actType: e.target.value }))}
-                className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
-              >
-                {actTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+                onChange={(actType) => setTemplateUploadData(prev => ({ ...prev, actType }))}
+                options={actTypeOptions}
+                width="100%"
+                style={{ maxWidth: 'none' }}
+              />
             </div>
 
             {/* File upload zone */}
@@ -20138,12 +19992,12 @@ export default function App() {
             {/* Notes */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
-              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
+              <Textarea
                 value={templateUploadData.notes}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Précisions sur le modèle, contexte d'utilisation…"
                 rows={3}
-                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                style={{ resize: 'none' }}
               />
             </div>
 
@@ -20889,9 +20743,9 @@ export default function App() {
                       {firstName} n'a pas encore finalisé son inscription sur la plateforme.
                     </p>
                     <div className="mt-2.5 flex items-center gap-2.5 text-[13px] font-medium">
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={resendInvite} className="text-link hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
+                      <Button variant="link" size="sm" onClick={resendInvite} label="Renvoyer l'invitation" />
                       <span className="text-brand-border">·</span>
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={markActive} className="text-foreground-secondary hover:text-foreground-tertiary transition-colors">Marquer comme actif (démo)</button>
+                      <Button variant="neutral-link" size="sm" onClick={markActive} label="Marquer comme actif (démo)" />
                     </div>
                   </div>
                 </div>
@@ -20901,7 +20755,7 @@ export default function App() {
             <div className="px-6 py-5 border-t border-border">
               <div className="flex items-center justify-between">
                 <span style={cardLabel}>Licence</span>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => openPlanPicker(m)} className="text-[13px] font-medium text-link hover:opacity-80 transition-opacity">Modifier</button>
+                <Button variant="link" size="sm" onClick={() => openPlanPicker(m)} label="Modifier" />
               </div>
               <div className="mt-3 flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
@@ -21146,19 +21000,18 @@ export default function App() {
         </div>
         {canManage && (
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+            <Button
+              variant="ghost"
+              icon={RefreshCw}
               onClick={verifyMailboxNow}
-              className="inline-flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background rounded-lg transition-colors"
               title="Tester la connexion maintenant"
-            >
-              <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.75} /> Tester la connexion
-            </button>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+              label="Tester la connexion"
+            />
+            <Button
+              variant="outline"
               onClick={() => setMailDisconnectAsk(b.id)}
-              className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-surface border border-border rounded-lg hover:bg-background transition-colors"
-            >
-              Déconnecter
-            </button>
+              label="Déconnecter"
+            />
           </div>
         )}
       </div>
@@ -21481,19 +21334,15 @@ export default function App() {
             }}
           >
             {/* Close button - top-right */}
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+            <Button
+              variant="ghost"
+              size="icon"
+              icon={X}
               onClick={close}
-              aria-label="Fermer"
-              className="absolute flex items-center justify-center hover:bg-background transition-colors"
-              style={{
-                top: 12, right: 12,
-                width: 32, height: 32,
-                borderRadius: 8,
-                color: dsColors.semantic.mutedForeground,
-              }}
-            >
-              <X className="w-4 h-4" strokeWidth={2} />
-            </button>
+              title="Fermer"
+              className="absolute"
+              style={{ top: 12, right: 12 }}
+            />
 
             {/* Content Container */}
             <div className="flex flex-col" style={{ gap: 32 }}>
@@ -21595,26 +21444,14 @@ export default function App() {
                       outline: 'none',
                     }}
                   />
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    icon={ArrowRight}
                     onClick={sendByEmail}
                     disabled={!emailValid}
-                    className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-foreground-tertiary"
-                    style={{
-                      gap: 8,
-                      height: 40,
-                      padding: '8px 20px',
-                      background: dsColors.semantic.primary,
-                      color: dsColors.semantic.white,
-                      borderRadius: 8,
-                      fontFamily: "'Inter', system-ui, sans-serif",
-                      fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                      whiteSpace: 'nowrap',
-                      filter: 'drop-shadow(0 1px 1px rgba(26,26,26,0.05))',
-                    }}
-                  >
-                    <ArrowRight className="w-4 h-4" strokeWidth={2} />
-                    Envoyer le parrainage
-                  </button>
+                    label="Envoyer le parrainage"
+                  />
                 </div>
                 <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: dsColors.semantic.mutedForeground, lineHeight: '16px', margin: 0 }}>
                   Votre confrère recevra une invitation avec votre code <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: dsColors.feedback.warning.base }}>{promoCode}</span>.
@@ -21690,13 +21527,13 @@ export default function App() {
                       <p className="text-[13px] min-w-0" style={{ color: dsColors.feedback.warning.text }}>
                         Besoin de plus d'usage cette semaine ? Demandez une mise à niveau à un administrateur.
                       </p>
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                      <Button
+                        variant="primary"
+                        icon={CircleArrowUp}
                         onClick={() => setAskUpgradeOpen(true)}
-                        className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-primary-foreground text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-                      >
-                        <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
-                        Demander une mise à niveau
-                      </button>
+                        className="flex-shrink-0"
+                        label="Demander une mise à niveau"
+                      />
                     </div>
                   )}
                 </div>
@@ -21733,13 +21570,14 @@ export default function App() {
             {renderSettingsHeader(
               'Plan et facturation',
               'Le forfait du cabinet, la répartition des licences et la facturation.',
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+              <Button
+                variant="secondary"
+                icon={ArrowRight}
+                iconPosition="trailing"
                 onClick={() => { setToastMessage('Redirection vers l\'espace facturation Stripe...'); setTimeout(() => setToastMessage(null), 3000); }}
-                className="inline-flex items-center gap-2 h-9 px-4 bg-cream text-foreground-tertiary text-[14px] font-medium rounded-lg hover:bg-border transition-colors flex-shrink-0"
-              >
-                Accéder à l'espace facturation
-                <ArrowRight className="w-4 h-4" strokeWidth={2} />
-              </button>
+                className="flex-shrink-0"
+                label="Accéder à l'espace facturation"
+              />
             )}
             <div className="space-y-5">
               {/* Votre essai - the same self-contained trial object as Mon
@@ -21847,9 +21685,7 @@ export default function App() {
                   className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
                 />
                 {cabinetJPSearch && (
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCabinetJPSearch('')} className="p-1 rounded hover:bg-background transition-colors">
-                    <X className="w-3.5 h-3.5 text-foreground-muted" />
-                  </button>
+                  <Button variant="ghost" size="icon-xs" icon={X} onClick={() => setCabinetJPSearch('')} />
                 )}
               </div>
 
@@ -21863,22 +21699,7 @@ export default function App() {
                       Ajoutez manuellement votre JP grâce à un lien ou PDF
                     </p>
                   </div>
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                    onClick={openManualAdd}
-                    className="inline-flex items-center justify-center gap-1 transition-all flex-shrink-0"
-                    style={{
-                      height: 28, padding: '0 12px', borderRadius: 8,
-                      backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
-                      border: 'none',
-                      boxShadow: dsShadows.xs,
-                      fontFamily: "'Inter', system-ui, sans-serif",
-                      fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                  >
-                    <Plus className="w-4 h-4" strokeWidth={2} /> Ajouter
-                  </button>
+                  <Button variant="primary" size="sm" icon={Plus} onClick={openManualAdd} className="flex-shrink-0" label="Ajouter" />
                 </div>
               )}
 
@@ -21901,22 +21722,7 @@ export default function App() {
                         Déjà en référence
                       </span>
                     ) : (
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                        onClick={() => queueCanonicalForRationale(d)}
-                        className="inline-flex items-center justify-center gap-2 transition-all"
-                        style={{
-                          height: 28, padding: '0 12px', borderRadius: 8,
-                          backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
-                          border: 'none',
-                          boxShadow: dsShadows.xs,
-                          fontFamily: "'Inter', system-ui, sans-serif",
-                          fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                        }}
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                      >
-                        <Plus className="w-4 h-4" strokeWidth={2} /> Ajouter
-                      </button>
+                      <Button variant="primary" size="sm" icon={Plus} onClick={() => queueCanonicalForRationale(d)} label="Ajouter" />
                     );
                     return (
                       <JPMemoryRow
@@ -22367,23 +22173,13 @@ export default function App() {
                     <label htmlFor="tampon-position" className={fieldLabelClass}>Position sur le document</label>
                   </div>
                   <div className={fieldControlClass}>
-                    <div className="relative w-full">
-                      <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
-                        id="tampon-position"
-                        value={tamponPosition}
-                        onChange={(e) => setTamponPosition(e.target.value)}
-                        className="appearance-none w-full h-9 pl-3 pr-9 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground cursor-pointer"
-                        style={{ boxShadow: dsShadows.xs }}
-                      >
-                        {POSITIONS.map(opt => (
-                          <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                      </select>
-                      <ChevronDown
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-secondary pointer-events-none"
-                        strokeWidth={2}
-                      />
-                    </div>
+                    <Select
+                      value={tamponPosition}
+                      onChange={setTamponPosition}
+                      options={POSITIONS.map(opt => ({ value: opt.id, label: opt.label }))}
+                      width="100%"
+                      style={{ maxWidth: 'none' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -22622,14 +22418,15 @@ export default function App() {
                 <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0 mx-1" />
               </>
             )}
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+            <Button
+              variant="neutral-link"
+              size="sm"
+              icon={ChevronLeft}
               onClick={() => setCurrentPage('home')}
-              className="inline-flex items-center gap-1 text-[13px] text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0"
+              className="flex-shrink-0"
               title="Retour à Plato"
-            >
-              <ChevronLeft className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} />
-              Retour à Plato
-            </button>
+              label="Retour à Plato"
+            />
           </div>
           {settingsSection === 'users' && renderSettingsUsers()}
           {settingsSection === 'general' && renderSettingsGeneral()}
@@ -22743,9 +22540,7 @@ export default function App() {
       <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
         <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Retour
-          </button>
+          <Button variant="neutral-link" icon={ChevronLeft} onClick={() => setCurrentPage('components')} label="Retour" className="mb-6" />
           <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>IV Table Structures</div>
           <nav className="flex flex-col gap-1">
             {['Vue d\'ensemble', 'Type A - Simple', 'Type B - Groupé', 'Type C - Frais partagés', 'Type D - Foyer (PRP)', 'Scénarios PRP', 'Adaptation IA'].map(s => (
@@ -23412,22 +23207,16 @@ export default function App() {
             {/* Bottom bar */}
             <div className="flex items-center justify-between px-3 py-3">
               <div className="flex items-center gap-0.5">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background-subtle transition-colors">
-                  <Paperclip className="w-4 h-4 text-foreground-secondary" />
-                </button>
+                <Button variant="ghost" size="icon" icon={Paperclip} />
                 <div className="relative">
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg bg-background-subtle transition-colors">
-                    <Lightbulb className="w-4 h-4 text-foreground-secondary" />
-                  </button>
+                  <Button variant="secondary" size="icon" icon={Lightbulb} />
                   {/* Suggestions popover - same SuggestionsMenu DS component */}
                   <div className="absolute bottom-10 left-0 z-50">
                     <SuggestionsMenu header="Suggestions" items={LIGHTBULB_SPEC_ITEMS} className="w-[320px]" />
                   </div>
                 </div>
               </div>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: dsColors.semantic.muted, opacity: 0.5 }}>
-                <ArrowUp className="w-4 h-4 text-foreground-secondary" />
-              </button>
+              <Button variant="secondary" size="icon" icon={ArrowUp} style={{ opacity: 0.5 }} />
             </div>
           </div>
         </div>
@@ -23510,7 +23299,7 @@ export default function App() {
           ))}
         </div>
         <div className="px-3 py-2 border-t border-border flex justify-end">
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="bg-foreground text-primary-foreground text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
+          <Button variant="primary" size="sm" label="Confirmer" />
         </div>
       </div>
     );
@@ -23519,9 +23308,7 @@ export default function App() {
       <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
         <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Retour
-          </button>
+          <Button variant="neutral-link" icon={ChevronLeft} onClick={() => setCurrentPage('components')} label="Retour" className="mb-6" />
           <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>Prompt Suggestions</div>
           <nav className="flex flex-col gap-1 mb-4">
             <a href="#ps-scope" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">Scope</a>
@@ -23802,13 +23589,9 @@ export default function App() {
               ))}
             </div>
             {phase === 'idle' ? (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
-                Play
-              </button>
+              <Button variant="primary" size="sm" onClick={play} label="Play" />
             ) : (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
-                <RotateCcw className="w-3 h-3 inline mr-1" />Reset
-              </button>
+              <Button variant="outline" size="sm" icon={RotateCcw} onClick={reset} label="Reset" />
             )}
           </div>
         </div>
@@ -23918,13 +23701,9 @@ export default function App() {
           <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
           <div className="flex items-center gap-1.5">
             {phase === 'idle' ? (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-2.5 py-0.5 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
-                Play
-              </button>
+              <Button variant="primary" size="xs" onClick={play} label="Play" />
             ) : (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
-                <RotateCcw className="w-3 h-3 inline mr-1" />Reset
-              </button>
+              <Button variant="outline" size="xs" icon={RotateCcw} onClick={reset} label="Reset" />
             )}
           </div>
         </div>
@@ -24053,11 +23832,9 @@ export default function App() {
               ))}
             </div>
             {phase === 'idle' ? (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>Play</button>
+              <Button variant="primary" size="sm" onClick={play} label="Play" />
             ) : (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
-                <RotateCcw className="w-3 h-3 inline mr-1" />Reset
-              </button>
+              <Button variant="outline" size="sm" icon={RotateCcw} onClick={reset} label="Reset" />
             )}
           </div>
         </div>
@@ -24090,9 +23867,7 @@ export default function App() {
       <div className="h-screen flex flex-col" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
         <div className="flex items-center gap-3 px-6 h-12 border-b border-border flex-shrink-0 bg-surface">
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors" style={{ fontSize: 13 }}>
-            <ChevronRight className="w-4 h-4 rotate-180" /> UI Kit
-          </button>
+          <Button variant="neutral-link" size="sm" icon={ChevronLeft} onClick={() => setCurrentPage('components')} label="UI Kit" />
           <span style={{ color: dsColors.semantic.borderStrong }}>/</span>
           <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>Reasoning Stepper</span>
         </div>
@@ -24936,9 +24711,7 @@ export default function App() {
               {/* Lien vers Plan et facturation */}
               <div>
                 <div style={{ ...monoLabel, marginBottom: 10 }}>Gestion · Plan et facturation (admin)</div>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors">
-                  Plan et facturation <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
+                <Button variant="outline" icon={ArrowRight} iconPosition="trailing" onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} label="Plan et facturation" />
                 <p style={surfaceCaption}>
                   « Annuler l'essai » vit ici, sur la page d'administration. La bannière y renvoie via « Gérer ».
                 </p>
@@ -25118,13 +24891,12 @@ export default function App() {
               <span className="ml-1 font-normal">Reprenez-le à tout moment.</span>
             </p>
           </div>
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+          <Button
+            variant="warning-link"
             onClick={() => setReopenConfirmOpen(true)}
-            className="text-body-medium underline underline-offset-2 hover:opacity-80 transition-opacity flex-shrink-0"
-            style={{ color: dsColors.feedback.warning.text }}
-          >
-            Reprendre le dossier
-          </button>
+            className="flex-shrink-0"
+            label="Reprendre le dossier"
+          />
         </div>
       )}
 
@@ -25299,9 +25071,7 @@ export default function App() {
                 {chatPreviewPiece.index > 0 && <span className="px-2 py-0.5 bg-foreground text-primary-foreground text-[11px] font-medium rounded flex-shrink-0">P{chatPreviewPiece.index}</span>}
                 <span className="text-[14px] font-medium text-foreground truncate">{chatPreviewPiece.intitule || chatPreviewPiece.nom}</span>
               </div>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setChatPreviewPiece(null)} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
-                <X className="w-4 h-4 text-foreground-muted" />
-              </button>
+              <Button variant="ghost" size="icon-sm" icon={X} onClick={() => setChatPreviewPiece(null)} className="flex-shrink-0" />
             </div>
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
