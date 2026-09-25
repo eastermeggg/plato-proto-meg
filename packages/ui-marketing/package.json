@@ -1,0 +1,15 @@
+{
+  "name": "@plato/ui-marketing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Extension marketing/GTM : assets landing, motion et extraits produits FIDÈLES rendus depuis @plato/ui-product. Handoff pour founder / sales / marketing.",
+  "main": "index.js",
+  "dependencies": {
+    "@plato/ui-product": "0.1.0"
+  },
+  "platoPackage": {
+    "role": "marketing",
+    "dependsOn": ["@plato/ui-product"],
+    "boundary": "Consomme ui-product, jamais l'inverse. Ne réinvente rien de produit : met en scène. Ce qui devient réutilisable côté produit remonte via ds-promote."
+  }
+}
