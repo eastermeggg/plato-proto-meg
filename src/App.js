@@ -45,6 +45,8 @@ import { REDACTION_SCENARIOS, REDACTION_COMMAND_LIST, REDACTION_COMMAND_MAP, RED
 import ActCanvas from './components/redaction/ActCanvas';
 import ActeBordereauCanvas from './components/redaction/ActeBordereauCanvas';
 import Input from './components/ui/Input';
+import Select from './components/ui/Select';
+import Textarea from './components/ui/Textarea';
 import Button from './components/ui/Button';
 import Progress from './components/ui/Progress';
 import Spinner from './components/ui/Spinner';
@@ -13187,10 +13189,9 @@ export default function App() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, letterSpacing: '0.02em' }}>Scénario</span>
-                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                        <Select
                           value={prpUseCase}
-                          onChange={(e) => {
-                            const uc = e.target.value;
+                          onChange={(uc) => {
                             const nextMask = PRP_SCENARIO_MASKS[uc] || PRP_SCENARIO_MASKS['decede-capital-echu'];
                             setPrpUseCase(uc);
                             const anneesVal = nextMask.hasEchu ? 3 : 0;
@@ -13214,12 +13215,9 @@ export default function App() {
                               }
                             }));
                           }}
-                          className="text-caption px-2.5 py-1.5 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
-                        >
-                          {Object.entries(PRP_SCENARIO_MASKS).map(([key, m]) => (
-                            <option key={key} value={key}>{m.label}</option>
-                          ))}
-                        </select>
+                          options={Object.entries(PRP_SCENARIO_MASKS).map(([key, m]) => ({ value: key, label: m.label }))}
+                          width={220}
+                        />
                       </div>
                     </div>
 
@@ -13311,15 +13309,12 @@ export default function App() {
                           {isDecede ? (<>
                             <div className="flex items-center justify-between">
                               <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Méthode auto-consommation</span>
-                              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                              <Select
                                 value={shared.autoConsommationMethod || 'libre'}
-                                onChange={(e) => updateShared({ autoConsommationMethod: e.target.value })}
-                                className="text-caption px-2 py-1 border border-border rounded-md bg-surface text-foreground"
-                              >
-                                {Object.entries(AUTO_CONSO_SCALES).map(([key, s]) => (
-                                  <option key={key} value={key}>{s.label}</option>
-                                ))}
-                              </select>
+                                onChange={(v) => updateShared({ autoConsommationMethod: v })}
+                                options={Object.entries(AUTO_CONSO_SCALES).map(([key, s]) => ({ value: key, label: s.label }))}
+                                width={140}
+                              />
                             </div>
                             {(shared.autoConsommationMethod || 'libre') === 'libre' ? (
                               <div className="flex items-center justify-between">
@@ -16282,15 +16277,16 @@ export default function App() {
                   className="flex-1 min-w-0 max-w-[380px] h-9 px-3 rounded-lg border border-ochre bg-surface text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:shadow-[0_0_0_3px_rgba(185,112,63,0.18)] transition-shadow"
                 />
               </div>
-              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+              <Select
                 value={importV2.matterType || 'corporel'}
-                onChange={(e) => setImportV2(prev => ({ ...prev, matterType: e.target.value }))}
-                className="h-9 px-2.5 text-[13px] text-foreground-secondary bg-surface border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors cursor-pointer flex-shrink-0"
-                title="Type de dossier"
-              >
-                <option value="corporel">Dommages corporels</option>
-                <option value="social">Droit social</option>
-              </select>
+                onChange={(matterType) => setImportV2(prev => ({ ...prev, matterType }))}
+                options={[
+                  { value: 'corporel', label: 'Dommages corporels' },
+                  { value: 'social', label: 'Droit social' },
+                ]}
+                width={190}
+                className="flex-shrink-0"
+              />
               <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={closeImportV2} className="flex-shrink-0" />
             </div>
           ) : (
@@ -16438,14 +16434,16 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Sexe</label>
-                    <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                    <Select
                       value={formData.sexe}
-                      onChange={(e) => updateFormData('sexe', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
-                    >
-                      <option value="Homme">Homme</option>
-                      <option value="Femme">Femme</option>
-                    </select>
+                      onChange={(v) => updateFormData('sexe', v)}
+                      options={[
+                        { value: 'Homme', label: 'Homme' },
+                        { value: 'Femme', label: 'Femme' },
+                      ]}
+                      width="100%"
+                      style={{ maxWidth: 'none' }}
+                    />
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de naissance *</label>
@@ -16487,15 +16485,13 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Type de fait générateur</label>
-                    <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                    <Select
                       value={formData.typeFait}
-                      onChange={(e) => updateFormData('typeFait', e.target.value)}
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
-                    >
-                      {typesFaitGenerateur.map(t => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateFormData('typeFait', v)}
+                      options={typesFaitGenerateur.map(t => ({ value: t, label: t }))}
+                      width="100%"
+                      style={{ maxWidth: 'none' }}
+                    />
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de l'accident *</label>
@@ -19653,14 +19649,16 @@ export default function App() {
               {/* Type */}
               <div>
                 <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type</label>
-                <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+                <Select
                   value={baremeUploadData.type}
-                  onChange={(e) => setBaremeUploadData(prev => ({ ...prev, type: e.target.value }))}
-                  className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
-                >
-                  <option value="bareme">Barème</option>
-                  <option value="referentiel">Référentiel</option>
-                </select>
+                  onChange={(type) => setBaremeUploadData(prev => ({ ...prev, type }))}
+                  options={[
+                    { value: 'bareme', label: 'Barème' },
+                    { value: 'referentiel', label: 'Référentiel' },
+                  ]}
+                  width="100%"
+                  style={{ maxWidth: 'none' }}
+                />
               </div>
 
               {/* File upload zone */}
@@ -19701,12 +19699,12 @@ export default function App() {
               {/* Notes */}
               <div>
                 <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
-                <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
+                <Textarea
                   value={baremeUploadData.notes}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Précisions sur le barème, source, contexte d'utilisation…"
                   rows={3}
-                  className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                  style={{ resize: 'none' }}
                 />
               </div>
 
@@ -19844,12 +19842,12 @@ export default function App() {
             {/* Instructions */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Instructions</label>
-              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
+              <Textarea
                 value={newActeForm.instructions}
                 onChange={(e) => setNewActeForm(prev => ({ ...prev, instructions: e.target.value }))}
                 placeholder="Décrivez l'acte à rédiger : type, parties, objet, tribunal…"
                 rows={5}
-                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                style={{ resize: 'none' }}
               />
             </div>
 
@@ -19947,13 +19945,13 @@ export default function App() {
             {/* Type d'acte */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type d'acte</label>
-              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
+              <Select
                 value={templateUploadData.actType}
-                onChange={(e) => setTemplateUploadData(prev => ({ ...prev, actType: e.target.value }))}
-                className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
-              >
-                {actTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+                onChange={(actType) => setTemplateUploadData(prev => ({ ...prev, actType }))}
+                options={actTypeOptions}
+                width="100%"
+                style={{ maxWidth: 'none' }}
+              />
             </div>
 
             {/* File upload zone */}
@@ -19994,12 +19992,12 @@ export default function App() {
             {/* Notes */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
-              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
+              <Textarea
                 value={templateUploadData.notes}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Précisions sur le modèle, contexte d'utilisation…"
                 rows={3}
-                className="w-full px-3 py-2.5 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground resize-none"
+                style={{ resize: 'none' }}
               />
             </div>
 
@@ -22175,23 +22173,13 @@ export default function App() {
                     <label htmlFor="tampon-position" className={fieldLabelClass}>Position sur le document</label>
                   </div>
                   <div className={fieldControlClass}>
-                    <div className="relative w-full">
-                      <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
-                        id="tampon-position"
-                        value={tamponPosition}
-                        onChange={(e) => setTamponPosition(e.target.value)}
-                        className="appearance-none w-full h-9 pl-3 pr-9 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground cursor-pointer"
-                        style={{ boxShadow: dsShadows.xs }}
-                      >
-                        {POSITIONS.map(opt => (
-                          <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                      </select>
-                      <ChevronDown
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-secondary pointer-events-none"
-                        strokeWidth={2}
-                      />
-                    </div>
+                    <Select
+                      value={tamponPosition}
+                      onChange={setTamponPosition}
+                      options={POSITIONS.map(opt => ({ value: opt.id, label: opt.label }))}
+                      width="100%"
+                      style={{ maxWidth: 'none' }}
+                    />
                   </div>
                 </div>
               </div>
