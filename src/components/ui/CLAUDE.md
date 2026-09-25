@@ -124,10 +124,13 @@ The catalog of every component (built or planned) lives at
 | Textarea | [Textarea.js](./Textarea.js) | [Textarea.md](./Textarea.md) | 2819:31164 | multi-lignes · label/helper · error |
 | Checkbox | [Checkbox.js](./Checkbox.js) | [Checkbox.md](./Checkbox.md) | 2819:21779 | off · on · indeterminate · disabled |
 | Switch | [Switch.js](./Switch.js) | [Switch.md](./Switch.md) | 2819:30732 | off · on · disabled |
+| RadioGroup | [RadioGroup.js](./RadioGroup.js) | [RadioGroup.md](./RadioGroup.md) | 2819:29275 | choix exclusif · variantes list / card · options label+description |
 | Separator | [Separator.js](./Separator.js) | [Separator.md](./Separator.md) | 2819:30252 | horizontal · label · vertical |
 | Dialog | [Dialog.js](./Dialog.js) | [Dialog.md](./Dialog.md) | 6831:11140 | modale de contenu : header serif · body défilant · footer |
 | Select | [Select.js](./Select.js) | [Select.md](./Select.md) | 6729:4904 | trigger + panel (SelectMenuPanel/Item/Label, partagé Dropdown) |
 | Dropdown | [Dropdown.js](./Dropdown.js) | [Dropdown.md](./Dropdown.md) | 2819:24797 | menu d'actions ancré - compose le panel du Select (zéro style propre) |
+| Popover | [Popover.js](./Popover.js) | [Popover.md](./Popover.md) | — (dérivé, a-dessiner) | contenu riche ancré · clic-extérieur + Échap · contrôlé/non contrôlé |
+| Tooltip | [Tooltip.js](./Tooltip.js) | [Tooltip.md](./Tooltip.md) | — (dérivé, a-dessiner) | indice texte au survol + focus clavier · side top/bottom/left/right |
 | Tabs | [Tabs.js](./Tabs.js) | [Tabs.md](./Tabs.md) | 36099:45289 | onglets inline : indicateur 2px · compteur · icône · padded |
 | Avatar | [Avatar.js](./Avatar.js) | [Avatar.md](./Avatar.md) | 2814:11240 | initiales/image · circle/square · palettes colors.avatar (métier → IVAvatar) |
 | Card | [Card.js](./Card.js) | [Card.md](./Card.md) | - (code-first shadcn) | Header/Title/Description/Content/Footer · radius 12 · ombre sm |
