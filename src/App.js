@@ -50,6 +50,7 @@ import Progress from './components/ui/Progress';
 import Spinner from './components/ui/Spinner';
 import Badge from './components/ui/Badge';
 import Sheet from './components/ui/Sheet';
+import Switch from './components/ui/Switch';
 import Avatar, { avatarColorAt } from './components/ui/Avatar';
 import IVAvatar from './components/IVAvatar';
 import { AppSidebar, SidebarBrand, SidebarGroup } from './components/ui/AppSidebar';
@@ -11067,10 +11068,7 @@ export default function App() {
             {activeParamChip === 'revaloriser' && (
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                  </label>
+                  <Switch checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} />
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
                   <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
@@ -11356,10 +11354,7 @@ export default function App() {
             {activeParamChip === 'revaloriser-pgpa' && (
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                  </label>
+                  <Switch checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} />
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
                   <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
@@ -11657,10 +11652,7 @@ export default function App() {
             {activeParamChip === 'capitaliser-pgpf' && (
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                  </label>
+                  <Switch checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} />
                   <div className="w-px h-4 bg-border-strong" />
                   {renderBaremePopoverSelect({
                     popoverId: 'pgpf',
@@ -12196,10 +12188,7 @@ export default function App() {
                   {activeParamChip === 'revaloriser-se' && (
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                        </label>
+                        <Switch checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} />
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
                         <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
@@ -12335,10 +12324,7 @@ export default function App() {
                   {activeParamChip === 'revaloriser-pep' && (
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                        </label>
+                        <Switch checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} />
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
                         <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
@@ -12474,10 +12460,7 @@ export default function App() {
                   {activeParamChip === 'revaloriser-dfp' && (
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-                        </label>
+                        <Switch checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} />
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
                         <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
