@@ -299,14 +299,24 @@ export default function HandoffSection({ navigate }) {
       </p>
 
       <div style={{ border: `1px solid ${colors.semantic.border}`, borderRadius: 12, background: colors.semantic.card, padding: '14px 18px', marginBottom: 24 }}>
-        <Kicker>Le package, à emporter</Kicker>
+        <Kicker>Le package : l'environnement complet, prêt à travailler</Kicker>
         <p style={{ fontSize: 13, color: colors.semantic.secondaryForeground, lineHeight: '19px', margin: '8px 0 10px' }}>
-          Tout tient dans le repo : le design system (<Code>src/components/ui</Code> +{' '}
-          <Code>tokens.js</Code>), la plateforme, le proto, les garde-fous et les docs.
-          Téléchargez, puis <Code>npm install && npm start</Code> : vous avez tout. Le zip donne
-          le code et les docs ; pour l'historique git, la CI et la protection de branche,
-          clonez plutôt le repo. Le split en vrai package npm « ui-product » viendra plus tard
-          (conditions : volet Product, étape Packages).
+          Le repo EST l'environnement : le design system, la plateforme, le proto, les skills
+          d'agents (<Code>.claude/skills</Code>), le manifeste, les garde-fous et les docs
+          voyagent ensemble. Setup, dans l'ordre :
+        </p>
+        <ol style={{ margin: '0 0 10px', paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13, lineHeight: '19px', color: colors.semantic.secondaryForeground }}>
+          <li><strong>Node 18+ et npm</strong> sur la machine.</li>
+          <li><strong>Le repo</strong> : zip (boutons ci-dessous) ou clone. Le zip donne le code et les docs ; le clone donne en plus l'historique, la CI et la protection de branche.</li>
+          <li><strong><Code>npm install && npm start</Code></strong> : la plateforme sur localhost:3000, le proto sur /app.</li>
+          <li><strong>Claude Code, ouvert à la racine du repo</strong> : les skills ds-*, <Code>ds.manifest.json</Code> et <Code>AGENTS.md</Code> sont dedans - l'agent est opérationnel immédiatement, sans configuration. C'est le poste de travail agent-first.</li>
+          <li><strong><Code>npm run ds:doctor</Code></strong> : 0 bloquant = environnement sain. Pour les diffs visuels : <Code>npx playwright install chromium</Code> une fois.</li>
+        </ol>
+        <p style={{ fontSize: 12, color: colors.semantic.mutedForeground, lineHeight: '17px', margin: '0 0 10px' }}>
+          Une seule chose ne voyage pas : la fonte serif RL Para Trial Central est une fonte
+          LOCALE (licence Trial à valider, cf. HANDOVER.md) - sans elle, le serif retombe sur
+          Georgia. Récupérez le fichier avant mon départ. Le split en package npm « ui-product »
+          viendra plus tard (volet Product, étape Packages).
         </p>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Button variant="primary" size="sm" icon={Download} label="Télécharger le repo (.zip, main)" onClick={() => window.open('https://github.com/eastermeggg/plato-proto-meg/archive/refs/heads/main.zip', '_blank')} />
