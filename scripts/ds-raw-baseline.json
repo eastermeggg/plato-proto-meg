@@ -1,0 +1,376 @@
+{
+  "note": "Baseline ratchet des éléments HTML bruts (ds-check-raw-elements). Régénérer via --write UNIQUEMENT après un lot de résorption validé — jamais pour faire passer un nouveau constat.",
+  "files": {
+    "src/App.js": {
+      "button": 344,
+      "input": 151,
+      "select": 27,
+      "textarea": 19
+    },
+    "src/components/AlertDialog.js": {
+      "button": 3
+    },
+    "src/components/assistant/AssistantComposer.js": {
+      "button": 1,
+      "input": 1
+    },
+    "src/components/assistant/ComposerLab.js": {
+      "button": 8
+    },
+    "src/components/assistant/ComposerMenu.js": {
+      "button": 5
+    },
+    "src/components/assistant/ComposerSystemHeader.js": {
+      "button": 1
+    },
+    "src/components/assistant/ComposerToolbar.js": {
+      "button": 9
+    },
+    "src/components/assistant/ComposerUserAsk.js": {
+      "button": 7,
+      "input": 1
+    },
+    "src/components/assistant/ScopeChip.js": {
+      "button": 1
+    },
+    "src/components/assistant/SuggestionPill.js": {
+      "button": 1
+    },
+    "src/components/billing/LicencePicker.js": {
+      "button": 2
+    },
+    "src/components/ChatComposerNotice.js": {
+      "button": 1
+    },
+    "src/components/connectors/ConnectorPromo.js": {
+      "button": 9
+    },
+    "src/components/connectors/MailConnect.js": {
+      "button": 6,
+      "input": 4
+    },
+    "src/components/connectors/MailValueModal.js": {
+      "button": 3
+    },
+    "src/components/connectors/UpcomingConnectors.js": {
+      "button": 1
+    },
+    "src/components/EmptyState.js": {
+      "button": 2
+    },
+    "src/components/jp/DecisionDrawer.js": {
+      "button": 13,
+      "input": 1,
+      "textarea": 1
+    },
+    "src/components/jp/FicheCabinetModal.js": {
+      "input": 2
+    },
+    "src/components/jp/JPAddStepper.js": {
+      "button": 8,
+      "input": 3
+    },
+    "src/components/jp/JPListing.js": {
+      "button": 1
+    },
+    "src/components/jp/JPListingPosteDetail.js": {
+      "button": 1
+    },
+    "src/components/jp/JPMemoryRow.js": {
+      "button": 1
+    },
+    "src/components/jp/JPPopoverCard.js": {
+      "button": 1
+    },
+    "src/components/jp/JPRow.js": {
+      "button": 1
+    },
+    "src/components/jp/SaveDestinationPopover.js": {
+      "button": 3
+    },
+    "src/components/OnboardingFlow.js": {
+      "button": 11,
+      "input": 4
+    },
+    "src/components/ParallelTasks.js": {
+      "button": 3
+    },
+    "src/components/pieces/BordereauTable.js": {
+      "button": 4
+    },
+    "src/components/pieces/CategoryHeader.js": {
+      "button": 1
+    },
+    "src/components/pieces/CreateFolderModal.js": {
+      "input": 1
+    },
+    "src/components/pieces/FusePiecesModal.js": {
+      "input": 1,
+      "button": 2
+    },
+    "src/components/pieces/ImportEmailDialog.js": {
+      "button": 10,
+      "input": 1
+    },
+    "src/components/pieces/MoveToFolderModal.js": {
+      "button": 4,
+      "input": 1
+    },
+    "src/components/pieces/PieceRow.js": {
+      "button": 1
+    },
+    "src/components/pieces/PiecesTab.js": {
+      "input": 1,
+      "button": 2
+    },
+    "src/components/pieces/PileAdjustSheet.js": {
+      "button": 9,
+      "input": 2
+    },
+    "src/components/pieces/RenameFolderModal.js": {
+      "input": 1
+    },
+    "src/components/pieces/RenamePieceModal.js": {
+      "input": 1
+    },
+    "src/components/pieces/reviewCards/DoublonCard.js": {
+      "button": 4
+    },
+    "src/components/pieces/reviewCards/ErrorCard.js": {
+      "button": 2
+    },
+    "src/components/pieces/reviewCards/PosterioriSplitCard.js": {
+      "button": 2
+    },
+    "src/components/pieces/reviewCards/SplitReviewCard.js": {
+      "button": 4
+    },
+    "src/components/pieces/RowContextMenu.js": {
+      "button": 1
+    },
+    "src/components/pieces/SplitVariantsLab.js": {
+      "button": 12
+    },
+    "src/components/preferences/PreferenceSlots.js": {
+      "button": 1
+    },
+    "src/components/preview/PreviewAtoms.js": {
+      "button": 6
+    },
+    "src/components/preview/PreviewPanel.js": {
+      "button": 13,
+      "input": 6
+    },
+    "src/components/PromptSuggestionCard.js": {
+      "button": 1
+    },
+    "src/components/redaction/ActeBordereauCanvas.js": {
+      "button": 2
+    },
+    "src/components/redaction/ActesList.js": {
+      "button": 2
+    },
+    "src/components/redaction/ActOutline.js": {
+      "button": 2
+    },
+    "src/components/redaction/AddPieceSearchModal.js": {
+      "button": 4,
+      "input": 1
+    },
+    "src/components/redaction/ExportBordereauMenu.js": {
+      "button": 3
+    },
+    "src/components/redaction/PairTabs.js": {
+      "button": 1
+    },
+    "src/components/shell/BreadcrumbBand.js": {
+      "button": 1
+    },
+    "src/components/shell/ConversationSwitcher.js": {
+      "button": 4
+    },
+    "src/components/shell/ConversationTopBar.js": {
+      "button": 2
+    },
+    "src/components/shell/DossierSwitcher.js": {
+      "button": 3
+    },
+    "src/components/shell/DossierTab.js": {
+      "button": 1
+    },
+    "src/components/shell/NavExpandControl.js": {
+      "button": 2
+    },
+    "src/components/shell/NavItem.js": {
+      "button": 4
+    },
+    "src/components/shell/NavPromoBanner.js": {
+      "button": 1
+    },
+    "src/components/shell/NavSectionHeader.js": {
+      "button": 1
+    },
+    "src/components/shell/Niveau3Strip.js": {
+      "button": 3
+    },
+    "src/components/shell/PlatoAssistantButton.js": {
+      "button": 1
+    },
+    "src/components/shell/SidebarUserInfo.js": {
+      "button": 1
+    },
+    "src/components/social/CotisationsSection.js": {
+      "button": 9
+    },
+    "src/components/social/ReleveHeuresLab.js": {
+      "input": 7,
+      "button": 61,
+      "textarea": 1
+    },
+    "src/components/SuggestionsMenu.js": {
+      "button": 1
+    },
+    "src/components/ui-kit/ArbitragesLab.js": {
+      "button": 1
+    },
+    "src/components/ui-kit/BlockDetailPage.jsx": {
+      "button": 1
+    },
+    "src/components/ui-kit/blocks.jsx": {
+      "button": 1,
+      "input": 1,
+      "select": 1
+    },
+    "src/components/ui-kit/BlocksSection.jsx": {
+      "button": 3,
+      "input": 1
+    },
+    "src/components/ui-kit/BrandOrangeLab.js": {
+      "button": 3
+    },
+    "src/components/ui-kit/BreadcrumbBarLab.js": {
+      "button": 8
+    },
+    "src/components/ui-kit/CommandPalette.jsx": {
+      "input": 1,
+      "button": 1
+    },
+    "src/components/ui-kit/componentDemos.jsx": {
+      "input": 1,
+      "button": 3
+    },
+    "src/components/ui-kit/ComponentDetailPage.js": {
+      "button": 1
+    },
+    "src/components/ui-kit/ComponentSandbox.jsx": {
+      "button": 3,
+      "input": 1,
+      "select": 1
+    },
+    "src/components/ui-kit/ComponentsInventorySection.js": {
+      "button": 8,
+      "input": 1
+    },
+    "src/components/ui-kit/ConnecteursLab.js": {
+      "button": 4
+    },
+    "src/components/ui-kit/CotisationsLab.js": {
+      "button": 2
+    },
+    "src/components/ui-kit/DSWelcome.jsx": {
+      "button": 4
+    },
+    "src/components/ui-kit/HeroMotionExtracts.js": {
+      "button": 2
+    },
+    "src/components/ui-kit/HeroMotionLab.js": {
+      "button": 5
+    },
+    "src/components/ui-kit/IllustrationsSection.jsx": {
+      "button": 1
+    },
+    "src/components/ui-kit/import-v2/Bordereau.js": {
+      "button": 6
+    },
+    "src/components/ui-kit/import-v2/HarvestColumn.js": {
+      "button": 6,
+      "input": 1
+    },
+    "src/components/ui-kit/import/atoms.js": {
+      "button": 8
+    },
+    "src/components/ui-kit/import/bordereauCards.js": {
+      "button": 5
+    },
+    "src/components/ui-kit/import/CreateMatterModal.js": {
+      "input": 1,
+      "button": 1
+    },
+    "src/components/ui-kit/import/GesteBModal.js": {
+      "button": 3,
+      "input": 2
+    },
+    "src/components/ui-kit/import/GesteCModal.js": {
+      "button": 3
+    },
+    "src/components/ui-kit/import/MailColumn.js": {
+      "button": 8,
+      "input": 1
+    },
+    "src/components/ui-kit/import/Panier.js": {
+      "button": 6
+    },
+    "src/components/ui-kit/import/PiecesPage.js": {
+      "button": 8,
+      "input": 1
+    },
+    "src/components/ui-kit/import/SourcesPanel.js": {
+      "button": 15,
+      "input": 1
+    },
+    "src/components/ui-kit/ImportDossierLab.js": {
+      "button": 8
+    },
+    "src/components/ui-kit/ImportFolderTreeLab.js": {
+      "button": 7
+    },
+    "src/components/ui-kit/ImportV2Lab.js": {
+      "button": 7,
+      "input": 4
+    },
+    "src/components/ui-kit/LoiHoverLab.js": {
+      "button": 4
+    },
+    "src/components/ui-kit/NavigationGallerySection.jsx": {
+      "button": 1
+    },
+    "src/components/ui-kit/NavSystemLab.js": {
+      "button": 21
+    },
+    "src/components/ui-kit/Niveau3Lab.js": {
+      "button": 8
+    },
+    "src/components/ui-kit/PreviewPanelLab.js": {
+      "button": 7
+    },
+    "src/components/ui-kit/previews.jsx": {
+      "button": 4,
+      "textarea": 1
+    },
+    "src/components/ui-kit/ShellDocSection.jsx": {
+      "button": 3
+    },
+    "src/components/ui-kit/SommaireActeLab.js": {
+      "button": 1
+    },
+    "src/components/ui-kit/TokensSection.js": {
+      "button": 1,
+      "input": 1
+    },
+    "src/components/ui-kit/UpdateEntryForm.js": {
+      "input": 1,
+      "textarea": 2,
+      "button": 3
+    }
+  }
+}

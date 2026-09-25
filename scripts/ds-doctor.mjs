@@ -15,6 +15,11 @@
 //   manifest       ds.manifest.json absent, invalide ou chemins déclarés manquants
 //   docs           constat bloquant délégué à scripts/ds-check-docs.mjs (fiches)
 //   boundaries     constat délégué à scripts/ds-check-boundaries.mjs (packages)
+//   raw-elements   constat délégué à scripts/ds-check-raw-elements.mjs :
+//                  ratchet des éléments HTML bruts (<button>, <input>, <select>,
+//                  <textarea>) — existant grand-péré (ds-raw-baseline.json),
+//                  tout fichier NOUVEAU doit être à zéro, les compteurs ne
+//                  peuvent que descendre. Exception ligne : « ds-raw-ok: <raison> »
 //   emoji          émoji dans une chaîne rendue (interdit dans l'UI Norma) —
 //                  verrouillé en bloquant le 23/09/2026 après passage à 0
 //   em-dash        tiret cadratin dans une chaîne rendue (préférer le tiret
@@ -170,9 +175,13 @@ walk(join(ROOT, 'src'));
 // Les constats des checks délégués sont FUSIONNÉS dans ceux du doctor : la
 // sortie --json reste un seul document valide, --report les compte, et un
 // constat bloquant délégué fait échouer le doctor hors --report.
-for (const s of ['ds-check-docs.mjs', 'ds-check-boundaries.mjs']) {
+const DELEGATED = {
+  'ds-check-docs.mjs': 'docs',
+  'ds-check-boundaries.mjs': 'boundaries',
+  'ds-check-raw-elements.mjs': 'raw-elements',
+};
+for (const [s, rule] of Object.entries(DELEGATED)) {
   const r = spawnSync('node', [join(ROOT, 'scripts', s), '--report', '--json'], { encoding: 'utf8' });
-  const rule = s.includes('docs') ? 'docs' : 'boundaries';
   try {
     for (const f of JSON.parse(r.stdout))
       add(f.file, 0, rule, f.severity === 'info' ? 'warn' : 'error', f.rule, f.fix);

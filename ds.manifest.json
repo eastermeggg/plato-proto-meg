@@ -45,7 +45,7 @@
     "mode": "intent",
     "file": "0eKtlRkT1Hbjh8Nqd47Woy",
     "libraryPage": null,
-    "note": "Vérité MIXTE par surface, pas globale — registre complet dans docs/design-truth.md. Certaines surfaces sont pixel-perfect depuis Figma (la frame fait foi : ex. PreviewPanel V2, nav dossier V2 / frame 4046) ; d'autres sont code-first (le code fait foi, le Figma est au mieux un EXPORT du code — ex. page Labour 2668:24241, exportée DEPUIS le relevé d'heures). Avant d'arbitrer un écart Figma/code : identifier la source de vérité de LA surface concernée dans le registre ; en cas de doute, question pour la steward, jamais de correction automatique."
+    "note": "Vérité MIXTE par surface, pas globale — registre complet dans docs/design-truth.md. RÉGIME DE CRÉATION (25/09/2026) : le Figma est le SOCLE (thème via ds-figma-sync + surfaces héritées du registre), la création de NOUVELLES surfaces/composants est AGENT-FIRST en code — pas de page Figma requise ; en échange : tokens only, systématisation sur l'existant, fiche + démo + inventaire pending, rendu light/dark dans la PR (design-truth §Régime de création). Surfaces héritées : certaines pixel-perfect depuis Figma (la frame fait foi : PreviewPanel V2, nav dossier V2 / frame 4046), d'autres code-first (le Figma est au mieux un EXPORT du code : page Labour 2668:24241). Avant d'arbitrer un écart Figma/code : identifier la source de vérité de LA surface dans le registre ; en cas de doute, question steward, jamais de correction automatique."
   },
   "notes": {
     "stack": "Create React App, React 18, JavaScript (pas de TypeScript), Tailwind v3. Pas de shadcn, pas de ds-theme.json, pas de src/components/ui : les chemins par défaut des conventions ne s'appliquent pas, ce manifeste fait foi.",
