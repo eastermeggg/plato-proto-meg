@@ -20,7 +20,6 @@ import SwitchReal from '../ui/Switch';
 import RadioGroupReal from '../ui/RadioGroup';
 import TooltipReal from '../ui/Tooltip';
 import SkeletonReal from '../ui/Skeleton';
-import SheetReal from '../ui/Sheet';
 import PopoverReal from '../ui/Popover';
 import TextareaReal from '../ui/Textarea';
 import SelectReal from '../ui/Select';
@@ -174,8 +173,6 @@ export const Popover = PopoverReal;
 
 
 // ============== SHEET ==============
-// Promu -> src/components/ui/Sheet.js (fiche Sheet.md, tokenisé, scrim overlay + Échap).
-export const Sheet = SheetReal;
 
 // ============== SIDEBAR ==============
 export function Sidebar({ items = [], active, onChange, header }) {
@@ -455,7 +452,7 @@ export const Combobox = ComboboxReal;
 // Re-exports under a registry so componentDemos.jsx can pick by name.
 export const PREVIEWS = {
   Button, Input, Textarea, Badge, Checkbox, Switch, RadioGroup, Tooltip, Avatar,
-  Separator, Skeleton, Tabs, Select, DropZone, Popover, Sheet, Sidebar,
+  Separator, Skeleton, Tabs, Select, DropZone, Popover, Sidebar,
   ScrollArea, Table, TableHeader, TableRow, TableCell, PlanCard, ChatBubble,
   ChatMessageList, ChatComposer, Combobox,
 };

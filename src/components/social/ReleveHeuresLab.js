@@ -15,7 +15,7 @@ import Button from '../ui/Button';
 import DropZone from '../ui/DropZone';
 import Badge from '../ui/Badge';
 import Textarea from '../ui/Textarea';
-import Drawer from '../ui/Drawer';
+import Sheet from '../ui/Sheet';
 import { colors, shadows } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -495,8 +495,8 @@ function SharePopover({ onOpenClient, open, onOpenChange }) {
 // Day-detail drawer — a right-side drawer that slides in over a dimmed
 // backdrop (overlay, per the design system). The lawyer adds a day (declares
 // hours on an empty day) or modifies one: serif title, créneaux + justification.
-function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
-  // Escape + scrim close are handled by the Drawer primitive.
+function DaySheet({ day, wi, di, week, ops, onClose, start, end }) {
+  // Escape + scrim close are handled by the Sheet primitive.
   const total = dayMin(day);
   // for an empty day, suggest the nearest sibling worked day's hours (earlier first)
   const suggestion = useMemo(() => {
@@ -509,7 +509,7 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
   }, [week, di, day.worked, day.rest]);
 
   return (
-    <Drawer
+    <Sheet
       open
       onOpenChange={(o) => { if (!o) onClose(); }}
       side="right"
@@ -577,7 +577,7 @@ function DayDrawer({ day, wi, di, week, ops, onClose, start, end }) {
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: FAINT, marginBottom: 14 }}>Note & justificatif</div>
         <Justification day={day} ops={ops} wi={wi} di={di} />
       </div>
-    </Drawer>
+    </Sheet>
   );
 }
 
@@ -1633,7 +1633,7 @@ function ClientReleveApp({ onExit, period, linkError, view = 'table' }) {
         </span>
       </div>
       {view === 'table' && openDayObj && (
-        <DayDrawer day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={cp.start} end={cp.end} />
+        <DaySheet day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={cp.start} end={cp.end} />
       )}
       {pmodal && (
         <PeriodModal mode="log" modify hasEntries={weeks.some((w) => w.days.some((d) => d.worked))}
@@ -1822,7 +1822,7 @@ function TotalsPill({ label, value, emphasized }) {
 
 // ── Embeddable relevé editor — the full lawyer Registre + client interface, no
 // matter shell/chat. Rendered inside the real app's chiffrage (droit social).
-// Composes the same leaves (RegistreView, DayDrawer, PeriodModal, SharePopover,
+// Composes the same leaves (RegistreView, DaySheet, PeriodModal, SharePopover,
 // ClientReleveApp) + orchestration as the lab, so it carries all lab features.
 export function ReleveEditor({ onBack, demo, inset = { x: 32, top: 24 } } = {}) {
   useLabStyles();
@@ -1933,7 +1933,7 @@ export function ReleveEditor({ onBack, demo, inset = { x: 32, top: 24 } } = {}) 
         </>
       )}
       {openDayObj && (
-        <DayDrawer day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period.start} end={period.end} />
+        <DaySheet day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period.start} end={period.end} />
       )}
       {periodModal && (
         <PeriodModal mode={periodModal}
@@ -2205,7 +2205,7 @@ export default function ReleveHeuresLab({ navigate, setCurrentPage, clientFlowPr
 
         {/* day drawer — a column between the table and the chat */}
         {tab === 'suivi' && openDayObj && (
-          <DayDrawer day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period && period.start} end={period && period.end} />
+          <DaySheet day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period && period.start} end={period && period.end} />
         )}
 
         {/* RIGHT — PLATO MASTER chat */}
@@ -2591,7 +2591,7 @@ export function LawyerPlacementsLab({ navigate, setCurrentPage }) {
             {chatOpen && <ChatPanel ctx={ctx} onClose={() => setChatOpen(false)} />}
           </div>
           {openDayObj && (
-            <DayDrawer day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period.start} end={period.end} />
+            <DaySheet day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period.start} end={period.end} />
           )}
         </div>
       )}
@@ -3210,7 +3210,7 @@ export function ChiffrageSocialLab({ navigate, setCurrentPage }) {
 
       {/* day drawer — overlays (the relevé sub-view opens days here) */}
       {editorOpen && openDayObj && (
-        <DayDrawer day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period.start} end={period.end} />
+        <DaySheet day={openDayObj.d} wi={openDayObj.wi} di={openDayObj.di} week={weeks[openDayObj.wi]} ops={ops} onClose={() => setOpenDay(null)} start={period.start} end={period.end} />
       )}
 
       {/* shared period dialog */}

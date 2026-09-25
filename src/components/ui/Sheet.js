@@ -1,76 +1,223 @@
 import React, { useEffect } from 'react';
-import { X as XIcon } from 'lucide-react';
-import { colors, shadows } from '../../design-system/tokens';
+import { X } from 'lucide-react';
+import { colors, radius, shadows, typography } from '../../design-system/tokens';
 
 /**
- * Sheet — Plato design system. Promu depuis l'esquisse ui-kit/previews.jsx.
+ * Sheet — Plato design system. Source of truth: Figma « Panel »
+ * (Plato---System 37749:1024 - SidePanel 37734:55506/55546, Section Header
+ * 37740:1059…, Panel Section Content 37732:13180…).
  *
- * Surface dérivée (pas de page dans le kit Figma : figmaTodo « a-dessiner ») :
- * panneau générique glissé depuis un bord, scrim `overlay`, surface `card`,
- * élévation shadows.xl. Se ferme au clic sur le scrim et à Échap.
+ * Fusion steward 25/09/2026 : Sheet absorbe Drawer (le nom canonique est
+ * Sheet, l'implémentation est celle du master Drawer). L'ancien Sheet
+ * générique 4 bords (dérivé, zéro usage produit) disparaît ; un futur
+ * bottom-sheet sera un variant de ce composant.
  *
- * Positionné en `absolute inset:0` : il remplit son ancêtre positionné (canvas
- * de la sandbox, conteneur d'écran) - overlay « piégé », pas fixé au viewport.
- * Pour le grand panneau latéral MASTER droite/gauche du produit (largeurs
- * canoniques, `--chat-offset`, DrawerSection) → `Drawer`. Toutes les valeurs
- * viennent de tokens.js.
+ * Master component for side panels (right or left). Two sizes: sm (408) and
+ * wide (860). The overlay NEVER hides the chat: scrim and panel stop at
+ * `var(--chat-offset)` so the user can keep talking to the assistant about
+ * what the sheet shows (doctrine du panneau, App.js:2189).
+ *
+ * Anatomy (Figma):
+ *  - header: border-b `border`, pl-20 pr-14 py-14 - optional 16px icon or
+ *    24px avatar + serif display-xs title (16/20, -0.5) + close button
+ *    (26px square, `secondary` fill, radius 4, X 14)
+ *  - content: flex-1, scrollable (slot)
+ *  - footer (optional): border-t `border`, p-20, justify-between slot
+ *    (Figma: destructive-subtle secondary on the left, primary on the right)
+ *  - elevation: L3 role (§10) -> `shadows['2xl']` + border on the chat side
+ *
+ * `SheetSection` is the section sub-component: mono 11 uppercase header
+ * (4 types: icon+subtitle / icon / action / simple) + free content. The 8
+ * Figma content variants (Time Slots, Licence, Role, Detail, Notes, Expense,
+ * Form) are COMPOSITIONS of existing primitives - see the fiche.
  */
 
-export default function Sheet({ open, side = 'right', onClose, title, children, width = 360, height = 320 }) {
+const SIZES = { sm: 408, wide: 860 };
+
+export default function Sheet({
+  open,
+  onOpenChange,
+  side = 'right',
+  size = 'sm',
+  title,
+  icon: Icon,
+  avatar,
+  footer = null,
+  children,
+  showClose = true,
+  respectChatOffset = true,
+  className,
+  style,
+}) {
   useEffect(() => {
-    if (!open) return undefined;
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape') onClose?.();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [open, onClose]);
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') onOpenChange?.(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onOpenChange]);
 
   if (!open) return null;
 
-  const sideStyles = {
-    right: { right: 0, top: 0, bottom: 0, width },
-    left: { left: 0, top: 0, bottom: 0, width },
-    bottom: { left: 0, right: 0, bottom: 0, height },
-    top: { left: 0, right: 0, top: 0, height },
-  };
+  const width = typeof size === 'number' ? size : SIZES[size] || SIZES.sm;
+  const offset = respectChatOffset && side === 'right' ? 'var(--chat-offset, 0px)' : '0px';
 
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
+    <div
+      className="fixed top-0 left-0 bottom-0 z-50"
+      style={{ right: offset }}
+      onClick={() => onOpenChange?.(false)}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'sheet-title' : undefined}
+    >
+      {/* Scrim — stops at the chat edge (token overlay) */}
+      <div className="absolute inset-0 bg-overlay" style={{ animation: 'fadeIn 0.2s ease-out' }} />
+
       <div
-        role="button"
-        tabIndex={-1}
-        aria-label="Fermer"
-        onClick={onClose}
-        style={{ position: 'absolute', inset: 0, background: colors.semantic.overlay }}
-      />
-      <div
-        role="dialog"
-        aria-label={title}
+        className={`absolute top-0 bottom-0 bg-surface flex flex-col ${className || ''}`}
         style={{
-          position: 'absolute',
-          ...sideStyles[side],
-          background: colors.semantic.card,
-          padding: 20,
-          boxShadow: shadows.xl,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-          overflow: 'auto',
+          [side === 'left' ? 'left' : 'right']: 0,
+          width,
+          maxWidth: `calc(100vw - ${offset})`,
+          [side === 'left' ? 'borderRight' : 'borderLeft']: `1px solid ${colors.semantic.border}`,
+          boxShadow: shadows['2xl'],
+          animation: side === 'right' ? 'slideInRight 0.2s ease-out' : undefined,
+          ...style,
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: colors.semantic.foreground }}>{title}</h2>
-          <button
-            onClick={onClose}
-            aria-label="Fermer"
-            style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 4 }}
-          >
-            <XIcon style={{ width: 16, height: 16, color: colors.semantic.foregroundSecondary }} />
-          </button>
+        {/* Header */}
+        <div
+          className="flex items-center justify-between flex-shrink-0"
+          style={{ padding: '14px 14px 14px 20px', borderBottom: `1px solid ${colors.semantic.border}` }}
+        >
+          <div className="flex items-center flex-1 min-w-0" style={{ gap: 16 }}>
+            {Icon && <Icon style={{ width: 16, height: 16, flexShrink: 0, color: colors.semantic.foreground }} strokeWidth={1.75} />}
+            {avatar && <span className="flex-shrink-0 inline-flex">{avatar}</span>}
+            <h2
+              id="sheet-title"
+              className="flex-1 min-w-0 truncate"
+              style={{
+                fontFamily: typography.fontFamily.serif,
+                fontSize: 16,
+                lineHeight: '20px',
+                letterSpacing: '-0.5px',
+                fontWeight: 500,
+                color: colors.semantic.foreground,
+                margin: 0,
+              }}
+            >
+              {title}
+            </h2>
+          </div>
+          {showClose && (
+            <button
+              onClick={() => onOpenChange?.(false)}
+              aria-label="Fermer"
+              className="flex items-center justify-center flex-shrink-0 transition-opacity hover:opacity-80"
+              style={{ width: 26, height: 26, background: colors.semantic.secondary, borderRadius: radius.sm, border: 'none' }}
+            >
+              <X style={{ width: 14, height: 14, color: colors.semantic.foreground }} strokeWidth={2} />
+            </button>
+          )}
         </div>
-        {children}
+
+        {/* Content — scrollable slot */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {children}
+        </div>
+
+        {/* Footer — slot (Figma: secondary left / primary right) */}
+        {footer && (
+          <div
+            className="flex items-center justify-between flex-shrink-0"
+            style={{ padding: 20, borderTop: `1px solid ${colors.semantic.border}` }}
+          >
+            {footer}
+          </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+// Section header — 4 Figma types: icon+subtitle / icon / action / simple.
+export function SheetSection({
+  title,
+  icon: Icon,
+  subtitle,
+  actionLabel,
+  actionIcon: ActionIcon,
+  onAction,
+  bordered = false,
+  children,
+  className,
+  style,
+}) {
+  return (
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        padding: '16px 20px',
+        borderBottom: bordered ? `1px solid ${colors.semantic.border}` : 'none',
+        ...style,
+      }}
+    >
+      {title && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center" style={{ gap: 10 }}>
+            {Icon && <Icon style={{ width: 16, height: 16, flexShrink: 0, color: colors.semantic.mutedForeground }} strokeWidth={1.75} />}
+            <span
+              style={{
+                fontFamily: typography.fontFamily.mono,
+                fontSize: 11,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                color: colors.semantic.mutedForeground,
+              }}
+            >
+              {title}
+            </span>
+          </div>
+          {subtitle && (
+            <span
+              style={{
+                fontFamily: typography.fontFamily.mono,
+                fontSize: 11,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                color: colors.semantic.foreground,
+              }}
+            >
+              {subtitle}
+            </span>
+          )}
+          {actionLabel && (
+            <button
+              onClick={onAction}
+              className="flex items-center transition-opacity hover:opacity-80"
+              style={{ gap: 8, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+            >
+              {ActionIcon && <ActionIcon style={{ width: 12, height: 12, color: colors.feedback.info.text }} strokeWidth={1.75} />}
+              <span
+                style={{
+                  fontFamily: typography.fontFamily.sans,
+                  fontSize: 12,
+                  lineHeight: '16px',
+                  fontWeight: 500,
+                  color: colors.feedback.info.text,
+                }}
+              >
+                {actionLabel}
+              </span>
+            </button>
+          )}
+        </div>
+      )}
+      {children}
     </div>
   );
 }

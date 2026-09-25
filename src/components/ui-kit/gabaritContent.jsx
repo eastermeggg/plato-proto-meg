@@ -8,7 +8,7 @@ import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import Dropdown from '../ui/Dropdown';
 import Dialog from '../ui/Dialog';
-import Drawer, { DrawerSection } from '../ui/Drawer';
+import Sheet, { SheetSection } from '../ui/Sheet';
 import AlertDialog from '../ui/AlertDialog';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
@@ -20,10 +20,10 @@ import EmptyState from '../EmptyState';
 // ─────────────────────────────────────────────────────────────────────────────
 // Écran-gabarit — LE contrat d'un écran CRUD produit, composé UNIQUEMENT de
 // primitives du DS. Sert de référence à copier (PM / dev / designer) : shell +
-// PageHeader + table + Dialog de CRÉATION + Drawer de MODIFICATION + menu
+// PageHeader + table + Dialog de CRÉATION + Sheet de MODIFICATION + menu
 // d'actions sur ligne (Dropdown) + les 5 états d'un écran de données.
 //
-// Doctrine : Dialog pour créer (modale centrée), Drawer pour modifier (panneau
+// Doctrine : Dialog pour créer (modale centrée), Sheet pour modifier (panneau
 // latéral, chat visible), AlertDialog pour confirmer une suppression. Menu de
 // ligne = Dropdown (jamais un Popover recodé). Aucun <button>/<input> brut,
 // aucune barre inline, aucun max-width sur la colonne.
@@ -165,13 +165,13 @@ function CreateDialog({ open, onOpenChange }) {
   );
 }
 
-// ── Le panneau de modification (Drawer) ──────────────────────────────────────
-function EditDrawer({ row, onClose }) {
+// ── Le panneau de modification (Sheet) ──────────────────────────────────────
+function EditSheet({ row, onClose }) {
   const [statut, setStatut] = useState('En cours');
   const [ref, setRef] = useState('');
   useEffect(() => { if (row) { setStatut(row.statut); setRef(row.ref); } }, [row]);
   return (
-    <Drawer
+    <Sheet
       open={!!row}
       onOpenChange={(o) => { if (!o) onClose(); }}
       side="right"
@@ -185,10 +185,10 @@ function EditDrawer({ row, onClose }) {
         </>
       )}
     >
-      <DrawerSection title="Identité" bordered>
+      <SheetSection title="Identité" bordered>
         <Input label="Référence" value={ref} onChange={(e) => setRef(e.target.value)} />
-      </DrawerSection>
-      <DrawerSection title="Suivi">
+      </SheetSection>
+      <SheetSection title="Suivi">
         <Input label="Statut">
           <Select
             value={statut}
@@ -201,8 +201,8 @@ function EditDrawer({ row, onClose }) {
             ]}
           />
         </Input>
-      </DrawerSection>
-    </Drawer>
+      </SheetSection>
+    </Sheet>
   );
 }
 
@@ -284,8 +284,8 @@ export default function GabaritContent({ menu, state = 'ideal', forcedOverlay = 
       {/* Couche CRÉATION : Dialog centré */}
       <CreateDialog open={overlay === 'create'} onOpenChange={(o) => setOverlay(o ? 'create' : 'none')} />
 
-      {/* Couche MODIFICATION : Drawer latéral */}
-      <EditDrawer row={editRow} onClose={() => setEditRow(null)} />
+      {/* Couche MODIFICATION : Sheet latéral */}
+      <EditSheet row={editRow} onClose={() => setEditRow(null)} />
 
       {/* Couche CONFIRMATION : AlertDialog destructif */}
       <AlertDialog
