@@ -95,7 +95,7 @@ function DevTrack({ navigate }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
       <Step num={1} title="Lis AGENTS.md, 10 minutes" icon={BookOpen}>
         <P>
-          Toutes les règles du repo tiennent dans <Code>AGENTS.md</Code> : 11 règles dures et une
+          Toutes les règles du repo tiennent dans <Code>AGENTS.md</Code> : 12 règles dures et une
           carte des fichiers. <Code>CLAUDE.md</Code> n'est qu'un renvoi. Tout ce que je raconte
           sur cette page en découle.
         </P>
@@ -109,15 +109,16 @@ function DevTrack({ navigate }) {
       <Step num={2} title="Lance, et vérifie que tout est vert" icon={Terminal}>
         <div style={{ marginBottom: 10 }}>
           <Row left="npm install && npm start" right="le dev server. La plateforme est sur /, le proto sur /app" />
-          <Row left="npm run ds:doctor" right="le garde-fou : hex en dur, fiches, frontières, éléments HTML bruts. Doit sortir 0 bloquant avant de rendre la main, la CI le vérifie aussi" />
+          <Row left="npm run ds:doctor" right="le garde-fou : hex en dur, fiches, frontières, éléments HTML bruts, courbes de motion. Doit sortir 0 bloquant avant de rendre la main, la CI le vérifie aussi" />
           <Row left="npm run build" right="le build de prod, l'autre moitié du contrat" />
           <Row left="npm run ds:docs" right="à relancer après chaque édition d'une fiche ui/*.md" />
           <Row left="npm run ds:tokens" right="régénère le catalogue tokens dans docs/tokens.md" />
           <Row left="npm run ds:visual" right="diffs visuels Playwright. Les baselines se génèrent en CI avec le label ds-baselines, jamais en local" />
         </div>
         <P last>
-          Pour un état des lieux : <Code>node scripts/ds-audit.mjs</Code>, qui moissonne aussi
-          SIGNALEMENTS.md. Le changelog par composant : <Code>node scripts/ds-changelog.mjs</Code>.
+          Pour un état des lieux : <Code>node scripts/ds-audit.mjs</Code> (avec{' '}
+          <Code>--harvest</Code>, il transforme SIGNALEMENTS.md en issues). Le changelog par
+          composant : <Code>node scripts/ds-changelog.mjs</Code>.
         </P>
       </Step>
 
@@ -127,10 +128,10 @@ function DevTrack({ navigate }) {
           block fait loi. Pour un nouvel écran, tu pars d'un block du playground et tu ne t'en
           écartes pas, en premier l'Écran-gabarit : shell, PageHeader, table, Dialog de
           création, Sheet de modification, AlertDialog et les 5 états (vide, chargement, erreur,
-          partiel, idéal). <Code>App.js</Code> n'est plus un danger : zéro élément brut non
-          justifié, chaque site restant est fléché vers sa cible DS, le ratchet interdit tout
-          retour. Mais il reste l'EXISTANT, pas la référence : ce qui naît part d'un block, et
-          tout fichier neuf doit être à zéro élément HTML brut.
+          partiel, idéal). <Code>App.js</Code> n'est plus un danger : chaque site restant est
+          fléché vers sa cible DS, et le ratchet interdit tout retour comme tout élément brut
+          dans un fichier neuf. Mais il reste l'existant, pas la référence : ce qui naît part
+          d'un block.
         </P>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Button variant="secondary" size="sm" icon={ArrowUpRight} iconPosition="trailing" label="Block Écran-gabarit" onClick={() => navigate('/ui-kit/b/ecran-gabarit')} />
@@ -243,7 +244,7 @@ function ProductTrack({ navigate }) {
             'À la fin : ds:doctor 0 bloquant + build OK, annoncés dans la réponse',
           ]}
           dontList={[
-            'Un écran « inspiré de App.js », il porte nos anti-patterns',
+            'Un écran « inspiré de App.js » : c\'est l\'existant, pas la référence',
             'Des couleurs en dur ou un composant absent de l\'inventaire',
             'Une nav, une barre ou un en-tête réinventés localement',
             'Un « fix » silencieux d\'un écart avec le Figma',
@@ -302,14 +303,17 @@ export default function HandoffSection({ navigate }) {
         <p style={{ fontSize: 13, color: colors.semantic.secondaryForeground, lineHeight: '19px', margin: '8px 0 6px' }}>
           Le steward, c'est la personne qui valide les composants, arbitre les écarts Figma et
           garde les fichiers protégés. Ce rôle était le mien, il lui faut un nouveau propriétaire.
-          Quatre gestes, dans l'ordre :
+          Trois gestes, dans l'ordre :
         </p>
         <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13, lineHeight: '19px', color: colors.semantic.secondaryForeground }}>
-          <li><strong>Désignez le steward</strong> - le rôle peut tourner, l'important est qu'il soit incarné. Et il ne fait pas de vous des exécutants : les règles, les garde-fous et les catalogues sont là pour que CHACUN soit owner et tranche bien en local ; le steward n'arbitre que ce qui touche au coeur (tokens, validation, écarts Figma).</li>
+          <li><strong>Désignez le steward</strong> - le rôle peut tourner, l'important est qu'il soit incarné. Il n'arbitre que le coeur (tokens, validation, écarts Figma) ; pour tout le reste, les règles font de chacun un owner.</li>
           <li><strong>Remplacez <Code>@eastermeggg</Code></strong> par son handle GitHub dans <Code>.github/CODEOWNERS</Code>, sinon la protection de main attendra la revue d'un compte parti.</li>
           <li><strong>Mettez à jour <Code>owner</Code></strong> dans <Code>ds.manifest.json</Code> (rôle + contact).</li>
-          <li><strong>La passe des pending est déjà faite</strong> (73 composants et 10 blocks validated) - le board /ui-kit/validation sert maintenant à garder ça vert au fil de vos créations.</li>
         </ol>
+        <p style={{ fontSize: 13, color: colors.semantic.mutedForeground, lineHeight: '19px', margin: '8px 0 0' }}>
+          La passe de validation, elle, est déjà faite (73 composants et 10 blocks validated) :
+          le board /ui-kit/validation sert à garder ça vert au fil de vos créations.
+        </p>
       </div>
 
       <div style={{ border: `1px solid ${colors.semantic.foreground}`, borderRadius: 12, background: colors.semantic.card, padding: '14px 18px', marginBottom: 24 }}>
