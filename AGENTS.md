@@ -44,6 +44,9 @@ DS font foi dans `ds.manifest.json`.
     anti-patterns hérités (éléments bruts, barres inline, valeurs en dur) que
     la migration résorbe progressivement - le copier, c'est les propager. Les
     blocks sont l'état cible ; `App.js` est l'existant en cours d'alignement.
+    **Avant un nouveau FLOW** (pas juste un écran) : lire
+    `docs/architecture-plato.md` - la carte produit (nav 3 niveaux, shell,
+    objets métier, points de branchement, chemin type en 6 étapes).
 
 **Vérité Figma mixte par surface, jamais globale** — registre + 4 règles
 d'arbitrage : `docs/design-truth.md` (+ `figma.note` du manifeste). Surface
@@ -58,6 +61,7 @@ automatique.
 | Besoin | Fichier |
 |---|---|
 | Config skills `ds-*` (chemins, Figma, protégés) | `ds.manifest.json` (fait foi) |
+| Architecture produit (nav, shell, objets, brancher un flow) | `docs/architecture-plato.md` |
 | Référence des conventions `ds-*` | `.claude/skills/_shared/conventions.md` (lire la section citée) |
 | Tokens (source de vérité) | `src/design-system/tokens.js` · doc générée `docs/tokens.md` (`npm run ds:tokens`) |
 | Composants canoniques + fiches | `src/components/ui/` (+ `CLAUDE.md` du dossier) ; esquisses non promues : `ui-kit/previews.jsx` |
