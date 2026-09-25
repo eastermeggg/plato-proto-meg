@@ -8,7 +8,7 @@ Point d'entrée pour la personne qui reprend le prototype. Mis à jour le
 **La plateforme Plato Design System** (playground intégré, façon Storybook) est
 le point d'entrée (`/`) ; le proto produit vit sur `/app` (entrée « Proto » dans
 la nav). Tokens uniques, fiches `.md` par composant (7 champs, source des docs),
-garde-fou unique `ds:doctor` (délègue fiches + frontières), régression visuelle
+garde-fou unique `ds:doctor` (délègue fiches + frontières + éléments bruts), régression visuelle
 Playwright multi-pages (baselines CI-only), dark mode. C'est l'outil de travail
 de toute la team Plato (design, product, dev).
 
@@ -21,7 +21,7 @@ de toute la team Plato (design, product, dev).
 | Skills DS v3 (10 skills scriptées) | `.claude/skills/ds-*` + `_shared/conventions.md` + `templates/` |
 | Tokens (source unique) | `src/design-system/tokens.js` |
 | Miroir Tailwind (généré) | `tailwind.config.js` |
-| Garde-fou unique | `scripts/ds-doctor.mjs` → `npm run ds:doctor` (délègue `ds-check-docs` + `ds-check-boundaries` ; l'ancien `ds-gaps` y est absorbé) |
+| Garde-fou unique | `scripts/ds-doctor.mjs` → `npm run ds:doctor` (délègue `ds-check-docs` + `ds-check-boundaries` + `ds-check-raw-elements`, ratchet `ds-raw-baseline.json` ; l'ancien `ds-gaps` y est absorbé) |
 | État du DS + issues | `scripts/ds-audit.mjs` (rapport `docs/audits/<date>.md`, `--create-issues`, `--harvest`) |
 | Changelog par composant | `scripts/ds-changelog.mjs` (+ commentaire de PR auto : `.github/workflows/ds-changelog.yml`) |
 | Régression visuelle | `playwright.config.mjs` + `tests/visual/kitchen-sink.spec.mjs` → `npm run ds:visual` · baselines : label `ds-baselines` en CI, jamais en local · doc `docs/ds-tooling.md` |
