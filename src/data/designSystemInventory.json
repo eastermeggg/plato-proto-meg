@@ -2632,13 +2632,13 @@
       "layer": "shadcn",
       "category": "primitive",
       "family": "Overlays & menus",
-      "filePath": null,
-      "exists": false,
+      "filePath": "src/components/ui/Popover.js",
+      "exists": true,
       "figmaPage": "",
       "figmaRef": "",
       "figmaTodo": "a-dessiner",
-      "notes": "shadcn popover - esquisse previews.jsx ; page absente du kit Figma",
-      "status": "missing",
+      "notes": "Promu en code le 25/09/2026 (formalisé depuis previews.jsx, tokenisé). Surface dérivée systématisée sur SaveDestinationPopover/JPPopoverCard : page absente du kit Figma. Clic-extérieur + Échap. Fiche Popover.md.",
+      "status": "pending",
       "used": false
     },
     {
