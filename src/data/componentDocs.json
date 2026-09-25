@@ -721,6 +721,22 @@
         "demo": ""
       }
     },
+    "RadioGroup": {
+      "name": "RadioGroup",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Mutually exclusive choice within a small set of options",
+      "source": "src/components/ui/RadioGroup.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-29275",
+      "docFile": "src/components/ui/RadioGroup.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
     "RadioPricing": {
       "name": "RadioPricing",
       "package": "plato",
@@ -891,6 +907,22 @@
       "replacedBy": "null",
       "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=2819-31164",
       "docFile": "src/components/ui/Textarea.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Tooltip": {
+      "name": "Tooltip",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Short text hint revealed on hover / focus of a trigger",
+      "source": "src/components/ui/Tooltip.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "null",
+      "docFile": "src/components/ui/Tooltip.md",
       "sections": {
         "pattern": "",
         "explos": "",

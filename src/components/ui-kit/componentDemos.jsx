@@ -1441,17 +1441,19 @@ export const componentDemos = {
   },
 
   RadioGroup: {
-    description: 'Vertical stack of mutually exclusive radio options.',
+    description: 'Mutually exclusive choice. Variant list (default) or card (bordered options with descriptions).',
     controls: {
-      value: { type: 'select', default: 'monthly', options: ['monthly', 'yearly', 'enterprise'], description: 'Selected option value.' },
+      value:   { type: 'select', default: 'monthly', options: ['monthly', 'yearly', 'enterprise'], description: 'Selected option value.' },
+      variant: { type: 'select', default: 'card', options: ['list', 'card'],                        description: 'list = radio + label ; card = bordered box.' },
     },
     render: v => (
       <P.RadioGroup
         value={v.value}
+        variant={v.variant}
         options={[
-          { value: 'monthly',    label: 'Monthly billing' },
-          { value: 'yearly',     label: 'Yearly billing (save 20%)' },
-          { value: 'enterprise', label: 'Enterprise' },
+          { value: 'monthly',    label: 'Monthly billing',  description: 'Billed every month, cancel anytime.' },
+          { value: 'yearly',     label: 'Yearly billing',   description: 'Save 20% versus monthly.' },
+          { value: 'enterprise', label: 'Enterprise',       description: 'Custom terms and invoicing.' },
         ]}
         onChange={() => {}}
       />
