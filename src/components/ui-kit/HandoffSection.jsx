@@ -121,10 +121,11 @@ function DevTrack({ navigate }) {
         </P>
       </Step>
 
-      <Step num={3} title="On imite /ui-kit, jamais App.js" icon={Map}>
+      <Step num={3} title="On obéit à /ui-kit, jamais à App.js" icon={Map}>
         <P>
-          C'est la règle qui t'évitera le plus d'ennuis. Pour un nouvel écran, tu copies un block
-          du playground, en premier l'Écran-gabarit : shell, PageHeader, table, Dialog de
+          C'est la règle qui t'évitera le plus d'ennuis, et ce n'est pas de l'inspiration : le
+          block fait loi. Pour un nouvel écran, tu pars d'un block du playground et tu ne t'en
+          écartes pas, en premier l'Écran-gabarit : shell, PageHeader, table, Dialog de
           création, Sheet de modification, AlertDialog et les 5 états (vide, chargement, erreur,
           partiel, idéal). <Code>App.js</Code> traîne encore des anti-patterns qu'on résorbe : si
           tu le clones, tu les propages. Un garde-fou le bloque de toute façon : tout fichier neuf
@@ -178,7 +179,7 @@ function DevTrack({ navigate }) {
         <div>
           <Row width={260} left="primitives manquantes" right="5/5 promues et mergées (Tooltip, RadioGroup, Popover, Sheet, Skeleton). Le trou d'inventaire est fermé" />
           <Row width={260} left="composants « pending »" right="ils existent et marchent, mais la passe de validation du steward reste à faire. Elle se fait en lot sur /ui-kit/validation, jamais en éditant le JSON" />
-          <Row width={260} left="dette App.js" right="~330 boutons, ~150 inputs, ~27 selects bruts, résorbés par lots. Le ratchet ds-check-raw-elements grand-père l'existant et interdit le neuf. Non bloquant tant qu'on imite /ui-kit" />
+          <Row width={260} left="dette App.js" right="~330 boutons, ~150 inputs, ~27 selects bruts, résorbés par lots. Le ratchet ds-check-raw-elements grand-père l'existant et interdit le neuf. Non bloquant tant qu'on obéit à /ui-kit" />
           <Row width={260} left="ombres inline" right="91 occurrences à mapper sur l'échelle shadows. Débloqué par l'arbitrage du 24/09 : élévation par surfaces, aucun fork dark" />
         </div>
       </Step>
@@ -229,7 +230,7 @@ function ProductTrack({ navigate }) {
 
       <Step num={3} title="Demander un écran à un agent" icon={Wrench}>
         <P>
-          La phrase qui marche : « construis &lt;l'écran&gt; en imitant le block Écran-gabarit,
+          La phrase qui marche : « construis &lt;l'écran&gt; en suivant le block Écran-gabarit à la lettre,
           avec les 5 états et une seule action primaire ». Le reste suit tout seul.
         </P>
         <DoDont

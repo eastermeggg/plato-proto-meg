@@ -485,11 +485,12 @@
     "LoiHoverCard": {
       "name": "LoiHoverCard",
       "package": "plato",
-      "status": "beta",
+      "status": "stable",
       "usage": "Identity card of an article de loi shown on hover of an inline reference",
       "source": "src/components/ui/LoiHoverCard.js",
-      "demo": "src/components/ui-kit/LoiHoverLab.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
       "replacedBy": "null",
+      "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37663-55696",
       "docFile": "src/components/ui/LoiHoverCard.md",
       "sections": {
         "pattern": "",

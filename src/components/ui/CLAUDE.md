@@ -139,6 +139,7 @@ The catalog of every component (built or planned) lives at
 | Sheet | [Sheet.js](./Sheet.js) | [Sheet.md](./Sheet.md) | 37749:1024 | panneau latéral master (ex-Drawer, fusion 25/09) : sm 408 / wide 860 · right/left · --chat-offset · SheetSection |
 | AlertDialog | [AlertDialog.js](./AlertDialog.js) → ../AlertDialog.js | [AlertDialog.md](./AlertDialog.md) | 6724:21154 | confirmation : intents × Small/Medium |
 | SourceBadge | [SourceBadge.js](./SourceBadge.js) | [SourceBadge.md](./SourceBadge.md) | — | 10 types de source (piece · jp · loi …) |
+| LoiHoverCard | [LoiHoverCard.js](./LoiHoverCard.js) | [LoiHoverCard.md](./LoiHoverCard.md) | 37663:55696 | carte au survol d'une référence loi : tampon statut plein · extrait · Legifrance (+ LoiRef / LoiText / LoiCard) |
 | ParamPill | [ParamPill.js](./ParamPill.js) | [ParamPill.md](./ParamPill.md) | Plato---Design 1095:15027 | off · on (+ valeur) · halo clic ; state Diff non couvert |
 | TopBar | [TopBar.js](./TopBar.js) | [TopBar.md](./TopBar.md) | 37497:56098 | chrome fixe : leading · left · right |
 | PageHeader | [PageHeader.js](./PageHeader.js) | [PageHeader.md](./PageHeader.md) | 37511:1436 | Dossiers · Conversations · Dossier |

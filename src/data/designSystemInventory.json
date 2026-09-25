@@ -2607,10 +2607,10 @@
       "family": "Overlays & menus",
       "filePath": "src/components/ui/LoiHoverCard.js",
       "exists": true,
-      "figmaPage": null,
-      "figmaRef": null,
-      "notes": "Arrive de main (PR #74, lab /ui-kit/loi-hover) lors du merge de PR #75 le 24/09/2026. Popover fiche d'identite d'un article de loi (famille TEXTE violet, LoiRef/LoiText/LoiCard, ouvre PreviewPanel kind loi). Tokenise au merge (accents.violet + semantiques, ombre 2xl L3). Entree factuelle creee au resync ; validation steward via /ui-kit/c/LoiHoverCard. Steward (25/09/2026) : https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37663-55696&t=NcUGuAL2u8ZMmmXY-11",
-      "status": "needs-revision",
+      "figmaPage": "HoverCard/LawArticles",
+      "figmaRef": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37663-55696",
+      "notes": "Arrive de main (PR #74, lab /ui-kit/loi-hover) lors du merge de PR #75 le 24/09/2026. Popover fiche d'identite d'un article de loi (famille TEXTE violet, LoiRef/LoiText/LoiCard, ouvre PreviewPanel kind loi). Tokenise au merge (accents.violet + semantiques, ombre 2xl L3). Entree factuelle creee au resync ; validation steward via /ui-kit/c/LoiHoverCard. Rapproché du relevé Figma 37663:55696 le 25/09/2026 (demande steward) : carte refondue - en-tête dégradé + serif 20, tampon PLEIN (variants Badge success-solid/warning-solid ajoutés), lien « Voir sur Legifrance », champ unique « Créé le » ; tuile §, pied legifranceId et champs de version retirés. « Voir l'article » (panneau loi) conservé - documenté dans la description Figma du composant.",
+      "status": "validated",
       "used": true
     },
     {

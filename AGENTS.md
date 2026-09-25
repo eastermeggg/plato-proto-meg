@@ -34,7 +34,7 @@ DS font foi dans `ds.manifest.json`.
    entrée d'inventaire. Après édition d'une fiche : `npm run ds:docs`.
 10. **Avant de rendre la main** : `npm run ds:doctor && npm run build`
     (le doctor délègue fiches + frontières + éléments bruts ; 0 constat bloquant).
-11. **Imiter `/ui-kit`, jamais `App.js`.** Pour un nouvel écran ou une nouvelle
+11. **Obéir à `/ui-kit`, jamais à `App.js`.** Pour un nouvel écran ou une nouvelle
     surface, la référence à copier est un **block du playground**
     (`/ui-kit/blocks`, code `src/components/ui-kit/blocks.jsx`) - en premier le
     block **Écran-gabarit** (`/ui-kit/b/ecran-gabarit` : shell + PageHeader +

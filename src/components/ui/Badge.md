@@ -28,7 +28,7 @@ Compact, single-line label for status, category tags, and counts. Non-interactiv
 ## Props
 | Prop | Type | Default | Notes |
 |------|------|---------|-------|
-| `variant` | `default \| secondary \| outline \| destructive \| ai \| success \| info \| warning \| accent` | `default` | intent / color family |
+| `variant` | `default \| secondary \| outline \| destructive \| ai \| success \| info \| warning \| accent \| success-solid \| warning-solid` | `default` | intent / color family (`*-solid` = filled status stamps, e.g. LoiHoverCard statut) |
 | `size` | `sm \| md` | `sm` | |
 | `label` | string | — | label mode (text) |
 | `leftIcon` / `rightIcon` | Lucide icon | — | optional icons, label mode |

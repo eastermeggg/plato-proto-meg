@@ -9,10 +9,12 @@ import { colors, radius, typography } from '../../design-system/tokens';
  *  - Number:          pill (radius full) with a count, height 20/24px.
  *  - Icon-only:       pill (radius full) with a single icon, height 20/24px.
  *
- * 9 variants — 8 mapped 1:1 to the Figma design system:
+ * 11 variants — 8 mapped 1:1 to the Figma design system:
  *   Default · Secondary · Outline · Destructive · AI · Success · Info · Warning
  * + `accent` (code-first, validé steward 24/09/2026) : famille brand chaude
  *   pour les tags décoratifs (postes, « JP de référence », « Fiche cabinet »).
+ + `success-solid` / `warning-solid` (relevé 37663:55696) : tampons de statut
+ *   pleins - fond feedback base, texte foreground (LoiHoverCard).
  *
  * All colors / spacing / radius / typography come from src/design-system/tokens.js.
  */
@@ -33,6 +35,11 @@ const VARIANTS = {
   // contraste AA à taille caption (6.38:1 light / 8.66:1 dark), validé steward
   // 24/09/2026 (SIGNALEMENTS §16, accent-chip-check).
   accent:      { bg: colors.brand.subtle,          fg: colors.brand.darker.subtleForeground, border: null,                numberFg: colors.brand.darker.subtleForeground },
+  // success-solid / warning-solid — tampons de statut pleins (relevé Figma
+  // 37663:55696, LoiHoverCard). Même géométrie, fond feedback base + texte
+  // foreground ; le pendant subtle reste `success` / `warning`.
+  'success-solid': { bg: colors.feedback.success.base, fg: colors.feedback.success.foreground, border: null,             numberFg: colors.feedback.success.foreground },
+  'warning-solid': { bg: colors.feedback.warning.base, fg: colors.feedback.warning.foreground, border: null,             numberFg: colors.feedback.warning.foreground },
 };
 
 // Per-mode dimensions, exactly matching the Figma frame heights.
