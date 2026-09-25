@@ -1,16 +1,17 @@
 ---
 name: LoiHoverCard
 package: plato
-status: beta
+status: stable
 usage: Identity card of an article de loi shown on hover of an inline reference
 source: src/components/ui/LoiHoverCard.js
-demo: src/components/ui-kit/LoiHoverLab.js
+demo: src/components/ui-kit/componentDemos.jsx
 replacedBy: null
+figma: https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=37663-55696
 ---
 
 # LoiHoverCard
 
-Hover popover for articles de loi cited in prose: the reference (`LoiRef`, famille TEXTE violet + glyphe §) shows the card after a deliberate hover - statut badge, extrait, version fields, pied Légifrance. « Voir l'article » opens the full source (PreviewPanel kind `loi`). Beta: entrée d'inventaire à créer via le flux steward (`/ui-kit/inventory`).
+Hover popover for articles de loi cited in prose: the reference (`LoiRef`, famille TEXTE violet) shows the card after a deliberate hover. Card per Figma HoverCard/LawArticles 37663:55696 (steward 25/09/2026): cream-gradient header with serif title, SOLID statut Badge (`success-solid` / `warning-solid` / `destructive`), ticket separator, extrait, action row, one « Créé le » field. « Voir l'article » opens the full source (PreviewPanel kind `loi`); « Voir sur Legifrance » is the external link.
 
 ## When to use
 - Citing an article de loi inside any prose (motifs d'une décision, corps Word d'un acte, alinéas) - wrap the reference so readers preview without leaving the text.

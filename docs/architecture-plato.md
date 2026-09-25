@@ -115,7 +115,7 @@ Trois points d'entrée, du plus courant au plus rare :
 
 ## 7. Le chemin type « nouveau flow », en 6 étapes
 
-1. **Brief** : « construis <le flow> en imitant le block Écran-gabarit »
+1. **Brief** : « construis <le flow> en suivant le block Écran-gabarit à la lettre »
    (`/ui-kit/b/ecran-gabarit`). Le comment n'est pas tranché ? `ds-explore`
    d'abord.
 2. **Lire cette carte** + la fiche des composants concernés

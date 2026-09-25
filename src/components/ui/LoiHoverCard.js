@@ -2,16 +2,19 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from
 import { createPortal } from 'react-dom';
 import { ExternalLink } from 'lucide-react';
 import Badge from './Badge';
-import { colors, shadows } from '../../design-system/tokens';
+import { colors, radius, shadows } from '../../design-system/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LoiHoverCard - fiche d'identité d'un article de loi au survol d'une référence.
 //
-// Le survol donne l'aperçu (statut, extrait, repères de version) sans quitter
+// Le survol donne l'aperçu (statut, extrait, date de création) sans quitter
 // la lecture ; le clic « Voir l'article » ouvre la source complète (PreviewPanel
-// kind « loi »), Légifrance reste le lien externe de référence.
+// kind « loi »), « Voir sur Legifrance » reste le lien externe de référence.
 //
-// Famille TEXTE du système de badges : violet + glyphe §.
+// Carte : relevé Figma HoverCard/LawArticles 37663:55696 (steward 25/09/2026) -
+// en-tête dégradé crème, tampon de statut PLEIN (Badge success-solid /
+// warning-solid / destructive), séparateur ticket, un champ « Créé le ».
+// La référence inline (LoiRef) garde la famille TEXTE : violet.
 //   <LoiHoverCard article={...} onOpen={...}><LoiRef>L. 1221-6</LoiRef></LoiHoverCard>
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -27,9 +30,10 @@ const TEXTE = {
 };
 
 // Statut de version - rendu par le Badge du DS (pas de tampon maison).
+// Tampons PLEINS depuis le relevé 37663:55696 (success-solid / warning-solid).
 const STATUT_BADGE = {
-  vigueur: { variant: 'success', label: 'En vigueur' },
-  modifie: { variant: 'warning', label: 'Modifié' },
+  vigueur: { variant: 'success-solid', label: 'En vigueur' },
+  modifie: { variant: 'warning-solid', label: 'Modifié' },
   abroge:  { variant: 'destructive', label: 'Abrogé' },
 };
 
@@ -52,10 +56,8 @@ function injectStyles() {
 }
 .loi-ref:hover { background: ${TEXTE.tileBg}; text-decoration-style: solid; text-decoration-color: ${TEXTE.ink}; }
 .loi-ref:focus-visible { outline: 2px solid ${TEXTE.ink}; outline-offset: 2px; }
-.loi-card-open { color: ${TEXTE.text}; }
-.loi-card-open:hover { text-decoration: underline; text-underline-offset: 3px; }
-.loi-card-legifrance { color: ${colors.semantic.mutedForeground}; }
-.loi-card-legifrance:hover { color: ${colors.semantic.foreground}; }
+.loi-card-link { color: ${colors.feedback.info.text}; }
+.loi-card-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 `;
   document.head.appendChild(el);
 }
@@ -95,17 +97,19 @@ export function LoiText({ text, onOpenArticle }) {
   });
 }
 
-function Field({ label, value, full }) {
+function Field({ label, value }) {
   if (!value) return null;
   return (
-    <div style={{ minWidth: 0, gridColumn: full ? '1 / -1' : undefined }}>
-      <div style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.semantic.mutedForeground, marginBottom: 2 }}>{label}</div>
+    <div style={{ minWidth: 0, flex: 1 }}>
+      <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, textTransform: 'uppercase', color: colors.semantic.mutedForeground, marginBottom: 7 }}>{label}</div>
       <div style={{ fontSize: 12, fontWeight: 500, color: colors.semantic.secondaryForeground, lineHeight: '16px' }}>{value}</div>
     </div>
   );
 }
 
 // La carte seule - aussi exposée en statique (labs, galeries d'états).
+// Relevé Figma 37663:55696 : 380 de large, radius lg, ombre xl, en-tête en
+// dégradé background -> popover, tampon plein, extrait 14/20, champ « Créé le ».
 export function LoiCard({ article, onOpen, style }) {
   injectStyles();
   const st = STATUT_BADGE[article.statut] || STATUT_BADGE.vigueur;
@@ -113,52 +117,45 @@ export function LoiCard({ article, onOpen, style }) {
     <div
       style={{
         width: 380, maxWidth: 'calc(100vw - 24px)', background: colors.semantic.popover,
-        border: `1px solid ${colors.semantic.border}`, borderRadius: 12,
-        boxShadow: shadows['2xl'],
+        border: `1px solid ${colors.semantic.border}`, borderRadius: radius.lg,
+        boxShadow: shadows.xl,
         overflow: 'hidden', textAlign: 'left', ...style,
       }}
     >
-      {/* En-tête : glyphe §, intitulé serif, tampon de statut */}
-      <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-        <span aria-hidden style={{ width: 26, height: 26, borderRadius: 7, background: TEXTE.tileBg, border: `1px solid ${TEXTE.tileBorder}`, color: TEXTE.ink, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, flexShrink: 0, marginTop: 1 }}>§</span>
+      {/* En-tête : intitulé serif + code + tampon de statut plein */}
+      <div style={{ padding: '16px 16px 14px', display: 'flex', alignItems: 'flex-start', gap: 12, background: `linear-gradient(to top, ${colors.semantic.popover}, ${colors.semantic.background} 75%)` }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 500, letterSpacing: '-0.3px', lineHeight: '22px', color: colors.semantic.foreground }}>{article.article}</div>
-          <div style={{ fontSize: 12, color: colors.semantic.mutedForeground, marginTop: 1 }}>{article.code}</div>
+          <div style={{ fontFamily: SERIF, fontSize: 20, fontWeight: 500, letterSpacing: '-0.6px', lineHeight: '28px', color: colors.semantic.foreground }}>{article.article}</div>
+          <div style={{ fontSize: 12, lineHeight: '16px', letterSpacing: '0.12px', color: colors.semantic.mutedForeground }}>{article.code}</div>
         </div>
-        <Badge variant={st.variant} label={st.label} style={{ flexShrink: 0, marginTop: 2 }} />
+        <Badge variant={st.variant} label={st.label} style={{ flexShrink: 0 }} />
       </div>
 
       {/* Séparateur ticket */}
       <div style={{ borderTop: `1px dashed ${colors.semantic.border}`, margin: '0 16px' }} />
 
-      {/* Extrait - 4 lignes max, puis ouverture de la source */}
-      <div style={{ padding: '11px 16px 0' }}>
-        <p style={{ margin: 0, fontSize: 12.5, lineHeight: '19px', color: colors.semantic.secondaryForeground, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 4, overflow: 'hidden' }}>
+      {/* Extrait - 4 lignes max - puis la rangée d'actions */}
+      <div style={{ padding: '12px 16px 0', display: 'flex', flexDirection: 'column', gap: 5, alignItems: 'flex-start' }}>
+        <p style={{ margin: 0, fontSize: 14, lineHeight: '20px', color: colors.semantic.secondaryForeground, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 4, overflow: 'hidden' }}>
           {article.extrait}
         </p>
-        {onOpen && (
-          <button type="button" onClick={() => onOpen(article)} className="loi-card-open" style={{ background: 'none', border: 'none', padding: 0, marginTop: 5, fontSize: 12, fontWeight: 500, cursor: 'pointer' }}>
-            Voir l'article
-          </button>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {onOpen && (
+            <button type="button" onClick={() => onOpen(article)} className="loi-card-link" style={{ background: 'none', border: 'none', padding: 0, fontSize: 14, lineHeight: '20px', fontWeight: 500, cursor: 'pointer' }}>
+              Voir l'article
+            </button>
+          )}
+          {article.url && (
+            <a href={article.url} target="_blank" rel="noreferrer" className="loi-card-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, lineHeight: '20px', fontWeight: 500, textDecoration: 'none' }}>
+              Voir sur Legifrance <ExternalLink style={{ width: 16, height: 16 }} strokeWidth={1.75} />
+            </a>
+          )}
+        </div>
       </div>
 
-      {/* Champs d'identité - grille façon pass card */}
-      <div style={{ padding: '11px 16px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '9px 12px' }}>
+      {/* Champ d'identité */}
+      <div style={{ padding: 16, display: 'flex', alignItems: 'flex-start' }}>
         <Field label="Créé le" value={article.creeLe} />
-        <Field label="Version du" value={article.version} />
-        <Field label="Modifié par" value={article.modifiePar} full />
-        <Field label="Abrogé par" value={article.abrogePar} full />
-      </div>
-
-      {/* Pied : identifiant Légifrance + lien externe */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '8px 16px', borderTop: `1px solid ${colors.semantic.border}`, background: colors.semantic.background }}>
-        <span style={{ fontFamily: MONO, fontSize: 10, color: colors.semantic.foregroundMuted, letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{article.legifranceId}</span>
-        {article.url && (
-          <a href={article.url} target="_blank" rel="noreferrer" className="loi-card-legifrance" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 500, textDecoration: 'none', flexShrink: 0, transition: 'color 0.12s ease' }}>
-            <ExternalLink style={{ width: 11, height: 11 }} strokeWidth={1.75} /> Légifrance
-          </a>
-        )}
       </div>
     </div>
   );

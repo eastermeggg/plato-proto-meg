@@ -90,6 +90,7 @@ import ChartReal from '../ui/Chart';
 import AlertReal from '../ui/Alert';
 import InputGroupReal, { InputGroupText, InputGroupKbd, InputGroupCheck } from '../ui/InputGroup';
 import SliderReal from '../ui/Slider';
+import LoiHoverCardReal, { LoiCard, LoiRef } from '../ui/LoiHoverCard';
 
 // Calendrier contrôlé (sélection + navigation de mois en état local).
 function CalendarDemo({ size, weekendsOff, withDetail }) {
@@ -616,6 +617,31 @@ function DialogTrigger(props) {
         {props.children}
       </DialogReal>
     </ScopedDialogFrame>
+  );
+}
+
+
+const LOI_DEMO_ARTICLE = {
+  article: 'Art. L. 1221-6',
+  code: 'Code du travail',
+  creeLe: '1 mai 2008',
+  extrait: "Les informations demandées, sous quelque forme que ce soit, au candidat à un emploi ne peuvent avoir comme finalité que d'apprécier sa capacité à occuper l'emploi proposé ou ses aptitudes professionnelles. Ces informations doivent présenter un lien direct et nécessaire avec l'emploi proposé.",
+  url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006900843',
+};
+
+function LoiHoverCardDemo({ statut }) {
+  const article = { ...LOI_DEMO_ARTICLE, statut };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'flex-start', maxWidth: 420 }}>
+      <p style={{ margin: 0, fontSize: 14, lineHeight: '22px', color: colors.semantic.secondaryForeground }}>
+        Aux termes de l'{' '}
+        <LoiHoverCardReal article={article} onOpen={noop}>
+          <LoiRef>article L. 1221-6</LoiRef>
+        </LoiHoverCardReal>
+        {' '}du Code du travail, les informations demandées au candidat doivent présenter un lien direct avec l'emploi proposé.
+      </p>
+      <LoiCard article={article} onOpen={noop} />
+    </div>
   );
 }
 
@@ -1585,6 +1611,14 @@ export const componentDemos = {
       </CardReal>
     ),
   },
+  LoiHoverCard: {
+    description: "Fiche d'identité d'un article de loi au survol d'une référence (relevé Figma 37663:55696). Tampon de statut PLEIN (Badge success-solid / warning-solid / destructive), « Voir l'article » ouvre le panneau loi, Legifrance en lien externe. Survole la référence dans la phrase ; la carte statique montre le statut choisi. Fiche LoiHoverCard.md.",
+    controls: {
+      statut: { type: 'select', default: 'vigueur', options: ['vigueur', 'modifie', 'abroge'], description: 'Statut de version : En vigueur · Modifié · Abrogé.' },
+    },
+    render: v => <LoiHoverCardDemo statut={v.statut} />,
+  },
+
   Sheet: {
     description: "Master des panneaux latéraux (Figma 37749:1024, fusion Sheet/Drawer 25/09). Doctrine : Dialog pour CRÉER, Sheet pour MODIFIER un objet existant - le chat reste visible (var(--chat-offset)) pour piloter l'agent sur ce que le panneau montre. 3 exemples assemblés en SheetSection + primitives existantes. Fiche Sheet.md.",
     controls: {
