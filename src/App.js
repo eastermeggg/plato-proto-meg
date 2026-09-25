@@ -8342,7 +8342,7 @@ export default function App() {
               )}
               {(editPanel.type === 'victime' || editPanel.type === 'fait-generateur') && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     if (editPanel.type === 'victime') {
                       setVictimeData({
@@ -8367,7 +8367,7 @@ export default function App() {
               )}
               {editPanel.type === 'dossier-expertise' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     setCommentaireExpertise(document.getElementById('proc-commentaire')?.value || '');
                     setEditPanel(null);
@@ -8403,7 +8403,7 @@ export default function App() {
                   )}
                   {!data && <div />}
                   <div className="flex gap-2">
-                    <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
                       const newVi = {
                         id: data?.id || `vi-${Date.now()}`,
@@ -8437,7 +8437,7 @@ export default function App() {
               {/* IV ligne save - Type A */}
               {editPanel.type === 'iv-ligne-a' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     const montant = parseFloat(document.getElementById('iv-ligne-montant')?.value) || 0;
                     const intitule = document.getElementById('iv-ligne-intitule')?.value || '';
@@ -8458,7 +8458,7 @@ export default function App() {
               {/* IV ligne save - Type B */}
               {editPanel.type === 'iv-ligne-b' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     const montant = parseFloat(document.getElementById('iv-ligne-montant')?.value) || 0;
                     const intitule = document.getElementById('iv-ligne-intitule')?.value || '';
@@ -8479,7 +8479,7 @@ export default function App() {
               {/* IV ligne save - Type C */}
               {editPanel.type === 'iv-ligne-c' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     const totalAmount = parseFloat(document.getElementById('iv-ligne-total-amount')?.value) || 0;
                     const label = document.getElementById('iv-ligne-label')?.value || '';
@@ -8505,7 +8505,7 @@ export default function App() {
               {/* IV ligne save - Type D */}
               {editPanel.type === 'iv-ligne-d' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     const partIndividuelle = parseFloat(document.getElementById('iv-ligne-part')?.value) || 0;
                     const dureeIndemnisation = document.getElementById('iv-ligne-duree')?.value || '';
@@ -8530,7 +8530,7 @@ export default function App() {
               {/* IV ligne TP save - Type D (déduction TP per VI) */}
               {editPanel.type === 'iv-ligne-d-tp' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     const type = document.getElementById('iv-tp-type')?.value || 'pension-reversion';
                     const label = document.getElementById('iv-tp-label')?.value || '';
@@ -8559,7 +8559,7 @@ export default function App() {
               {/* Panel nouvelle-procedure supprimé */}
               {editPanel.type === 'dossier-edit' && (
                 <div className="px-5 py-4 flex justify-end gap-2">
-                  <button onClick={() => setEditPanel(null)} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                  <Button variant="ghost" size="md" onClick={() => setEditPanel(null)} label="Annuler" />
                   <Button variant="primary" size="md" onClick={() => {
                     setDossierRef(document.getElementById('dossier-ref')?.value || dossierRef);
                     setDossierIntitule(document.getElementById('dossier-intitule')?.value || dossierIntitule);
@@ -8590,7 +8590,7 @@ export default function App() {
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
                       const updatedLigne = {
                         ...data,
@@ -8632,7 +8632,7 @@ export default function App() {
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
                       const debutVal = document.getElementById('pgpa-percu-debut')?.value || data.periodeDebut;
                       const finVal = document.getElementById('pgpa-percu-fin')?.value || data.periodeFin;
@@ -8675,7 +8675,7 @@ export default function App() {
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
                       const montantBrut = parseFloat(document.getElementById('pgpa-ij-brut')?.value) || 0;
                       const csgCrds = parseFloat(document.getElementById('pgpa-ij-csg')?.value) || 0;
@@ -8716,7 +8716,7 @@ export default function App() {
                     Supprimer
                   </button>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} className="px-4 py-2 text-foreground-tertiary hover:bg-background-subtle rounded-lg text-body-medium transition-colors">Annuler</button>
+                    <Button variant="ghost" size="md" onClick={() => { setEditPanel(null); setEditingPieceIds([]); }} label="Annuler" />
                     <Button variant="primary" size="md" onClick={() => {
                       const debutVal = document.getElementById('dft-debut')?.value || data.debut;
                       const finVal = document.getElementById('dft-fin')?.value || data.fin;
