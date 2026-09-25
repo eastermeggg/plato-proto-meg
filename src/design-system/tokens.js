@@ -536,6 +536,10 @@ export const motion = {
     inOut:    'ease-in-out',
     bounce:   'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
     linear:   'linear',
+    // Les deux courbes signature de la nav (NAV-BEHAVIOR.md) - nommées le
+    // 25/09/2026 (doctrine motion, docs/motion.md) : slot nav 300ms, peek 240ms.
+    navSignature: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    navPeek:      'cubic-bezier(0.32, 0.72, 0, 1)',
   },
   animation: {
     shimmer:               { duration: '1.5s',  easing: 'ease-in-out' },

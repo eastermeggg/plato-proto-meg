@@ -47,6 +47,13 @@ DS font foi dans `ds.manifest.json`.
     **Avant un nouveau FLOW** (pas juste un écran) : lire
     `docs/architecture-plato.md` - la carte produit (nav 3 niveaux, shell,
     objets métier, points de branchement, chemin type en 6 étapes).
+12. **Le motion est doctriné** (`docs/motion.md`) : durées et courbes de
+    `tokens.motion` uniquement (le doctor signale toute `cubic-bezier`
+    inconnue), on anime `opacity`/`transform` (jamais le layout, sauf le slot
+    nav), un seul élément vivant par surface, hover/press répondent en 150ms,
+    micro-interactions du catalogue avant d'en inventer. Nouvelle animation =
+    keyframe nommée (`index.css`, protégé) + `tokens.motion.animation` +
+    ligne au catalogue - jamais un `@keyframes` inline.
 
 **Vérité Figma mixte par surface, jamais globale** — registre + 4 règles
 d'arbitrage : `docs/design-truth.md` (+ `figma.note` du manifeste). Surface
@@ -72,6 +79,7 @@ le seul chemin vers `validated`.
 | Composants canoniques + fiches | `src/components/ui/` (+ `CLAUDE.md` du dossier) ; esquisses non promues : `ui-kit/previews.jsx` |
 | Registre de vérité Figma | `docs/design-truth.md` |
 | Dark mode (architecture var()) | `docs/dark-mode.md` · thème injecté par `src/design-system/theme.js` |
+| Motion & micro-interactions (règles + catalogue) | `docs/motion.md` |
 | Tables (custom, pas shadcn) | `docs/table-system.md` |
 | Migration hex → tokens | `DECISIONS-HEX.md` |
 | Commencer ici (handover) | `HANDOVER.md` |

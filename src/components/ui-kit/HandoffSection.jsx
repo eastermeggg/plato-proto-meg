@@ -238,6 +238,7 @@ function ProductTrack({ navigate }) {
             'Le gabarit : shell canonique + PageHeader, jamais une barre refaite à la main',
             'Les 5 états si l\'écran montre des données : vide, chargement, erreur, partiel, idéal',
             'Une seule action primaire par écran, le reste en secondaire',
+            'Le motion du catalogue (docs/motion.md) : durées et courbes de tokens.motion, micro-interactions existantes avant d\'en inventer',
             'À la fin : ds:doctor 0 bloquant + build OK, annoncés dans la réponse',
           ]}
           dontList={[
