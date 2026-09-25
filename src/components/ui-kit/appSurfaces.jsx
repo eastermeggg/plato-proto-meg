@@ -67,7 +67,7 @@ export function AccueilContent() {
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: colors.semantic.background }}>
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '72px 24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <span style={{ ...mono11, color: colors.brand.base }}>Bonjour Meghan</span>
+        <span style={{ ...mono11, color: colors.brand.subtleForeground }}>Bonjour Meghan</span>
         <h1 style={{ ...serif, fontSize: 30, fontWeight: 400, letterSpacing: '-0.6px', lineHeight: '34px', color: colors.semantic.foreground, textAlign: 'center', margin: '10px 0 0' }}>
           Que puis-je faire pour vous aujourd'hui ?
         </h1>
@@ -178,7 +178,7 @@ export function ParametresUsageContent() {
             </span>
             <span style={{ ...serif, fontSize: 18, fontWeight: 500, color: colors.semantic.foreground }}>Licence {plan.name}</span>
           </div>
-          <WeeklyUsageCard plan={plan} pct={63} variant="full" trial={{ tone: colors.banner.warning, daysRemaining: 5 }} />
+          <WeeklyUsageCard plan={plan} pct={63} variant="full" />
         </div>
 
         <div className="flex flex-col gap-3">

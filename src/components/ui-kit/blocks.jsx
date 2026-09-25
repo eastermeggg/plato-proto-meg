@@ -13,6 +13,7 @@ import ConversationTopBar from '../shell/ConversationTopBar';
 import SettingsSidebar from '../shell/SettingsSidebar';
 import { DomainTableRowsDemo } from './componentDemos';
 import { InfosTabContent, ChiffrageTabContent, PosteDetailContent, MatterChatPanel, ConversationContent } from './matterTabContents';
+import { AccueilContent, DossiersListContent, ParametresUsageContent, PieceChatLayout } from './appSurfaces';
 import GabaritContent from './gabaritContent';
 
 // Rendu d'une famille de rangées du système de tables (assemblage complet),
@@ -187,14 +188,14 @@ function ConversationsListContent() {
 const PAGE_DEFS = {
   accueil: {
     active: 'home',
-    renderColumn: (menu) => (<>{floatMenu(menu)}<Zone>Contenu accueil (hors scope)</Zone></>),
+    renderColumn: (menu) => (<>{floatMenu(menu)}<AccueilContent /></>),
   },
   'mes-dossiers': {
     active: 'dossiers',
     renderColumn: (menu) => (<>
       {floatMenu(menu)}
       <PageHeader title="Mes dossiers" action={<Button variant="primary" size="sm" icon={Plus} label="Nouveau dossier" onClick={noop} />} tabs={[{ key: 'ouverts', label: 'Ouverts', count: 50 }, { key: 'archives', label: 'Archivés', count: 8 }]} activeTab="ouverts" onTabChange={noop} />
-      <Zone>Liste des dossiers (hors scope)</Zone>
+      <DossiersListContent />
     </>),
   },
   'mes-conversations': {
@@ -216,8 +217,8 @@ const PAGE_DEFS = {
     active: 'settings',
     renderRail: (shell) => <SettingsSidebar onCollapse={shell.collapse} />,
     renderColumn: (menu) => (<>
-      <TopBar leading={menu} left={<span style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, color: colors.semantic.foreground, letterSpacing: '-0.4px' }}>Général</span>} />
-      <Zone>Panneau de réglages - Général (hors scope)</Zone>
+      <TopBar leading={menu} left={<span style={{ fontFamily: "'RL Para Trial Central', 'Albra', Georgia, serif", fontSize: 20, color: colors.semantic.foreground, letterSpacing: '-0.4px' }}>Mon usage</span>} />
+      <ParametresUsageContent />
     </>),
   },
 };
@@ -351,11 +352,76 @@ const GABARIT_DEMO = {
   },
 };
 
+// ── LE hero d'accueil (front door assistant) ─────────────────────────────
+const ACCUEIL_DEMO = {
+  controls: {
+    state: { group: 'État', type: 'select', default: 'Ouverte', options: STATE_OPTS, description: 'Rail : ouverte, masquée (« Menu »), ou peek (overlay).' },
+  },
+  render: (v) => {
+    const state = STATE_BY_LABEL[v.state] || 'ouverte';
+    const block = { active: 'home', initial: state, height: SHELL_CANVAS_H, renderColumn: (menu) => (<>{floatMenu(menu)}<AccueilContent /></>) };
+    return <ShellCanvas key={state} block={block} interactive />;
+  },
+};
+
+// ── LE layout signature : pièce ouverte à GAUCHE du chat persistant ────────
+const PIECE_KIND_BY_LABEL = { 'Pièce (document)': 'piece', Jurisprudence: 'jp', 'Article de loi': 'loi' };
+const PIECE_DEMO = {
+  controls: {
+    objet: { group: 'Contenu', type: 'select', default: 'Pièce (document)', options: ['Pièce (document)', 'Jurisprudence', 'Article de loi'], description: 'Le panneau ouvert à gauche du chat : une pièce (PDF), une jurisprudence, ou un article de loi. Le chat Plato reste visible - on continue de parler à l\'assistant en lisant.' },
+  },
+  render: (vals) => {
+    const kind = PIECE_KIND_BY_LABEL[vals.objet] || 'piece';
+    // Doctrine dossier : nav toujours auto-repliée (« Menu » flottant + peek).
+    const state = 'masquee';
+    const block = {
+      active: 'dossiers', initial: state, height: SHELL_CANVAS_H,
+      renderColumn: (menu) => <PieceChatLayout kind={kind} menu={floatMenu(menu)} />,
+    };
+    return (
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <div style={{ minWidth: 1160 }}>
+          <ShellCanvas key={kind} block={block} interactive />
+        </div>
+      </div>
+    );
+  },
+};
+
 // ── Registre ────────────────────────────────────────────────────────────────
 // Chaque block = mêmes clés qu'une entrée d'inventaire composant (id, title,
 // family, status, filePath, figmaRef, description) + un `demo` (le playground)
 // et une `doc` (fiche markdown rendue dans la page, comme componentDocs).
 export const SHELL_BLOCKS = [
+  {
+    id: 'accueil',
+    family: 'Shell & pages',
+    title: 'Accueil - hero assistant',
+    kind: 'shell',
+    status: 'pending',
+    filePath: 'src/components/ui-kit/appSurfaces.jsx',
+    figmaRef: 'https://www.figma.com/design/?node-id=4127-30731',
+    figmaPage: 'App Shell',
+    description: "La porte d'entrée du produit : salutation serif, composer hero (AssistantComposer), pills de démarrage, et les récents (dossiers / conversations). L'assistant répond avant même d'ouvrir un dossier.",
+    demo: ACCUEIL_DEMO,
+    doc: `### Rôle
+Le **front door** de Plato : une surface centrée, discovery-first, où l'assistant est immédiatement disponible (le composer **hero**) avant tout dossier. Ce n'est pas un listing - c'est l'accueil « Hey John ». On le copie tel quel pour toute page d'atterrissage produit.
+
+### Controls
+- **state** - l'état du rail : **ouverte**, **masquée** (« Menu » flottant), ou **peek**.
+
+### Le gabarit (structure)
+1. **Colonne centrée** \`maxWidth 720\`, scrollable, fond \`colors.semantic.background\`.
+2. **Salutation** - eyebrow mono (« Bonjour {prénom} », teinte brand) + titre **serif** (« Que puis-je faire pour vous aujourd'hui ? ») + sous-texte muted (max 440).
+3. **\`AssistantComposer variant="hero"\`** - le composer canonique, jamais un champ de saisie brut inline. Suivi des **\`SuggestionPill\`** de démarrage (4), alignées sur le bord interne du composer.
+4. **Récents** - deux colonnes (Dossiers récents / Conversations récentes), en-têtes mono, rangées cliquables.
+
+### Un agent NE fait jamais
+Pas de champ de saisie brut - ni textarea ni input HTML (c'est \`AssistantComposer\`) ; pas de pills recodées (\`SuggestionPill\`) ; pas de titre serif tapé à la main hors de la hiérarchie typographique du thème.
+
+### Doctrine
+Composer hero = \`AssistantComposer\` (fiche \`AssistantComposer.md\`). Voir le block **Shell** pour le châssis (l'Accueil est aussi la page « Accueil » du sélecteur du Shell).`,
+  },
   {
     id: 'ecran-gabarit',
     family: 'Shell & pages',
@@ -479,6 +545,35 @@ Plancher \`minWidth: 1160\` pour préserver le chrome complet (scroll horizontal
 
 ### Doctrine
 « V2 » (Figma 4046) : breadcrumb + onglets + outils en chrome fixe, en-tête de page sticky dans le contenu. Registre : \`docs/design-truth.md\`.`,
+  },
+  {
+    id: 'piece',
+    family: 'Shell & pages',
+    title: 'Pièce ouverte (panneau + chat)',
+    kind: 'shell',
+    status: 'pending',
+    filePath: 'src/components/ui-kit/appSurfaces.jsx',
+    figmaRef: 'https://www.figma.com/design/?node-id=37375-9358',
+    figmaPage: 'Preview Panel',
+    description: 'Le layout signature : un panneau document (PreviewPanel) ouvert à GAUCHE du chat Plato, qui reste visible. On lit une pièce, une JP ou une loi tout en continuant de parler à l\'assistant. Choisis le type d\'objet ouvert.',
+    demo: PIECE_DEMO,
+    doc: `### Rôle
+Le layout **signature** de Plato : un objet (pièce, jurisprudence, article de loi) s'ouvre dans le **\`PreviewPanel\`** à **gauche**, et le **chat Plato reste visible à droite** (le contrat \`--chat-offset\`). On ne quitte jamais la conversation pour regarder un document : on lit et on parle à l'assistant en même temps.
+
+### Controls
+- **objet** - le type ouvert dans le panneau : **Pièce (document)** (PDF paginé + extraits cités), **Jurisprudence** (faits / moyens / motifs / dispositif), **Article de loi** (alinéas). Le \`PreviewPanel\` adapte corps, barre méta et pied selon le \`kind\`.
+
+### Le gabarit (structure)
+1. **Colonne document** \`flex-1\` - le \`PreviewPanel\` en plein cadre (\`embedded={false}\` → \`h-full\`), avec son propre chrome (titre serif, barre méta, rail citations). Nav auto-repliée (« Menu » flottant).
+2. **Panneau chat** - le rail Plato **toujours visible** à droite (\`MatterChatPanel\` : en-tête \`TopBar\`, fil, \`AssistantComposer\` en pied), largeur fixe \`flex-shrink-0\`.
+
+Plancher \`minWidth: 1160\` pour préserver le panneau + le chat côte à côte (scroll horizontal en deçà).
+
+### Un agent NE fait jamais
+Pas de visionneuse de document recodée (\`PreviewPanel\`, un kind par source) ; pas de panneau qui **couvre** le chat (il s'ouvre à côté, jamais par-dessus) ; pas de barre de chat inline (\`MatterChatPanel\` + \`TopBar\`).
+
+### Doctrine
+« Le contenu s'ouvre à gauche du chat » : \`docs\` / mémoire *panel-open-style*. Panneau systématisé : fiche \`PreviewPanel.md\`, lab complet \`/ui-kit/preview-panel\`.`,
   },
 ];
 
