@@ -10,7 +10,7 @@
 // componentDemos.jsx render(values) call sites won't change when we migrate.
 
 import React, { useState } from 'react';
-import { Check, X as XIcon, Upload, Sparkles, Inbox, FileText, Plus, Calendar, Eye, EyeOff } from 'lucide-react';
+import { Check, Upload, Sparkles, Inbox, FileText, Plus, Calendar, Eye, EyeOff } from 'lucide-react';
 import { colors } from '../../design-system/tokens';
 import BadgeReal from '../ui/Badge';
 import InputReal from '../ui/Input';
@@ -19,6 +19,8 @@ import CheckboxReal from '../ui/Checkbox';
 import SwitchReal from '../ui/Switch';
 import RadioGroupReal from '../ui/RadioGroup';
 import TooltipReal from '../ui/Tooltip';
+import SkeletonReal from '../ui/Skeleton';
+import SheetReal from '../ui/Sheet';
 import TextareaReal from '../ui/Textarea';
 import SelectReal from '../ui/Select';
 import TabsReal from '../ui/Tabs';
@@ -105,24 +107,8 @@ export const Avatar = AvatarReal;
 export const Separator = SeparatorReal;
 
 // ============== SKELETON ==============
-export function Skeleton({ width = '100%', height = 14, radius = 4, count = 1 }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: width === '100%' ? '100%' : 'auto' }}>
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="animate-shimmer"
-          style={{
-            width,
-            height,
-            borderRadius: radius,
-            background: '#eeece6',
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+// Promu -> src/components/ui/Skeleton.js (fiche Skeleton.md, tokenisé, surface dérivée).
+export const Skeleton = SkeletonReal;
 
 // ============== TABS ==============
 // Promu -> src/components/ui/Tabs.js (fiche Tabs.md, variant inline seul).
@@ -219,47 +205,9 @@ export function Popover({ open: openProp, anchor, children, side = 'bottom', ali
 // Modal : promu en composant DS -> src/components/ui/Dialog.js (fiche Dialog.md).
 
 
-// ============== SHEET / DRAWER ==============
-export function Sheet({ open, side = 'right', onClose, title, children, width = 360 }) {
-  if (!open) return null;
-  const sideStyles = {
-    right:  { right: 0, top: 0, bottom: 0, width },
-    left:   { left: 0,  top: 0, bottom: 0, width },
-    bottom: { left: 0,  right: 0, bottom: 0, height: 320 },
-    top:    { left: 0,  right: 0, top: 0,    height: 320 },
-  };
-  return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 5 }}>
-      <div
-        role="button"
-        tabIndex={-1}
-        aria-label="Fermer"
-        onClick={onClose}
-        onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
-        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          ...sideStyles[side],
-          background: '#fff',
-          padding: 20,
-          boxShadow: '-4px 0 12px rgba(0,0,0,0.08)',
-          display: 'flex', flexDirection: 'column', gap: 12,
-          overflow: 'auto',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: colors.semantic.foreground }}>{title}</h2>
-          <button onClick={onClose} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 4 }}>
-            <XIcon style={{ width: 16, height: 16, color: colors.semantic.foregroundSecondary }} />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
+// ============== SHEET ==============
+// Promu -> src/components/ui/Sheet.js (fiche Sheet.md, tokenisé, scrim overlay + Échap).
+export const Sheet = SheetReal;
 
 // ============== SIDEBAR ==============
 export function Sidebar({ items = [], active, onChange, header }) {
