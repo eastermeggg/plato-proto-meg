@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, BookOpen, Terminal, Map, Wrench, Eye, Package } from 'lucide-react';
+import { ArrowUpRight, BookOpen, Terminal, Map, Wrench, Eye, Package, Download } from 'lucide-react';
 import { colors } from '../../design-system/tokens';
 import Tabs from '../ui/Tabs';
 import Badge from '../ui/Badge';
@@ -297,6 +297,22 @@ export default function HandoffSection({ navigate }) {
         racine. Rien ne dépend de ma mémoire : si un truc n'est écrit nulle part, c'est qu'il
         n'existe pas. Meghan.
       </p>
+
+      <div style={{ border: `1px solid ${colors.semantic.border}`, borderRadius: 12, background: colors.semantic.card, padding: '14px 18px', marginBottom: 24 }}>
+        <Kicker>Le package, à emporter</Kicker>
+        <p style={{ fontSize: 13, color: colors.semantic.secondaryForeground, lineHeight: '19px', margin: '8px 0 10px' }}>
+          Tout tient dans le repo : le design system (<Code>src/components/ui</Code> +{' '}
+          <Code>tokens.js</Code>), la plateforme, le proto, les garde-fous et les docs.
+          Téléchargez, puis <Code>npm install && npm start</Code> : vous avez tout. Le zip donne
+          le code et les docs ; pour l'historique git, la CI et la protection de branche,
+          clonez plutôt le repo. Le split en vrai package npm « ui-product » viendra plus tard
+          (conditions : volet Product, étape Packages).
+        </p>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Button variant="primary" size="sm" icon={Download} label="Télécharger le repo (.zip, main)" onClick={() => window.open('https://github.com/eastermeggg/plato-proto-meg/archive/refs/heads/main.zip', '_blank')} />
+          <Button variant="outline" size="sm" icon={ArrowUpRight} iconPosition="trailing" label="Le repo sur GitHub" onClick={() => window.open('https://github.com/eastermeggg/plato-proto-meg', '_blank')} />
+        </div>
+      </div>
 
       <div style={{ border: `1px solid ${colors.semantic.border}`, borderRadius: 12, background: colors.semantic.card, padding: '14px 18px', marginBottom: 24 }}>
         <Kicker>Jour 1 : reprendre le rôle de steward</Kicker>
