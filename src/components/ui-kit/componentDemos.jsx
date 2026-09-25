@@ -1642,9 +1642,9 @@ export const componentDemos = {
         align={v.align}
         anchor={<P.Button variant="outline" label="Open popover" />}
       >
-        <div style={{ fontSize: 13, color: '#292524', maxWidth: 220 }}>
+        <div style={{ fontSize: 13, color: colors.semantic.foreground, maxWidth: 220 }}>
           <strong style={{ display: 'block', marginBottom: 4 }}>Quick actions</strong>
-          <p style={{ margin: 0, color: '#78716c' }}>Anchored to the trigger. Click outside to dismiss.</p>
+          <p style={{ margin: 0, color: colors.semantic.mutedForeground }}>Anchored to the trigger. Click outside or press Escape to dismiss.</p>
         </div>
       </P.Popover>
     ),

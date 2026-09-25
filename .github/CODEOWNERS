@@ -1,0 +1,14 @@
+# La steward du design system revoit tout ce qui touche au coeur du systeme.
+# GitHub demande automatiquement sa revue sur ces chemins ; la protection de
+# branche main exige l'approbation code owner (les admins peuvent outrepasser
+# tant que la team n'est pas complete).
+
+/src/components/ui/            @eastermeggg
+/src/design-system/            @eastermeggg
+/src/index.css                 @eastermeggg
+/tailwind.config.js            @eastermeggg
+/ds.manifest.json              @eastermeggg
+/src/data/designSystemInventory.json  @eastermeggg
+/docs/design-truth.md          @eastermeggg
+/AGENTS.md                     @eastermeggg
+/scripts/ds-raw-baseline.json  @eastermeggg

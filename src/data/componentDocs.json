@@ -689,6 +689,22 @@
         "demo": ""
       }
     },
+    "Popover": {
+      "name": "Popover",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Rich content anchored to a trigger, dismissed on outside-click / Escape",
+      "source": "src/components/ui/Popover.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "null",
+      "docFile": "src/components/ui/Popover.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
     "PreviewPanel": {
       "name": "PreviewPanel",
       "package": "plato",

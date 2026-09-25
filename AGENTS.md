@@ -33,7 +33,7 @@ DS font foi dans `ds.manifest.json`.
    conventions §7), sa démo jouable (`componentDemos.jsx`, `data-demo`) et son
    entrée d'inventaire. Après édition d'une fiche : `npm run ds:docs`.
 10. **Avant de rendre la main** : `npm run ds:doctor && npm run build`
-    (le doctor délègue fiches + frontières ; 0 constat bloquant).
+    (le doctor délègue fiches + frontières + éléments bruts ; 0 constat bloquant).
 11. **Imiter `/ui-kit`, jamais `App.js`.** Pour un nouvel écran ou une nouvelle
     surface, la référence à copier est un **block du playground**
     (`/ui-kit/blocks`, code `src/components/ui-kit/blocks.jsx`) - en premier le
@@ -48,7 +48,12 @@ DS font foi dans `ds.manifest.json`.
 **Vérité Figma mixte par surface, jamais globale** — registre + 4 règles
 d'arbitrage : `docs/design-truth.md` (+ `figma.note` du manifeste). Surface
 absente du registre ou doute : question steward, jamais de correction
-automatique.
+automatique. **Régime de création (25/09) : le Figma est le socle (thème +
+surfaces héritées), la création de nouvelles surfaces est agent-first, en
+code** — pas de page Figma requise ; en échange : tokens only, systématisation
+sur l'existant, fiche + démo + inventaire `pending`, rendu light/dark dans la
+PR (détail : design-truth §Régime de création). La validation steward reste
+le seul chemin vers `validated`.
 
 Écarts : dettes assumées → `ECARTS.md` (steward seul) ; constats d'agents →
 `SIGNALEMENTS.md` (local, gitignoré) puis `ds-audit --harvest` (conventions §2).
@@ -71,7 +76,7 @@ automatique.
 ## Commandes
 
 - `npm start` · `npm run build` (CRA)
-- `npm run ds:doctor` — garde-fou DS (hex, manifeste, fiches, frontières) · `--report` / `--json`
+- `npm run ds:doctor` — garde-fou DS (hex, manifeste, fiches, frontières, éléments bruts) · `--report` / `--json`
 - `npm run ds:docs` · `npm run ds:tokens` — régénèrent docs composants / catalogue tokens
 - `npm run ds:visual` — diffs visuels Playwright (baselines : jamais en local, label `ds-baselines` en CI)
 - `node scripts/ds-audit.mjs` · `node scripts/ds-changelog.mjs` — état du DS · changelog par composant

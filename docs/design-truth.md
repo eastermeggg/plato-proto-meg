@@ -6,7 +6,35 @@
 > **mixte, décidée par surface** - jamais globale. En cas de doute sur une
 > ligne : question pour la steward, pas de correction automatique.
 
-Dernière mise à jour : 22/09/2026.
+Dernière mise à jour : 25/09/2026.
+
+## Régime de création (décision steward du 25/09/2026)
+
+**Le Figma est le socle, pas le passage obligé.** Il reste la source du thème
+(tokens, régime `ds-figma-sync` inchangé) et des surfaces héritées listées au
+registre ci-dessous. Mais la création de **nouvelles** surfaces et de
+**nouveaux** composants se fait **directement via les agents, en code** - une
+page Figma n'est plus un prérequis. Le chemin « surface dérivée » inauguré par
+Tooltip / Popover / Sheet / Skeleton (PR #91-93) devient la voie normale, pas
+l'exception.
+
+Ce qui remplace la maquette quand il n'y en a pas :
+
+1. **Tokens sémantiques uniquement** - le thème (lui, Figma-synchronisé) borne
+   le rendu ; rien n'est inventé en dehors.
+2. **Systématisation sur l'existant** : la nouvelle surface se dérive des
+   composants et blocks voisins (comme Popover dérivé de SaveDestinationPopover
+   / JPPopoverCard), jamais du goût du jour de l'agent.
+3. **Le trio fiche + démo jouable + entrée d'inventaire**, et un rendu
+   light + dark joint à la PR (la revue visuelle remplace la frame).
+4. **La validation steward inchangée** : la création entre en `pending` ; le
+   passage `validated` reste un geste humain.
+
+Une surface née sous ce régime entre au registre avec la vérité **code** dès sa
+création. L'export vers Figma reste possible ensuite (régime « code → Figma »,
+comme la page Labour) - jamais l'inverse par défaut. `ds-figma-build` reste
+disponible quand une frame existe (héritage, portages pixel-perfect) ; les
+4 règles d'arbitrage ci-dessous continuent de régir ces portages.
 
 ## Légende
 

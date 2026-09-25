@@ -83,6 +83,7 @@ import { GuaranteeChips, ConnectorPromoBanner, ConnectorPromoPanel, MailFloating
 import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
 import LoiHoverLab from './components/ui-kit/LoiHoverLab';
 import ArbitragesLab from './components/ui-kit/ArbitragesLab';
+import HandoffSection from './components/ui-kit/HandoffSection';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
 import WeeklyUsageCard from './components/billing/WeeklyUsageCard';
@@ -1456,7 +1457,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
 const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'loi-hover', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion', 'arbitrages'];
-const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp'];
+const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'handoff', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp'];
 
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
@@ -18440,6 +18441,7 @@ export default function App() {
           <NavItem label="Composants" icon={ClipboardList} active={inContext} onClick={() => navigate('/ui-kit/inventory')} />
           <NavItem label="Blocks" icon={PanelRight} active={componentsSection === 'blocks' || currentPage === 'block-detail'} onClick={() => navigate('/ui-kit/blocks')} />
           <NavItem label="Illustrations" icon={Wand2} active={componentsSection === 'illustrations'} onClick={() => navigate('/ui-kit/illustrations')} />
+          <NavItem label="Handoff" icon={BookOpen} active={componentsSection === 'handoff'} onClick={() => navigate('/ui-kit/handoff')} />
           <NavItem label="Sprint / Explos" icon={Lightbulb} active={sprintActive} onClick={() => navigate(`/ui-kit/${latestExplo.slug}`)} />
         </SidebarGroup>
         {/* En contexte Inventaire/fiche : la nav des composants par FAMILLE. */}
@@ -18553,6 +18555,12 @@ export default function App() {
             <div id="section-illustrations" className={sectionClass}>
               {sectionTitle('Illustrations')}
               <IllustrationsSection />
+            </div>
+
+            {/* ====== HANDOFF ====== */}
+            <div id="section-handoff" className={sectionClass}>
+              {sectionTitle('Handoff')}
+              <HandoffSection navigate={navigate} />
             </div>
 
             {/* ====== COMPONENTS INVENTORY ====== */}
