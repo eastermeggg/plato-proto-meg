@@ -1,7 +1,10 @@
-# La steward du design system revoit tout ce qui touche au coeur du systeme.
+# Le steward du design system revoit tout ce qui touche au coeur du systeme.
 # GitHub demande automatiquement sa revue sur ces chemins ; la protection de
-# branche main exige l'approbation code owner (les admins peuvent outrepasser
-# tant que la team n'est pas complete).
+# branche main exige l'approbation code owner (les admins peuvent outrepasser).
+#
+# TRANSFERT (depart de Meghan) : remplacer @eastermeggg ci-dessous par le
+# handle du nouveau steward - geste n°2 du bloc « Jour 1 » de /ui-kit/handoff.
+# Sans ca, la protection attend la revue d'un compte qui n'est plus la.
 
 /src/components/ui/            @eastermeggg
 /src/design-system/            @eastermeggg
