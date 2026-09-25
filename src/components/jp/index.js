@@ -1,5 +1,5 @@
 export { default as JPPill } from './JPPill';
-export { default as DecisionDrawer } from './DecisionDrawer';
+export { default as DecisionDrawer } from './DecisionSheet';
 export { default as JPRow } from './JPRow';
 export { default as JPListingChat } from './JPListingChat';
 export { default as JPListingPosteDetail } from './JPListingPosteDetail';

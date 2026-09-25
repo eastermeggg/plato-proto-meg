@@ -1,12 +1,6 @@
 {
   "note": "Baseline ratchet des éléments HTML bruts (ds-check-raw-elements). Régénérer via --write UNIQUEMENT après un lot de résorption validé — jamais pour faire passer un nouveau constat.",
   "files": {
-    "src/App.js": {
-      "button": 331,
-      "input": 151,
-      "select": 27,
-      "textarea": 19
-    },
     "src/components/AlertDialog.js": {
       "button": 3
     },
@@ -58,7 +52,7 @@
     "src/components/EmptyState.js": {
       "button": 2
     },
-    "src/components/jp/DecisionDrawer.js": {
+    "src/components/jp/DecisionSheet.js": {
       "button": 13,
       "input": 1,
       "textarea": 1
