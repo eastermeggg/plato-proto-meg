@@ -84,6 +84,7 @@ import PreviewPanelLab from './components/ui-kit/PreviewPanelLab';
 import LoiHoverLab from './components/ui-kit/LoiHoverLab';
 import ArbitragesLab from './components/ui-kit/ArbitragesLab';
 import HandoffSection from './components/ui-kit/HandoffSection';
+import ValidationBoardSection from './components/ui-kit/ValidationBoardSection';
 import OnboardingFlow from './components/OnboardingFlow';
 import { PRICING_PLANS, PLAN_BY_ID, quotaTone, QUOTA_FILL_PCT, PLAN_FEATURES, LICENCE_INCLUDED_FEATURES, TIER_GLYPH, QUOTA_LABEL, fmtEur } from './data/pricing';
 import WeeklyUsageCard from './components/billing/WeeklyUsageCard';
@@ -1457,7 +1458,7 @@ function InfoTip({ children, label, placement = 'top', align = 'center', icon: I
 // Maps app pages and UI-kit subsections to URL paths.
 // Subsections of the components page get their own /ui-kit/<slug> URL.
 const UI_KIT_DEDICATED_PAGES = ['diff-engine', 'iv-structures', 'prompt-suggestions', 'reasoning-demo', 'sommaire-acte', 'chat-composer-notice', 'import-dossier', 'import-folder-tree', 'import-v2', 'connecteurs', 'trial-flow', 'preview-panel', 'loi-hover', 'cotisations', 'assistant-composer', 'nav-niveau3', 'brand-orange', 'breadcrumb-bar', 'dossier-flag', 'nav-system', 'hero-motion', 'arbitrages'];
-const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'handoff', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp'];
+const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory', 'handoff', 'validation', 'prompt-suggestion-card', 'reasoning', 'bareme-components', 'jp'];
 
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
@@ -18439,6 +18440,16 @@ export default function App() {
         <SidebarGroup label="Design system" last={!inContext && !sprintActive && !blocksActive}>
           <NavItem label="Tokens" icon={Layers} active={componentsSection === 'tokens'} onClick={() => navigate('/ui-kit/tokens')} />
           <NavItem label="Composants" icon={ClipboardList} active={inContext} onClick={() => navigate('/ui-kit/inventory')} />
+          <NavItem
+            label="Validation"
+            icon={ListChecks}
+            active={componentsSection === 'validation'}
+            onClick={() => navigate('/ui-kit/validation')}
+            trailing={(() => {
+              const n = dsInventory.components.filter((c) => c.status === 'pending').length;
+              return n ? <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: dsColors.semantic.foregroundTertiary, background: dsColors.semantic.backgroundSubtle, border: `1px solid ${dsColors.semantic.border}`, borderRadius: 9999, padding: '1px 7px' }}>{n}</span> : null;
+            })()}
+          />
           <NavItem label="Blocks" icon={PanelRight} active={componentsSection === 'blocks' || currentPage === 'block-detail'} onClick={() => navigate('/ui-kit/blocks')} />
           <NavItem label="Illustrations" icon={Wand2} active={componentsSection === 'illustrations'} onClick={() => navigate('/ui-kit/illustrations')} />
           <NavItem label="Handoff" icon={BookOpen} active={componentsSection === 'handoff'} onClick={() => navigate('/ui-kit/handoff')} />
@@ -18561,6 +18572,12 @@ export default function App() {
             <div id="section-handoff" className={sectionClass}>
               {sectionTitle('Handoff')}
               <HandoffSection navigate={navigate} />
+            </div>
+
+            {/* ====== VALIDATION (passe steward groupée) ====== */}
+            <div id="section-validation" className={sectionClass}>
+              {sectionTitle('Validation')}
+              <ValidationBoardSection navigate={navigate} />
             </div>
 
             {/* ====== COMPONENTS INVENTORY ====== */}
