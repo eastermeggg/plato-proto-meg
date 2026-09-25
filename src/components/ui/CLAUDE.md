@@ -113,6 +113,7 @@ The catalog of every component (built or planned) lives at
 | Spinner | [Spinner.js](./Spinner.js) | [Spinner.md](./Spinner.md) | 33609:22857 | 5 tailles (12-32) · couleur par token |
 | Stepper | [Stepper.js](./Stepper.js) | [Stepper.md](./Stepper.md) | Plato---Design 4226:63220 | horizontal · états done / active / upcoming |
 | Progress | [Progress.js](./Progress.js) | [Progress.md](./Progress.md) | 2819:29134 | barre déterminée 0-100 % |
+| Skeleton | [Skeleton.js](./Skeleton.js) | [Skeleton.md](./Skeleton.md) | — (dérivé, a-dessiner) | placeholder de chargement · barres cream + shimmer · count |
 | Item | [Item.js](./Item.js) | [Item.md](./Item.md) | 32847:5869 | default · outline × md / sm + slots + ItemGroup |
 | Calendar | [Calendar.js](./Calendar.js) | [Calendar.md](./Calendar.md) | 2819:19886 | single · sizes default/large/custom-days (dayDetail) |
 | Chart | [Chart.js](./Chart.js) | [Chart.md](./Chart.md) | 2819:21571 | bar · bar-horizontal · bar-stacked · line · area · area-stacked · pie · donut |
@@ -136,6 +137,7 @@ The catalog of every component (built or planned) lives at
 | Card | [Card.js](./Card.js) | [Card.md](./Card.md) | - (code-first shadcn) | Header/Title/Description/Content/Footer · radius 12 · ombre sm |
 | Combobox | [Combobox.js](./Combobox.js) | [Combobox.md](./Combobox.md) | 2819:22160 | shadcn brut tokenisé : trigger + recherche + liste filtrée (panel du Select) |
 | Drawer | [Drawer.js](./Drawer.js) | [Drawer.md](./Drawer.md) | 37749:1024 | panneau latéral master : sm 408 / wide 860 · right/left · --chat-offset · DrawerSection |
+| Sheet | [Sheet.js](./Sheet.js) | [Sheet.md](./Sheet.md) | — (dérivé, a-dessiner) | panneau générique 4 bords · scrim overlay + Échap · overlay piégé (master → Drawer) |
 | AlertDialog | [AlertDialog.js](./AlertDialog.js) → ../AlertDialog.js | [AlertDialog.md](./AlertDialog.md) | 6724:21154 | confirmation : intents × Small/Medium |
 | SourceBadge | [SourceBadge.js](./SourceBadge.js) | [SourceBadge.md](./SourceBadge.md) | — | 10 types de source (piece · jp · loi …) |
 | ParamPill | [ParamPill.js](./ParamPill.js) | [ParamPill.md](./ParamPill.md) | Plato---Design 1095:15027 | off · on (+ valeur) · halo clic ; state Diff non couvert |

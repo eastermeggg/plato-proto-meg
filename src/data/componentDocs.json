@@ -801,6 +801,22 @@
         "demo": ""
       }
     },
+    "Sheet": {
+      "name": "Sheet",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Generic panel that slides in from an edge for secondary content",
+      "source": "src/components/ui/Sheet.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "null",
+      "docFile": "src/components/ui/Sheet.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
     "SidebarUserInfo": {
       "name": "SidebarUserInfo",
       "package": "plato",
@@ -811,6 +827,22 @@
       "replacedBy": "null",
       "figma": "https://www.figma.com/design/0eKtlRkT1Hbjh8Nqd47Woy/Plato---System?node-id=36097-37493",
       "docFile": "src/components/ui/SidebarUserInfo.md",
+      "sections": {
+        "pattern": "",
+        "explos": "",
+        "demo": ""
+      }
+    },
+    "Skeleton": {
+      "name": "Skeleton",
+      "package": "plato",
+      "status": "beta",
+      "usage": "Shimmering placeholder that holds layout while content loads",
+      "source": "src/components/ui/Skeleton.js",
+      "demo": "src/components/ui-kit/componentDemos.jsx",
+      "replacedBy": "null",
+      "figma": "null",
+      "docFile": "src/components/ui/Skeleton.md",
       "sections": {
         "pattern": "",
         "explos": "",

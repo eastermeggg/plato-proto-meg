@@ -179,7 +179,7 @@ function DevTrack({ navigate }) {
         <div>
           <Row width={260} left="primitives manquantes" right="5/5 promues (Tooltip, RadioGroup, Popover, Sheet, Skeleton - PR #91 à #93). Le trou d'inventaire est fermé" />
           <Row width={260} left="composants « pending »" right="une vingtaine existent et marchent mais attendent la validation steward (pastille jaune dans l'inventaire) - flux /ui-kit/c/<id>, pas une édition JSON" />
-          <Row width={260} left="dette App.js" right="~340 <button>, ~150 <input>, ~27 <select> bruts à résorber par lots. Non bloquant tant que la règle « imiter /ui-kit » tient" />
+          <Row width={260} left="dette App.js" right="~340 boutons, ~150 inputs, ~27 selects bruts à résorber par lots (ratchet ds-check-raw-elements : l'existant est grand-péré, tout fichier neuf doit être à zéro). Non bloquant tant que la règle « imiter /ui-kit » tient" />
           <Row width={260} left="ombres inline" right="91 occurrences à mapper sur l'échelle shadows - débloqué par l'arbitrage du 24/09 (élévation par surfaces, aucun fork dark)" />
         </div>
       </Step>
