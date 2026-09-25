@@ -10973,20 +10973,7 @@ export default function App() {
               }}>
                 Jurisprudence retenues
               </h2>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                onClick={launchJPSearch}
-                className="inline-flex items-center justify-center transition-all hover:opacity-90 flex-shrink-0"
-                style={{
-                  height: 32, padding: '0 12px', borderRadius: 6,
-                  backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
-                  border: 'none',
-                  boxShadow: dsShadows.xs,
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                  fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                }}
-              >
-                Rechercher
-              </button>
+              <Button variant="primary" size="md" label="Rechercher" onClick={launchJPSearch} className="flex-shrink-0" />
             </div>
             {/* List body - keeps its readable max width */}
             <div className="px-8 pt-6 pb-8">
@@ -11109,14 +11096,9 @@ export default function App() {
                 <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="dsa-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dsa'); e.target.value = ''; } }} />
               </div>
               {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setPickerOpen('dsa')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
-                  Extraire depuis un doc. existant
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <Button variant="secondary" size="md" icon={ChevronDown} iconPosition="trailing" label="Extraire depuis un doc. existant" onClick={() => setPickerOpen('dsa')} className="flex-shrink-0" />
               )}
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('dsa')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
-                <Plus className="w-4 h-4" /> Ajouter une dépense
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une dépense" onClick={() => handleAddManual('dsa')} className="flex-shrink-0" />
             </div>
 
             {/* Extraction progress row */}
@@ -11436,9 +11418,7 @@ export default function App() {
               </div>
             )}
             <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpa-revenu-ref')} className="flex items-center gap-2 text-body-medium text-link">
-                <Plus className="w-4 h-4" /> Ajouter une ligne
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une ligne" onClick={() => handleAddManual('pgpa-revenu-ref')} />
             </div>
           </>}
           </div>
@@ -11539,9 +11519,7 @@ export default function App() {
               );
             })()}
             <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpa-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
-                <Plus className="w-4 h-4" /> Ajouter une ligne
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une ligne" onClick={() => handleAddManual('pgpa-revenu-percu')} />
             </div>
           </>}
           </div>
@@ -11569,9 +11547,7 @@ export default function App() {
             </div>
             {/* Add row */}
             <div className="flex items-center justify-center h-[45px] bg-surface">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex items-center gap-2 text-body-medium text-link">
-                <Plus className="w-4 h-4" /> Ajouter une perte de chance
-              </button>
+              <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une perte de chance" />
             </div>
           </>}
           </div>
@@ -11768,9 +11744,7 @@ export default function App() {
                 </div>
               )}
               <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpf-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
-                  <Plus className="w-4 h-4" /> Ajouter une ligne
-                </button>
+                <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une ligne" onClick={() => handleAddManual('pgpf-revenu-percu')} />
               </div>
             </>}
             </div>
@@ -11798,9 +11772,7 @@ export default function App() {
                 <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant proraté</div>
               </div>
               <div className="flex items-center justify-center h-[45px] bg-surface">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex items-center gap-2 text-body-medium text-link">
-                  <Plus className="w-4 h-4" /> Ajouter une perte de chance
-                </button>
+                <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une perte de chance" />
               </div>
               </>}
             </div>
@@ -11813,12 +11785,11 @@ export default function App() {
           {/* Cascade link */}
           {hasTP && tpScenario.cascade && (
             <div className="px-4 py-2">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                className="text-[12px] text-link hover:underline transition-colors flex items-center gap-1"
+              <Button
+                variant="link" size="sm"
+                label={'\u2197 Voir la cascade complète de la rente CPAM'}
                 onClick={() => navigateTo({ type: 'cascade', id: 'cascade-from-pgpf', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' })}
-              >
-                {'\u2197'} Voir la cascade complète de la rente CPAM
-              </button>
+              />
             </div>
           )}
 
@@ -12006,14 +11977,9 @@ export default function App() {
                   <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="dft-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dft'); e.target.value = ''; } }} />
                 </div>
                 {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setPickerOpen('dft')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
-                    Extraire depuis un doc. existant
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
+                  <Button variant="secondary" size="md" icon={ChevronDown} iconPosition="trailing" label="Extraire depuis un doc. existant" onClick={() => setPickerOpen('dft')} className="flex-shrink-0" />
                 )}
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('dft')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
-                  <Plus className="w-4 h-4" /> Ajouter une période
-                </button>
+                <Button variant="link" size="md" icon={Plus} iconPosition="leading" label="Ajouter une période" onClick={() => handleAddManual('dft')} className="flex-shrink-0" />
               </div>
 
               {/* Extraction progress row */}
@@ -12878,7 +12844,7 @@ export default function App() {
                           <div className="flex gap-1 items-baseline flex-shrink-0">
                             <span className="text-sm font-medium text-foreground-secondary">Barême</span>
                             {selectedBareme && (
-                              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setBaremeViewerOpen(selectedBareme.id)} className="text-xs font-medium text-link">Voir</button>
+                              <Button variant="link" size="xs" label="Voir" onClick={() => setBaremeViewerOpen(selectedBareme.id)} />
                             )}
                           </div>
                           <div className="relative" style={{ width: 240 }}>
@@ -13993,9 +13959,7 @@ export default function App() {
         <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-heading-sm text-foreground">{titre}</h2>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowExportModal(false)} className="p-1.5 hover:bg-cream rounded-lg transition-colors">
-              <X className="w-4 h-4 text-foreground-muted" />
-            </button>
+            <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={() => setShowExportModal(false)} />
           </div>
           <div className="p-4 space-y-2">
             {options.map((opt, i) => (
@@ -15360,9 +15324,7 @@ export default function App() {
               </span>
               <span className="text-[14px] font-medium text-foreground-tertiary">Doublon possible - comparer les documents</span>
             </div>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={close} className="p-1.5 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={close} />
           </div>
           <div className="flex-1 flex min-h-0">
             {renderCol(newPiece, 'Nouveau fichier')}
@@ -15370,18 +15332,8 @@ export default function App() {
             {renderCol(existingPiece, 'Déjà dans le dossier')}
           </div>
           <div className="px-5 py-3 border-t border-border flex items-center justify-end gap-2 flex-shrink-0">
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-              onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
-            >
-              Garder les deux
-            </button>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-              onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }}
-              className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
-            >
-              Ignorer le nouveau
-            </button>
+            <Button variant="outline" size="sm" label="Garder les deux" onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }} />
+            <Button variant="outline" size="sm" label="Ignorer le nouveau" onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }} />
           </div>
         </div>
       </div>
@@ -15535,12 +15487,7 @@ export default function App() {
               className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
             />
             {piecesFilter.search && (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                onClick={() => setPiecesFilter(prev => ({ ...prev, search: '' }))}
-                className="p-0.5 hover:bg-cream rounded transition-colors"
-              >
-                <X className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
-              </button>
+              <Button variant="ghost" size="icon-xs" icon={X} title="Effacer la recherche" onClick={() => setPiecesFilter(prev => ({ ...prev, search: '' }))} />
             )}
           </div>
 
@@ -15564,15 +15511,13 @@ export default function App() {
               <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
                 <Hand className="w-4 h-4 text-foreground-secondary shrink-0" strokeWidth={1.5} />
                 <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                <Button
+                  variant="primary" size="md"
+                  label="Désactiver Chrono"
                   onClick={() => { setManualReorder(true); setShowReorderHint(false); }}
-                  className="ml-auto px-3 py-1.5 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
-                >
-                  Désactiver Chrono
-                </button>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
-                  <X className="w-4 h-4" strokeWidth={1.5} />
-                </button>
+                  className="ml-auto shrink-0"
+                />
+                <Button variant="ghost" size="icon-xs" icon={X} onClick={() => setShowReorderHint(false)} className="shrink-0" />
               </div>
             )}
 
@@ -15885,9 +15830,7 @@ export default function App() {
               </button>
             </div>
             <span className="w-px h-4 bg-border" />
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={onClosePanel} aria-label="Fermer" className="p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            <Button variant="ghost" size="icon-xs" icon={X} title="Fermer" onClick={onClosePanel} />
           </div>
         </div>
 
@@ -15975,14 +15918,7 @@ export default function App() {
                         )}
                       </div>
                       {(isSplit || provPileId) && (
-                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                          type="button"
-                          onClick={() => openSplitAdjustFromPanel(piece, provPileId, provSegmentId)}
-                          className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
-                          style={{ color: dsColors.feedback.info.text }}
-                        >
-                          {isFusion ? 'Modifier' : 'Ajuster'}
-                        </button>
+                        <Button variant="link" size="md" label={isFusion ? 'Modifier' : 'Ajuster'} onClick={() => openSplitAdjustFromPanel(piece, provPileId, provSegmentId)} className="flex-shrink-0" />
                       )}
                     </div>
                   </div>
@@ -16037,14 +15973,7 @@ export default function App() {
                         </span>
                       </div>
                       {emailMeta.kind === 'attachment' && emailBodyPiece && !bordereau && (
-                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                          type="button"
-                          onClick={() => openLinkedPiece(emailBodyPiece.id)}
-                          className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
-                          style={{ color: dsColors.feedback.info.text }}
-                        >
-                          Ouvrir
-                        </button>
+                        <Button variant="link" size="md" label="Ouvrir" onClick={() => openLinkedPiece(emailBodyPiece.id)} className="flex-shrink-0" />
                       )}
                     </div>
                   </div>
@@ -16132,19 +16061,19 @@ export default function App() {
                 <p className="text-xs text-foreground-secondary">Laissez vide pour laisser l'IA nommer les pièces automatiquement.</p>
               </div>
               <div className="flex items-center gap-3">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                <Button
+                  variant="outline" size="md"
+                  label="Annuler"
                   onClick={() => setPanelSplitConfig(null)}
-                  className="flex-shrink-0 h-9 px-4 rounded-lg bg-surface border border-border text-foreground-tertiary hover:bg-background-canvas transition-colors text-sm font-medium"
-                >
-                  Annuler
-                </button>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                  className="flex-shrink-0"
+                />
+                <Button
+                  variant="primary" size="md"
+                  icon={Scissors} iconPosition="leading"
+                  label="Lancer le découpage"
                   onClick={() => startPosterioriSplit(piece.id, panelSplitConfig.prompt)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-strong transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                >
-                  <Scissors className="w-4 h-4" strokeWidth={1.75} />
-                  Lancer le découpage
-                </button>
+                  className="flex-1"
+                />
               </div>
             </div>
           ) : (
@@ -16163,8 +16092,11 @@ export default function App() {
               </div>
             )}
             <div className="flex items-center gap-3">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                className="flex-shrink-0 h-9 px-4 rounded-lg bg-danger-subtle text-danger-text hover:bg-danger-border transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+              <Button
+                variant="destructive-subtle" size="md"
+                icon={Trash2} iconPosition="leading"
+                label="Supprimer"
+                className="flex-shrink-0"
                 onClick={() => {
                   if (bordereau) {
                     ctx.onRemove();
@@ -16181,18 +16113,15 @@ export default function App() {
                   }
                   setPieceOverviewPanel(null);
                 }}
-              >
-                <Trash2 className="w-4 h-4" strokeWidth={1.75} />
-                Supprimer
-              </button>
+              />
               {canOfferSplit ? (
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                <Button
+                  variant="outline" size="md"
+                  icon={Scissors} iconPosition="leading"
+                  label="Découper"
                   onClick={() => openPanelSplitConfig(piece.id)}
-                  className="flex-1 h-9 px-4 rounded-lg bg-surface border border-border text-foreground hover:bg-background-canvas transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                >
-                  <Scissors className="w-4 h-4" strokeWidth={1.75} />
-                  Découper
-                </button>
+                  className="flex-1"
+                />
               ) : (
                 <div className="relative flex-1">
                   <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
@@ -16419,16 +16348,12 @@ export default function App() {
                 <option value="corporel">Dommages corporels</option>
                 <option value="social">Droit social</option>
               </select>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+              <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={closeImportV2} className="flex-shrink-0" />
             </div>
           ) : (
             <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-surface" style={{ height: 58 }}>
               <p className="text-[14px] leading-5 font-medium text-foreground flex-1 min-w-0 truncate">Ajouter des pièces - {dossierTitle}</p>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+              <Button variant="ghost" size="icon-sm" icon={X} title="Fermer" onClick={closeImportV2} className="flex-shrink-0" />
             </div>
           )}
 
@@ -16443,12 +16368,8 @@ export default function App() {
               <p className="flex-1 min-w-0 text-[13px] leading-[18px] text-foreground">
                 Vous versez vos mails à la main. <span className="text-foreground-secondary">Connectez votre boîte, Plato ira les chercher tout seul.</span>
               </p>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => { closeImportV2(); goToMailSettings(); }} className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-primary-foreground bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0">
-                <Mail className="w-3.5 h-3.5" strokeWidth={1.75} /> Connecter ma boîte
-              </button>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => setMailDropNudge(false)} aria-label="Masquer" className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background-subtle transition-colors flex-shrink-0">
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+              <Button variant="primary" size="sm" icon={Mail} iconPosition="leading" label="Connecter ma boîte" onClick={() => { closeImportV2(); goToMailSettings(); }} className="flex-shrink-0" />
+              <Button variant="ghost" size="icon-sm" icon={X} title="Masquer" onClick={() => setMailDropNudge(false)} className="flex-shrink-0" />
             </div>
           )}
 
@@ -16481,10 +16402,7 @@ export default function App() {
                 <div className="h-full flex flex-col bg-surface border-r border-border" style={{ width: 456 }}>
                   <div className="flex items-center justify-between pl-3.5 pr-2 pt-2.5 pb-1 flex-shrink-0">
                     <p style={monoLabelV2}>Vos emails</p>
-                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => setMailOpen(false)} aria-label="Replier" title="Replier"
-                      className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors">
-                      <ChevronLeft className="w-4 h-4" strokeWidth={1.75} />
-                    </button>
+                    <Button variant="ghost" size="icon-sm" icon={ChevronLeft} title="Replier" onClick={() => setMailOpen(false)} />
                   </div>
                   <ConnectorPromoPanel compact vendorLabel="ma boîte" onConnect={() => goToMailSettings()} />
                 </div>
@@ -16497,13 +16415,13 @@ export default function App() {
               « Créer manuellement » (wizard) reste accessible en création. */}
           <div className="flex items-center gap-4 px-5 border-t border-border flex-shrink-0 bg-surface" style={{ height: 62 }}>
             {creating && (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                type="button"
+              <Button
+                variant="link" size="sm"
+                icon={Pencil} iconPosition="leading"
+                label="Créer manuellement"
                 onClick={() => { closeImportV2(); setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } }); }}
-                className="inline-flex items-center gap-1.5 text-[13px] font-medium text-link hover:opacity-80 transition-opacity flex-shrink-0"
-              >
-                <Pencil className="w-3.5 h-3.5" strokeWidth={1.75} /> Créer manuellement
-              </button>
+                className="flex-shrink-0"
+              />
             )}
             <p className="text-[12px] leading-4 text-foreground-secondary flex-shrink-0">
               {bordereau.approx > 0
@@ -16512,18 +16430,14 @@ export default function App() {
               {bordereau.pendingDoublons > 0 && <span className="ml-2" style={{ color: dsColors.feedback.warning.text }}>{bordereau.pendingDoublons} doublon{bordereau.pendingDoublons > 1 ? 's' : ''} à trancher</span>}
             </p>
             <div className="flex-1 h-px bg-border" />
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} className="h-9 px-4 rounded-lg border border-border bg-surface text-[13px] font-medium text-foreground hover:bg-cream transition-colors flex-shrink-0">
-              Annuler
-            </button>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-              type="button"
+            <Button variant="outline" size="md" label="Annuler" onClick={closeImportV2} className="flex-shrink-0" />
+            <Button
+              variant="primary" size="md"
               disabled={commitDisabled}
               onClick={commitImportV2}
-              className="h-9 px-4 rounded-lg text-[13px] font-medium text-primary-foreground transition-opacity disabled:opacity-40 flex-shrink-0"
-              style={{ backgroundColor: dsColors.semantic.primary }}
-            >
-              {bordereau.uploadingCount > 0 ? 'Réception des fichiers…' : creating ? 'Créer le dossier' : 'Ajouter au dossier'}
-            </button>
+              label={bordereau.uploadingCount > 0 ? 'Réception des fichiers…' : creating ? 'Créer le dossier' : 'Ajouter au dossier'}
+              className="flex-shrink-0"
+            />
           </div>
         </div>
       </div>
@@ -16691,12 +16605,11 @@ export default function App() {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-background-subtle flex justify-end gap-3">
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+              <Button
+                variant="ghost" size="md"
+                label="Annuler"
                 onClick={() => setCreationWizard(null)}
-                className="px-4 py-2.5 text-body text-foreground-secondary hover:text-foreground-tertiary hover:bg-cream rounded-lg transition-colors"
-              >
-                Annuler
-              </button>
+              />
               <Button
                 variant="primary" size="md"
                 label="Créer le dossier"
