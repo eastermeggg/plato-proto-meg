@@ -30,6 +30,9 @@
 //                  d'arbitrage steward (voir doctor.decisions, DECISIONS-HEX.md)
 //   shadow-inline  chaîne box-shadow inline (rgba…) hors tokens : utiliser
 //                  l'échelle shadows 2xs→3xl (tokens.js + classes shadow-*)
+//   motion-curve   cubic-bezier inconnue de tokens.motion.easing : utiliser
+//                  les courbes nommées (navSignature, navPeek, bounce…) -
+//                  doctrine docs/motion.md, règle 12
 //
 // Exceptions : une ligne portant « ds-hex-ok: <raison> » (commentaire) est
 // exemptée du check hex — réservé aux couleurs de marques tierces et aux cas
@@ -121,6 +124,18 @@ const walk = (dir) => {
 const pendingHex = new Set((manifest.doctor?.pendingHex || []).map(canon));
 let exceptions = 0;
 
+// Courbes de motion connues : toutes les cubic-bezier déclarées dans les
+// sources de tokens (tokens.js + index.css, où vivent les keyframes).
+const CURVE_RE = /cubic-bezier\(\s*[\d.,\s-]+\)/g;
+// Normalisation : espaces retirés + zéros de tête ajoutés (`.22` == `0.22`).
+const canonCurve = (s) => s.replace(/\s+/g, '').replace(/([(,])\./g, '$10.');
+const knownCurves = new Set();
+for (const src of [themePath, 'src/index.css']) {
+  const full = join(ROOT, src);
+  if (!existsSync(full)) continue;
+  for (const m of readFileSync(full, 'utf8').match(CURVE_RE) || []) knownCurves.add(canonCurve(m));
+}
+
 const scan = (full, rel) => {
   const lines = readFileSync(full, 'utf8').split('\n');
   lines.forEach((line, i) => {
@@ -158,6 +173,17 @@ const scan = (full, rel) => {
     if (!isComment && codePart.replace(/(['"`])\s*—\s*\1/g, '').includes('—')) {
       add(rel, n, 'em-dash', 'error', line.trim().slice(0, 60),
         'préférer le tiret simple « - » dans les textes UI (« — » seul = placeholder toléré)');
+    }
+    // Courbe de motion improvisée : toute cubic-bezier absente des sources de
+    // tokens (tokens.motion.easing + keyframes index.css). Warn - doctrine
+    // docs/motion.md.
+    if (!isComment) {
+      for (const m of codePart.match(CURVE_RE) || []) {
+        if (!knownCurves.has(canonCurve(m))) {
+          add(rel, n, 'motion-curve', 'warn', m,
+            'utiliser une courbe nommée de tokens.motion.easing (navSignature, navPeek, bounce…) - docs/motion.md');
+        }
+      }
     }
     // Ombre inline (boxShadow: '0 … rgba(…)') hors tokens : l'échelle vit dans
     // tokens.js `shadows` (2xs → 3xl) + classes Tailwind shadow-*. Warn.
@@ -234,7 +260,7 @@ if (JSON_OUT) {
     console.log(`${f.file}:${f.line} — ${f.rule} (${f.detail}) — ${f.fix}`);
   }
   if (errors.length > CAP) console.log(`… + ${errors.length - CAP} autres constats — utiliser --json ou --report`);
-  if (warns.length) console.log(`\n${warns.length} avertissement(s) non bloquant(s) (shadow-inline / hex-pending / infos déléguées) — détail via --json`);
+  if (warns.length) console.log(`\n${warns.length} avertissement(s) non bloquant(s) (shadow-inline / hex-pending / motion-curve / infos déléguées) — détail via --json`);
   console.log(`\n${errors.length} constat(s) bloquant(s).`);
   process.exitCode = errors.length ? 1 : 0;
 }
