@@ -18274,20 +18274,27 @@ export default function App() {
           </div>
         }
       >
-        {/* Recherche - déclenche la palette (⌘K). En tête de rail, avant le proto. */}
+        {/* Recherche - déclenche la palette (⌘K). En tête de rail, avant le proto.
+            Look de champ de saisie (Button outline = fond surface + bord), pas d'item de nav. */}
         <SidebarGroup>
-          <NavItem
-            label="Rechercher"
-            icon={Search}
-            onClick={() => setDsPaletteOpen(true)}
-            trailing={<kbd style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: dsColors.semantic.foregroundTertiary, background: dsColors.semantic.backgroundSubtle, border: `1px solid ${dsColors.semantic.border}`, borderRadius: 5, padding: '1px 6px' }}>⌘K</kbd>}
-          />
+          <Button variant="outline" size="md" fullWidth onClick={() => setDsPaletteOpen(true)}>
+            <span className="flex items-center justify-between w-full">
+              <span className="flex items-center gap-2" style={{ fontSize: 13, fontWeight: 400, color: dsColors.semantic.mutedForeground }}>
+                <Search className="w-3.5 h-3.5" strokeWidth={1.75} /> Rechercher
+              </span>
+              <kbd style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: dsColors.semantic.foregroundTertiary, background: dsColors.semantic.backgroundSubtle, border: `1px solid ${dsColors.semantic.border}`, borderRadius: 5, padding: '1px 6px' }}>⌘K</kbd>
+            </span>
+          </Button>
         </SidebarGroup>
         <SidebarGroup label="Proto">
           <div className="flex flex-col gap-1.5 px-0.5">
             <Button variant="primary" size="md" icon={ArrowUpRight} iconPosition="trailing" label="Ouvrir le proto" fullWidth onClick={() => navigate('/app')} />
             <Button variant="outline" size="md" icon={UserRound} label="Première connexion" fullWidth onClick={() => navigate('/welcome')} />
           </div>
+        </SidebarGroup>
+        {/* Handoff - la page de reprise, au-dessus du design system (passage de témoin). */}
+        <SidebarGroup>
+          <NavItem label="Handoff" icon={BookOpen} active={componentsSection === 'handoff'} onClick={() => navigate('/ui-kit/handoff')} />
         </SidebarGroup>
         <SidebarGroup label="Design system" last={!inContext && !sprintActive && !blocksActive}>
           <NavItem label="Tokens" icon={Layers} active={componentsSection === 'tokens'} onClick={() => navigate('/ui-kit/tokens')} />
@@ -18304,7 +18311,6 @@ export default function App() {
           />
           <NavItem label="Blocks" icon={PanelRight} active={componentsSection === 'blocks' || currentPage === 'block-detail'} onClick={() => navigate('/ui-kit/blocks')} />
           <NavItem label="Illustrations" icon={Wand2} active={componentsSection === 'illustrations'} onClick={() => navigate('/ui-kit/illustrations')} />
-          <NavItem label="Handoff" icon={BookOpen} active={componentsSection === 'handoff'} onClick={() => navigate('/ui-kit/handoff')} />
           <NavItem label="Sprint / Explos" icon={Lightbulb} active={sprintActive} onClick={() => navigate(`/ui-kit/${latestExplo.slug}`)} />
         </SidebarGroup>
         {/* En contexte Inventaire/fiche : la nav des composants par FAMILLE. */}
