@@ -434,7 +434,7 @@ Composer hero = \`AssistantComposer\` (fiche \`AssistantComposer.md\`). Voir le 
     description: 'L\'écran de référence à copier : shell + PageHeader + table + menu de ligne (Dropdown) + Dialog de création + Drawer de modification + AlertDialog de suppression + les 5 états. Zéro élément brut, zéro barre inline.',
     demo: GABARIT_DEMO,
     doc: `### Rôle
-Le **gabarit d'un écran CRUD** produit, composé UNIQUEMENT de primitives du DS. Un PM / dev / designer le **copie** pour un nouvel écran (liste + création + modification + suppression) sans rien redécider. C'est la référence : on obéit à CE block, jamais à un écran d'\`App.js\` (qui porte des anti-patterns hérités).
+Le **gabarit d'un écran CRUD** produit, composé UNIQUEMENT de primitives du DS. Un PM / dev / designer le **copie** pour un nouvel écran (liste + création + modification + suppression) sans rien redécider. C'est la référence : on obéit à CE block, jamais à un écran d'\`App.js\` (l'existant, sous garde-fous - pas la référence).
 
 ### Controls
 - **état** - les **5 états** d'un écran de données (règle §6, obligatoire) :

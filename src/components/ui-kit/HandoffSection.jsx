@@ -127,9 +127,10 @@ function DevTrack({ navigate }) {
           block fait loi. Pour un nouvel écran, tu pars d'un block du playground et tu ne t'en
           écartes pas, en premier l'Écran-gabarit : shell, PageHeader, table, Dialog de
           création, Sheet de modification, AlertDialog et les 5 états (vide, chargement, erreur,
-          partiel, idéal). <Code>App.js</Code> traîne encore des anti-patterns qu'on résorbe : si
-          tu le clones, tu les propages. Un garde-fou le bloque de toute façon : tout fichier neuf
-          doit être à zéro élément HTML brut.
+          partiel, idéal). <Code>App.js</Code> n'est plus un danger : zéro élément brut non
+          justifié, chaque site restant est fléché vers sa cible DS, le ratchet interdit tout
+          retour. Mais il reste l'EXISTANT, pas la référence : ce qui naît part d'un block, et
+          tout fichier neuf doit être à zéro élément HTML brut.
         </P>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Button variant="secondary" size="sm" icon={ArrowUpRight} iconPosition="trailing" label="Block Écran-gabarit" onClick={() => navigate('/ui-kit/b/ecran-gabarit')} />
@@ -175,12 +176,12 @@ function DevTrack({ navigate }) {
         </div>
       </Step>
 
-      <Step num={6} title="Le chantier en cours, sept. 2026" icon={Package}>
+      <Step num={6} title="L'état à la passation, 25/09/2026" icon={Package}>
         <div>
-          <Row width={260} left="primitives manquantes" right="5/5 promues et mergées (Tooltip, RadioGroup, Popover, Sheet, Skeleton). Le trou d'inventaire est fermé" />
-          <Row width={260} left="composants « pending »" right="ils existent et marchent, mais la passe de validation du steward reste à faire. Elle se fait en lot sur /ui-kit/validation, jamais en éditant le JSON" />
-          <Row width={260} left="dette App.js" right="réglée le 25/09 : zéro élément brut non justifié, et la conversion est lancée - 106 sites déjà remplacés (Button, Select, Switch, Textarea), 422 restants, chacun portant un pragma ds-raw-ok qui nomme sa cible DS. Baseline à zéro, le ratchet interdit tout retour. La liste de travail : grep ds-raw-ok src/App.js, un lot par catégorie" />
-          <Row width={260} left="ombres inline" right="91 occurrences à mapper sur l'échelle shadows. Débloqué par l'arbitrage du 24/09 : élévation par surfaces, aucun fork dark" />
+          <Row width={260} left="catalogue" right="complet et tout vert : 73 composants validated, 10 blocks validated. Les 5 primitives manquantes ont été promues, Sheet a absorbé Drawer. Restent 3 missing produit à construire un jour : PlanCard, ChatBubble, ChatMessageList" />
+          <Row width={260} left="validation" right="la passe est faite. Le board /ui-kit/validation sert maintenant à GARDER l'inventaire vert au fil des créations - le badge de la nav te dit s'il y a du pending" />
+          <Row width={260} left="App.js" right="plus de legacy sauvage : zéro élément brut non justifié, 106 sites déjà convertis vers le DS, 422 fléchés vers leur cible (grep ds-raw-ok src/App.js). Conversion par lots, catégorie par catégorie ; le ratchet interdit tout retour" />
+          <Row width={260} left="arbitrages légués" right="deux dossiers pour le prochain steward : 28 ombres inline à mapper sur l'échelle shadows (débloqué par l'arbitrage du 24/09) et 20 courbes de motion improvisées, à bénir en easing spring ou à faire converger (docs/motion.md)" />
         </div>
       </Step>
     </div>
@@ -307,7 +308,7 @@ export default function HandoffSection({ navigate }) {
           <li><strong>Désignez le steward</strong> - le rôle peut tourner, l'important est qu'il soit incarné. Et il ne fait pas de vous des exécutants : les règles, les garde-fous et les catalogues sont là pour que CHACUN soit owner et tranche bien en local ; le steward n'arbitre que ce qui touche au coeur (tokens, validation, écarts Figma).</li>
           <li><strong>Remplacez <Code>@eastermeggg</Code></strong> par son handle GitHub dans <Code>.github/CODEOWNERS</Code>, sinon la protection de main attendra la revue d'un compte parti.</li>
           <li><strong>Mettez à jour <Code>owner</Code></strong> dans <Code>ds.manifest.json</Code> (rôle + contact).</li>
-          <li><strong>Faites la passe des pending</strong> sur /ui-kit/validation : un quart d'heure, et l'inventaire est à vous.</li>
+          <li><strong>La passe des pending est déjà faite</strong> (73 composants et 10 blocks validated) - le board /ui-kit/validation sert maintenant à garder ça vert au fil de vos créations.</li>
         </ol>
       </div>
 
@@ -317,7 +318,8 @@ export default function HandoffSection({ navigate }) {
           <strong>On obéit au design system : ses composants, ses patterns, ses blocks.</strong>{' '}
           Ça vaut pour tout le monde, dev, product, designer, et pour les agents qu'on missionne.
           Un écran, un proto, une demande : tout part d'un block de /ui-kit et on ne s'en écarte
-          pas ; App.js n'est jamais une référence. Ce qui manque au système ne s'improvise pas,
+          pas ; App.js, désormais aligné et sous garde-fous, reste l'existant - pas la
+          référence. Ce qui manque au système ne s'improvise pas,
           ça passe par les guichets : ds-decide, ds-variant, ds-promote, SIGNALEMENTS.md.
         </p>
       </div>
