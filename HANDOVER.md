@@ -3,6 +3,10 @@
 Point d'entrée pour la personne qui reprend le prototype. Mis à jour le
 23/09/2026 (branche `eastermeggg/install-skills-zip`, kit ds-* v3 installé).
 
+> **Version plateforme, par persona** : `/ui-kit/handoff` — parcours de reprise
+> Dev (Alex, Anaïs) et Product (Vadim, Ben), actionnable depuis le playground.
+> Ce fichier reste la version longue (historique + décisions en attente).
+
 ## En une phrase
 
 **La plateforme Plato Design System** (playground intégré, façon Storybook) est
