@@ -132,8 +132,10 @@ Trois points d'entrée, du plus courant au plus rare :
 
 ## 8. Pièges connus
 
-- **Cloner App.js** : interdit, il porte les anti-patterns (c'est LA raison
-  d'être du ratchet).
+- **Cloner App.js** : c'est l'existant, pas la référence - un écran neuf naît
+  d'un block (règle 11). App.js est désormais sous garde-fous (zéro élément
+  brut non justifié, sites restants fléchés `ds-raw-ok`) et le ratchet
+  verrouille de toute façon.
 - **Serif partout** : le serif (`RL Para Trial Central`) = titres et ancres
   seulement. Georgia = montants. Inter = le reste.
 - **`bg-white` en dur** : les surfaces UI prennent `bg-surface` (dark-ready) ;

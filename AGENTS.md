@@ -40,10 +40,11 @@ DS font foi dans `ds.manifest.json`.
     block **Écran-gabarit** (`/ui-kit/b/ecran-gabarit` : shell + PageHeader +
     table + Dropdown de ligne + Dialog création + Drawer modification +
     AlertDialog + les 5 états) et le block **Shell** (gabarit de page + valeurs
-    canoniques). **Ne JAMAIS cloner un écran d'`App.js`** : le proto porte des
-    anti-patterns hérités (éléments bruts, barres inline, valeurs en dur) que
-    la migration résorbe progressivement - le copier, c'est les propager. Les
-    blocks sont l'état cible ; `App.js` est l'existant en cours d'alignement.
+    canoniques). **`App.js` n'est pas la référence** : c'est l'existant, aligné
+    et sous garde-fous (zéro élément brut non justifié, sites restants fléchés
+    `ds-raw-ok` vers leur cible DS, ratchet en CI) - mais un écran neuf ne se
+    clone pas depuis l'existant, il naît d'un block. Les blocks sont l'état
+    cible ; la conversion d'`App.js` continue par lots fléchés.
     **Avant un nouveau FLOW** (pas juste un écran) : lire
     `docs/architecture-plato.md` - la carte produit (nav 3 niveaux, shell,
     objets métier, points de branchement, chemin type en 6 étapes).
