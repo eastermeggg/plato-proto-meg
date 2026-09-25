@@ -21,6 +21,7 @@
 ## Conventions
 
 - [Agent guide](AGENTS.md): toolchain, design-system entry points, and coding conventions.
+- [Product architecture](docs/architecture-plato.md): routes, 3-level nav shell, domain objects (dossier, pièce, bordereau, acte, JP…), where a new flow plugs in.
 - No emojis in UI; hyphens over em-dashes in copy; tokens over hardcoded values.
 
 ## Meta
