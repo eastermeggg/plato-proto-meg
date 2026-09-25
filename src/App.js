@@ -20745,9 +20745,9 @@ export default function App() {
                       {firstName} n'a pas encore finalisé son inscription sur la plateforme.
                     </p>
                     <div className="mt-2.5 flex items-center gap-2.5 text-[13px] font-medium">
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={resendInvite} className="text-link hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
+                      <Button variant="link" size="sm" onClick={resendInvite} label="Renvoyer l'invitation" />
                       <span className="text-brand-border">·</span>
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={markActive} className="text-foreground-secondary hover:text-foreground-tertiary transition-colors">Marquer comme actif (démo)</button>
+                      <Button variant="neutral-link" size="sm" onClick={markActive} label="Marquer comme actif (démo)" />
                     </div>
                   </div>
                 </div>
@@ -20757,7 +20757,7 @@ export default function App() {
             <div className="px-6 py-5 border-t border-border">
               <div className="flex items-center justify-between">
                 <span style={cardLabel}>Licence</span>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => openPlanPicker(m)} className="text-[13px] font-medium text-link hover:opacity-80 transition-opacity">Modifier</button>
+                <Button variant="link" size="sm" onClick={() => openPlanPicker(m)} label="Modifier" />
               </div>
               <div className="mt-3 flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
@@ -21002,19 +21002,18 @@ export default function App() {
         </div>
         {canManage && (
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+            <Button
+              variant="ghost"
+              icon={RefreshCw}
               onClick={verifyMailboxNow}
-              className="inline-flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background rounded-lg transition-colors"
               title="Tester la connexion maintenant"
-            >
-              <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.75} /> Tester la connexion
-            </button>
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+              label="Tester la connexion"
+            />
+            <Button
+              variant="outline"
               onClick={() => setMailDisconnectAsk(b.id)}
-              className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-surface border border-border rounded-lg hover:bg-background transition-colors"
-            >
-              Déconnecter
-            </button>
+              label="Déconnecter"
+            />
           </div>
         )}
       </div>
@@ -21337,19 +21336,15 @@ export default function App() {
             }}
           >
             {/* Close button - top-right */}
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+            <Button
+              variant="ghost"
+              size="icon"
+              icon={X}
               onClick={close}
-              aria-label="Fermer"
-              className="absolute flex items-center justify-center hover:bg-background transition-colors"
-              style={{
-                top: 12, right: 12,
-                width: 32, height: 32,
-                borderRadius: 8,
-                color: dsColors.semantic.mutedForeground,
-              }}
-            >
-              <X className="w-4 h-4" strokeWidth={2} />
-            </button>
+              title="Fermer"
+              className="absolute"
+              style={{ top: 12, right: 12 }}
+            />
 
             {/* Content Container */}
             <div className="flex flex-col" style={{ gap: 32 }}>
@@ -21451,26 +21446,14 @@ export default function App() {
                       outline: 'none',
                     }}
                   />
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    icon={ArrowRight}
                     onClick={sendByEmail}
                     disabled={!emailValid}
-                    className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-foreground-tertiary"
-                    style={{
-                      gap: 8,
-                      height: 40,
-                      padding: '8px 20px',
-                      background: dsColors.semantic.primary,
-                      color: dsColors.semantic.white,
-                      borderRadius: 8,
-                      fontFamily: "'Inter', system-ui, sans-serif",
-                      fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                      whiteSpace: 'nowrap',
-                      filter: 'drop-shadow(0 1px 1px rgba(26,26,26,0.05))',
-                    }}
-                  >
-                    <ArrowRight className="w-4 h-4" strokeWidth={2} />
-                    Envoyer le parrainage
-                  </button>
+                    label="Envoyer le parrainage"
+                  />
                 </div>
                 <p style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 12, color: dsColors.semantic.mutedForeground, lineHeight: '16px', margin: 0 }}>
                   Votre confrère recevra une invitation avec votre code <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, color: dsColors.feedback.warning.base }}>{promoCode}</span>.
@@ -21546,13 +21529,13 @@ export default function App() {
                       <p className="text-[13px] min-w-0" style={{ color: dsColors.feedback.warning.text }}>
                         Besoin de plus d'usage cette semaine ? Demandez une mise à niveau à un administrateur.
                       </p>
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+                      <Button
+                        variant="primary"
+                        icon={CircleArrowUp}
                         onClick={() => setAskUpgradeOpen(true)}
-                        className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-primary-foreground text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
-                      >
-                        <CircleArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
-                        Demander une mise à niveau
-                      </button>
+                        className="flex-shrink-0"
+                        label="Demander une mise à niveau"
+                      />
                     </div>
                   )}
                 </div>
@@ -21589,13 +21572,14 @@ export default function App() {
             {renderSettingsHeader(
               'Plan et facturation',
               'Le forfait du cabinet, la répartition des licences et la facturation.',
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+              <Button
+                variant="secondary"
+                icon={ArrowRight}
+                iconPosition="trailing"
                 onClick={() => { setToastMessage('Redirection vers l\'espace facturation Stripe...'); setTimeout(() => setToastMessage(null), 3000); }}
-                className="inline-flex items-center gap-2 h-9 px-4 bg-cream text-foreground-tertiary text-[14px] font-medium rounded-lg hover:bg-border transition-colors flex-shrink-0"
-              >
-                Accéder à l'espace facturation
-                <ArrowRight className="w-4 h-4" strokeWidth={2} />
-              </button>
+                className="flex-shrink-0"
+                label="Accéder à l'espace facturation"
+              />
             )}
             <div className="space-y-5">
               {/* Votre essai - the same self-contained trial object as Mon
@@ -21703,9 +21687,7 @@ export default function App() {
                   className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
                 />
                 {cabinetJPSearch && (
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCabinetJPSearch('')} className="p-1 rounded hover:bg-background transition-colors">
-                    <X className="w-3.5 h-3.5 text-foreground-muted" />
-                  </button>
+                  <Button variant="ghost" size="icon-xs" icon={X} onClick={() => setCabinetJPSearch('')} />
                 )}
               </div>
 
@@ -21719,22 +21701,7 @@ export default function App() {
                       Ajoutez manuellement votre JP grâce à un lien ou PDF
                     </p>
                   </div>
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                    onClick={openManualAdd}
-                    className="inline-flex items-center justify-center gap-1 transition-all flex-shrink-0"
-                    style={{
-                      height: 28, padding: '0 12px', borderRadius: 8,
-                      backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
-                      border: 'none',
-                      boxShadow: dsShadows.xs,
-                      fontFamily: "'Inter', system-ui, sans-serif",
-                      fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                  >
-                    <Plus className="w-4 h-4" strokeWidth={2} /> Ajouter
-                  </button>
+                  <Button variant="primary" size="sm" icon={Plus} onClick={openManualAdd} className="flex-shrink-0" label="Ajouter" />
                 </div>
               )}
 
@@ -21757,22 +21724,7 @@ export default function App() {
                         Déjà en référence
                       </span>
                     ) : (
-                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
-                        onClick={() => queueCanonicalForRationale(d)}
-                        className="inline-flex items-center justify-center gap-2 transition-all"
-                        style={{
-                          height: 28, padding: '0 12px', borderRadius: 8,
-                          backgroundColor: dsColors.semantic.primary, color: dsColors.semantic.primaryForeground,
-                          border: 'none',
-                          boxShadow: dsShadows.xs,
-                          fontFamily: "'Inter', system-ui, sans-serif",
-                          fontSize: 14, fontWeight: 500, lineHeight: '20px',
-                        }}
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = dsColors.semantic.foreground; }}
-                      >
-                        <Plus className="w-4 h-4" strokeWidth={2} /> Ajouter
-                      </button>
+                      <Button variant="primary" size="sm" icon={Plus} onClick={() => queueCanonicalForRationale(d)} label="Ajouter" />
                     );
                     return (
                       <JPMemoryRow
@@ -22478,14 +22430,15 @@ export default function App() {
                 <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0 mx-1" />
               </>
             )}
-            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+            <Button
+              variant="neutral-link"
+              size="sm"
+              icon={ChevronLeft}
               onClick={() => setCurrentPage('home')}
-              className="inline-flex items-center gap-1 text-[13px] text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0"
+              className="flex-shrink-0"
               title="Retour à Plato"
-            >
-              <ChevronLeft className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} />
-              Retour à Plato
-            </button>
+              label="Retour à Plato"
+            />
           </div>
           {settingsSection === 'users' && renderSettingsUsers()}
           {settingsSection === 'general' && renderSettingsGeneral()}
@@ -22599,9 +22552,7 @@ export default function App() {
       <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
         <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Retour
-          </button>
+          <Button variant="neutral-link" icon={ChevronLeft} onClick={() => setCurrentPage('components')} label="Retour" className="mb-6" />
           <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>IV Table Structures</div>
           <nav className="flex flex-col gap-1">
             {['Vue d\'ensemble', 'Type A - Simple', 'Type B - Groupé', 'Type C - Frais partagés', 'Type D - Foyer (PRP)', 'Scénarios PRP', 'Adaptation IA'].map(s => (
@@ -23268,22 +23219,16 @@ export default function App() {
             {/* Bottom bar */}
             <div className="flex items-center justify-between px-3 py-3">
               <div className="flex items-center gap-0.5">
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background-subtle transition-colors">
-                  <Paperclip className="w-4 h-4 text-foreground-secondary" />
-                </button>
+                <Button variant="ghost" size="icon" icon={Paperclip} />
                 <div className="relative">
-                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg bg-background-subtle transition-colors">
-                    <Lightbulb className="w-4 h-4 text-foreground-secondary" />
-                  </button>
+                  <Button variant="secondary" size="icon" icon={Lightbulb} />
                   {/* Suggestions popover - same SuggestionsMenu DS component */}
                   <div className="absolute bottom-10 left-0 z-50">
                     <SuggestionsMenu header="Suggestions" items={LIGHTBULB_SPEC_ITEMS} className="w-[320px]" />
                   </div>
                 </div>
               </div>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: dsColors.semantic.muted, opacity: 0.5 }}>
-                <ArrowUp className="w-4 h-4 text-foreground-secondary" />
-              </button>
+              <Button variant="secondary" size="icon" icon={ArrowUp} style={{ opacity: 0.5 }} />
             </div>
           </div>
         </div>
@@ -23366,7 +23311,7 @@ export default function App() {
           ))}
         </div>
         <div className="px-3 py-2 border-t border-border flex justify-end">
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="bg-foreground text-primary-foreground text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
+          <Button variant="primary" size="sm" label="Confirmer" />
         </div>
       </div>
     );
@@ -23375,9 +23320,7 @@ export default function App() {
       <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
         <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Retour
-          </button>
+          <Button variant="neutral-link" icon={ChevronLeft} onClick={() => setCurrentPage('components')} label="Retour" className="mb-6" />
           <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>Prompt Suggestions</div>
           <nav className="flex flex-col gap-1 mb-4">
             <a href="#ps-scope" className="text-body text-foreground-secondary hover:text-foreground hover:bg-background px-2 py-1.5 rounded transition-colors">Scope</a>
@@ -23658,13 +23601,9 @@ export default function App() {
               ))}
             </div>
             {phase === 'idle' ? (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
-                Play
-              </button>
+              <Button variant="primary" size="sm" onClick={play} label="Play" />
             ) : (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
-                <RotateCcw className="w-3 h-3 inline mr-1" />Reset
-              </button>
+              <Button variant="outline" size="sm" icon={RotateCcw} onClick={reset} label="Reset" />
             )}
           </div>
         </div>
@@ -23774,13 +23713,9 @@ export default function App() {
           <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
           <div className="flex items-center gap-1.5">
             {phase === 'idle' ? (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-2.5 py-0.5 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
-                Play
-              </button>
+              <Button variant="primary" size="xs" onClick={play} label="Play" />
             ) : (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
-                <RotateCcw className="w-3 h-3 inline mr-1" />Reset
-              </button>
+              <Button variant="outline" size="xs" icon={RotateCcw} onClick={reset} label="Reset" />
             )}
           </div>
         </div>
@@ -23909,11 +23844,9 @@ export default function App() {
               ))}
             </div>
             {phase === 'idle' ? (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>Play</button>
+              <Button variant="primary" size="sm" onClick={play} label="Play" />
             ) : (
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
-                <RotateCcw className="w-3 h-3 inline mr-1" />Reset
-              </button>
+              <Button variant="outline" size="sm" icon={RotateCcw} onClick={reset} label="Reset" />
             )}
           </div>
         </div>
@@ -23946,9 +23879,7 @@ export default function App() {
       <div className="h-screen flex flex-col" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
         <div className="flex items-center gap-3 px-6 h-12 border-b border-border flex-shrink-0 bg-surface">
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors" style={{ fontSize: 13 }}>
-            <ChevronRight className="w-4 h-4 rotate-180" /> UI Kit
-          </button>
+          <Button variant="neutral-link" size="sm" icon={ChevronLeft} onClick={() => setCurrentPage('components')} label="UI Kit" />
           <span style={{ color: dsColors.semantic.borderStrong }}>/</span>
           <span style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground }}>Reasoning Stepper</span>
         </div>
@@ -24792,9 +24723,7 @@ export default function App() {
               {/* Lien vers Plan et facturation */}
               <div>
                 <div style={{ ...monoLabel, marginBottom: 10 }}>Gestion · Plan et facturation (admin)</div>
-                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors">
-                  Plan et facturation <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
+                <Button variant="outline" icon={ArrowRight} iconPosition="trailing" onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} label="Plan et facturation" />
                 <p style={surfaceCaption}>
                   « Annuler l'essai » vit ici, sur la page d'administration. La bannière y renvoie via « Gérer ».
                 </p>
@@ -24974,13 +24903,12 @@ export default function App() {
               <span className="ml-1 font-normal">Reprenez-le à tout moment.</span>
             </p>
           </div>
-          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
+          <Button
+            variant="warning-link"
             onClick={() => setReopenConfirmOpen(true)}
-            className="text-body-medium underline underline-offset-2 hover:opacity-80 transition-opacity flex-shrink-0"
-            style={{ color: dsColors.feedback.warning.text }}
-          >
-            Reprendre le dossier
-          </button>
+            className="flex-shrink-0"
+            label="Reprendre le dossier"
+          />
         </div>
       )}
 
@@ -25155,9 +25083,7 @@ export default function App() {
                 {chatPreviewPiece.index > 0 && <span className="px-2 py-0.5 bg-foreground text-primary-foreground text-[11px] font-medium rounded flex-shrink-0">P{chatPreviewPiece.index}</span>}
                 <span className="text-[14px] font-medium text-foreground truncate">{chatPreviewPiece.intitule || chatPreviewPiece.nom}</span>
               </div>
-              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setChatPreviewPiece(null)} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
-                <X className="w-4 h-4 text-foreground-muted" />
-              </button>
+              <Button variant="ghost" size="icon-sm" icon={X} onClick={() => setChatPreviewPiece(null)} className="flex-shrink-0" />
             </div>
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
