@@ -17,7 +17,7 @@ import JPRow from '../jp/JPRow';
 import JPListingChat from '../jp/JPListingChat';
 import JPListingPosteDetail from '../jp/JPListingPosteDetail';
 import JPPopoverCardReal from '../jp/JPPopoverCard';
-import DecisionDrawerReal from '../jp/DecisionDrawer';
+import DecisionDrawerReal from '../jp/DecisionSheet';
 import JPAddStepperReal from '../jp/JPAddStepper';
 import SaveDestinationPopoverReal from '../jp/SaveDestinationPopover';
 import SlashCommandPaletteReal from '../jp/SlashCommandPalette';

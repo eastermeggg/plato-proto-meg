@@ -179,7 +179,7 @@ function DevTrack({ navigate }) {
         <div>
           <Row width={260} left="primitives manquantes" right="5/5 promues et mergées (Tooltip, RadioGroup, Popover, Sheet, Skeleton). Le trou d'inventaire est fermé" />
           <Row width={260} left="composants « pending »" right="ils existent et marchent, mais la passe de validation du steward reste à faire. Elle se fait en lot sur /ui-kit/validation, jamais en éditant le JSON" />
-          <Row width={260} left="dette App.js" right="~330 boutons, ~150 inputs, ~27 selects bruts, résorbés par lots. Le ratchet ds-check-raw-elements grand-père l'existant et interdit le neuf. Non bloquant tant qu'on obéit à /ui-kit" />
+          <Row width={260} left="dette App.js" right="réglée le 25/09 : zéro élément brut non justifié. Chacun des 528 sites hérités porte un pragma ds-raw-ok catégorisé qui nomme sa cible DS (Button, Input/InputGroup, Select, Textarea, DropZone, Dropdown, Switch, toolbar à promouvoir). Baseline App.js à zéro, le ratchet interdit tout retour. La conversion se fait ensuite par lots, catégorie par catégorie (grep ds-raw-ok src/App.js)" />
           <Row width={260} left="ombres inline" right="91 occurrences à mapper sur l'échelle shadows. Débloqué par l'arbitrage du 24/09 : élévation par surfaces, aucun fork dark" />
         </div>
       </Step>

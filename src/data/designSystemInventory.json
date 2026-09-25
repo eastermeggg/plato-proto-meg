@@ -3124,7 +3124,7 @@
       "layer": "custom",
       "category": "domain",
       "family": "Overlays & menus",
-      "filePath": "src/components/jp/DecisionDrawer.js",
+      "filePath": "src/components/jp/DecisionSheet.js",
       "exists": true,
       "figmaPage": "",
       "figmaRef": "",

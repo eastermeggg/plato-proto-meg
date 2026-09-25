@@ -541,7 +541,7 @@ function buildEmailStagedFiles(threads, { includeAttachments = true } = {}) {
 function TriStateCheckbox({ state, onClick, label }) {
   const filled = state === 'checked' || state === 'indeterminate';
   return (
-    <button
+    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
       type="button"
       role="checkbox"
       aria-checked={state === 'indeterminate' ? 'mixed' : state === 'checked'}
@@ -597,10 +597,10 @@ function SplitSegmentedControl({ value, onChange }) {
       role="group"
       onClick={(e) => e.stopPropagation()}
     >
-      <button type="button" aria-pressed={!value} onClick={(e) => { e.stopPropagation(); onChange(false); }} style={seg(!value)}>
+      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" aria-pressed={!value} onClick={(e) => { e.stopPropagation(); onChange(false); }} style={seg(!value)}>
         Ne pas découper
       </button>
-      <button type="button" aria-pressed={!!value} onClick={(e) => { e.stopPropagation(); onChange(true); }} style={seg(!!value)}>
+      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" aria-pressed={!!value} onClick={(e) => { e.stopPropagation(); onChange(true); }} style={seg(!!value)}>
         <Scissors className="w-3 h-3" strokeWidth={2} />
         Découper
       </button>
@@ -2051,7 +2051,7 @@ export default function App() {
     const scheme = enabled ? PILL_SCHEMES.info : PILL_SCHEMES.neutral;
 
     return (
-      <button
+      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
         onClick={onClick}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border transition-colors"
         style={{ background: scheme.bg, borderColor: scheme.border, color: scheme.text }}
@@ -3151,7 +3151,7 @@ export default function App() {
 
           <div className="flex items-center gap-[9px]">
             {/* Sort by date toggle */}
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => {
                 if (piecesSortMode === 'chrono') {
                   setPiecesSortMode('manuel');
@@ -3177,7 +3177,7 @@ export default function App() {
             {/* Divider */}
             <div className="w-px h-5 bg-border-alt" />
             <div className="relative" ref={downloadMenuRef}>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => setDownloadMenuOpen(o => !o)}
                 className={`flex items-center gap-2 h-8 px-3 rounded-[6px] transition-colors ${downloadMenuOpen ? 'bg-border text-foreground-tertiary' : 'bg-cream text-foreground-tertiary hover:bg-border'}`}
               >
@@ -3196,13 +3196,13 @@ export default function App() {
                     </span>
                   </div>
                   <div className="p-1">
-                    <button
+                    <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                       className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                       onClick={() => { setDownloadMenuOpen(false); downloadAllAsZip(); }}
                     >
                       <span className="text-[14px] text-foreground">Avec tamponnage</span>
                     </button>
-                    <button
+                    <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                       className="w-full flex items-center justify-between px-2 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                       onClick={() => { setDownloadMenuOpen(false); downloadAllAsZip(); }}
                     >
@@ -3213,7 +3213,7 @@ export default function App() {
               )}
             </div>
             {dossierStatut !== 'fermé' && (
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={copyBordereau}
                 className="flex items-center gap-2 h-8 px-3 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary shadow-[0px_1px_2px_0px_rgba(26,26,26,0.05)] transition-colors"
               >
@@ -3248,7 +3248,7 @@ export default function App() {
             };
             return (
               <>
-                <input
+                <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */
                   id="legacy-pieces-input"
                   type="file"
                   multiple
@@ -3280,13 +3280,13 @@ export default function App() {
             <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
               <Hand className="w-4 h-4 text-foreground-secondary shrink-0" strokeWidth={1.5} />
               <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => { setPiecesSortMode('manuel'); setShowReorderHint(false); }}
                 className="ml-auto px-3 py-1.5 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
               >
                 Désactiver Chrono
               </button>
-              <button onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
                 <X className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
@@ -5139,7 +5139,7 @@ export default function App() {
           <>
             {/* Breadcrumb : Mes dossiers (retour) │ nom du dossier (ancre serif) */}
             <div className="flex items-center gap-2.5 min-w-0 flex-shrink-0">
-              <button onClick={backToList} title="Retour à mes dossiers" className="flex items-center gap-1.5 pl-1.5 text-[12px] leading-4 tracking-[0.01em] text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={backToList} title="Retour à mes dossiers" className="flex items-center gap-1.5 pl-1.5 text-[12px] leading-4 tracking-[0.01em] text-foreground-secondary hover:text-foreground transition-colors flex-shrink-0">
                 <FolderOpen className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.75} /> Mes dossiers
               </button>
               <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0" />
@@ -5163,7 +5163,7 @@ export default function App() {
               <PlatoAssistantButton onClick={() => setChatSidebarOpen(true)} />
             )}
             <div className="relative" ref={dossierMenuRef}>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => setDossierMenuOpen(prev => !prev)}
                 className={`p-1.5 rounded-lg transition-colors ${dossierMenuOpen ? 'bg-background-subtle' : 'hover:bg-background-subtle'}`}
                 title="Plus d'options"
@@ -5174,7 +5174,7 @@ export default function App() {
                 <div className="absolute top-full right-0 mt-1 z-50 bg-surface rounded-[8px] border border-border overflow-hidden" style={{ minWidth: 220, boxShadow: dsShadows['md'] }}>
                   <div className="p-1">
                     {isClosed ? (
-                      <button
+                      <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                         className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-background transition-colors"
                         onClick={() => { setDossierMenuOpen(false); setReopenConfirmOpen(true); }}
                       >
@@ -5182,7 +5182,7 @@ export default function App() {
                         <span className="text-[14px] text-foreground">Reprendre le dossier</span>
                       </button>
                     ) : (
-                      <button
+                      <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                         className="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-[6px] hover:bg-danger-subtle transition-colors"
                         onClick={() => { setDossierMenuOpen(false); setCloseConfirmOpen(true); }}
                       >
@@ -5481,7 +5481,7 @@ export default function App() {
               Le switcher ne liste que les fils de ce dossier (jamais de pièces,
               d'actes ni d'ancres), chaque entrée est ouvrable, + création. */}
           <div className="px-3 h-12 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: dsColors.semantic.border }}>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => setChatSidebarOpen(false)}
               className="p-1.5 hover:bg-background-subtle rounded-md transition-colors flex-shrink-0"
               title="Masquer le chat"
@@ -5640,7 +5640,7 @@ export default function App() {
                 return (
                   <div key={i} className="flex flex-col gap-2 items-start pb-3" style={{ paddingRight: 20 }}>
                     <p style={{ fontSize: 14, lineHeight: '20px', color: dsColors.semantic.foreground, margin: 0 }}>{msg.text}</p>
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-background-subtle"
                       style={{ backgroundColor: dsColors.semantic.backgroundSubtle, color: dsColors.semantic.foregroundTertiary, border: `1px solid ${dsColors.semantic.border}` }}
                     >
@@ -5768,16 +5768,16 @@ export default function App() {
                     {inlineContent}
                     {/* Action icons */}
                     <div className="flex items-center gap-2.5">
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <Copy className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <ThumbsUp className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <ThumbsDown className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <RotateCcw className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                     </div>
@@ -5839,16 +5839,16 @@ export default function App() {
 
                     {/* Action icons */}
                     <div className="flex items-center gap-2.5">
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <Copy className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <ThumbsUp className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <ThumbsDown className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
-                      <button className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="p-0 bg-transparent border-none cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
                         <RotateCcw className="w-3.5 h-3.5 text-foreground-secondary" />
                       </button>
                     </div>
@@ -5901,7 +5901,7 @@ export default function App() {
                     <span className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.banner.info.accentHover, textTransform: 'uppercase' }}>
                       ACTE · {selectedActeZone}
                     </span>
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       onClick={() => setSelectedActeZone(null)}
                       className="flex-shrink-0 w-4 h-4 rounded flex items-center justify-center hover:bg-info-subtle transition-colors"
                     >
@@ -5986,7 +5986,7 @@ export default function App() {
                         <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase' }}>
                           USER ASK - {currentIdx + 1}/{total}
                         </span>
-                        <button onClick={dismiss} className="hover:opacity-70 transition-opacity">
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={dismiss} className="hover:opacity-70 transition-opacity">
                           <X className="w-3.5 h-3.5" style={{ color: dsColors.semantic.foregroundMuted }} strokeWidth={2} />
                         </button>
                       </div>
@@ -6000,7 +6000,7 @@ export default function App() {
                       {q.proposals.map((prop, pi) => {
                         const isSelected = selectedProposal === pi;
                         return (
-                          <button
+                          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                             key={pi}
                             className="flex items-center gap-3 w-full text-left transition-colors"
                             style={{
@@ -6027,7 +6027,7 @@ export default function App() {
                       })}
 
                       {/* Custom answer row */}
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         className="flex items-center gap-3 w-full text-left transition-colors"
                         style={{
                           padding: '7px 10px',
@@ -6043,7 +6043,7 @@ export default function App() {
                           <Pencil className="w-4 h-4" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={1.5} />
                         </span>
                         {isCustomMode ? (
-                          <input
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                             ref={userAskCustomRef}
                             type="text"
                             className="flex-1 bg-transparent text-[14px] text-foreground focus:outline-none"
@@ -6063,7 +6063,7 @@ export default function App() {
                     <div className="flex items-center justify-between" style={{ padding: 12 }}>
                       {/* Pagination dots */}
                       <div className="flex items-center gap-1">
-                        <button
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           className="flex items-center justify-center hover:opacity-70 transition-opacity"
                           disabled={currentIdx === 0}
                           style={{ opacity: currentIdx === 0 ? 0.3 : 1 }}
@@ -6084,7 +6084,7 @@ export default function App() {
                             />
                           ))}
                         </div>
-                        <button
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           className="flex items-center justify-center hover:opacity-70 transition-opacity"
                           disabled={currentIdx >= total - 1}
                           style={{ opacity: currentIdx >= total - 1 ? 0.3 : 1 }}
@@ -6096,14 +6096,14 @@ export default function App() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-[7px]">
-                        <button
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           onClick={skipQuestion}
                           className="flex items-center justify-center transition-colors hover:bg-border"
                           style={{ height: 32, paddingLeft: 12, paddingRight: 12, borderRadius: 8, backgroundColor: dsColors.semantic.muted, fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}
                         >
                           Passer
                         </button>
-                        <button
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           onClick={hasAnswer ? submitAnswer : undefined}
                           className="flex items-center justify-center transition-colors"
                           style={{
@@ -6345,7 +6345,7 @@ export default function App() {
               />
             )}
             <div className="flex items-center gap-1 flex-shrink-0">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 className="inline-flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-border"
                 style={{ backgroundColor: dsColors.semantic.muted, color: dsColors.semantic.foregroundTertiary }}
                 title="Copier"
@@ -6379,7 +6379,7 @@ export default function App() {
       return (
         <div className="border-b border-border bg-surface flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
-            <button onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-background-subtle rounded transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => navigateToStackLevel(navStack.length - 2)} className="p-1 hover:bg-background-subtle rounded transition-colors">
               <ChevronRight className="w-4 h-4 rotate-180 text-foreground-muted" strokeWidth={1.5} />
             </button>
             <span className="inline-flex items-center px-2 py-0.5 text-caption-medium font-semibold rounded-[6px]" style={{ backgroundColor: dsColors.semantic.muted, color: dsColors.semantic.foregroundTertiary, border: 'none' }}>
@@ -6397,7 +6397,7 @@ export default function App() {
       return (
         <div className="border-b border-border bg-surface flex-shrink-0">
           <div className="h-[52px] px-4 flex items-center gap-3">
-            <button onClick={() => {
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
               setNavStack(prev => {
                 const newStack = [...prev];
                 delete newStack[newStack.length - 1].subSection;
@@ -6587,7 +6587,7 @@ export default function App() {
               <div className="flex items-center gap-3 w-full">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-secondary" />
-                  <input
+                  <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                     type="text"
                     placeholder="Rechercher..."
                     value={pickerOpen === posteType ? pickerSearch : ''}
@@ -6595,13 +6595,13 @@ export default function App() {
                     className="w-full pl-9 pr-3 py-2 h-10 border border-border rounded-lg text-sm bg-surface focus:outline-none focus:ring-2 focus:ring-stone-subtle shadow-[0_1px_2px_0_rgba(26,26,26,0.05)]"
                   />
                 </div>
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={(e) => { e.stopPropagation(); document.getElementById(`picker-file-${posteType}`).click(); }}
                   className="flex items-center gap-2 px-4 py-2 h-10 bg-cream rounded-lg text-sm font-medium text-foreground-tertiary hover:bg-border transition-colors whitespace-nowrap"
                 >
                   <Upload className="w-4 h-4" /> Ajouter des docs
                 </button>
-                <input type="file" id={`picker-file-${posteType}`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
+                <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id={`picker-file-${posteType}`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
               </div>
 
               {/* Suggested label */}
@@ -6623,7 +6623,7 @@ export default function App() {
 
             {/* Action buttons */}
             <div className="flex flex-col items-center gap-3 w-[500px] max-w-full">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => handleAddMultipleFromPieces(pickerSelected, posteType)}
                 disabled={!hasSelection}
                 className={`flex items-center justify-center gap-2 w-full h-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-[0_1px_2px_0_rgba(26,26,26,0.05)] ${
@@ -6632,7 +6632,7 @@ export default function App() {
               >
                 Commencer à calculer{hasSelection ? ` (${pickerSelected.length} pièce${pickerSelected.length > 1 ? 's' : ''})` : ''}
               </button>
-              <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-foreground-secondary hover:text-foreground-tertiary transition-colors">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-foreground-secondary hover:text-foreground-tertiary transition-colors">
                 <Edit3 className="w-4 h-4" /> Commencer manuellement
               </button>
             </div>
@@ -6646,7 +6646,7 @@ export default function App() {
               <div className="flex flex-col items-center gap-1 text-center max-w-[512px] w-full">
                 <p className="text-sm font-medium text-foreground-tertiary leading-5">
                   Déposez ou{' '}
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     onClick={(e) => { e.stopPropagation(); document.getElementById(`picker-file-${posteType}-empty`).click(); }}
                     className="underline text-link font-medium cursor-pointer"
                   >parcourez</button>
@@ -6654,7 +6654,7 @@ export default function App() {
                 </p>
                 <p className="text-sm text-foreground-secondary leading-5">{description}</p>
               </div>
-              <input type="file" id={`picker-file-${posteType}-empty`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
+              <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id={`picker-file-${posteType}-empty`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handlePickerAddFiles(e.target.files); e.target.value = ''; } }} />
 
               {/* Expected doc type badges */}
               <div className="flex flex-wrap justify-center gap-3">
@@ -6670,7 +6670,7 @@ export default function App() {
                   <span className="text-xs font-medium text-foreground-secondary">OU</span>
                   <div className="h-px w-20 bg-border-strong" />
                 </div>
-                <button onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-link hover:text-link/80 transition-colors">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual(posteType)} className="flex items-center gap-2 h-9 text-sm font-medium text-link hover:text-link/80 transition-colors">
                   <Edit3 className="w-4 h-4" /> {manualLabels[posteType] || 'Ajouter manuellement'}
                 </button>
               </div>
@@ -6693,7 +6693,7 @@ export default function App() {
         <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg mx-4">
           <div className="px-6 py-4 border-b flex items-center justify-between">
             <h3 className="text-heading-md">Ajouter une dépense</h3>
-            <button onClick={() => setShowAddModal(null)} className="p-1 hover:bg-background-canvas rounded"><X className="w-5 h-5" /></button>
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowAddModal(null)} className="p-1 hover:bg-background-canvas rounded"><X className="w-5 h-5" /></button>
           </div>
           
           {/* Tabs */}
@@ -6703,7 +6703,7 @@ export default function App() {
               { id: 'pieces', label: 'Pièces existantes', icon: Folder },
               { id: 'manual', label: 'Saisie manuelle', icon: Edit3 }
             ].map(tab => (
-              <button key={tab.id} onClick={() => setAddModalTab(tab.id)}
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={tab.id} onClick={() => setAddModalTab(tab.id)}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-body-medium ${addModalTab === tab.id ? 'text-chart-3 border-b-2 border-chart-3 bg-info-bg' : 'text-foreground-secondary hover:text-foreground'}`}>
                 <tab.icon className="w-4 h-4" />{tab.label}
               </button>
@@ -6722,7 +6722,7 @@ export default function App() {
                 >
                   <Upload className={`w-10 h-10 mx-auto mb-3 ${isDragging ? 'text-chart-2' : 'text-foreground-muted'}`} />
                   <p className="text-foreground-secondary mb-3">Glissez vos documents ici</p>
-                  <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => e.target.files && handleUploadFiles(e.target.files, showAddModal)} className="hidden" id="upload-input" />
+                  <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => e.target.files && handleUploadFiles(e.target.files, showAddModal)} className="hidden" id="upload-input" />
                   <label htmlFor="upload-input" className="px-4 py-2 bg-chart-3 text-white text-body rounded-lg cursor-pointer hover:bg-chart-4">Parcourir</label>
                 </div>
                 <div className="mt-4 flex items-center gap-2 p-3 bg-warning-subtle rounded-lg">
@@ -6737,13 +6737,13 @@ export default function App() {
               <div>
                 <div className="relative mb-4">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
-                  <input type="text" value={searchPieces} onChange={(e) => setSearchPieces(e.target.value)} placeholder="Rechercher une pièce..." className="w-full pl-10 pr-4 py-2 border rounded-lg" />
+                  <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={searchPieces} onChange={(e) => setSearchPieces(e.target.value)} placeholder="Rechercher une pièce..." className="w-full pl-10 pr-4 py-2 border rounded-lg" />
                 </div>
                 <div className="max-h-64 overflow-y-auto space-y-2">
                   {filteredPieces.length === 0 ? (
                     <p className="text-center text-foreground-secondary py-4">Aucune pièce disponible</p>
                   ) : filteredPieces.map(p => (
-                    <button key={p.id} onClick={() => handleAddFromPiece(p, showAddModal)}
+                    <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ key={p.id} onClick={() => handleAddFromPiece(p, showAddModal)}
                       className="w-full flex items-center gap-3 p-3 border rounded-lg hover:border-info-border hover:bg-info-bg text-left">
                       <FileText className="w-8 h-8 text-foreground-muted" />
                       <div className="flex-1 min-w-0">
@@ -6762,7 +6762,7 @@ export default function App() {
               <div className="text-center py-6">
                 <FileQuestion className="w-12 h-12 mx-auto mb-3 text-foreground-muted" />
                 <p className="text-foreground-secondary mb-4">Créer une ligne sans document associé</p>
-                <button onClick={() => handleAddManual(showAddModal)} className="px-4 py-2 bg-chart-3 text-white rounded-lg hover:bg-chart-4">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual(showAddModal)} className="px-4 py-2 bg-chart-3 text-white rounded-lg hover:bg-chart-4">
                   Créer une ligne manuelle
                 </button>
               </div>
@@ -6823,7 +6823,7 @@ export default function App() {
                 </span>
               )}
             </div>
-            <button onClick={() => { setEditPanel(null); setShowPreview(false); }} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setEditPanel(null); setShowPreview(false); }} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
               <X className="w-4 h-4 text-foreground-muted" />
             </button>
           </div>
@@ -6883,7 +6883,7 @@ export default function App() {
                           <label className="text-body-medium text-foreground">Libellé dépense</label>
                           {(data.diffType === 'add' || hasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
                         </div>
-                        <input
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                           type="text"
                           defaultValue={data.label || ''}
                           id="edit-label"
@@ -6900,15 +6900,15 @@ export default function App() {
                         {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                           <div className="relative mb-2">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
-                            <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
                               className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
-                            {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
+                            {searchPiecesPanel && <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
                           </div>
                         )}
                         {searchPiecesPanel && (
                           <div className="max-h-32 overflow-y-auto space-y-1 mb-2">
                             {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
-                              <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
+                              <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-surface border border-border rounded-lg hover:bg-background-subtle transition-colors">
                                 <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                 <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
@@ -6922,7 +6922,7 @@ export default function App() {
                           <Upload className="w-4 h-4" />
                           <span>Déposez ou <span className="text-brand font-medium">cliquez</span> pour ajouter un justificatif</span>
                         </div>
-                        <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                        <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                         {editingPieceIds.length > 0 && (
                           <div className="mt-2">
@@ -6934,8 +6934,8 @@ export default function App() {
                                   <span className="text-body text-foreground truncate flex-1">{piece.intitule || piece.nom}</span>
                                   <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                   <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                    <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
-                                    <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
+                                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
+                                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
                                   </div>
                                 </div>
                               ) : null;
@@ -6953,14 +6953,14 @@ export default function App() {
                           {(data.diffType === 'add' || hasDiff('date')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
-                          <input type="text" defaultValue={data.date || ''} id="edit-date"
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" defaultValue={data.date || ''} id="edit-date"
                             placeholder="JJ/MM/AAAA" maxLength={10}
                             onChange={(e) => { e.target.value = formatDateInput(e.target.value); }}
                             className={`w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-surface focus:outline-none focus:border-foreground focus:shadow-[0_0_0_3px_rgba(163,163,163,0.5)] ${iaFieldClass(data.date)}`}
                             style={{ boxShadow: dsShadows.xs }}
                           />
-                          <input type="date" id="edit-date-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date')} />
-                          <button type="button" onClick={() => openDatePicker('edit-date')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                          <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="edit-date-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date')} />
+                          <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('edit-date')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                         {hasDiff('date') && <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Ancien : {ov.date}</p>}
                         {/* Champs période (masqués si ponctuelle) */}
@@ -6969,13 +6969,13 @@ export default function App() {
                             <div>
                               <label className="text-caption text-foreground-secondary mb-1.5 block">Date de fin</label>
                               <div className="relative">
-                                <input type="text" defaultValue={data.dateFin || ''} id="edit-date-fin"
+                                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" defaultValue={data.dateFin || ''} id="edit-date-fin"
                                   placeholder="JJ/MM/AAAA" maxLength={10}
                                   onChange={(e) => { e.target.value = formatDateInput(e.target.value); }}
                                   className="w-full px-3 py-2 pr-9 text-body border border-border rounded-lg bg-surface focus:outline-none focus:ring-1 focus:ring-foreground-muted"
                                 />
-                                <input type="date" id="edit-date-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date-fin')} />
-                                <button type="button" onClick={() => openDatePicker('edit-date-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                                <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="edit-date-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'edit-date-fin')} />
+                                <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('edit-date-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                               </div>
                             </div>
                             <div className="text-caption text-foreground-secondary italic">
@@ -6993,7 +6993,7 @@ export default function App() {
                         </div>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
-                          <input
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                             type="number"
                             step="0.01"
                             defaultValue={data.montant ?? ''}
@@ -7014,7 +7014,7 @@ export default function App() {
                         </div>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" style={{ fontSize: 14 }}>€</span>
-                          <input
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                             type="number"
                             step="0.01"
                             defaultValue={data.dejaRembourse || 0}
@@ -7026,12 +7026,12 @@ export default function App() {
                       </div>
 
                       {/* Hidden fields to preserve data */}
-                      <input type="hidden" id="edit-type" value={data.type || 'Autre'} />
-                      <input type="hidden" id="edit-tiers" value={data.tiers || ''} />
-                      <input type="hidden" id="edit-date-type" value={data.isPeriodique ? 'periode' : 'ponctuelle'} />
-                      <input type="hidden" id="edit-montant-unitaire" value={data.montantUnitaire ?? ''} />
-                      <input type="hidden" id="edit-reste-charge" value={data.resteAChargeRetenu ?? ((data.montant || 0) - (data.dejaRembourse || 0))} />
-                      <input type="hidden" id="edit-revalo" value={data.aRevalo ? 'true' : 'false'} />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="hidden" id="edit-type" value={data.type || 'Autre'} />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="hidden" id="edit-tiers" value={data.tiers || ''} />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="hidden" id="edit-date-type" value={data.isPeriodique ? 'periode' : 'ponctuelle'} />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="hidden" id="edit-montant-unitaire" value={data.montantUnitaire ?? ''} />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="hidden" id="edit-reste-charge" value={data.resteAChargeRetenu ?? ((data.montant || 0) - (data.dejaRembourse || 0))} />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="hidden" id="edit-revalo" value={data.aRevalo ? 'true' : 'false'} />
                     </div>
                   );
                 })()}
@@ -7062,7 +7062,7 @@ export default function App() {
                     <div className="w-1/2 space-y-4">
                       <div>
                         <label className="text-body-medium text-foreground">Intitulé</label>
-                        <input
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                           id="piece-intitule"
                           type="text"
                           defaultValue={data.intitule || data.nom?.replace(/\.[^/.]+$/, '')}
@@ -7081,7 +7081,7 @@ export default function App() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="text-body-medium text-foreground">Type</label>
-                          <select id="piece-type" defaultValue={data.type} className="mt-1 w-full px-3 py-2 border rounded-lg">
+                          <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="piece-type" defaultValue={data.type} className="mt-1 w-full px-3 py-2 border rounded-lg">
                             <option>Facture</option>
                             <option>Bulletin</option>
                             <option>Attestation</option>
@@ -7142,10 +7142,10 @@ export default function App() {
                     <FormSection title="Identité">
                       <div className="grid grid-cols-2 gap-4">
                         <FormField label="Nom">
-                          <input type="text" id="victime-nom" defaultValue={victimeData.nom} className={inputClass} />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="victime-nom" defaultValue={victimeData.nom} className={inputClass} />
                         </FormField>
                         <FormField label="Prénom">
-                          <input type="text" id="victime-prenom" defaultValue={victimeData.prenom} className={inputClass} />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="victime-prenom" defaultValue={victimeData.prenom} className={inputClass} />
                         </FormField>
                       </div>
                     </FormSection>
@@ -7153,16 +7153,16 @@ export default function App() {
                     <FormSection title="État civil">
                       <div className="grid grid-cols-2 gap-4">
                         <FormField label="Sexe">
-                          <select id="victime-sexe" defaultValue={victimeData.sexe} className={selectClass}>
+                          <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="victime-sexe" defaultValue={victimeData.sexe} className={selectClass}>
                             <option>Homme</option>
                             <option>Femme</option>
                           </select>
                         </FormField>
                         <FormField label="Date de naissance">
                           <div className="relative">
-                            <input type="text" id="victime-naissance" defaultValue={victimeData.dateNaissance} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                            <input type="date" id="victime-naissance-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'victime-naissance')} />
-                            <button type="button" onClick={() => openDatePicker('victime-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="victime-naissance" defaultValue={victimeData.dateNaissance} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                            <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="victime-naissance-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'victime-naissance')} />
+                            <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('victime-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                       </div>
@@ -7171,9 +7171,9 @@ export default function App() {
                     <FormSection title="Décès" noBorder>
                       <FormField label="Date de décès" hint="Laisser vide si non applicable">
                         <div className="relative">
-                          <input type="text" id="victime-deces" defaultValue={victimeData.dateDeces || ''} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                          <input type="date" id="victime-deces-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'victime-deces')} />
-                          <button type="button" onClick={() => openDatePicker('victime-deces')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="victime-deces" defaultValue={victimeData.dateDeces || ''} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                          <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="victime-deces-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'victime-deces')} />
+                          <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('victime-deces')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                       </FormField>
                     </FormSection>
@@ -7185,7 +7185,7 @@ export default function App() {
                   <>
                     <FormSection title="Type d'événement">
                       <FormField label="Type de fait générateur">
-                        <select id="fait-type" defaultValue={faitGenerateur.type} className={selectClass}>
+                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="fait-type" defaultValue={faitGenerateur.type} className={selectClass}>
                           <option>Accident de la route</option>
                           <option>Accident du travail</option>
                           <option>Accident médical</option>
@@ -7200,23 +7200,23 @@ export default function App() {
                       <div className="grid grid-cols-2 gap-4">
                         <FormField label="Date de l'accident">
                           <div className="relative">
-                            <input type="text" id="fait-date-accident" defaultValue={faitGenerateur.dateAccident} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                            <input type="date" id="fait-date-accident-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-accident')} />
-                            <button type="button" onClick={() => openDatePicker('fait-date-accident')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="fait-date-accident" defaultValue={faitGenerateur.dateAccident} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                            <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="fait-date-accident-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-accident')} />
+                            <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('fait-date-accident')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                         <FormField label="Date première constatation">
                           <div className="relative">
-                            <input type="text" id="fait-date-constat" defaultValue={faitGenerateur.datePremiereConstatation} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                            <input type="date" id="fait-date-constat-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-constat')} />
-                            <button type="button" onClick={() => openDatePicker('fait-date-constat')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="fait-date-constat" defaultValue={faitGenerateur.datePremiereConstatation} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                            <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="fait-date-constat-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-constat')} />
+                            <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('fait-date-constat')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                         <FormField label="Date de consolidation">
                           <div className="relative">
-                            <input type="text" id="fait-date-conso" defaultValue={faitGenerateur.dateConsolidation} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                            <input type="date" id="fait-date-conso-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-conso')} />
-                            <button type="button" onClick={() => openDatePicker('fait-date-conso')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="fait-date-conso" defaultValue={faitGenerateur.dateConsolidation} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                            <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="fait-date-conso-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'fait-date-conso')} />
+                            <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('fait-date-conso')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </FormField>
                       </div>
@@ -7224,7 +7224,7 @@ export default function App() {
                     
                     <FormSection title="Description" noBorder>
                       <FormField label="Résumé des faits">
-                        <textarea 
+                        <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */ 
                           id="fait-resume" 
                           defaultValue={faitGenerateur.resume} 
                           rows={5}
@@ -7241,7 +7241,7 @@ export default function App() {
                   <>
                     <FormSection title="Commentaire d'expertise" noBorder>
                       <FormField>
-                        <textarea
+                        <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                           id="proc-commentaire"
                           defaultValue={commentaireExpertise}
                           rows={10}
@@ -7261,11 +7261,11 @@ export default function App() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-body-medium text-foreground">Nom</label>
-                          <input type="text" id="vi-nom" defaultValue={data?.nom || ''} className="mt-1 w-full px-3 py-2 border rounded-lg" />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="vi-nom" defaultValue={data?.nom || ''} className="mt-1 w-full px-3 py-2 border rounded-lg" />
                         </div>
                         <div>
                           <label className="text-body-medium text-foreground">Prénom</label>
-                          <input type="text" id="vi-prenom" defaultValue={data?.prenom || ''} className="mt-1 w-full px-3 py-2 border rounded-lg" />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="vi-prenom" defaultValue={data?.prenom || ''} className="mt-1 w-full px-3 py-2 border rounded-lg" />
                         </div>
                       </div>
                     </div>
@@ -7275,7 +7275,7 @@ export default function App() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-body-medium text-foreground">Sexe</label>
-                          <select id="vi-sexe" defaultValue={data?.sexe || 'Homme'} className="mt-1 w-full px-3 py-2 border rounded-lg">
+                          <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="vi-sexe" defaultValue={data?.sexe || 'Homme'} className="mt-1 w-full px-3 py-2 border rounded-lg">
                             <option>Homme</option>
                             <option>Femme</option>
                           </select>
@@ -7283,9 +7283,9 @@ export default function App() {
                         <div>
                           <label className="text-body-medium text-foreground">Date de naissance</label>
                           <div className="relative mt-1">
-                            <input type="text" id="vi-naissance" defaultValue={data?.dateNaissance || ''} className="w-full px-3 py-2 pr-9 border rounded-lg" placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                            <input type="date" id="vi-naissance-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'vi-naissance')} />
-                            <button type="button" onClick={() => openDatePicker('vi-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="vi-naissance" defaultValue={data?.dateNaissance || ''} className="w-full px-3 py-2 pr-9 border rounded-lg" placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                            <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="vi-naissance-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'vi-naissance')} />
+                            <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('vi-naissance')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                           </div>
                         </div>
                       </div>
@@ -7295,7 +7295,7 @@ export default function App() {
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Lien avec la victime</h4>
                       <div>
                         <label className="text-body-medium text-foreground">Type de lien</label>
-                        <select id="vi-lien" defaultValue={data?.lien || 'Conjoint'} className="mt-1 w-full px-3 py-2 border rounded-lg">
+                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="vi-lien" defaultValue={data?.lien || 'Conjoint'} className="mt-1 w-full px-3 py-2 border rounded-lg">
                           <option>Époux</option>
                           <option>Épouse</option>
                           <option>Conjoint</option>
@@ -7323,7 +7323,7 @@ export default function App() {
                     {data?.hasIntitule && (
                       <div>
                         <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Intitulé du préjudice</h4>
-                        <input type="text" id="iv-ligne-intitule" defaultValue={data?.intitule || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Décrivez le préjudice exceptionnel" />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="iv-ligne-intitule" defaultValue={data?.intitule || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Décrivez le préjudice exceptionnel" />
                       </div>
                     )}
                     <div>
@@ -7331,7 +7331,7 @@ export default function App() {
                       <div>
                         <label className="text-body-medium text-foreground">Montant demandé</label>
                         <div className="relative mt-1">
-                          <input type="number" id="iv-ligne-montant" defaultValue={data?.montant || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="iv-ligne-montant" defaultValue={data?.montant || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                         </div>
                       </div>
@@ -7344,12 +7344,12 @@ export default function App() {
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Description</h4>
-                      <input type="text" id="iv-ligne-intitule" defaultValue={data?.intitule || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Déplacements hôpital, hébergement..." />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="iv-ligne-intitule" defaultValue={data?.intitule || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Déplacements hôpital, hébergement..." />
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant</h4>
                       <div className="relative">
-                        <input type="number" id="iv-ligne-montant" defaultValue={data?.montant || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="iv-ligne-montant" defaultValue={data?.montant || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                       </div>
                     </div>
@@ -7361,12 +7361,12 @@ export default function App() {
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Description</h4>
-                      <input type="text" id="iv-ligne-label" defaultValue={data?.label || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Cercueil, cérémonie, monument..." />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="iv-ligne-label" defaultValue={data?.label || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Cercueil, cérémonie, monument..." />
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant total</h4>
                       <div className="relative">
-                        <input type="number" id="iv-ligne-total-amount" defaultValue={data?.totalAmount || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="iv-ligne-total-amount" defaultValue={data?.totalAmount || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="any" min="0" />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                       </div>
                     </div>
@@ -7382,7 +7382,7 @@ export default function App() {
                               </div>
                               <span className="flex-1 text-body text-foreground-tertiary truncate">{vi.prenom} {vi.nom}</span>
                               <div className="relative w-[100px]">
-                                <input type="number" data-vi-attr={vi.id} defaultValue={existing?.amount || ''} className="w-full px-3 py-1.5 border rounded-lg pr-6 text-right text-body" placeholder="0" step="any" min="0" />
+                                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" data-vi-attr={vi.id} defaultValue={existing?.amount || ''} className="w-full px-3 py-1.5 border rounded-lg pr-6 text-right text-body" placeholder="0" step="any" min="0" />
                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground-muted text-caption">€</span>
                               </div>
                             </div>
@@ -7399,28 +7399,28 @@ export default function App() {
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Part individuelle</h4>
                       <div className="relative">
-                        <input type="number" id="iv-ligne-part" defaultValue={data?.partIndividuelle || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="1" min="0" max="100" />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="iv-ligne-part" defaultValue={data?.partIndividuelle || ''} className="w-full px-3 py-2 border rounded-lg pr-8" placeholder="0" step="1" min="0" max="100" />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">%</span>
                       </div>
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Durée d'indemnisation</h4>
-                      <input type="text" id="iv-ligne-duree" defaultValue={data?.dureeIndemnisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Viager, jusqu'à 25 ans..." />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="iv-ligne-duree" defaultValue={data?.dureeIndemnisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Ex : Viager, jusqu'à 25 ans..." />
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Mode</h4>
-                      <select id="iv-ligne-mode" defaultValue={data?.mode || 'capitalisation'} className="w-full px-3 py-2 border rounded-lg bg-surface">
+                      <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="iv-ligne-mode" defaultValue={data?.mode || 'capitalisation'} className="w-full px-3 py-2 border rounded-lg bg-surface">
                         <option value="capitalisation">Capital</option>
                         <option value="rente">Rente annuelle</option>
                       </select>
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Années échues</h4>
-                      <input type="number" id="iv-ligne-annees" defaultValue={data?.anneesEchues ?? 0} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="1" min="0" />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="iv-ligne-annees" defaultValue={data?.anneesEchues ?? 0} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="1" min="0" />
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Coefficient de capitalisation</h4>
-                      <input type="number" id="iv-ligne-coeff" defaultValue={data?.coeffCapitalisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="0.1" min="0" />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="iv-ligne-coeff" defaultValue={data?.coeffCapitalisation || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="0" step="0.1" min="0" />
                       <p className="mt-2" style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>
                         Réf : Gazette du Palais 2022, table A, taux 1,2 % - Cass. 2e civ. 14 nov. 2019 n°18-22.969
                       </p>
@@ -7446,22 +7446,22 @@ export default function App() {
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Type de déduction</h4>
-                      <select id="iv-tp-type" defaultValue={data?.type || 'pension-reversion'} className="w-full px-3 py-2 border rounded-lg bg-surface">
+                      <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="iv-tp-type" defaultValue={data?.type || 'pension-reversion'} className="w-full px-3 py-2 border rounded-lg bg-surface">
                         {PRP_TP_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                       </select>
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Libellé</h4>
-                      <input type="text" id="iv-tp-label" defaultValue={data?.label || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Pension de réversion" />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="iv-tp-label" defaultValue={data?.label || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="Pension de réversion" />
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Organisme</h4>
-                      <input type="text" id="iv-tp-organisme" defaultValue={data?.organisme || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="CNAV, AGIRC-ARRCO, CAF..." />
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="iv-tp-organisme" defaultValue={data?.organisme || ''} className="w-full px-3 py-2 border rounded-lg" placeholder="CNAV, AGIRC-ARRCO, CAF..." />
                     </div>
                     <div>
                       <h4 className="text-body-medium font-semibold text-foreground mb-3 pb-2 border-b">Montant annuel</h4>
                       <div className="relative">
-                        <input type="number" id="iv-tp-montant" defaultValue={data?.montantAnnuel || ''} className="w-full px-3 py-2 border rounded-lg pr-12" placeholder="0" step="100" min="0" />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="iv-tp-montant" defaultValue={data?.montantAnnuel || ''} className="w-full px-3 py-2 border rounded-lg pr-12" placeholder="0" step="100" min="0" />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€/an</span>
                       </div>
                     </div>
@@ -7480,35 +7480,35 @@ export default function App() {
                   <>
                     <FormSection title="Informations générales">
                       <FormField label="Référence dossier">
-                        <input type="text" id="dossier-ref" defaultValue={dossierRef} className={inputClass} />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="dossier-ref" defaultValue={dossierRef} className={inputClass} />
                       </FormField>
                       <FormField label="Intitulé du dossier">
-                        <input type="text" id="dossier-intitule" defaultValue={dossierIntitule} className={inputClass} />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="dossier-intitule" defaultValue={dossierIntitule} className={inputClass} />
                       </FormField>
                     </FormSection>
 
                     <FormSection title="Statut">
                       <FormField label="État du dossier">
-                        <select id="dossier-statut" defaultValue={dossierStatut} className={selectClass}>
+                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="dossier-statut" defaultValue={dossierStatut} className={selectClass}>
                           <option value="ouvert">En cours</option>
                           <option value="fermé">Terminé</option>
                         </select>
                       </FormField>
                       <FormField label="Date d'ouverture">
                         <div className="relative">
-                          <input type="text" id="dossier-date-ouverture" defaultValue={dossierDateOuverture} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                          <input type="date" id="dossier-date-ouverture-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dossier-date-ouverture')} />
-                          <button type="button" onClick={() => openDatePicker('dossier-date-ouverture')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="dossier-date-ouverture" defaultValue={dossierDateOuverture} className={`${inputClass} pr-9`} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                          <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="dossier-date-ouverture-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dossier-date-ouverture')} />
+                          <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('dossier-date-ouverture')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                       </FormField>
                     </FormSection>
 
                     <FormSection title="Intervenants" noBorder>
                       <FormField label="Avocat en charge">
-                        <input type="text" id="dossier-avocat" defaultValue={dossierAvocat} className={inputClass} />
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="dossier-avocat" defaultValue={dossierAvocat} className={inputClass} />
                       </FormField>
                       <FormField label="Notes internes">
-                        <textarea
+                        <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                           id="dossier-notes"
                           rows={3}
                           className={`${inputClass} resize-none`}
@@ -7543,8 +7543,8 @@ export default function App() {
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
@@ -7555,13 +7555,13 @@ export default function App() {
                           <div>
                             <div className="relative mb-2">
                               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
-                              <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
                                 className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-border-strong" />
-                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
+                              {searchPiecesPanel && <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
-                                <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
+                                <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
                                   className="w-full flex items-center gap-2 p-2 text-left text-body bg-surface border rounded hover:bg-info-bg hover:border-chart-1 transition-colors">
                                   <span className="w-6 h-6 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
@@ -7572,9 +7572,9 @@ export default function App() {
                             </div>
                           </div>
                         )}
-                        <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                        <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
-                        <button onClick={() => document.getElementById('panel-piece-upload').click()}
+                        <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ onClick={() => document.getElementById('panel-piece-upload').click()}
                           className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-surface border border-border rounded-lg hover:bg-background hover:border-border-strong transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
@@ -7590,7 +7590,7 @@ export default function App() {
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <label className="text-body-medium text-foreground">Type</label>
                           </div>
-                          <select id="pgpa-revenu-type" defaultValue={data.type || 'revenu'} className={pgpaRevInputCls} style={pgpaRevInputShadow}>
+                          <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="pgpa-revenu-type" defaultValue={data.type || 'revenu'} className={pgpaRevInputCls} style={pgpaRevInputShadow}>
                             <option value="revenu">Revenu professionnel</option>
                             <option value="gain">Gain supplémentaire (prime, indemnité...)</option>
                           </select>
@@ -7600,7 +7600,7 @@ export default function App() {
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <label className="text-body-medium text-foreground">Intitulé</label>
                           </div>
-                          <input id="pgpa-revenu-label" type="text" defaultValue={data.label || ''} placeholder="Ex: Salaire net imposable" className={pgpaRevInputCls} style={pgpaRevInputShadow} />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-revenu-label" type="text" defaultValue={data.label || ''} placeholder="Ex: Salaire net imposable" className={pgpaRevInputCls} style={pgpaRevInputShadow} />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -7608,13 +7608,13 @@ export default function App() {
                             <div className="flex items-center gap-1.5 mb-1.5">
                               <label className="text-body-medium text-foreground">Année</label>
                             </div>
-                            <input id="pgpa-revenu-annee" type="text" defaultValue={data.annee || ''} placeholder="2022" className={pgpaRevInputCls} style={pgpaRevInputShadow} />
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-revenu-annee" type="text" defaultValue={data.annee || ''} placeholder="2022" className={pgpaRevInputCls} style={pgpaRevInputShadow} />
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1.5">
                               <label className="text-body-medium text-foreground">Unité de temps</label>
                             </div>
-                            <select id="pgpa-revenu-unite" defaultValue={data.unite || 'annuel'} className={pgpaRevInputCls} style={pgpaRevInputShadow}>
+                            <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="pgpa-revenu-unite" defaultValue={data.unite || 'annuel'} className={pgpaRevInputCls} style={pgpaRevInputShadow}>
                               <option value="annuel">Annuel</option>
                               <option value="mensuel">Mensuel</option>
                               <option value="journalier">Journalier</option>
@@ -7626,7 +7626,7 @@ export default function App() {
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <label className="text-body-medium text-foreground">Commentaire</label>
                           </div>
-                          <textarea id="pgpa-revenu-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${pgpaRevInputCls} resize-none`} style={pgpaRevInputShadow} />
+                          <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */ id="pgpa-revenu-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${pgpaRevInputCls} resize-none`} style={pgpaRevInputShadow} />
                         </div>
                       </div>
                     </div>
@@ -7641,7 +7641,7 @@ export default function App() {
                               <label className="text-body-medium text-foreground">Revenu net payé</label>
                             </div>
                             <div className="relative">
-                              <input id="pgpa-revenu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${pgpaRevInputCls} pr-8 bg-background-canvas text-foreground-secondary cursor-default`} style={pgpaRevInputShadow} />
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-revenu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${pgpaRevInputCls} pr-8 bg-background-canvas text-foreground-secondary cursor-default`} style={pgpaRevInputShadow} />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                           </div>
@@ -7650,7 +7650,7 @@ export default function App() {
                               <label className="text-body-medium text-foreground">Montant revalorisé</label>
                             </div>
                             <div className="relative">
-                              <input id="pgpa-revenu-revalorise" type="number" step="0.01" defaultValue={data.revalorise || ''} className={`${pgpaRevInputCls} pr-8 bg-background-canvas font-medium`} style={pgpaRevInputShadow} readOnly />
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-revenu-revalorise" type="number" step="0.01" defaultValue={data.revalorise || ''} className={`${pgpaRevInputCls} pr-8 bg-background-canvas font-medium`} style={pgpaRevInputShadow} readOnly />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             <p style={{ fontSize: 12, color: dsColors.semantic.mutedForeground, marginTop: 6, letterSpacing: '0.12px' }}>Calculé automatiquement selon le barème</p>
@@ -7659,7 +7659,7 @@ export default function App() {
 
                         <div className="flex items-center justify-between p-3 bg-background-canvas rounded-lg border">
                           <div className="flex items-center gap-3">
-                            <input type="checkbox" id="pgpa-revenu-revalo-checkbox" defaultChecked={data.aRevaloriser !== false} className="rounded text-chart-3" />
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="checkbox" id="pgpa-revenu-revalo-checkbox" defaultChecked={data.aRevaloriser !== false} className="rounded text-chart-3" />
                             <label htmlFor="pgpa-revenu-revalo-checkbox" className="text-body-medium text-foreground">Appliquer la revalorisation</label>
                           </div>
                           <div className="text-body text-foreground-secondary">
@@ -7705,8 +7705,8 @@ export default function App() {
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
@@ -7717,13 +7717,13 @@ export default function App() {
                           <div>
                             <div className="relative mb-2">
                               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
-                              <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
                                 className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-border-strong" />
-                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
+                              {searchPiecesPanel && <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
-                                <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
+                                <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
                                   className="w-full flex items-center gap-2 p-2 text-left text-body bg-surface border rounded hover:bg-info-bg hover:border-chart-1 transition-colors">
                                   <span className="w-6 h-6 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
@@ -7734,9 +7734,9 @@ export default function App() {
                             </div>
                           </div>
                         )}
-                        <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                        <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
-                        <button onClick={() => document.getElementById('panel-piece-upload').click()}
+                        <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ onClick={() => document.getElementById('panel-piece-upload').click()}
                           className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-surface border border-border rounded-lg hover:bg-background hover:border-border-strong transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
@@ -7753,7 +7753,7 @@ export default function App() {
                             <label className="text-body-medium text-foreground">Intitulé</label>
                             {(data.diffType === 'add' || prcHasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
-                          <input id="pgpa-percu-label" type="text" defaultValue={data.label || ''} placeholder="Ex: Maintien de salaire partiel" className={prcInputCls} style={prcInputShadow} />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-percu-label" type="text" defaultValue={data.label || ''} placeholder="Ex: Maintien de salaire partiel" className={prcInputCls} style={prcInputShadow} />
                           {prcHasDiff('label') && prcDescP(prcOv.label)}
                         </div>
 
@@ -7762,7 +7762,7 @@ export default function App() {
                             <label className="text-body-medium text-foreground">Organisme / Tiers</label>
                             {(data.diffType === 'add' || prcHasDiff('tiers')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
-                          <input id="pgpa-percu-tiers" type="text" defaultValue={data.tiers || ''} placeholder="Ex: Employeur, Prévoyance..." className={prcInputCls} style={prcInputShadow} />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-percu-tiers" type="text" defaultValue={data.tiers || ''} placeholder="Ex: Employeur, Prévoyance..." className={prcInputCls} style={prcInputShadow} />
                           {prcHasDiff('tiers') && prcDescP(prcOv.tiers)}
                         </div>
 
@@ -7770,7 +7770,7 @@ export default function App() {
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <label className="text-body-medium text-foreground">Commentaire</label>
                           </div>
-                          <textarea id="pgpa-percu-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${prcInputCls} resize-none`} style={prcInputShadow} />
+                          <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */ id="pgpa-percu-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${prcInputCls} resize-none`} style={prcInputShadow} />
                         </div>
                       </div>
                     </div>
@@ -7786,9 +7786,9 @@ export default function App() {
                               {(data.diffType === 'add' || prcHasDiff('periodeDebut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-percu-debut" type="text" defaultValue={data.periodeDebut || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${prcInputCls} pr-9`} style={prcInputShadow} />
-                              <input type="date" id="pgpa-percu-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-percu-debut')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-percu-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-percu-debut" type="text" defaultValue={data.periodeDebut || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${prcInputCls} pr-9`} style={prcInputShadow} />
+                              <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="pgpa-percu-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-percu-debut')} />
+                              <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('pgpa-percu-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {prcHasDiff('periodeDebut') && prcDescP(prcOv.periodeDebut)}
                           </div>
@@ -7798,9 +7798,9 @@ export default function App() {
                               {(data.diffType === 'add' || prcHasDiff('periodeFin')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-percu-fin" type="text" defaultValue={data.periodeFin || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${prcInputCls} pr-9`} style={prcInputShadow} />
-                              <input type="date" id="pgpa-percu-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-percu-fin')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-percu-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-percu-fin" type="text" defaultValue={data.periodeFin || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${prcInputCls} pr-9`} style={prcInputShadow} />
+                              <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="pgpa-percu-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-percu-fin')} />
+                              <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('pgpa-percu-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {prcHasDiff('periodeFin') && prcDescP(prcOv.periodeFin)}
                           </div>
@@ -7824,7 +7824,7 @@ export default function App() {
                               {(data.diffType === 'add' || prcHasDiff('montant')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-percu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${prcInputCls} pr-8 bg-background-canvas text-foreground-secondary cursor-default`} style={prcInputShadow} />
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-percu-montant" type="number" step="0.01" defaultValue={data.montant || ''} readOnly className={`${prcInputCls} pr-8 bg-background-canvas text-foreground-secondary cursor-default`} style={prcInputShadow} />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             {prcHasDiff('montant') && prcDescP(`${prcOv.montant} €`)}
@@ -7834,7 +7834,7 @@ export default function App() {
                               <label className="text-body-medium text-foreground">Unité de temps</label>
                               {(data.diffType === 'add' || prcHasDiff('unite')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: prcDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
-                            <select id="pgpa-percu-unite" defaultValue={data.unite || 'total'} className={prcInputCls} style={prcInputShadow}>
+                            <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="pgpa-percu-unite" defaultValue={data.unite || 'total'} className={prcInputCls} style={prcInputShadow}>
                               <option value="total">Total période</option>
                               <option value="mensuel">Par mois</option>
                               <option value="journalier">Par jour</option>
@@ -7845,7 +7845,7 @@ export default function App() {
 
                         <div className="flex items-center justify-between p-3 bg-background-canvas rounded-lg border">
                           <div className="flex items-center gap-3">
-                            <input type="checkbox" id="pgpa-percu-no-revalo" defaultChecked={data.noRevalo || false} className="rounded text-chart-3" />
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="checkbox" id="pgpa-percu-no-revalo" defaultChecked={data.noRevalo || false} className="rounded text-chart-3" />
                             <label htmlFor="pgpa-percu-no-revalo" className="text-body-medium text-foreground">Montant à ne pas revaloriser</label>
                           </div>
                         </div>
@@ -7896,8 +7896,8 @@ export default function App() {
                                   <p className="text-body-medium truncate">{piece.intitule || piece.nom}</p>
                                   <p className="text-caption text-foreground-secondary">{piece.type}</p>
                                 </div>
-                                <button onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1.5 text-foreground-muted hover:text-chart-3 hover:bg-info-bg rounded"><Eye className="w-4 h-4" /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1.5 text-foreground-muted hover:text-danger hover:bg-danger-subtle rounded opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             ) : null;
                           })}
@@ -7908,13 +7908,13 @@ export default function App() {
                           <div>
                             <div className="relative mb-2">
                               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
-                              <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
                                 className="w-full pl-8 pr-7 py-1.5 text-caption border border-border rounded-md bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-border-strong" />
-                              {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
+                              {searchPiecesPanel && <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ onClick={() => setSearchPiecesPanel('')} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-foreground-muted" /></button>}
                             </div>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                               {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
-                                <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
+                                <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
                                   className="w-full flex items-center gap-2 p-2 text-left text-body bg-surface border rounded hover:bg-info-bg hover:border-chart-1 transition-colors">
                                   <span className="w-6 h-6 bg-piece-medical-bg text-link text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                                   <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
@@ -7925,9 +7925,9 @@ export default function App() {
                             </div>
                           </div>
                         )}
-                        <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                        <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                           onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
-                        <button onClick={() => document.getElementById('panel-piece-upload').click()}
+                        <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ onClick={() => document.getElementById('panel-piece-upload').click()}
                           className="w-full flex items-center justify-center gap-2 p-2 text-body text-foreground-secondary bg-surface border border-border rounded-lg hover:bg-background hover:border-border-strong transition-colors">
                           <Upload className="w-4 h-4" />
                           Ajouter un document
@@ -7944,7 +7944,7 @@ export default function App() {
                             <label className="text-body-medium text-foreground">Organisme</label>
                             {(data.diffType === 'add' || ijHasDiff('tiers')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
-                          <select id="pgpa-ij-tiers" defaultValue={data.tiers || ''} className={ijInputCls} style={ijInputShadow}>
+                          <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ id="pgpa-ij-tiers" defaultValue={data.tiers || ''} className={ijInputCls} style={ijInputShadow}>
                             <option value="">- Sélectionner -</option>
                             {chiffrageParams.tiersPayeurs.map((t, i) => (
                               <option key={i} value={t}>{t}</option>
@@ -7959,7 +7959,7 @@ export default function App() {
                             <label className="text-body-medium text-foreground">Libellé / Description</label>
                             {(data.diffType === 'add' || ijHasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                           </div>
-                          <input id="pgpa-ij-label" type="text" defaultValue={data.label || ''} placeholder="Ex: IJ Sécurité sociale" className={ijInputCls} style={ijInputShadow} />
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-ij-label" type="text" defaultValue={data.label || ''} placeholder="Ex: IJ Sécurité sociale" className={ijInputCls} style={ijInputShadow} />
                           {ijHasDiff('label') && ijDescP(ijOv.label)}
                         </div>
 
@@ -7967,7 +7967,7 @@ export default function App() {
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <label className="text-body-medium text-foreground">Commentaire</label>
                           </div>
-                          <textarea id="pgpa-ij-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${ijInputCls} resize-none`} style={ijInputShadow} />
+                          <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */ id="pgpa-ij-commentaire" rows={2} defaultValue={data.commentaire || ''} placeholder="Informations complémentaires..." className={`${ijInputCls} resize-none`} style={ijInputShadow} />
                         </div>
                       </div>
                     </div>
@@ -7983,9 +7983,9 @@ export default function App() {
                               {(data.diffType === 'add' || ijHasDiff('periodeDebut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-ij-debut" type="text" defaultValue={data.periodeDebut || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${ijInputCls} pr-9`} style={ijInputShadow} />
-                              <input type="date" id="pgpa-ij-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-ij-debut')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-ij-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-ij-debut" type="text" defaultValue={data.periodeDebut || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${ijInputCls} pr-9`} style={ijInputShadow} />
+                              <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="pgpa-ij-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-ij-debut')} />
+                              <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('pgpa-ij-debut')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {ijHasDiff('periodeDebut') && ijDescP(ijOv.periodeDebut)}
                           </div>
@@ -7995,9 +7995,9 @@ export default function App() {
                               {(data.diffType === 'add' || ijHasDiff('periodeFin')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-ij-fin" type="text" defaultValue={data.periodeFin || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${ijInputCls} pr-9`} style={ijInputShadow} />
-                              <input type="date" id="pgpa-ij-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-ij-fin')} />
-                              <button type="button" onClick={() => openDatePicker('pgpa-ij-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-ij-fin" type="text" defaultValue={data.periodeFin || ''} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} className={`${ijInputCls} pr-9`} style={ijInputShadow} />
+                              <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="pgpa-ij-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'pgpa-ij-fin')} />
+                              <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('pgpa-ij-fin')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                             </div>
                             {ijHasDiff('periodeFin') && ijDescP(ijOv.periodeFin)}
                           </div>
@@ -8021,7 +8021,7 @@ export default function App() {
                               {(data.diffType === 'add' || ijHasDiff('montantBrut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-ij-brut" type="number" step="0.01" defaultValue={data.montantBrut || ''} placeholder="0.00" className={`${ijInputCls} pr-8`} style={ijInputShadow} />
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-ij-brut" type="number" step="0.01" defaultValue={data.montantBrut || ''} placeholder="0.00" className={`${ijInputCls} pr-8`} style={ijInputShadow} />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             {ijHasDiff('montantBrut') && ijDescP(`${ijOv.montantBrut} €`)}
@@ -8032,7 +8032,7 @@ export default function App() {
                               {(data.diffType === 'add' || ijHasDiff('csgCrds')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: ijDiffColor, transform: 'rotate(45deg)' }} />}
                             </div>
                             <div className="relative">
-                              <input id="pgpa-ij-csg" type="number" step="0.01" defaultValue={data.csgCrds || ''} placeholder="0.00" className={`${ijInputCls} pr-8`} style={ijInputShadow} />
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ id="pgpa-ij-csg" type="number" step="0.01" defaultValue={data.csgCrds || ''} placeholder="0.00" className={`${ijInputCls} pr-8`} style={ijInputShadow} />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
                             </div>
                             {ijHasDiff('csgCrds') && ijDescP(`${ijOv.csgCrds} €`)}
@@ -8085,7 +8085,7 @@ export default function App() {
                         <label className="text-body-medium text-foreground">Libellé dépense</label>
                         {(data.diffType === 'add' || dftHasDiff('label')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                       </div>
-                      <input type="text" id="dft-label" defaultValue={data.label || ''} placeholder="Nom de la période"
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="dft-label" defaultValue={data.label || ''} placeholder="Nom de la période"
                         className={inputCls} style={inputShadow} />
                       {dftHasDiff('label') && descP(dftOv.label)}
                     </div>
@@ -8096,15 +8096,15 @@ export default function App() {
                       {pieces.filter(p => !editingPieceIds.includes(p.id)).length > 0 && (
                         <div className="relative mb-2">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.5} />
-                          <input type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={searchPiecesPanel} onChange={(e) => setSearchPiecesPanel(e.target.value)} placeholder="Rechercher une pièce..."
                             className="w-full pl-9 pr-7 py-2 text-body border border-border rounded-lg bg-surface placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-foreground-muted" />
-                          {searchPiecesPanel && <button onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
+                          {searchPiecesPanel && <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ onClick={() => setSearchPiecesPanel('')} className="absolute right-2.5 top-1/2 -translate-y-1/2"><X className="w-3.5 h-3.5 text-foreground-muted" /></button>}
                         </div>
                       )}
                       {searchPiecesPanel && (
                         <div className="max-h-32 overflow-y-auto space-y-1 mb-2">
                           {pieces.filter(p => !editingPieceIds.includes(p.id)).filter(p => !searchPiecesPanel.trim() || (p.intitule || p.nom || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase()) || (p.type || '').toLowerCase().includes(searchPiecesPanel.trim().toLowerCase())).map(piece => (
-                            <button key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
+                            <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ key={piece.id} onClick={() => { setEditingPieceIds(prev => [...prev, piece.id]); setSearchPiecesPanel(''); }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-left text-body bg-surface border border-border rounded-lg hover:bg-background-subtle transition-colors">
                               <span className="w-6 h-6 bg-cream text-foreground-tertiary text-counter rounded flex items-center justify-center flex-shrink-0">{getPieceLabel(piece.id)}</span>
                               <span className="truncate flex-1">{piece.intitule || piece.nom}</span>
@@ -8118,7 +8118,7 @@ export default function App() {
                         <Upload className="w-4 h-4" />
                         <span>Déposez ou <span className="text-brand font-medium">cliquez</span> pour ajouter un justificatif</span>
                       </div>
-                      <input type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                      <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="panel-piece-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                         onChange={(e) => { if (e.target.files?.length) { handleUploadPieceForPanel(e.target.files); e.target.value = ''; } }} />
                       {editingPieceIds.length > 0 && (
                         <div className="mt-2">
@@ -8130,8 +8130,8 @@ export default function App() {
                                 <span className="text-body text-foreground truncate flex-1">{piece.intitule || piece.nom}</span>
                                 <span className="text-caption text-foreground-muted flex-shrink-0">{piece.type}</span>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                  <button onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
-                                  <button onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
+                                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowPreview(!showPreview)} className="p-1 text-foreground-secondary hover:text-foreground"><Eye className="w-4 h-4" /></button>
+                                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setEditingPieceIds(prev => prev.filter(id => id !== pid))} className="p-1 text-foreground-secondary hover:text-danger"><Trash2 className="w-4 h-4" /></button>
                                 </div>
                               </div>
                             ) : null;
@@ -8148,9 +8148,9 @@ export default function App() {
                           {(data.diffType === 'add' || dftHasDiff('debut')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
-                          <input type="text" id="dft-debut" defaultValue={data.debut} className={`${inputCls} pr-9`} style={inputShadow} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                          <input type="date" id="dft-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dft-debut')} />
-                          <button type="button" onClick={() => openDatePicker('dft-debut')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="dft-debut" defaultValue={data.debut} className={`${inputCls} pr-9`} style={inputShadow} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                          <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="dft-debut-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dft-debut')} />
+                          <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('dft-debut')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                         {dftHasDiff('debut') && descP(dftOv.debut)}
                       </div>
@@ -8160,9 +8160,9 @@ export default function App() {
                           {(data.diffType === 'add' || dftHasDiff('fin')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
-                          <input type="text" id="dft-fin" defaultValue={data.fin} className={`${inputCls} pr-9`} style={inputShadow} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
-                          <input type="date" id="dft-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dft-fin')} />
-                          <button type="button" onClick={() => openDatePicker('dft-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" id="dft-fin" defaultValue={data.fin} className={`${inputCls} pr-9`} style={inputShadow} placeholder="JJ/MM/AAAA" maxLength={10} onChange={(e) => { e.target.value = formatDateInput(e.target.value); }} />
+                          <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" id="dft-fin-picker" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => handleDatePick(e, 'dft-fin')} />
+                          <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={() => openDatePicker('dft-fin')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-background-subtle rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                         </div>
                         {dftHasDiff('fin') && descP(dftOv.fin)}
                       </div>
@@ -8180,7 +8180,7 @@ export default function App() {
                         </div>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">€</span>
-                          <input type="number" id="dft-base" defaultValue={chiffrageParams.baseJournaliereDFT || 33}
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="dft-base" defaultValue={chiffrageParams.baseJournaliereDFT || 33}
                             className={`${inputCls} pl-8`} style={inputShadow} />
                         </div>
                         {dftHasDiff('base') && descP(`${dftOv.base} €`)}
@@ -8191,7 +8191,7 @@ export default function App() {
                           {(data.diffType === 'add' || dftHasDiff('taux')) && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: dftDiffColor, transform: 'rotate(45deg)' }} />}
                         </div>
                         <div className="relative">
-                          <input type="number" id="dft-taux" defaultValue={data.taux || 100} min={0} max={100}
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="number" id="dft-taux" defaultValue={data.taux || 100} min={0} max={100}
                             className={`${inputCls} pr-8`} style={inputShadow} />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted text-body">%</span>
                         </div>
@@ -8200,7 +8200,7 @@ export default function App() {
                     </div>
 
                     {/* Commentaire hidden */}
-                    <input type="hidden" id="dft-commentaire" value={data.commentaire || ''} />
+                    <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="hidden" id="dft-commentaire" value={data.commentaire || ''} />
                   </div>
                   );})()}
 
@@ -8275,7 +8275,7 @@ export default function App() {
               {/* Footer actions */}
               {editPanel.type === 'dsa-ligne' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { handleRejectLigne(data.id); setEditPanel(null); }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
                     Supprimer
                   </button>
                   <Button variant="primary" size="md" onClick={() => {
@@ -8301,7 +8301,7 @@ export default function App() {
               {editPanel.type === 'piece-detail' && (
                 <div className="px-5 py-4 flex flex-col gap-3">
                   <div className="flex justify-between">
-                    <button onClick={() => {
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
                       setPieces(prev => prev.filter(p => p.id !== data.id));
                       setDsaLignes(prev => prev.map(l => ({
                         ...l,
@@ -8379,7 +8379,7 @@ export default function App() {
               {editPanel.type === 'victime-indirecte' && (
                 <div className="px-5 py-4 flex justify-between">
                   {data && (
-                    <button onClick={() => {
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
                       const affectedPostes = ivDossierPostes.filter(pid =>
                         (ivPosteData[pid]?.lignes || []).some(l => l.victimeId === data.id && l.montant > 0)
                       );
@@ -8578,7 +8578,7 @@ export default function App() {
               {/* Panel PGPA Revenu de référence */}
               {editPanel.type === 'pgpa-revenu' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button onClick={() => {
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
                     setPgpaData(prev => ({
                       ...prev,
                       revenuRef: {
@@ -8623,7 +8623,7 @@ export default function App() {
               {/* Panel PGPA Revenu perçu période */}
               {editPanel.type === 'pgpa-revenu-percu' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button onClick={() => {
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
                     setPgpaData(prev => ({
                       ...prev,
                       revenusPercus: prev.revenusPercus.filter(l => l.id !== data.id)
@@ -8666,7 +8666,7 @@ export default function App() {
               {/* Panel PGPA Indemnités journalières */}
               {editPanel.type === 'pgpa-ij' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button onClick={() => {
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
                     setPgpaData(prev => ({
                       ...prev,
                       ijPercues: prev.ijPercues.filter(l => l.id !== data.id)
@@ -8711,7 +8711,7 @@ export default function App() {
               {/* Panel DFT Footer */}
               {editPanel.type === 'dft-ligne' && (
                 <div className="px-5 py-4 flex justify-between">
-                  <button onClick={() => {
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => {
                     setDftLignes(prev => prev.filter(l => l.id !== data.id));
                     setEditPanel(null); setEditingPieceIds([]);
                   }} className="px-4 py-2 text-danger border border-danger-border bg-surface hover:bg-danger-subtle rounded-lg text-body-medium transition-colors">
@@ -8820,7 +8820,7 @@ export default function App() {
 
         {/* Actions en overlay au hover - minimaliste */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => handleRejectLigne(ligne.id)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleRejectLigne(ligne.id)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -8899,7 +8899,7 @@ export default function App() {
         {/* Actions en overlay au hover - minimaliste */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {onDelete && (
-            <button onClick={() => onDelete(ligne)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => onDelete(ligne)} className="p-1.5 text-foreground-muted hover:text-foreground-secondary transition-colors" title="Supprimer">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -9168,7 +9168,7 @@ export default function App() {
     const isOpen = showExpand && (defaultOpen || totalExpanded[posteId] || (hasTP && tauxFinal < 100));
     return (
       <div className={totalBlockClass}>
-        <button onClick={() => showExpand && setTotalExpanded(prev => ({...prev, [posteId]: !prev[posteId]}))} className="flex items-center justify-between w-full">
+        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => showExpand && setTotalExpanded(prev => ({...prev, [posteId]: !prev[posteId]}))} className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
               <FileText className="w-3.5 h-3.5 text-foreground-secondary" />
@@ -9392,10 +9392,10 @@ export default function App() {
             <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, color: dsColors.semantic.foreground }}>{fmt(total)}</span>
           </div>
           <div className="flex-1" />
-          <button className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg hover:bg-background transition-colors" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg hover:bg-background transition-colors" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>
             <Download className="w-3.5 h-3.5 text-foreground-secondary" /> Exporter
           </button>
-          <button className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}>
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="h-9 px-3 flex items-center gap-2 rounded-lg hover:opacity-90 transition-opacity" style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}>
             <Plus className="w-3.5 h-3.5" /> Nouveau poste
           </button>
         </div>
@@ -9414,7 +9414,7 @@ export default function App() {
           </div>
           <div style={{ ...cardChrome, background: 'white' }}>
             {intrants.map((it, i) => (
-              <button key={it.key} onClick={() => setSocialDetail(it.key)} className="group flex items-center w-full transition-colors" style={{ height: 56, background: 'white', border: 'none', borderBottom: i < intrants.length - 1 ? `1px solid ${ROW_DIVIDER}` : 'none', cursor: 'pointer', textAlign: 'left' }}
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={it.key} onClick={() => setSocialDetail(it.key)} className="group flex items-center w-full transition-colors" style={{ height: 56, background: 'white', border: 'none', borderBottom: i < intrants.length - 1 ? `1px solid ${ROW_DIVIDER}` : 'none', cursor: 'pointer', textAlign: 'left' }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = dsColors.banner.neutral.bgFrom; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; }}>
                 <div className="flex items-center flex-1 min-w-0" style={{ gap: 10, padding: '0 12px 0 14px' }}>
                   <it.Icon className="w-4 h-4 flex-shrink-0" style={{ color: dsColors.semantic.foregroundTertiary }} strokeWidth={1.75} />
@@ -9480,7 +9480,7 @@ export default function App() {
                 le chevron déplie ses parts, une ligne par assiette, montant aligné
                 sur la colonne des postes au-dessus. */}
             <div style={{ ...cardChrome, background: 'white' }}>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => setSocialAssiettesOpen((o) => !o)}
                 aria-expanded={socialAssiettesOpen}
                 className="flex items-center w-full transition-colors"
@@ -9688,7 +9688,7 @@ export default function App() {
                 {[['12', '12 derniers mois', moy12], ['3', '3 derniers mois', moy3]].map(([k, label, val]) => {
                   const active = socialSalaireBasis === k;
                   return (
-                    <button key={k} onClick={() => setSocialSalaireBasis(k)} className="flex-1 flex flex-col justify-center transition-colors" style={{ padding: '14px 18px', borderRight: k === '12' ? `1px solid ${LINE}` : 'none', borderLeft: `3px solid ${active ? INFO : 'transparent'}`, background: active ? INFO_BG : WHITE, cursor: 'pointer', textAlign: 'left' }}>
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={k} onClick={() => setSocialSalaireBasis(k)} className="flex-1 flex flex-col justify-center transition-colors" style={{ padding: '14px 18px', borderRight: k === '12' ? `1px solid ${LINE}` : 'none', borderLeft: `3px solid ${active ? INFO : 'transparent'}`, background: active ? INFO_BG : WHITE, cursor: 'pointer', textAlign: 'left' }}>
                       <div className="flex items-center gap-2"><span style={{ ...colHeaderStyle, color: active ? INFO : MUTE }}>{label}</span>{fav === k && <span className="rounded-md" style={{ padding: '1px 6px', background: INFO_BG, color: INFO, fontSize: 9.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Le plus favorable</span>}</div>
                       <span style={{ fontSize: 16, fontWeight: 600, color: INK, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(Math.round(val))}</span>
                     </button>
@@ -10131,7 +10131,7 @@ export default function App() {
                               );
                             })}
                             {creances.some(c => c.regle === 'CASCADE_CAPITALISEE' || c.regle === 'CASCADE') && tpScenario.cascade && (
-                              <button
+                              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                                 className="mt-1 text-[11px] text-link hover:underline transition-colors"
                                 onClick={(e) => { e.stopPropagation(); navigateTo({ type: 'cascade', id: 'cascade-from-registre', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' }); }}
                               >{'\u2197'} Voir la cascade complète</button>
@@ -10165,7 +10165,7 @@ export default function App() {
                     <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider" style={colHeaderStyle}>Victimes indirectes</span>
                   </div>
                   {dossierStatut !== 'fermé' && (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Nouvelle victime indirecte', data: null })}
                       className="flex items-center gap-1 px-2 py-1 text-caption text-foreground-secondary hover:bg-cream rounded transition-colors"
                     >
@@ -10185,13 +10185,13 @@ export default function App() {
                           </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                          <button
+                          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                             onClick={() => setEditPanel({ type: 'victime-indirecte', title: 'Modifier victime indirecte', data: vi })}
                             className="p-1 text-border-strong hover:text-foreground-secondary rounded transition-colors"
                           >
                             <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
-                          <button
+                          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                             onClick={(e) => {
                               e.stopPropagation();
                               const affectedPostes = ivDossierPostes.filter(pid =>
@@ -10367,14 +10367,14 @@ export default function App() {
               <div className="flex-1" />
               {dossierStatut !== 'fermé' && (
                 <>
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     className="h-9 px-3 flex items-center gap-2 border border-border-strong rounded-lg whitespace-nowrap hover:bg-background transition-colors"
                     style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}
                   >
                     <Download className="w-3.5 h-3.5 text-foreground-secondary" />
                     Exporter
                   </button>
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     className="h-9 px-3 flex items-center gap-2 rounded-lg whitespace-nowrap hover:opacity-90 transition-opacity"
                     style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.primaryForeground, backgroundColor: dsColors.semantic.primary }}
                     onClick={() => setPosteSearchOpen(true)}
@@ -10423,7 +10423,7 @@ export default function App() {
                         {cat.postes.map((p, pIdx) => {
                           const isLast = pIdx === cat.postes.length - 1;
                           return (
-                            <button
+                            <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                               key={p.id}
                               data-entity-id={p.id}
                               onClick={() => navigateTo(p)}
@@ -10487,14 +10487,14 @@ export default function App() {
                       {/* View mode toggle */}
                       {victimesIndirectes.length > 0 && ivDossierPostes.length > 0 && (
                         <div className="flex items-center gap-0 h-8 rounded-lg p-1" style={{ backgroundColor: dsColors.semantic.muted }}>
-                          <button
+                          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                             onClick={() => setIvViewMode('poste')}
                             className={`h-full px-2 min-w-[56px] flex items-center justify-center rounded-md transition-all ${ivViewMode === 'poste' ? 'bg-surface shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent' : ''}`}
                             style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: ivViewMode === 'poste' ? dsColors.semantic.foreground : dsColors.semantic.mutedForeground, textTransform: 'uppercase', whiteSpace: 'nowrap' }}
                           >
                             Par poste
                           </button>
-                          <button
+                          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                             onClick={() => setIvViewMode('victime')}
                             className={`h-full px-2 min-w-[56px] flex items-center justify-center rounded-md transition-all ${ivViewMode === 'victime' ? 'bg-surface shadow-[0_1px_4px_0_rgba(26,26,26,0.05),0_1px_2px_0_rgba(26,26,26,0.05)] border border-transparent' : ''}`}
                             style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: ivViewMode === 'victime' ? dsColors.semantic.foreground : dsColors.semantic.mutedForeground, textTransform: 'uppercase', whiteSpace: 'nowrap' }}
@@ -10528,13 +10528,13 @@ export default function App() {
                                       className={`w-full flex items-center h-14 bg-surface hover:bg-background transition-colors group ${!isLast && !isExpanded ? 'border-b border-border' : ''}`}
                                     >
                                       {/* Chevron cell */}
-                                      <button
+                                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                                         onClick={(e) => { e.stopPropagation(); setIvOverviewExpanded(prev => ({ ...prev, [p.id]: !prev[p.id] })); }}
                                         className="pl-4 pr-3 h-14 flex items-center justify-center hover:bg-background-subtle transition-colors rounded-l-xl"
                                       >
                                         <ChevronRight className={`w-3.5 h-3.5 text-foreground-muted transition-transform ${isExpanded ? 'rotate-90' : ''}`} strokeWidth={2} />
                                       </button>
-                                      <button
+                                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                                         onClick={() => navigateTo({ ...p, type: 'poste-iv' })}
                                         className="flex-1 flex items-center h-14 min-w-0"
                                       >
@@ -10565,7 +10565,7 @@ export default function App() {
                                           const viMontant = viLigne?.montant || 0;
                                           const isLastVi = viIdx === victimesIndirectes.length - 1;
                                           return (
-                                            <button
+                                            <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                                               key={vi.id}
                                               onClick={() => navigateTo({ ...p, type: 'poste-iv' })}
                                               className={`w-full flex items-center h-14 hover:bg-background-subtle transition-colors ${!isLastVi ? 'border-b border-border' : ''}`}
@@ -10624,7 +10624,7 @@ export default function App() {
                                   const montant = ligne?.montant || 0;
                                   const isLast = pIdx === ivDossierPostes.length - 1;
                                   return (
-                                    <button
+                                    <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                                       key={pid}
                                       onClick={() => navigateTo({ id: pid, type: 'poste-iv', title: taxo.acronym || pid.toUpperCase(), fullTitle: taxo.label })}
                                       className={`w-full flex items-center h-14 bg-surface hover:bg-background transition-colors group ${!isLast ? 'border-b border-border' : ''}`}
@@ -10711,13 +10711,13 @@ export default function App() {
                 <div className="relative w-full max-w-lg bg-surface rounded-xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
                   {/* Section tabs: VD / VI */}
                   <div className="flex items-center gap-1 px-4 pt-3 pb-2 border-b border-background-subtle">
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       onClick={() => setPosteSearchVictimeFilter(null)}
                       className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === null ? 'bg-foreground text-primary-foreground' : 'bg-background-subtle text-foreground-quaternary hover:bg-stone-subtle'}`}
                     >
                       Victime directe
                     </button>
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       onClick={() => setPosteSearchVictimeFilter('iv')}
                       className={`px-3 py-1.5 rounded-full text-caption whitespace-nowrap transition-colors ${posteSearchVictimeFilter === 'iv' ? 'bg-foreground text-primary-foreground' : 'bg-background-subtle text-foreground-quaternary hover:bg-stone-subtle'}`}
                     >
@@ -10727,7 +10727,7 @@ export default function App() {
                   {/* Search input */}
                   <div className="flex items-center gap-3 px-4 py-3 border-b border-background-subtle">
                     <Search className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-                    <input
+                    <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                       type="text"
                       value={posteSearchQuery}
                       onChange={(e) => setPosteSearchQuery(e.target.value)}
@@ -10736,7 +10736,7 @@ export default function App() {
                       autoFocus
                     />
                     {posteSearchQuery && (
-                      <button onClick={() => setPosteSearchQuery('')} className="p-0.5 hover:bg-background-subtle rounded">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setPosteSearchQuery('')} className="p-0.5 hover:bg-background-subtle rounded">
                         <X className="w-3.5 h-3.5 text-foreground-muted" />
                       </button>
                     )}
@@ -10764,7 +10764,7 @@ export default function App() {
                         return (
                           <div key={p.id}>
                             {showCat && <div className="px-4 pt-3 pb-1" style={colHeaderStyle}>{p.categoryTitle}</div>}
-                            <button
+                            <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                               onClick={() => {
                                 const isNewlyAdded = isIvFilter
                                   ? !alreadyEnabledIv.includes(p.id)
@@ -10820,16 +10820,16 @@ export default function App() {
                 <div className="relative w-full max-w-md bg-surface shadow-xl flex flex-col">
                   <div className="flex items-center justify-between px-5 py-3 border-b">
                     <h2 className="text-body-medium font-semibold">Paramètres du chiffrage</h2>
-                    <button onClick={() => setShowChiffrageParams(false)} className="p-1 hover:bg-background-canvas rounded"><X className="w-4 h-4" /></button>
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowChiffrageParams(false)} className="p-1 hover:bg-background-canvas rounded"><X className="w-4 h-4" /></button>
                   </div>
                   <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     <div>
                       <div className="flex items-center gap-2 mb-4">
                         <h3 className="font-semibold text-foreground">Fraction indemnisable des préjudices</h3>
-                        <button className="text-foreground-muted hover:text-foreground-secondary"><HelpCircle className="w-4 h-4" /></button>
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="text-foreground-muted hover:text-foreground-secondary"><HelpCircle className="w-4 h-4" /></button>
                       </div>
                       <div className="space-y-3">
-                        <input type="range" min="0" max="100" value={chiffrageParams.fractionIndemnisable}
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="range" min="0" max="100" value={chiffrageParams.fractionIndemnisable}
                           onChange={(e) => setChiffrageParams(prev => ({ ...prev, fractionIndemnisable: parseInt(e.target.value) }))} className="w-full" />
                         <div className="flex items-center justify-between text-caption text-foreground-secondary">
                           <span>0</span><span>1/4</span><span>1/3</span><span>1/2</span><span>2/3</span><span>3/4</span><span>1</span>
@@ -10843,17 +10843,17 @@ export default function App() {
                         {chiffrageParams.tiersPayeurs.map((tiers, idx) => (
                           <div key={idx} className="flex items-center gap-2">
                             <label className="text-caption text-foreground-secondary w-12">Nom *</label>
-                            <input type="text" value={tiers} onChange={(e) => { const newTiers = [...chiffrageParams.tiersPayeurs]; newTiers[idx] = e.target.value; setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="flex-1 px-3 py-2 border rounded-lg text-body" />
-                            <button onClick={() => { const newTiers = chiffrageParams.tiersPayeurs.filter((_, i) => i !== idx); setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="p-2 text-foreground-muted hover:text-danger"><Trash2 className="w-4 h-4" /></button>
+                            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={tiers} onChange={(e) => { const newTiers = [...chiffrageParams.tiersPayeurs]; newTiers[idx] = e.target.value; setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="flex-1 px-3 py-2 border rounded-lg text-body" />
+                            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { const newTiers = chiffrageParams.tiersPayeurs.filter((_, i) => i !== idx); setChiffrageParams(prev => ({ ...prev, tiersPayeurs: newTiers })); }} className="p-2 text-foreground-muted hover:text-danger"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         ))}
-                        <button onClick={() => setChiffrageParams(prev => ({ ...prev, tiersPayeurs: [...prev.tiersPayeurs, ''] }))} className="text-body text-chart-3 hover:text-link font-medium">+ Ajouter un tiers payeur</button>
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setChiffrageParams(prev => ({ ...prev, tiersPayeurs: [...prev.tiersPayeurs, ''] }))} className="text-body text-chart-3 hover:text-link font-medium">+ Ajouter un tiers payeur</button>
                       </div>
                     </div>
                   </div>
                   <div className="px-5 py-3 border-t flex justify-end gap-2">
-                    <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body text-foreground-secondary hover:bg-background-canvas rounded-lg">Fermer</button>
-                    <button onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body-medium text-white bg-chart-3 hover:bg-chart-4 rounded-lg">Enregistrer</button>
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body text-foreground-secondary hover:bg-background-canvas rounded-lg">Fermer</button>
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowChiffrageParams(false)} className="px-4 py-2 text-body-medium text-white bg-chart-3 hover:bg-chart-4 rounded-lg">Enregistrer</button>
                   </div>
                 </div>
               </div>
@@ -10973,7 +10973,7 @@ export default function App() {
               }}>
                 Jurisprudence retenues
               </h2>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={launchJPSearch}
                 className="inline-flex items-center justify-center transition-all hover:opacity-90 flex-shrink-0"
                 style={{
@@ -11068,12 +11068,12 @@ export default function App() {
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} className="sr-only peer" />
+                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser': !p['revaloriser'] }))} className="sr-only peer" />
                     <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
-                  <select className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
+                  <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
@@ -11106,15 +11106,15 @@ export default function App() {
                 ) : (
                   <><Upload className="w-4 h-4 text-foreground-secondary flex-shrink-0" /><span className="text-body text-foreground-secondary">Déposez ou <span className="text-body-medium text-link cursor-pointer" onClick={() => document.getElementById('dsa-header-upload')?.click()}>cliquez</span> pour ajouter un justificatif</span></>
                 )}
-                <input type="file" id="dsa-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dsa'); e.target.value = ''; } }} />
+                <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="dsa-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dsa'); e.target.value = ''; } }} />
               </div>
               {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                <button onClick={() => setPickerOpen('dsa')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setPickerOpen('dsa')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
                   Extraire depuis un doc. existant
                   <ChevronDown className="w-4 h-4" />
                 </button>
               )}
-              <button onClick={() => handleAddManual('dsa')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('dsa')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
                 <Plus className="w-4 h-4" /> Ajouter une dépense
               </button>
             </div>
@@ -11299,11 +11299,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes.dsa || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, dsa: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -11357,12 +11357,12 @@ export default function App() {
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} className="sr-only peer" />
+                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-pgpa']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pgpa': !p['revaloriser-pgpa'] }))} className="sr-only peer" />
                     <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                   <div className="w-px h-4 bg-border" />
                   <span className="text-xs font-medium text-foreground-secondary">Indice</span>
-                  <select className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
+                  <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-xs font-medium text-foreground bg-surface border border-border rounded-lg px-2.5 py-1.5">
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                     <option>SMIC Horaire</option>
@@ -11436,7 +11436,7 @@ export default function App() {
               </div>
             )}
             <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-              <button onClick={() => handleAddManual('pgpa-revenu-ref')} className="flex items-center gap-2 text-body-medium text-link">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpa-revenu-ref')} className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une ligne
               </button>
             </div>
@@ -11539,7 +11539,7 @@ export default function App() {
               );
             })()}
             <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-              <button onClick={() => handleAddManual('pgpa-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpa-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une ligne
               </button>
             </div>
@@ -11569,7 +11569,7 @@ export default function App() {
             </div>
             {/* Add row */}
             <div className="flex items-center justify-center h-[45px] bg-surface">
-              <button className="flex items-center gap-2 text-body-medium text-link">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex items-center gap-2 text-body-medium text-link">
                 <Plus className="w-4 h-4" /> Ajouter une perte de chance
               </button>
             </div>
@@ -11611,11 +11611,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes.pgpa || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, pgpa: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -11658,7 +11658,7 @@ export default function App() {
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                 <div className="flex items-center gap-3 flex-wrap">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} className="sr-only peer" />
+                    <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['capitaliser-pgpf']} onChange={() => setEnabledParams(p => ({ ...p, 'capitaliser-pgpf': !p['capitaliser-pgpf'] }))} className="sr-only peer" />
                     <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                   <div className="w-px h-4 bg-border-strong" />
@@ -11672,13 +11672,13 @@ export default function App() {
                   })}
                   <div className="w-px h-4 bg-border-strong" />
                   <span className="text-sm font-medium text-foreground-secondary">Fin arrérage</span>
-                  <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
+                  <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
                   <div className="w-px h-4 bg-border-strong" />
                   <span className="text-sm font-medium text-foreground-secondary">Départ retraite</span>
-                  <input type="text" defaultValue="XX ans" className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5 w-[70px]" style={{ boxShadow: dsShadows.xs }} />
+                  <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" defaultValue="XX ans" className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5 w-[70px]" style={{ boxShadow: dsShadows.xs }} />
                 </div>
               </div>
             )}
@@ -11768,7 +11768,7 @@ export default function App() {
                 </div>
               )}
               <div className="flex items-center justify-center h-[44px] border-t border-border bg-surface">
-                <button onClick={() => handleAddManual('pgpf-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('pgpf-revenu-percu')} className="flex items-center gap-2 text-body-medium text-link">
                   <Plus className="w-4 h-4" /> Ajouter une ligne
                 </button>
               </div>
@@ -11798,7 +11798,7 @@ export default function App() {
                 <div className="w-28 px-3 text-right flex-shrink-0" style={colHeaderStyle}>Montant proraté</div>
               </div>
               <div className="flex items-center justify-center h-[45px] bg-surface">
-                <button className="flex items-center gap-2 text-body-medium text-link">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex items-center gap-2 text-body-medium text-link">
                   <Plus className="w-4 h-4" /> Ajouter une perte de chance
                 </button>
               </div>
@@ -11813,7 +11813,7 @@ export default function App() {
           {/* Cascade link */}
           {hasTP && tpScenario.cascade && (
             <div className="px-4 py-2">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 className="text-[12px] text-link hover:underline transition-colors flex items-center gap-1"
                 onClick={() => navigateTo({ type: 'cascade', id: 'cascade-from-pgpf', title: 'Cascade', fullTitle: tpScenario.cascade.label + ' \u2014 Cascade' })}
               >
@@ -11927,11 +11927,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes.pgpf || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, pgpf: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -11968,7 +11968,7 @@ export default function App() {
             </div>
             {activeParamChip === 'base-journaliere-dft' && (
               <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
-                <input
+                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                   type="number"
                   defaultValue={chiffrageParams.baseJournaliereDFT || 33}
                   className="text-sm text-foreground text-right bg-surface border border-border rounded-lg px-3 py-1.5 w-[69px]"
@@ -12003,15 +12003,15 @@ export default function App() {
                   ) : (
                     <><Upload className="w-4 h-4 text-foreground-secondary flex-shrink-0" /><span className="text-body text-foreground-secondary">Déposez ou <span className="text-body-medium text-link cursor-pointer" onClick={() => document.getElementById('dft-header-upload')?.click()}>cliquez</span> pour ajouter un justificatif</span></>
                   )}
-                  <input type="file" id="dft-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dft'); e.target.value = ''; } }} />
+                  <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="dft-header-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { if (e.target.files?.length) { handleUploadFiles(e.target.files, 'dft'); e.target.value = ''; } }} />
                 </div>
                 {dropFirstPieces.filter(p => p.status === 'done').length > 0 && (
-                  <button onClick={() => setPickerOpen('dft')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setPickerOpen('dft')} className="flex items-center gap-2 px-4 h-9 bg-cream text-foreground-tertiary text-body-medium rounded-lg hover:bg-border transition-colors flex-shrink-0">
                     Extraire depuis un doc. existant
                     <ChevronDown className="w-4 h-4" />
                   </button>
                 )}
-                <button onClick={() => handleAddManual('dft')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => handleAddManual('dft')} className="flex items-center gap-2 text-body-medium text-link flex-shrink-0 whitespace-nowrap">
                   <Plus className="w-4 h-4" /> Ajouter une période
                 </button>
               </div>
@@ -12151,11 +12151,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes.dft || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, dft: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -12197,12 +12197,12 @@ export default function App() {
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} className="sr-only peer" />
+                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-se']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-se': !p['revaloriser-se'] }))} className="sr-only peer" />
                           <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
-                        <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
+                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12227,7 +12227,7 @@ export default function App() {
                         <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Cotation</label>
                         <div className="flex gap-1">
                           {cotations.map(c => (
-                            <button
+                            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                               key={c}
                               onClick={() => setFormPosteData(prev => ({ ...prev, se: { ...prev.se, cotation: c } }))}
                               className={`flex-1 h-10 text-[14px] font-medium rounded-lg border transition-colors ${
@@ -12253,7 +12253,7 @@ export default function App() {
                     onClick={() => document.getElementById('se-upload')?.click()}
                   >
                     <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
-                    <input type="file" id="se-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
+                    <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="se-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
 
@@ -12293,11 +12293,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes.se || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, se: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -12336,12 +12336,12 @@ export default function App() {
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} className="sr-only peer" />
+                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-pep']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-pep': !p['revaloriser-pep'] }))} className="sr-only peer" />
                           <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
-                        <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
+                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12366,7 +12366,7 @@ export default function App() {
                         <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Cotation</label>
                         <div className="flex gap-1">
                           {cotations.map(c => (
-                            <button
+                            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                               key={c}
                               onClick={() => setFormPosteData(prev => ({ ...prev, pep: { ...prev.pep, cotation: c } }))}
                               className={`flex-1 h-10 text-[14px] font-medium rounded-lg border transition-colors ${
@@ -12392,7 +12392,7 @@ export default function App() {
                     onClick={() => document.getElementById('pep-upload')?.click()}
                   >
                     <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
-                    <input type="file" id="pep-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
+                    <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="pep-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
 
@@ -12432,11 +12432,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes.pep || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, pep: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -12475,12 +12475,12 @@ export default function App() {
                     <div className="px-4 py-3 border-t border-border" style={{ backgroundColor: dsColors.semantic.background }}>
                       <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} className="sr-only peer" />
+                          <input /* ds-raw-ok: ancien toggle peer-checked ; cible Switch */ type="checkbox" checked={enabledParams['revaloriser-dfp']} onChange={() => setEnabledParams(p => ({ ...p, 'revaloriser-dfp': !p['revaloriser-dfp'] }))} className="sr-only peer" />
                           <div className="w-9 h-5 bg-border-strong peer-checked:bg-foreground rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                         </label>
                         <div className="w-px h-4 bg-border" />
                         <span className="text-sm font-medium text-foreground-secondary">Indice</span>
-                        <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
+                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                           <option>IPC Annuel</option>
                           <option>IPC Mensuel</option>
                         </select>
@@ -12505,7 +12505,7 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Âge à la consolidation</label>
-                        <input
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                           type="number"
                           value={dfpData.age}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, age: parseInt(e.target.value) || 0 } }))}
@@ -12519,7 +12519,7 @@ export default function App() {
                                 {dfpData.trancheAge === t && <div className="w-2 h-2 rounded-full bg-foreground" />}
                               </div>
                               <span className="text-xs text-foreground">Tranche {t === 'inferieure' ? 'inférieure' : 'supérieure'} {dfpData.age > 0 && (t === 'inferieure' ? `${Math.floor(dfpData.age / 10) * 10}-${Math.floor(dfpData.age / 10) * 10 + 9}` : `${Math.floor(dfpData.age / 10) * 10 + 1}-${Math.floor(dfpData.age / 10) * 10 + 10}`)}</span>
-                              <input type="radio" name="tranche-age" checked={dfpData.trancheAge === t} onChange={() => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, trancheAge: t } }))} className="sr-only" />
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="radio" name="tranche-age" checked={dfpData.trancheAge === t} onChange={() => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, trancheAge: t } }))} className="sr-only" />
                             </label>
                           ))}
                         </div>
@@ -12527,7 +12527,7 @@ export default function App() {
                       <div>
                         <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Taux DFP</label>
                         <div className="relative">
-                          <input
+                          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                             type="number"
                             value={dfpData.taux}
                             onChange={(e) => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, taux: parseFloat(e.target.value) || 0 } }))}
@@ -12543,7 +12543,7 @@ export default function App() {
                                 {dfpData.trancheTaux === t && <div className="w-2 h-2 rounded-full bg-foreground" />}
                               </div>
                               <span className="text-xs text-foreground">Tranche {t === 'inferieure' ? 'inférieure' : 'supérieure'} {dfpData.taux > 0 && (t === 'inferieure' ? `${Math.floor(dfpData.taux / 5) * 5}-${Math.floor(dfpData.taux / 5) * 5 + 5}%` : `${Math.floor(dfpData.taux / 5) * 5 + 1}-${Math.floor(dfpData.taux / 5) * 5 + 5}%`)}</span>
-                              <input type="radio" name="tranche-taux" checked={dfpData.trancheTaux === t} onChange={() => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, trancheTaux: t } }))} className="sr-only" />
+                              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="radio" name="tranche-taux" checked={dfpData.trancheTaux === t} onChange={() => setFormPosteData(prev => ({ ...prev, dfp: { ...prev.dfp, trancheTaux: t } }))} className="sr-only" />
                             </label>
                           ))}
                         </div>
@@ -12560,7 +12560,7 @@ export default function App() {
                     onClick={() => document.getElementById('dfp-upload')?.click()}
                   >
                     <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
-                    <input type="file" id="dfp-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
+                    <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id="dfp-upload" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
 
@@ -12600,11 +12600,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes.dfp || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, dfp: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -12858,7 +12858,7 @@ export default function App() {
                       <div className="w-6 h-6 bg-cream rounded-[6px] flex items-center justify-center flex-shrink-0">
                         <Settings className="w-3.5 h-3.5 text-foreground-secondary" />
                       </div>
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         onClick={() => setActiveParamChip(activeParamChip === baremeParamKey ? null : baremeParamKey)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border transition-colors"
                         style={{
@@ -12878,7 +12878,7 @@ export default function App() {
                           <div className="flex gap-1 items-baseline flex-shrink-0">
                             <span className="text-sm font-medium text-foreground-secondary">Barême</span>
                             {selectedBareme && (
-                              <button onClick={() => setBaremeViewerOpen(selectedBareme.id)} className="text-xs font-medium text-link">Voir</button>
+                              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setBaremeViewerOpen(selectedBareme.id)} className="text-xs font-medium text-link">Voir</button>
                             )}
                           </div>
                           <div className="relative" style={{ width: 240 }}>
@@ -13041,7 +13041,7 @@ export default function App() {
                     )}
 
                     {/* Add expense */}
-                    <button
+                    <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                       onClick={() => addIvLigne(null)}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border"
                     >
@@ -13125,7 +13125,7 @@ export default function App() {
                       )}
 
                       {/* Add expense */}
-                      <button
+                      <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                         onClick={() => addIvLigne(null)}
                         className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border"
                       >
@@ -13250,7 +13250,7 @@ export default function App() {
                           <div className="w-[110px] px-3"><span style={{ fontSize: 14, color: ligne.periode ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{ligne.periode || '—'}</span></div>
                           <div className="w-[130px] px-3 text-right"><span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(ligne.netMensuel || 0)}</span></div>
                           <div className="w-[40px] flex items-center justify-center">
-                            <button onClick={() => deleteRevenuRow(type, ligne.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded transition-all">
+                            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => deleteRevenuRow(type, ligne.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded transition-all">
                               <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-danger" />
                             </button>
                           </div>
@@ -13265,7 +13265,7 @@ export default function App() {
                           <span style={{ fontSize: 14, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(mensuel)}</span>
                         </div>
                       )}
-                      <button onClick={() => addRevenuRow(type)} className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border">
+                      <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ onClick={() => addRevenuRow(type)} className="w-full flex items-center gap-2 px-4 py-2.5 text-body-medium text-link hover:bg-background transition-colors border-t border-border">
                         <Plus className="w-4 h-4" />Ajouter un revenu
                       </button>
                     </>)}
@@ -13278,7 +13278,7 @@ export default function App() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground, letterSpacing: '0.02em' }}>Scénario</span>
-                        <select
+                        <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                           value={prpUseCase}
                           onChange={(e) => {
                             const uc = e.target.value;
@@ -13345,12 +13345,12 @@ export default function App() {
                               <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{ligne.source || '—'}</span>
                               <span className="w-[80px] text-right" style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>{ligne.periode || '—'}</span>
                               <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(ligne.netMensuel || 0)}</span>
-                              <button onClick={() => deleteRevenuRow('ref', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded">
+                              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => deleteRevenuRow('ref', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded">
                                 <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-danger" />
                               </button>
                             </div>
                           ))}
-                          <button onClick={() => addRevenuRow('ref')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-link hover:bg-background border-b border-border">
+                          <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ onClick={() => addRevenuRow('ref')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-link hover:bg-background border-b border-border">
                             <Plus className="w-3.5 h-3.5" />Ajouter un revenu défunt
                           </button>
 
@@ -13366,12 +13366,12 @@ export default function App() {
                                 <span className="flex-1 truncate" style={{ fontSize: 13, color: ligne.source ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted }}>{ligne.source || '—'}</span>
                                 <span className="w-[80px] text-right" style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>{ligne.periode || '—'}</span>
                                 <span className="w-[100px] text-right" style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{fmt(ligne.netMensuel || 0)}</span>
-                                <button onClick={() => deleteRevenuRow('conjoint', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded">
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => deleteRevenuRow('conjoint', ligne.id)} className="ml-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-danger-subtle rounded">
                                   <Trash2 className="w-3.5 h-3.5 text-foreground-muted hover:text-danger" />
                                 </button>
                               </div>
                             ))}
-                            <button onClick={() => addRevenuRow('conjoint')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-link hover:bg-background">
+                            <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ onClick={() => addRevenuRow('conjoint')} className="w-full flex items-center gap-2 px-4 py-2 text-body-medium text-link hover:bg-background">
                               <Plus className="w-3.5 h-3.5" />Ajouter un revenu conjoint
                             </button>
                           </>)}
@@ -13402,7 +13402,7 @@ export default function App() {
                           {isDecede ? (<>
                             <div className="flex items-center justify-between">
                               <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>Méthode auto-consommation</span>
-                              <select
+                              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                                 value={shared.autoConsommationMethod || 'libre'}
                                 onChange={(e) => updateShared({ autoConsommationMethod: e.target.value })}
                                 className="text-caption px-2 py-1 border border-border rounded-md bg-surface text-foreground"
@@ -13415,7 +13415,7 @@ export default function App() {
                             {(shared.autoConsommationMethod || 'libre') === 'libre' ? (
                               <div className="flex items-center justify-between">
                                 <span style={{ fontSize: 13, color: dsColors.semantic.mutedForeground }}>% libre</span>
-                                <input
+                                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                                   type="number"
                                   min="0"
                                   max="100"
@@ -13490,7 +13490,7 @@ export default function App() {
                                 <div className="w-[60px] px-2 text-right"><span style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.foreground }}>{ligne.partIndividuelle}%</span></div>
                                 <div className="w-[100px] px-2 text-right"><span style={{ fontSize: 13, color: dsColors.semantic.foreground }}>{fmt(Math.round(amounts.perteVI))}</span></div>
                                 <div className="w-[100px] px-2 text-right">
-                                  <button
+                                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                                     onClick={(e) => { e.stopPropagation(); toggleCard(`iv-${ivPosteId}-d-tp-${vi.id}`); }}
                                     className={`inline-flex items-center gap-1 ${amounts.totalTPAnnuel > 0 ? 'text-foreground' : 'text-foreground-muted'} hover:bg-cream rounded px-1.5 py-0.5`}
                                   >
@@ -13528,7 +13528,7 @@ export default function App() {
                                       <span className="flex-1 truncate" style={{ fontSize: 12, color: dsColors.semantic.foregroundTertiary }}>{tp.label}</span>
                                       {tp.organisme && <span className="mx-2" style={{ fontSize: 11, color: dsColors.semantic.mutedForeground }}>{tp.organisme}</span>}
                                       <span className="w-[100px] text-right" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundTertiary }}>−{fmt(tp.montantAnnuel || 0)} / an</span>
-                                      <button
+                                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                                         onClick={(e) => { e.stopPropagation(); deleteTPDeduction(vi.id, tp.id); }}
                                         className="ml-2 opacity-0 group-hover/tp:opacity-100 p-1 hover:bg-danger-subtle rounded"
                                       >
@@ -13536,7 +13536,7 @@ export default function App() {
                                       </button>
                                     </div>
                                   ))}
-                                  <button onClick={() => addTPDeduction(vi.id)} className="w-full flex items-center gap-2 pl-12 pr-3 py-2 text-caption text-link hover:bg-background-subtle">
+                                  <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */ onClick={() => addTPDeduction(vi.id)} className="w-full flex items-center gap-2 pl-12 pr-3 py-2 text-caption text-link hover:bg-background-subtle">
                                     <Plus className="w-3 h-3" />Ajouter une déduction
                                   </button>
                                 </div>
@@ -13567,7 +13567,7 @@ export default function App() {
 
                     {/* ════════ Card 4 - Total par bénéficiaire (beige) ════════ */}
                     <div className={totalBlockClass}>
-                      <button onClick={() => toggleCard(`iv-${ivPosteId}-d-recap`)} className="flex items-center justify-between w-full">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => toggleCard(`iv-${ivPosteId}-d-recap`)} className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-3">
                           <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
                             <User className="w-3.5 h-3.5 text-foreground-secondary" />
@@ -13640,7 +13640,7 @@ export default function App() {
             {/* Total block - hidden for Type D (PRP uses Table 3c as total) */}
             {config.type !== 'D' && <div className="p-4 pt-0">
               <div className={totalBlockClass}>
-                <button onClick={() => setTotalExpanded(prev => ({...prev, [ivPosteId]: !prev[ivPosteId]}))} className="flex items-center justify-between w-full">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setTotalExpanded(prev => ({...prev, [ivPosteId]: !prev[ivPosteId]}))} className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 bg-border-strong rounded-[6px] flex items-center justify-center">
                       <FileText className="w-3.5 h-3.5 text-foreground-secondary" />
@@ -13687,11 +13687,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes[ivPosteId] || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, [ivPosteId]: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -13721,7 +13721,7 @@ export default function App() {
                     <div>
                       <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Indemnisation</label>
                       <div className="relative">
-                        <input
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                           type="number"
                           value={data.montant || ''}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, [posteId]: { ...(prev[posteId] || {}), montant: parseFloat(e.target.value) || 0 } }))}
@@ -13734,7 +13734,7 @@ export default function App() {
                     <div>
                       <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Part tiers payeur</label>
                       <div className="relative">
-                        <input
+                        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                           type="number"
                           value={data.tiersPayeur || ''}
                           onChange={(e) => setFormPosteData(prev => ({ ...prev, [posteId]: { ...(prev[posteId] || {}), tiersPayeur: parseFloat(e.target.value) || 0 } }))}
@@ -13755,7 +13755,7 @@ export default function App() {
                     onClick={() => document.getElementById(`${posteId}-upload`)?.click()}
                   >
                     <span className="text-[14px] text-foreground-secondary">Déposez ou <span className="text-link font-medium">cliquez</span> pour ajouter un justificatif</span>
-                    <input type="file" id={`${posteId}-upload`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
+                    <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="file" id={`${posteId}-upload`} multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
                   </div>
                 </div>
 
@@ -13804,11 +13804,11 @@ export default function App() {
             <div style={sectionHeaderStyle} className="mb-[17px]">NOTES / ARGUMENTAIRE</div>
             <div className="bg-surface border border-border rounded-[4px] overflow-hidden">
               <div className="flex items-center gap-1 px-3 py-2 border-b border-border">
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
-                <button className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary font-bold text-sm">B</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary italic text-sm">I</button>
+                <button /* ds-raw-ok: toolbar de mise en forme redaction ; molecule a promouvoir */ className="px-2 py-1 rounded hover:bg-background-subtle text-foreground-secondary underline text-sm">U</button>
               </div>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={posteNotes[posteId] || ''}
                 onChange={(e) => setPosteNotes(prev => ({...prev, [posteId]: e.target.value}))}
                 className="w-full p-4 text-[14px] text-foreground leading-[27px] resize-none min-h-[120px] focus:outline-none"
@@ -13993,7 +13993,7 @@ export default function App() {
         <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-heading-sm text-foreground">{titre}</h2>
-            <button onClick={() => setShowExportModal(false)} className="p-1.5 hover:bg-cream rounded-lg transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowExportModal(false)} className="p-1.5 hover:bg-cream rounded-lg transition-colors">
               <X className="w-4 h-4 text-foreground-muted" />
             </button>
           </div>
@@ -14087,7 +14087,7 @@ export default function App() {
             className="rounded-lg border border-border bg-surface overflow-hidden mt-1"
             onClickCapture={() => setReopenConfirmOpen(false)}
           >
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => { setSettingsSection('usage'); setCurrentPage('settings'); }}
               className="block w-full text-left overflow-hidden transition-colors hover:bg-background"
               style={{ backgroundColor: 'transparent', fontFamily: "'Inter', system-ui, sans-serif" }}
@@ -15360,7 +15360,7 @@ export default function App() {
               </span>
               <span className="text-[14px] font-medium text-foreground-tertiary">Doublon possible - comparer les documents</span>
             </div>
-            <button onClick={close} className="p-1.5 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={close} className="p-1.5 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -15370,13 +15370,13 @@ export default function App() {
             {renderCol(existingPiece, 'Déjà dans le dossier')}
           </div>
           <div className="px-5 py-3 border-t border-border flex items-center justify-end gap-2 flex-shrink-0">
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => { resolveDoublonKeepBoth(doublonCompare.newId); close(); }}
               className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
             >
               Garder les deux
             </button>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => { resolveDoublonIgnore(doublonCompare.newId); close(); }}
               className="inline-flex items-center justify-center h-8 px-3 text-[13px] font-medium rounded-md text-foreground-tertiary bg-surface border border-border-strong hover:bg-background-canvas transition-colors"
             >
@@ -15513,7 +15513,7 @@ export default function App() {
         onDrop={e => { e.preventDefault(); if (piecesTabDragOver) { setPiecesTabDragOver(false); handleAddMorePieces(e.dataTransfer.files); } }}
       >
         {/* Hidden file input */}
-        <input id="add-pieces-input" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={e => { handleAddMorePieces(e.target.files); e.target.value = ''; }} />
+        <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ id="add-pieces-input" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={e => { handleAddMorePieces(e.target.files); e.target.value = ''; }} />
 
         {piecesTabDragOver && (
           <div className="flex-1 flex" style={{ minHeight: '100vh' }}>
@@ -15527,7 +15527,7 @@ export default function App() {
           {/* Sub-header bar - edge-to-edge */}
           <div className="flex items-center gap-2 px-8 py-3.5 border-b border-border">
             <Search className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.5} />
-            <input
+            <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
               type="text"
               placeholder="Rechercher une pièce..."
               value={piecesFilter.search}
@@ -15535,7 +15535,7 @@ export default function App() {
               className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
             />
             {piecesFilter.search && (
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => setPiecesFilter(prev => ({ ...prev, search: '' }))}
                 className="p-0.5 hover:bg-cream rounded transition-colors"
               >
@@ -15564,13 +15564,13 @@ export default function App() {
               <div className="mb-3 flex items-center gap-3 px-4 py-3 bg-background-canvas border border-border rounded-lg">
                 <Hand className="w-4 h-4 text-foreground-secondary shrink-0" strokeWidth={1.5} />
                 <span className="text-sm text-foreground-tertiary">Désactivez le tri chronologique pour réordonner les pièces par glisser-déposer.</span>
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={() => { setManualReorder(true); setShowReorderHint(false); }}
                   className="ml-auto px-3 py-1.5 text-sm font-medium text-primary-foreground bg-foreground rounded-md hover:bg-foreground-tertiary transition-colors shrink-0"
                 >
                   Désactiver Chrono
                 </button>
-                <button onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setShowReorderHint(false)} className="text-foreground-muted hover:text-foreground-secondary transition-colors shrink-0">
                   <X className="w-4 h-4" strokeWidth={1.5} />
                 </button>
               </div>
@@ -15831,14 +15831,14 @@ export default function App() {
     // Télécharger on whole docs and the inline one on split/other docs).
     const downloadMenu = pieceDownloadMenu ? (
       <div className="absolute right-0 bottom-full mb-1.5 min-w-[230px] bg-surface border border-border rounded-lg shadow-lg py-1 z-20">
-        <button
+        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
           onClick={() => { setPieceDownloadMenu(false); flashToast('Téléchargement du document original…'); }}
           className="w-full text-left px-3 py-1.5 text-body text-foreground-tertiary hover:bg-background transition-colors flex items-center gap-2"
         >
           <FileText className="w-3.5 h-3.5 text-foreground-muted" strokeWidth={1.75} /> Document original
         </button>
         {bordereau && (
-          <button
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
             onClick={() => { setPieceDownloadMenu(false); flashToast(`Téléchargement avec tampon « pièce n° ${ctx.number} »…`); }}
             className="w-full text-left px-3 py-1.5 text-body text-foreground-tertiary hover:bg-background transition-colors flex items-center gap-2"
           >
@@ -15866,7 +15866,7 @@ export default function App() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex items-center gap-1">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => navPrev && navPrev()}
                 disabled={!navPrev}
                 aria-label="Pièce précédente"
@@ -15875,7 +15875,7 @@ export default function App() {
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <span className="text-caption text-foreground-muted min-w-[34px] text-center tabular-nums">{navPos} / {navTotal}</span>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => navNext && navNext()}
                 disabled={!navNext}
                 aria-label="Pièce suivante"
@@ -15885,7 +15885,7 @@ export default function App() {
               </button>
             </div>
             <span className="w-px h-4 bg-border" />
-            <button onClick={onClosePanel} aria-label="Fermer" className="p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={onClosePanel} aria-label="Fermer" className="p-1 text-foreground-muted hover:text-foreground-secondary hover:bg-cream rounded-md transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -15975,7 +15975,7 @@ export default function App() {
                         )}
                       </div>
                       {(isSplit || provPileId) && (
-                        <button
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           type="button"
                           onClick={() => openSplitAdjustFromPanel(piece, provPileId, provSegmentId)}
                           className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
@@ -16006,7 +16006,7 @@ export default function App() {
               <Input label="Date du document" aiGenerated>
                 <div className="flex items-center gap-2 h-9 px-3 bg-surface border border-border rounded-lg shadow-xs transition-colors focus-within:border-border-hover focus-within:ring-1 focus-within:ring-stone-subtle">
                   <Calendar className="w-4 h-4 text-foreground-muted flex-shrink-0" strokeWidth={1.75} />
-                  <input
+                  <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                     key={`date-${bordereau ? `b-${ctx.entryIdx}` : piece.id}`}
                     type="text"
                     defaultValue={dateLabel}
@@ -16037,7 +16037,7 @@ export default function App() {
                         </span>
                       </div>
                       {emailMeta.kind === 'attachment' && emailBodyPiece && !bordereau && (
-                        <button
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           type="button"
                           onClick={() => openLinkedPiece(emailBodyPiece.id)}
                           className="flex-shrink-0 text-[14px] leading-5 font-medium hover:underline underline-offset-2"
@@ -16054,7 +16054,7 @@ export default function App() {
                         {emailAttachmentRows.length} pièce{emailAttachmentRows.length > 1 ? 's' : ''} jointe{emailAttachmentRows.length > 1 ? 's' : ''}
                       </span>
                       {emailAttachmentRows.map((row, i) => (row.piece && !bordereau) ? (
-                        <button
+                        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                           key={i}
                           type="button"
                           onClick={() => openLinkedPiece(row.piece.id)}
@@ -16121,7 +16121,7 @@ export default function App() {
             <div className="px-5 py-4 border-t border-border bg-surface flex-shrink-0 flex flex-col gap-3" style={{ animation: 'fadeIn 0.15s ease-out' }}>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[13px] font-medium text-foreground">Instructions de nommage <span className="font-normal text-foreground-muted">(optionnel)</span></label>
-                <textarea
+                <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                   autoFocus
                   value={panelSplitConfig.prompt}
                   onChange={e => setPanelSplitConfig(c => ({ ...c, prompt: e.target.value }))}
@@ -16132,13 +16132,13 @@ export default function App() {
                 <p className="text-xs text-foreground-secondary">Laissez vide pour laisser l'IA nommer les pièces automatiquement.</p>
               </div>
               <div className="flex items-center gap-3">
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={() => setPanelSplitConfig(null)}
                   className="flex-shrink-0 h-9 px-4 rounded-lg bg-surface border border-border text-foreground-tertiary hover:bg-background-canvas transition-colors text-sm font-medium"
                 >
                   Annuler
                 </button>
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={() => startPosterioriSplit(piece.id, panelSplitConfig.prompt)}
                   className="flex-1 h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-strong transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
@@ -16151,7 +16151,7 @@ export default function App() {
           <div className="px-5 py-4 border-t border-border bg-surface flex-shrink-0 flex flex-col gap-2.5">
             {canOfferSplit && (
               <div className="relative">
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={() => setPieceDownloadMenu(o => !o)}
                   className="w-full h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
@@ -16163,7 +16163,7 @@ export default function App() {
               </div>
             )}
             <div className="flex items-center gap-3">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 className="flex-shrink-0 h-9 px-4 rounded-lg bg-danger-subtle text-danger-text hover:bg-danger-border transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 onClick={() => {
                   if (bordereau) {
@@ -16186,7 +16186,7 @@ export default function App() {
                 Supprimer
               </button>
               {canOfferSplit ? (
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={() => openPanelSplitConfig(piece.id)}
                   className="flex-1 h-9 px-4 rounded-lg bg-surface border border-border text-foreground hover:bg-background-canvas transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                 >
@@ -16195,7 +16195,7 @@ export default function App() {
                 </button>
               ) : (
                 <div className="relative flex-1">
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     onClick={() => setPieceDownloadMenu(o => !o)}
                     className="w-full h-9 px-4 rounded-lg bg-foreground text-primary-foreground hover:bg-foreground-tertiary transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                   >
@@ -16391,7 +16391,7 @@ export default function App() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
         <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-[1200px] flex flex-col overflow-hidden" style={{ height: '90vh', minHeight: 560 }} onClick={(e) => e.stopPropagation()}>
-          <input ref={importV2FileInput} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={(e) => { bordereau.addFiles(e.target.files); nudgeIfMailFiles(e.target.files); e.target.value = ''; }} />
+          <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ ref={importV2FileInput} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.eml,.msg,.zip" className="hidden" onChange={(e) => { bordereau.addFiles(e.target.files); nudgeIfMailFiles(e.target.files); e.target.value = ''; }} />
 
           {/* En-tête - création : parti pris C (titre serif · filet · champ
               Référence focalisé, anneau brand) + type de dossier discret. */}
@@ -16401,7 +16401,7 @@ export default function App() {
               <div className="w-px h-5 bg-border flex-shrink-0 self-center" />
               <div className="flex items-center gap-2.5 flex-1 min-w-0">
                 <label htmlFor="dossier-ref" className="text-[11px] font-medium uppercase tracking-[0.06em] text-foreground-muted flex-shrink-0">Référence</label>
-                <input
+                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                   id="dossier-ref"
                   autoFocus
                   value={importV2.reference}
@@ -16410,7 +16410,7 @@ export default function App() {
                   className="flex-1 min-w-0 max-w-[380px] h-9 px-3 rounded-lg border border-ochre bg-surface text-[14px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:shadow-[0_0_0_3px_rgba(185,112,63,0.18)] transition-shadow"
                 />
               </div>
-              <select
+              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                 value={importV2.matterType || 'corporel'}
                 onChange={(e) => setImportV2(prev => ({ ...prev, matterType: e.target.value }))}
                 className="h-9 px-2.5 text-[13px] text-foreground-secondary bg-surface border border-border rounded-lg focus:outline-none focus:border-foreground-secondary transition-colors cursor-pointer flex-shrink-0"
@@ -16419,14 +16419,14 @@ export default function App() {
                 <option value="corporel">Dommages corporels</option>
                 <option value="social">Droit social</option>
               </select>
-              <button type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
                 <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3 pl-5 pr-4 border-b border-border flex-shrink-0 bg-surface" style={{ height: 58 }}>
               <p className="text-[14px] leading-5 font-medium text-foreground flex-1 min-w-0 truncate">Ajouter des pièces - {dossierTitle}</p>
-              <button type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} aria-label="Fermer" className="w-[26px] h-[26px] rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors flex-shrink-0">
                 <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
             </div>
@@ -16443,10 +16443,10 @@ export default function App() {
               <p className="flex-1 min-w-0 text-[13px] leading-[18px] text-foreground">
                 Vous versez vos mails à la main. <span className="text-foreground-secondary">Connectez votre boîte, Plato ira les chercher tout seul.</span>
               </p>
-              <button type="button" onClick={() => { closeImportV2(); goToMailSettings(); }} className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-primary-foreground bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => { closeImportV2(); goToMailSettings(); }} className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-primary-foreground bg-foreground rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0">
                 <Mail className="w-3.5 h-3.5" strokeWidth={1.75} /> Connecter ma boîte
               </button>
-              <button type="button" onClick={() => setMailDropNudge(false)} aria-label="Masquer" className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background-subtle transition-colors flex-shrink-0">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => setMailDropNudge(false)} aria-label="Masquer" className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background-subtle transition-colors flex-shrink-0">
                 <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
             </div>
@@ -16481,7 +16481,7 @@ export default function App() {
                 <div className="h-full flex flex-col bg-surface border-r border-border" style={{ width: 456 }}>
                   <div className="flex items-center justify-between pl-3.5 pr-2 pt-2.5 pb-1 flex-shrink-0">
                     <p style={monoLabelV2}>Vos emails</p>
-                    <button type="button" onClick={() => setMailOpen(false)} aria-label="Replier" title="Replier"
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={() => setMailOpen(false)} aria-label="Replier" title="Replier"
                       className="w-7 h-7 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-background transition-colors">
                       <ChevronLeft className="w-4 h-4" strokeWidth={1.75} />
                     </button>
@@ -16497,7 +16497,7 @@ export default function App() {
               « Créer manuellement » (wizard) reste accessible en création. */}
           <div className="flex items-center gap-4 px-5 border-t border-border flex-shrink-0 bg-surface" style={{ height: 62 }}>
             {creating && (
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 type="button"
                 onClick={() => { closeImportV2(); setCreationWizard({ step: 'infos', formData: { nom: '', prenom: '', sexe: 'Homme', dateNaissance: '', dateDeces: '', reference: '', typeFait: 'Accident de la route', dateAccident: '', dateConsolidation: '', dateLiquidation: '' } }); }}
                 className="inline-flex items-center gap-1.5 text-[13px] font-medium text-link hover:opacity-80 transition-opacity flex-shrink-0"
@@ -16512,10 +16512,10 @@ export default function App() {
               {bordereau.pendingDoublons > 0 && <span className="ml-2" style={{ color: dsColors.feedback.warning.text }}>{bordereau.pendingDoublons} doublon{bordereau.pendingDoublons > 1 ? 's' : ''} à trancher</span>}
             </p>
             <div className="flex-1 h-px bg-border" />
-            <button type="button" onClick={closeImportV2} className="h-9 px-4 rounded-lg border border-border bg-surface text-[13px] font-medium text-foreground hover:bg-cream transition-colors flex-shrink-0">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" onClick={closeImportV2} className="h-9 px-4 rounded-lg border border-border bg-surface text-[13px] font-medium text-foreground hover:bg-cream transition-colors flex-shrink-0">
               Annuler
             </button>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               type="button"
               disabled={commitDisabled}
               onClick={commitImportV2}
@@ -16561,7 +16561,7 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Nom *</label>
-                    <input
+                    <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                       type="text"
                       value={formData.nom}
                       onChange={(e) => updateFormData('nom', e.target.value)}
@@ -16571,7 +16571,7 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Prénom *</label>
-                    <input
+                    <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                       type="text"
                       value={formData.prenom}
                       onChange={(e) => updateFormData('prenom', e.target.value)}
@@ -16581,7 +16581,7 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Sexe</label>
-                    <select
+                    <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                       value={formData.sexe}
                       onChange={(e) => updateFormData('sexe', e.target.value)}
                       className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
@@ -16593,7 +16593,7 @@ export default function App() {
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de naissance *</label>
                     <div className="relative">
-                      <input
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                         type="text"
                         placeholder="JJ/MM/AAAA"
                         value={formData.dateNaissance}
@@ -16601,15 +16601,15 @@ export default function App() {
                         maxLength={10}
                         className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
-                      <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateNaissance', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                      <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateNaissance', formatDateFR(e.target.value)); }} />
+                      <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                     {computedAge !== null && <div className="text-caption text-foreground-muted mt-1">{computedAge} ans</div>}
                   </div>
                   <div className="col-span-2">
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de décès</label>
                     <div className="relative">
-                      <input
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                         type="text"
                         placeholder="JJ/MM/AAAA"
                         value={formData.dateDeces}
@@ -16617,8 +16617,8 @@ export default function App() {
                         maxLength={10}
                         className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
-                      <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateDeces', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                      <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateDeces', formatDateFR(e.target.value)); }} />
+                      <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                 </div>
@@ -16630,7 +16630,7 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Type de fait générateur</label>
-                    <select
+                    <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                       value={formData.typeFait}
                       onChange={(e) => updateFormData('typeFait', e.target.value)}
                       className="w-full px-3 py-2.5 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
@@ -16643,7 +16643,7 @@ export default function App() {
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de l'accident *</label>
                     <div className="relative">
-                      <input
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                         type="text"
                         placeholder="JJ/MM/AAAA"
                         value={formData.dateAccident}
@@ -16651,14 +16651,14 @@ export default function App() {
                         maxLength={10}
                         className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
-                      <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateAccident', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                      <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateAccident', formatDateFR(e.target.value)); }} />
+                      <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de consolidation <span className="text-border-strong font-normal">(facultatif)</span></label>
                     <div className="relative">
-                      <input
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                         type="text"
                         placeholder="JJ/MM/AAAA"
                         value={formData.dateConsolidation}
@@ -16666,14 +16666,14 @@ export default function App() {
                         maxLength={10}
                         className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
-                      <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateConsolidation', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                      <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateConsolidation', formatDateFR(e.target.value)); }} />
+                      <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                   <div>
                     <label className="block text-caption-medium text-foreground-secondary mb-1.5">Date de liquidation <span className="text-border-strong font-normal">(facultatif)</span></label>
                     <div className="relative">
-                      <input
+                      <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                         type="text"
                         placeholder="JJ/MM/AAAA"
                         value={formData.dateLiquidation}
@@ -16681,8 +16681,8 @@ export default function App() {
                         maxLength={10}
                         className="w-full px-3 py-2.5 pr-9 border border-border rounded-lg text-body text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-border-strong focus:border-border-hover transition-colors"
                       />
-                      <input type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateLiquidation', formatDateFR(e.target.value)); }} />
-                      <button type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
+                      <input /* ds-raw-ok: input fichier invisible (upload) ; cible DropZone */ type="date" className="absolute inset-0 opacity-0 pointer-events-none" onChange={(e) => { if (e.target.value) updateFormData('dateLiquidation', formatDateFR(e.target.value)); }} />
+                      <button /* ds-raw-ok: affordance interne de champ (clear/toggle) ; cible InputGroup */ type="button" onClick={(e) => e.currentTarget.previousElementSibling.showPicker()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-cream rounded"><Calendar className="w-4 h-4 text-foreground-muted" /></button>
                     </div>
                   </div>
                 </div>
@@ -16691,7 +16691,7 @@ export default function App() {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-background-subtle flex justify-end gap-3">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => setCreationWizard(null)}
                 className="px-4 py-2.5 text-body text-foreground-secondary hover:text-foreground-tertiary hover:bg-cream rounded-lg transition-colors"
               >
@@ -16728,7 +16728,7 @@ export default function App() {
         <div className="px-3 py-2.5 border-b border-border">
           <div className="text-[12px] text-foreground-secondary truncate">{currentUser?.email || ''}</div>
         </div>
-        <button
+        <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
           onClick={() => { setSettingsSection('general'); setCurrentPage('settings'); setUserMenuOpen(false); }}
           className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
         >
@@ -16750,7 +16750,7 @@ export default function App() {
             ].map(({ id, label, Icon }) => {
               const active = themeMode === id;
               return (
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   key={id}
                   type="button"
                   onClick={() => setTheme(id)}
@@ -16767,7 +16767,7 @@ export default function App() {
         </div>
         <div className="border-t border-border" />
         {/* Quitter le proto pour revenir au playground Design System (/ui-kit). */}
-        <button
+        <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
           onClick={() => { setUserMenuOpen(false); navigate('/ui-kit'); }}
           className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
         >
@@ -16775,7 +16775,7 @@ export default function App() {
           Design System
         </button>
         <div className="border-t border-border" />
-        <button
+        <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
           onClick={() => { setUserMenuOpen(false); setToastMessage('Déconnecté.'); setTimeout(() => setToastMessage(null), 2000); }}
           className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
         >
@@ -16856,7 +16856,7 @@ export default function App() {
       <AppSidebar
         width={NAV_WIDTH}
         header={
-          <button
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
             onClick={() => setCurrentPage('home')}
             className="flex items-center flex-1 min-w-0 gap-2 hover:opacity-80 transition-opacity"
             title="Accueil"
@@ -17100,7 +17100,7 @@ export default function App() {
   // Info-subtle blue gradient bg + 2px info-text accent rail on the left,
   // mono eyebrow with fading hairline, sans title, blue CTA with arrow.
   const renderParrainageCard = () => (
-    <button
+    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
       onClick={() => setParrainageModalOpen(true)}
       className="group relative block w-full text-left"
       style={{
@@ -17232,7 +17232,7 @@ export default function App() {
           <p style={{ fontSize: 13, fontWeight: 500, color: dsColors.semantic.mutedForeground, lineHeight: '18px', margin: 0 }}>
             Premier prélèvement le {trialEndDateLabel} - {totalLicenceCount} licence{totalLicenceCount > 1 ? 's' : ''} · {accountMonthlyTotal.toLocaleString('fr-FR')} € HT/mois.
           </p>
-          <button
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
             onClick={() => { setCancelTrialStep('reason'); setCancelTrialReason(null); setCancelTrialConfirmText(''); }}
             className="self-start inline-flex items-center h-9 px-3.5 bg-surface border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors"
           >
@@ -17273,7 +17273,7 @@ export default function App() {
         >
               <div className="flex flex-col gap-1.5">
                 {CANCEL_REASONS.map((r) => (
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     key={r}
                     onClick={() => setCancelTrialReason(r)}
                     className={`w-full text-left px-3.5 py-2.5 rounded-lg text-[13px] transition-colors border ${
@@ -17315,7 +17315,7 @@ export default function App() {
               <label className="block text-[12px] font-medium text-foreground-secondary mb-2">
                 Tapez <span className="font-mono text-foreground bg-cream px-1.5 py-0.5 rounded">{confirmTarget}</span> pour confirmer
               </label>
-              <input
+              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                 type="text"
                 value={cancelTrialConfirmText}
                 onChange={(e) => setCancelTrialConfirmText(e.target.value)}
@@ -17373,7 +17373,7 @@ export default function App() {
           </div>
         </div>
         {isAdmin && (
-          <button
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
             onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }}
             className="inline-flex items-center gap-1 text-[12px] font-medium hover:opacity-70 transition-opacity flex-shrink-0"
             style={{ color: t.text }}
@@ -17415,7 +17415,7 @@ export default function App() {
         actionLabel="Enregistrer"
         onAction={commit}
       >
-        <input
+        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
           autoFocus
           value={threadTitleDraft}
           onChange={(e) => setThreadTitleDraft(e.target.value)}
@@ -17622,7 +17622,7 @@ export default function App() {
                   .slice(0, 3);
                 const homeConvs = threadsStore.recentThreads(3);
                 const homeRow = ({ key, icon: Icon, label, onClick, dossierRef = null }) => (
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     key={key}
                     onClick={onClick}
                     className={`group/hrow flex items-center gap-2 w-full px-2 text-left text-foreground hover:bg-background-subtle transition-colors ${dossierRef ? 'h-11' : 'h-8'}`}
@@ -17649,7 +17649,7 @@ export default function App() {
                   </div>
                 );
                 const seeAll = (label, onClick) => (
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     onClick={onClick}
                     className="h-8 flex items-center w-full p-2 text-left text-foreground-secondary hover:text-foreground transition-colors"
                     style={{ borderRadius: 4, fontSize: 14 }}
@@ -17737,7 +17737,7 @@ export default function App() {
                               <span className="whitespace-nowrap">Rattachez-la à un dossier quand vous voulez.</span>
                             </p>
                           </div>
-                          <button
+                          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                             type="button"
                             onClick={() => setHomeAssistantPromoHidden(true)}
                             aria-label="Masquer"
@@ -17844,7 +17844,7 @@ export default function App() {
           </div>
           <div className="px-3 pb-3 max-h-[320px] overflow-y-auto">
             {openDossiers.map(d => (
-              <button
+              <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                 key={d.id}
                 onClick={() => doAttachThread(attachPickerThreadId, d)}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-background transition-colors"
@@ -17859,13 +17859,13 @@ export default function App() {
             )}
           </div>
           <div className="px-5 py-3 border-t border-border flex items-center justify-between">
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => { setAttachPickerThreadId(null); openImportV2('create'); }}
               className="text-[13px] text-foreground-secondary hover:text-foreground transition-colors"
             >
               Nouveau dossier
             </button>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => setAttachPickerThreadId(null)}
               className="px-3 py-1.5 rounded-lg text-[13px] text-foreground-secondary hover:bg-background transition-colors"
             >
@@ -17971,7 +17971,7 @@ export default function App() {
                       {dossier.nextAction?.label ?? '—'}
                     </td>
                     <td className="px-5 py-4">
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         onClick={(e) => { e.stopPropagation(); }}
                         className="p-1.5 rounded-lg text-border-strong hover:text-foreground-secondary hover:bg-cream opacity-0 group-hover:opacity-100 transition-all"
                       >
@@ -18092,8 +18092,8 @@ export default function App() {
 
     const renderBtns = (id) => (
       <span className="absolute right-[-20px] top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/diff:opacity-100 transition-opacity z-10">
-        <button onClick={() => accept(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-success-subtle hover:border-emerald-border transition-colors" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
-        <button onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-danger-border transition-colors" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => accept(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-success-subtle hover:border-emerald-border transition-colors" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => reject(id)} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle hover:border-danger-border transition-colors" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
       </span>
     );
 
@@ -18122,7 +18122,7 @@ export default function App() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <span className="text-caption text-foreground-secondary">{pending.length} pending · {rows.filter(r => r.status === 'accepted').length} accepted · {rows.filter(r => r.status === 'rejected').length} rejected</span>
-          <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-piece-medical-fg"><RotateCcw className="w-3 h-3" /> Reset</button>
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-piece-medical-fg"><RotateCcw className="w-3 h-3" /> Reset</button>
         </div>
         <div className="border border-border rounded-lg bg-surface overflow-visible">
           <div className="flex items-center" style={{ borderBottom: `1px solid ${dsColors.semantic.border}`, background: dsColors.banner.neutral.bgFrom, padding: '8px 0' }}>
@@ -18226,7 +18226,7 @@ export default function App() {
                         </div>
                       ) : null}
                     </div>
-                    {cardDiffs.length > 0 && <button className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 hover:bg-border" onClick={() => setExpanded(prev => ({ ...prev, [card.id]: !prev[card.id] }))}><ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" style={{ color: dsColors.semantic.mutedForeground, transform: isExp ? 'rotate(0deg)' : 'rotate(-90deg)' }} /></button>}
+                    {cardDiffs.length > 0 && <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 hover:bg-border" onClick={() => setExpanded(prev => ({ ...prev, [card.id]: !prev[card.id] }))}><ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" style={{ color: dsColors.semantic.mutedForeground, transform: isExp ? 'rotate(0deg)' : 'rotate(-90deg)' }} /></button>}
                   </div>
                 </div>
                 {isExp && (
@@ -18242,8 +18242,8 @@ export default function App() {
                             <span style={{ color: (diff.approved || diff.rejected) ? dsColors.semantic.foregroundMuted : diff.type === 'delete' ? dsColors.semantic.foregroundMuted : dsColors.semantic.foregroundTertiary, fontWeight: 500, flex: 1, textDecoration: (diff.type === 'delete' && !diff.rejected) || (diff.rejected && diff.type !== 'delete') ? 'line-through' : 'none' }}>{diff.entityLabel}</span>
                             {!diff.approved && !diff.rejected && (
                               <span className="flex items-center gap-1.5 opacity-0 group-hover/diff:opacity-100 transition-opacity flex-shrink-0">
-                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-success-subtle hover:border-emerald-border" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, approved: true } : d))}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
-                                <button className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-danger-subtle hover:border-danger-border" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-success-subtle hover:border-emerald-border" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, approved: true } : d))}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+                                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-danger-subtle hover:border-danger-border" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }} onClick={() => setDiffs(prev => prev.map(d => d.id === diff.id ? { ...d, rejected: true } : d))}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
                               </span>
                             )}
                           </div>
@@ -18281,16 +18281,16 @@ export default function App() {
                 )}
                 {cardDiffs.length > 0 && !allResolved && (
                   <div style={{ borderTop: `1px solid ${dsColors.semantic.backgroundSubtle}` }} className="flex items-center">
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, approved: true } : d))}><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter</button>
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, approved: true } : d))}><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Tout accepter</button>
                     <div style={{ width: 1, height: 16, background: dsColors.semantic.input }} />
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundMuted }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, rejected: true } : d))}><RotateCcw className="w-3 h-3" /> Tout annuler</button>
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-background" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.foregroundMuted }} onClick={() => setDiffs(prev => prev.map(d => card.diffIds.includes(d.id) ? { ...d, rejected: true } : d))}><RotateCcw className="w-3 h-3" /> Tout annuler</button>
                   </div>
                 )}
               </div>
             </div>
           );
         })}
-        <button onClick={reset} className="inline-flex items-center gap-1.5 self-start px-3 py-1.5 rounded-md border border-border hover:bg-background transition-colors" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}><RotateCcw className="w-3 h-3" /> Reset</button>
+        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="inline-flex items-center gap-1.5 self-start px-3 py-1.5 rounded-md border border-border hover:bg-background transition-colors" style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}><RotateCcw className="w-3 h-3" /> Reset</button>
       </div>
     );
   };
@@ -18405,7 +18405,7 @@ export default function App() {
               ].map(({ id, label, Icon }) => {
                 const active = themeMode === id;
                 return (
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     key={id}
                     type="button"
                     onClick={() => setTheme(id)}
@@ -18912,7 +18912,7 @@ export default function App() {
                   const d = getDecisionById(id);
                   if (!d) return null;
                   return (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       key={id}
                       onClick={() => jp.openDrawer(id, ['jp-atpt-01', 'jp-dfp-01', 'jp-se-03'])}
                       className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-surface hover:bg-background transition-colors"
@@ -19040,7 +19040,7 @@ export default function App() {
                   })}
                   <div className="w-px h-4 bg-border-strong" />
                   <span className="text-sm font-medium text-foreground-secondary flex-shrink-0">Fin arrérage</span>
-                  <select className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
+                  <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */ className="text-sm text-foreground bg-surface border border-border rounded-lg px-3 py-1.5" style={{ boxShadow: dsShadows.xs }}>
                     <option>IPC Annuel</option>
                     <option>IPC Mensuel</option>
                   </select>
@@ -19143,7 +19143,7 @@ export default function App() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             {['before', 'after'].map(v => (
-              <button key={v} onClick={() => setView(v)}
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={v} onClick={() => setView(v)}
                 className="px-3 py-1.5 rounded-md text-caption-medium transition-colors"
                 style={{ background: view === v ? dsColors.semantic.primary : dsColors.semantic.muted, color: view === v ? 'white' : dsColors.semantic.mutedForeground }}
               >{v === 'before' ? 'Before (no feedback)' : 'After (diff system)'}</button>
@@ -19201,7 +19201,7 @@ export default function App() {
           {diffColor && <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: diffColor, transform: 'rotate(45deg)' }} />}
           <label style={{ fontSize: 12, fontWeight: 500, color: dsColors.semantic.mutedForeground }}>{label}</label>
         </div>
-        <input type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-foreground" style={{ borderColor: diffColor ? diffColor : dsColors.semantic.input, background: diffColor ? `${diffColor}08` : 'white' }} />
+        <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" readOnly value={value} className="w-full px-3 py-2 rounded-lg border text-body text-foreground" style={{ borderColor: diffColor ? diffColor : dsColors.semantic.input, background: diffColor ? `${diffColor}08` : 'white' }} />
         {oldValue && <div style={{ fontSize: 11, color: dsColors.semantic.foregroundMuted, marginTop: 2 }}>Ancien : {oldValue}</div>}
       </div>
     );
@@ -19299,7 +19299,7 @@ export default function App() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <span className="text-caption text-foreground-secondary">{peels.filter(p => p.status === 'pending').length} pending · {peels.filter(p => p.status === 'accepted').length} accepted · {peels.filter(p => p.status === 'rejected').length} rejected</span>
-            <button onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-piece-medical-fg"><RotateCcw className="w-3 h-3" /> Reset</button>
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="flex items-center gap-1.5 text-caption-medium text-link hover:text-piece-medical-fg"><RotateCcw className="w-3 h-3" /> Reset</button>
           </div>
           {/* In-context: settings row with mixed pill states */}
           <div className="border border-border rounded-lg bg-surface overflow-hidden mb-4" style={{ boxShadow: dsShadows.xs }}>
@@ -19347,15 +19347,15 @@ export default function App() {
               )}
               {step === 'pending' && (
                 <span className="flex items-center gap-1">
-                  <button className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-success-subtle" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
-                  <button onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-success-subtle" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><Check className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setStep('rejected')} className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-danger-subtle" style={{ background: 'white', border: `1px solid ${dsColors.semantic.borderStrong}`, boxShadow: dsShadows.xs }}><X className="w-3 h-3" style={{ color: dsColors.semantic.mutedForeground }} strokeWidth={2.5} /></button>
                 </span>
               )}
             </div>
           </div>
           <div className="flex items-center gap-2 mt-4">
-            {step === 'rejected' && <button onClick={() => setStep('clean')} className="px-3 py-1.5 rounded-md text-caption-medium bg-foreground text-primary-foreground">Dismiss → Clean state</button>}
-            <button onClick={reset} className="px-3 py-1.5 rounded-md text-caption-medium border border-border text-foreground-secondary hover:bg-background"><RotateCcw className="w-3 h-3 inline mr-1" />Reset</button>
+            {step === 'rejected' && <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setStep('clean')} className="px-3 py-1.5 rounded-md text-caption-medium bg-foreground text-primary-foreground">Dismiss → Clean state</button>}
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-3 py-1.5 rounded-md text-caption-medium border border-border text-foreground-secondary hover:bg-background"><RotateCcw className="w-3 h-3 inline mr-1" />Reset</button>
           </div>
         </div>
       );
@@ -19384,7 +19384,7 @@ export default function App() {
       <div className="h-screen flex flex-col" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
         <div className="flex items-center h-12 px-6 border-b border-border bg-surface flex-shrink-0">
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground transition-colors">
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Back to UI Kit
           </button>
           <div className="ml-4 pl-4 border-l border-border">
@@ -19596,7 +19596,7 @@ export default function App() {
     const selectedBareme = baremesLibrary.find(b => b.id === value);
 
     const triggerBtn = (
-      <button
+      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
         data-bareme-popover={popoverId}
         onClick={() => { setBaremePopover(isOpen ? null : popoverId); setBaremePopoverSearch(''); }}
         className={`flex items-center justify-between bg-surface border border-border transition-colors hover:border-border-strong ${
@@ -19612,9 +19612,9 @@ export default function App() {
     const popoverContent = isOpen && (
       <div data-bareme-popover={popoverId} className="absolute z-40 mt-1 bg-surface border border-border overflow-hidden" style={{ borderRadius: 8, width: variant === 'horizontal' ? 287 : '100%', animation: 'fadeIn 0.1s ease-out', boxShadow: dsShadows['md'] }}>
         {/* Command Search */}
-        <button className="w-full flex items-center gap-0 px-3 py-3 border-b border-border cursor-text" onClick={() => {}}>
+        <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-full flex items-center gap-0 px-3 py-3 border-b border-border cursor-text" onClick={() => {}}>
           <div className="pr-2 flex-shrink-0"><Search className="w-4 h-4 text-foreground-secondary" /></div>
-          <input
+          <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
             type="text"
             value={baremePopoverSearch}
             onChange={(e) => setBaremePopoverSearch(e.target.value)}
@@ -19627,7 +19627,7 @@ export default function App() {
         <div className="max-h-[200px] overflow-y-auto p-1">
           <div className="p-1">
             {filteredBaremes.length > 0 ? filteredBaremes.map(b => (
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 key={b.id}
                 onClick={() => { onChange(b.id); setBaremePopover(null); setBaremePopoverSearch(''); }}
                 className={`w-full text-left px-2 py-1.5 text-sm transition-colors flex items-center justify-between gap-2 ${
@@ -19645,7 +19645,7 @@ export default function App() {
         </div>
         {/* Ajouter footer */}
         <div className="border-t border-border px-3 py-3">
-          <button
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
             onClick={() => { setBaremePopover(null); setBaremePopoverSearch(''); setBaremeUploadFormOpen(true); setBaremeUploadData({ nom: '', type: filterType || 'bareme', notes: '', fileName: '' }); }}
             className="w-full text-left text-xs flex items-center gap-1.5"
           >
@@ -19664,7 +19664,7 @@ export default function App() {
             <div className="flex items-center gap-2 flex-shrink-0">
               <span className="text-sm font-medium text-foreground-secondary">{label}</span>
               {value && (
-                <button onClick={() => setBaremeViewerOpen(value)} className="text-xs font-normal text-link hover:underline transition-colors">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setBaremeViewerOpen(value)} className="text-xs font-normal text-link hover:underline transition-colors">
                   Voir
                 </button>
               )}
@@ -19681,7 +19681,7 @@ export default function App() {
         <label className="block text-[14px] font-medium text-foreground mb-1.5">{label}</label>
         {triggerBtn}
         {value && (
-          <button onClick={() => setBaremeViewerOpen(value)} className="mt-1.5 text-xs font-medium text-link hover:underline transition-colors">
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setBaremeViewerOpen(value)} className="mt-1.5 text-xs font-medium text-link hover:underline transition-colors">
             Voir le barême
           </button>
         )}
@@ -19713,7 +19713,7 @@ export default function App() {
               <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[6px] flex-shrink-0" style={{ background: dsColors.step.orange.bg, color: dsColors.brand.darker.subtleForeground }}>En traitement</span>
             )}
           </div>
-          <button onClick={() => setBaremeViewerOpen(null)} className="w-4 h-4 flex items-center justify-center flex-shrink-0 ml-3 text-foreground-secondary hover:text-foreground transition-colors">
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setBaremeViewerOpen(null)} className="w-4 h-4 flex items-center justify-center flex-shrink-0 ml-3 text-foreground-secondary hover:text-foreground transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -19775,7 +19775,7 @@ export default function App() {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: dsColors.semantic.foreground }}>Ajouter un barème</h2>
-            <button onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
               <X className="w-4 h-4 text-foreground-secondary" />
             </button>
           </div>
@@ -19785,7 +19785,7 @@ export default function App() {
               {/* Nom */}
               <div>
                 <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du barème <span className="text-danger">*</span></label>
-                <input
+                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                   type="text"
                   value={baremeUploadData.nom}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, nom: e.target.value }))}
@@ -19797,7 +19797,7 @@ export default function App() {
               {/* Type */}
               <div>
                 <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type</label>
-                <select
+                <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                   value={baremeUploadData.type}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, type: e.target.value }))}
                   className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
@@ -19828,7 +19828,7 @@ export default function App() {
                     <div className="flex items-center justify-center gap-2">
                       <FileText className="w-5 h-5 text-foreground" />
                       <span className="text-body-medium text-foreground">{baremeUploadData.fileName}</span>
-                      <button onClick={(e) => { e.stopPropagation(); setBaremeUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-cream">
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={(e) => { e.stopPropagation(); setBaremeUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-cream">
                         <X className="w-3 h-3 text-foreground-secondary" />
                       </button>
                     </div>
@@ -19845,7 +19845,7 @@ export default function App() {
               {/* Notes */}
               <div>
                 <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
-                <textarea
+                <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                   value={baremeUploadData.notes}
                   onChange={(e) => setBaremeUploadData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Précisions sur le barème, source, contexte d'utilisation…"
@@ -19856,13 +19856,13 @@ export default function App() {
 
               {/* Actions */}
               <div className="flex justify-end gap-3 pt-2">
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={() => { setBaremeUploadFormOpen(false); setBaremeUploadData({ nom: '', type: 'bareme', notes: '', fileName: '' }); }}
                   className="px-4 py-2.5 text-body-medium text-foreground-secondary rounded-lg hover:bg-cream transition-colors"
                 >
                   Annuler
                 </button>
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   onClick={() => {
                     if (!baremeUploadData.nom || !baremeUploadData.fileName) return;
                     const newBareme = {
@@ -19906,7 +19906,7 @@ export default function App() {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: dsColors.semantic.foreground }}>Nouvel acte</h2>
-            <button onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
               <X className="w-4 h-4 text-foreground-secondary" />
             </button>
           </div>
@@ -19928,7 +19928,7 @@ export default function App() {
                         <FileText className="w-4 h-4 text-info" strokeWidth={1.5} />
                       </div>
                       <span className="flex-1 min-w-0 text-[13px] text-foreground truncate">{selected.label}</span>
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         onClick={() => setNewActeForm(prev => ({ ...prev, templateId: '', templateSearch: '' }))}
                         className="w-6 h-6 rounded flex items-center justify-center text-foreground-muted hover:text-foreground-secondary hover:bg-background-subtle transition-colors shrink-0"
                       >
@@ -19942,7 +19942,7 @@ export default function App() {
                 <div className="relative">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" strokeWidth={1.5} />
-                    <input
+                    <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                       type="text"
                       value={newActeForm.templateSearch}
                       onChange={(e) => setNewActeForm(prev => ({ ...prev, templateSearch: e.target.value }))}
@@ -19958,7 +19958,7 @@ export default function App() {
                     return (
                       <div className="mt-1 border border-border rounded-lg bg-surface overflow-hidden max-h-[180px] overflow-y-auto">
                         {filtered.length > 0 ? filtered.map(tpl => (
-                          <button
+                          <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                             key={tpl.id}
                             onClick={() => setNewActeForm(prev => ({ ...prev, templateId: tpl.id, templateSearch: '' }))}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-background transition-colors"
@@ -19971,7 +19971,7 @@ export default function App() {
                         )) : (
                           <div className="px-3 py-3 text-[12px] text-foreground-muted text-center">Aucun modèle trouvé</div>
                         )}
-                        <button
+                        <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                           onClick={() => { setNewActeModalOpen(false); setSettingsSection('templates'); setCurrentPage('settings'); }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-left border-t border-border hover:bg-background transition-colors"
                         >
@@ -19988,7 +19988,7 @@ export default function App() {
             {/* Instructions */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Instructions</label>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={newActeForm.instructions}
                 onChange={(e) => setNewActeForm(prev => ({ ...prev, instructions: e.target.value }))}
                 placeholder="Décrivez l'acte à rédiger : type, parties, objet, tribunal…"
@@ -19999,13 +19999,13 @@ export default function App() {
 
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-2">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => { setNewActeModalOpen(false); setNewActeForm({ templateId: '', instructions: '', templateSearch: '' }); }}
                 className="px-4 py-2.5 text-body-medium text-foreground-secondary rounded-lg hover:bg-cream transition-colors"
               >
                 Annuler
               </button>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => {
                   if (!newActeForm.instructions.trim()) return;
                   const selectedTemplate = templatesLibrary.find(t => t.id === newActeForm.templateId);
@@ -20069,7 +20069,7 @@ export default function App() {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: '18px', fontWeight: 400, color: dsColors.semantic.foreground }}>Ajouter un modèle</h2>
-            <button onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cream transition-colors">
               <X className="w-4 h-4 text-foreground-secondary" />
             </button>
           </div>
@@ -20079,7 +20079,7 @@ export default function App() {
             {/* Nom */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Nom du modèle <span className="text-danger">*</span></label>
-              <input
+              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                 type="text"
                 value={templateUploadData.nom}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, nom: e.target.value }))}
@@ -20091,7 +20091,7 @@ export default function App() {
             {/* Type d'acte */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Type d'acte</label>
-              <select
+              <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                 value={templateUploadData.actType}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, actType: e.target.value }))}
                 className="w-full h-10 px-3 text-[14px] text-foreground bg-surface border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-foreground"
@@ -20121,7 +20121,7 @@ export default function App() {
                   <div className="flex items-center justify-center gap-2">
                     <FileText className="w-5 h-5 text-foreground" />
                     <span className="text-body-medium text-foreground">{templateUploadData.fileName}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setTemplateUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-cream">
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={(e) => { e.stopPropagation(); setTemplateUploadData(prev => ({ ...prev, fileName: '' })); }} className="ml-2 p-1 rounded hover:bg-cream">
                       <X className="w-3 h-3 text-foreground-secondary" />
                     </button>
                   </div>
@@ -20138,7 +20138,7 @@ export default function App() {
             {/* Notes */}
             <div>
               <label className="block text-[14px] font-medium text-foreground-secondary mb-2">Notes</label>
-              <textarea
+              <textarea /* ds-raw-ok: textarea herite ; cible Textarea DS (lot de conversion) */
                 value={templateUploadData.notes}
                 onChange={(e) => setTemplateUploadData(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Précisions sur le modèle, contexte d'utilisation…"
@@ -20149,13 +20149,13 @@ export default function App() {
 
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-2">
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => { setTemplateUploadFormOpen(false); setTemplateUploadData({ nom: '', actType: '', notes: '', fileName: '' }); }}
                 className="px-4 py-2.5 text-body-medium text-foreground-secondary rounded-lg hover:bg-cream transition-colors"
               >
                 Annuler
               </button>
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => {
                   if (!templateUploadData.nom || !templateUploadData.fileName) return;
                   const newTemplate = {
@@ -20323,7 +20323,7 @@ export default function App() {
                     style={{ paddingRight: 4 }}
                   >
                     <span>{em}</span>
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       onClick={(e) => { e.stopPropagation(); removeChip(em); }}
                       className="ml-1 w-4 h-4 flex items-center justify-center rounded text-foreground-secondary hover:text-foreground hover:bg-surface transition-colors"
                       aria-label={`Retirer ${em}`}
@@ -20332,7 +20332,7 @@ export default function App() {
                     </button>
                   </span>
                 ))}
-                <input
+                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                   id="invite-email-input"
                   type="email"
                   value={inviteEmail}
@@ -20365,7 +20365,7 @@ export default function App() {
                 ].map(({ id, icon: Icon }) => {
                   const active = inviteRole === id;
                   return (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       key={id}
                       onClick={() => setInviteRole(id)}
                       className="inline-flex items-center justify-center gap-2 h-9 px-2 py-2.5 transition-colors"
@@ -20406,7 +20406,7 @@ export default function App() {
 
           {/* Card Footer */}
           <div className="flex items-center justify-end gap-2 px-6 pt-0 pb-6">
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={close}
               className="inline-flex items-center justify-center gap-2 h-9 px-4 py-2 transition-colors"
               style={{
@@ -20417,7 +20417,7 @@ export default function App() {
             >
               <span className="text-body-medium leading-5">Annuler</span>
             </button>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={submit}
               disabled={!canSubmit}
               className="inline-flex items-center justify-center gap-2 h-9 px-4 py-2 bg-foreground hover:bg-foreground-tertiary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -20489,7 +20489,7 @@ export default function App() {
           {renderSettingsHeader(
             'Général',
             'Vos informations de votre compte Plato.',
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={saveAccount}
               disabled={!dirty}
               className={`h-9 px-4 text-primary-foreground text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
@@ -20505,15 +20505,15 @@ export default function App() {
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-foreground-tertiary">Prénom</label>
-              <input type="text" value={firstName} onChange={(e) => setAccountEdits(s => ({ ...s, firstName: e.target.value }))} className={inputClass} />
+              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={firstName} onChange={(e) => setAccountEdits(s => ({ ...s, firstName: e.target.value }))} className={inputClass} />
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-foreground-tertiary">Nom</label>
-              <input type="text" value={lastName} onChange={(e) => setAccountEdits(s => ({ ...s, lastName: e.target.value }))} className={inputClass} />
+              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="text" value={lastName} onChange={(e) => setAccountEdits(s => ({ ...s, lastName: e.target.value }))} className={inputClass} />
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-foreground-tertiary">Email</label>
-              <input type="email" value={email} onChange={(e) => setAccountEdits(s => ({ ...s, email: e.target.value }))} className={inputClass} />
+              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */ type="email" value={email} onChange={(e) => setAccountEdits(s => ({ ...s, email: e.target.value }))} className={inputClass} />
             </div>
           </div>
 
@@ -20535,7 +20535,7 @@ export default function App() {
                 ].map(({ id, label, Icon }) => {
                   const active = themeMode === id;
                   return (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       key={id}
                       type="button"
                       onClick={() => setTheme(id)}
@@ -20573,7 +20573,7 @@ export default function App() {
           {renderSettingsHeader(
             'Organisation',
             'Les informations de votre compte cabinet Plato.',
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={saveOrg}
               disabled={!dirty}
               className={`h-9 px-4 text-primary-foreground text-body-medium rounded-lg transition-colors flex-shrink-0 ${dirty ? 'bg-foreground hover:bg-foreground-tertiary' : 'bg-border-strong cursor-not-allowed'}`}
@@ -20589,7 +20589,7 @@ export default function App() {
             </div>
             <div className="px-5 py-4 grid grid-cols-[180px_1fr] gap-4 items-center">
               <label className="text-body-medium text-foreground-tertiary">Nom de l'organisation</label>
-              <input
+              <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                 type="text"
                 value={val}
                 onChange={(e) => setOrgNameDraft(e.target.value)}
@@ -20693,7 +20693,7 @@ export default function App() {
               {options.map(({ id, name, price, icon: Icon }) => {
                 const active = (selected || '') === id;
                 return (
-                  <button
+                  <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                     key={id || 'free'}
                     onClick={() => setPlanPickerChoice(id)}
                     className={`w-full flex items-center gap-3 px-3 h-11 rounded-lg border text-left transition-colors ${active ? 'border-foreground bg-background' : 'border-border hover:bg-background'}`}
@@ -20708,7 +20708,7 @@ export default function App() {
                 );
               })}
             </div>
-            <button type="button" className="self-start text-[13px] font-medium text-link hover:opacity-80 transition-opacity mt-1">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ type="button" className="self-start text-[13px] font-medium text-link hover:opacity-80 transition-opacity mt-1">
               En savoir plus sur les plans
             </button>
           </div>
@@ -20729,10 +20729,10 @@ export default function App() {
           )}
           {/* Footer */}
           <div className="px-6 py-4 flex items-center justify-end gap-2">
-            <button onClick={close} className="h-9 px-4 text-sm font-medium text-foreground-tertiary bg-cream rounded-lg hover:bg-border transition-colors">
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={close} className="h-9 px-4 text-sm font-medium text-foreground-tertiary bg-cream rounded-lg hover:bg-border transition-colors">
               Annuler
             </button>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={confirmPlanPicker}
               disabled={unchanged}
               className={`h-9 px-4 text-sm font-medium text-primary-foreground rounded-lg transition-colors ${unchanged ? 'bg-border-strong cursor-not-allowed' : 'bg-foreground hover:bg-foreground-strong'}`}
@@ -20889,9 +20889,9 @@ export default function App() {
                       {firstName} n'a pas encore finalisé son inscription sur la plateforme.
                     </p>
                     <div className="mt-2.5 flex items-center gap-2.5 text-[13px] font-medium">
-                      <button onClick={resendInvite} className="text-link hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={resendInvite} className="text-link hover:opacity-80 transition-opacity">Renvoyer l'invitation</button>
                       <span className="text-brand-border">·</span>
-                      <button onClick={markActive} className="text-foreground-secondary hover:text-foreground-tertiary transition-colors">Marquer comme actif (démo)</button>
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={markActive} className="text-foreground-secondary hover:text-foreground-tertiary transition-colors">Marquer comme actif (démo)</button>
                     </div>
                   </div>
                 </div>
@@ -20901,7 +20901,7 @@ export default function App() {
             <div className="px-6 py-5 border-t border-border">
               <div className="flex items-center justify-between">
                 <span style={cardLabel}>Licence</span>
-                <button onClick={() => openPlanPicker(m)} className="text-[13px] font-medium text-link hover:opacity-80 transition-opacity">Modifier</button>
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => openPlanPicker(m)} className="text-[13px] font-medium text-link hover:opacity-80 transition-opacity">Modifier</button>
               </div>
               <div className="mt-3 flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
@@ -20934,7 +20934,7 @@ export default function App() {
                 ].map(({ id, icon: Icon }) => {
                   const active = m.role === id;
                   return (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       key={id}
                       onClick={() => { if (!isSelf && !active) setRole(id); }}
                       disabled={isSelf}
@@ -21146,14 +21146,14 @@ export default function App() {
         </div>
         {canManage && (
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={verifyMailboxNow}
               className="inline-flex items-center gap-1.5 h-9 px-3 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background rounded-lg transition-colors"
               title="Tester la connexion maintenant"
             >
               <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.75} /> Tester la connexion
             </button>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => setMailDisconnectAsk(b.id)}
               className="h-9 px-4 text-[14px] font-medium text-foreground-tertiary bg-surface border border-border rounded-lg hover:bg-background transition-colors"
             >
@@ -21254,7 +21254,7 @@ export default function App() {
     return (
       <div className="px-5 py-3">
         <div className="inline-block -ml-3">
-          <button
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
             onClick={toggle}
             className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background rounded-lg transition-colors"
             title="Connecter une adresse email - Outlook, Gmail ou autre (IMAP)"
@@ -21270,7 +21270,7 @@ export default function App() {
                 style={{ position: 'fixed', left: mailAddAnchor.left, top: mailAddAnchor.top, zIndex: 71, borderRadius: 10, width: 220 }}
               >
                 {MAIL_PROVIDERS.map(p => (
-                  <button
+                  <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                     key={p.id}
                     onClick={() => { setMailAddPick(null); startMailConnect(p.id, 'personal'); }}
                     className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-foreground hover:bg-background transition-colors text-left"
@@ -21481,7 +21481,7 @@ export default function App() {
             }}
           >
             {/* Close button - top-right */}
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={close}
               aria-label="Fermer"
               className="absolute flex items-center justify-center hover:bg-background transition-colors"
@@ -21576,7 +21576,7 @@ export default function App() {
 
                 {/* Send the referral by email - the colleague receives your code */}
                 <div className="flex" style={{ gap: 12 }}>
-                  <input
+                  <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                     type="email"
                     value={parrainageForm.email}
                     onChange={(e) => setParrainageForm(f => ({ ...f, email: e.target.value }))}
@@ -21595,7 +21595,7 @@ export default function App() {
                       outline: 'none',
                     }}
                   />
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     onClick={sendByEmail}
                     disabled={!emailValid}
                     className="flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-foreground-tertiary"
@@ -21690,7 +21690,7 @@ export default function App() {
                       <p className="text-[13px] min-w-0" style={{ color: dsColors.feedback.warning.text }}>
                         Besoin de plus d'usage cette semaine ? Demandez une mise à niveau à un administrateur.
                       </p>
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         onClick={() => setAskUpgradeOpen(true)}
                         className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-foreground text-primary-foreground text-[13px] font-medium rounded-lg hover:bg-foreground-tertiary transition-colors flex-shrink-0"
                       >
@@ -21733,7 +21733,7 @@ export default function App() {
             {renderSettingsHeader(
               'Plan et facturation',
               'Le forfait du cabinet, la répartition des licences et la facturation.',
-              <button
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                 onClick={() => { setToastMessage('Redirection vers l\'espace facturation Stripe...'); setTimeout(() => setToastMessage(null), 3000); }}
                 className="inline-flex items-center gap-2 h-9 px-4 bg-cream text-foreground-tertiary text-[14px] font-medium rounded-lg hover:bg-border transition-colors flex-shrink-0"
               >
@@ -21839,7 +21839,7 @@ export default function App() {
         <div className="bg-surface rounded-lg border border-border mb-6">
               <div className="flex items-center gap-2 px-3 py-2.5">
                 <Search className="w-3.5 h-3.5 text-foreground-muted flex-shrink-0" />
-                <input
+                <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                   type="text"
                   value={cabinetJPSearch}
                   onChange={(e) => setCabinetJPSearch(e.target.value)}
@@ -21847,7 +21847,7 @@ export default function App() {
                   className="flex-1 bg-transparent text-[14px] text-foreground placeholder-foreground-muted focus:outline-none"
                 />
                 {cabinetJPSearch && (
-                  <button onClick={() => setCabinetJPSearch('')} className="p-1 rounded hover:bg-background transition-colors">
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCabinetJPSearch('')} className="p-1 rounded hover:bg-background transition-colors">
                     <X className="w-3.5 h-3.5 text-foreground-muted" />
                   </button>
                 )}
@@ -21863,7 +21863,7 @@ export default function App() {
                       Ajoutez manuellement votre JP grâce à un lien ou PDF
                     </p>
                   </div>
-                  <button
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                     onClick={openManualAdd}
                     className="inline-flex items-center justify-center gap-1 transition-all flex-shrink-0"
                     style={{
@@ -21901,7 +21901,7 @@ export default function App() {
                         Déjà en référence
                       </span>
                     ) : (
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         onClick={() => queueCanonicalForRationale(d)}
                         className="inline-flex items-center justify-center gap-2 transition-all"
                         style={{
@@ -21933,7 +21933,7 @@ export default function App() {
               {/* JP Introuvable CTA - visible when results exist, to invite manual add */}
               {q && matches.length > 0 && (
                 <div className="border-t border-border-subtle">
-                  <button
+                  <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                     onClick={openManualAdd}
                     className="w-full flex items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-background"
                   >
@@ -21968,7 +21968,7 @@ export default function App() {
                     setTimeout(() => setToastMessage(null), 2500);
                   };
                   const removeAction = (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       onClick={handleRemove}
                       title="Retirer des références"
                       aria-label="Retirer des références"
@@ -22043,7 +22043,7 @@ export default function App() {
                   </td>
                   <td className="px-5 py-4">
                     {bareme.status === 'active' && (
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         onClick={(e) => { e.stopPropagation(); setBaremeViewerOpen(bareme.id); }}
                         className="p-1.5 rounded-lg text-border-strong hover:text-foreground-secondary hover:bg-cream opacity-0 group-hover:opacity-100 transition-all"
                         title="Voir le barème"
@@ -22098,7 +22098,7 @@ export default function App() {
                     </td>
                     <td className="px-5 py-4 text-body text-foreground-secondary tabular-nums">{tpl.addedDate}</td>
                     <td className="px-5 py-4">
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         onClick={() => {
                           setTemplatesLibrary(prev => prev.filter(t => t.id !== tpl.id));
                           setToastMessage('Modèle supprimé.');
@@ -22297,7 +22297,7 @@ export default function App() {
                     <span className={fieldHelperClass}>Optionnel</span>
                   </div>
                   <div className={fieldControlClass}>
-                    <input
+                    <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                       id="tampon-line-1"
                       type="text"
                       value={tamponLine1}
@@ -22316,7 +22316,7 @@ export default function App() {
                     <span className={fieldHelperClass}>Optionnel</span>
                   </div>
                   <div className={fieldControlClass}>
-                    <input
+                    <input /* ds-raw-ok: input herite ; cible Input / InputGroup DS (lot de conversion) */
                       id="tampon-line-2"
                       type="text"
                       value={tamponLine2}
@@ -22346,7 +22346,7 @@ export default function App() {
                       ].map((opt, i) => {
                         const active = tamponFirstPageOnly === opt.val;
                         return (
-                          <button
+                          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                             key={String(opt.val)}
                             role="radio"
                             aria-checked={active}
@@ -22368,7 +22368,7 @@ export default function App() {
                   </div>
                   <div className={fieldControlClass}>
                     <div className="relative w-full">
-                      <select
+                      <select /* ds-raw-ok: select herite ; cible Select DS (lot de conversion) */
                         id="tampon-position"
                         value={tamponPosition}
                         onChange={(e) => setTamponPosition(e.target.value)}
@@ -22464,7 +22464,7 @@ export default function App() {
         <div className="w-full h-full bg-background border-r border-border-strong flex flex-col">
           {/* Header - logo Plato = home ; glyphe de repli à droite (comme la nav). */}
           <div className="h-12 border-b border-border-strong flex items-center flex-shrink-0 pl-4 pr-3 gap-2">
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => setCurrentPage('home')}
               className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity text-left"
               title="Accueil"
@@ -22474,7 +22474,7 @@ export default function App() {
                 Plato
               </span>
             </button>
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={hideNav}
               className="group p-1.5 rounded-md hover:bg-background-subtle transition-colors flex-shrink-0"
               title="Masquer la navigation"
@@ -22503,7 +22503,7 @@ export default function App() {
                     // Aligné sur navBtn de la nav principale : liseré orange +
                     // icône brand sur l'actif, radius 7, mêmes transitions d'icône.
                     return (
-                      <button
+                      <button /* ds-raw-ok: item de menu ou de liste inline ; cible Dropdown / SelectMenuItem / Item */
                         key={item.id}
                         onClick={() => (item.onClick ? item.onClick() : setSettingsSection(item.id))}
                         className={`group/nav relative h-8 w-full flex items-center gap-2 px-2.5 transition-all duration-200 ease-out text-left ${active ? 'bg-cream text-foreground font-medium border border-border-strong' : 'text-foreground-secondary hover:bg-background-subtle hover:text-foreground border border-transparent'}`}
@@ -22528,7 +22528,7 @@ export default function App() {
 
           <div className="flex-shrink-0 border-t border-border-strong">
             {/* Contrôles démo - repliables, repliés par défaut (outillage interne). */}
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => setDemoControlsOpen(o => !o)}
               className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-background-subtle transition-colors"
               title={demoControlsOpen ? 'Replier les contrôles démo' : 'Déplier les contrôles démo'}
@@ -22544,7 +22544,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       key={s.id}
                       onClick={() => { setDemoPersona(s.id); setAccountEdits({}); }}
                       className={`flex-1 h-7 rounded-md text-[12px] font-medium transition-colors ${demoPersona === s.id ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
@@ -22560,7 +22560,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-1">
                   {[{ id: 'trial', label: 'Essai' }, { id: 'active', label: 'Actif' }, { id: 'none', label: 'Ø' }].map(s => (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       key={s.id}
                       onClick={() => setBillingState(s.id)}
                       className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${billingState === s.id ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
@@ -22577,7 +22577,7 @@ export default function App() {
                   </div>
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5, 6, 7].map(d => (
-                      <button
+                      <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                         key={d}
                         onClick={() => setDemoTrialDay(d)}
                         className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${demoTrialDay === d ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
@@ -22594,7 +22594,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-1">
                   {[{ id: 'fresh', label: '16%' }, { id: 'mid', label: '63%' }, { id: 'high', label: '92%' }, { id: 'full', label: '100%' }].map(s => (
-                    <button
+                    <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                       key={s.id}
                       onClick={() => setQuotaFill(s.id)}
                       className={`flex-1 h-7 rounded-md text-[11px] font-medium transition-colors ${quotaFill === s.id ? 'bg-foreground text-primary-foreground' : 'bg-cream text-foreground-secondary hover:bg-border'}`}
@@ -22622,7 +22622,7 @@ export default function App() {
                 <span aria-hidden className="w-px h-4 bg-border-strong flex-shrink-0 mx-1" />
               </>
             )}
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => setCurrentPage('home')}
               className="inline-flex items-center gap-1 text-[13px] text-foreground-tertiary hover:text-foreground transition-colors flex-shrink-0"
               title="Retour à Plato"
@@ -22743,7 +22743,7 @@ export default function App() {
       <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
         <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
           <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>IV Table Structures</div>
@@ -23412,11 +23412,11 @@ export default function App() {
             {/* Bottom bar */}
             <div className="flex items-center justify-between px-3 py-3">
               <div className="flex items-center gap-0.5">
-                <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background-subtle transition-colors">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-background-subtle transition-colors">
                   <Paperclip className="w-4 h-4 text-foreground-secondary" />
                 </button>
                 <div className="relative">
-                  <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-background-subtle transition-colors">
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg bg-background-subtle transition-colors">
                     <Lightbulb className="w-4 h-4 text-foreground-secondary" />
                   </button>
                   {/* Suggestions popover - same SuggestionsMenu DS component */}
@@ -23425,7 +23425,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: dsColors.semantic.muted, opacity: 0.5 }}>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ backgroundColor: dsColors.semantic.muted, opacity: 0.5 }}>
                 <ArrowUp className="w-4 h-4 text-foreground-secondary" />
               </button>
             </div>
@@ -23510,7 +23510,7 @@ export default function App() {
           ))}
         </div>
         <div className="px-3 py-2 border-t border-border flex justify-end">
-          <button className="bg-foreground text-primary-foreground text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ className="bg-foreground text-primary-foreground text-[12px] font-medium px-3 py-1.5 rounded-[6px]">Confirmer</button>
         </div>
       </div>
     );
@@ -23519,7 +23519,7 @@ export default function App() {
       <div className="h-screen flex" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Sidebar */}
         <div className="w-[220px] flex-shrink-0 border-r border-border bg-surface overflow-y-auto" style={{ padding: '20px 16px' }}>
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-2 text-body-medium text-foreground-secondary hover:text-foreground mb-6 transition-colors">
             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
           </button>
           <div style={{ fontSize: 14, fontWeight: 600, color: dsColors.semantic.foreground, marginBottom: 16 }}>Prompt Suggestions</div>
@@ -23791,7 +23791,7 @@ export default function App() {
             {/* Speed control */}
             <div className="flex items-center gap-1 border border-border rounded overflow-hidden">
               {[1, 2, 4].map(s => (
-                <button
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
                   key={s}
                   onClick={() => setSpeed(s)}
                   className="px-2 py-0.5 text-xs transition-colors"
@@ -23802,11 +23802,11 @@ export default function App() {
               ))}
             </div>
             {phase === 'idle' ? (
-              <button onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
                 Play
               </button>
             ) : (
-              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
@@ -23918,11 +23918,11 @@ export default function App() {
           <span style={{ fontSize: 10, fontWeight: 600, color: dsColors.semantic.foregroundMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
           <div className="flex items-center gap-1.5">
             {phase === 'idle' ? (
-              <button onClick={play} className="px-2.5 py-0.5 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-2.5 py-0.5 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>
                 Play
               </button>
             ) : (
-              <button onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-2.5 py-0.5 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
@@ -24046,16 +24046,16 @@ export default function App() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 border border-border rounded overflow-hidden">
               {[1, 2, 4].map(s => (
-                <button key={s} onClick={() => setSpeed(s)} className="px-2 py-0.5 text-xs transition-colors"
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={s} onClick={() => setSpeed(s)} className="px-2 py-0.5 text-xs transition-colors"
                   style={{ fontWeight: speed === s ? 600 : 400, color: speed === s ? dsColors.semantic.foreground : dsColors.semantic.foregroundMuted, backgroundColor: speed === s ? dsColors.semantic.muted : 'transparent' }}>
                   {s}x
                 </button>
               ))}
             </div>
             {phase === 'idle' ? (
-              <button onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>Play</button>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={play} className="px-3 py-1 rounded text-xs font-medium text-primary-foreground transition-colors" style={{ backgroundColor: dsColors.semantic.primary }}>Play</button>
             ) : (
-              <button onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={reset} className="px-3 py-1 rounded text-xs font-medium transition-colors border border-border" style={{ color: dsColors.semantic.mutedForeground }}>
                 <RotateCcw className="w-3 h-3 inline mr-1" />Reset
               </button>
             )}
@@ -24090,7 +24090,7 @@ export default function App() {
       <div className="h-screen flex flex-col" style={{ backgroundColor: dsColors.semantic.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
         {/* Top bar */}
         <div className="flex items-center gap-3 px-6 h-12 border-b border-border flex-shrink-0 bg-surface">
-          <button onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors" style={{ fontSize: 13 }}>
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setCurrentPage('components')} className="flex items-center gap-1.5 text-foreground-secondary hover:text-foreground transition-colors" style={{ fontSize: 13 }}>
             <ChevronRight className="w-4 h-4 rotate-180" /> UI Kit
           </button>
           <span style={{ color: dsColors.semantic.borderStrong }}>/</span>
@@ -24718,7 +24718,7 @@ export default function App() {
           )}
           <span>{typeof toastMessage === 'string' ? toastMessage : toastMessage?.text}</span>
           {typeof toastMessage === 'object' && toastMessage?.action && (
-            <button
+            <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
               onClick={() => { toastMessage.action.onClick?.(); setToastMessage(null); }}
               className="ml-2 underline underline-offset-2 text-white/90 hover:text-white text-sm font-medium"
             >
@@ -24816,9 +24816,9 @@ export default function App() {
             <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 500, color: dsColors.semantic.foregroundMuted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Live demo</div>
             <div className="flex items-center gap-2 mb-4" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
               {[{ id: 'fresh', label: 'quota 16%' }, { id: 'mid', label: 'quota 63%' }, { id: 'high', label: 'quota 92%' }, { id: 'full', label: 'quota 100%' }].map(s => (
-                <button key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={s.id} onClick={() => setQuotaFill(s.id)} className={pillCls(quotaFill === s.id)}>{s.label}</button>
               ))}
-              <button onClick={() => setChatBlocked(b => !b)} className={pillCls(chatBlocked)}>analysing</button>
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setChatBlocked(b => !b)} className={pillCls(chatBlocked)}>analysing</button>
             </div>
             <MockComposer
               variant={previewOutOfQuota ? 'quota-full' : chatBlocked ? 'analyzing' : previewNearQuota ? 'quota-warning' : null}
@@ -24904,13 +24904,13 @@ export default function App() {
               <div className="flex items-center gap-1">
                 <span style={{ ...monoLabel, marginRight: 4 }}>Vue</span>
                 {[{ id: 'admin', label: 'Admin' }, { id: 'member', label: 'Membre' }].map(s => (
-                  <button key={s.id} onClick={() => setDemoPersona(s.id)} className={pillCls(demoPersona === s.id)}>{s.label}</button>
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={s.id} onClick={() => setDemoPersona(s.id)} className={pillCls(demoPersona === s.id)}>{s.label}</button>
                 ))}
               </div>
               <div className="flex items-center gap-1">
                 <span style={{ ...monoLabel, marginRight: 4 }}>État</span>
                 {[{ id: 'trial', label: 'Essai' }, { id: 'active', label: 'Actif' }, { id: 'none', label: 'Ø licence' }].map(s => (
-                  <button key={s.id} onClick={() => setBillingState(s.id)} className={pillCls(billingState === s.id)}>{s.label}</button>
+                  <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ key={s.id} onClick={() => setBillingState(s.id)} className={pillCls(billingState === s.id)}>{s.label}</button>
                 ))}
               </div>
             </div>
@@ -24936,7 +24936,7 @@ export default function App() {
               {/* Lien vers Plan et facturation */}
               <div>
                 <div style={{ ...monoLabel, marginBottom: 10 }}>Gestion · Plan et facturation (admin)</div>
-                <button onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors">
+                <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => { setSettingsSection('billing'); setCurrentPage('settings'); }} className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-border text-foreground-tertiary text-[13px] font-medium rounded-lg hover:bg-cream transition-colors">
                   Plan et facturation <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
                 </button>
                 <p style={surfaceCaption}>
@@ -25118,7 +25118,7 @@ export default function App() {
               <span className="ml-1 font-normal">Reprenez-le à tout moment.</span>
             </p>
           </div>
-          <button
+          <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */
             onClick={() => setReopenConfirmOpen(true)}
             className="text-body-medium underline underline-offset-2 hover:opacity-80 transition-opacity flex-shrink-0"
             style={{ color: dsColors.feedback.warning.text }}
@@ -25299,7 +25299,7 @@ export default function App() {
                 {chatPreviewPiece.index > 0 && <span className="px-2 py-0.5 bg-foreground text-primary-foreground text-[11px] font-medium rounded flex-shrink-0">P{chatPreviewPiece.index}</span>}
                 <span className="text-[14px] font-medium text-foreground truncate">{chatPreviewPiece.intitule || chatPreviewPiece.nom}</span>
               </div>
-              <button onClick={() => setChatPreviewPiece(null)} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
+              <button /* ds-raw-ok: bouton herite ; cible Button DS (lot de conversion) */ onClick={() => setChatPreviewPiece(null)} className="p-1.5 hover:bg-cream rounded-lg transition-colors flex-shrink-0">
                 <X className="w-4 h-4 text-foreground-muted" />
               </button>
             </div>
