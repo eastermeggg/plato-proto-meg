@@ -1466,7 +1466,7 @@ const UI_KIT_SUBSECTION_SLUGS = ['tokens', 'blocks', 'illustrations', 'inventory
 function pathToPage(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
   // Le playground DS est le point d'entrée de la plateforme ; le proto vit sur /app.
-  if (clean === '/' || clean === '') return { page: 'components', section: 'inventory' };
+  if (clean === '/' || clean === '') return { page: 'components', section: 'handoff' };
   if (clean === '/app' || clean === '/home') return { page: 'home', section: null };
   if (clean === '/dossiers') return { page: 'dossiers', section: null };
   if (clean === '/conversations') return { page: 'conversations', section: null };
@@ -1477,7 +1477,7 @@ function pathToPage(pathname) {
   if (clean === '/settings') return { page: 'settings', section: null };
   if (clean === '/welcome') return { page: 'welcome', section: null };
   if (clean === '/dossier') return { page: 'dossier', section: null };
-  if (clean === '/ui-kit') return { page: 'components', section: 'inventory' };
+  if (clean === '/ui-kit') return { page: 'components', section: 'handoff' };
   if (clean.startsWith('/ui-kit/c/')) {
     const componentId = clean.slice('/ui-kit/c/'.length);
     return { page: 'component-detail', section: null, componentId };
@@ -1490,9 +1490,9 @@ function pathToPage(pathname) {
     const slug = clean.slice('/ui-kit/'.length);
     if (UI_KIT_DEDICATED_PAGES.includes(slug)) return { page: slug, section: null };
     if (UI_KIT_SUBSECTION_SLUGS.includes(slug)) return { page: 'components', section: slug };
-    return { page: 'components', section: 'inventory' };
+    return { page: 'components', section: 'handoff' };
   }
-  return { page: 'components', section: 'inventory' };
+  return { page: 'components', section: 'handoff' };
 }
 
 function pageToPath(page) {
